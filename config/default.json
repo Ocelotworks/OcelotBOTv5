@@ -1,0 +1,52 @@
+{
+  "General": {
+    "ModulePath": "/modules",
+    "DefaultPrefix": "!"
+  },
+  "Database": {
+    "client": "mysql",
+    "connection": {
+      "host": "",
+      "port": 3306,
+      "user": "",
+      "password": "",
+      "database": "stevie"
+    }
+  },
+  "Lang": {
+    "key": "",
+    "Languages": {
+      "default": "en-GB.json",
+      "en": "en-GB.json",
+      "en-gb": "en-GB.json",
+      "en-us": "en-us.json",
+      "fi": "fi.json",
+      "fr": "fr.json",
+      "ar": "ar.json",
+      "fil": "fil.json",
+      "gr": "el.json",
+      "el": "el.json",
+      "zh-cn": "zh-CN.json",
+      "zh": "zh-CN.json",
+      "nl-be": "nl-be.json",
+      "nl": "nl-be.json",
+      "eo": "eo.json",
+      "es": "es.json"
+    }
+  },
+  "Raven": {
+    "DSN": ""
+  },
+  "Discord": {
+    "token": "",
+    "respawn": true,
+    "shards": "auto"
+  },
+  "Modules": [
+    "util",
+    "database",
+    "lang",
+    "discord",
+    "commands"
+  ]
+}
