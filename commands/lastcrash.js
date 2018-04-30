@@ -2,7 +2,7 @@
 /**
  * Ported by Neil - 30/08/18
  */
-require('process');
+const process = require('process');
 
  module.exports = {
     name: "Last Crash",
