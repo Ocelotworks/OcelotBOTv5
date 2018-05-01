@@ -8,7 +8,7 @@ module.exports = {
         bot.commandUsages = {};
         bot.commands = {};
 
-        bot.client.on("message", function onMessage(message) {
+        bot.client.on("message", async function onMessage(message) {
             const prefix = config.get("General.DefaultPrefix");
             const prefixLength = prefix.length;
             if(message.content.startsWith(prefix)){
@@ -17,7 +17,17 @@ module.exports = {
                 if(bot.commands[command]){
                     bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) performed command ${command}: ${message.content}`);
                     try {
-                        bot.commands[command](message, args, bot);
+                        if(bot.commandUsages[command].requiredPermissions){
+                            const permissions = await message.channel.permissionsFor(bot.client.user);
+                            if(permissions.has(bot.commandUsages[command].requiredPermissions)){
+                                bot.commands[command](message, args, bot);
+                            }else{
+                                message.replyLang("ERROR_NEEDS_PERMISSION", bot.commandUsages[command].requiredPermissions.join(", "));
+                            }
+                        }else{
+                            bot.commands[command](message, args, bot);
+                        }
+
                     }catch(e){
                         message.reply(e.toString());
                     }
@@ -40,15 +50,17 @@ module.exports = {
                         if (loadedCommand.init)
                             loadedCommand.init(bot);
                         bot.logger.log(`Loaded command ${loadedCommand.name}`);
-                        bot.commandUsages[loadedCommand.name] = {
-                            usage: loadedCommand.usage,
-                            accessLevel: loadedCommand.accessLevel,
-                            receivers: loadedCommand.receivers,
-                            hidden: loadedCommand.hidden
-                        };
+
                         for (let i in loadedCommand.commands) {
                             if (loadedCommand.commands.hasOwnProperty(i)) {
-                                bot.commands[loadedCommand.commands[i]] = loadedCommand.run;
+                                const commandName = loadedCommand.commands[i];
+                                bot.commands[commandName] = loadedCommand.run;
+                                bot.commandUsages[commandName] = {
+                                    name: loadedCommand.name,
+                                    usage: loadedCommand.usage,
+                                    requiredPermissions: loadedCommand.requiredPermissions,
+                                    hidden: loadedCommand.hidden
+                                };
                             }
                         }
                     }

@@ -5,7 +5,11 @@ module.exports = {
     init: function(bot){
 
         Discord.Message.prototype.replyLang = async function(message, values){
-           this.channel.send(await bot.lang.getTranslation(this.guild.id, message, values));
+           return this.channel.send(await bot.lang.getTranslation(this.guild.id, message, values));
+        };
+
+        Discord.Message.prototype.editLang = async function(message, values){
+            return this.edit(await bot.lang.getTranslation(this.guild.id, message, values));
         };
 
 

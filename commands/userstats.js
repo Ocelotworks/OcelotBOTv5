@@ -6,20 +6,21 @@ module.exports = {
     name: "User Stats",
 	usage: "userstats <user>",
 	commands: ["userstats"],
-    run: function run(message, args, bot) {
+    run: async function run(message, args, bot) {
 	   if(!args[1]){
 			message.replyLang("USERSTATS_NO_USER");
 		}else{
 			const target = args[1].replace(/[<>@!]/g, "");
 			try{
 				message.channel.startTyping();
-				var result = await bot.database.getUserStats(target);
-				message.channel.stopTyping();
+				let result = await bot.database.getUserStats(target);
 				if(!result[0]){
 					message.replyLang("USERSTATS_NO_COMMANDS");
 				}else{
 					message.replyLang("USERSTATS_MESSAGE", {target: target, count: result[0].commandCount});
 				}
+
+                message.channel.stopTyping();
 
 			}catch(e){
 				bot.raven.captureException(e);

@@ -2,6 +2,9 @@ module.exports = {
     name: "Compliment",
     usage: "compliment <person>",
     commands: ["compliment", "complement", "complament"],
+    init: function(bot){
+      bot.usedTopicalCompliments = [];
+    },
     run: function run(message, args, bot) {
         if(!args[1]){
            message.replyLang("COMPLIMENT_NO_PERSON");
@@ -13,7 +16,10 @@ module.exports = {
             (message.guild && message.guild.me.nickname && args[1].toLowerCase() === message.guild.me.nickname.toLowerCase())){
             message.replyLang("COMPLIMENT_SELF_COMPLIMENT");
         }else{
-            message.replyLang(`COMPLIMENT_${bot.util.intBetween(1,27)}`);
+            if(bot.topicalCompliment && bot.usedTopicalCompliments.indexOf(message.channel.id) === -1){
+                message.channel.send(bot.topicalCompliment.formatUnicorn(args[1]));
+            }
+            message.replyLang(`COMPLIMENT_${bot.util.intBetween(1,27)}`, args[1]);
         }
 
     }

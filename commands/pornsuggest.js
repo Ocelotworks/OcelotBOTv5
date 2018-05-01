@@ -3,16 +3,20 @@
  */
 
 const request = require('request');
-
+const orientations = [
+    "straight",
+    "gay",
+    "tranny"
+];
 module.exports = {
     name: "Porn Suggest",
-    usage: "pornsuggest [country]",
+    usage: "pornsuggest [country] [gay/straight/tranny]",
     commands: ["pornsuggest"],
     run: function run(message, args, bot) {
 	   if(args[1] && args[1].length > 3){
 		   message.replyLang("PORNSUGGEST_INVALID_COUNTRY");
         }else{
-            request(`https://www.pornmd.com/getliveterms?country=${args[1] ? args[1] : ""}&orientation=${bot.util.arrayRand(orientations)}`,async function(err, resp, body){
+            request(`https://www.pornmd.com/getliveterms?country=${args[1] ? args[1] : ""}&orientation=${args[2] || bot.util.arrayRand(orientations)}`, function(err, resp, body){
                 if(err){
 					bot.raven.captureException(err);
                     message.replyLang("PORNSUGGEST_ERROR");
