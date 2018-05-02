@@ -21,8 +21,10 @@ module.exports = {
                             const permissions = await message.channel.permissionsFor(bot.client.user);
                             if(permissions.has(bot.commandUsages[command].requiredPermissions)){
                                 bot.commands[command](message, args, bot);
-                            }else{
+                            }else if(permissions.has("SEND_MESSAGES")){
                                 message.replyLang("ERROR_NEEDS_PERMISSION", bot.commandUsages[command].requiredPermissions.join(", "));
+                            }else{
+                                bot.logger.log("No permission to send messages in this channel.");
                             }
                         }else{
                             bot.commands[command](message, args, bot);

@@ -16,7 +16,7 @@
     "raven": "^2.5.0",
     "request": "^2.85.0",
     "timezonecomplete": "^5.5.2",
-    "word-wrap": "^1.2.3",
-    "tzdata": "latest"
+    "tzdata": "latest",
+    "word-wrap": "^1.2.3"
   }
 }

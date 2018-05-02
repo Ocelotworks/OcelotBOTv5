@@ -1,5 +1,5 @@
 const regionTimezones = {
-    "eu-west": "localtime",
+    "eu-west": "GMT",
     "eu-central": "GMT+2",
     "brazil": "GMT-3",
     "sydney": "GMT+10",
@@ -25,7 +25,7 @@ const timezones = {ACDT: "10.5",
     ART: "-03",
     AST: "03",
     AWST: "08",
-    AZOST: "±00",
+    AZOST: "0",
     AZOT: "-01",
     AZT: "04",
     BDT: "08",
@@ -69,7 +69,7 @@ const timezones = {ACDT: "10.5",
     EDT: "-04",
     EEST: "03",
     EET: "02",
-    EGST: "±00",
+    EGST: "0",
     EGT: "-01",
     EIT: "09",
     EST: "-05",
@@ -84,7 +84,7 @@ const timezones = {ACDT: "10.5",
     GFT: "-03",
     GILT: "12",
     GIT: "-09",
-    GMT: "±00",
+    GMT: "00",
     GST: "-02",
     GYT: "-04",
     HDT: "-09",
@@ -190,19 +190,37 @@ const timezones = {ACDT: "10.5",
     WIT: "07",
     WST: "08",
     YAKT: "09",
-    YEKT: "05"}
+    YEKT: "05"};
+
+const timeRegex = /(UTC|GMT)([+\-][0-9]+)/i;
 
 module.exports = {
     name: "Time",
     usage: "time [timezone]",
     accessLevel: 0,
     commands: ["time", "thetime"],
-    run: function run(message, args, bot){
+    run: function run(message, args){
         let targetTimezone = args[1] || regionTimezones[message.guild.region] || "GMT";
-        const now = new Date().gettime();
+        const time = new Date();
         if(timezones[targetTimezone]){
-
+            time.setHours(time.getHours()+parseInt(timezones[targetTimezone]));
+        }else{
+            const regexMatch = timeRegex.exec(targetTimezone);
+            if(regexMatch){
+                try {
+                    time.setHours(time.getHours() + parseInt(regexMatch[2]));
+                }catch(e){
+                    message.replyLang("TIME_INVALID_TIMEZONE");
+                    return;
+                }
+            }else{
+                message.replyLang("TIME_INVALID_TIMEZONE");
+                return;
+            }
         }
+
+        const timeMessage = time.toString();
+        message.replyLang("TIME_MESSAGE", timeMessage.substring(0, timeMessage.indexOf("GMT")));
 
     }
 };

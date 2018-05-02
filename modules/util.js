@@ -1,3 +1,6 @@
+const gm = require('gm');
+const wrap = require('word-wrap');
+const Discord = require('discord.js');
 module.exports = {
     name: "Utilities",
     init: function(bot){
@@ -214,6 +217,29 @@ module.exports = {
             }
 
             return out;
+        };
+
+        bot.util.processImageMeme = function processImageMeme(message, args, x, y, textSize, textWidth, fileName, filePath){
+            if(!args[1]){
+                message.replyLang("IMAGE_NO_TEXT");
+                return;
+            }
+
+            message.channel.startTyping();
+            gm(filePath)
+                .font("static/arial.ttf", textSize)
+                .drawText(x, y, wrap(message.content.substring(args[0].length), {width: textWidth, indent: ''}))
+                .toBuffer('PNG', function convertToPNG(err, buffer){
+                    if(err){
+                        message.replyLang("GENERIC_ERROR");
+                        bot.logger.log(err);
+                        bot.raven.captureException(err);
+                    }else{
+                        const attachment = new Discord.Attachment(buffer, fileName);
+                        message.channel.send("", attachment);
+                    }
+                    message.channel.stopTyping();
+                });
         };
 
         String.prototype.formatUnicorn = String.prototype.formatUnicorn ||

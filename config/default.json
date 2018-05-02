@@ -16,9 +16,9 @@
   "Lang": {
     "key": "",
     "Languages": {
-      "default": "en-GB.json",
-      "en": "en-GB.json",
-      "en-gb": "en-GB.json",
+      "default": "en-gb.json",
+      "en": "en-gb.json",
+      "en-gb": "en-gb.json",
       "en-us": "en-us.json",
       "fi": "fi.json",
       "fr": "fr.json",

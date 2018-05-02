@@ -15,7 +15,9 @@ manager.on('launch', shard => {
     logger.log(`Successfully launched shard ${shard.id+1}/${manager.totalShards} (ID: ${shard.id})`);
 });
 
-manager.on('message', function(process, message){
-    logger.log("Broadcasting message");
-   manager.broadcast(message);
+manager.on('message', function onMessage(process, message){
+    if(message.type) {
+        logger.log("Broadcasting message");
+        manager.broadcast(message);
+    }
 });
