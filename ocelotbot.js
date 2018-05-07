@@ -78,5 +78,9 @@ function loadModules(){
     }
 }
 
+process.on('unhandledRejection', error => {
+    console.error(error);
+});
+
 //Start the app.
 init();

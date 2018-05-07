@@ -13,6 +13,12 @@
       "database": "stevie"
     }
   },
+  "InfluxDB": {
+      "host": "",
+      "database": "",
+      "username": "",
+      "password": ""
+  },
   "Lang": {
     "key": "",
     "Languages": {
@@ -47,6 +53,8 @@
     "database",
     "lang",
     "discord",
+    "statistics",
+    "bans",
     "commands"
   ]
 }

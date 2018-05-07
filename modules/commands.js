@@ -15,23 +15,28 @@ module.exports = {
                 const args = message.content.split(" ");
                 const command = args[0].substring(prefixLength);
                 if(bot.commands[command]){
-                    bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) performed command ${command}: ${message.content}`);
-                    try {
-                        if(bot.commandUsages[command].requiredPermissions){
-                            const permissions = await message.channel.permissionsFor(bot.client.user);
-                            if(permissions.has(bot.commandUsages[command].requiredPermissions)){
+                    if(!bot.checkBan(message)) {
+                        bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) performed command ${command}: ${message.content}`);
+                        try {
+                            bot.stats.commandsPerMinute++;
+                            bot.stats.commandsTotal++;
+                            if (bot.commandUsages[command].requiredPermissions) {
+                                const permissions = await message.channel.permissionsFor(bot.client.user);
+                                if (permissions.has(bot.commandUsages[command].requiredPermissions)) {
+                                    bot.commands[command](message, args, bot);
+                                } else if (permissions.has("SEND_MESSAGES")) {
+                                    message.replyLang("ERROR_NEEDS_PERMISSION", bot.commandUsages[command].requiredPermissions.join(", "));
+                                } else {
+                                    bot.logger.log("No permission to send messages in this channel.");
+                                }
+                            } else {
                                 bot.commands[command](message, args, bot);
-                            }else if(permissions.has("SEND_MESSAGES")){
-                                message.replyLang("ERROR_NEEDS_PERMISSION", bot.commandUsages[command].requiredPermissions.join(", "));
-                            }else{
-                                bot.logger.log("No permission to send messages in this channel.");
                             }
-                        }else{
-                            bot.commands[command](message, args, bot);
+                        } catch (e) {
+                            message.reply(e.toString());
                         }
-
-                    }catch(e){
-                        message.reply(e.toString());
+                    }else{
+                        bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
                     }
                 }
             }

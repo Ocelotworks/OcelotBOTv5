@@ -132,8 +132,6 @@ module.exports = {
 
         bot.lang.loadLanguages();
 
-        console.log(bot.lang.strings);
-
         bot.logger.log("Populating Language Cache...");
 
         try{
@@ -143,7 +141,6 @@ module.exports = {
             }
             bot.logger.log(`Populated language cache with ${Object.keys(bot.lang.languageCache).length} servers.`);
         }catch(e){
-            console.log("fuck");
             bot.logger.error("Error populating language cache:");
             bot.logger.error(""+e.stack);
         }
