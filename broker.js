@@ -11,7 +11,7 @@ const manager = new ShardingManager(`${__dirname}/ocelotbot.js`, config.get("Dis
 
 manager.spawn();
 
-manager.on('launch', shard => {
+manager.on('launch', function launchShard(shard) {
     logger.log(`Successfully launched shard ${shard.id+1}/${manager.totalShards} (ID: ${shard.id})`);
 });
 

@@ -35,47 +35,6 @@ module.exports = {
             });
         }
 
-        function identify(url){
-            request({
-                method: 'POST',
-                json: true,
-                url: "https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Ocp-Apim-Subscription-Key": config.get("Commands.face.key")
-                },
-                body: {
-                    url: url
-                }
-            }, async function(err, resp, body){
-                if(err){
-					bot.raven.captureException(err);
-                }else if(body.length > 0) {
-                    if(body.length === 1){
-                        recv.sendMessage({
-                            to: channel,
-                            message: await bot.lang.getTranslation(server, "FACE_RESPONSE", {age: body[0].faceAttributes.age, gender: body[0].faceAttributes.gender})
-                        });
-                    }else{
-                        var output = "";
-                        for(var i = 0; i < body.length; i++){
-                            output += await bot.lang.getTranslation(server, "FACE_RESPONSE", body[i].faceAttributes);
-                            output += i < body.length-2 ? ", " : i === body.length-2 ? " and " : "."
-                        }
-                        recv.sendMessage({
-                            to: channel,
-                            message: await bot.lang.getTranslation(server, "FACE_RESPONSE_MULTIPLE", {num: body.length-1})+" "+output
-                        });
-                    }
-
-                }else{
-                    recv.sendMessage({
-                        to: channel,
-                        message: await bot.lang.getTranslation(server, "FACE_NO_FACES")
-                    });
-                }
-            })
-        }
 
     }
 };

@@ -21,6 +21,8 @@ function init(){
     bot.bus = new EventEmitter();
     bot.logger = logger;
 
+    bot.admins = ["139871249567318017", "145200249005277184"];
+
     Raven.config(config.get("Raven.DSN")).install();
     bot.raven = Raven;
 

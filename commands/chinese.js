@@ -33,10 +33,12 @@ module.exports = {
     accessLevel: 0,
     commands: ["chinese", "chin"],
     run: function run(message, args, bot) {
+        if(!args[1]){
+            message.replyLang("CHINESE_NO_TEXT");
+            return;
+        }
         const sentence = message.content.substring(args[0].length+1);
-        console.log(sentence);
         const letters = [...sentence];
-        console.log(letters);
         let output = "";
         for(let i in letters)
             output += (subs[letters[i]]) ? bot.util.arrayRand(subs[letters[i]]) : letters[i];

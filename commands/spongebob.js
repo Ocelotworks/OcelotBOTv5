@@ -17,7 +17,7 @@ module.exports = {
             message.channel.send(output, {
                 embed: {
                     image: {
-                        url: "http://i3.kym-cdn.com/entries/icons/original/000/022/940/spongebobicon.jpg"
+                        url: "http://unacc.eu/MX5P.png"
                     }
                 }
             });
@@ -26,7 +26,7 @@ module.exports = {
         if(!args[1]){
             const messages = await message.channel.fetchMessages({limit: 2});
             if(messages.size > 1){
-                const message = messages.first();
+                const message = messages.last();
                 doSponge(message.content);
             }else{
                 message.replyLang("SPONGEBOB_NO_TEXT")

@@ -108,7 +108,7 @@ module.exports = {
         bot.lang.getLocale = function getLocale(server){
             return new Promise(async function(fulfill){
                 if(!bot.lang.languageCache[server]){
-                    bot.warn("Had to populate languageCache for "+server);
+                    bot.logger.warn("Had to populate languageCache for "+server);
                     const thisServer = await bot.database.getServerLanguage(server)[0];
                     bot.lang.languageCache[server] = thisServer && thisServer.language ? thisServer.language : "default";
                 }

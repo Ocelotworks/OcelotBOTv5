@@ -34,6 +34,8 @@ module.exports = {
                             }
                         } catch (e) {
                             message.reply(e.toString());
+                            console.log(e);
+                            bot.raven.captureException(e);
                         }
                     }else{
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);

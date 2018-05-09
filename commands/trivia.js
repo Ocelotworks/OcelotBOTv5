@@ -171,8 +171,6 @@ module.exports = {
 
                                 message.channel.stopTyping();
 
-                                console.log(correct);
-
                                 const points = difficulties.indexOf(question.difficulty) + 2;
                                 let output = await bot.lang.getTranslation(message.guild.id, "TRIVIA_TIME_END", decodeURIComponent(correctAnswer))+"\n";
 

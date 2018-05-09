@@ -8,7 +8,7 @@ module.exports = {
     accessLevel: 0,
     commands: ["meme"],
     run: async function run(user, userID, channel, message, args, event, bot, recv, debug, server) {
-    	if(channel == "318432654880014347")return;
+    	if(channel === "318432654880014347")return;
         if(args.length < 2){
             recv.sendMessage({
                 to: channel,
@@ -22,7 +22,7 @@ module.exports = {
                 var serverMemes = "";
 
                 async.eachSeries(result, function (meme, cb) {
-                    if (meme.server == "global") {
+                    if (meme.server === "global") {
                         globalMemes += meme.name + " ";
                     } else {
                         serverMemes += meme.name + " ";
