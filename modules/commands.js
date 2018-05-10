@@ -20,6 +20,12 @@ module.exports = {
                         try {
                             bot.stats.commandsPerMinute++;
                             bot.stats.commandsTotal++;
+                            bot.raven.captureBreadcrumb({
+                                user: message.author.id,
+                                message: message.content,
+                                channel: message.channel.id,
+                                server: message.guild.id
+                            });
                             if (bot.commandUsages[command].requiredPermissions) {
                                 const permissions = await message.channel.permissionsFor(bot.client.user);
                                 if (permissions.has(bot.commandUsages[command].requiredPermissions)) {
