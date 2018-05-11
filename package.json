@@ -14,10 +14,11 @@
     "mysql": "^2.15.0",
     "ocelot-logger": "^1.0.1",
     "ping": "^0.2.2",
-    "pm2": "^2.10.2",
+    "pm2": "^2.10.3",
     "promise-async": "^0.2.0",
     "raven": "^2.5.0",
     "request": "^2.85.0",
+    "sourcequery": "0.0.2",
     "timezonecomplete": "^5.5.2",
     "tzdata": "latest",
     "word-wrap": "^1.2.3"

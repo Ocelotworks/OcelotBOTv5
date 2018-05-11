@@ -10,7 +10,7 @@ module.exports = {
     accessLevel: 0,
     commands: ["serverinfo"],
     run: async function run(user, userID, channel, message, args, event, bot, recv, debug, server) {
-        if(channel == "318432654880014347")return;
+        if(channel === "318432654880014347")return;
 		if(!await bot.util.hasPermission(channel, "146293573422284800", bot.util.PERMISSIONS.embedLinks)){
 			console.log("No permissions");
 			recv.sendMessage({

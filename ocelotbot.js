@@ -8,7 +8,8 @@
 const   config          = require('config'),
         EventEmitter    = require('events'),
         logger          = require('ocelot-logger'),
-        Raven           = require('raven');
+        Raven           = require('raven'),
+        os              = require('os');
 
 //The app object is shared between all modules, it will contain any functions the modules expose and also the event bus.
 let bot = {};
@@ -23,7 +24,9 @@ function init(){
 
     bot.admins = ["139871249567318017", "145200249005277184"];
 
-    Raven.config(config.get("Raven.DSN")).install();
+    Raven.config(config.get("Raven.DSN"), {
+        environment: os.hostname() === "Earth" ? "production" : "development"
+    }).install();
     bot.raven = Raven;
 
 
@@ -36,9 +39,7 @@ function init(){
  * The modules are loaded in the order they are in config `Modules`
  */
 function loadModules(){
-
     logger.log("Loading modules");
-
     const moduleFiles = config.get("Modules");
     const modulePath = config.get("General.ModulePath");
 

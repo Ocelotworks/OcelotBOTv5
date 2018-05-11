@@ -77,16 +77,21 @@ module.exports = {
                                 const commandName = loadedCommand.commands[i];
                                 bot.commands[commandName] = loadedCommand.run;
                                 bot.commandUsages[commandName] = {
+                                    id: command,
                                     name: loadedCommand.name,
                                     usage: loadedCommand.usage,
                                     requiredPermissions: loadedCommand.requiredPermissions,
-                                    hidden: loadedCommand.hidden
+                                    hidden: loadedCommand.hidden,
+                                    categories: loadedCommand.categories
                                 };
                             }
                         }
                     }
                     callback();
-                },()=> bot.logger.log("Finished loading commands."));
+                },function commandLoadFinished() {
+                    bot.bus.emit("commandLoadFinished");
+                    bot.logger.log("Finished loading commands.")
+                });
             }
         });
     }
