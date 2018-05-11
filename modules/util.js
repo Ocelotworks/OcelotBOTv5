@@ -104,7 +104,7 @@ module.exports = {
                 data = [];
 
             if (typeof seconds === 'number') {
-                data = bot.util.quantify(data, 'day',    parseInt((seconds % 31556926) / 86400));
+                data = bot.util.quantify(data, 'day',    parseInt((seconds) / 86400));
                 data = bot.util.quantify(data, 'hour',   parseInt((seconds % 86400) / 3600));
                 data = bot.util.quantify(data, 'minute', parseInt((seconds % 3600) / 60));
                 data = bot.util.quantify(data, 'second', Math.floor(seconds % 60));
