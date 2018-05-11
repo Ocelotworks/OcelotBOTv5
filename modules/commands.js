@@ -18,14 +18,14 @@ module.exports = {
                     if(!bot.checkBan(message)) {
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) performed command ${command}: ${message.content}`);
                         try {
-                            bot.stats.commandsPerMinute++;
-                            bot.stats.commandsTotal++;
                             bot.raven.captureBreadcrumb({
                                 user: message.author.id,
                                 message: message.content,
                                 channel: message.channel.id,
                                 server: message.guild.id
                             });
+                            bot.stats.commandsPerMinute++;
+                            bot.stats.commandsTotal++;
                             if (bot.commandUsages[command].requiredPermissions) {
                                 const permissions = await message.channel.permissionsFor(bot.client.user);
                                 if (permissions.has(bot.commandUsages[command].requiredPermissions)) {
@@ -42,6 +42,12 @@ module.exports = {
                             message.reply(e.toString());
                             console.log(e);
                             bot.raven.captureException(e);
+                        }finally{
+                            try {
+                                bot.database.logCommand(message.author.id, message.channel.id, message.content);
+                            }catch(e){
+                                bot.raven.captureException(e);
+                            }
                         }
                     }else{
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
