@@ -9,6 +9,7 @@ module.exports = {
     usage: "remind <in> \"<message>\"",
     accessLevel: 0,
     commands: ["remind", "remindme", "reminder", "setreminder"],
+    categories: ["tools"],
     init: function init(bot){
         bot.client.on("ready", async function(){
             bot.logger.log("Loading reminders...");

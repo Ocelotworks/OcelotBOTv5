@@ -6,6 +6,7 @@ const request = require('request');
 module.exports = {
     name: "Urban Dictionary",
     usage: "defineud <word>",
+    categories: ["tools", "fun"],
     commands: ["defineud", "ud", "urban"],
     run: function run(message, args, bot) {
         const term = encodeURIComponent(args.slice(1).join(" "));

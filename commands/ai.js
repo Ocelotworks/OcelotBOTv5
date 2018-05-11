@@ -5,6 +5,7 @@ let failureTimes = 1;
 module.exports = {
     name: "Artificial Intelligence",
     usage: "ai <question>",
+    categories: ["fun", "nsfw"],
     commands: ["ai", "askai", "siri", "alexa", "skynet"],
     nsfw: true,
     downloadComments: function downloadComments(bot){

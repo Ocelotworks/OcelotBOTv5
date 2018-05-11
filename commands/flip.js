@@ -5,6 +5,7 @@ module.exports = {
     name: "Coin Flip",
     usage: "flip",
     commands: ["flip", "coin"],
+    categories: ["tools", "fun"],
     run: function run(message, args, bot) {
         message.replyLang("FLIP_"+(bot.rigFlip || (Math.random() > 0.5 ? "HEADS" : "TAILS")))
     }

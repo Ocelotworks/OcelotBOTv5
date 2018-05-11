@@ -8,6 +8,7 @@ module.exports = {
     usage: "sexysingle <user or url>",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["sexysingle", "sexy", "single"],
+    categories: ["image", "fun", "memes"],
     run: async function run(message, args, bot){
         message.channel.startTyping();
         async function downloadOrGet(url, fileName, outputFile){

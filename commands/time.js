@@ -199,6 +199,7 @@ module.exports = {
     usage: "time [timezone]",
     accessLevel: 0,
     commands: ["time", "thetime"],
+    categories: ["tools"],
     run: function run(message, args){
         let targetTimezone = args[1] || regionTimezones[message.guild.region] || "GMT";
         const time = new Date();

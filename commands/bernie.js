@@ -1,6 +1,7 @@
 module.exports = {
     name: "Bernie Meme",
     usage: "bernie <text>",
+    categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bernie", "sanders"],
     run: function(message, args, bot){

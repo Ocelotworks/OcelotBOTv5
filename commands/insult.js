@@ -2,6 +2,7 @@ module.exports = {
     name: "Insult Generator",
     usage: "insult <person>",
     commands: ["insult"],
+    categories: ["fun", "nsfw"],
     init: function(bot){
         bot.usedTopicalInsults = [];
     },

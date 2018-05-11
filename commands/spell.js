@@ -3,6 +3,7 @@ module.exports = {
     name: "Spell with Reactions",
     usage: "spell [^] <send>",
     commands: ["spell", "react"],
+    categories: ["fun"],
     run: async function run(message, args){
        let letters = {
            abc: ["🔤"],

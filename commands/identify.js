@@ -26,6 +26,7 @@ module.exports = {
     name: "Identify Image",
     usage: "identify [URL]",
     commands: ["identify", "ident"],
+    categories: ["image", "tools", "fun"],
     run: async function run(message, args, bot) {
         const url =  await bot.util.getImage(message, args);
 

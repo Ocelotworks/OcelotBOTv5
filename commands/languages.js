@@ -2,6 +2,7 @@ module.exports = {
     name: "Available Languages",
     usage: "languages",
     commands: ["lang", "languages", "language"],
+    categories: ["meta"],
     run: async function(message, args, bot){
         if(args[1] && args[1].toLowerCase() === "contribute"){
             message.channel.send("https://poeditor.com/projects/view?id=124405");

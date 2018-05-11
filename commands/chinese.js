@@ -31,6 +31,7 @@ module.exports = {
     name: "Chinese Text",
     usage: "chinese <text>",
     accessLevel: 0,
+    categories: ["fun"],
     commands: ["chinese", "chin"],
     run: function run(message, args, bot) {
         if(!args[1]){

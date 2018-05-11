@@ -4,6 +4,7 @@ module.exports = {
     usage: "stats",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["stats", "statistics", "info", "about", "privacy"],
+    categories: ["meta"],
     init: function(bot){
         bot.version = "stevie5";
     },

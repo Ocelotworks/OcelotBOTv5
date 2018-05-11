@@ -1,6 +1,7 @@
 module.exports = {
     name: "User Avatar",
     usage: "avatar <@User>",
+    categories: ["image", "tools"],
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["avatar"],
     run: function(message){

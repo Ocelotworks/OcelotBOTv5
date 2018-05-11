@@ -5,7 +5,7 @@ const request = require('request');
 module.exports = {
     name: "Number Fact",
     usage: "numberfact <number>",
-	
+    categories: ["fun"],
     commands: ["numberfact"],
     run: function run(message, args, bot) {
         if(args.length < 2){

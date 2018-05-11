@@ -26,6 +26,7 @@ module.exports = {
     name: "Trivia",
     usage: "trivia leaderboard monthly",
     commands: ["trivia"],
+    categories: ["tools", "fun"],
     requiredPermissions: ["EMBED_LINKS", "ADD_REACTIONS"],
     run: async function run(message, args, bot) {
        if(args[1]){

@@ -6,6 +6,7 @@ module.exports = {
     name: "Ping Address",
     usage: "ping <address> [timeout]",
     commands: ["ping"],
+    categories: ["tools"],
     run: async function run(message, args){
         if(args.length < 2){
             message.replyLang("PING_NO_ADDRESS");

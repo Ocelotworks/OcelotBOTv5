@@ -6,6 +6,7 @@ module.exports = {
     usage: "sexydice",
     nsfw: true,
     commands: ["sexydice", "sexdice", "lovedice"],
+    categories: ["nsfw", "fun"],
     run: function run(message, args, bot){
         message.channel.send(`:game_die: \`${bot.util.arrayRand(dice1)}\` :game_die: \`${bot.util.arrayRand(dice2)}\``);
     }

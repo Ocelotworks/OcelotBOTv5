@@ -6,6 +6,7 @@ const config = require('config').get("Commands.crush");
 module.exports = {
     name: "Crush",
     usage: "crush <user or url>",
+    categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["crush"],
     run: async function run(message, args, bot){

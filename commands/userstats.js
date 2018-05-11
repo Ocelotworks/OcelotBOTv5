@@ -6,6 +6,7 @@ module.exports = {
     name: "User Stats",
 	usage: "userstats <user>",
 	commands: ["userstats"],
+    categories: ["meta"],
     run: async function run(message, args, bot) {
 	   if(!args[1]){
 			message.replyLang("USERSTATS_NO_USER");

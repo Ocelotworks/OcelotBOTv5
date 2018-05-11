@@ -8,6 +8,7 @@ module.exports = {
     usage: "weather <place>",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["weather", "forecast"],
+    categories: ["tools"],
     run: async function run(message, args, bot) {
         if(args.length < 2){
             message.replyLang("WEATHER_NO_ARGS");

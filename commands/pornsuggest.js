@@ -12,6 +12,8 @@ module.exports = {
     name: "Porn Suggest",
     usage: "pornsuggest [country] [gay/straight/tranny]",
     commands: ["pornsuggest"],
+    nsfw: true,
+    categories: ["nsfw", "fun"],
     run: function run(message, args, bot) {
 	   if(args[1] && args[1].length > 3){
 		   message.replyLang("PORNSUGGEST_INVALID_COUNTRY");

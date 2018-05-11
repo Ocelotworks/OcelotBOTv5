@@ -5,6 +5,7 @@ module.exports = {
     name: "Expand",
     usage: "expand <word>",
     commands: ["expand"],
+    categories: ["fun"],
     run: function run(message, args) {
         if(args.length < 2){
             message.replyLang("EXPAND_NO_TEXT");

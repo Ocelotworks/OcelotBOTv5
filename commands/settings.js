@@ -3,6 +3,7 @@ module.exports = {
     name: "Change Settings",
     usage: "settings <set/help/list>",
     commands: ["settings"],
+    categories: ["meta"],
     init: async function init(bot){
       module.exports.settings = {
         prefix: {

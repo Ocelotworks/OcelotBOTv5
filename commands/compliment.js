@@ -1,6 +1,7 @@
 module.exports = {
     name: "Compliment",
     usage: "compliment <person>",
+    categories: ["fun"],
     commands: ["compliment", "complement", "complament"],
     init: function(bot){
       bot.usedTopicalCompliments = [];

@@ -4,6 +4,7 @@ module.exports = {
     name: "Face Recognition",
     usage: "face [url] or embed",
     accessLevel: 0,
+    categories: ["tools", "fun", "image"],
     commands: ["face", "age"],
     run: async function run(message, args, bot) {
         const url = await bot.util.getImage(message, args);
