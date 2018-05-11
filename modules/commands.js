@@ -22,7 +22,7 @@ module.exports = {
                                 user: message.author.id,
                                 message: message.content,
                                 channel: message.channel.id,
-                                server: message.guild.id
+                                server: message.guild ? message.guild.id : "DM Channel"
                             });
                             bot.stats.commandsPerMinute++;
                             bot.stats.commandsTotal++;
