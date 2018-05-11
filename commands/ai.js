@@ -43,21 +43,22 @@ module.exports = {
             message.replyLang("8BALL_NO_QUESTION");
             return;
         }
+        try {
+            message.channel.startTyping();
+            if (comments.length > 0) {
+                // if (comments[commentIndex++].data.body.indexOf("gonewild") > -1)
+                //     commentIndex++;
 
-        message.channel.startTyping();
-        if(comments.length > 0){
-            if(comments[commentIndex++].data.body.indexOf("gonewild") > -1)
-                commentIndex++;
+                message.channel.send(comments[commentIndex++].data.body);
 
-            message.channel.send(comments[commentIndex++].data.body);
-
-            if(commentIndex === comments.length)
-                module.exports.downloadComments(bot);
-        }else{
-            message.replyLang("GENERIC_ERROR");
+                if (commentIndex === comments.length)
+                    module.exports.downloadComments(bot);
+            } else {
+                message.replyLang("GENERIC_ERROR");
+            }
+            message.channel.stopTyping();
+        }catch(e){
+            module.exports.downloadComments(bot);
         }
-        message.channel.stopTyping();
-
-
     }
 };
