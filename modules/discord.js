@@ -31,6 +31,10 @@ module.exports = {
             bot.logger.log("Reconnecting...");
         });
 
+        bot.client.on("disconnect", function discordDisconnected(){
+           bot.logger.warn("Disconnected");
+        });
+
         let lastPresenceUpdate = 0;
 
         bot.client.on("guildCreate", async function joinGuild(guild){
@@ -52,7 +56,7 @@ module.exports = {
                          shard_count: bot.client.shard.count
                      }
                  }, function (err, resp, body) {
-                     console.log(body);
+                     if(err)bot.raven.captureException(err);
                  });
                  request.post({
                      headers: {
@@ -67,7 +71,7 @@ module.exports = {
                          shard_count: bot.client.shard.count
                      }
                  }, function (err, resp, body) {
-                     console.log(body);
+                     if(err)bot.raven.captureException(err);
                  });
 
                  const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
@@ -78,7 +82,11 @@ module.exports = {
                         }
                  });
              }
-            await bot.database.addServer(guild.id, guild.owner_id, guild.name, guild.joined_at);
+             try {
+                 await bot.database.addServer(guild.id, guild.owner_id, guild.name, guild.joined_at);
+             }catch(e){https://github.com/slackapi/node-slack-sdkt su
+                 bot.logger.warn(`Error adding server ${e}`);
+             }
 
         });
 
