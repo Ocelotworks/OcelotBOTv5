@@ -7,7 +7,7 @@ module.exports = {
     commands: ["bigtext", "big"],
     run:  function(message, args, bot){
         if(!args[1]){
-            message.channel.reply(":bangbang: You must provide some text! i.e !bigtext hello world")
+            message.channel.send(":bangbang: You must provide some text! i.e !bigtext hello world");
             return;
         }
 

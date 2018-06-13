@@ -7,7 +7,7 @@ module.exports = {
     commands: ["achievement", "acheivement", "ach", "achievment"],
     run:  function(message, args){
         if(!args[1]){
-            message.channel.reply(":bangbang: You must provide some text! i.e !achievement hello world");
+            message.channel.send(":bangbang: You must provide some text! i.e !achievement hello world");
             return;
         }
 
