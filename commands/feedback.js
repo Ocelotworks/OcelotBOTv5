@@ -10,11 +10,11 @@ module.exports = {
             process.on("message", function(msg){
                if(msg.type === "feedback") {
                    bot.lastFeedbackChannel = msg.message.channelID;
-                   if(bot.client.channels.has(msg.message.channelID))
+                   if(bot.client.channels.has("344931831151329302"))
                        bot.client.channels.get("344931831151329302").send(`Feedback from ${msg.message.userID} (${msg.message.username}) in ${msg.message.guildID} (${msg.message.guild}):\n\`\`\`\n${msg.message.message}\n\`\`\``);
                }else if(msg.type === "feedbackResponse"){
                     if(bot.client.channels.has(msg.message.channel)){
-                        bot.client.channels.get(bot.lastFeedbackChannel).send(`:grey_exclamation: An admin has responded to your feedback.\n\`\`\`\n${response}\n\`\`\`\nUse **!feedback** to reply back.`)
+                        bot.client.channels.get(bot.lastFeedbackChannel).send(`:grey_exclamation: An admin has responded to your feedback.\n\`\`\`\n${msg.message.response}\n\`\`\`\nUse **!feedback** to reply back.`)
                     }
                }
             });

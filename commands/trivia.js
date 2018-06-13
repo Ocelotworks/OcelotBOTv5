@@ -26,7 +26,7 @@ module.exports = {
     name: "Trivia",
     usage: "trivia leaderboard monthly",
     commands: ["trivia"],
-    categories: ["tools", "fun"],
+    categories: ["tools", "fun", "games"],
     requiredPermissions: ["EMBED_LINKS", "ADD_REACTIONS"],
     run: async function run(message, args, bot) {
        if(args[1]){
@@ -203,7 +203,6 @@ module.exports = {
                    message.replyLang("TRIVIA_ERROR");
                    bot.logger.error("Trivia service gave unexpected response:");
                    bot.logger.error(e);
-                   bot.raven.captureException(e);
                }finally{
                    message.channel.stopTyping();
                }

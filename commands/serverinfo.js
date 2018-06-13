@@ -9,7 +9,7 @@ module.exports = {
     commands: ["serverinfo", "si"],
     categories: ["tools"],
     run:  function(message, args, bot){
-        if(message.channel.id === "318432654880014347")return;
+        if(message.guild.id === "318432654880014347")return;
 
         if(args.length < 2){
             message.channel.send(":bangbang: Invalid usage: `!serverinfo ip:port`");

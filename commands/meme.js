@@ -8,8 +8,10 @@ module.exports = {
     commands: ["meme"],
     categories: ["fun", "memes"],
     run: async function run(message, args, bot) {
+        if(message.guild.id === "318432654880014347" && message.channel.id !== "318432654880014347")return;
         if(!args[1]){
-            message.replyLang("MEME_USAGE");
+            //message.replyLang("MEME_USAGE");
+            message.channel.send("Invalid usage: !"+module.exports.usage);
             return;
         }
 

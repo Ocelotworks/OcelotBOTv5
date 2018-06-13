@@ -10,7 +10,12 @@
       "port": 3306,
       "user": "",
       "password": "",
-      "database": "stevie"
+      "database": "stevie",
+      "charset": "utf8mb4_general_ci"
+    },
+    "pool": {
+      "min": 0,
+      "max": 20
     }
   },
   "InfluxDB": {
