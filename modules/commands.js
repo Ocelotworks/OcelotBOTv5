@@ -8,7 +8,7 @@ module.exports = {
         bot.commandUsages = {};
         bot.commands = {};
 
-        bot.client.on("message", async function onMessage(message) {
+        bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
             const prefix = config.get("General.DefaultPrefix");
             const prefixLength = prefix.length;
             if(message.content.startsWith(prefix)){
@@ -19,14 +19,17 @@ module.exports = {
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) performed command ${command}: ${message.content}`);
                         try {
                             bot.raven.captureBreadcrumb({
-                                user: message.author.id,
+                                user: {
+                                    username: message.author.username,
+                                    id: message.author.id
+                                },
                                 message: message.content,
                                 channel: message.channel.id,
                                 server: message.guild ? message.guild.id : "DM Channel"
                             });
                             bot.stats.commandsPerMinute++;
                             bot.stats.commandsTotal++;
-                            if (bot.commandUsages[command].requiredPermissions) {
+                            if (message.channel.permissionsFor && bot.commandUsages[command].requiredPermissions) {
                                 const permissions = await message.channel.permissionsFor(bot.client.user);
                                 if (permissions.has(bot.commandUsages[command].requiredPermissions)) {
                                     bot.commands[command](message, args, bot);
@@ -43,18 +46,17 @@ module.exports = {
                             console.log(e);
                             bot.raven.captureException(e);
                         }finally{
-                            try {
-                                bot.database.logCommand(message.author.id, message.channel.id, message.content);
-                            }catch(e){
+                            bot.database.logCommand(message.author.id, message.channel.id, message.content).catch(function(e){
                                 bot.raven.captureException(e);
-                            }
+                                bot.logger.error(e);
+                            });
                         }
                     }else{
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
                     }
                 }
             }
-        });
+        }));
 
         module.exports.loadCommands(bot);
     },
