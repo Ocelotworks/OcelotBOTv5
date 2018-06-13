@@ -6,7 +6,8 @@ module.exports = {
            user:   [],
            channel:[],
            server: [],
-           update: async function(){
+           update: async function updateBanCache(){
+               bot.logger.log("Updating Ban Cache");
                bot.banCache.user = [];
                bot.banCache.channel = [];
                bot.banCache.server = [];
@@ -23,7 +24,6 @@ module.exports = {
 
         process.on("message", function updateBans(msg){
             if(msg.type === "updateBans") {
-                bot.logger.log("Updating Ban List");
                 bot.banCache.update();
             }
         });
