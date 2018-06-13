@@ -145,7 +145,7 @@ module.exports = {
                     userID: user,
                     channelID: channel,
                     command: command,
-                    server: "ocelotbot-" + bot.instance
+                    server: "ocelotbot-" + bot.client.shard ? bot.client.shard.id : "0"
                 }).into(COMMANDLOG_TABLE);
             },
             ban: function ban(id, type, reason) {
