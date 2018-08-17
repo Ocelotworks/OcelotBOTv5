@@ -8,7 +8,7 @@ const userMaps = {
     "146293573422284800": "ocelotbot"
 };
 module.exports = {
-    name: "You should never see this",
+    name: "Topic Control",
     usage: "topic [index/up/down/set] <url>",
     categories: ["tools"],
     requiredPermissions: [],
