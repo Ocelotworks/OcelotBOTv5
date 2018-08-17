@@ -170,6 +170,24 @@ module.exports = {
             getUserStats: function (user) {
                 return knex.select(knex.raw("COUNT(*) AS commandCount")).from(COMMANDLOG_TABLE).where({userID: user})
             },
+            getRandomTopic: function(){
+                return knex.select().from("Topics").where({naughty: 0}).orderBy(knex.raw("RAND()")).limit(1);
+            },
+            addTopic: function(user, message){
+                return knex.insert({
+                    username: user,
+                    topic: message,
+                    naughty: 0
+                }).into("Topics");
+            },
+            logMessage: function(user, message, channel){
+                return knex.insert({
+                    user: user,
+                    message: message,
+                    channel: channel,
+                    time: new Date().getTime()
+                }).into("Messages");
+            }
 
         };
     }
