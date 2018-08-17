@@ -18,6 +18,7 @@
     "promise-async": "^0.2.0",
     "raven": "^2.5.0",
     "request": "^2.85.0",
+    "rss-parser": "^3.1.2",
     "sourcequery": "0.0.2",
     "timezonecomplete": "^5.5.2",
     "tzdata": "latest",
