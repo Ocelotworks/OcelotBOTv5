@@ -30,9 +30,9 @@ module.exports = {
                     let output = "";
                     for(let i = 0; i < body.length; i++){
                         output += await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE", body[i].faceAttributes);
-                        output += i < body.length-2 ? ", " : i === body.length-2 ? " and " : "."
+                        output += "\n";//i < body.length-2 ? ", " : i === body.length-2 ? " and " : "."
                     }
-                    message.channel.send(await bot.lang.getTranslation(server, "FACE_RESPONSE_MULTIPLE", {num: body.length-1})+" "+output);
+                    message.channel.send(await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE_MULTIPLE", {num: body.length-1})+"\n "+output);
 
                 }
 
