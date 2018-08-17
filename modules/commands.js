@@ -78,14 +78,16 @@ module.exports = {
                             if (loadedCommand.commands.hasOwnProperty(i)) {
                                 const commandName = loadedCommand.commands[i];
                                 bot.commands[commandName] = loadedCommand.run;
-                                bot.commandUsages[commandName] = {
-                                    id: command,
-                                    name: loadedCommand.name,
-                                    usage: loadedCommand.usage,
-                                    requiredPermissions: loadedCommand.requiredPermissions,
-                                    hidden: loadedCommand.hidden,
-                                    categories: loadedCommand.categories
-                                };
+                                if(!loadedCommand.hidden) {
+                                    bot.commandUsages[commandName] = {
+                                        id: command,
+                                        name: loadedCommand.name,
+                                        usage: loadedCommand.usage,
+                                        requiredPermissions: loadedCommand.requiredPermissions,
+                                        hidden: loadedCommand.hidden,
+                                        categories: loadedCommand.categories
+                                    };
+                                }
                             }
                         }
                     }
