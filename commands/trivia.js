@@ -134,7 +134,7 @@ module.exports = {
                         }
 
                         const sentMessage = await message.channel.send("", embed);
-                        const reactions = isBoolean ? ["✅", "❎"] : ["1⃣", "2⃣", "3⃣", "4⃣"];
+                        const reactions = isBoolean ? ["❎", "✅"] : ["1⃣", "2⃣", "3⃣", "4⃣"];
                         const correctReaction = reactions[answers.indexOf(correctAnswer)];
 
                         sentMessage.awaitReactions((reaction, user) => reactions.indexOf(reaction.emoji.name) > -1 && user.id === bot.client.user.id, {time: 15000})
