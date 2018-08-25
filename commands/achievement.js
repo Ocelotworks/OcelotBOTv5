@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 module.exports = {
     name: "Achievement Get!",
     usage: "achievement <text>",
+    rateLimit: 10,
     categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["achievement", "acheivement", "ach", "achievment"],

@@ -6,6 +6,7 @@ const config = require('config').get("Commands.sexysingle");
 module.exports = {
     name: "Sexy Singles",
     usage: "sexysingle <user or url>",
+    rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["sexysingle", "sexy", "single"],
     categories: ["image", "fun", "memes"],

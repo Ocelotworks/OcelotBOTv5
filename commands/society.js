@@ -7,6 +7,7 @@ module.exports = {
     usage: "society [url]",
     categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
+    rateLimit: 10,
     commands: ["society", "weliveinasociety", "wlias"],
     run: async function(message, args, bot){
 

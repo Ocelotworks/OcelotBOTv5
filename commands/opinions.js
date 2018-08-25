@@ -2,6 +2,7 @@ module.exports = {
     name: "Strong Opinions Meme",
     usage: "opinions <text>",
     requiredPermissions: ["ATTACH_FILES"],
+    rateLimit: 10,
     commands: ["opinions", "strongopinions"],
     categories: ["image", "fun", "memes"],
     run:  function(message, args, bot){

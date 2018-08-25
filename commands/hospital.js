@@ -1,6 +1,7 @@
 module.exports = {
     name: "Patient Says",
     usage: "ronald <text>",
+    rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["hospital", "hospitalguysays", "hospitalguy", "patient", "patientsays"],
     categories: ["image", "fun", "memes"],

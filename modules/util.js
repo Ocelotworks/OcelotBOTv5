@@ -133,7 +133,11 @@ module.exports = {
          * @param {Number} wait
          * @param {Boolean} immediate
          * @returns {Function}
-         */
+         */        bot.bans = {
+          user: [],
+          channel: [],
+          server: []
+        };
         bot.util.debounce = function debounce(func, wait, immediate) {
             var timeout;
             return function() {

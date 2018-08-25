@@ -2,6 +2,7 @@ module.exports = {
     name: "Leave Feedback",
     usage: "feedback [message]",
     accessLevel: 0,
+    rateLimit: 10,
     categories: ["meta"],
     commands: ["feedback", "complain", "report", "support", "error", "broken", "broke"],
     init: function init(bot){

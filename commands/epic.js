@@ -5,6 +5,7 @@ const fs = require('fs');
 module.exports = {
     name: "This is epic meme",
     usage: "epic [url]",
+    rateLimit: 10,
     categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["epic", "thisisepic", "okaythisisepic", "tis"],

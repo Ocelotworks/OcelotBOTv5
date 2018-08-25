@@ -12,6 +12,7 @@ module.exports = {
     name: "Porn Suggest",
     usage: "pornsuggest [country] [gay/straight/tranny]",
     commands: ["pornsuggest"],
+    rateLimit: 5,
     nsfw: true,
     categories: ["nsfw", "fun"],
     run: function run(message, args, bot) {
