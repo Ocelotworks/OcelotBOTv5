@@ -20,7 +20,7 @@ module.exports = {
         let topicCounter = 0;
         bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
            // noinspection EqualityComparisonWithCoercionJS
-            if(message.guild.id == "478950156654346292"){
+            if(message.guild && message.guild.id == "478950156654346292"){
                topicCounter++;
                await bot.database.logMessage(userMaps[message.author.id] || message.author.id, message.content, message.channel.id);
                 if(topicCounter >= 100){
