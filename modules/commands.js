@@ -17,7 +17,7 @@ module.exports = {
                 if (bot.commands[command]) {
                     if (bot.checkBan(message)) {
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned or ratelimited: ${command}: ${message.content}`);
-                    } else if (bot.rateLimits[message.author.id] < 100) {
+                    } else if (!bot.rateLimits[message.author.id] || bot.rateLimits[message.author.id] < 100) {
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) performed command ${command}: ${message.content}`);
                         try {
                             bot.raven.captureBreadcrumb({
@@ -55,8 +55,12 @@ module.exports = {
                             });
                         }
                     } else if(bot.rateLimits[message.author.id] < 110) {
+                        bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
                         message.reply("You're doing too many commands. Wait a while before your next command.");
                         bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
+                    }else{
+                        console.log(bot.rateLimits[message.author.id]);
+                        bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
                     }
                 }
             }
@@ -86,16 +90,14 @@ module.exports = {
                             if (loadedCommand.commands.hasOwnProperty(i)) {
                                 const commandName = loadedCommand.commands[i];
                                 bot.commands[commandName] = loadedCommand.run;
-                                if (!loadedCommand.hidden) {
-                                    bot.commandUsages[commandName] = {
-                                        id: command,
-                                        name: loadedCommand.name,
-                                        usage: loadedCommand.usage,
-                                        requiredPermissions: loadedCommand.requiredPermissions,
-                                        hidden: loadedCommand.hidden,
-                                        categories: loadedCommand.categories
-                                    };
-                                }
+                                bot.commandUsages[commandName] = {
+                                    id: command,
+                                    name: loadedCommand.name,
+                                    usage: loadedCommand.usage,
+                                    requiredPermissions: loadedCommand.requiredPermissions,
+                                    hidden: loadedCommand.hidden,
+                                    categories: loadedCommand.categories
+                                };
                             }
                         }
                     }
