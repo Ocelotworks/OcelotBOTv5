@@ -6,6 +6,7 @@ module.exports = {
     name: "Ping Address",
     usage: "ping <address> [timeout]",
     commands: ["ping"],
+    rateLimit: 30,
     categories: ["tools"],
     run: async function run(message, args){
         if(args.length < 2){

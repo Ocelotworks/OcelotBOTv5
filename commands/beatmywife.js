@@ -5,6 +5,7 @@ const fs = require('fs');
 module.exports = {
     name: "So Sad Meme",
     usage: "beatmywife [url]",
+    rateLimit: 10,
     categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["beatmywife", "bmw", "sosad"],

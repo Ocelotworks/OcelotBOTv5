@@ -6,6 +6,7 @@ module.exports = {
     name: "Number Fact",
     usage: "numberfact <number>",
     categories: ["fun"],
+    rateLimit: 2,
     commands: ["numberfact"],
     run: function run(message, args, bot) {
         if(args.length < 2){

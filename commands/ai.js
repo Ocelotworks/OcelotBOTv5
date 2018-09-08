@@ -6,6 +6,7 @@ module.exports = {
     name: "Artificial Intelligence",
     usage: "ai <question>",
     categories: ["fun", "nsfw"],
+    rateLimit: 2,
     commands: ["ai", "askai", "siri", "alexa", "skynet"],
     nsfw: true,
     downloadComments: function downloadComments(bot){

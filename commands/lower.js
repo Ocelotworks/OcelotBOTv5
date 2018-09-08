@@ -5,6 +5,7 @@ const fs = require('fs');
 module.exports = {
     name: "Lower Image",
     usage: "lower [url]",
+    rateLimit: 10,
     categories: ["image", "fun"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["lower"],

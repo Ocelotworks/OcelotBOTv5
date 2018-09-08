@@ -25,6 +25,7 @@ const numbers = [
 module.exports = {
     name: "Trivia",
     usage: "trivia leaderboard monthly",
+    rateLimit: 2,
     commands: ["trivia"],
     categories: ["tools", "fun", "games"],
     requiredPermissions: ["EMBED_LINKS", "ADD_REACTIONS"],

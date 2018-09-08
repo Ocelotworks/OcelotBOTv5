@@ -2,6 +2,7 @@ module.exports = {
     name: "Compliment",
     usage: "compliment <person>",
     categories: ["fun"],
+    rateLimit: 10,
     commands: ["compliment", "complement", "complament"],
     init: function(bot){
       bot.usedTopicalCompliments = [];
@@ -19,8 +20,10 @@ module.exports = {
         }else{
             if(bot.topicalCompliment && bot.usedTopicalCompliments.indexOf(message.channel.id) === -1){
                 message.channel.send(bot.topicalCompliment.formatUnicorn(args[1]));
+                bot.usedTopicalCompliments.push(message.channel.id);
+            }else {
+                message.replyLang(`COMPLIMENT_${bot.util.intBetween(1, 27)}`, args[1]);
             }
-            message.replyLang(`COMPLIMENT_${bot.util.intBetween(1,27)}`, args[1]);
         }
 
     }

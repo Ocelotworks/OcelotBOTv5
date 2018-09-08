@@ -1,6 +1,7 @@
 module.exports = {
     name: "Handicapped Meme",
     usage: "handicap <text>",
+    rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["handicap", "handycap", "handicapped"],
     categories: ["image", "fun", "memes"],

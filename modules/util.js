@@ -127,6 +127,15 @@ module.exports = {
             return prettyString;
         };
 
+        bot.util.prettyMemory = function prettyMemory(bytes){
+            if(bytes < 1000)return bytes+" bytes"; //< 1kb
+            if(bytes < 1000000)return parseInt(bytes/1000)+"KB"; //<1mb
+            if(bytes < 1e+9)return parseInt(bytes/1000000)+"MB"; //<1gb
+            if(bytes < 1e+12)return parseInt(bytes/1e+9)+"GB"; //<1tb
+            if(bytes < 1e+15)return parseInt(bytes/1e+12)+"TB"; //<1pb
+            return parseInt(bytes/1e+15)+"PB";
+        };
+
         /**
          *
          * @param {Function} func
@@ -299,7 +308,14 @@ module.exports = {
             }
         };
 
-
+        Object.defineProperty(Array.prototype, 'chunk', {
+            value: function(chunkSize) {
+                var R = [];
+                for (var i=0; i<this.length; i+=chunkSize)
+                    R.push(this.slice(i,i+chunkSize));
+                return R;
+            }
+        });
 
     }
 };

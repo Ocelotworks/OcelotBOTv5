@@ -6,6 +6,7 @@ module.exports = {
     name: "Bulge Image",
     usage: "bulge [url]",
     categories: ["image", "fun"],
+    rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bulge", "implode"],
     run: async function(message, args, bot){

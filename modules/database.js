@@ -187,6 +187,38 @@ module.exports = {
                     channel: channel,
                     time: new Date().getTime()
                 }).into("Messages");
+            },
+            getRandomRosesPoem: function(){
+                return knex.select("message","user","time")
+                    .from("Messages")
+                    .whereRaw('message REGEXP ".*([to]o|u|[uei]w|2)$" AND (LENGTH(message) - LENGTH(REPLACE(message, " ", ""))) > 5')
+                    .orderByRaw("RAND()")
+                    .limit(1);
+            },
+            getMessages: function(target){
+                let query = knex.select().from("Messages");
+                if(target)query = query.where({user: target});
+                return query;
+            },
+            getMessageID: function(user, message){
+                return knex.select("id").from("Messages").where({message: message, user: user});
+            },
+            getMessageContext: function(id) {
+                return knex.select().from("Messages").whereBetween("id", [id - 5, id + 5]);
+            },
+            getOnThisDayMessages: function(day,month){
+                return knex.select().from("Messages").whereRaw("DAY(FROM_UNIXTIME(time/1000)) = "+day).andWhereRaw("MONTH(FROM_UNIXTIME(time/1000)) = "+month).orderBy("time", "ASC");
+            },
+            getMessageContaining: function(phrase){
+                return knex.select().from("Messages").where("message", "like", `%${phrase}%`).limit(1).orderbyRaw("RAND()");
+            },
+            getMessageFrom: function(user, phrase){
+                var query = knex.select().from("Messages").limit(1).orderByRaw("RAND()");
+                if(user)
+                    query = query.andWhere("user", user);
+                if(phrase)
+                    query = query.andWhere("message", "like", `%${phrase}%`);
+                return query;
             }
 
         };
