@@ -53,6 +53,16 @@ module.exports = {
         });
 
         setInterval(async function(){
+            let points = [];
+            const keys = Object.keys(bot.stats);
+            for(let i = 0; i < keys.length; i++){
+                points.push(
+                    {
+                        measurement: keys[i],
+                        tags: {"shard": bot.client.shard.id},
+                        fields: {[keys[i].startsWith("commands") ? "commands" : keys[i].startsWith("messages") ? "messages" : "value"]: bot.stats[keys[i]]}
+                    });
+            }
             await bot.stats.influx.writePoints([
                 {
                     measurement: "commandsPerMinute",
