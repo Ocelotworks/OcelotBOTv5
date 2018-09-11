@@ -61,6 +61,19 @@
     "statistics",
     "bans",
     "commands",
-    "ocelotworks"
+    "ocelotworks",
+    "seasonal"
+  ],
+  "Seasonal": [
+    {
+      "start": "1 October",
+      "end": "5 November",
+      "image": "ocelotbot_halloween.png"
+    },
+    {
+      "start": "1 December",
+      "end": "27 December",
+      "image": "ocelotbot_christmas.png"
+    }
   ]
 }
