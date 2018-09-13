@@ -32,9 +32,9 @@ module.exports = {
         const subCommand = args[1];
         bot.raven.captureBreadcrumb({
             data: {
-                subCommand: subCommand,
-                runningGames: JSON.stringify(runningGames),
-                gameRequests: JSON.stringify(gameRequests)
+                subCommand: subCommand//,
+                // runningGames: JSON.stringify(runningGames),
+                // gameRequests: JSON.stringify(gameRequests)
             }
         });
         if(subCommand && module.exports.subCommands[subCommand.toLowerCase()]){
