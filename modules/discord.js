@@ -18,6 +18,10 @@ module.exports = {
 
         bot.client.on("ready", async function discordReady(){
             bot.logger.log(`Logged in as ${bot.client.user.tag}!`);
+            bot.raven.captureBreadcrumb({
+                message: "ready",
+                category:  "discord",
+            });
             const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
             bot.client.user.setPresence({
                 game: {
@@ -29,17 +33,32 @@ module.exports = {
 
         bot.client.on("reconnecting", function discordReconnecting(){
             bot.logger.log("Reconnecting...");
+            bot.raven.captureBreadcrumb({
+                message: "reconnecting",
+                category:  "discord",
+            });
         });
 
         bot.client.on("disconnect", function discordDisconnected(){
+            bot.raven.captureBreadcrumb({
+                message: "disconnect",
+                category:  "discord",
+            });
            bot.logger.warn("Disconnected");
         });
 
         let lastPresenceUpdate = 0;
 
         bot.client.on("guildCreate", async function joinGuild(guild){
-             bot.logger.log(`Joined server ${guild.id} (${guild.name})`);
-
+            bot.logger.log(`Joined server ${guild.id} (${guild.name})`);
+            bot.raven.captureBreadcrumb({
+                message: "guildCreate",
+                category:  "discord",
+                data: {
+                    id: guild.id,
+                    name: guild.name
+                }
+            });
              const now = new Date();
              if(now-lastPresenceUpdate>100000) {
                  lastPresenceUpdate = now;
@@ -92,6 +111,14 @@ module.exports = {
 
         bot.client.on("guildDelete", async function leaveGuild(guild){
             bot.logger.log(`Left server ${guild.id} (${guild.name})`);
+            bot.raven.captureBreadcrumb({
+                message: "guildDelete",
+                category:  "discord",
+                data: {
+                    id: guild.id,
+                    name: guild.name
+                }
+            });
             await bot.database.leaveServer(guild.id);
         });
 
