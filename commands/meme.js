@@ -16,6 +16,8 @@ module.exports = {
         }
 
 
+        const guildID = message.guild ? message.guild.id : "322032568558026753";
+
         const arg = args[1].toLowerCase();
 
         if(arg === "list"){
@@ -37,9 +39,9 @@ module.exports = {
             let output;
 
             if(message.guild){
-                output = `**${await bot.lang.getTranslation(message.guild.id, "MEME_AVAILABLE_MEMES")}**\n__:earth_americas: **${await bot.lang.getTranslation(message.guild.id, "MEME_GLOBAL_MEMES")}**__ ${globalMemes}\n__:house_with_garden:${await bot.lang.getTranslation(message.guild.id, "MEME_SERVER", {serverName: message.guild.name})}__ ${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}`;
+                output = `**${await bot.lang.getTranslation(guildID, "MEME_AVAILABLE_MEMES")}**\n__:earth_americas: **${await bot.lang.getTranslation(message.guild.id, "MEME_GLOBAL_MEMES")}**__ ${globalMemes}\n__:house_with_garden:${await bot.lang.getTranslation(message.guild.id, "MEME_SERVER", {serverName: message.guild.name})}__ ${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}`;
             }else{
-                output = `**${await bot.lang.getTranslation(message.guild.id, "MEME_AVAILABLE_MEMES")}**\n__:earth_americas: **${await bot.lang.getTranslation(message.guild.id, "MEME_GLOBAL_MEMES")}**__ ${globalMemes}`;
+                output = `**${await bot.lang.getTranslation(guildID, "MEME_AVAILABLE_MEMES")}**\n__:earth_americas: **${await bot.lang.getTranslation(message.guild.id, "MEME_GLOBAL_MEMES")}**__ ${globalMemes}`;
             }
 
             if(output.length >= 2000){
@@ -52,34 +54,38 @@ module.exports = {
         }
 
         if(arg === "add"){
-            try {
-                if (!args[3]) {
-                    message.replyLang("MEME_ENTER_URL");
-                    return;
-                }
-                const newMemeName = args[2].toLowerCase();
+            if(!message.guild.id){
+                message.channel.send("You can't use this in a DM channel.");
+            }else {
+                try {
+                    if (!args[3]) {
+                        message.replyLang("MEME_ENTER_URL");
+                        return;
+                    }
+                    const newMemeName = args[2].toLowerCase();
 
-                if (newMemeName.startsWith("http")) {
-                    message.replyLang("MEME_ENTER_URL");
-                    return;
-                }
+                    if (newMemeName.startsWith("http")) {
+                        message.replyLang("MEME_ENTER_URL");
+                        return;
+                    }
 
-                const memeCheckResult = await bot.database.getMeme(newMemeName, message.guild.id);
-                if (memeCheckResult[0] && memeCheckResult[0].server !== "global") {
-                    message.replyLang("MEME_ADD_EXISTS");
-                    return;
-                }
+                    const memeCheckResult = await bot.database.getMeme(newMemeName, message.guild.id);
+                    if (memeCheckResult[0] && memeCheckResult[0].server !== "global") {
+                        message.replyLang("MEME_ADD_EXISTS");
+                        return;
+                    }
 
-                await bot.database.addMeme(message.author.id, message.guild.id, newMemeName, message.content.substring(args[0].length + args[1].length + args[2].length + 3));
-                message.replyLang("MEME_ADD_SUCCESS");
-            }catch(e){
-                message.replyLang("MEME_ADD_ERROR");
-                bot.raven.captureException(e);
+                    await bot.database.addMeme(message.author.id, message.guild.id, newMemeName, message.content.substring(args[0].length + args[1].length + args[2].length + 3));
+                    message.replyLang("MEME_ADD_SUCCESS");
+                } catch (e) {
+                    message.replyLang("MEME_ADD_ERROR");
+                    bot.raven.captureException(e);
+                }
             }
             return;
         }
         try {
-            const memeResult = await bot.database.getMeme(arg, message.guild.id);
+            const memeResult = await bot.database.getMeme(arg, message.guild ? message.guild.id : "global");
 
             if (memeResult[0]) {
                 message.channel.send(memeResult[0].meme);
