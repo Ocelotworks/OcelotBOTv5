@@ -84,7 +84,7 @@ module.exports = {
              }
              try {
                  await bot.database.addServer(guild.id, guild.owner_id, guild.name, guild.joined_at);
-             }catch(e){https://github.com/slackapi/node-slack-sdkt su
+             }catch(e){
                  bot.logger.warn(`Error adding server ${e}`);
              }
 
