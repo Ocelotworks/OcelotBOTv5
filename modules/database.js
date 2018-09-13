@@ -219,6 +219,20 @@ module.exports = {
                 if(phrase)
                     query = query.andWhere("message", "like", `%${phrase}%`);
                 return query;
+            },
+            getDatabaseStats: async function(){
+                const serverCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_servers");
+                const leftServerCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_leftservers");
+                const memeCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_memes");
+                const reminderCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_reminders");
+                const commandCount = await knex.select(knex.raw("COUNT(*)")).from("commandlog");
+                return {
+                    servers: serverCount[0]['COUNT(*)'],
+                    leftServers: leftServerCount[0]['COUNT(*)'],
+                    memes: memeCount[0]['COUNT(*)'],
+                    reminders: reminderCount[0]['COUNT(*)'],
+                    commands: commandCount[0]['COUNT(*)']
+                }
             }
 
         };
