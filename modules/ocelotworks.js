@@ -18,10 +18,10 @@ const emojiMaps = {
 module.exports = {
     name: "Ocelotworks Specific Functions",
     init: function(bot){
-        let topicCounter = 0;
+        bot.topicCounter = 0;
 
         bot.changeTopic = async function(message){
-            topicCounter = 0;
+            bot.topicCounter = 0;
             bot.logger.log("Changing topic");
             const topicResult = await bot.database.getRandomTopic();
             const topic = topicResult[0];
@@ -33,9 +33,9 @@ module.exports = {
         bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
            // noinspection EqualityComparisonWithCoercionJS
             if(message.guild && message.guild.id == "478950156654346292"){
-               topicCounter++;
+               bot.topicCounter++;
                await bot.database.logMessage(userMaps[message.author.id] || message.author.id, message.content, message.channel.id);
-                if(topicCounter >= 100){
+                if(bot.topicCounter >= 100){
                    bot.changeTopic(message);
                 }
                 if(message.content.toLowerCase() === "too hot"){
