@@ -20,6 +20,7 @@ module.exports = {
                     let attachment = new Discord.Attachment(outputFile, config.get("filename"));
 
                     await message.channel.send("", attachment);
+                    message.channel.stopTyping(true);
                 }catch(e){
                     bot.raven.captureException(e);
                     fs.unlink(outputFile, function deleteFileCB(err){
@@ -31,7 +32,7 @@ module.exports = {
                         }
                     });
                     message.replyLang("GENERIC_ERROR");
-                    message.channel.stopTyping();
+                    message.channel.stopTyping(true);
                 }
             }else if(fs.existsSync(fileName)){
                 bot.logger.log("Using cached avatar file");
@@ -41,7 +42,7 @@ module.exports = {
                 request(url).on("end", ()=>makeMeme(fileName, outputFile)).on("error", (err)=>{
                     bot.raven.captureException(err);
                     message.replyLang("GENERIC_ERROR");
-                    message.channel.stopTyping();
+                    message.channel.stopTyping(true);
                     fs.unlink(outputFile, function deleteFileCB(err){
                         if(err){
                             bot.raven.captureException(err);
@@ -78,7 +79,7 @@ module.exports = {
                         if(err){
                             bot.raven.captureException(err);
                             message.replyLang("CRUSH_ERROR");
-                            message.channel.stopTyping();
+                            message.channel.stopTyping(true);
                             bot.logger.error(`Error during avatar format stage of !crush: ${err.stack}`);
                             fs.unlink(fileName, function deleteFailedCrush(err){
                                 if(err){
@@ -95,7 +96,7 @@ module.exports = {
                                     if(err){
                                         bot.raven.captureException(err);
                                         message.replyLang("CRUSH_ERROR");
-                                        message.channel.stopTyping();
+                                        message.channel.stopTyping(true);
                                         bot.logger.error(`Error during composite stage of !crush: ${err.stack}`);
                                         fs.unlink(fileName, function deleteFailedCrush(err){
                                             if(err){
@@ -109,11 +110,11 @@ module.exports = {
                                         try{
                                             let attachment = new Discord.Attachment(buffer, config.get("filename"));
                                             message.channel.send("", attachment);
-                                            message.channel.stopTyping();
+                                            message.channel.stopTyping(true);
                                         }catch(e){
                                             bot.raven.captureException(e);
                                             bot.logger.error("Error uploading crush file");
-                                            message.channel.stopTyping();
+                                            message.channel.stopTyping(true);
                                             message.replyLang("GENERIC_ERROR");
                                             console.log(e);
                                         }finally{
@@ -135,11 +136,12 @@ module.exports = {
         const url =  await bot.util.getImage(message, args);
         if(!url){
             message.replyLang("CRUSH_NO_USER");
-            message.channel.stopTyping();
+            message.channel.stopTyping(true);
             return;
         }
         downloadOrGet(url, `${config.get("dir")}icon-${encodeURIComponent(url)}.png`, `${config.get("dir")}crush-${encodeURIComponent(url)}.png`)
 
+        message.channel.stopTyping(true);
     }
 };
 
