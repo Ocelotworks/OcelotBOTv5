@@ -17,7 +17,7 @@ module.exports = {
         bot.client = new Discord.Client();
 
         bot.client.on("ready", async function discordReady(){
-            bot.logger.log(`Logged in as ${bot.client.user.tag}!`);
+            bot.logger.log(`Logged in as ${bot.client.user.tag}`);
             bot.raven.captureBreadcrumb({
                 message: "ready",
                 category:  "discord",
@@ -122,7 +122,45 @@ module.exports = {
             await bot.database.leaveServer(guild.id);
         });
 
+        bot.client.on("error", function websocketError(err){
+            bot.logger.log("Websocket Error "+err.message);
+            bot.raven.captureException(err);
+        });
 
+        bot.client.on("guildUnavailable", function guildUnavailable(guild){
+            bot.logger.warn(`Guild ${guild.id} has become unavailable.`);
+            bot.raven.captureBreadcrumb({
+                message: "guildUnavailable",
+                category:  "discord",
+                data: {
+                    id: guild.id,
+                }
+            });
+        });
+
+        bot.client.on("rateLimit", function rateLimit(info){
+            bot.logger.warn(`Rate Limit Hit ${info.method} ${info.path}`);
+            bot.raven.captureBreadcrumb({
+                message: "ratelimit",
+                category:  "discord",
+                data: info
+            });
+            bot.raven.captureException(new Error(`Rate Limit Hit ${info.method} ${info.path}`));
+        });
+
+        bot.client.on("warn", function warn(warning){
+            bot.logger.warn(warning);
+            bot.raven.captureBreadcrumb({
+                message: "warn",
+                category:  "discord",
+                data: {
+                    info: warning
+                }
+            });
+        });
+
+
+        bot.logger.log("Logging in to Discord...");
         bot.client.login();
 
     }
