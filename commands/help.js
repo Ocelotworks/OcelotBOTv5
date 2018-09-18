@@ -80,7 +80,7 @@ module.exports = {
                 if(commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden)
                     if(unique.indexOf(commandUsages[i].name) === -1) {
                         unique.push(commandUsages[i].name);
-                        output += `${commandUsages[i].name}:: ${/*bot.prefixCache[message.guild.id] || */"!"}${commandUsages[i].usage}\n`
+                        output += /*`${commandUsages[i].name}::*/`${/*bot.prefixCache[message.guild.id] || */"!"}${commandUsages[i].usage}\n`
                     }
             }
             message.replyLang("COMMANDS", output);
