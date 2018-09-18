@@ -28,12 +28,14 @@ module.exports = {
                 if(bot.lastFeedbackChannel){
                     const response = message.content.substring(message.content.indexOf(args[2]));
                     if(bot.client.channels.has(bot.lastFeedbackChannel)){
-                        bot.client.channels.get(bot.lastFeedbackChannel).send(`:grey_exclamation: An admin has responded to your feedback.\n\`\`\`\n${response}\n\`\`\`\nUse **!feedback** to reply back.`)
+                        bot.client.channels.get(bot.lastFeedbackChannel).send(`:grey_exclamation: An admin has responded to your feedback.\n\`\`\`\n${response}\n\`\`\`\nUse **!feedback** to reply back.`);
+                        message.channel.send("Responded.");
                     }else{
                         bot.client.shard.send({type: "feedbackResponse", message: {
                             channel: bot.lastFeedbackChannel,
                             response: response
                         }});
+                        message.channel.send("Responded. (On different shard)");
                     }
                 }else{
                     message.channel.send("The last feedback was sent before this shard last restarted.");
