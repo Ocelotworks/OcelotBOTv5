@@ -17,6 +17,10 @@ module.exports = {
                        bot.logger.log(`Loaded admin command ${command.name}`);
                        for(let c = 0; c < command.commands.length; c++){
                            module.exports.subCommands[command.commands[c]] = command;
+                           if(command.init){
+                               bot.logger.log(`Performing init for admin command ${command.name}`);
+                               command.init(bot);
+                           }
                        }
                    }catch(e){
                        bot.raven.captureException(err);
