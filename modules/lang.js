@@ -5,7 +5,7 @@ const request = require('request');
 
 module.exports = {
     name: "Internationalisation",
-    init: async function(bot){
+    init: async function init(bot){
         bot.lang = {};
 
 
