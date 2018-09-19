@@ -84,7 +84,13 @@ module.exports = {
             return;
         }
 
+        if(at.getTime() >= 253370764800000){
+            message.replyLang("REMIND_LONG_TIME");
+            return;
+        }
+
         const offset = at - now.getTime();
+
 
         if(offset < 1000){
             message.replyLang("REMIND_SHORT_TIME");
