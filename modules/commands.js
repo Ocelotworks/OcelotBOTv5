@@ -16,8 +16,10 @@ module.exports = {
                 const command = args[0].substring(prefixLength);
                 if (bot.commands[command]) {
                     if (bot.checkBan(message)) {
+                        bot.bus.emit("commandRatelimited", command, message);
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned or ratelimited: ${command}: ${message.content}`);
                     } else if (!bot.rateLimits[message.author.id] || bot.rateLimits[message.author.id] < 100) {
+                        bot.bus.emit("commandPerformed", command, message);
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) performed command ${command}: ${message.content}`);
                         try {
                             bot.raven.captureBreadcrumb({
@@ -29,8 +31,6 @@ module.exports = {
                                 channel: message.channel.id,
                                 server: message.guild ? message.guild.id : "DM Channel"
                             });
-                            bot.stats.commandsPerMinute++;
-                            bot.stats.commandsTotal++;
                             if (message.channel.permissionsFor && bot.commandUsages[command].requiredPermissions) {
                                 const permissions = await message.channel.permissionsFor(bot.client.user);
                                 if (permissions.has(bot.commandUsages[command].requiredPermissions)) {

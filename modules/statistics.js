@@ -52,6 +52,11 @@ module.exports = {
             bot.stats.messagesTotal++;
         });
 
+        bot.bus.on("commandPerformed", function(){
+            bot.stats.commandsPerMinute++;
+            bot.stats.commandsTotal++;
+        });
+
         // setInterval(async function(){
         //     let points = [];
         //     const keys = Object.keys(bot.stats);
