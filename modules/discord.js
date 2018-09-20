@@ -122,9 +122,9 @@ module.exports = {
             await bot.database.leaveServer(guild.id);
         });
 
-        bot.client.on("error", function websocketError(err){
-            bot.logger.log("Websocket Error "+err.message);
-            bot.raven.captureException(err);
+        bot.client.on("error", function websocketError(evt){
+            bot.logger.log("Websocket Error "+evt.message);
+            bot.raven.captureException(evt.error);
         });
 
         bot.client.on("guildUnavailable", function guildUnavailable(guild){
