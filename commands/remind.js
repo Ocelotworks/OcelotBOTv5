@@ -12,24 +12,29 @@ module.exports = {
     categories: ["tools"],
     init: function init(bot){
         bot.client.on("ready", async function(){
-            bot.logger.log("Loading reminders...");
-            const reminderResult = await bot.database.getReminders();
-            const now = new Date().getTime();
-            for(let i = 0; i < reminderResult.length; i++){
-                const reminder = reminderResult[i];
-                if(bot.client.guilds.has(reminder.server)){
-                    bot.logger.log(`Reminder ${reminder.id} belongs to this shard.`);
-                    const remainingTime = reminder.at - now;
-                    if(remainingTime <= 0){
-                        bot.logger.log(`Reminder ${reminder.id} has expired.`);
+            if(!bot.remindersLoaded) {
+                bot.remindersLoaded = true;
+                bot.logger.log("Loading reminders...");
+                const reminderResult = await bot.database.getReminders();
+                const now = new Date().getTime();
+                for (let i = 0; i < reminderResult.length; i++) {
+                    const reminder = reminderResult[i];
+                    if (bot.client.guilds.has(reminder.server)) {
+                        bot.logger.log(`Reminder ${reminder.id} belongs to this shard.`);
+                        const remainingTime = reminder.at - now;
+                        if (remainingTime <= 0) {
+                            bot.logger.log(`Reminder ${reminder.id} has expired.`);
 
-                        module.exports.sendReminder(reminder, bot);
-                    }else{
-                        bot.util.setLongTimeout(function(){
                             module.exports.sendReminder(reminder, bot);
-                        }, remainingTime);
+                        } else {
+                            bot.util.setLongTimeout(function () {
+                                module.exports.sendReminder(reminder, bot);
+                            }, remainingTime);
+                        }
                     }
                 }
+            }else{
+                bot.logger.log("Prevented duplicate reminder loading");
             }
         });
     },
