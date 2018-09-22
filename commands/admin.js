@@ -37,7 +37,7 @@ module.exports = {
         }else{
             let output = "Invalid usage. Available Commands:\n";
             for(let i in module.exports.subCommands){
-                if(module.exports.subCommands.hasOwnProperty(i))
+                if(module.exports.subCommands.hasOwnProperty(i) && !module.exports.subCommands[i].hidden)
                     output += module.exports.subCommands[i].name+" - "+module.exports.subCommands[i].usage+"\n";
             }
             message.channel.send(output);
