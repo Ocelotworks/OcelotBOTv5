@@ -13,6 +13,31 @@ module.exports = {
     usage: "userstats <user>",
     commands: ["userstats"],
     categories: ["meta"],
+    init: function(bot){
+
+        const milestones = [69, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10];
+        let commandCache = {};
+
+        bot.bus.on("commandPerformed", async function commandPerformed(command, message){
+            const user = message.author.id;
+            if(commandCache[user]){
+                commandCache[user]++;
+            }else{
+                const result = await bot.database.getUserStats(user);
+                if(result[0])
+                    commandCache[user] = result[0].commandCount;
+                else
+                    commandCache[user] = 1;
+
+                bot.logger.warn(`Populated command cache for ${user} at ${commandCache[user]}`);
+            }
+
+            if(milestones.indexOf(commandCache[user]) > -1){
+                bot.logger.log(`Sending congrats to ${user} for ${commandCache[user]} commands`);
+                message.channel.send(`:tada: **Congratulations! You just performed your __${commandCache[user]}th__ command with OcelotBOT!**`);
+            }
+        });
+    },
     run: async function run(message, args, bot) {
         // noinspection EqualityComparisonWithCoercionJS
         if (message.guild.id == "478950156654346292") {
