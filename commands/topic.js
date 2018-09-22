@@ -24,7 +24,12 @@ module.exports = {
                 message.channel.send(`:white_check_mark: Added _<${userMaps[target.author.id]}> ${target.content}_ to the list of topics`)
             }catch(e){
                 message.channel.send("Error adding topic");
+            }finally{
+                if(target.author.id === message.author.id){
+                    message.channel.send("_topicing something you said is like laughing at your own joke_ - Neil 2015");
+                }
             }
+
         // }
     }
 };
