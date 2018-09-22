@@ -108,7 +108,7 @@ module.exports = {
                 try {
                     message.replyLang("REMIND_REMINDER", {
                         username: message.author.id,
-                        date: at.toString(),
+                        date: now.toString(),
                         message: rargs[2]
                     });
                     await bot.database.removeReminder(reminderResponse[0])
