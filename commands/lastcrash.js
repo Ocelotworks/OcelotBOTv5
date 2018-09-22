@@ -8,6 +8,6 @@
     commands: ["lastcrash","uptime"],
      categories: ["meta"],
     run: function run(message, args, bot) {
-       message.replyLang("LASTCRASH", {time: bot.util.prettySeconds(process.uptime)});
+       message.replyLang("LASTCRASH", {time: bot.util.prettySeconds(process.uptime())});
     }
 };
