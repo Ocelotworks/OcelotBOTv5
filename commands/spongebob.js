@@ -18,7 +18,7 @@ module.exports = {
             message.channel.send(output, {
                 embed: {
                     image: {
-                        url: "http://unacc.eu/MX5P.png"
+                        url: "https://imgflip.com/s/meme/Mocking-Spongebob.jpg"
                     }
                 }
             });
