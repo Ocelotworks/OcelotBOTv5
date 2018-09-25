@@ -22,7 +22,15 @@ module.exports = {
 
         const fileName = `temp/${Math.random()}.png`;
 
-        request(url).on("end", ()=>{
+        var req = request(url);
+
+
+        req.on("error", function(err){
+            message.channel.send(":bangbang: Error getting image: "+err.message);
+        });
+
+
+        req.on("end", ()=>{
             gm(fileName)
                 .resize(660)
                 .append("static/society.png")
