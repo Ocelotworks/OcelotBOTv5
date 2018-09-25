@@ -276,15 +276,20 @@ module.exports = {
 
 
         bot.util.getImage = async function getImage(message, args){
-            if(message.mentions && message.mentions.users && message.mentions.users.size > 0){
-                return message.mentions.users.first().avatarURL;
-            }else if(args[1] && args[1].indexOf("http") > -1){
-                return args[1];
-            }else{
-                message.channel.startTyping();
-                const result = bot.util.getImageFromPrevious(message);
-                message.channel.stopTyping();
-                return result;
+            try {
+                if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
+                    return message.mentions.users.first().avatarURL;
+                } else if (args[1] && args[1].indexOf("http") > -1) {
+                    return args[1];
+                } else {
+                    message.channel.startTyping();
+                    const result = bot.util.getImageFromPrevious(message);
+                    message.channel.stopTyping();
+                    return result;
+                }
+            }catch(e){
+                bot.raven.captureException(e);
+                return null;
             }
 
         };
