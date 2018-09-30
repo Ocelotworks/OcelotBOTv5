@@ -7,6 +7,7 @@ const userMaps = {
     "145200249005277184": "neil",
     "146293573422284800": "ocelotbot"
 };
+let lastTopic;
 module.exports = {
     name: "Topic Control",
     usage: "topic [index/up/down/set] <url>",
@@ -16,20 +17,39 @@ module.exports = {
     run: async function(message, args, bot){
         // noinspection EqualityComparisonWithCoercionJS
         if(message.guild.id != "478950156654346292")return;
-        // if(args.length < 3){
-            const messageFetch = await message.channel.fetchMessages({limit: args[1] ? parseInt(args[1])+1 : 2});
-            const target = messageFetch.last();
-            try {
-                await bot.database.addTopic(userMaps[target.author.id], target.content);
-                message.channel.send(`:white_check_mark: Added _<${userMaps[target.author.id]}> ${target.content}_ to the list of topics`)
-            }catch(e){
-                message.channel.send("Error adding topic");
-            }finally{
-                if(target.author.id === message.author.id){
-                    message.channel.send("_topicing something you said is like laughing at your own joke_ - Neil 2015");
+        const arg = args[1].toLowerCase();
+        if(arg === "next"){
+            await bot.changeTopic(message);
+        }else if(arg === "removelast"){
+            if(lastTopic){
+
+            }else{
+                message.channel.send("The shard has restarted since the last !topic");
+            }
+        }else if(arg === "removecurrent"){
+
+        }else if(arg === "count" || arg === "stats"){
+            const stats = await bot.database.getTopicStats();
+            let output = "Topic Stats:\n";
+            for(let i = 0; i < stats.length; i++){
+                output += `**${stats[i].username}**: ${stats[i]['COUNT(*)']}\n`;
+            }
+            message.channel.send(output);
+        }else {
+            const limit = args[1] ? parseInt(args[1]) + 1 : 2;
+            if(isNaN(limit)){
+                message.channel.send("You must enter a number.");
+            }else {
+                const messageFetch = await message.channel.fetchMessages({limit: limit});
+                const target = messageFetch.last();
+                try {
+                    await bot.database.addTopic(userMaps[target.author.id], target.content);
+                    message.channel.send(`:white_check_mark: Added _<${userMaps[target.author.id]}> ${target.content}_ to the list of topics`)
+                } catch (e) {
+                    message.channel.send("Error adding topic");
                 }
             }
+        }
 
-        // }
     }
 };
