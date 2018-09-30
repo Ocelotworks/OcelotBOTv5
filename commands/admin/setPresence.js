@@ -2,7 +2,14 @@ module.exports = {
     name: "Set Presence",
     usage: "setPresence [message]",
     commands: ["setpresence"],
-    run:  function(message, args, bot){
-       bot.presenceMessage = args[3] === "clear" ? null : message.content.indexOf(args[2]);
+    run:  async function(message, args, bot){
+       bot.presenceMessage = args[3] === "clear" ? null : message.content.substring(message.content.indexOf(args[2]));
+        const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+        bot.client.user.setPresence({
+            game: {
+                name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
+                type: "LISTENING"
+            }
+        });
     }
 };
