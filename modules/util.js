@@ -295,24 +295,28 @@ module.exports = {
         };
 
         bot.util.getImageFromPrevious = async function getImageFromPrevious(message){
-            const previousMessages = (await message.channel.fetchMessages({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
-            const targetMessage = previousMessages.find((previousMessage) =>{
-                if(previousMessage.content.startsWith("http"))return true;
-                if(previousMessage.attachments && previousMessage.attachments.size > 0)return true;
-                return (previousMessage.embeds && previousMessage.embeds.size > 0);
-            });
-            if(targetMessage){
-               if(targetMessage.content.startsWith("http")) {
-                   return targetMessage.content.substring(0, targetMessage.content.indexOf(" "));
-               }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
-                   const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
-                   return targetAttachment.url || targetAttachment.proxyURL;
-               }else if(targetMessage.embeds && targetMessage.embeds.size > 0){
-                    const targetEmbed = targetMessage.embeds.find((embed)=> embed.image && (embed.image.url || embed.image.proxyURL));
-                    return targetEmbed.image.url || targetEmbed.image.proxyURL;
-               }
-               return null;
-            }else{
+            try {
+                const previousMessages = (await message.channel.fetchMessages({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
+                const targetMessage = previousMessages.find((previousMessage) => {
+                    if (previousMessage.content.startsWith("http")) return true;
+                    if (previousMessage.attachments && previousMessage.attachments.size > 0) return true;
+                    return (previousMessage.embeds && previousMessage.embeds.size > 0);
+                });
+                if (targetMessage) {
+                    if (targetMessage.content.startsWith("http")) {
+                        return targetMessage.content.substring(0, targetMessage.content.indexOf(" "));
+                    } else if (targetMessage.attachments && targetMessage.attachments.size > 0) {
+                        const targetAttachment = targetMessage.attachments.find((attachment) => (attachment.url || attachment.proxyURL));
+                        return targetAttachment.url || targetAttachment.proxyURL;
+                    } else if (targetMessage.embeds && targetMessage.embeds.size > 0) {
+                        const targetEmbed = targetMessage.embeds.find((embed) => embed.image && (embed.image.url || embed.image.proxyURL));
+                        return targetEmbed.image.url || targetEmbed.image.proxyURL;
+                    }
+                    return null;
+                } else {
+                    return null;
+                }
+            }catch(e){
                 return null;
             }
         };
