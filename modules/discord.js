@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const request = require('request');
 const config = require('config');
+const fs = require('fs');
 module.exports = {
     name: "Discord.js Integration",
     init: function(bot){
@@ -22,13 +23,22 @@ module.exports = {
                 message: "ready",
                 category:  "discord",
             });
-            const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-            bot.client.user.setPresence({
-                game: {
-                    name: `${serverCount} servers.`,
-                    type: "LISTENING"
-                }
+
+            setTimeout(async function(){
+                const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+                bot.client.user.setPresence({
+                    game: {
+                        name: `${serverCount} servers.`,
+                        type: "LISTENING"
+                    }
+                });
+            }, 10000);
+
+            bot.client.voiceConnections.forEach(function(connection){
+               bot.logger.warn("Leaving orphaned voice "+connection.channel);
+               connection.disconnect();
             });
+
         });
 
         bot.client.on("reconnecting", function discordReconnecting(){
@@ -95,10 +105,10 @@ module.exports = {
 
                  const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
                  bot.client.user.setPresence({
-                        game: {
-                            name: `${serverCount} servers.`,
-                            type: "LISTENING"
-                        }
+                     game: {
+                         name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
+                         type: "LISTENING"
+                     }
                  });
              }
              try {
