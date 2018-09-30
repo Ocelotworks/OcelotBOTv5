@@ -13,7 +13,7 @@ module.exports = {
             const prefixLength = prefix.length;
             if (message.content.startsWith(prefix)) {
                 const args = message.content.split(" ");
-                const command = args[0].substring(prefixLength);
+                const command = args[0].substring(prefixLength).toLowerCase();
                 if (bot.commands[command]) {
                     if (bot.checkBan(message)) {
                         bot.bus.emit("commandRatelimited", command, message);
