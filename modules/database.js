@@ -165,7 +165,7 @@ module.exports = {
                     .andWhereRaw("server NOT LIKE 'ethanbot-%'")
                     .orderBy("count", "DESC")
                     .groupBy("commandName")
-                    .limit(5)
+                    .limit(5);
             },
             getUserStats: function (user) {
                 return knex.select(knex.raw("COUNT(*) AS commandCount")).from(COMMANDLOG_TABLE).where({userID: user})
@@ -179,6 +179,15 @@ module.exports = {
                     topic: message,
                     naughty: 0
                 }).into("Topics");
+            },
+            removeTopic: function(id){
+                return knex.delete().from("Topics").where({id: id}).limit(1);
+            },
+            getTopicID: function(user, message){
+                return knex.select(id).from("Topics").where({username: user, topic: message})
+            },
+            getTopicStats: function(){
+                return knex.select(knex.raw("username, COUNT(*)")).from("Topics").orderByRaw("COUNT(*) DESC").groupBy("username");
             },
             logMessage: function(user, message, channel){
                 return knex.insert({
@@ -232,6 +241,26 @@ module.exports = {
                     memes: memeCount[0]['COUNT(*)'],
                     reminders: reminderCount[0]['COUNT(*)'],
                     commands: commandCount[0]['COUNT(*)']
+                }
+            },
+            canSpook: async function(user, target, server){
+                const result = await bot.database.getSpooked(server);
+                return !result[0] || result[0].spooked === user;
+            },
+            spook: function(user, spooker, server){
+                return knex.insert({
+                    spooker: spooker,
+                    spooked: user,
+                    server: server
+                }).into("ocelotbot_spooks");
+            },
+            getSpooked: function(server){
+                return knex.select().from("ocelotbot_spooks").where({server: server}).orderBy("timestamp", "desc").limit(1);
+            },
+            getSpookedServers: async function(){
+                return{
+                    servers: await knex.select("server", knex.raw("COUNT(*)")).from("ocelotbot_spooks").groupBy("server"),
+                    total: await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks")
                 }
             }
 

@@ -14,6 +14,8 @@ module.exports = {
             return this.edit(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
         };
 
+        bot.presenceMessage = "!spook";
+
 
         bot.client = new Discord.Client();
 
@@ -24,15 +26,16 @@ module.exports = {
                 category:  "discord",
             });
 
-            setTimeout(async function(){
-                const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-                bot.client.user.setPresence({
-                    game: {
-                        name: `${serverCount} servers.`,
-                        type: "LISTENING"
-                    }
-                });
-            }, 10000);
+            // setTimeout(async function(){
+            //     const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+            //     bot.client.user.setPresence({
+            //         game: {
+            //             name: `${serverCount} servers.`,
+            //             type: "LISTENING"
+            //         }
+            //     });
+            // }, 10000);
+
 
             bot.client.voiceConnections.forEach(function(connection){
                bot.logger.warn("Leaving orphaned voice "+connection.channel);
@@ -104,12 +107,12 @@ module.exports = {
                  });
 
                  const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-                 bot.client.user.setPresence({
-                     game: {
-                         name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
-                         type: "LISTENING"
-                     }
-                 });
+                 // bot.client.user.setPresence({
+                 //     game: {
+                 //         name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
+                 //         type: "LISTENING"
+                 //     }
+                 // });
              }
              try {
                  await bot.database.addServer(guild.id, guild.owner_id, guild.name, guild.joined_at);
