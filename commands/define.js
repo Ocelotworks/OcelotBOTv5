@@ -5,6 +5,10 @@ module.exports = {
     categories: ["tools", "fun"],
     commands: ["define", "def", "dictionary", "dict"],
     run: function run(message, args, bot) {
+        if(!args[1]){
+            message.channel.send("Usage: !define <term>");
+            return;
+        }
         const term = encodeURIComponent(args.slice(1).join(" "));
         request("http://api.pearson.com/v2/dictionaries/ldoce5/entries?headword="+term+"&limit=1", function(err, resp, body){
             if(err){

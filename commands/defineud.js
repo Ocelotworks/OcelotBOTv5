@@ -7,8 +7,12 @@ module.exports = {
     name: "Urban Dictionary",
     usage: "defineud <word>",
     categories: ["tools", "fun"],
-    commands: ["defineud", "ud", "urban"],
+    commands: ["defineud", "ud", "urban", "urbandictionary"],
     run: function run(message, args, bot) {
+        if(!args[1]){
+            message.channel.send("Usage: !defineud <term>");
+            return;
+        }
         const term = encodeURIComponent(args.slice(1).join(" "));
         request(`http://api.urbandictionary.com/v0/define?term=${term}`, async function(err, resp, body){
             if(err){
