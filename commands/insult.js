@@ -12,6 +12,8 @@ module.exports = {
             return;
         }
 
+        const term = args.slice(1).join(" ");
+
         if(args[1].toLowerCase() === "@everyone"){
             message.channel.send("You are a fucking idiot and you should never @everyone on this discord again and I'm fucking serious. I almost have a feeling you're the only guy making all these @everyone pings because you're a faggot who likes to be annoying and @everyone for the LULZ and get a reaction out of @everyone . Fuck you, be good at something in YOUR life and then maybe try to troll these fucking idiots on discord, like I give a fuck. It's so easy to spot out your @everyone now, you're a retard. Always doing stupid shit like this. Why don't you try to be a good user? Just for once not @everyone ? For once in your fucking life try not to @everyone on this discord. That's just you, you're always right at getting it wrong. Fuck you. You are nothing.");
         }else if(args[1].toLowerCase() === bot.client.user.username.toLowerCase() ||
@@ -20,10 +22,10 @@ module.exports = {
             message.replyLang("INSULT_SELF_INSULT");
         }else{
             if(bot.topicalInsult && bot.usedTopicalInsults.indexOf(message.channel.id) === -1){
-                message.channel.send(bot.topicalInsult.formatUnicorn(args[1]));
+                message.channel.send(bot.topicalInsult.formatUnicorn(term));
                 bot.usedTopicalInsults.push(message.channel.id);
             }else{
-                message.replyLang(`INSULT_${bot.util.intBetween(1,114)}`, args[1]);
+                message.replyLang(`INSULT_${bot.util.intBetween(1,114)}`, term);
             }
         }
 
