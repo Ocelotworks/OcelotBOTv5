@@ -8,8 +8,9 @@ module.exports = {
         bot.commandUsages = {};
         bot.commands = {};
         bot.rateLimits = {};
+        bot.prefixCache = {};
         bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
-            const prefix = config.get("General.DefaultPrefix");
+            const prefix = message.guild && bot.prefixCache[message.guild.id] || config.get("General.DefaultPrefix");
             const prefixLength = prefix.length;
             if (message.content.startsWith(prefix)) {
                 const args = message.content.split(" ");
@@ -45,6 +46,7 @@ module.exports = {
                             }
                             bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
                         } catch (e) {
+                            message.channel.stopTyping(true);
                             message.reply(e.toString());
                             console.log(e);
                             bot.raven.captureException(e);
@@ -70,7 +72,18 @@ module.exports = {
             bot.rateLimits = {};
         }, 300000);
 
+
+        module.exports.loadPrefixCache(bot);
         module.exports.loadCommands(bot);
+    },
+    loadPrefixCache: async function(bot){
+
+        const prefixes = await bot.database.getPrefixes();
+        for(let i = 0; i < prefixes.length; i++){
+            const prefix = prefixes[i];
+            bot.prefixCache[prefix.server] = prefix.prefix;
+        }
+        bot.logger.log("Populated prefix cache with "+Object.keys(bot.prefixCache).length+" servers");
     },
     loadCommands: function (bot) {
         fs.readdir("commands", function readCommands(err, files) {
