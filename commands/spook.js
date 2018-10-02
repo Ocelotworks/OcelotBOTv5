@@ -88,6 +88,11 @@ module.exports = {
                 message.channel.send(`:ghost: **<@${target.id}> has been spooked!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
                 await bot.database.spook(target.id, message.author.id, message.guild.id);
                 await bot.setSpookyPresence();
+                clearTimeout(bot.spooked[message.guild.id].timer);
+                bot.spooked[message.guild.id] = {
+                    user: target,
+                    timer: setTimeout(bot.generateNewSpook, 8.64e+7, server) //24 Hours
+                };
             }
         }else{
             const result = await bot.database.getSpooked(message.guild.id);
