@@ -15,12 +15,59 @@ module.exports = {
             });
         };
 
-        bot.client.on("ready", async function(){
+        bot.client.on("ready", async function ready(){
             bot.logger.log("Setting spooky presence");
             await bot.setSpookyPresence();
-        })
 
 
+            bot.spooked = {};
+
+            const spookedResult = await bot.database.getSpooked();
+
+            for(let i = 0; i < spookedResult.length; i++){
+                const spook = spookedResult[i];
+                if(bot.client.guilds.has(spook.server) && !bot.spooked[spook.server]){
+                    bot.spooked[spook.server] = {
+                        user: spook.spooked,
+                        timer: setTimeout(bot.generateNewSpook, 8.64e+7, spook.server) //24 Hours
+                    }
+                }
+            }
+            bot.logger.log("This shard has "+Object.keys(bot.spooked).length+" spooked servers.");
+        });
+
+
+        bot.client.on("message", function(message){
+           if(bot.spooked && message.guild && bot.spooked[message.guild.id]){
+               // noinspection EqualityComparisonWithCoercionJS
+               if(bot.spooked[message.guild.id].user == message.author.id){
+                   clearTimeout(bot.spooked[message.guild.id].timer);
+                   bot.spooked[message.guild.id].timer = setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id);
+               }
+           }
+        });
+
+
+        bot.generateNewSpook = async function generateNewSpook(server){
+            bot.logger.warn("Generating new spook for "+server);
+            if (!bot.client.guilds.has(server)) {
+                bot.logger.warn("Spooked server no longer exists.");
+            }else{
+                const guild = bot.client.guilds.get(server);
+                const lastSpook = bot.database.getSpooked(server);
+                const channel = guild.defaultChannel;
+                const lastMessages = await channel.fetchMessages({limit: 50});
+                const target = lastMessages.random(1).author.id;
+                bot.logger.log("New target is "+target);
+                bot.logger.log(`Spooked server name is ${guild.name} - notifying in ${guild.defaultChannel.name} (${guild.defaultChannel.id})`);
+                guild.defaultChannel.send(`:ghost: The spooked user (<@${lastSpook[0].spooked}>) has not spoken for 24 hours.\n**The spook passes to <@${target}>!**`);
+                await bot.database.spook(target, lastSpook[0].spooked, server);
+                bot.spooked[server] = {
+                    user: target,
+                    timer: setTimeout(bot.generateNewSpook, 8.64e+7, server) //24 Hours
+                };
+            }
+        };
 
     },
     run: async function(message, args, bot){
