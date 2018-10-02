@@ -48,7 +48,7 @@ module.exports = {
         });
 
 
-        bot.generateNewSpook = async function generateNewSpook(server){
+        bot.generateNewSpook = async function generateNewSpook(server, left){
             bot.logger.warn("Generating new spook for "+server);
             if (!bot.client.guilds.has(server)) {
                 bot.logger.warn("Spooked server no longer exists.");
@@ -60,7 +60,11 @@ module.exports = {
                 const target = lastMessages.random(1).author.id;
                 bot.logger.log("New target is "+target);
                 bot.logger.log(`Spooked server name is ${guild.name} - notifying in ${guild.defaultChannel.name} (${guild.defaultChannel.id})`);
-                guild.defaultChannel.send(`:ghost: The spooked user (<@${lastSpook[0].spooked}>) has not spoken for 24 hours.\n**The spook passes to <@${target}>!**`);
+                if(left)
+                    guild.defaultChannel.send(`:ghost: The spooked user has left the server.\n**The spook passes to <@${target}>!**`);
+                else
+                    guild.defaultChannel.send(`:ghost: The spooked user (<@${lastSpook[0].spooked}>) has not spoken for 24 hours.\n**The spook passes to <@${target}>!**`);
+
                 await bot.database.spook(target, lastSpook[0].spooked, server);
                 bot.spooked[server] = {
                     user: target,
@@ -68,6 +72,15 @@ module.exports = {
                 };
             }
         };
+
+        bot.client.on("guildMemberRemove", async function guildMemberRemove(member){
+            const guild = member.guild;
+            const result = await bot.database.getSpooked(guild.id);
+            if(result[0] && result[0].spooked !== member.id){
+                bot.logger.log("Spooked user left");
+                bot.generateNewSpook(guild.id, true);
+            }
+        });
 
     },
     run: async function(message, args, bot){
@@ -88,10 +101,11 @@ module.exports = {
                 message.channel.send(`:ghost: **<@${target.id}> has been spooked!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
                 await bot.database.spook(target.id, message.author.id, message.guild.id);
                 await bot.setSpookyPresence();
-                clearTimeout(bot.spooked[message.guild.id].timer);
+                if(bot.spooked[message.guild.id])
+                    clearTimeout(bot.spooked[message.guild.id].timer);
                 bot.spooked[message.guild.id] = {
                     user: target,
-                    timer: setTimeout(bot.generateNewSpook, 8.64e+7, server) //24 Hours
+                    timer: setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id) //24 Hours
                 };
             }
         }else{
