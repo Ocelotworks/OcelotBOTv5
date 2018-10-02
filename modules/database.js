@@ -255,6 +255,8 @@ module.exports = {
                 }).into("ocelotbot_spooks");
             },
             getSpooked: function(server){
+                if(!server)
+                    return knex.select().from("ocelotbot_spooks").orderBy("timestamp", "desc");
                 return knex.select().from("ocelotbot_spooks").where({server: server}).orderBy("timestamp", "desc").limit(1);
             },
             getSpookedServers: async function(){
@@ -263,7 +265,6 @@ module.exports = {
                     total: await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks")
                 }
             }
-
         };
     }
 };
