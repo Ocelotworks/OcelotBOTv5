@@ -19,7 +19,6 @@ module.exports = {
             bot.logger.log("Setting spooky presence");
             await bot.setSpookyPresence();
 
-
             bot.spooked = {};
 
             const spookedResult = await bot.database.getSpooked();
@@ -34,6 +33,9 @@ module.exports = {
                 }
             }
             bot.logger.log("This shard has "+Object.keys(bot.spooked).length+" spooked servers.");
+
+
+
         });
 
 
@@ -54,20 +56,27 @@ module.exports = {
                 bot.logger.warn("Spooked server no longer exists.");
             }else{
                 const guild = bot.client.guilds.get(server);
-                const lastSpook = bot.database.getSpooked(server);
-                const channel = guild.defaultChannel;
-                const lastMessages = await channel.fetchMessages({limit: 50});
-                const target = lastMessages.random(1).author.id;
-                bot.logger.log("New target is "+target);
-                bot.logger.log(`Spooked server name is ${guild.name} - notifying in ${guild.defaultChannel.name} (${guild.defaultChannel.id})`);
+                const lastSpook = await bot.database.getSpooked(server);
+                const availableChannels = guild.channels.filter(function(guildChannel){
+                    return guildChannel.type === "text" && guildChannel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
+                });
+                const channel = availableChannels.random(1)[0];
+                const lastMessages = (await channel.fetchMessages({limit: 50})).filter(function(message){
+                    return !message.author.bot && message.guild.members.has(message.author.id);
+                });
+                const target = lastMessages.random(1)[0].author;
+                bot.logger.log("New target is "+target.id);
+                bot.logger.log(`Spooked server name is ${guild.name} - notifying in ${channel.name} (${channel.id})`);
                 if(left)
-                    guild.defaultChannel.send(`:ghost: The spooked user has left the server.\n**The spook passes to <@${target}>!**`);
+                    channel.send(`:ghost: The spooked user has left the server.\n**The spook passes to <@${target.id}>!**`);
                 else
-                    guild.defaultChannel.send(`:ghost: The spooked user (<@${lastSpook[0].spooked}>) has not spoken for 24 hours.\n**The spook passes to <@${target}>!**`);
+                    channel.send(`:ghost: The spooked user (<@${lastSpook[0].spooked}>) has not spoken for 24 hours.\n**The spook passes to <@${target.id}>!**`);
 
-                await bot.database.spook(target, lastSpook[0].spooked, server);
+                await bot.database.spook(target.id, lastSpook[0].spooked, server, target.username, lastSpook[0].spookedUsername);
+                if(bot.spooked[server].timer)
+                    clearTimeout(bot.spooked[server].timer);
                 bot.spooked[server] = {
-                    user: target,
+                    user: target.id,
                     timer: setTimeout(bot.generateNewSpook, 8.64e+7, server) //24 Hours
                 };
             }
@@ -99,7 +108,7 @@ module.exports = {
             }else{
                 const target = message.mentions.users.first();
                 message.channel.send(`:ghost: **<@${target.id}> has been spooked!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
-                await bot.database.spook(target.id, message.author.id, message.guild.id);
+                await bot.database.spook(target.id, message.author.id, message.guild.id, message.author.username, target.username);
                 await bot.setSpookyPresence();
                 if(bot.spooked[message.guild.id])
                     clearTimeout(bot.spooked[message.guild.id].timer);
