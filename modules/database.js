@@ -243,20 +243,30 @@ module.exports = {
                     commands: commandCount[0]['COUNT(*)']
                 }
             },
-            canSpook: async function(user, target, server){
+            canSpook: async function canSpook(user, server){
                 const result = await bot.database.getSpooked(server);
+                if(!result[0])
+                     bot.logger.log(`${user} can spook because there have been no spooks.`);
+                else if(result[0].spooked !== user)
+                    bot.logger.log(`${user} can't spook ${result[0].spooked} is spooked not ${user}`);
+
                 return !result[0] || result[0].spooked === user;
             },
-            spook: function(user, spooker, server){
+            spook: function(user, spooker, server, spookerUsername, spookedUsername){
                 return knex.insert({
                     spooker: spooker,
                     spooked: user,
-                    server: server
+                    server: server,
+                    spookerUsername: spookerUsername,
+                    spookedUsername: spookedUsername
                 }).into("ocelotbot_spooks");
             },
             getSpooked: function(server){
-                if(!server)
+                if(!server) {
+                    console.log("no server");
+                    console.log(server);
                     return knex.select().from("ocelotbot_spooks").orderBy("timestamp", "desc");
+                }
                 return knex.select().from("ocelotbot_spooks").where({server: server}).orderBy("timestamp", "desc").limit(1);
             },
             getSpookedServers: async function(){
@@ -264,7 +274,17 @@ module.exports = {
                     servers: await knex.select("server", knex.raw("COUNT(*)")).from("ocelotbot_spooks").groupBy("server"),
                     total: await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks")
                 }
+            },
+            getDirtySpooks: function(){
+                return knex.select().from("ocelotbot_spooks").whereNull("spookerUsername").orWhereNull("spookedUsername");
+            },
+            updateSpook: function(id, spook){
+                return knex("ocelotbot_spooks").update(spook).where({id: id}).limit(1);
+            },
+            getSpookCount: function(user, server) {
+                return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server: server, spooked: user});
             }
+
         };
     }
 };

@@ -107,15 +107,20 @@ module.exports = {
                 message.channel.send(":ghost: You can't spook someone who's offline!");
             }else{
                 const target = message.mentions.users.first();
-                message.channel.send(`:ghost: **<@${target.id}> has been spooked!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
-                await bot.database.spook(target.id, message.author.id, message.guild.id, message.author.username, target.username);
-                await bot.setSpookyPresence();
-                if(bot.spooked[message.guild.id])
-                    clearTimeout(bot.spooked[message.guild.id].timer);
-                bot.spooked[message.guild.id] = {
-                    user: target,
-                    timer: setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id) //24 Hours
-                };
+                /* noinspection EqualityComparisonWithCoercionJS*/if(target.id == message.author.id){
+                    message.channel.send(":ghost: You can't spook yourself!");
+                }else {
+                    const result = await bot.database.getSpookCount(target.id, message.guild.id);
+                    message.channel.send(`:ghost: **<@${target.id}> has been spooked for the ${bot.util.getNumberPrefix(result[0]['COUNT(*)'])} time!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
+                    await bot.database.spook(target.id, message.author.id, message.guild.id, message.author.username, target.username);
+                    await bot.setSpookyPresence();
+                    if (bot.spooked[message.guild.id])
+                        clearTimeout(bot.spooked[message.guild.id].timer);
+                    bot.spooked[message.guild.id] = {
+                        user: target,
+                        timer: setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id) //24 Hours
+                    };
+                }
             }
         }else{
             const result = await bot.database.getSpooked(message.guild.id);

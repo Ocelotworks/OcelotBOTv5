@@ -295,28 +295,24 @@ module.exports = {
         };
 
         bot.util.getImageFromPrevious = async function getImageFromPrevious(message){
-            try {
-                const previousMessages = (await message.channel.fetchMessages({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
-                const targetMessage = previousMessages.find((previousMessage) => {
-                    if (previousMessage.content.startsWith("http")) return true;
-                    if (previousMessage.attachments && previousMessage.attachments.size > 0) return true;
-                    return (previousMessage.embeds && previousMessage.embeds.size > 0);
-                });
-                if (targetMessage) {
-                    if (targetMessage.content.startsWith("http")) {
-                        return targetMessage.content.substring(0, targetMessage.content.indexOf(" "));
-                    } else if (targetMessage.attachments && targetMessage.attachments.size > 0) {
-                        const targetAttachment = targetMessage.attachments.find((attachment) => (attachment.url || attachment.proxyURL));
-                        return targetAttachment.url || targetAttachment.proxyURL;
-                    } else if (targetMessage.embeds && targetMessage.embeds.size > 0) {
-                        const targetEmbed = targetMessage.embeds.find((embed) => embed.image && (embed.image.url || embed.image.proxyURL));
-                        return targetEmbed.image.url || targetEmbed.image.proxyURL;
-                    }
-                    return null;
-                } else {
-                    return null;
-                }
-            }catch(e){
+            const previousMessages = (await message.channel.fetchMessages({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
+            const targetMessage = previousMessages.find((previousMessage) =>{
+                if(previousMessage.content.startsWith("http"))return true;
+                if(previousMessage.attachments && previousMessage.attachments.size > 0)return true;
+                return (previousMessage.embeds && previousMessage.embeds.size > 0);
+            });
+            if(targetMessage){
+               if(targetMessage.content.startsWith("http")) {
+                   return targetMessage.content.substring(0, targetMessage.content.indexOf(" "));
+               }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
+                   const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
+                   return targetAttachment.url || targetAttachment.proxyURL;
+               }else if(targetMessage.embeds && targetMessage.embeds.size > 0){
+                    const targetEmbed = targetMessage.embeds.find((embed)=> embed.image && (embed.image.url || embed.image.proxyURL));
+                    return targetEmbed.image.url || targetEmbed.image.proxyURL;
+               }
+               return null;
+            }else{
                 return null;
             }
         };
@@ -329,6 +325,21 @@ module.exports = {
                 return R;
             }
         });
+
+        bot.util.getNumberPrefix = function getNumberPrefix(i){
+            let j = i % 10,
+                k = i % 100;
+            if (j === 1 && k !== 11) {
+                return i + "st";
+            }
+            if (j === 2 && k !== 12) {
+                return i + "nd";
+            }
+            if (j === 3 && k !== 13) {
+                return i + "rd";
+            }
+            return i + "th";
+        }
 
     }
 };
