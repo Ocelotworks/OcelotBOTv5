@@ -12,6 +12,6 @@ module.exports = {
             return;
         }
 
-        message.channel.send([...(message.content.substring(args[0].length+1))].join(" "));
+        message.channel.send([...(message.cleanContent.substring(args[0].length+1))].join(" "));
     }
 };

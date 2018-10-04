@@ -39,7 +39,7 @@ module.exports = {
             message.replyLang("CHINESE_NO_TEXT");
             return;
         }
-        const sentence = message.content.substring(args[0].length+1);
+        const sentence = message.cleanContent.substring(args[0].length+1);
         const letters = [...sentence];
         let output = "";
         for(let i in letters)

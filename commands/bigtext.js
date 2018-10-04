@@ -12,7 +12,7 @@ module.exports = {
         }
 
         message.channel.startTyping();
-        request(`http://api.img4me.com/?font=arial&fcolor=FFFFFF&size=35&type=png&text=${encodeURIComponent(message.content.substring(args[0].length+1))}`, (err, response, body)=>{
+        request(`http://api.img4me.com/?font=arial&fcolor=FFFFFF&size=35&type=png&text=${encodeURIComponent(message.cleanContent.substring(args[0].length+1))}`, (err, response, body)=>{
             message.channel.send("", {
                 embed: {
                     image: {

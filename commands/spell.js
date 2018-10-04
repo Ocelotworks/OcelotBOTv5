@@ -79,7 +79,7 @@ module.exports = {
         };
 
 
-        let target = message.content.substring(args[0].length).trim();
+        let target = message.cleanContent.substring(args[0].length).trim();
 
         for(let passes = 0; passes < 20; passes++){
             let done = true;
@@ -107,7 +107,8 @@ module.exports = {
 
         for(let i = 0; i < output.length; i++){
             try {
-                await targetMessage.react(output[i]);
+                if(output[i])
+                    await targetMessage.react(output[i]);
             }catch(e){
                 bot.logger.log("Invalid emoji "+output[i]);
             }
