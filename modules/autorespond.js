@@ -15,8 +15,10 @@ module.exports = {
                     else
                         bot.lastMessageCounts[message.channel.id] = 1;
                     if(bot.lastMessageCounts[message.channel.id] >= 3){
-                        bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
-                        message.channel.send(bot.lastMessages[message.channel.id]);
+                        if(!message.author.bot && !message.content.match(/@everyone|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
+                            bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
+                            message.channel.send(message.content);
+                        }
                         bot.lastMessageCounts[message.channel.id] = -1000;
                     }
                 }else{
