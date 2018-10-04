@@ -10,6 +10,7 @@ module.exports = {
         bot.rateLimits = {};
         bot.prefixCache = {};
         bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
+            if(message.author.bot)return;
             const prefix = message.guild && bot.prefixCache[message.guild.id] || config.get("General.DefaultPrefix");
             const prefixLength = prefix.length;
             if (message.content.startsWith(prefix)) {
