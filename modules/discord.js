@@ -42,6 +42,25 @@ module.exports = {
                connection.disconnect();
             });
 
+            const spooks = await bot.database.getDirtySpooks();
+            for(let i = 0; i < spooks.length; i++){
+                let output = {};
+                const spook = spooks[i];
+                if(bot.client.users.has(spook.spooker)){
+                    output.spookerUsername = bot.client.users.get(spook.spooker).username;
+                }
+
+                if(bot.client.users.has(spook.spooked)){
+                    output.spookedUsername = bot.client.users.get(spook.spooked).username;
+                }
+
+                if(output.spookedUsername || output.spookerUsername) {
+                    await bot.database.updateSpook(spook.id, output);
+                    console.log("Updating spook");
+                    console.log(output);
+                }
+            }
+
         });
 
         bot.client.on("reconnecting", function discordReconnecting(){
