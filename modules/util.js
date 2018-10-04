@@ -241,7 +241,7 @@ module.exports = {
             message.channel.startTyping();
             gm(filePath)
                 .font("static/arial.ttf", textSize)
-                .drawText(x, y, wrap(message.content.substring(args[0].length).substring(0,1010), {width: textWidth, indent: ''}))
+                .drawText(x, y, wrap(message.cleanContent.substring(args[0].length).substring(0,1010), {width: textWidth, indent: ''}))
                 .toBuffer('PNG', function convertToPNG(err, buffer){
                     if(err){
                         message.replyLang("GENERIC_ERROR");

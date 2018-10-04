@@ -33,9 +33,6 @@ module.exports = {
                 }
             }
             bot.logger.log("This shard has "+Object.keys(bot.spooked).length+" spooked servers.");
-
-
-
         });
 
 
@@ -91,6 +88,20 @@ module.exports = {
             }
         });
 
+
+        bot.sendSpookEnd = async function sendSpookSend(id){
+            if(!bot.client.guilds.has(id))return;
+            const server = bot.client.guilds.get(id);
+            bot.logger.log(`Sending spook end for ${server.name} (${server.id})`);
+            const eligibleChannels = server.channels.filter(function(channel){
+                return channel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
+            });
+
+            const targetChannel = eligibleChannels.first();
+
+            bot.logger.log(`Target channel for ${server.name} (${server.id}) is ${targetChannel.name} (${targetChannel.id})`);
+        };
+
     },
     run: async function(message, args, bot){
         if(!message.guild){
@@ -99,6 +110,8 @@ module.exports = {
            const canSpook = await bot.database.canSpook(message.author.id, message.guild.id);
             if (!canSpook) {
                 message.channel.send(":ghost: You are unable to spook. Type !spook to see who is currently spooked.")
+            }else if(message.content.indexOf("@everyone") > -1 || message.content.indexOf("@here") > -1){
+                message.channel.send(":ghost: Seriously? You can't spook everyone....");
             }else if (!message.mentions || !message.mentions.users || message.mentions.users.size === 0) {
                 message.channel.send(":ghost: To spook someone you must @mention them.");
             }else if(message.mentions.users.first().bot){
@@ -107,11 +120,12 @@ module.exports = {
                 message.channel.send(":ghost: You can't spook someone who's offline!");
             }else{
                 const target = message.mentions.users.first();
-                /* noinspection EqualityComparisonWithCoercionJS*/if(target.id == message.author.id){
+                // noinspection EqualityComparisonWithCoercionJS
+                if(target.id == message.author.id){
                     message.channel.send(":ghost: You can't spook yourself!");
                 }else {
                     const result = await bot.database.getSpookCount(target.id, message.guild.id);
-                    message.channel.send(`:ghost: **<@${target.id}> has been spooked for the ${bot.util.getNumberPrefix(result[0]['COUNT(*)'])} time!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
+                    message.channel.send(`:ghost: **<@${target.id}> has been spooked for the ${bot.util.getNumberPrefix(result[0]['COUNT(*)']+1)} time!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
                     await bot.database.spook(target.id, message.author.id, message.guild.id, message.author.username, target.username);
                     await bot.setSpookyPresence();
                     if (bot.spooked[message.guild.id])
