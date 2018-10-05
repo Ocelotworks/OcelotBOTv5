@@ -9,7 +9,12 @@ const   config          = require('config'),
         EventEmitter    = require('events'),
         logger          = require('ocelot-logger'),
         Raven           = require('raven'),
-        os              = require('os');
+        os              = require('os'),
+        dateFormat      = require('dateformat'),
+        colors          = require('colors'),
+        caller_id       = require('caller-id'),
+        path            = require('path');
+
 
 //The app object is shared between all modules, it will contain any functions the modules expose and also the event bus.
 let bot = {};
@@ -20,14 +25,38 @@ let bot = {};
  */
 function init(){
     bot.bus = new EventEmitter();
-    bot.logger = logger;
 
-    bot.admins = ["139871249567318017", "145200249005277184"];
+    bot.admins = ["139871249567318017", "145200249005277184", "81744644110557184", "207584178538020865"];
 
     Raven.config(config.get("Raven.DSN"), {
         environment: os.hostname() === "Earth" ? "production" : "development"
     }).install();
     bot.raven = Raven;
+
+    bot.logger = {};
+    bot.logger.log = function log(message, caller, error){
+        if(!caller)
+            caller = caller_id.getData();
+        let file = ["Nowhere"];
+        if(caller.filePath)
+            file = caller.filePath.split(path.sep);
+
+        let origin = `[${file[file.length-1]}${caller.functionName ? "/"+caller.functionName : ""}] `.bold;
+
+        let output = origin+message;
+        if(error)
+            console.error(`[${bot.client && bot.client.shard ? bot.client.shard.id : "?"}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`+output);
+        else
+            console.log(`[${bot.client && bot.client.shard ? bot.client.shard.id : "?"}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`+output);
+    };
+
+    bot.logger.error = function error(message){
+        bot.logger.log(message.red, caller_id.getData(), true);
+    };
+
+    bot.logger.warn = function warn(message){
+        bot.logger.log(message.yellow, caller_id.getData());
+    };
 
 
     loadModules();
