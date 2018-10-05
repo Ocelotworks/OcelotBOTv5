@@ -62,7 +62,8 @@
     "bans",
     "commands",
     "ocelotworks",
-    "seasonal"
+    "seasonal",
+    "autorespond"
   ],
   "Seasonal": [
     {
