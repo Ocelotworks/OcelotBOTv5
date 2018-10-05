@@ -275,6 +275,9 @@ module.exports = {
                     total: await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks")
                 }
             },
+            getParticipatingServers: function(){
+                return knex.select().distinct("server").from("ocelotbot_spooks");
+            },
             getDirtySpooks: function(){
                 return knex.select().from("ocelotbot_spooks").whereNull("spookerUsername").orWhereNull("spookedUsername");
             },
@@ -283,6 +286,14 @@ module.exports = {
             },
             getSpookCount: function(user, server) {
                 return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server: server, spooked: user});
+            },
+            getSpookStats: async function(server){
+                return {
+                    mostSpooked: (await knex.select("spooked", knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server: server}).groupBy("spooked").orderByRaw("COUNT(*) DESC").limit(1))[0],
+                    totalSpooks: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server: server}))[0]['COUNT(*)'],
+                    //I'm sorry papa
+                    longestSpook: (await knex.select("spooked", knex.raw("TIMESTAMPDIFF(SECOND, timestamp, (SELECT timestamp FROM ocelotbot_spooks AS spooks3 WHERE id = (SELECT min(id) FROM ocelotbot_spooks AS spooks2 WHERE spooks2.id > ocelotbot_spooks.id AND spooks2.server = ocelotbot_spooks.server))) as diff")).from("ocelotbot_spooks").where({server: server}).orderBy("diff", "DESC").limit(1))[0]
+                }
             }
 
         };
