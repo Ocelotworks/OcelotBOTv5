@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const end = new Date(1541030400000);
 module.exports = {
     name: "Spook",
     usage: "spook <user>",
@@ -103,7 +104,9 @@ module.exports = {
                 const serverID = servers[i].server;
                 if(bot.client.guilds.has(serverID)){
                     const spooked = await bot.database.getSpooked(serverID);
-                    if(!bot.client.guilds.get(serverID).members.has(spooked[0].spooked)){
+                    const guild = bot.client.guilds.get(serverID);
+                    const members = guild.members;
+                    if(!guild.members.has(spooked[0].spooked) || guild.members.get(spooked[0].spooked).bot){
                         bot.logger.log("Spooked user no longer exists for "+serverID);
                         bot.generateNewSpook(serverID, true);
                     }
@@ -153,7 +156,7 @@ module.exports = {
     run: async function(message, args, bot){
         if(!message.guild){
             message.channel.send("This command cannot be used in a DM or group.");
-        }else if(args[1]){
+        }else if(args.length > 1){
            const canSpook = await bot.database.canSpook(message.author.id, message.guild.id);
             if (!canSpook) {
                 message.channel.send(":ghost: You are unable to spook. Type !spook to see who is currently spooked.")
@@ -178,15 +181,16 @@ module.exports = {
                     if (bot.spooked[message.guild.id])
                         clearTimeout(bot.spooked[message.guild.id].timer);
                     bot.spooked[message.guild.id] = {
-                        user: target,
+                        user: target.id,
                         timer: setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id) //24 Hours
                     };
                 }
             }
         }else{
+            const now = new Date();
             const result = await bot.database.getSpooked(message.guild.id);
             if(result[0]){
-                message.channel.send(`:ghost: <@${result[0].spooked}> is currently spooked.\nThey are able to spook anyone else on the server with !spook @user.\n**The person who is spooked at midnight on the 31st of October loses!**`)
+                message.channel.send(`:ghost: <@${result[0].spooked}> is currently spooked.\nThey are able to spook anyone else on the server with !spook @user.\n**The spooking ends in ${bot.util.prettySeconds((end-now)/1000)}**`)
             }else{
                 message.channel.send(`:ghost: Nobody is currently spooked! Spook someone with !spook @user\n**The person who is spooked at midnight on the 31st of October loses!**`)
             }
