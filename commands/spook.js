@@ -45,10 +45,10 @@ module.exports = {
                if(bot.spooked[message.guild.id].user == message.author.id){
                    clearTimeout(bot.spooked[message.guild.id].timer);
                    bot.spooked[message.guild.id].timer = setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id);
-                   if(message.channel.permissionsFor(bot.client.user).has("ADD_REACTIONS") && Math.random() > bot.spookReactChance){
-                        bot.logger.log(`Reacting to message in ${message.guild.name} (${message.guild.id})`);
-                        message.react("👻");
-                   }
+                   // if(message.channel.permissionsFor(bot.client.user).has("ADD_REACTIONS") && Math.random() > bot.spookReactChance){
+                   //      bot.logger.log(`Reacting to message in ${message.guild.name} (${message.guild.id})`);
+                   //      message.react("👻");
+                   // }
                }
            }
         });
@@ -61,16 +61,41 @@ module.exports = {
             }else{
                 const guild = bot.client.guilds.get(server);
                 const lastSpook = await bot.database.getSpooked(server);
-                const availableChannels = guild.channels.filter(function(guildChannel){
-                    return guildChannel.type === "text" && guildChannel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
+                let channel = guild.channels.find(function(channel){
+                   return (channel.name.indexOf("general") > -1 || channel.name.indexOf("main") > -1) && channel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
                 });
-                const channel = availableChannels.random(1)[0];
+                if(!channel) {
+                    const availableChannels = guild.channels.filter(function (guildChannel) {
+                        return guildChannel.type === "text" && guildChannel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
+                    });
+                    channel = availableChannels.random(1)[0];
+                }
                 const lastMessages = (await channel.fetchMessages({limit: 50})).filter(function(message){
                     return !message.author.bot && message.guild.members.has(message.author.id);
                 });
-                const target = lastMessages.random(1)[0].author;
+                const randomMessage = lastMessages.random(1)[0];
+                let target;
+                if(randomMessage){
+                    target = randomMessage.author;
+                }else{
+                    const onlineUsers = guild.members.filter(function(member){
+                        return !member.user.bot && member.id !== lastSpook[0].spooked && member.user.presence.status !== "offline"
+                    });
+                    if(onlineUsers.size === 0){
+                        bot.logger.warn(`Couldn't generate a new spook for ${guild.name} (${guild.id})`);
+                        if(bot.spooked[server].timer)
+                            clearTimeout(bot.spooked[server].timer);
+                        bot.spooked[server] = {
+                            user: bot.spooked[server].user,
+                            timer: setTimeout(bot.generateNewSpook, 8.64e+7, server) //24 Hours
+                        };
+                        return;
+                    }
+                    target = onlineUsers.random(1);
+                }
+
                 bot.logger.log("New target is "+target.id);
-                bot.logger.log(`Spooked server name is ${guild.name} - notifying in ${channel.name} (${channel.id})`);
+                bot.logger.log(`Spooked server name is ${guild.name} (${guild.id}) - notifying in ${channel.name} (${channel.id})`);
                 if(left)
                     channel.send(`:ghost: The spooked user has left the server.\n**The spook passes to <@${target.id}>!**`);
                 else
