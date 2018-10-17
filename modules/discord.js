@@ -14,6 +14,21 @@ module.exports = {
             return this.edit(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
         };
 
+        const oldsend = Discord.TextChannel.prototype.send;
+        Discord.TextChannel.prototype.send = function send(content, options){
+            oldsend.apply(this, [content, options]);
+            let output = "";
+            if(this.guild)
+                output += `${this.guild.name} (${this.guild.id})`;
+            else
+                output += "DM Channel";
+            output += " -> ";
+            output += content;
+            if(options)
+                output += " (Embed)";
+            bot.logger.log(output);
+        };
+
         bot.presenceMessage = "!spook";
 
 
