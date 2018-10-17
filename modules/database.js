@@ -263,8 +263,6 @@ module.exports = {
             },
             getSpooked: function(server){
                 if(!server) {
-                    console.log("no server");
-                    console.log(server);
                     return knex.select().from("ocelotbot_spooks").orderBy("timestamp", "desc");
                 }
                 return knex.select().from("ocelotbot_spooks").where({server: server}).orderBy("timestamp", "desc").limit(1);

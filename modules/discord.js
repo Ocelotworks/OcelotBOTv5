@@ -56,8 +56,7 @@ module.exports = {
 
                 if(output.spookedUsername || output.spookerUsername) {
                     await bot.database.updateSpook(spook.id, output);
-                    console.log("Updating spook");
-                    console.log(output);
+                    bot.logger.log(`Updating spook ${spook.id}`);
                 }
             }
 
