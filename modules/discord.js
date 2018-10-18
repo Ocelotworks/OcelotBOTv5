@@ -16,7 +16,6 @@ module.exports = {
 
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = function send(content, options){
-            oldsend.apply(this, [content, options]);
             let output = "";
             if(this.guild)
                 output += `${this.guild.name} (${this.guild.id})`;
@@ -27,6 +26,7 @@ module.exports = {
             if(options)
                 output += " (Embed)";
             bot.logger.log(output);
+            return oldsend.apply(this, [content, options]);
         };
 
         bot.presenceMessage = "!spook";

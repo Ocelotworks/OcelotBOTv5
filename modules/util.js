@@ -127,6 +127,11 @@ module.exports = {
             return prettyString;
         };
 
+        /**
+         * Format memory as a string
+         * @param {Number} bytes The number of Bytes
+         * @returns {string}
+         */
         bot.util.prettyMemory = function prettyMemory(bytes){
             if(bytes < 1000)return bytes+" bytes"; //< 1kb
             if(bytes < 1000000)return parseInt(bytes/1000)+"KB"; //<1mb
@@ -192,6 +197,13 @@ module.exports = {
             }
         };
 
+        /**
+         * Separate an array into chunks
+         * @param {Array} a
+         * @param {Number} n
+         * @param {Boolean} balanced
+         * @returns {Array<Array>}
+         */
         bot.util.chunkify = function chunkify(a, n, balanced) {
 
             if (n < 2)
@@ -232,6 +244,17 @@ module.exports = {
             return out;
         };
 
+        /**
+         *
+         * @param {String} message
+         * @param {Array<String>} args
+         * @param {Number} x The x position of the text
+         * @param {Number} y The y position of the text
+         * @param {Number} textSize The Size of the text
+         * @param {Number} textWidth The Width of the text lines
+         * @param {String} fileName The name of the uploaded file
+         * @param {String} filePath The path of the template
+         */
         bot.util.processImageMeme = function processImageMeme(message, args, x, y, textSize, textWidth, fileName, filePath){
             if(!args[1]){
                 message.replyLang("IMAGE_NO_TEXT");
@@ -274,7 +297,12 @@ module.exports = {
                 return str;
             };
 
-
+        /**
+         * Get an image for use in meme templates
+         * @param {Object} message The message object
+         * @param {Array<String>} args
+         * @returns {Promise.<*>}
+         */
         bot.util.getImage = async function getImage(message, args){
             try {
                 if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
@@ -294,6 +322,11 @@ module.exports = {
 
         };
 
+        /**
+         * Get an image from previous messages
+         * @param {Object} message
+         * @returns {Promise.<*>}
+         */
         bot.util.getImageFromPrevious = async function getImageFromPrevious(message){
             const previousMessages = (await message.channel.fetchMessages({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
             const targetMessage = previousMessages.find((previousMessage) =>{
@@ -326,6 +359,11 @@ module.exports = {
             }
         });
 
+        /**
+         * Get the prefix for numbers e.g 1st 2nd 3rd
+         * @param {Number} i
+         * @returns {string}
+         */
         bot.util.getNumberPrefix = function getNumberPrefix(i){
             let j = i % 10,
                 k = i % 100;
