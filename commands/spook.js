@@ -83,15 +83,14 @@ module.exports = {
                     });
                     if(onlineUsers.size === 0){
                         bot.logger.warn(`Couldn't generate a new spook for ${guild.name} (${guild.id})`);
-                        if(bot.spooked[server].timer)
-                            clearTimeout(bot.spooked[server].timer);
-                        bot.spooked[server] = {
-                            user: bot.spooked[server].user,
-                            timer: setTimeout(bot.generateNewSpook, 8.64e+7, server) //24 Hours
-                        };
                         return;
                     }
                     target = onlineUsers.random(1);
+                }
+
+                if(!target){
+                    bot.logger.warn("No target found");
+                    return;
                 }
 
                 bot.logger.log("New target is "+target.id);
