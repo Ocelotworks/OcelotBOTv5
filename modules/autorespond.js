@@ -15,7 +15,7 @@ module.exports = {
                     else
                         bot.lastMessageCounts[message.channel.id] = 1;
                     if(bot.lastMessageCounts[message.channel.id] >= 3){
-                        if(!message.author.bot && message.content.length < 100 && !message.content.match(/@everyone|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
+                        if(!message.author.bot && message.content.length < 100 && !message.content.match(/@everyone|<@.*>|[~\-!.\[\]=/\\>+].*|http.*/gi)) {
                             bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
                             message.channel.send(message.content);
                         }
