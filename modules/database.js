@@ -592,6 +592,15 @@ module.exports = {
                     //I'm sorry papa
                     longestSpook: (await knex.select("spooked", knex.raw("TIMESTAMPDIFF(SECOND, timestamp, (SELECT timestamp FROM ocelotbot_spooks AS spooks3 WHERE id = (SELECT min(id) FROM ocelotbot_spooks AS spooks2 WHERE spooks2.id > ocelotbot_spooks.id AND spooks2.server = ocelotbot_spooks.server))) as diff")).from("ocelotbot_spooks").where({server: server}).orderBy("diff", "DESC").limit(1))[0]
                 }
+            },
+            getProfile: function(user){
+                return knex.select().from("ocelotbot_profile").where({id: user}).limit(1);
+            },
+            createProfile: function(user){
+                return knex.insert({id: user}).into("ocelotbot_profile");
+            },
+            getProfileBadges: function(user){
+                return knex.select().from("ocelotbot_badge_assignments").where({user: user}).innerJoin("ocelotbot_badges", "ocelotbot_badges.id", "ocelotbot_badge_assignments.badge").orderBy("order", "ASC");
             }
 
         };
