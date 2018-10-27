@@ -78,23 +78,6 @@ module.exports = {
                         bot.logger.log("Got buffer");
                         const attachment = new Discord.Attachment(buff, "b.png");
                         message.channel.send("", attachment);
-
-
-                        // request(url).on("end", async function downloadEnd(){
-                        //
-                        //
-                        //     const originalImage = await canvas.loadImage(filePath);
-                        //
-                        //     console.log(originalImage);
-                        //
-                        //     const canv = canvas.createCanvas(200);
-                        //     const ctx = canv.getContext("2d");
-                        //
-                        // }).on("error", (err)=>{
-                        //     bot.raven.captureException(err);
-                        //     message.replyLang("GENERIC_ERROR");
-                        //     message.channel.stopTyping(true);
-                        // }).pipe(fs.createWriteStream(filePath));
                     }else{
                         message.channel.send(":warning: Couldn't find any text in that image.");
                     }
