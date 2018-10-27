@@ -596,13 +596,30 @@ module.exports = {
             getProfile: function(user){
                 return knex.select().from("ocelotbot_profile").where({id: user}).limit(1);
             },
-            createProfile: function(user){
-                return knex.insert({id: user}).into("ocelotbot_profile");
+            createProfile: async function(user){
+                return knex.insert({id: user, firstSeen: (await bot.database.getFirstSeen(user))[0]['MIN(timestamp)']}).into("ocelotbot_profile");
             },
             getProfileBadges: function(user){
-                return knex.select().from("ocelotbot_badge_assignments").where({user: user}).innerJoin("ocelotbot_badges", "ocelotbot_badges.id", "ocelotbot_badge_assignments.badge").orderBy("order", "ASC");
+                return knex.select().from("ocelotbot_badge_assignments").where({user: user}).innerJoin("ocelotbot_badges", "ocelotbot_badges.id", "ocelotbot_badge_assignments.badge").orderBy("ocelotbot_badge_assignments.order", "ASC");
+            },
+            getBadgeTypes: function(){
+                return knex.select().from("ocelotbot_badges").orderBy("order");
+            },
+            setProfileTagline: function(user, tagline){
+                return knex("ocelotbot_profile").update({caption: tagline}).where({id: user}).limit(1);
+            },
+            giveBadge: function(user, badge){
+                return knex.insert({user: user, badge: badge}).into("ocelotbot_badge_assignments");
+            },
+            hasBadge: async function(user, badge){
+                return (await knex.select().from("ocelotbot_badge_assignments").where({user: user, badge: badge}).limit(1)).length > 0
+            },
+            removeBadge: function(user, badge){
+                return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge}).limit(1);
+            },
+            getFirstSeen: function(user){
+                return knex.select(knex.raw("MIN(timestamp)")).from(COMMANDLOG_TABLE).where({userID: user})
             }
-
         };
     }
 };
