@@ -141,17 +141,29 @@ module.exports = {
         bot.spookSanityCheck();
 
 
+        bot.doSpookEnd = async function doSpookEnd(){
+            const now = new Date();
+            const servers = await bot.database.getParticipatingServers();
+            for(let i = 0; i < servers.length; i++){
+                const server = servers[i];
+                if(bot.client.guilds.has(server.server)){
+                    bot.sendSpookEnd(server.server);
+                }
+            }
+        };
+
         bot.sendSpookEnd = async function sendSpookSend(id, channel){
             if(!bot.client.guilds.has(id))return;
             const server = bot.client.guilds.get(id);
             const spooked = await bot.database.getSpooked(id);
             if(!spooked[0]){
-                bot.logger.log(`${server.name} (${server.id}) didn't participate in the spooking.`);
+                bot.logger.warn(`${server.name} (${server.id}) didn't participate in the spooking.`);
             }else {
                 const loser = spooked[0].spooked;
                 bot.logger.log(`Sending spook end for ${server.name} (${server.id})`);
+                let eligibleChannels;
                 if (!channel) {
-                    const eligibleChannels = server.channels.filter(function (channel) {
+                    eligibleChannels = server.channels.filter(function (channel) {
                         return channel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
                     });
                 }
@@ -171,6 +183,7 @@ module.exports = {
                 embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
                 embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff)})`);
                 embed.addField("Spook Graph", "Below is a graph of all the spooks on this server.\nOr click [here](https://ocelot.xyz/graph.png) for a graph of all the spooks across all servers.");
+                embed.setImage("http://ocelot.xyz/graph.php?server="+id+"&end=true");
                 targetChannel.send("", embed);
             }
 
@@ -178,6 +191,10 @@ module.exports = {
 
     },
     run: async function(message, args, bot){
+        if(end-new Date() <= 0){
+            bot.sendSpookEnd(message.guild.id, message.channel);
+            return;
+        }
         if(!message.guild){
             message.channel.send("This command cannot be used in a DM or group.");
         }else if(args.length > 1){
