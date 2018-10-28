@@ -12,7 +12,7 @@ module.exports = {
                 return `\`${value}\``;
             },
             onSet: function(newVal, message){
-                //bot.prefixCache[message.guild.id] = newVal;
+                bot.prefixCache[message.guild.id] = newVal;
                // bot.ipc.emit("broadcast", {event: "clearPrefixCache"});
             },
         },
