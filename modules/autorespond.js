@@ -8,6 +8,7 @@ module.exports = {
 
         bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
             if(message.channel.id === "463607437618970626")return; //What the fuck?
+            if(bot.checkBan(message))return;
             if(bot.lastMessages[message.channel.id]){
                 if(bot.lastMessages[message.channel.id] === message.content.toLowerCase()){
                     if(bot.lastMessageCounts[message.channel.id])
