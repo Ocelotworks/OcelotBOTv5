@@ -184,6 +184,8 @@ module.exports = {
                 }
             });
 
+            bot.spooked = [];
+
 
         };
 
