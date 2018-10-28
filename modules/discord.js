@@ -29,7 +29,7 @@ module.exports = {
             return oldsend.apply(this, [content, options]);
         };
 
-        bot.presenceMessage = "!spook";
+        bot.presenceMessage = "";
 
 
         bot.client = new Discord.Client();
@@ -139,13 +139,15 @@ module.exports = {
                      if(err)bot.raven.captureException(err);
                  });
 
-                 const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-                 // bot.client.user.setPresence({
-                 //     game: {
-                 //         name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
-                 //         type: "LISTENING"
-                 //     }
-                 // });
+                 if((new Date()).getMonth() >= 10) {
+                     const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+                     bot.client.user.setPresence({
+                         game: {
+                             name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
+                             type: "LISTENING"
+                         }
+                     });
+                 }
              }
              try {
                  await bot.database.addServer(guild.id, guild.owner_id, guild.name, guild.joined_at);

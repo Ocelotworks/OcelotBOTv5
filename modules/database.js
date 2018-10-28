@@ -552,6 +552,13 @@ module.exports = {
                 return knex.select().distinct("server").from("ocelotbot_spooks");
             },
             /**
+             * Gets all users that have participated in the spooking
+             * @returns {Array|*}
+             */
+            getParticipatingUsers: function(){
+                return knex.select().distinct("spooker", "spooked").from("ocelotbot_spooks");
+            },
+            /**
              * Gets all spooks where there is a username missing
              * @returns {*}
              */

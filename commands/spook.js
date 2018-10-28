@@ -143,6 +143,13 @@ module.exports = {
 
         bot.doSpookEnd = async function doSpookEnd(){
             const now = new Date();
+            if(now-end < 0){
+                bot.logger.warn("Spook triggered early??? "+now+" vs "+end);
+                return;
+            }
+            bot.logger.warn("***TRIGGERING SPOOK END***");
+
+            bot.logger.log("Notifying Servers...");
             const servers = await bot.database.getParticipatingServers();
             for(let i = 0; i < servers.length; i++){
                 const server = servers[i];
@@ -150,6 +157,34 @@ module.exports = {
                     bot.sendSpookEnd(server.server);
                 }
             }
+
+
+            bot.logger.log("Allocating Badges...");
+            const users = await bot.database.getParticipatingUsers();
+            for(let j = 0; j < users.length; j++) {
+                const userRow = users[j];
+                if (!bot.database.hasBadge(userRow.spooker, 2)) {
+                    bot.logger.log("Given spook participant badge to "+userRow.spooker);
+                    bot.database.giveBadge(userRow.spooker, 2);
+                }
+
+                if (userRow.spooker !== userRow.spooked && !bot.database.hasBadge(userRow.spooked, 2)) {
+                    bot.logger.log("Given spook participant badge to "+userRow.spooked);
+                    bot.database.giveBadge(userRow.spooked, 2);
+                }
+            }
+
+            bot.logger.log("Setting the presence...");
+            const serverCount  = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+            bot.presenceMessage = "Thank you for playing!";
+            bot.client.user.setPresence({
+                game: {
+                    name: `Thank you for playing! | ${serverCount} servers.`,
+                    type: "LISTENING"
+                }
+            });
+
+
         };
 
         bot.sendSpookEnd = async function sendSpookSend(id, channel){
@@ -185,9 +220,15 @@ module.exports = {
                 embed.addField("Spook Graph", "Below is a graph of all the spooks on this server.\nOr click [here](https://ocelot.xyz/graph.png) for a graph of all the spooks across all servers.");
                 embed.setImage("http://ocelot.xyz/graph.php?server="+id+"&end=true");
                 targetChannel.send("", embed);
-            }
 
+
+                if(!bot.database.hasBadge(loser, 1))
+                    bot.database.giveBadge(loser, 1);
+            }
         };
+
+
+        bot.util.setLongTimeout(async()=>await bot.doSpookEnd(), end-(new Date()));
 
     },
     run: async function(message, args, bot){
