@@ -16,9 +16,9 @@ module.exports = {
             message.channel.send("You need to be in a voice channel to use this command.");
         }else if(message.member.voiceChannel.full){
             message.channel.send("That voice channel is full.");
-        }else if(message.member.voiceChannel.joinable) {
+        }else if(!message.member.voiceChannel.joinable) {
             message.channel.send("I don't have permission to join the voice channel you're currently in.");
-        }else if(message.member.voiceChannel.speakable){
+        }else if(!message.member.voiceChannel.speakable){
             message.channel.send("I don't have permission to speak in the voice channel you're currently in.");
         }else{
             try {
