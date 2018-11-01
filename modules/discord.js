@@ -41,15 +41,15 @@ module.exports = {
                 category:  "discord",
             });
 
-            // setTimeout(async function(){
-            //     const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-            //     bot.client.user.setPresence({
-            //         game: {
-            //             name: `${serverCount} servers.`,
-            //             type: "LISTENING"
-            //         }
-            //     });
-            // }, 10000);
+            setTimeout(async function(){
+                const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+                bot.client.user.setPresence({
+                    game: {
+                        name: `${serverCount} servers.`,
+                        type: "LISTENING"
+                    }
+                });
+            }, 10000);
 
 
             bot.client.voiceConnections.forEach(function(connection){
@@ -57,23 +57,23 @@ module.exports = {
                connection.disconnect();
             });
 
-            const spooks = await bot.database.getDirtySpooks();
-            for(let i = 0; i < spooks.length; i++){
-                let output = {};
-                const spook = spooks[i];
-                if(bot.client.users.has(spook.spooker)){
-                    output.spookerUsername = bot.client.users.get(spook.spooker).username;
-                }
-
-                if(bot.client.users.has(spook.spooked)){
-                    output.spookedUsername = bot.client.users.get(spook.spooked).username;
-                }
-
-                if(output.spookedUsername || output.spookerUsername) {
-                    await bot.database.updateSpook(spook.id, output);
-                    bot.logger.log(`Updating spook ${spook.id}`);
-                }
-            }
+            // const spooks = await bot.database.getDirtySpooks();
+            // for(let i = 0; i < spooks.length; i++){
+            //     let output = {};
+            //     const spook = spooks[i];
+            //     if(bot.client.users.has(spook.spooker)){
+            //         output.spookerUsername = bot.client.users.get(spook.spooker).username;
+            //     }
+            //
+            //     if(bot.client.users.has(spook.spooked)){
+            //         output.spookedUsername = bot.client.users.get(spook.spooked).username;
+            //     }
+            //
+            //     if(output.spookedUsername || output.spookerUsername) {
+            //         await bot.database.updateSpook(spook.id, output);
+            //         bot.logger.log(`Updating spook ${spook.id}`);
+            //     }
+            // }
 
         });
 
