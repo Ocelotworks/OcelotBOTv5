@@ -2,7 +2,7 @@
  * Created by Peter on 01/07/2017.
  */
 const chrono = require('chrono-node');
-const regex = new RegExp("!.*?( .* )[\“\”\"\‘\’\'\‘\‚«»«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‘\‚«»«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
+const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‘\‚«»«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‘\‚«»«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
 
 module.exports = {
     name: "Reminders",
