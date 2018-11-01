@@ -4,7 +4,6 @@ const   Discord = require('discord.js'),
         fs      = require('fs'),
         canvas  = require('canvas');
 
-const vowels = ["a", "e", "i", "o", "u"];
 let b;
 module.exports = {
     name: "B-ify",
@@ -48,7 +47,7 @@ module.exports = {
                             for(let w = 0; w < line.Words.length; w++){
                                 const word = line.Words[w];
                                 const text = word.WordText;
-                                if(vowels.indexOf(text.substring(1,2)) > -1){
+                                if(bot.util.vowels.indexOf(text.substring(1,2)) > -1){
                                     positions.push(word);
                                 }
                             }

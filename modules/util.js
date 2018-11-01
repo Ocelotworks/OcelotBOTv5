@@ -7,6 +7,9 @@ module.exports = {
 
         bot.util = {};
 
+
+        bot.util.vowels = ["a", "e", "i", "o", "u","ａ","ｅ","ｉ","ｏ","ｕ","Ａ","Ｅ","Ｉ","Ｏ","Ｕ"];
+
         /**
          * Returns a random number between `min` and `max`
          * @param {Number} min
