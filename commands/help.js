@@ -36,40 +36,40 @@ module.exports = {
         message.editLang("COMMANDS", output);
     },
     run: async function run(message, args, bot){
-        const permissions = await message.channel.permissionsFor(bot.client.user);
-        if(permissions.has(["ADD_REACTIONS", "MANAGE_MESSAGES"])){
-            let embed = new Discord.RichEmbed();
-            embed.setTitle("OcelotBOT Commands");
-            embed.setDescription("Select a category from the list below");
-            let count = 0;
-            for(let i in bot.commandCategories){
-                embed.addField(`${i.toUpperCase()}:`, `React with ${numbers[count]}`, true);
-                count++;
-            }
-            let sentMessage = await message.channel.send("", embed);
-            const keys = Object.keys(bot.commandCategories);
-            sentMessage.awaitReactions(function(reaction, user){
-                if(user.id === bot.client.user.id)return false;
-
-                let num = parseInt(reaction.emoji.name[0]);
-                if(isNaN(num))return false;
-                num--;
-                if(!keys[num])return false;
-
-                module.exports.showHelpFor(bot.commandCategories[keys[num]], sentMessage);
-                reaction.remove(user);
-
-                return false;
-            }, {time: 120000}, function reactionEnd(){
-                bot.logger.log("Reactions expired on !help");
-                sentMessage.clearReactions();
-            });
-
-            for(let j = 0; j < count; j++){
-                await sentMessage.react(numbers[j]);
-            }
-
-        }else{
+        // const permissions = await message.channel.permissionsFor(bot.client.user);
+        // if(permissions.has(["ADD_REACTIONS", "MANAGE_MESSAGES"])){
+        //     let embed = new Discord.RichEmbed();
+        //     embed.setTitle("OcelotBOT Commands");
+        //     embed.setDescription("Select a category from the list below");
+        //     let count = 0;
+        //     for(let i in bot.commandCategories){
+        //         embed.addField(`${i.toUpperCase()}:`, `React with ${numbers[count]}`, true);
+        //         count++;
+        //     }
+        //     let sentMessage = await message.channel.send("", embed);
+        //     const keys = Object.keys(bot.commandCategories);
+        //     sentMessage.awaitReactions(function(reaction, user){
+        //         if(user.id === bot.client.user.id)return false;
+        //
+        //         let num = parseInt(reaction.emoji.name[0]);
+        //         if(isNaN(num))return false;
+        //         num--;
+        //         if(!keys[num])return false;
+        //
+        //         module.exports.showHelpFor(bot.commandCategories[keys[num]], sentMessage);
+        //         reaction.remove(user);
+        //
+        //         return false;
+        //     }, {time: 120000}, function reactionEnd(){
+        //         bot.logger.log("Reactions expired on !help");
+        //         sentMessage.clearReactions();
+        //     });
+        //
+        //     for(let j = 0; j < count; j++){
+        //         await sentMessage.react(numbers[j]);
+        //     }
+        //
+        // }else{
             let unique = []; //ahhh..
             let output = "";
             let commandUsages = bot.commandUsages;
@@ -84,6 +84,6 @@ module.exports = {
                     }
             }
             message.replyLang("COMMANDS", output);
-        }
+        //}
     }
 };
