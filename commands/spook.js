@@ -230,6 +230,7 @@ module.exports = {
 
     },
     run: async function(message, args, bot){
+        if(!message.guild)return;
         if(end-new Date() <= 0){
             bot.sendSpookEnd(message.guild.id, message.channel);
             return;

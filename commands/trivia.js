@@ -89,6 +89,10 @@ module.exports = {
                 message.replyLang("TRIVIA_INVALID_USAGE");
             }
        }else{
+           if(!message.guild){
+               message.channel.send(":warning: This command can't be used in a DM channel.");
+               return;
+           }
            message.channel.startTyping();
            request("https://opentdb.com/api.php?amount=1&encode=url3986", async function triviaResponse(err, resp, body){
                if(err){

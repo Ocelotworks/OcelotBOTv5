@@ -75,6 +75,10 @@ module.exports = {
         }
     },
     run: async function(message, args, bot){
+        if(!message.guild){
+            message.channel.send(":warning: You cannot use this command in a DM channel.");
+            return;
+        }
         const rargs = regex.exec(message.content);
         if(!rargs || rargs.length < 3){
             message.replyLang("REMIND_INVALID_MESSAGE");

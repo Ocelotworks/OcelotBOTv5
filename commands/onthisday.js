@@ -7,7 +7,7 @@ module.exports = {
     commands: ["onthisday", "otd"],
     run: async function(message, args, bot){
         // noinspection EqualityComparisonWithCoercionJS
-        if(message.guild.id != "478950156654346292")return;
+        if(!message.guild || message.guild.id != "478950156654346292")return;
 
         const now = new Date();
 

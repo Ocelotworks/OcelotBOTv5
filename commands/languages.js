@@ -8,7 +8,7 @@ module.exports = {
             message.channel.send("https://poeditor.com/projects/view?id=124405");
             return;
         }
-        let output = await bot.lang.getTranslation(message.guild.id, "LANGUAGE_AVAILABLE")+"\n";
+        let output = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "LANGUAGE_AVAILABLE")+"\n";
         const totalStrings = Object.keys(bot.lang.strings.default).length;
         for(let i in bot.lang.strings){
             const strings = bot.lang.strings[i];
