@@ -15,6 +15,12 @@ module.exports = {
             const prefixLength = prefix.length;
             if (message.content.startsWith(prefix)) {
                 const args = message.content.split(" ");
+                for(let i = 0; i < args.length; i++){
+                    if(!args[i]){
+                        bot.logger.log("Removing argument "+i);
+                        args.splice(i, 1);
+                    }
+                }
                 const command = args[0].substring(prefixLength).toLowerCase();
                 if (bot.commands[command]) {
                     if (bot.checkBan(message)) {
