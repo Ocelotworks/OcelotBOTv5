@@ -4,6 +4,7 @@ module.exports = {
     usage: "admin",
     categories: ["tools"],
     commands: ["admin", "adm", "mgt"],
+    hidden: true,
     init: function init(bot){
         bot.logger.log("Loading admin commands...");
         fs.readdir("commands/admin", function loadAdminCommands(err, files){

@@ -6,6 +6,7 @@ module.exports = {
     categories: ["fun"],
     requiredPermissions: [],
     commands: ["spook", "spooked"],
+    hidden: true,
     init: async function(bot){
         // bot.setSpookyPresence = async function(){
         //     const result = await bot.database.getSpookedServers();
