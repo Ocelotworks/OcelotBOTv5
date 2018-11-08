@@ -7,8 +7,28 @@ module.exports = {
             messagesPerMinute: 0,
             messagesTotal: 0,
             commandsPerMinute: 0,
-            commandsTotal: 0
-        };
+            commandsTotal: 0,
+            timing: {
+                waiting: {},
+                counts: {},
+                totals: {}
+            },
+            time: function time(name){
+                const now = new Date().getTime();
+                if(bot.stats.timing.waiting[name]){
+                    if(bot.stats.timing.totals[name]){
+                        bot.stats.timing.totals[name] += now-bot.stats.timing.waiting[name];
+                        bot.stats.timing.counts[name]++;
+                    }else{
+                        bot.stats.timing.totals[name] = now-bot.stats.timing.waiting[name];
+                        bot.stats.timing.counts[name] = 1;
+                     }
+                    delete bot.stats.timing.waiting[name];
+                }else{
+                    bot.stats.timing.waiting[name] = now;
+                }
+            }
+       };
 
         // bot.stats.influx = new Influx.InfluxDB({
         //     host: config.get("InfluxDB.host"),

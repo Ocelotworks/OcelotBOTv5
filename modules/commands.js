@@ -34,7 +34,9 @@ module.exports = {
                                 server: message.guild ? message.guild.id : "DM Channel"
                             });
                             if (message.channel.permissionsFor && bot.commandUsages[command].requiredPermissions) {
+                                bot.stats.time("commandGetPermissions");
                                 const permissions = await message.channel.permissionsFor(bot.client.user);
+                                bot.stats.time("commandGetPermissions");
                                 if (permissions.has(bot.commandUsages[command].requiredPermissions)) {
                                     bot.commands[command](message, args, bot);
                                 } else if (permissions.has("SEND_MESSAGES")) {
