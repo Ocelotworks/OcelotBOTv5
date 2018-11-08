@@ -15,6 +15,9 @@ const emojiMaps = {
     neil: "<:neilpoop:478962395692269570>",
     jake: "<:jake_dino:478962396749103106>"
 };
+const ts3 = require('ts3');
+const config = require('config');
+
 module.exports = {
     name: "Ocelotworks Specific Functions",
     init: function(bot){
@@ -46,5 +49,37 @@ module.exports = {
 
            }
         }));
+
+
+        bot.client.on("ready", function discordReady(){
+            if(bot.client.guilds.has("478950156654346292")) {
+                const notifChannel = bot.client.channels.get("478950156654346294");
+                const ts = new ts3();
+                bot.logger.log("Connecting to TeamSpeak...");
+                ts.connect(config.get("Teamspeak.server"), 10011)
+                    .then(async function connected() {
+                        bot.logger.log("Connected to TeamSpeak");
+                        try {
+                            let auth = await ts.auth(config.get("Teamspeak.user"), config.get("Teamspeak.password"), 1);
+                        } catch (e) {
+                            bot.logger.log("Auth errored as expected...");
+                        } finally {
+                            ts.setName('OcelotBOT');
+                            ts.subscribe("server");
+                        }
+
+                    });
+                ts.on('clientJoin', (ev) => {
+                    const user = ev.client.nick;
+                    notifChannel.send(`_${user} joined TeamSpeak_`);
+                });
+                ts.on('clientLeave', (ev) => {
+                    const user = ev.client.nick;
+                    notifChannel.send(`_${user} left TeamSpeak_`);
+                });
+            }
+        });
+
+
     }
 };
