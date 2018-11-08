@@ -60,9 +60,7 @@ const first = [
     "Knife",
     "Initial",
     "Hello",
-    "Emotional",
-    "Kyle",
-    "Soy Sauce"
+    "Emotional"
 ];
 
 const second = [
@@ -74,8 +72,6 @@ const second = [
     "Boys",
     "Girl",
     "Girls",
-    "Lady",
-    "Ladies",
     "Babe",
     "Babes",
     "Baby",
@@ -126,7 +122,6 @@ const second = [
     "Banshee",
     "Cemetery",
     "Traveler",
-    "Explosion",
     "Surfers",
     "Project",
     "Elephant",
@@ -145,7 +140,6 @@ const second = [
     "Light Orchestra",
     "And The Gang",
     "And The Machine",
-    "And The Kids"
 ];
 
 module.exports = {
