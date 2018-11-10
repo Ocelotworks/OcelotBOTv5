@@ -15,7 +15,7 @@ module.exports = {
                     else
                         bot.lastMessageCounts[message.channel.id] = 1;
                     if(bot.lastMessageCounts[message.channel.id] >= 3){
-                        if(!message.author.bot && !message.content.match(/@everyone|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
+                        if(!message.author.bot && !message.content.match(/@everyone|@here|raid|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
                             bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
                             if(message.content === "yui spank nut" && Math.random() > 0.7) {
                                 message.channel.send("Seriously you guys have been saying yui spank nut for days now what the hell I just wanna know whats going on");
