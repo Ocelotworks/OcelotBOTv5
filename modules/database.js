@@ -626,6 +626,33 @@ module.exports = {
             },
             getFirstSeen: function(user){
                 return knex.select(knex.raw("MIN(timestamp)")).from(COMMANDLOG_TABLE).where({userID: user})
+            },
+            addSubscription: function(server, channel, user, type, url){
+                return knex.insert({
+                    server: server,
+                    channel: channel,
+                    user: user,
+                    type: type,
+                    data: url
+                }).into("ocelotbot_subscriptions");
+            },
+            getSubscriptionsForChannel: function(channel){
+                return knex.select().from("ocelotbot_subscriptions").where({
+                    channel: channel
+                });
+            },
+            getAllSubscriptions: function(){
+                return knex.select().from("ocelotbot_subscriptions");
+            },
+            updateLastCheck: function(server, channel, type, url){
+                return knex("ocelotbot_subscriptions").update({lastcheck: new Date()}).where({server: server, channel: channel, type: type, data: url}).limit(1);
+            },
+            removeSubscription: function(server, channel, id){
+                return knex("ocelotbot_subscriptions").delete().where({
+                    server: server,
+                    channel: channel,
+                    id: id
+                }).limit(1);
             }
         };
     }
