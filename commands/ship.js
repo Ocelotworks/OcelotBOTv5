@@ -32,17 +32,23 @@ module.exports = {
         if(args.length < 2){
             message.channel.send("Usage: !ship @user1 @user2");
         }else{
+            let split = message.cleanContent.split(" ");
             let person1, person2, shipName, shipPoints = 0;
             if(message.mentions.members.size > 0){
                 person1 = message.mentions.members.first().displayName;
                 if(message.mentions.members.size > 1){
                     person2 = message.mentions.members.last().displayName;
                 }else{
-                    person2 = args[2];
+                    person2 = split[2];
                 }
             }else{
-                person1 = args[1];
-                person2 = args[2];
+                person1 = split[1];
+                person2 = split[2];
+            }
+
+            if(person1.length > 100 || person2.length > 100){
+                message.channel.send(":bangbang: These names are too long...");
+                return;
             }
 
             if(person1 === person2){
@@ -73,7 +79,8 @@ module.exports = {
                         if(secondChar === " ")continue;
                         if(firstChar.toLowerCase() === secondChar.toLowerCase() || (bot.util.vowels.indexOf(firstChar.toLowerCase()) === -1 && bot.util.vowels.indexOf(secondChar.toLowerCase()) > -1)){
                             possibleCombos.push([f,s]);
-                            bot.logger.log(`Combo ${person1.substring(0, f)+person2.substring(s)}`);
+                            const combo = person1.substring(0, f)+person2.substring(s);
+                            bot.logger.log(`Combo ${combo}`);
                         }
                     }
                 }
@@ -86,11 +93,12 @@ module.exports = {
                     shipPoints += (bot.util.vowels.indexOf(person1[combo[0]].toLowerCase()) > -1) ? 7 : 18;
                 }else{
                     shipName = person1.substring(0, bot.util.intBetween(1,person1.length))+person2.substring(bot.util.intBetween(0,person2.length));
+                    shipPoints -= 10;
                 }
             }
 
             if(shipName){
-                shipPoints += shipName.length;
+                //shipPoints += shipName.length;
                 message.channel.send(`**Ship Generator:**\n:heart: Compatibility Score: __${shipPoints}__\n:yellow_heart: Ship Name: \`${shipName}\``);
             }else{
                 message.channel.send(":broken_heart: I'm sorry... I couldn't ship these two people. It just wouldn't work.");
