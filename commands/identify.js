@@ -47,7 +47,7 @@ module.exports = {
                 bot.raven.captureException(err);
                 message.replyLang("GENERIC_ERROR");
             }else if(body && body.description && body.description.captions && body.description.captions.length > 0) {
-                message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, body.description.captions[0].text);
+                message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, body.description.captions[0].text.replace("Xi Jinping", "Winnie The Pooh"));
             }else{
                 message.replyLang("FACE_NO_FACES");
             }

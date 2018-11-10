@@ -15,7 +15,6 @@ module.exports = {
             return;
         }
 
-
         const guildID = message.guild ? message.guild.id : "322032568558026753";
 
         const arg = args[1].toLowerCase();
@@ -23,37 +22,92 @@ module.exports = {
         if(arg === "list"){
 
             const memes = await bot.database.getMemes(message.guild ? message.guild.id : "global");
+            let pages = memes.chunk(50);
 
-            let globalMemes = "";
-            let serverMemes = "";
 
-            await pasync.eachSeries(memes, function(meme, cb){
-                if(meme.server === "global"){
-                    globalMemes += meme.name + " ";
+
+
+            const availableMemes = await bot.lang.getTranslation(guildID, "MEME_AVAILABLE_MEMES");
+            const availableGlobalMemes = await bot.lang.getTranslation(message.guild.id, "MEME_GLOBAL_MEMES");
+            const memeServer = message.guild ? await bot.lang.getTranslation(message.guild.id, "MEME_SERVER", {serverName: message.guild.name}) : "You should never see this.";
+
+
+            let index = 0;
+            let sentMessage;
+
+            let buildPage = async function () {
+                const page = pages[index];
+                let globalMemes = "";
+                let serverMemes = "";
+                await pasync.eachSeries(page, function(meme, cb){
+                    if(meme.server === "global"){
+                        globalMemes += meme.name + " ";
+                    }else{
+                        serverMemes += meme.name + " ";
+                    }
+                    cb();
+                });
+
+                let output;
+
+                if(message.guild){
+                    output = `**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ ${globalMemes}\n__:house_with_garden:${memeServer}__ ${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}`;
                 }else{
-                    serverMemes += meme.name + " ";
+                    output = `**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ ${globalMemes}`;
                 }
-                cb();
-            });
 
-            let output;
+                if(sentMessage) {
+                    await sentMessage.edit(`Page ${index + 1}/${pages.length}\n${output}`);
+                }else{
+                    sentMessage = await message.channel.send(`Page ${index + 1}/${pages.length}\n${output}`);
+                }
+            };
 
-            if(message.guild){
-                output = `**${await bot.lang.getTranslation(guildID, "MEME_AVAILABLE_MEMES")}**\n__:earth_americas: **${await bot.lang.getTranslation(message.guild.id, "MEME_GLOBAL_MEMES")}**__ ${globalMemes}\n__:house_with_garden:${await bot.lang.getTranslation(message.guild.id, "MEME_SERVER", {serverName: message.guild.name})}__ ${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}`;
-            }else{
-                output = `**${await bot.lang.getTranslation(guildID, "MEME_AVAILABLE_MEMES")}**\n__:earth_americas: **${await bot.lang.getTranslation(message.guild.id, "MEME_GLOBAL_MEMES")}**__ ${globalMemes}`;
+            if(pages.length === 1){
+                await buildPage();
+                return;
             }
 
-            if(output.length >= 2000){
-                message.channel.send(output.substring(0, 2000));
-                message.channel.send(output.substring(2000));
-            }else{
-                message.channel.send(output);
-            }
+            await buildPage();
+            (async function () {
+                await sentMessage.react("⏮");
+                await sentMessage.react("◀");
+                await sentMessage.react("▶");
+                await sentMessage.react("⏭");
+            })();
+
+            await sentMessage.awaitReactions(async function (reaction, user) {
+                if (user.id === bot.client.user.id) return false;
+                switch (reaction.emoji.name) {
+                    case "⏮":
+                        index = 0;
+                        await buildPage();
+                        break;
+                    case "◀":
+                        if (index > 0)
+                            index--;
+                        else
+                            index = pages.length - 1;
+                        await buildPage();
+                        break;
+                    case "▶":
+                        if (index < pages.length - 1)
+                            index++;
+                        else
+                            index = 0;
+                        await buildPage();
+                        break;
+                    case "⏭":
+                        index = pages.length - 1;
+                        await buildPage();
+                        break;
+                }
+                reaction.remove(user);
+
+            }, {time: 60000});
+            sentMessage.clearReactions();
             return;
-        }
-
-        if(arg === "add"){
+        }else if(arg === "add"){
             if(!message.guild.id){
                 message.channel.send("You can't use this in a DM channel.");
             }else {
