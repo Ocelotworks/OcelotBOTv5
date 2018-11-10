@@ -98,6 +98,11 @@ module.exports = {
             return;
         }
 
+        if(at.getTime() >= 2147483647000){
+            message.channel.send(":stopwatch: You can't set a reminder for on or after 19th January 2038");
+            return;
+        }
+
         const offset = at - now.getTime();
 
 
