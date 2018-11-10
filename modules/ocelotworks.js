@@ -71,11 +71,11 @@ module.exports = {
                     });
                 ts.on('clientJoin', (ev) => {
                     const user = ev.client.nick;
-                    notifChannel.send(`_${user} joined TeamSpeak_`);
+                    notifChannel.send(`_${emojiMaps[user.toLowerCase()] || ""}${user} joined TeamSpeak_`);
                 });
                 ts.on('clientLeave', (ev) => {
                     const user = ev.client.nick;
-                    notifChannel.send(`_${user} left TeamSpeak_`);
+                    notifChannel.send(`_${emojiMaps[user.toLowerCase()] || ""}${user} left TeamSpeak_`);
                 });
             }
         });
