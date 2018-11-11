@@ -15,14 +15,14 @@ module.exports = {
             const prefixLength = prefix.length;
             if (message.content.startsWith(prefix)) {
                 const args = message.content.split(" ");
-                for(let i = 0; i < args.length; i++){
-                    if(!args[i]){
-                        bot.logger.log("Removing argument "+i);
-                        args.splice(i, 1);
-                    }
-                }
                 const command = args[0].substring(prefixLength).toLowerCase();
                 if (bot.commands[command]) {
+                    for(let i = 0; i < args.length; i++){
+                        if(!args[i]){
+                            bot.logger.log("Removing argument "+i);
+                            args.splice(i, 1);
+                        }
+                    }
                     if (bot.checkBan(message)) {
                         bot.bus.emit("commandRatelimited", command, message);
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned or ratelimited: ${command}: ${message.content}`);
