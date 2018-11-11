@@ -1,89 +1,35 @@
 const fs = require('fs');
 const config = require('config');
 const request = require('request');
-
-
 module.exports = {
     name: "Internationalisation",
     init: async function(bot){
         bot.lang = {};
 
 
-        bot.lang.downloadLanguages = function(){
-            const languageKey = config.get("Lang.key");
-            request.post({
-                url: "https://api.poeditor.com/v2/languages/list",
-                form: {
-                    api_token: languageKey,
-                    id: 124405
-                },
-                json: true
-            }, function (err, resp, body) {
-                const langs = body.result.languages;
-                for(let i = 0; i < langs.length; i++){
-                    bot.lang._downloadLanguage(langs[i].code, langs[i].name, languageKey);
-                }
-            });
-        };
-
-        bot.lang._downloadLanguage = function downloadLanguage(code, name, languageKey){
-            bot.logger.log("Downloading "+code);
-            request.post({
-                url: "https://api.poeditor.com/v2/terms/list",
-                form: {
-                    api_token: languageKey,
-                    id: 124405,
-                    language: code
-                },
-                json: true
-            }, function (err, resp, body) {
-                let output = {};
-                if(body.result) {
-                    const terms = body.result.terms;
-                    output["LANGUAGE_NAME"] = name;
-                    output["LANGUAGE_FLAG"] = `:flag_${code}:`;
-                    for (let i = 0; i < terms.length; i++) {
-                        const term = terms[i];
-                        if (term.translation.content && term.translation.content.length > 0)
-                            output[term.term] = term.translation.content;
-                    }
-                    fs.writeFile(`lang/${code}.json`, JSON.stringify(output), function writeLanguage(err) {
-                        if (err) {
-                            bot.logger.error("Error downloading " + code);
-                            console.log(err);
-                        } else
-                            bot.logger.log("Downloaded " + code);
-                    })
-                }else{
-                    console.log(body);
-                }
-            });
-        };
-
-        bot.lang.loadLanguages = function loadLanguages(){
-            bot.logger.log("Loading language packs...");
-            const languages = config.get("Lang.Languages");
-            bot.lang.strings = {};
-            for(let i in languages){
-                if(languages.hasOwnProperty(i)){
-                    fs.readFile(__dirname+"/../lang/"+languages[i], function (err, data){
-                        bot.raven.context(function readLang(){
-                            if(err){
-                                bot.raven.captureException(err);
-                                bot.logger.error(`Error loading language ${languages[i]}: ${err}`);
-                            }else{
-                                try{
-                                    bot.lang.strings[i] = JSON.parse(data);
-                                    bot.logger.log(`Loaded language ${bot.lang.strings[i].LANGUAGE_NAME} as ${i}`);
-                                }catch(e){
-                                    bot.raven.captureException(e);
-                                    bot.logger.error(`Language ${languages[i]} is malformed: ${e}`);
-                                }
-                            }
-                        });
-                    });
+        bot.lang.loadLanguages = async function loadLanguages(){
+            const languages = await bot.database.getLanguageList();
+            const langKeys = await bot.database.getAllLanguageKeys();
+            bot.logger.log(`Loaded ${languages.length} languages and ${langKeys.length} keys`);
+            let newStrings = {};
+            for(let i = 0; i < languages.length; i++){
+                const lang = languages[i];
+                newStrings[lang.code] = {
+                    "LANGUAGE_NAME": lang.name,
+                    "LANGUAGE_FLAG": lang.flag
+                };
+            }
+            for(let j = 0; j < langKeys.length; j++){
+                const row = langKeys[j];
+                if(newStrings[row.lang]){
+                    newStrings[row.lang][row.key] = row.message;
+                }else {
+                    bot.logger.warn(`${row.key} assigned to missing language ${row.lang}`);
                 }
             }
+            newStrings.default = newStrings['en-gb'];
+            bot.lang.strings = newStrings;
+
         };
 
         bot.lang.getTranslation = function getTranslation(server, key, format){
@@ -132,18 +78,16 @@ module.exports = {
 
         bot.lang.loadLanguages();
 
-        bot.logger.log("Populating Language Cache...");
-
-        try{
-            const serverLanguages = await bot.database.getLanguages();
-            for(let j = 0; j < serverLanguages.length; j++){
-                bot.lang.languageCache[serverLanguages[j].server] = serverLanguages[j].language;
+        bot.client.on("ready", async function discordReady(){
+            console.log("what the fuc");
+            bot.logger.log("Populating language cache...");
+            console.log(bot.client.guilds.keyArray());
+            const languageMap = await bot.database.getLanguagesForShard(bot.client.guilds.keyArray());
+            bot.logger.log(`Caching ${languageMap.length} servers`);
+            for(let i = 0; i < languageMap.length; i++){
+                const server = languageMap[i];
+                bot.lang.languageCache[server.server] = server.language;
             }
-            bot.logger.log(`Populated language cache with ${Object.keys(bot.lang.languageCache).length} servers.`);
-        }catch(e){
-            bot.logger.error("Error populating language cache:");
-            bot.logger.error(""+e.stack);
-        }
-
+        });
     }
 };

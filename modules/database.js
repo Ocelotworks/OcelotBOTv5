@@ -653,6 +653,25 @@ module.exports = {
                     channel: channel,
                     id: id
                 }).limit(1);
+            },
+            addLangKey: function(lang, key, message){
+                return knex.insert({
+                    lang: lang,
+                    key: key,
+                    message: message
+                }).into("ocelotbot_language_keys");
+            },
+            getLanguageList: function(){
+                return knex.select().from("ocelotbot_languages");
+            },
+            getAllLanguageKeys: function(){
+                return knex.select().from("ocelotbot_language_keys");
+            },
+            getLanguageKeys: function(lang){
+                return knex.select().from("ocelotbot_language_keys").where({lang: lang});
+            },
+            getLanguagesForShard: function(guilds){
+                return knex.select("server", "language").from("ocelotbot_servers").whereIn("server", guilds);
             }
         };
     }
