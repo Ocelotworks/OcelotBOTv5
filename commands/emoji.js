@@ -6,7 +6,7 @@ module.exports = {
     commands: ["emoji", "emojisearch", "emojis"],
     run: async function(message, args, bot){
         if(!args[1]){
-            message.channel.send("Usage: !emoji <term> e.g !emoji thonk");
+            message.channel.send(`Usage: ${args[0]} <term> e.g ${args[0]} thonk`);
         }else{
             let output = "";
             let emojiCount = 0;

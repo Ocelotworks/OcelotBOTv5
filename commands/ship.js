@@ -30,7 +30,7 @@ module.exports = {
     commands: ["ship", "shipname", "relationship", "shipgenerator"],
     run: async function run(message, args, bot) {
         if(args.length < 2){
-            message.channel.send("Usage: !ship @user1 @user2");
+            message.channel.send(`Usage: ${args[0]} @user1 @user2`);
         }else{
             let split = message.cleanContent.split(" ");
             let person1, person2, shipName, shipPoints = 0;

@@ -6,7 +6,7 @@ module.exports = {
     commands: ["define", "def", "dictionary", "dict"],
     run: function run(message, args, bot) {
         if(!args[1]){
-            message.channel.send("Usage: !define <term>");
+            message.channel.send(`Usage: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}define <term>`);
             return;
         }
         const term = encodeURIComponent(args.slice(1).join(" "));

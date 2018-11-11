@@ -6,6 +6,7 @@ module.exports = {
     categories: ["tools"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["subscriptions", "subscription", "subscribe", "sub", "subs"],
+    hidden: true,
     init: async function(bot){
         bot.logger.log("Loading subscriptions...");
         bot.subscriptions = {};
@@ -54,7 +55,7 @@ module.exports = {
             return;
         }
         if(!args[1]){
-            message.channel.send(":bangbang: Usage: !subscriptions add/list/remove");
+            message.channel.send(`:bangbang: Usage: ${args[0]} add/list/remove`);
             return;
         }
 
@@ -82,16 +83,16 @@ module.exports = {
                 }
                 message.channel.send(output);
             }else{
-                message.channel.send("There are no subscriptions in this channel yet! Add one with !subscription add");
+                message.channel.send(`There are no subscriptions in this channel yet! Add one with ${args[0]} add`);
             }
         }else if(action === "remove"){
             if(!args[3] || isNaN(args[3])){
-                message.channel.send(":bangbang: Usage !subscriptions remove ID where ID is the number listed on !subscriptions list");
+                message.channel.send(`:bangbang: Usage !subscriptions remove ID where ID is the number listed on ${args[0]} list`);
             }else{
 
             }
         }else{
-            message.channel.send(":bangbang: Usage: !subscriptions add/list/remove");
+            message.channel.send(`:bangbang: Usage: ${args[0]} add/list/remove`);
         }
     }
 };

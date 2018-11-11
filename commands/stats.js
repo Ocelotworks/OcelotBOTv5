@@ -10,7 +10,7 @@ module.exports = {
     },
     run: async function run(message, args, bot){
         const server        = message.guild ? message.guild.id : "322032568558026753";
-        const title         = await bot.lang.getTranslation(server, "STATS_VERSION", bot.version);
+        const title         = await bot.lang.getTranslation(server, "STATS_VERSION", {version: bot.version});
         const tagline       = await bot.lang.getTranslation(server, "STATS_MESSAGE", {instance: `Shard ${bot.client.shard.id+1}/${bot.client.shard.count}`});
         const totalUsers    = await bot.lang.getTranslation(server, "STATS_TOTAL_USERS");
         const totalServers  = await bot.lang.getTranslation(server, "STATS_TOTAL_SERVERS");

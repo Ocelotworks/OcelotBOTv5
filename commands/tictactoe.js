@@ -44,7 +44,7 @@ module.exports = {
             const col = subCommand[1]-1;
             module.exports.doGo(message, col, row);
         }else{
-            message.channel.send(":bangbang: Invalid usage! To start a game type !tictactoe start @player");
+            message.channel.send(`:bangbang: Invalid usage! To start a game type ${args[0]} start @player`);
         }
 
     },
@@ -116,16 +116,17 @@ module.exports = {
         return output;
     },
     subCommands: {
-        start: function(message){
+        start: function(message, args, bot){
             const currentGame = runningGames[message.channel.id];
+            const command = args[0];
             if(currentGame){
                 const authorIndex =currentGame.players.indexOf(message.author.id);
                 if(authorIndex === -1){
                     message.channel.send(":warning: Only one game can be running in a channel at one time. Wait for the current one to end, or go to another channel.");
                 }else if(authorIndex === currentGame.turn){
-                    message.channel.send(":warning: It is currently your turn in the current game! Do your move with !tictactoe <position> i.e !tictactoe A1 or give up with !tictactoe quit");
+                    message.channel.send(`:warning: It is currently your turn in the current game! Do your move with ${command} <position> i.e ${args[0]} A1 or give up with ${command} quit`);
                 }else{
-                    message.channel.send(":warning: There is already a game going on in this channel and you are in it. Wait for your opponent to move or give up with !tictactoe quit");
+                    message.channel.send(`:warning: There is already a game going on in this channel and you are in it. Wait for your opponent to move or give up with ${command} quit`);
                 }
             }else{
                 if(message.mentions && message.mentions.members && message.mentions.members.size > 0){
@@ -137,13 +138,13 @@ module.exports = {
                         from: message.author,
                         to: target
                     };
-                    message.channel.send(`:rotating_light: ${target}, ${message.author} challenges you to a game of tic tac toe! Type **!tictactoe accept** to start!`);
+                    message.channel.send(`:rotating_light: ${target}, ${message.author} challenges you to a game of tic tac toe! Type **${args[0]} accept** to start!`);
                 }else{
-                    message.channel.send(":bangbang: You must mention a user to challenge. !tictactoe start @user");
+                    message.channel.send(`:bangbang: You must mention a user to challenge. ${args[0]} start @user`);
                 }
             }
         },
-        accept: async function(message){
+        accept: async function(message, args, bot){
             if(gameRequests[message.channel.id] && gameRequests[message.channel.id][message.author.id]){
                 const request = gameRequests[message.channel.id][message.author.id];
                 runningGames[message.channel.id] = {
@@ -151,10 +152,10 @@ module.exports = {
                     players: [request.from, message.author],
                     board: [[2, 2, 2],[2, 2, 2],[2, 2, 2]],
                 };
-                runningGames[message.channel.id].lastMessage = await message.channel.send(`${request.from}, your request has been accepted! It is your turn.\n${module.exports.renderBoard(message.channel.id)}\nMove with !tictactoe [position] i.e !tictactoe B2 for the middle.`);
+                runningGames[message.channel.id].lastMessage = await message.channel.send(`${request.from}, your request has been accepted! It is your turn.\n${module.exports.renderBoard(message.channel.id)}\nMove with ${args[0]} [position] i.e ${args[0]} B2 for the middle.`);
                 delete gameRequests[message.channel.id];
             }else{
-                message.channel.send(":bangbang: You don't currently have any game invites. Type **!tictactoe start @user** to start one yourself.");
+                message.channel.send(`:bangbang: You don't currently have any game invites. Type **${args[0]} start @user** to start one yourself.`);
             }
         }
     }

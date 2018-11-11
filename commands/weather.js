@@ -57,7 +57,7 @@ module.exports = {
                     message.channel.send("", {embed: attachments});
 
                 } else {
-                    message.replyLang("WEATHER_INVALID_PLACE");
+                    message.replyLang("WEATHER_INVALID_PLACE", {place: search});
                 }
             }
         });

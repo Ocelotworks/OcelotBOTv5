@@ -6,9 +6,9 @@ module.exports = {
     categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["achievement", "acheivement", "ach", "achievment"],
-    run:  function(message, args){
+    run:  function(message, args, bot){
         if(!args[1]){
-            message.channel.send(":bangbang: You must provide some text! i.e !achievement hello world");
+            message.channel.send(`:bangbang: You must provide some text! i.e ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}achievement hello world`);
             return;
         }
 

@@ -11,7 +11,7 @@ module.exports = {
     categories: ["image", "tools"],
     run:  function(message, args, bot){
         if(!args[1]){
-            message.channel.send("Usage: !screenshot <URL> e.g !screenshot google.com");
+            message.channel.send(`Usage: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}screenshot <URL> e.g ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}screenshot google.com`);
         }else{
             message.channel.startTyping();
             request({

@@ -12,7 +12,7 @@ module.exports = {
     commands: ["ipinfo", "ip"],
     run: async function run(message, args, bot) {
         if(args.length < 2){
-            message.channel.send(":bangbang: Invalid usage. !ipinfo ip");
+            message.channel.send(`:bangbang: Invalid usage. ${args[0]} ip`);
         }else{
             request(`http://ipinfo.io/${args[1]}/json`, async function(err, response, body){
                 try{

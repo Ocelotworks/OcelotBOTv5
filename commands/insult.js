@@ -25,7 +25,7 @@ module.exports = {
                 message.channel.send(bot.topicalInsult.formatUnicorn(term));
                 bot.usedTopicalInsults.push(message.channel.id);
             }else{
-                message.replyLang(`INSULT_${bot.util.intBetween(1,114)}`, term);
+                message.replyLang(`INSULT_${bot.util.intBetween(1,114)}`, {term});
             }
         }
 

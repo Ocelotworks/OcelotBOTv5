@@ -7,7 +7,7 @@ module.exports = {
     equiredPermissions: ["ADD_REACTIONS"],
     run: async function run(message, args, bot){
         if(!args[1]){
-            message.channel.send("Invalid usage: !spell [sentence]");
+            message.channel.send(`Invalid usage: ${args[0]} <sentence>`);
             return;
         }
         const messageFetch = await message.channel.fetchMessages({limit: 2});

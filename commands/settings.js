@@ -51,7 +51,7 @@ module.exports = {
             message.replyLang("SETTINGS_DM_CHANNEL");
         }else if(message.member.roles.exists("name", "Bot Controller") || message.member.roles.exists("name", "Bot Master") || message.guild.ownerID === message.author.id){
             if(!args[1] || !module.exports.subCommands[args[1]]){
-                message.replyLang("SETTINGS_USAGE");
+                message.channel.send(`${(message.guild && bot.prefixCache[message.guild.id]) || "!"}settings list/add`)
             }else{
                 module.exports.subCommands[args[1]](message,args,bot);
             }
@@ -62,14 +62,13 @@ module.exports = {
     subCommands: {
         list: async function(message, args, bot){
             const serverInfo = (await bot.database.getServer(message.guild.id))[0];
-            let output = await bot.lang.getTranslation(message.guild.id, "SETTINGS_AVAILABLE");
+            let output = "";
             for(var i in serverInfo){
                 if(serverInfo.hasOwnProperty(i) && module.exports.settings[i]){
                     output += `**${i}** - ${module.exports.settings[i].format(serverInfo[i])}\n`
                 }
             }
-
-            message.channel.send(output);
+            message.replyLang("SETTINGS_AVAILABLE", {settings: output});
         },
         set: async function(message, args, bot){
             if(args.length < 4){

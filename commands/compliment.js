@@ -23,7 +23,7 @@ module.exports = {
                 message.channel.send(bot.topicalCompliment.formatUnicorn(term));
                 bot.usedTopicalCompliments.push(message.channel.id);
             }else {
-                message.replyLang(`COMPLIMENT_${bot.util.intBetween(1, 27)}`, term);
+                message.replyLang(`COMPLIMENT_${bot.util.intBetween(1, 27)}`, {term});
             }
         }
 

@@ -1,6 +1,6 @@
 module.exports = {
     name: "Patient Says",
-    usage: "ronald <text>",
+    usage: "patient <text>",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["hospital", "hospitalguysays", "hospitalguy", "patient", "patientsays"],

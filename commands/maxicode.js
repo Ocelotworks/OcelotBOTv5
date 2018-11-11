@@ -10,7 +10,7 @@ module.exports = {
     commands: ["maxi", "maxicode"],
     run:  function(message, args, bot){
         if(!args[1]){
-            message.channel.send(":bangbang: You must provide some text! i.e !maxi hello world");
+            message.channel.send(`:bangbang: You must provide some text! i.e ${args[0]} hello world`);
             return;
         }
 

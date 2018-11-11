@@ -114,27 +114,25 @@ module.exports = {
                         bot.util.shuffle(answers);
                         const isBoolean = question.type === "boolean";
 
-
-
                         let embed = new Discord.RichEmbed();
 
-                        embed.setTitle(await bot.lang.getTranslation(message.guild.id, "TRIVIA_SECONDS", 15));
+                        embed.setTitle(await bot.lang.getTranslation(message.guild.id, "TRIVIA_SECONDS", {seconds: 15}));
                         embed.setDescription(decodeURIComponent(question.question));
                         embed.setAuthor(await bot.lang.getTranslation(message.guild.id, "TRIVIA_CATEGORY", decodeURIComponent(question.category)));
                         embed.setColor(difficultyColours[question.difficulty]);
 
                         if(isBoolean){
                             embed.addField(
-                                await bot.lang.getTranslation(message.guild.id, "TRIVIA_FOR", "TRUE"),
-                                await bot.lang.getTranslation(message.guild.id, "TRIVIA_REACT", ":white_check_mark:"), true);
+                                await bot.lang.getTranslation(message.guild.id, "TRIVIA_FOR", {answer: "TRUE"}),
+                                await bot.lang.getTranslation(message.guild.id, "TRIVIA_REACT", {reaction: ":white_check_mark:"}), true);
                             embed.addField(
-                                await bot.lang.getTranslation(message.guild.id, "TRIVIA_FOR", "FALSE"),
-                                await bot.lang.getTranslation(message.guild.id, "TRIVIA_REACT", ":negative_squared_cross_mark:"), true)
+                                await bot.lang.getTranslation(message.guild.id, "TRIVIA_FOR", {answer: "FALSE"}),
+                                await bot.lang.getTranslation(message.guild.id, "TRIVIA_REACT", {reaction: ":negative_squared_cross_mark:"}), true)
                         }else{
                             for(let i = 0; i < answers.length; i++){
                                 embed.addField(
-                                    await bot.lang.getTranslation(message.guild.id, "TRIVIA_FOR", decodeURIComponent(answers[i])),
-                                    await bot.lang.getTranslation(message.guild.id, "TRIVIA_REACT", numbers[i]), true)
+                                    await bot.lang.getTranslation(message.guild.id, "TRIVIA_FOR", {answer: decodeURIComponent(answers[i])}),
+                                    await bot.lang.getTranslation(message.guild.id, "TRIVIA_REACT", {reaction: numbers[i]}), true)
                             }
                         }
 
@@ -178,7 +176,7 @@ module.exports = {
                                 message.channel.stopTyping();
 
                                 const points = difficulties.indexOf(question.difficulty) + 2;
-                                let output = await bot.lang.getTranslation(message.guild.id, "TRIVIA_TIME_END", decodeURIComponent(correctAnswer))+"\n";
+                                let output = await bot.lang.getTranslation(message.guild.id, "TRIVIA_TIME_END", {answer: decodeURIComponent(correctAnswer)})+"\n";
 
                                 if(correct.length === 0){
                                     output += await bot.lang.getTranslation(message.guild.id, "TRIVIA_WIN_NONE")+"\n";
@@ -189,7 +187,7 @@ module.exports = {
                                     }
                                     output += "\n";
 
-                                    output += await bot.lang.getTranslation(message.guild.id, "TRIVIA_WIN"+ (correct.length === 1 ? "_SINGLE" : ""), points);
+                                    output += await bot.lang.getTranslation(message.guild.id, "TRIVIA_WIN"+ (correct.length === 1 ? "_SINGLE" : ""), {points});
                                 }
 
                                 message.channel.send(output);

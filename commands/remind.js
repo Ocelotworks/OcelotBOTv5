@@ -11,7 +11,7 @@ module.exports = {
     commands: ["remind", "remindme", "reminder", "setreminder"],
     categories: ["tools"],
     init: function init(bot){
-        bot.client.on("ready", async function(){
+        bot.client.on("ready", async function discordReady(){
             if(!bot.remindersLoaded) {
                 bot.remindersLoaded = true;
                 bot.logger.log("Loading reminders...");

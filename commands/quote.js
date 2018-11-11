@@ -10,7 +10,7 @@ module.exports = {
         // noinspection EqualityComparisonWithCoercionJS
         if(message.guild.id != "478950156654346292")return;
         if(!args[1]){
-            message.channel.send("You must enter a user i.e `!quote peter` or `!quote joel high` or `!quote anyone fuck`");
+            message.channel.send(`You must enter a user i.e \`${(message.guild && bot.prefixCache[message.guild.id]) || "!"}quote peter\` or \`${(message.guild && bot.prefixCache[message.guild.id]) || "!"}quote joel high\` or \`${(message.guild && bot.prefixCache[message.guild.id]) || "!"}quote anyone fuck\``);
         }else{
             const target = args[1].toLowerCase() === "anyone" ? null : args[1].toLowerCase();
             const phrase = args[2] ? message.content.substring(message.content.indexOf(args[2])) : null;

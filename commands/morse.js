@@ -7,7 +7,7 @@ module.exports = {
     commands: ["morse", "morsecode"],
     run: function run(message, args, bot) {
         if(args.length < 2){
-            message.channel.send("Invalid usage. !morse text")
+            message.channel.send(`Invalid usage. ${args[0]} text`)
         }else{
             const input = encodeURIComponent(message.cleanContent.substring(args[0].length + 1));
             request(`https://api.funtranslations.com/translate/morse.json?text=${input}`, function(err, resp, body){

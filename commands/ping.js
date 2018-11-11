@@ -14,14 +14,14 @@ module.exports = {
             return;
         }
 
-        const sentMessage = await message.replyLang("PING_PINGING", args[1]);
+        const sentMessage = await message.replyLang("PING_PINGING", {address: args[1]});
 
         const res = await ping.promise.probe(args[1].replace(/[<>|]/g, ""), {
             timeout: args[2] ? args[2] : 1000
         });
 
         if(res.alive){
-            sentMessage.editLang("PING_RESPONSE", res.output);
+            sentMessage.editLang("PING_RESPONSE", {response: res.output});
         }else{
             sentMessage.editLang("PING_NO_RESPONSE");
         }
