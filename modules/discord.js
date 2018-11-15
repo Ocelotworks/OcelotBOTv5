@@ -6,8 +6,7 @@ module.exports = {
     name: "Discord.js Integration",
     init: function(bot){
 
-        Discord.Message.prototype.replyLang = async function(message, values = {}){
-            values.prefix = this.guild && bot.prefixCache[this.guild.id] || config.get("General.DefaultPrefix");
+        Discord.Message.prototype.replyLang = async function(message, values){
             return this.channel.send(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
         };
 
