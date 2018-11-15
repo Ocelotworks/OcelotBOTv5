@@ -56,8 +56,8 @@
   "Modules": [
     "util",
     "database",
-    "lang",
     "discord",
+    "lang",
     "statistics",
     "bans",
     "commands",
