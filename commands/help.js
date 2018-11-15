@@ -36,40 +36,18 @@ module.exports = {
         message.editLang("COMMANDS", output);
     },
     run: async function run(message, args, bot){
-        // const permissions = await message.channel.permissionsFor(bot.client.user);
-        // if(permissions.has(["ADD_REACTIONS", "MANAGE_MESSAGES"])){
-        //     let embed = new Discord.RichEmbed();
-        //     embed.setTitle("OcelotBOT Commands");
-        //     embed.setDescription("Select a category from the list below");
-        //     let count = 0;
-        //     for(let i in bot.commandCategories){
-        //         embed.addField(`${i.toUpperCase()}:`, `React with ${numbers[count]}`, true);
-        //         count++;
-        //     }
-        //     let sentMessage = await message.channel.send("", embed);
-        //     const keys = Object.keys(bot.commandCategories);
-        //     sentMessage.awaitReactions(function(reaction, user){
-        //         if(user.id === bot.client.user.id)return false;
-        //
-        //         let num = parseInt(reaction.emoji.name[0]);
-        //         if(isNaN(num))return false;
-        //         num--;
-        //         if(!keys[num])return false;
-        //
-        //         module.exports.showHelpFor(bot.commandCategories[keys[num]], sentMessage);
-        //         reaction.remove(user);
-        //
-        //         return false;
-        //     }, {time: 120000}, function reactionEnd(){
-        //         bot.logger.log("Reactions expired on !help");
-        //         sentMessage.clearReactions();
-        //     });
-        //
-        //     for(let j = 0; j < count; j++){
-        //         await sentMessage.react(numbers[j]);
-        //     }
-        //
-        // }else{
+
+        if(!args[1]) {
+            let output = `\`\`\`python\n#Select a Category\n`;
+
+            for (let i in bot.commandCategories) {
+                output += `For '${i}' use ${args[0]} ${i}\n`;
+            }
+            output += "\n```";
+            message.channel.send(output);
+        }else if(!bot.commandCategories[args[1].toLowerCase()]){
+            message.channel.send(":bangbang: Invalid usage. You must supply a category or just type !help");
+        }else{
             let unique = []; //ahhh..
             let output = "";
             let commandUsages = bot.commandUsages;
@@ -80,10 +58,10 @@ module.exports = {
                 if(commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden)
                     if(unique.indexOf(commandUsages[i].name) === -1) {
                         unique.push(commandUsages[i].name);
-                        output += /*`${commandUsages[i].name}::*/`${(message.guild && bot.prefixCache[message.guild.id]) || "!"}${commandUsages[i].usage}\n`
+                        output += `${commandUsages[i].name}:: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}${commandUsages[i].usage}\n`
                     }
             }
             message.replyLang("COMMANDS", {commands: output});
-        //}
+        }
     }
 };
