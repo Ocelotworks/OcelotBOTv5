@@ -151,7 +151,10 @@ module.exports = {
                  }
              }
              try {
-                 await bot.database.addServer(guild.id, guild.owner_id, guild.name, guild.joined_at);
+                 let lang = "en-gb";
+                 if(guild.region.startsWith("us"))
+                     lang = "en-us";
+                 await bot.database.addServer(guild.id, guild.owner_id, guild.name, guild.joined_at, lang);
              }catch(e){
                  bot.logger.warn(`Error adding server ${e}`);
              }

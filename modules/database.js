@@ -47,15 +47,17 @@ module.exports = {
              * @param {UserID} addedBy The server owner's Snowflake ID
              * @param {String} name The name of the server
              * @param {Number} [timestamp] The Unix Timestamp in milliseconds
+             * @param {String} lang Language
              * @returns {Promise<Array>}
              */
-            addServer: function addNewServer(serverID, addedBy, name, timestamp) {
+            addServer: function addNewServer(serverID, addedBy, name, timestamp, lang = "en-gb") {
                 return knex.insert({
                     server: serverID,
                     owner: addedBy,
                     name: name,
                     prefix: "!",
-                    timestamp: knex.raw(`FROM_UNIXTIME(${(timestamp ? new Date(timestamp).getTime() : new Date().getTime()) / 1000})`)
+                    timestamp: knex.raw(`FROM_UNIXTIME(${(timestamp ? new Date(timestamp).getTime() : new Date().getTime()) / 1000})`),
+                    language: lang
                 }).into(SERVERS_TABLE);
             },
             /**
