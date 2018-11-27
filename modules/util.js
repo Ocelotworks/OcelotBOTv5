@@ -56,15 +56,6 @@ module.exports = {
         };
 
         /**
-         * Chooses a random object from `array`
-         * @param {Array} array
-         * @returns {*} A random object from the specified array
-         */
-        bot.util.arrayRand = function arrayRand(array){
-            return array[Math.round(Math.random()*(array.length-1))];
-        };
-
-        /**
          * Randomly shuffles an array
          * @param {Array} a
          */
