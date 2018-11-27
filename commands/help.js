@@ -38,15 +38,20 @@ module.exports = {
     run: async function run(message, args, bot){
 
         if(!args[1]) {
-            let output = `\`\`\`python\n#Select a Category\n`;
+           // let output = `\`\`\`python\n#Select a Category\n`;
+            let output = "";
 
             for (let i in bot.commandCategories) {
                 output += `For '${i}' use ${args[0]} ${i}\n`;
             }
-            output += "\n```";
-            message.channel.send(output);
+            //output += "\n```";
+            message.replyLang("COMMANDS_CATEGORIES", {
+                categories: output
+            });
         }else if(!bot.commandCategories[args[1].toLowerCase()]){
-            message.channel.send(":bangbang: Invalid usage. You must supply a category or just type !help");
+            message.replyLang("COMMANDS_INVALID_CATEGORY", {
+                arg: args[0]
+            });
         }else{
             let unique = []; //ahhh..
             let output = "";
