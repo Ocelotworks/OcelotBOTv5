@@ -28,7 +28,7 @@ module.exports = {
                     comments = data.data.children;
                 } catch(e) {
                     bot.raven.captureException(e);
-                    bot.log(e);
+                    bot.logger.log(e);
                     const timeout = 1000*(failureTimes++);
                     bot.logger.log(`Trying again in ${timeout}ms`);
                     setTimeout(module.exports.downloadComments, timeout, bot);
@@ -62,5 +62,43 @@ module.exports = {
         }catch(e){
             module.exports.downloadComments(bot);
         }
+    },
+    test: function(test){
+        test('ai no args', function(t){
+            const message = {
+                replyLang: function(message){
+                    t.is(message, "8BALL_NO_QUESTION");
+                }
+            };
+            module.exports.run(message, []);
+        });
+        test('ai no comments', function(t){
+            const message = {
+                replyLang: function(message){
+                    t.is(message, "GENERIC_ERROR");
+                },
+                channel: {
+                    startTyping: function(){},
+                    stopTyping: function(){}
+                }
+            };
+            module.exports.run(message, ["ai", "test"]);
+        });
+        test('ai comment download', function(t){
+            const bot = {
+                logger: {
+                    log: function(msg){
+                        console.log(msg);
+                    }
+                },
+                raven: {
+                    captureException: function(){
+                        t.fail();
+                    }
+                }
+            };
+            module.exports.downloadComments(bot);
+            t.pass();
+        });
     }
 };
