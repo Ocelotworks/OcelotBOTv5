@@ -10,6 +10,10 @@ module.exports = {
             return this.channel.send(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
         };
 
+        Discord.TextChannel.prototype.sendLang = async function(message, values){
+            return this.send(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
+        };
+
         Discord.Message.prototype.editLang = async function(message, values){
             return this.edit(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
         };
