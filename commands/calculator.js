@@ -54,7 +54,7 @@ module.exports = {
     },
     run: async function(message, args, bot){
         if(!args[1]){
-            message.channel.send(`Usage: (message.guild && bot.prefixCache[message.guild.id]) || "!"calc <expression>`);
+            message.channel.send(`Usage: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}calc <expression>`);
         }else {
             try {
                 message.channel.send(limitedEval(message.content.substring(args[0].length + 1), scope).toString());
