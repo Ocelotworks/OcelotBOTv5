@@ -46,8 +46,8 @@ module.exports = {
 
                                 sentMessage.editLang("UD_DEFINITION", {
                                     word: newEntry.word,
-                                    definition: newEntry.definition,
-                                    example: newEntry.example
+                                    definition: newEntry.definition.substring(0, 1000),
+                                    example: newEntry.example.substring(0, 1000)
                                 });
 
                                 reaction.remove(user);
