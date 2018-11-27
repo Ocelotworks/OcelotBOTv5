@@ -51,8 +51,9 @@ module.exports = {
                     }
                 })
             }catch(e){
-                bot.raven.captureException(e);
+                //bot.raven.captureException(e);
                 bot.logger.log(e);
+                message.replyLang("GENERIC_ERROR");
             }
         }
     },
