@@ -9,7 +9,7 @@ module.exports = {
     commands: ["face", "age"],
     run: async function run(message, args, bot) {
         const url = await bot.util.getImage(message, args);
-
+        bot.logger.log(url);
         request({
             method: 'POST',
             json: true,
@@ -33,7 +33,7 @@ module.exports = {
                         output += await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE", body[i].faceAttributes);
                         output += "\n";//i < body.length-2 ? ", " : i === body.length-2 ? " and " : "."
                     }
-                    message.channel.send(await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE_MULTIPLE", {num: body.length-1})+"\n "+output);
+                    message.channel.send(await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE_MULTIPLE", {num: body.length})+"\n "+output);
 
                 }
 
