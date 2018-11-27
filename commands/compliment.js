@@ -26,6 +26,71 @@ module.exports = {
                 message.replyLang(`COMPLIMENT_${bot.util.intBetween(1, 27)}`, {term});
             }
         }
+    },
+    test: function(test){
+        test('compliment no args', function(t){
+            const message = {
+                replyLang: function(message){
+                    t.is(message, "COMPLIMENT_NO_PERSON")
+                }
+            };
 
+            module.exports.run(message, []);
+        });
+        test('compliment with args', function(t){
+            const message = {
+                replyLang: function(message, data){
+                    t.is(message, "COMPLIMENT_0");
+                    t.deepEqual(data, {
+                        term: "of args"
+                    });
+                },
+                guild: {
+                    me: {
+                        nickname: "ocelotbot"
+                    }
+                }
+            };
+            const bot = {
+                util: {
+                    intBetween: function(){
+                        return 0;
+                    }
+                },
+                client: {
+                    user: {
+                        username: "ocelotbot"
+                    }
+                }
+            };
+            const args = ["loads", "of", "args"];
+            module.exports.run(message, args, bot);
+        });
+        test('compliment self', function(t){
+            const message = {
+                replyLang: function(message, data){
+                    t.is(message, "COMPLIMENT_SELF_COMPLIMENT");
+                },
+                guild: {
+                    me: {
+                        nickname: "ocelotbot"
+                    }
+                }
+            };
+            const bot = {
+                util: {
+                    intBetween: function(){
+                        return 0;
+                    }
+                },
+                client: {
+                    user: {
+                        username: "ocelotbot"
+                    }
+                }
+            };
+            const args = ["insult", "ocelotbot"];
+            module.exports.run(message, args, bot);
+        });
     }
 };

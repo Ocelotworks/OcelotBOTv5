@@ -151,5 +151,25 @@ module.exports = {
     commands: ["bands", "bandnames", "bandname", "bn"],
     run: async function(message, args, bot){
        message.channel.send(`:guitar: :musical_keyboard: Starting a band? You should call it \`${bot.util.arrayRand(first)} ${bot.util.arrayRand(second)}\``);
+    },
+    test: function(test){
+        test('band name generator', function(t){
+            const bot = {
+                util: {
+                    arrayRand: function(array){
+                        return array[0];
+                    }
+                }
+            };
+            const message = {
+                channel: {
+                    send: function(message){
+                        t.is(message, ":guitar: :musical_keyboard: Starting a band? You should call it `Falafel D`");
+                    }
+                }
+            };
+            module.exports.run(message, [], bot);
+
+        })
     }
 };

@@ -44,5 +44,24 @@ module.exports = {
             message.channel.send(output);
         }
     },
+    test: function(test){
+        test('admin not admin', function(t){
+             const bot = {
+                 admins: ["abc"]
+             };
+             const message = {
+                 author: {
+                     id: "def"
+                 },
+                 channel: {
+                     send: function(){
+                         t.fail();
+                     }
+                 }
+             };
+             module.exports.run(message, [], bot);
+             t.pass();
+        });
+    },
     subCommands: {}
 };

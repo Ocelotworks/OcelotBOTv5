@@ -222,6 +222,5 @@ module.exports = {
 
         const timeMessage = time.toString();
         message.replyLang("TIME_MESSAGE", {time: timeMessage.substring(0, timeMessage.indexOf("GMT"))});
-
     }
 };

@@ -47,5 +47,54 @@ module.exports = {
 
 
         message.channel.send(output);
+    },
+    test: function(test){
+        test('chinese no text', function(t){
+            const message = {
+                replyLang: function(message){
+                    t.is(message, "CHINESE_NO_TEXT")
+                }
+            };
+            module.exports.run(message, []);
+        });
+
+        test('chinese with working letters', function(t){
+            const message = {
+                channel: {
+                    send: function(message){
+                        t.is(message, "卂阝匚")
+                    }
+                },
+                cleanContent: "!chinese abc"
+            };
+            const args = ["!chinese", "abc"];
+            const bot = {
+                util: {
+                    arrayRand: function(array){
+                        return array[0]
+                    }
+                }
+            };
+            module.exports.run(message, args, bot);
+        });
+        test('chinese with not undefined letters', function(t){
+            const message = {
+                channel: {
+                    send: function(message){
+                        t.is(message, "!?")
+                    }
+                },
+                cleanContent: "!chinese !?"
+            };
+            const args = ["!chinese", "!?"];
+            const bot = {
+                util: {
+                    arrayRand: function(array){
+                        return array[0]
+                    }
+                }
+            };
+            module.exports.run(message, args, bot);
+        });
     }
 };

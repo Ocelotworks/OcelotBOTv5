@@ -22,5 +22,42 @@ module.exports = {
             });
             message.channel.stopTyping();
         })
+    },
+    test: function(test){
+        test('bigtext no text', function(t){
+            const args = ["bigtext"];
+            const message = {
+                channel: {
+                    send: function(message){
+                        t.is(message, ":bangbang: You must provide some text! i.e !bigtext hello world");
+                    }
+                }
+            };
+            module.exports.run(message, args);
+        });
+        test('bigtext', function(t){
+            const args = ["!bigtext", "test", "test"];
+            const message = {
+                cleanContent: "!bigtext test test",
+                channel: {
+                    send: function(message, attachment){
+                        t.is(message, "");
+                        if(attachment.embed.image.url.startsWith("http://img4me")){
+                            t.pass();
+                        }else{
+                            t.fail();
+                        }
+                    },
+                    startTyping: function(){
+                        t.pass();
+                    },
+                    stopTyping: function(){
+                        t.pass();
+                    }
+                },
+                content: "!achievement test test"
+            };
+            module.exports.run(message, args);
+        });
     }
 };
