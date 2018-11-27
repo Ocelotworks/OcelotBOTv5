@@ -5,7 +5,7 @@ module.exports = {
     run: async function(message, args, bot){
         if(args[1]){
             try {
-                bot.client.user.setAvatar(args[1]);
+                bot.client.user.setAvatar(args[2]);
             }catch(e){
                 message.channel.send(e.message);
             }
