@@ -39,6 +39,13 @@ module.exports = {
                 message.channel.send(`:tada: **Congratulations! You just performed your __${commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting on discordbots.org: https://discordbots.org/bot/146293573422284800/vote`);
             }
         });
+
+        // bot.client.on("presenceUpdate", function(oldMember, newMember){
+        //     if(newMember.user.bot)return;
+        //     // noinspection EqualityComparisonWithCoercionJS
+        //     if(newMember.presence.game && newMember.presence.game != oldMember.presence.game)
+        //         bot.logger.log(`${newMember.user.username} is now playing ${newMember.presence.game.name}`);
+        // });
     },
     run: async function run(message, args, bot) {
         // noinspection EqualityComparisonWithCoercionJS
