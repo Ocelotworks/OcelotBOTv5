@@ -15,7 +15,10 @@ module.exports = {
                        bot.client.channels.get("344931831151329302").send(`Feedback from ${msg.message.userID} (${msg.message.username}) in ${msg.message.guildID} (${msg.message.guild}):\n\`\`\`\n${msg.message.message}\n\`\`\``);
                }else if(msg.type === "feedbackResponse"){
                     if(bot.client.channels.has(msg.message.channel)){
-                        bot.client.channels.get(bot.lastFeedbackChannel).send(`:grey_exclamation: An admin has responded to your feedback.\n\`\`\`\n${msg.message.response}\n\`\`\`\nUse **${(bot.prefixCache[msg.message.guildID]) || "!"}feedback** to reply back.`)
+                        bot.client.channels.get(bot.lastFeedbackChannel).sendLang("FEEDBACK_RESPONSE", {
+                           response: msg.message.response,
+                        });
+                       // bot.client.channels.get(bot.lastFeedbackChannel).send(`:grey_exclamation: An admin has responded to your feedback.\n\`\`\`\n${msg.message.response}\n\`\`\`\nUse **${(bot.prefixCache[msg.message.guildID]) || "!"}feedback** to reply back.`)
                     }
                }
             });
@@ -28,7 +31,7 @@ module.exports = {
                 if(bot.lastFeedbackChannel){
                     const response = message.content.substring(message.content.indexOf(args[2]));
                     if(bot.client.channels.has(bot.lastFeedbackChannel)){
-                        bot.client.channels.get(bot.lastFeedbackChannel).send(`:grey_exclamation: An admin has responded to your feedback.\n\`\`\`\n${response}\n\`\`\`\nUse **${(message.guild && bot.prefixCache[message.guild.id]) || "!"}feedback** to reply back.`);
+                        bot.client.channels.get(bot.lastFeedbackChannel).sendLang("FEEDBACK_RESPONSE", {response});
                         message.channel.send("Responded.");
                     }else{
                         bot.client.shard.send({type: "feedbackResponse", message: {
