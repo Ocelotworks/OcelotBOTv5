@@ -39,6 +39,11 @@ module.exports = {
                 try{
                     let positions = [];
                     const data = JSON.parse(body);
+                    if(!data.ParsedResults){
+                        bot.logger.log(data);
+                        message.replyLang("GENERIC_ERROR");
+                        return;
+                    }
                     const results = data.ParsedResults[0];
                     if(results && results.TextOverlay){
                         const lines = results.TextOverlay.Lines;
