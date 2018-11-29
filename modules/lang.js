@@ -34,7 +34,7 @@ module.exports = {
 
         bot.lang.getTranslation = function getTranslation(server, key, format = {}){
             return new Promise(async function(fulfill){
-                format.prefix = this.guild && bot.prefixCache[this.guild.id] || config.get("General.DefaultPrefix");
+                format.prefix = "\\"+(this.guild && bot.prefixCache[this.guild.id] || config.get("General.DefaultPrefix"));
                 let output = bot.lang.getTranslationFor(await bot.lang.getLocale(server), key);
                 fulfill(format ? output.formatUnicorn(format) : output)
             });
