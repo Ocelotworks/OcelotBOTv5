@@ -48,6 +48,8 @@ module.exports = {
                                 } else if (permissions.has("SEND_MESSAGES")) {
                                     message.replyLang("ERROR_NEEDS_PERMISSION", bot.commandUsages[command].requiredPermissions.join(", "));
                                 } else {
+                                    const dm = await message.author.createDM();
+                                    dm.send("I don't have permission to send messages in that channel.");
                                     bot.logger.log("No permission to send messages in this channel.");
                                 }
                             } else {
