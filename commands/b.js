@@ -18,9 +18,24 @@ module.exports = {
     run: async function(message, args, bot){
         const url =  await bot.util.getImage(message, args);
         if(!url){
-            message.replyLang("CRUSH_NO_USER");
-            message.channel.stopTyping(true);
-            return;
+            if(args[1]){
+                let output = "";
+                const line = (message.cleanContent.substring(message.cleanContent.indexOf(args[1]))).split(" ");
+                for(let w = 0; w < line.length; w++){
+                    const text = line[w];
+                    if(bot.util.vowels.indexOf(text.substring(1,2)) > -1){
+                        output += "🅱"+text.substring(1)+" ";
+                    }else{
+                        output += text+" ";
+                    }
+                }
+                message.channel.send(output);
+                return;
+            }else {
+                message.replyLang("CRUSH_NO_USER");
+                message.channel.stopTyping(true);
+                return;
+            }
         }
 
 
