@@ -22,7 +22,7 @@ module.exports = {
         if(arg === "list"){
 
             const memes = await bot.database.getMemes(message.guild ? message.guild.id : "global");
-            let pages = memes.chunk(50);
+            let pages = memes.chunk(80);
 
 
 
@@ -104,7 +104,7 @@ module.exports = {
                 }
                 reaction.remove(user);
 
-            }, {time: 60000});
+            }, {time: 480000});
             sentMessage.clearReactions();
             return;
         }else if(arg === "add"){
