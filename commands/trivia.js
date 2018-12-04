@@ -76,12 +76,16 @@ module.exports = {
                         }
                     else cb();
                 });
-                message.replyLang("TRIVIA_LEADERBOARD_LIST"+(args[2] ? "_MONTHLY": ""), {
-                    user: message.author.id,
-                    position: position,
-                    total: leaderboardData.length,
-                    list: columnify(data)
-                });
+                if(args[2] && args[2].toLowerCase() === "daily"){
+                    message.channel.send("There's no daily leaderboard queen, fuck");
+                }else {
+                    message.replyLang("TRIVIA_LEADERBOARD_LIST" + (args[2] ? "_MONTHLY" : ""), {
+                        user: message.author.id,
+                        position: position,
+                        total: leaderboardData.length,
+                        list: columnify(data)
+                    });
+                }
 
                 message.channel.stopTyping();
 
