@@ -62,6 +62,7 @@ module.exports = {
                         try {
                             let auth = await ts.auth(config.get("Teamspeak.user"), config.get("Teamspeak.password"), 1);
                         } catch (e) {
+                            console.log(e);
                             bot.logger.log("Auth errored as expected...");
                         } finally {
                             ts.setName('OcelotBOT');
