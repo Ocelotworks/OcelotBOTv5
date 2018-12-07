@@ -14,7 +14,8 @@ module.exports = {
                         bot.lastMessageCounts[message.channel.id]++;
                     else
                         bot.lastMessageCounts[message.channel.id] = 1;
-                    if(bot.lastMessageCounts[message.channel.id] >= 3){
+                    if(message.getSetting("autorespond.threshold") <= 1)return;
+                    if(bot.lastMessageCounts[message.channel.id] >= message.getSetting("autorespond.threshold")){
                         if(!message.author.bot && !message.content.match(/@everyone|@here|raid|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
                             bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
                             if(message.content === "yui spank nut" && Math.random() > 0.7) {
@@ -32,6 +33,9 @@ module.exports = {
             }else{
                 bot.lastMessages[message.channel.id] = message.content.toLowerCase();
             }
+
+
+
         }));
     }
 };

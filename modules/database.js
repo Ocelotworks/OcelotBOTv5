@@ -38,8 +38,15 @@ module.exports = {
         const COMMANDLOG_TABLE = "commandlog";
         const BANS_TABLE = "bans";
         const LEFTSERVERS_TABLE = "ocelotbot_leftservers";
+        const LANG_TABLE = "ocelotbot_languages";
+        const LANG_KEYS_TABLE = "ocelotbot_language_keys";
+        const SPOOK_TABLE = "ocelotbot_spooks";
+        const PROFILE_TABLE = "ocelotbot_profile";
+        const SERVER_SETTINGS_TABLE = "ocelotbot_server_settings";
+        const BADGES_TABLE = "ocelotbot_badges";
 
 
+ 
         bot.database = {
             /**
              * Add a server to the database
@@ -609,10 +616,10 @@ module.exports = {
                 return knex.insert({id: user, firstSeen: (await bot.database.getFirstSeen(user))[0]['MIN(timestamp)']}).into("ocelotbot_profile");
             },
             getProfileBadges: function(user){
-                return knex.select().from("ocelotbot_badge_assignments").where({user: user}).innerJoin("ocelotbot_badges", "ocelotbot_badges.id", "ocelotbot_badge_assignments.badge").orderBy("ocelotbot_badge_assignments.order", "ASC");
+                return knex.select().from("ocelotbot_badge_assignments").where({user: user}).innerJoin(BADGES_TABLE, "ocelotbot_badges.id", "ocelotbot_badge_assignments.badge").orderBy("ocelotbot_badge_assignments.order", "ASC");
             },
             getBadgeTypes: function(){
-                return knex.select().from("ocelotbot_badges").orderBy("order");
+                return knex.select().from(BADGES_TABLE).orderBy("order");
             },
             setProfileTagline: function(user, tagline){
                 return knex("ocelotbot_profile").update({caption: tagline}).where({id: user}).limit(1);
@@ -661,19 +668,37 @@ module.exports = {
                     lang: lang,
                     key: key,
                     message: message
-                }).into("ocelotbot_language_keys");
+                }).into(LANG_KEYS_TABLE);
             },
             getLanguageList: function(){
-                return knex.select().from("ocelotbot_languages");
+                return knex.select().from(LANG_TABLE);
             },
             getAllLanguageKeys: function(){
-                return knex.select().from("ocelotbot_language_keys");
+                return knex.select().from(LANG_KEYS_TABLE);
             },
             getLanguageKeys: function(lang){
-                return knex.select().from("ocelotbot_language_keys").where({lang: lang});
+                return knex.select().from(LANG_KEYS_TABLE).where({lang: lang});
             },
             getLanguagesForShard: function(guilds){
-                return knex.select("server", "language").from("ocelotbot_servers").whereIn("server", guilds);
+                return knex.select("server", "language").from(SERVERS_TABLE).whereIn("server", guilds);
+            },
+            getServerSetting: function(server, property){
+                return knex.select().from(SERVER_SETTINGS_TABLE).where({server: server, setting: property}).orWhere({"server": "global", setting: property}).orderBy("server").limit(1);
+            },
+            getServerSettings: function(server){
+                return knex.select().from(SERVER_SETTINGS_TABLE).where("server", server);
+            },
+            getSettingsForShard: function(guilds){
+                return knex.select().from(SERVER_SETTINGS_TABLE).whereIn("server", guilds);
+            },
+            getGlobalSettings: function(){
+                return knex.select().from(SERVER_SETTINGS_TABLE).where("server", "global");
+            },
+            setSetting: async function(server, setting, value){
+                let currentKey = await knex.select().from(SERVER_SETTINGS_TABLE).where({server, setting}).limit(1);
+                if(currentKey.length > 0)
+                    return knex(SERVER_SETTINGS_TABLE).update({setting, value}).where({server, setting}).limit(1);
+                return knex.insert({server, setting, value}).into(SERVER_SETTINGS_TABLE);
             }
         };
     }

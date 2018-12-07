@@ -57,6 +57,7 @@
     "util",
     "database",
     "discord",
+    "config",
     "lang",
     "statistics",
     "bans",

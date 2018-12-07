@@ -98,7 +98,7 @@ module.exports = {
                return;
            }
            message.channel.startTyping();
-           request("https://opentdb.com/api.php?amount=1&encode=url3986", async function triviaResponse(err, resp, body){
+           request(message.guild.getSetting("trivia.url"), async function triviaResponse(err, resp, body){
                if(err){
                    bot.raven.captureException(err);
                    message.replyLang("TRIVIA_ERROR");
@@ -120,7 +120,7 @@ module.exports = {
 
                         let embed = new Discord.RichEmbed();
 
-                        embed.setTitle(await bot.lang.getTranslation(message.guild.id, "TRIVIA_SECONDS", {seconds: 15}));
+                        embed.setTitle(await bot.lang.getTranslation(message.guild.id, "TRIVIA_SECONDS", {seconds: message.getSetting("trivia.seconds")}));
                         embed.setDescription(decodeURIComponent(question.question));
                         embed.setAuthor(await bot.lang.getTranslation(message.guild.id, "TRIVIA_CATEGORY", decodeURIComponent(question.category)));
                         embed.setColor(difficultyColours[question.difficulty]);
@@ -144,7 +144,7 @@ module.exports = {
                         const reactions = isBoolean ? ["❎", "✅"] : ["1⃣", "2⃣", "3⃣", "4⃣"];
                         const correctReaction = reactions[answers.indexOf(correctAnswer)];
 
-                        sentMessage.awaitReactions((reaction, user) => reactions.indexOf(reaction.emoji.name) > -1 && user.id === bot.client.user.id, {time: 15000})
+                        sentMessage.awaitReactions((reaction, user) => reactions.indexOf(reaction.emoji.name) > -1 && user.id === bot.client.user.id, {time: message.getSetting("trivia.seconds")*1000})
                             .then(async function(reactionResult){
                                 message.channel.startTyping();
                                 const permissions = await message.channel.permissionsFor(bot.client.user);

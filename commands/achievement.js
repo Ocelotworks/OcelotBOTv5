@@ -13,7 +13,7 @@ module.exports = {
         }
 
         message.channel.startTyping();
-        let attachment = new Discord.Attachment(`https://mcgen.herokuapp.com/a.php?i=1&h=Achievement%20Get!&t=${encodeURIComponent(message.content.substring(args[0].length+1))}`, "ach.png");
+        let attachment = new Discord.Attachment((message.guild ? message.guild.getSetting("achievement.url") : bot.config.get("global", "achievement.url"))+encodeURIComponent(message.content.substring(args[0].length+1)), "ach.png");
         message.channel.send("", attachment);
         message.channel.stopTyping();
     },

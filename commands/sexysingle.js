@@ -72,7 +72,7 @@ module.exports = {
                 });
                 gm(fileName)
                     .resize(500, 500)
-                    .append(config.get("template"), true)
+                    .append(message.getSetting("sexysingle.template"), true)
                     .toBuffer('PNG', async function crushToBuffer(err, buffer){
                         if(err){
                             bot.raven.captureException(err);

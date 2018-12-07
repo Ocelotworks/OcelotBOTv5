@@ -34,9 +34,14 @@ module.exports = {
 
         bot.lang.getTranslation = function getTranslation(server, key, format = {}){
             return new Promise(async function(fulfill){
-                format.prefix = "\\"+(this.guild && bot.prefixCache[this.guild.id] || config.get("General.DefaultPrefix"));
-                let output = bot.lang.getTranslationFor(await bot.lang.getLocale(server), key);
-                fulfill(format ? output.formatUnicorn(format) : output)
+                format.prefix = "\\"+(bot.prefixCache[server] || config.get("General.DefaultPrefix"));
+                const langOverride = bot.config.get(server, "lang."+key);
+                if(langOverride){
+                    fulfill(langOverride.formatUnicorn());
+                }else{
+                    let output = bot.lang.getTranslationFor(await bot.lang.getLocale(server), key);
+                    fulfill(output.formatUnicorn(format));
+                }
             });
         };
 

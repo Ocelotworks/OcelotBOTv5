@@ -8,7 +8,6 @@ module.exports = {
     commands: ["meme"],
     categories: ["fun", "memes"],
     run: async function run(message, args, bot) {
-        if(message.guild.id === "318432654880014347" && message.channel.id !== "318432654880014347")return;
         if(!args[1]){
             //message.replyLang("MEME_USAGE");
             message.channel.send("Invalid usage: !"+module.exports.usage);
@@ -22,7 +21,7 @@ module.exports = {
         if(arg === "list"){
 
             const memes = await bot.database.getMemes(message.guild ? message.guild.id : "global");
-            let pages = memes.chunk(80);
+            let pages = memes.chunk(message.getSetting("meme.pageSize"));
 
 
 
@@ -104,11 +103,15 @@ module.exports = {
                 }
                 reaction.remove(user);
 
-            }, {time: 480000});
+            }, {time: message.getSetting("meme.pageTimeout")});
             sentMessage.clearReactions();
             return;
         }else if(arg === "add"){
-            if(!message.guild.id){
+            if(message.getSetting("meme.disallowAdding")) {
+                message.channel.send("Adding memes is disabled.");
+            }else if(message.getSetting("meme.disallowUserAdding") && message.getSetting("meme.disallowUserAdding").indexOf(message.author.id) > -1){
+                message.channel.send("You are not allowed to add memes.");
+            }else if(!message.guild.id){
                 message.channel.send("You can't use this in a DM channel.");
             }else {
                 try {

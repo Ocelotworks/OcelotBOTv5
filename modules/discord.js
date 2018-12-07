@@ -18,6 +18,16 @@ module.exports = {
             return this.edit(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
         };
 
+        Discord.Guild.prototype.getSetting = function(setting){
+            return bot.config.get(this.id, setting);
+        };
+
+        Discord.Message.prototype.getSetting = function(setting){
+            if(this.guild)
+                return bot.config.get(this.guild.id, setting);
+            return bot.config.get("global", setting);
+        };
+
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = function send(content, options){
             let output = "";
@@ -193,15 +203,15 @@ module.exports = {
             });
         });
 
-        bot.client.on("rateLimit", function rateLimit(info){
-            bot.logger.warn(`Rate Limit Hit ${info.method} ${info.path}`);
-            bot.raven.captureBreadcrumb({
-                message: "ratelimit",
-                category:  "discord",
-                data: info
-            });
-            bot.raven.captureException(new Error(`Rate Limit Hit ${info.method} ${info.path}`));
-        });
+        // bot.client.on("rateLimit", function rateLimit(info){
+        //     bot.logger.warn(`Rate Limit Hit ${info.method} ${info.path}`);
+        //     bot.raven.captureBreadcrumb({
+        //         message: "ratelimit",
+        //         category:  "discord",
+        //         data: info
+        //     });
+        //     bot.raven.captureException(new Error(`Rate Limit Hit ${info.method} ${info.path}`));
+        // });
 
         bot.client.on("warn", function warn(warning){
             bot.logger.warn(warning);

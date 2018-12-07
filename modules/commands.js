@@ -11,12 +11,23 @@ module.exports = {
         bot.prefixCache = {};
         bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
             if(message.author.bot)return;
-            const prefix = message.guild && bot.prefixCache[message.guild.id] || config.get("General.DefaultPrefix");
+            const prefix = message.getSetting("prefix");
             const prefixLength = prefix.length;
             if (message.content.startsWith(prefix)) {
                 const args = message.content.split(" ");
                 const command = args[0].substring(prefixLength).toLowerCase();
                 if (bot.commands[command]) {
+                    if(message.getSetting(`${command}.disable`))
+                        return bot.logger.log(`${command} is disabled in this server.`);
+                    const channelDisable = message.getSetting(`${command}.channelDisable`);
+                    if(channelDisable && channelDisable.indexOf(message.channel.id) > -1){
+                        if(message.getSetting("sendDisabledMessage") === "true") {
+                            const dm = await message.author.createDM();
+                            dm.send(`${command} is disabled in that channel`);
+                            bot.logger.log(`${command} is disabled in that ${message.channel.id}`);
+                        }
+                        return;
+                    }
                     for(let i = 0; i < args.length; i++){
                         if(!args[i]){
                             bot.logger.log("Removing argument "+i);
@@ -25,7 +36,7 @@ module.exports = {
                     }
                     if (bot.checkBan(message)) {
                         bot.bus.emit("commandRatelimited", command, message);
-                        bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned or ratelimited: ${command}: ${message.content}`);
+                        bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
                     } else if (!bot.rateLimits[message.author.id] || bot.rateLimits[message.author.id] < 100) {
                         bot.bus.emit("commandPerformed", command, message);
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) performed command ${command}: ${message.content}`);
@@ -67,7 +78,7 @@ module.exports = {
                                 bot.logger.error(e);
                             });
                         }
-                    } else if(bot.rateLimits[message.author.id] < 110) {
+                    } else if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
                         bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
                         message.reply("You're doing too many commands. Wait a while before your next command.");
                         bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
@@ -81,7 +92,7 @@ module.exports = {
 
         setInterval(function(){
             bot.rateLimits = {};
-        }, 300000);
+        }, bot.settings.get("global", "rateLimit.timeout"));
 
 
         module.exports.loadPrefixCache(bot);
