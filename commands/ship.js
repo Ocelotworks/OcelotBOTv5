@@ -61,14 +61,14 @@ module.exports = {
                 bot.logger.log("Both names have spaces in");
                 shipPoints += 25;
                 const firstLetter = person1[0];
-                if(bot.util.vowels.indexOf(firstLetter.toLowerCase()) === -1){
-                    bot.logger.log("First letter is not a vowel");
-                    shipPoints += consonantPoints[firstLetter.toLowerCase()] || -1;
-                    shipName = firstLetter.toUpperCase()+(person2.toLowerCase().substring(1));
-                }else{
+                // if(bot.util.vowels.indexOf(firstLetter.toLowerCase()) === -1){
+                //     bot.logger.log("First letter is not a vowel");
+                //     shipPoints += consonantPoints[firstLetter.toLowerCase()] || -1;
+                //     shipName = firstLetter.toUpperCase()+(person2.toLowerCase().substring(1));
+                // }else{
                     shipName = person1.split(" ")[0]+" "+person2.split(" ")[1];
                     shipPoints += 15;
-                }
+                //}
             }else{
                 let possibleCombos = [];
                 for(let f = 1; f < person1.length; f++){
