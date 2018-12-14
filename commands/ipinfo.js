@@ -27,45 +27,49 @@ module.exports = {
                     bot.logger.error(`${e.stack}, ${body}`);
                 }
             });
-            request(`https://www.abuseipdb.com/check/${args[1]}/json?key=${config.get("Commands.ipinfo.key")}&days=${config.get("Commands.ipinfo.days")}`,async function(err, resp, body){
-                try{
-                    let data = JSON.parse(body);
-                    if(data.length > 0){
-                        const lastReportData = data[0];
-                        let lastReport = lastReportData.created+" ";
-                        for(let i in lastReportData.category){
-                            lastReport += reportCategories[lastReportData.category[i]];
+            if(!message.getSetting("ipinfo.disableAbuseipdb")) {
+                request(`https://www.abuseipdb.com/check/${args[1]}/json?key=${config.get("Commands.ipinfo.key")}&days=${config.get("Commands.ipinfo.days")}`, async function (err, resp, body) {
+                    try {
+                        let data = JSON.parse(body);
+                        if (data.length > 0) {
+                            const lastReportData = data[0];
+                            let lastReport = lastReportData.created + " ";
+                            for (let i in lastReportData.category) {
+                                lastReport += reportCategories[lastReportData.category[i]];
+                            }
+                            message.channel.send(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IPINFO_REPORT", {num: data.length}) + "\n" + await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IPINFO_LAST_REPORT") + lastReport);
                         }
-                        message.channel.send(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IPINFO_REPORT", {num: data.length})+"\n"+await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IPINFO_LAST_REPORT")+lastReport);
-                    }
 
-                }catch(e){
-                    bot.raven.captureException(e);
-                    bot.logger.log(`${e.stack}, ${body}`);
-                }
-            });
-            request(`https://api.antitor.com/history/peer?ip=${args[1]}&key=${config.get("Commands.ipinfo.torrentKey")}`, function(err, resp, body){
-                try{
-                    let data = JSON.parse(body);
-                    let output = "";
-                    if(data.hasPorno){
-                        output += ":warning: **This IP Address has downloaded Pornography in the last 30 days**\n";
+                    } catch (e) {
+                        bot.raven.captureException(e);
+                        bot.logger.log(`${e.stack}, ${body}`);
                     }
-                    if(data.hasChildPorno){
-                        output += ":bangbang: **This IP Address has downloaded CP in the last 30 days!!!!**\n";
-                    }
-                    if(data.contents.length > 0){
-                        for(let i = 0; i < data.contents.length; i++){
-                            const torrent = data.contents[i];
-                            output += `IP Torrented ${torrent.name} on ${torrent.startDate}`;
+                });
+            }
+            if(!message.getSetting("ipinfo.disableTorrents")) {
+                request(`https://api.antitor.com/history/peer?ip=${args[1]}&key=${config.get("Commands.ipinfo.torrentKey")}`, function (err, resp, body) {
+                    try {
+                        let data = JSON.parse(body);
+                        let output = "";
+                        if (data.hasPorno) {
+                            output += ":warning: **This IP Address has downloaded Pornography in the last 30 days**\n";
                         }
-                        message.channel.send(output);
+                        if (data.hasChildPorno) {
+                            output += ":bangbang: **This IP Address has downloaded CP in the last 30 days!!!!**\n";
+                        }
+                        if (data.contents.length > 0) {
+                            for (let i = 0; i < data.contents.length; i++) {
+                                const torrent = data.contents[i];
+                                output += `IP Torrented ${torrent.name} on ${torrent.startDate}\n`;
+                            }
+                            message.channel.send(output);
+                        }
+                    } catch (e) {
+                        bot.raven.captureException(e);
+                        bot.logger.log(`${e.stack}, ${body}`);
                     }
-                }catch(e){
-                    bot.raven.captureException(e);
-                    bot.logger.log(`${e.stack}, ${body}`);
-                }
-            });
+                });
+            }
         }
 
     }
