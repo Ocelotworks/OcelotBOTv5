@@ -65,7 +65,7 @@ module.exports = {
             }, {time: 60000});
             sentMessage.clearReactions();
         }else{
-           message.replyLang(args[2], args[3]);
+           message.replyLang(args[2], args[3] ? JSON.parse(args[3]) : {});
         }
     }
 };
