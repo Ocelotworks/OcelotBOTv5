@@ -24,7 +24,7 @@ module.exports = {
                         if(message.getSetting("sendDisabledMessage") === "true") {
                             const dm = await message.author.createDM();
                             dm.send(`${command} is disabled in that channel`);
-                            bot.logger.log(`${command} is disabled in that ${message.channel.id}`);
+                            bot.logger.log(`${command} is disabled in that channel (${message.channel.id})`);
                         }
                         return;
                     }
