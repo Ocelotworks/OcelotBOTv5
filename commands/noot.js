@@ -27,6 +27,17 @@ module.exports = {
                 }
                 bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
                 let connection = await message.member.voiceChannel.join();
+
+                connection.on('error', function(err){
+                    bot.logger.log(err);
+                    message.replyLang("GENERIC_ERROR");
+                });
+
+                connection.on('failed', function(err){
+                    bot.logger.log(err);
+                    message.replyLang("GENERIC_ERROR");
+                });
+
                 fs.readdir("static/noot", function readDir(err, files){
                     if(err){
                         bot.logger.log(err);
@@ -51,9 +62,8 @@ module.exports = {
                     }
                 })
             }catch(e){
-                //bot.raven.captureException(e);
+                bot.raven.captureException(e);
                 bot.logger.log(e);
-                message.replyLang("GENERIC_ERROR");
             }
         }
     },
