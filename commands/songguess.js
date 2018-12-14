@@ -15,6 +15,7 @@ const path = "/home/peter/nsp";
 const config = require('config');
 const request = require('request');
 const fs = require('fs');
+
 module.exports = {
     name: "Guess the song",
     usage: "songguess",
@@ -66,56 +67,11 @@ module.exports = {
             try {
                 bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
 
+                if(message.guild.voiceConnection)
+                    await message.guild.voiceConnection.disconnect();
+
                 let connection = await message.member.voiceChannel.join();
-                const song = songList[count++ % songList.length];
-                const file = song.path;
-                const artistName = song.name;
-                const title = artistName+" - "+song.title;
-                console.log(title);
-                const answer = song.title.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/,"").split("ft")[0];
-                const artist = artistName.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/,"");
-                bot.logger.log("Title is "+answer);
-                message.channel.send(`Guess the name of this song, you have ${message.getSetting("songguess.seconds")/60} minutes!`);
-                const dispatcher = connection.playFile(file);
-                let won = false;
-                let collector =  message.channel.createMessageCollector(()=>true, {time: message.getSetting("songguess.seconds")*1000});
-                dispatcher.on("end", function fileEnd(){
-                    bot.logger.log("Finished playing");
-                    if(!won) {
-                        message.channel.send(`The song is over. The song was **${title}**`);
-                        connection.disconnect();
-                        if(collector){
-                            collector.stop();
-                        }
-                    }
-                });
-                dispatcher.on("error", function fileError(err){
-                    bot.raven.captureException(err);
-                    console.log(err);
-                    message.channel.send("An error occurred.");
-                    connection.disconnect();
-                });
-
-
-                collector.on('collect', function(message){
-                    if(message.author.id == "146293573422284800")return;
-                    const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "");
-                    console.log(strippedMessage);
-                    if(message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length/3) && answer.indexOf(strippedMessage) > -1)){
-                        message.channel.send(`${message.author} wins! The song was **${title}**`);
-                        won = true;
-                        connection.disconnect();
-                        collector.stop();
-                    }else if(strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length/3) && artist.indexOf(strippedMessage) > -1)){
-                        message.channel.send(`${message.author}, '${artistName}' _is_ the artist. But we're not looking for that.`);
-                    }
-                });
-                collector.on('end', function(){
-                    console.log("Ended");
-                    connection.disconnect();
-                });
-
-                //connection.disconnect();
+                doGuess(message.member.voiceChannel, message, connection, bot);
             }catch(e){
                 //bot.raven.captureException(e);
                 bot.logger.log(e);
@@ -280,3 +236,66 @@ module.exports = {
         });
     }
 };
+
+
+function doGuess(voiceChannel, message, voiceConnection, bot){
+    try {
+        if (voiceChannel.members.size <= 1)
+            return voiceConnection.disconnect();
+        const song = songList[count++ % songList.length];
+        const file = song.path;
+        const now = new Date();
+        const artistName = song.name;
+        const title = artistName + " - " + song.title;
+        const answer = song.title.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "").split("ft")[0];
+        const artist = artistName.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "");
+        bot.logger.log("Title is " + answer);
+        message.channel.send(`Guess the name of this song, you have ${message.getSetting("songguess.seconds") / 60} minutes!`);
+        const dispatcher = voiceConnection.playFile(file, {seek: message.getSetting("songguess.seek")});
+        let won = false;
+        let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
+        dispatcher.on("end", function fileEnd() {
+            bot.logger.log("Finished playing");
+            if (!won) {
+                message.channel.send(`The song is over. The song was **${title}**`);
+                if (collector) {
+                    collector.stop();
+                }
+                setTimeout(doGuess, 1000, voiceChannel, message, voiceConnection, bot);
+            }
+        });
+        dispatcher.on("error", function fileError(err) {
+            bot.raven.captureException(err);
+            console.log(err);
+            message.channel.send("An error occurred.");
+        });
+
+
+        collector.on('collect', function collect(message) {
+            if (message.author.id === "146293573422284800") return;
+            const guessTime = new Date();
+            const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "");
+            console.log(strippedMessage);
+            if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
+                message.channel.send(`${message.author} wins after **${bot.util.prettySeconds((guessTime - now) / 1000)}**! The song was **${title}**`);
+                won = true;
+                if (collector)
+                    collector.stop();
+                setTimeout(doGuess, 1000, voiceChannel, message, voiceConnection, bot);
+            } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
+                message.channel.send(`${message.author}, '${artistName}' _is_ the artist. But we're not looking for that.`);
+            }
+            bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
+        });
+        collector.on('end', function collectorEnd() {
+            console.log("Collection Ended");
+        });
+    }catch(e){
+        if(voiceConnection)
+            voiceConnection.disconnect();
+        if(message)
+            message.replyLang("GENERIC_ERROR");
+        console.log(e);
+
+    }
+}
