@@ -92,7 +92,7 @@ module.exports = {
 
         setInterval(function(){
             bot.rateLimits = {};
-        }, bot.settings.get("global", "rateLimit.timeout"));
+        }, 30000);
 
 
         module.exports.loadPrefixCache(bot);
@@ -140,7 +140,12 @@ module.exports = {
                     callback();
                 }, function commandLoadFinished() {
                     bot.bus.emit("commandLoadFinished");
-                    bot.logger.log("Finished loading commands.")
+                    bot.logger.log("Finished loading commands.");
+
+                    bot.client.shard.send({
+                        type: "commandList",
+                        payload: bot.commandUsages
+                    })
                 });
             }
         });
