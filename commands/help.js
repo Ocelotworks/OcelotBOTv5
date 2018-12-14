@@ -42,6 +42,8 @@ module.exports = {
             let output = "";
 
             for (let i in bot.commandCategories) {
+                if(message.getSetting("help.hiddenCategories") && message.getSetting("help.hiddenCategories").indexOf(i) > -1)
+                    continue;
                 output += `For '${i}' use ${args[0]} ${i}\n`;
             }
             //output += "\n```";
