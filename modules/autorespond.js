@@ -18,11 +18,8 @@ module.exports = {
                     if(bot.lastMessageCounts[message.channel.id] >= message.getSetting("autorespond.threshold")){
                         if(!message.author.bot && !message.content.match(/@everyone|@here|raid|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
                             bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
-                            if(message.content === "yui spank nut" && Math.random() > 0.7) {
-                                message.channel.send("Seriously you guys have been saying yui spank nut for days now what the hell I just wanna know whats going on");
-                            }else{
-                                message.channel.send(message.content);
-                            }
+                            message.channel.send(message.content);
+
                         }
                         bot.lastMessageCounts[message.channel.id] = -1000;
                     }
@@ -34,8 +31,10 @@ module.exports = {
                 bot.lastMessages[message.channel.id] = message.content.toLowerCase();
             }
 
-
-
+            //499354390126264340>
+            if(message.guild && message.guild.id === '318432654880014347' && message.author.id === '422359066015170561' && message.content.length > message.getSetting("yikesThreshold")){
+                message.react("499354390126264340");
+            }
         }));
     }
 };
