@@ -14,11 +14,20 @@ module.exports = {
 
                const data = JSON.parse(body);
                console.log(data);
-               const moon = new Date(data.response[0].timestamp*1000);
-               const timeDiff = moon-now;
-               message.channel.send(`The next new moon is in **${bot.util.prettySeconds(timeDiff/1000)}**:\n${moon}`)
+               if(!data.success){
+                   if(data.error){
+                       message.channel.send(data.error.description);
+                   }else{
+                       message.replyLang("GENERIC_ERROR");
+                   }
+               }else{
+                   const moon = new Date(data.response[0].timestamp*1000);
+                   const timeDiff = moon-now;
+                   message.channel.send(`The next new moon is in **${bot.util.prettySeconds(timeDiff/1000)}**:\n${moon}`)
+               }
            }catch(e){
                 console.log(e);
+                message.replayLang("GENERIC_ERROR");
            }
        })
     }
