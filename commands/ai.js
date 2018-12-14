@@ -26,6 +26,8 @@ module.exports = {
                 try {
                     const data = JSON.parse(body);
                     comments = data.data.children;
+                    commentIndex = 0;
+                    bot.logger.log("Downloaded "+comments.length+" comments");
                 } catch(e) {
                     bot.raven.captureException(e);
                     bot.logger.log(e);
@@ -53,14 +55,17 @@ module.exports = {
 
                 message.channel.send(comments[commentIndex++].data.body);
 
-                if (commentIndex === comments.length)
+                if (commentIndex >= comments.length)
                     module.exports.downloadComments(bot);
             } else {
                 message.replyLang("GENERIC_ERROR");
             }
-            message.channel.stopTyping();
         }catch(e){
+            commentIndex = 0;
+            bot.logger.log("Failed - "+e);
             module.exports.downloadComments(bot);
+        }finally{
+            message.channel.stopTyping();
         }
     },
     test: function(test){
