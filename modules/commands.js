@@ -92,7 +92,7 @@ module.exports = {
 
         setInterval(function(){
             bot.rateLimits = {};
-        }, 30000);
+        }, 60000);
 
 
         module.exports.loadPrefixCache(bot);
