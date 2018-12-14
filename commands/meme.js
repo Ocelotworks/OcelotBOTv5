@@ -2,6 +2,7 @@
  * Created by Peter on 01/07/2017.
  */
 const pasync = require('promise-async');
+const columnify = require('columnify');
 module.exports = {
     name: "Meme",
     usage: "meme <meme/list/add <name> <url>>",
@@ -21,7 +22,7 @@ module.exports = {
         if(arg === "list"){
 
             const memes = await bot.database.getMemes(message.guild ? message.guild.id : "global");
-            let pages = memes.chunk(message.getSetting("meme.pageSize"));
+            let pages = memes.chunk(30);//parseInt(message.getSetting("meme.pageSize")));
 
 
 
@@ -36,36 +37,42 @@ module.exports = {
 
             let buildPage = async function () {
                 const page = pages[index];
-                let globalMemes = "";
-                let serverMemes = "";
-                await pasync.eachSeries(page, function(meme, cb){
-                    if(meme.server === "global"){
-                        globalMemes += meme.name + " ";
-                    }else{
-                        serverMemes += meme.name + " ";
-                    }
-                    cb();
-                });
+
+                //If you can't stand the heat get out of the kitchen
+                let globalColumns = [[],[],[],[],[]];
+                let serverColumns = [[],[],[],[],[]];
+                let globalCounter = 0;
+                let serverCounter = 0;
+                for(let i = 0; i < page.length; i++){
+                    const meme = page[i];
+                    if(meme.server === "global")
+                        globalColumns[globalCounter++ % globalColumns.length].push(meme.name);
+                    else
+                        serverColumns[serverCounter++ % serverColumns.length].push(meme.name);
+                }
+
+                const config = {showHeaders: false};
+                let globalMemes = columnify(globalColumns, config);
+                let serverMemes = columnify(serverColumns, config);
+
+
 
                 let output;
 
-                if(message.guild){
-                    output = `**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ ${globalMemes}\n__:house_with_garden:${memeServer}__ ${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}`;
-                }else{
-                    output = `**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ ${globalMemes}`;
-                }
+                output = `Page ${index+1}/${pages.length}\n**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ \n\`\`\`\n${globalMemes}\n\`\`\``;
+                if(message.guild)
+                    output += `\n__:house_with_garden:${memeServer}__\n\`\`\`\n${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}\n\`\`\``;
 
-                if(sentMessage) {
-                    await sentMessage.edit(`Page ${index + 1}/${pages.length}\n${output}`);
-                }else{
-                    sentMessage = await message.channel.send(`Page ${index + 1}/${pages.length}\n${output}`);
-                }
+                if(sentMessage)
+                    await sentMessage.edit(output);
+                else
+                    sentMessage = await message.channel.send(output);
+
             };
 
-            if(pages.length === 1){
-                await buildPage();
+
+            if(pages.length === 1)
                 return;
-            }
 
             await buildPage();
             (async function () {
