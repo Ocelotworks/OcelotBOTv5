@@ -22,6 +22,8 @@ const numbers = [
     ":four:"
 ];
 
+const runningGames = [];
+
 module.exports = {
     name: "Trivia",
     usage: "trivia leaderboard monthly",
@@ -97,11 +99,18 @@ module.exports = {
                message.channel.send(":warning: This command can't be used in a DM channel.");
                return;
            }
+           if(message.getSetting("trivia.singleOnly") && runningGames.indexOf(message.channel.id) > -1){
+               message.channel.send(":warning: Only one trivia game can run at a time");
+               return;
+           }
            message.channel.startTyping();
+           runningGames.push(message.channel.id);
            request(message.guild.getSetting("trivia.url"), async function triviaResponse(err, resp, body){
                if(err){
                    bot.raven.captureException(err);
                    message.replyLang("TRIVIA_ERROR");
+                   if(runningGames.indexOf(message.channel.id) > -1)
+                       runningGames.splice(runningGames.indexOf(message.channel.id), 1);
                    message.channel.stopTyping();
                    return;
                }
@@ -178,6 +187,8 @@ module.exports = {
                                 });
 
                                 message.channel.stopTyping();
+                                if(runningGames.indexOf(message.channel.id) > -1)
+                                    runningGames.splice(runningGames.indexOf(message.channel.id), 1);
 
                                 const points = difficulties.indexOf(question.difficulty) + 2;
                                 let output = await bot.lang.getTranslation(message.guild.id, "TRIVIA_TIME_END", {answer: decodeURIComponent(correctAnswer)})+"\n";
@@ -205,12 +216,18 @@ module.exports = {
                         message.replyLang("TRIVIA_ERROR");
                         bot.logger.error("Trivia service gave back no questions!");
                         message.channel.stopTyping();
+                        if(runningGames.indexOf(message.channel.id) > -1)
+                            runningGames.splice(runningGames.indexOf(message.channel.id), 1);
                     }
                }catch(e){
                    message.replyLang("TRIVIA_ERROR");
                    bot.logger.error("Trivia service gave unexpected response:");
+                   console.log(e);
+                   console.log(body);
                    bot.logger.error(e);
                }finally{
+                   if(runningGames.indexOf(message.channel.id) > -1)
+                    runningGames.splice(runningGames.indexOf(message.channel.id), 1);
                    message.channel.stopTyping();
                }
            });
