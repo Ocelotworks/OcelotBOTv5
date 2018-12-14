@@ -1,8 +1,8 @@
 /**
- *   ╔════   Copyright 2018 Peter Maguire
- *  ║ ════╗  Created 04/12/2018
- * ╚════ ║   (ocelotbotv5) ban
- *  ════╝
+ *  ╔════     Copyright 2018 Peter Maguire
+ *  ║ ════╗   Created 04/12/2018
+ *  ╚════ ║   (ocelotbotv5) ban
+ *    ════╝
  */
 module.exports = {
     name: "Ban User",
