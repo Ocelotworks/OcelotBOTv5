@@ -19,10 +19,7 @@ module.exports = {
                     const data = JSON.parse(body);
                     message.channel.send(`*Country:* ${data.city ? data.city : "Unknown"}, ${data.region ? data.region : "Unknown"}, ${data.country ? data.country : "Unknown"} (${data.loc ? data.loc : "Unknown"})\n*Hostname:* ${data.hostname ? data.hostname : "Unknown"}\n*Organisation:* ${data.org ? data.org : "Unknown"}`);
                 }catch(e){
-                    recv.sendMessage({
-                        to: channel,
-                        message: await bot.lang.getTranslation(server, "IPINFO_USAGE")
-                    });
+                    message.replyLang("GENERIC_ERROR");
                     bot.raven.captureException(e);
                     bot.logger.error(`${e.stack}, ${body}`);
                 }
@@ -33,6 +30,7 @@ module.exports = {
                         let data = JSON.parse(body);
                         if (data.length > 0) {
                             const lastReportData = data[0];
+                            if(!data[0].created)return;
                             let lastReport = lastReportData.created + " ";
                             for (let i in lastReportData.category) {
                                 lastReport += reportCategories[lastReportData.category[i]];
