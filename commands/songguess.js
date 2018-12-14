@@ -75,7 +75,7 @@ module.exports = {
                 const answer = song.title.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/,"").split("ft")[0];
                 const artist = artistName.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/,"");
                 bot.logger.log("Title is "+answer);
-                message.channel.send(`Guess the name of this song, you have ${parseInt(message.getSetting("songguess.seconds")/60)} minutes!`);
+                message.channel.send(`Guess the name of this song, you have ${message.getSetting("songguess.seconds")/60} minutes!`);
                 const dispatcher = connection.playFile(file);
                 let won = false;
                 let collector =  message.channel.createMessageCollector(()=>true, {time: message.getSetting("songguess.seconds")*1000});
