@@ -19,7 +19,7 @@ module.exports = {
             if(output)
                 message.channel.send(output);
             else
-                message.channel.send("EMOJI_NOT_FOUND");
+                message.replyLang("EMOJI_NOT_FOUND");
         }
     }
 };
