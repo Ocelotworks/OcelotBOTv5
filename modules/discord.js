@@ -224,6 +224,29 @@ module.exports = {
             });
         });
 
+        process.on("message", function(message){
+           if(message.type === "requestData"){
+               if(message.payload.name === "channels"){
+                   console.log("Looking for channel data");
+                   let guild = message.payload.data.server;
+                   if(bot.client.guilds.has(guild)){
+                       let callbackID = message.payload.callbackID;
+                       let channels = bot.client.guilds.get(guild).channels.map(function(channel){
+                           return {name: channel.name, id: channel.id}
+                       });
+                       console.log("got channel data");
+                       bot.client.shard.send({
+                           type: "dataCallback",
+                           payload: {
+                               callbackID: callbackID,
+                               data: channels
+                           }
+                       })
+                   }
+               }
+           }
+        });
+
 
         bot.logger.log("Logging in to Discord...");
         bot.client.login();

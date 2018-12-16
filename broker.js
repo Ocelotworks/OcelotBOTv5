@@ -26,11 +26,37 @@ manager.on('message', function onMessage(process, message){
             commandList = message.payload;
             return;
         }
+
+        if(message.type === "dataCallback"){
+            if(message.payload.callbackID && waitingCallbacks[message.payload.callbackID]){
+                waitingCallbacks[message.payload.callbackID](message.payload.data);
+                delete waitingCallbacks[message.payload.callbackID];
+            }
+            return;
+        }
         logger.log("Broadcasting message");
         manager.broadcast(message);
     }
 });
 
+
+
+let callbackID = 1;
+let waitingCallbacks = [];
+
+
+function requestData(name, callback, additionalData){
+    let id = callbackID++;
+    waitingCallbacks[id] = callback;
+    manager.broadcast({
+        type: "requestData",
+        payload: {
+            name: name,
+            callbackID: id,
+            data: additionalData
+        }
+    })
+}
 
 
 app.get('/commands', function(req, res){
@@ -44,6 +70,12 @@ app.get('/shard/count', function(req, res){
 app.get('/server/:id/reloadConfig', function(req, res){
    res.json({});
    manager.broadcast({type: "reloadConfig", payload: req.params.id});
+});
+
+app.get('/server/:id/channels', function(req, res){
+   requestData("channels", function(channels){
+       res.json(channels);
+   }, {server: req.params.id});
 });
 
 app.get('/shard/:id', function(req, res){
