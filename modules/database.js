@@ -700,6 +700,9 @@ module.exports = {
                     return knex(SERVER_SETTINGS_TABLE).update({setting, value}).where({server, setting}).limit(1);
                 return knex.insert({server, setting, value}).into(SERVER_SETTINGS_TABLE);
             },
+            deleteSetting: function(server, setting){
+                return knex.delete().from(SERVER_SETTINGS_TABLE).where({server,setting}).limit(1);
+            },
             addSongGuess: async function(user, channel, server, guess, song, correct, elapsed){
                 await knex.insert({user, channel, server, guess,song, correct, elapsed}).into("ocelotbot_song_guess");
             }

@@ -50,6 +50,11 @@ module.exports = {
                                 channel: message.channel.id,
                                 server: message.guild ? message.guild.id : "DM Channel"
                             });
+                            if(message.getSetting("notice")){
+                                message.channel.send(message.getSetting("notice"));
+                                bot.database.deleteSetting(message.guild.id, "notice");
+                                bot.config.cache[message.guild.id].notice = null;
+                            }
                             if (message.channel.permissionsFor && bot.commandUsages[command].requiredPermissions) {
                                 bot.stats.time("commandGetPermissions");
                                 const permissions = await message.channel.permissionsFor(bot.client.user);
