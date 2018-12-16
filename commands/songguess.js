@@ -5,10 +5,6 @@
  *  ════╝
  */
 
-let runningGames = {guild: {
-    channel: {},
-
-}};
 let songList = [];
 let count = 0;
 const path = "/home/peter/nsp";
@@ -237,11 +233,21 @@ module.exports = {
     }
 };
 
+let timeouts = [];
+
+let runningGames = [];
 
 function doGuess(voiceChannel, message, voiceConnection, bot){
     try {
         if (voiceChannel.members.size <= 1)
             return voiceConnection.disconnect();
+        if(timeouts[voiceChannel.id])
+            return;
+        if(runningGames[voiceChannel.id])
+            return;
+
+        runningGames[voiceChannel.id] = voiceConnection;
+
         const song = songList[count++ % songList.length];
         const file = song.path;
         const now = new Date();
@@ -257,11 +263,10 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
         dispatcher.on("end", function fileEnd() {
             bot.logger.log("Finished playing");
             if (!won) {
-                message.channel.send(`The song is over. The song was **${title}**`);
                 if (collector) {
                     collector.stop();
                 }
-                setTimeout(doGuess, 1000, voiceChannel, message, voiceConnection, bot);
+                //setTimeout(doGuess, 1000, voiceChannel, message, voiceConnection, bot);
             }
         });
         dispatcher.on("error", function fileError(err) {
@@ -273,22 +278,39 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
 
         collector.on('collect', function collect(message) {
             if (message.author.id === "146293573422284800") return;
+            if(bot.banCache.user.indexOf(message.author.id) > -1)return;
             const guessTime = new Date();
             const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "");
             console.log(strippedMessage);
-            if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
+            if (strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
                 message.channel.send(`${message.author} wins after **${bot.util.prettySeconds((guessTime - now) / 1000)}**! The song was **${title}**`);
                 won = true;
                 if (collector)
                     collector.stop();
-                setTimeout(doGuess, 1000, voiceChannel, message, voiceConnection, bot);
-            } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
+            } else if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
                 message.channel.send(`${message.author}, '${artistName}' _is_ the artist. But we're not looking for that.`);
             }
             bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
         });
         collector.on('end', function collectorEnd() {
             console.log("Collection Ended");
+            if(!won)
+                message.channel.send(`The song is over. The song was **${title}**`);
+            if(timeouts[voiceChannel.id]) {
+                bot.logger.log("Clearing timeout");
+                clearTimeout(timeouts[voiceChannel.id])
+            }
+            dispatcher.end();
+            if(message.getSetting("guess.repeat")) {
+                timeouts[voiceChannel.id] = setTimeout(function () {
+                    delete timeouts[voiceChannel.id];
+                    delete runningGames[voiceChannel.id];
+                    doGuess(voiceChannel, message, voiceConnection, bot);
+                }, 2000);
+            }else{
+                delete runningGames[voiceChannel.id];
+                voiceConnection.disconnect();
+            }
         });
     }catch(e){
         if(voiceConnection)
