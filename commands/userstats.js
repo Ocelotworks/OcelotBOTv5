@@ -36,7 +36,7 @@ module.exports = {
 
             if(milestones.indexOf(commandCache[user]) > -1){
                 bot.logger.log(`Sending congrats to ${user} for ${commandCache[user]} commands`);
-                message.channel.send(`:tada: **Congratulations! You just performed your __${commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting on discordbots.org: https://discordbots.org/bot/146293573422284800/vote`);
+                message.channel.send(`:tada: **Congratulations! You just performed your __${commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting. **Type: ${message.getSetting("prefix")}vote**`);
             }
         });
 
