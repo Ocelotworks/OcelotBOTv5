@@ -8,7 +8,7 @@ module.exports = {
     categories: ["image", "fun"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
-    commands: ["bulge", "implode"],
+    commands: ["bulge", "explode"],
     run: async function(message, args, bot){
 
         const url =  await bot.util.getImage(message, args);
@@ -24,7 +24,7 @@ module.exports = {
 
         request(url).on("end", ()=>{
             gm(fileName)
-                .implode(-1.2)
+                .implode(message.getSetting("bulge.amount"))
                 .toBuffer("PNG", function(err, buffer){
                     if(err){
                         message.replyLang("GENERIC_ERROR");

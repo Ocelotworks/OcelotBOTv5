@@ -21,7 +21,7 @@ module.exports = {
 
         request(url).on("end", ()=>{
             gm(fileName)
-                .wave(10,50)
+                .wave(message.getSetting("wave.amplitude"),message.getSetting("wave.wavelength"))
                 .toBuffer("PNG", function(err, buffer){
                     if(err){
                         message.replyLang("GENERIC_ERROR");
