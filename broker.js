@@ -35,10 +35,15 @@ manager.on('message', function onMessage(process, message){
 
 app.get('/commands', function(req, res){
     res.json(commandList);
-})
+});
 
 app.get('/shard/count', function(req, res){
    res.json({count: manager.totalShards});
+});
+
+app.get('/server/:id/reloadConfig', function(req, res){
+   res.json({});
+   manager.broadcast({type: "reloadConfig", payload: req.params.id});
 });
 
 app.get('/shard/:id', function(req, res){
@@ -51,6 +56,14 @@ app.get('/shard/:id', function(req, res){
    }else{
        res.json({});
    }
+});
+
+app.get('/user/:id/registerVote', function(req, res){
+    console.log("Got vote from "+req.params.id);
+    manager.broadcast({type: "registerVote", payload: {
+        user: req.params.id
+    }});
+    res.json({});
 });
 
 app.post('/shard/:id/restart', function(req, res){
