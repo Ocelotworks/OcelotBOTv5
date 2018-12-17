@@ -11,6 +11,12 @@ module.exports = {
     commands: ["sexysingle", "sexy", "single"],
     categories: ["image", "fun", "memes"],
     run: async function run(message, args, bot){
+        //It's sad to me that I have to do this
+        //And completely indicative of the user base of OcelotBOT
+        if(args[1] && args[1].toLowerCase() === "dice"){
+            bot.commands["sexydice"](message, args, bot);
+            return;
+        }
         message.channel.startTyping();
         async function downloadOrGet(url, fileName, outputFile){
             if(fs.existsSync(outputFile)) {
