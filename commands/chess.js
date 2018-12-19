@@ -112,9 +112,9 @@ module.exports = {
                 runningGame.turn = !runningGame.turn;
             }catch(e){
                 let status = runningGame.game.getStatus();
-                for(let move in status.notatedMoves){
+                for (let move in status.notatedMoves) {
                     let moveData = status.notatedMoves[move];
-                    if(moveData.src.piece.side.name === runningGame.turn ? "white" : "black"){
+                    if (moveData.src.piece.side.name === runningGame.turn ? "white" : "black") {
                         message.channel.send(`:warning: Invalid notation. You could try: ${move}. This would move your **${moveData.src.piece.type}** to position **${moveData.dest.file}${moveData.dest.rank}**${moveData.dest.piece ? " and take the opponents piece." : "."}`);
                         break;
                     }
