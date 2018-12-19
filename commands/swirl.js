@@ -37,7 +37,10 @@ module.exports = {
                         return;
                     }
                     let attachment = new Discord.Attachment(buffer, "lower.png");
-                    message.channel.send("", attachment);
+                    message.channel.send("", attachment).catch(function(e){
+                        console.log(e);
+                        message.channel.send("Upload error: "+e);
+                    });
                     fs.unlinkSync(fileName);
                 });
         }).pipe(fs.createWriteStream(fileName));

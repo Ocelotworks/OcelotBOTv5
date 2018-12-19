@@ -1,14 +1,20 @@
+/**
+ *   ╔════   Copyright 2018 Peter Maguire
+ *  ║ ════╗  Created 15/12/2018
+ * ╚════ ║   (ocelotbotv5) implode
+ *  ════╝
+ */
 const Discord = require('discord.js');
 const request = require('request');
 const gm = require('gm');
 const fs = require('fs');
 module.exports = {
-    name: "Bulge Image",
-    usage: "bulge [url]",
+    name: "Implode Image",
+    usage: "implode [url]",
     categories: ["image", "fun"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
-    commands: ["bulge", "explode", "buldge"],
+    commands: ["implode"],
     run: async function(message, args, bot){
 
         const url =  await bot.util.getImage(message, args);
@@ -24,14 +30,17 @@ module.exports = {
 
         request(url).on("end", ()=>{
             gm(fileName)
-                .implode(message.getSetting("bulge.amount"))
+                .implode(message.getSetting("implode.amount"))
                 .toBuffer("PNG", function(err, buffer){
                     if(err){
                         message.replyLang("GENERIC_ERROR");
                         return;
                     }
                     let attachment = new Discord.Attachment(buffer, "bulge.png");
-                    message.channel.send("", attachment);
+                    message.channel.send("", attachment).catch(function(e){
+                        console.log(e);
+                        message.channel.send("Upload error: "+e);
+                    });
                     fs.unlink(fileName);
                 });
         }).pipe(fs.createWriteStream(fileName));

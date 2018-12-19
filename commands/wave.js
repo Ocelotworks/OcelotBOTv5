@@ -6,7 +6,7 @@ module.exports = {
     name: "Wave Image",
     usage: "wave [url]",
     requiredPermissions: ["ATTACH_FILES"],
-    commands: ["wave"],
+    commands: ["wave", "wavey", "waves"],
     categories: ["image", "fun"],
     run: async function(message, args, bot){
 
@@ -21,14 +21,17 @@ module.exports = {
 
         request(url).on("end", ()=>{
             gm(fileName)
-                .wave(message.getSetting("wave.amplitude"),message.getSetting("wave.wavelength"))
+                .wave(10,50)
                 .toBuffer("PNG", function(err, buffer){
                     if(err){
                         message.replyLang("GENERIC_ERROR");
                         return;
                     }
                     let attachment = new Discord.Attachment(buffer, "wave.png");
-                    message.channel.send("", attachment);
+                    message.channel.send("", attachment).catch(function(e){
+                        console.log(e);
+                        message.channel.send("Upload error: "+e);
+                    });
                     fs.unlinkSync(fileName);
                 });
         }).pipe(fs.createWriteStream(fileName));
