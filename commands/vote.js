@@ -14,6 +14,7 @@ module.exports = {
     init: function(bot){
         bot.waitingVoteChannels = [];
 
+
         process.on("message", function vote(message){
            if(message.type === "vote"){
                 let user = message.payload.user;
@@ -29,6 +30,7 @@ module.exports = {
         });
     },
     run: async function(message, args, bot){
+        if(args[1])return;
         message.channel.send("Voting for OcelotBOT helps me grow and supports development. Click here to vote:\nhttps://discordbots.org/bot/146293573422284800/vote");
         bot.waitingVoteChannels.push(message.channel);
     }
