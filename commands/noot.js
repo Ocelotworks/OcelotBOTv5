@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const fs = require('fs');
+let nootCount = 0;
 module.exports = {
     name: "Noot Noot",
     usage: "noot",
@@ -45,7 +46,10 @@ module.exports = {
                         message.channel.send("An error occurred. Try again later.");
                         connection.disconnect();
                     }else{
-                        const file = "static/noot/"+bot.util.arrayRand(files);
+                        let noot = args[1] && !isNaN(args[1]) ? parseInt(args[1]) : nootCount++ % files.length;
+                        const file = "static/noot/"+files[noot];
+                        bot.logger.log("Playing "+file);
+                        message.channel.send(`<:noot:524657747757891615> Noot #${noot} (${files[noot]})\nUse \`${args[0]} ${noot}\` to play this again.`);
                         bot.logger.log("Playing "+file);
                         try {
                             const dispatcher = connection.playFile(file);
