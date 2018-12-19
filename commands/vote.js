@@ -14,12 +14,12 @@ module.exports = {
     init: function(bot){
         bot.waitingVoteChannels = [];
 
-
         process.on("message", function vote(message){
-           if(message.type === "vote"){
+           if(message.type === "registerVote"){
                 let user = message.payload.user;
                 for(let i = 0; i < bot.waitingVoteChannels.length; i++){
                     let channel = bot.waitingVoteChannels[i];
+                    console.log(channel.id+" - "+channel.name+" - "+user);
                     if(channel.members.has(user)){
                         bot.logger.log("Matched waiting vote channel for "+user);
                         channel.send(`Thanks for voting <@${user}>!\nI'd love it if you voted again tomorrow. <3`);
