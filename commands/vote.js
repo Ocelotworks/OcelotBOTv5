@@ -17,15 +17,21 @@ module.exports = {
         process.on("message", function vote(message){
            if(message.type === "registerVote"){
                 let user = message.payload.user;
+                let voteServer = null;
                 for(let i = 0; i < bot.waitingVoteChannels.length; i++){
                     let channel = bot.waitingVoteChannels[i];
-                    console.log(channel.id+" - "+channel.name+" - "+user);
                     if(channel.members.has(user)){
                         bot.logger.log("Matched waiting vote channel for "+user);
                         channel.send(`Thanks for voting <@${user}>!\nI'd love it if you voted again tomorrow. <3`);
+                        voteServer = channel.guild.id;
                         break;
                     }
                 }
+                if(voteServer || !bot.client.shard || bot.client.shard.id === 0){
+                    bot.database.addVote(user, voteServer);
+                    bot.logger.log("Logging vote from "+user);
+                }
+
            }
         });
     },
