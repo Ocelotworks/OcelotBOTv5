@@ -13,12 +13,12 @@ const request = require('request');
 const fs = require('fs');
 
 module.exports = {
-    name: "Guess the song",
-    usage: "songguess",
+    name: "Guess The Song",
+    usage: "guess",
     rateLimit: 50,
-    categories: ["games", "fun", "voice"],
+    categories: ["games", "voice"],
     requiredPermissions: ["CONNECT", "SPEAK"],
-    commands: ["songguess", "guesssong", "guess", "namethattune", "quess", "gues"],
+    commands: ["guess", "guesssong", "songguess", "namethattune", "quess", "gues"],
     init: function init(bot){
         bot.logger.log("Loading song list...");
         request("https://unacceptableuse.com/petify/api/song/", function getPetifySongs(err, resp, body){
@@ -41,7 +41,10 @@ module.exports = {
 
     },
     run:  async function run(message, args, bot){
-        if(songList.length === 0){
+        if(args[1] && args[1].toLowerCase() === "stop"){
+            if(message.guild.voiceConnection)
+                await message.guild.voiceConnection.disconnect();
+        }else if(songList.length === 0){
             message.channel.send("OcelotBOT is currently in a limited functionality mode, which disables this command.");
         }else if(!message.guild){
             message.replyLang("GENERIC_DM_CHANNEL");
@@ -282,12 +285,12 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
             const guessTime = new Date();
             const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "");
             console.log(strippedMessage);
-            if (strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
+            if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
                 message.channel.send(`${message.author} wins after **${bot.util.prettySeconds((guessTime - now) / 1000)}**! The song was **${title}**`);
                 won = true;
                 if (collector)
                     collector.stop();
-            } else if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
+            } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
                 message.channel.send(`${message.author}, '${artistName}' _is_ the artist. But we're not looking for that.`);
             }
             bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
