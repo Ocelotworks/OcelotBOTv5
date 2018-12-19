@@ -104,11 +104,23 @@ module.exports = {
         const channel = message.channel.id;
         const runningGame = runningGames[channel];
         if(runningGame){
-            runningGame.game.move(command);
-            if(runningGame.lastMessage)
-                runningGame.lastMessage.delete();
-            runningGame.lastMessage = await message.channel.send(module.exports.renderBoard(channel));
-            runningGame.turn = !runningGame.turn;
+            try {
+                runningGame.game.move(command);
+                if(runningGame.lastMessage)
+                    runningGame.lastMessage.delete();
+                runningGame.lastMessage = await message.channel.send(module.exports.renderBoard(channel));
+                runningGame.turn = !runningGame.turn;
+            }catch(e){
+                let status = runningGame.game.getStatus();
+                for(let move in status.notatedMoves){
+                    let moveData = status.notatedMoves[move];
+                    if(moveData.src.piece.side.name === runningGame.turn ? "white" : "black"){
+                        message.channel.send(`:warning: Invalid notation. You could try: ${move}. This would move your **${moveData.src.piece.type}** to position **${moveData.dest.file}${moveData.dest.rank}**${moveData.dest.piece ? " and take the opponents piece." : "."}`);
+                        break;
+                    }
+                }
+            }
+
         }else{
             message.channel.send("There is currently no game running. Start one with !chess start @player");
         }
@@ -151,7 +163,7 @@ module.exports = {
                     players: [request.from, message.author],
                     game: chess.create()
                 };
-                runningGames[message.channel.id].lastMessage = await message.channel.send(`${request.from}, your request has been accepted! It is your turn.\n${module.exports.renderBoard(message.channel.id)}\nMove with ${args[0]} [move]. i.e ${args[0]} e4\nIf you don't know how algebraic chess notation works, check out https://en.wikipedia.org/wiki/Algebraic_notation_(chess)#Notation_for_moves`);
+                runningGames[message.channel.id].lastMessage = await message.channel.send(`${request.from}, your request has been accepted! It is your turn.\n${module.exports.renderBoard(message.channel.id)}\nMove with ${args[0]} [move]. i.e ${args[0]} e4\n**The game uses algebraic notation. If you don't know how it works, there's a few guides on google.**`);
                 delete gameRequests[message.channel.id];
             }else{
                 message.channel.send(`:bangbang: You don't currently have any game invites. Type **${args[0]} start @user** to start one yourself.`);
