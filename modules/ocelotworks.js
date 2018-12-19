@@ -52,7 +52,7 @@ module.exports = {
 
 
         bot.client.on("ready", function discordReady(){
-            if(bot.client.guilds.has("478950156654346292")) {
+          /*  if(bot.client.guilds.has("478950156654346292")) {
                 const notifChannel = bot.client.channels.get("478950156654346294");
                 const ts = new ts3();
                 bot.logger.log("Connecting to TeamSpeak...");
@@ -78,7 +78,7 @@ module.exports = {
                     const user = ev.client.nick;
                     notifChannel.send(`_${emojiMaps[user.toLowerCase()] || ""}${user} left TeamSpeak_`);
                 });
-            }
+            }*/
         });
 
 
