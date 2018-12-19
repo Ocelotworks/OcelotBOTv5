@@ -330,7 +330,7 @@ module.exports = {
             });
             if(targetMessage){
                if(targetMessage.content.startsWith("http")) {
-                   return targetMessage.content.substring(0, targetMessage.content.indexOf(" "));
+                   return targetMessage.content.split(" ")[0];
                }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
                    const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
                    return targetAttachment.url || targetAttachment.proxyURL;
