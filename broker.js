@@ -12,11 +12,33 @@ let commandList;
 
 const manager = new ShardingManager(`${__dirname}/ocelotbot.js`, config.get("Discord"),);
 
+let shardDeathCount = [];
+let shardDeathTimeout = [];
 
 manager.spawn();
 
 manager.on('launch', function launchShard(shard) {
     logger.log(`Successfully launched shard ${shard.id+1}/${manager.totalShards} (ID: ${shard.id})`);
+
+    shardDeathCount[shard.id] = 0;
+
+    shard.on('death', function(){
+        logger.warn(`Shard ${shard.id} died.`);
+
+        if(shardDeathTimeout[shard.id])
+            clearTimeout(shardDeathTimeout[shard.id]);
+
+        if(++shardDeathCount[shard.id] > 15){
+            logger.error(`Shard ${shard.id} is misbehaving! Killing it completely.`);
+            shard.kill();
+            manager.broadcast({
+                type: "cockup",
+                payload: `Shard ${shard.id} has crashed too many times.`
+            });
+        }else {
+            shardDeathTimeout[shard.id] = setTimeout(resetShardDeaths, 30000, shard.id);
+        }
+    });
 });
 
 manager.on('message', function onMessage(process, message){
@@ -56,6 +78,10 @@ function requestData(name, callback, additionalData){
             data: additionalData
         }
     })
+}
+
+function resetShardDeaths(shard){
+    shardDeathCount[shard] = 0;
 }
 
 

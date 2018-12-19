@@ -224,7 +224,7 @@ module.exports = {
             });
         });
 
-        process.on("message", function(message){
+        process.on("message", async function(message){
            if(message.type === "requestData"){
                if(message.payload.name === "channels"){
                    console.log("Looking for channel data");
@@ -242,6 +242,20 @@ module.exports = {
                                data: channels
                            }
                        })
+                   }
+               }
+           }else if(message.type === "cockup"){
+               for(let i = 0; i < bot.admins.length; i++) {
+                   let admin = bot.admins[i];
+                   if (bot.client.users.has(admin)) {
+                       bot.logger.log("Sending cockup message");
+                       let adminUser = bot.client.users.get(admin);
+                       const output = `:warning: <@${admin}> **Cockup: ${message.payload}**`;
+                       if (adminUser.lastMessage) {
+                           adminUser.lastMessage.channel.send(output);
+                       }
+                       let dm = await adminUser.createDM();
+                       dm.send(output);
                    }
                }
            }
