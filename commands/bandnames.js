@@ -148,9 +148,9 @@ module.exports = {
     rateLimit: 10,
     categories: ["memes", "fun"],
     requiredPermissions: [],
-    commands: ["bands", "bandnames", "bandname", "bn"],
+    commands: ["bandname", "bandnames", "bn", "bands"],
     run: async function(message, args, bot){
-       message.channel.send(`:guitar: :musical_keyboard: Starting a band? You should call it \`${bot.util.arrayRand(first)} ${bot.util.arrayRand(second)}\``);
+        message.replyLang("BANDNAME", {first: bot.util.arrayRand(first), second: bot.util.arrayRand(second)});
     },
     test: function(test){
         test('band name generator', function(t){

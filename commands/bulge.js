@@ -32,7 +32,7 @@ module.exports = {
                     }
                     let attachment = new Discord.Attachment(buffer, "bulge.png");
                     message.channel.send("", attachment);
-                    fs.unlink(fileName);
+                    fs.unlink(fileName, function(){});
                 });
         }).pipe(fs.createWriteStream(fileName));
 

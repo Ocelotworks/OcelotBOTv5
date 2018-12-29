@@ -7,7 +7,7 @@ module.exports = {
     commands: ["bigtext", "big"],
     run:  function(message, args, bot){
         if(!args[1]){
-            message.channel.send(`:bangbang: You must provide some text! i.e ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}bigtext hello world`);
+            message.replyLang("GENERIC_TEXT", {command: args[0]});
             return;
         }
 

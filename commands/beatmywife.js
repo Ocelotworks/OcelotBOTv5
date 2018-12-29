@@ -14,7 +14,7 @@ module.exports = {
         const url =  await bot.util.getImage(message, args);
 
         if(!url || !url.startsWith("http")){
-            message.channel.send(`:bangbang: No image found. ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}${module.exports.usage}`);
+            message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
             return;
         }
         console.log(url);

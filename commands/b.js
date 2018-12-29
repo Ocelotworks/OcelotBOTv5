@@ -98,7 +98,7 @@ module.exports = {
                         const attachment = new Discord.Attachment(buff, "b.png");
                         message.channel.send("", attachment);
                     }else{
-                        message.channel.send(":warning: Couldn't find any text in that image.");
+                        message.replyLang("B_NO_TEXT");
                     }
                 }catch(e){
                     console.log(e);

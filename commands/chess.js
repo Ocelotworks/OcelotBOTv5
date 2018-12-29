@@ -55,13 +55,13 @@ module.exports = {
         if(subCommand && module.exports.subCommands[subCommand.toLowerCase()]){
             module.exports.subCommands[subCommand.toLowerCase()](message, args, bot);
         }else if(runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[a-z]{1,4}[0-9]/gi)) {
-            module.exports.doGo(message, subCommand);
+            module.exports.doGo(message, subCommand, args);
         }else{
-            message.channel.send(`:bangbang: Invalid usage! To start a game type ${args[0]} start @player`);
+            message.replyLang("GAME_INVALID_USAGE", {arg: args[0]});
         }
 
     },
-    renderBoard: function(channel){
+    renderBoard: async function(channel, bot){
         const game = runningGames[channel].game;
         let output = "```\n";
 
@@ -82,25 +82,26 @@ module.exports = {
             else
                 black = !black;
         }
-        output += " 🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭\n```";
+        output += " 🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭\n```\n";
 
 
         if(gameStatus.board.isCheck)
-            output += `\nCheck!`;
+            output += await bot.lang.getTranslation(channel.guild.id, "CHESS_CHECK");
+
         if(gameStatus.board.isCheckmate) {
-            output += `\nCheckmate!\n<@${runningGames[channel].players[+!runningGames[channel].turn].id}> wins!`;
+            output += await bot.lang.getTranslation(channel.guild.id, "CHESS_CHECKMATE", {winner: runningGames[channel].players[+!runningGames[channel].turn].id});
             delete runningGames[channel];
         }
         if(gameStatus.board.isStalemate) {
-            output += `\nStalemate!\nEveryone wins?`;
+            output += await bot.lang.getTranslation(channel.guild.id, "CHESS_STALEMATE");
             delete runningGames[channel];
         }
         if(gameStatus.board.isRepetition)
-            output += "\n3-Fold Repetition";
+            output += await bot.lang.getTranslation(channel.guild.id, "CHESS_REPETITION");
 
         return output;
     },
-    doGo: async function(message, command){
+    doGo: async function(message, command, args){
         const channel = message.channel.id;
         const runningGame = runningGames[channel];
         if(runningGame){
@@ -108,36 +109,39 @@ module.exports = {
                 runningGame.game.move(command);
                 if(runningGame.lastMessage)
                     runningGame.lastMessage.delete();
-                runningGame.lastMessage = await message.channel.send(module.exports.renderBoard(channel));
+                runningGame.lastMessage = await message.channel.send(module.exports.renderBoard(channel, bot));
                 runningGame.turn = !runningGame.turn;
             }catch(e){
                 let status = runningGame.game.getStatus();
                 for (let move in status.notatedMoves) {
                     let moveData = status.notatedMoves[move];
                     if (moveData.src.piece.side.name === runningGame.turn ? "white" : "black") {
-                        message.channel.send(`:warning: Invalid notation. You could try: ${move}. This would move your **${moveData.src.piece.type}** to position **${moveData.dest.file}${moveData.dest.rank}**${moveData.dest.piece ? " and take the opponents piece." : "."}`);
+                        message.replyLang("CHESS_INVALID_NOTATION"+(moveData.dest.piece ? "_TAKE" : ""), {
+                            move,
+                            piece: moveData.src.piece.type,
+                            file: moveData.dest.file,
+                            rank: moveData.dest.rank
+                        });
                         break;
                     }
                 }
             }
 
-        }else{
-            message.channel.send("There is currently no game running. Start one with !chess start @player");
-        }
+        }else
+            message.replyLang("GAME_NOT_RUNNING", {arg: args[0]});
 
     },
     subCommands: {
         start: function(message, args, bot){
             const currentGame = runningGames[message.channel.id];
-            const command = args[0];
             if(currentGame){
                 const authorIndex =currentGame.players.indexOf(message.author.id);
                 if(authorIndex === -1){
-                    message.channel.send(":warning: Only one game can be running in a channel at one time. Wait for the current one to end, or go to another channel.");
+                    message.replyLang("GAME_ALREADY_RUNNING");
                 }else if(authorIndex === currentGame.turn){
-                    message.channel.send(`:warning: It is currently your turn in the current game! Do your move with ${command} <position> i.e ${args[0]} A1 or give up with ${command} quit`);
+                    message.replyLang("CHESS_ALREADY_YOUR_TURN", {arg: args[0]});
                 }else{
-                    message.channel.send(`:warning: There is already a game going on in this channel and you are in it. Wait for your opponent to move or give up with ${command} quit`);
+                    message.replyLang("CHESS_ALREADY_THEIR_TURN", {arg: args[0]});
                 }
             }else{
                 if(message.mentions && message.mentions.members && message.mentions.members.size > 0){
@@ -149,9 +153,9 @@ module.exports = {
                         from: message.author,
                         to: target
                     };
-                    message.channel.send(`:rotating_light: ${target}, ${message.author} challenges you to a game of **chess**! Type **${args[0]} accept** to start!`);
+                    message.replyLang("CHESS_CHALLENGE", {target: target.id, user: message.author.id, arg: args[0]});
                 }else{
-                    message.channel.send(`:bangbang: You must mention a user to challenge. ${args[0]} start @user`);
+                    message.replyLang("GAME_CHALLANGE_NO_USER", {arg: args[0]});
                 }
             }
         },
@@ -163,22 +167,30 @@ module.exports = {
                     players: [request.from, message.author],
                     game: chess.create()
                 };
-                runningGames[message.channel.id].lastMessage = await message.channel.send(`${request.from}, your request has been accepted! It is your turn.\n${module.exports.renderBoard(message.channel.id)}\nMove with ${args[0]} [move]. i.e ${args[0]} e4\n**The game uses algebraic notation. If you don't know how it works, there's a few guides on google.**`);
+                runningGames[message.channel.id].lastMessage = await message.replyLang("CHESS_ACCEPTED", {
+                    user: request.from.id,
+                    board: await module.exports.renderBoard(message.channel.id, bot),
+                    arg: args[0]
+
+                });
                 delete gameRequests[message.channel.id];
             }else{
-                message.channel.send(`:bangbang: You don't currently have any game invites. Type **${args[0]} start @user** to start one yourself.`);
+                message.replyLang("GAME_NO_INVITES", {arg: args[0]});
             }
         },
         resign: function(message, args, bot){
             const channel = message.channel.id;
             if(!runningGames[channel]){
-                message.channel.send(`:warning: There are no games running! Type **${args[0]} start @user** to start one yourself.`);
+                message.replyLang("GAME_NOT_RUNNING", {arg: args[0]});
             }else if(runningGames[channel].players[+runningGames[channel].turn].id !== message.author.id ){
-                message.channel.send(":warning: Either you aren't in this current game or it's not your turn. You can only resign when it's your turn!");
+                message.replyLang("GAME_NO_RESIGN", {arg: args[0]});
             }else{
-                message.channel.send(`:flag_white: ${message.author} resigned! <@${runningGames[channel].players[+!runningGames[channel].turn].id}> wins!`);
+                message.replyLang("GAME_RESIGN", {user: message.author.id, winner: runningGames[channel].players[+!runningGames[channel].turn].id});
             }
             delete runningGames[message.channel.id];
+        },
+        notation: function(message){
+            message.channel.send("https://en.wikipedia.org/wiki/Algebraic_notation_(chess)#Notation_for_moves");
         }
 
 

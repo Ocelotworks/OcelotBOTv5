@@ -38,11 +38,11 @@ module.exports = {
     run: async function run(message, args, bot){
 
         if(!args[1]) {
-           // let output = `\`\`\`python\n#Select a Category\n`;
+            // let output = `\`\`\`python\n#Select a Category\n`;
             let output = "";
 
             for (let i in bot.commandCategories) {
-                if(message.getSetting("help.hiddenCategories") && message.getSetting("help.hiddenCategories").indexOf(i) > -1)
+                if (message.getSetting("help.hiddenCategories") && message.getSetting("help.hiddenCategories").indexOf(i) > -1)
                     continue;
                 output += `For '${i}' use ${args[0]} ${i}\n`;
             }
@@ -50,7 +50,21 @@ module.exports = {
             message.replyLang("COMMANDS_CATEGORIES", {
                 categories: output
             });
-        }else if(!bot.commandCategories[args[1].toLowerCase()]){
+            return;
+        }
+        const arg = args[1].toLowerCase();
+        if(bot.commandUsages[arg]){
+            let command = bot.commandUsages[arg];
+            let output = `**${command.name} Help:**\n`;
+            if(command.detailedHelp)
+                output += command.detailedHelp+"\n";
+            output += `**Usage:** ${message.getSetting("prefix")}${command.usage}\n`;
+            if(command.usageExample)
+                output += `**Example:** ${command.usageExample}\n`;
+
+            message.channel.send(output);
+
+        }else if(!bot.commandCategories[arg]){
             message.replyLang("COMMANDS_INVALID_CATEGORY", {
                 arg: args[0]
             });
@@ -58,8 +72,8 @@ module.exports = {
             let unique = []; //ahhh..
             let output = "";
             let commandUsages = bot.commandUsages;
-            if(args[1] && Object.keys(bot.commandCategories).indexOf(args[1].toLowerCase()) > -1){
-                commandUsages = bot.commandCategories[args[1].toLowerCase()];
+            if(args[1] && Object.keys(bot.commandCategories).indexOf(arg) > -1){
+                commandUsages = bot.commandCategories[arg];
             }
             for(let i in commandUsages){
                 if(commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden)
