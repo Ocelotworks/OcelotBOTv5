@@ -34,12 +34,12 @@ module.exports = {
 
         bot.lang.getTranslation = function getTranslation(server, key, format = {}){
             return new Promise(async function(fulfill){
-                format.prefix = "\\"+(bot.prefixCache[server] || config.get("General.DefaultPrefix"));
+                format.prefix = "\\"+bot.config.get(server, "prefix");
                 const langOverride = bot.config.get(server, "lang."+key);
                 if(langOverride){
                     fulfill(langOverride.formatUnicorn());
                 }else{
-                    let output = bot.lang.getTranslationFor(await bot.lang.getLocale(server), key);
+                    let output = bot.lang.getTranslationFor(bot.lang.getLocale(server), key);
                     fulfill(output.formatUnicorn(format));
                 }
             });
@@ -47,25 +47,18 @@ module.exports = {
 
         bot.lang.getLocalNumber = function getLocalNumber(server, number){
             return new Promise(async function(fulfill){
-                fulfill(number.toLocaleString(await bot.lang.getLocale(server)))
+                fulfill(number.toLocaleString(bot.lang.getLocale(server)))
             });
         };
 
         bot.lang.getLocalDate = function getLocalDate(server, date){
             return new Promise(async function(fulfill){
-                fulfill(date.toLocaleString(await bot.lang.getLocale(server)))
+                fulfill(date.toLocaleString(bot.lang.getLocale(server)))
             });
         };
 
         bot.lang.getLocale = function getLocale(server){
-            return new Promise(async function(fulfill){
-                if(!bot.lang.languageCache[server]){
-                    bot.logger.warn("Had to populate languageCache for "+server);
-                    const thisServer = await bot.database.getServerLanguage(server)[0];
-                    bot.lang.languageCache[server] = thisServer && thisServer.language ? thisServer.language : "default";
-                }
-                fulfill(bot.lang.languageCache[server]);
-            });
+            return bot.config.get(server, "lang");
         };
 
         bot.lang.getTranslationFor = function getTranslationFor(lang, key){
@@ -84,14 +77,14 @@ module.exports = {
 
         bot.lang.loadLanguages();
 
-        bot.client.on("ready", async function discordReady(){
-            bot.logger.log("Populating language cache...");
-            const languageMap = await bot.database.getLanguagesForShard(bot.client.guilds.keyArray());
-            bot.logger.log(`Caching ${languageMap.length} servers`);
-            for(let i = 0; i < languageMap.length; i++){
-                const server = languageMap[i];
-                bot.lang.languageCache[server.server] = server.language;
-            }
-        });
+        // bot.client.on("ready", async function discordReady(){
+        //     bot.logger.log("Populating language cache...");
+        //     const languageMap = await bot.database.getLanguagesForShard(bot.client.guilds.keyArray());
+        //     bot.logger.log(`Caching ${languageMap.length} servers`);
+        //     for(let i = 0; i < languageMap.length; i++){
+        //         const server = languageMap[i];
+        //         bot.lang.languageCache[server.server] = server.language;
+        //     }
+        // });
     }
 };

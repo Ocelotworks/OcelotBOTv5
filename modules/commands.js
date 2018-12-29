@@ -18,13 +18,15 @@ module.exports = {
 
         bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
             if(message.author.bot)return;
-            const prefix = bot.prefixCache[message.guild.id] || "!"; //message.getSetting("prefix");
+            const prefix = message.getSetting("prefix");
             const prefixLength = prefix.length;
             if(!message.content.startsWith(prefix))
                 return;
             const args = message.content.split(" ");
             const command = args[0].substring(prefixLength).toLowerCase();
             if(!bot.commands[command])
+                return;
+            if(message.getSetting("allowNSFW") && message.getSetting("allowNSFW") === "0" && bot.commandUsages[command].categories.indexOf("nsfw") > -1)
                 return;
             if(message.getSetting(`${command}.disable`))
                 return bot.logger.log(`${command} is disabled in this server.`);
