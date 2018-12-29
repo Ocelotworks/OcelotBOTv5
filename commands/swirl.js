@@ -41,7 +41,7 @@ module.exports = {
                         console.log(e);
                         message.channel.send("Upload error: "+e);
                     });
-                    fs.unlinkSync(fileName);
+                    fs.unlink(fileName, function(){});
                 });
         }).pipe(fs.createWriteStream(fileName));
 
