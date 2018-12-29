@@ -1,10 +1,11 @@
 const  dateformat = require('dateformat');
 module.exports = {
-    name: "Topic Control",
+    name: "Topic Context",
     usage: "context",
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["context", "ctx"],
+    hidden: true,
     run: async function(message, args, bot){
         // noinspection EqualityComparisonWithCoercionJS
         if(message.guild.id != "478950156654346292")return;

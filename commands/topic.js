@@ -15,6 +15,7 @@ module.exports = {
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["topic"],
+    hidden: true,
     run: async function(message, args, bot){
         // noinspection EqualityComparisonWithCoercionJS
         if(!message.guild || message.guild.id != "478950156654346292")return;
