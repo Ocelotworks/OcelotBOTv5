@@ -259,7 +259,7 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
         const answer = song.title.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "").split("ft")[0];
         const artist = artistName.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "");
         bot.logger.log("Title is " + answer);
-        message.channel.send(`Guess the name of this song, you have ${message.getSetting("songguess.seconds") / 60} minutes!`);
+        message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
         const dispatcher = voiceConnection.playFile(file, {seek: message.getSetting("songguess.seek")});
         let won = false;
         let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
@@ -275,7 +275,7 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
         dispatcher.on("error", function fileError(err) {
             bot.raven.captureException(err);
             console.log(err);
-            message.channel.send("An error occurred.");
+            message.replyLang("GENERIC_ERROR");
         });
 
 
@@ -286,19 +286,19 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
             const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "");
             console.log(strippedMessage);
             if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
-                message.channel.send(`${message.author} wins after **${bot.util.prettySeconds((guessTime - now) / 1000)}**! The song was **${title}**`);
+                message.replyLang("SONGGUESS_WIN", {id: message.author.id, seconds: bot.util.prettySeconds((guessTime - now) / 1000), title});
                 won = true;
                 if (collector)
                     collector.stop();
             } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
-                message.channel.send(`${message.author}, '${artistName}' _is_ the artist. But we're not looking for that.`);
+                message.replyLang("SONGGUESS_ARTIST", {id: message.author.id, artist: artistName});
             }
             bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
         });
         collector.on('end', function collectorEnd() {
             console.log("Collection Ended");
             if(!won)
-                message.channel.send(`The song is over. The song was **${title}**`);
+                message.channel.replyLang("SONGGUESS_OVER", {title});
             if(timeouts[voiceChannel.id]) {
                 bot.logger.log("Clearing timeout");
                 clearTimeout(timeouts[voiceChannel.id])
