@@ -8,6 +8,10 @@ module.exports = {
             messagesTotal: 0,
             commandsPerMinute: 0,
             commandsTotal: 0,
+            warnings: 0,
+            errors: 0,
+            botRateLimits: 0,
+            userRateLimits: 0,
             timing: {
                 waiting: {},
                 counts: {},
@@ -30,41 +34,49 @@ module.exports = {
             }
        };
 
+        function buildSchema(){
+            const fields = [
+                'messagesPerMinute',
+                'commandsPerMinute',
+                'messagesTotal',
+                'commandsTotal',
+                'servers',
+                'voiceConnections',
+                'websocketPing',
+                'warnings',
+                'errors',
+                'botRateLimits',
+                'userRateLimits'
+            ];
+
+            let output = [];
+            for(let i = 0; i < fields.length; i++){
+                let field = fields[i];
+                let outputField = {
+                    measurement: field,
+                    fields: {},
+                    tags: ["shard"]
+                };
+                if(field.startswith('messages')){
+                    outputField.fields.messages = Influx.FieldType.INTEGER
+                }else if(field.startswith('commands')){
+                    outputField.fields.commands = Influx.FieldType.INTEGER
+                }else{
+                    outputField.fields[field] = Influx.FieldType.INTEGER;
+                }
+                output.push(outputField);
+            }
+
+            return output;
+
+        }
+
         bot.stats.influx = new Influx.InfluxDB({
             host: config.get("InfluxDB.host"),
             database: config.get("InfluxDB.database"),
             username: config.get("InfluxDB.username"),
             password: config.get("InfluxDB.password"),
-            schema: [
-                {
-                    measurement: 'messagesPerMinute',
-                    fields: {
-                        messages: Influx.FieldType.INTEGER
-                    },
-                    tags: ["shard"]
-                },
-                {
-                    measurement: 'commandsPerMinute',
-                    fields: {
-                        commands: Influx.FieldType.INTEGER
-                    },
-                    tags: ["shard"]
-                },
-                {
-                    measurement: 'messagesTotal',
-                    fields: {
-                        messages: Influx.FieldType.INTEGER
-                    },
-                    tags: ["shard"]
-                },
-                {
-                    measurement: 'commandsTotal',
-                    fields: {
-                        commands: Influx.FieldType.INTEGER
-                    },
-                    tags: ["shard"]
-                }
-            ]
+            schema: buildSchema()
         });
 
         bot.client.on("message", function(){
@@ -75,6 +87,16 @@ module.exports = {
         bot.bus.on("commandPerformed", function(){
             bot.stats.commandsPerMinute++;
             bot.stats.commandsTotal++;
+        });
+
+        bot.client.on("rateLimit", function(){
+            bot.stats.botRateLimits++;
+        });
+        bot.client.on("error", function(){
+            bot.stats.errors++;
+        });
+        bot.client.on("warn", function(){
+            bot.stats.warnings++;
         });
 
         setInterval(async function(){
@@ -108,6 +130,11 @@ module.exports = {
                     measurement: "messagesTotal",
                     tags: {"shard": bot.client.shard.id},
                     fields: {messages: bot.stats.messagesTotal}
+                },
+                {
+                    measurement: "serversTotal",
+                    tags: {"shard": bot.client.shard.id},
+                    fields: {servers: bot.client.guilds.size}
                 }
             ]);
             bot.stats.messagesPerMinute = 0;
