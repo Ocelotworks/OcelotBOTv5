@@ -5,7 +5,7 @@ module.exports = {
     categories: ["meta"],
     run: async function(message, args, bot){
         if(args[1] && args[1].toLowerCase() === "contribute"){
-            message.channel.send("https://poeditor.com/projects/view?id=124405");
+            message.channel.send("Language contribution is current disabled, sorry!");
             return;
         }
         let output = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "LANGUAGE_AVAILABLE")+"\n";
