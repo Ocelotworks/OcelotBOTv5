@@ -227,8 +227,8 @@ module.exports = {
         process.on("message", async function(message){
            if(message.type === "requestData"){
                if(message.payload.name === "channels"){
-                   console.log("Looking for channel data");
                    let guild = message.payload.data.server;
+                   console.log("Looking for channel data for "+guild);
                    if(bot.client.guilds.has(guild)){
                        let callbackID = message.payload.callbackID;
                        let channels = bot.client.guilds.get(guild).channels.map(function(channel){
@@ -242,6 +242,8 @@ module.exports = {
                                data: channels
                            }
                        })
+                   }else{
+                       console.log(guild+" not on this shard");
                    }
                }
            }else if(message.type === "cockup"){
