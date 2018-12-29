@@ -122,7 +122,7 @@ module.exports = {
             if(currentGame){
                 const authorIndex =currentGame.players.indexOf(message.author.id);
                 if(authorIndex === -1){
-                    message.channel.send(":warning: Only one game can be running in a channel at one time. Wait for the current one to end, or go to another channel.");
+                    message.replyLang("GAME_ALREADY_RUNNING");
                 }else if(authorIndex === currentGame.turn){
                     message.channel.send(`:warning: It is currently your turn in the current game! Do your move with ${command} <position> i.e ${args[0]} A1 or give up with ${command} quit`);
                 }else{
