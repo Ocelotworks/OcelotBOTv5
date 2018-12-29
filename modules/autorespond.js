@@ -39,7 +39,7 @@ module.exports = {
             }
 
             //499354390126264340>
-            if(message.guild && message.guild.id === '318432654880014347' && message.author.id === '422359066015170561' && message.content.length > message.getSetting("yikesThreshold")){
+            if(message.guild && message.guild.id === '318432654880014347' && message.author.id === '162269952202637312' && message.content.length > message.getSetting("yikesThreshold")){
                 message.react("499354390126264340");
             }
         }));
