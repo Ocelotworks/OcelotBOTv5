@@ -371,7 +371,40 @@ module.exports = {
                 return i + "rd";
             }
             return i + "th";
-        }
+        };
+
+        bot.util.permissionsMap = {
+            ADMINISTRATOR: "Administrator",
+            CREATE_INSTANT_INVITE: "Create Instant Invite",
+            KICK_MEMBERS: "Kick Members",
+            BAN_MEMBERS: "Ban Members",
+            MANAGE_CHANNELS: "Manage Channels",
+            MANAGE_GUILD: "Manage Server",
+            ADD_REACTIONS: "Add Reactions",
+            VIEW_AUDIT_LOG: "View Audit Log",
+            PRIORITY_SPEAKER: "Priority Speaker",
+            VIEW_CHANNEL: "Read Messages",
+            READ_MESSAGES: "Read Messages",
+            SEND_MESSAGES: "Send Messages",
+            SEND_TTS_MESSAGES: "Send TTS",
+            MANAGE_MESSAGES: "Manage Messages",
+            EMBED_LINKS: "Embed Links",
+            ATTACH_FILES: "Attach Files",
+            READ_MESSAGE_HISTORY: "Read Message History",
+            MENTION_EVERYONE: "Mention Everyone",
+            USE_EXTERNAL_EMOJIS: "Use External Emojis",
+            CONNECT: "Connect to Voice Channel",
+            SPEAK: "Speak in Voice Channels",
+            MUTE_MEMBERS: "Mute Members in Voice Channels",
+            DEAFEN_MEMBERS: "Deafen Members in Voice Channels",
+            MOVE_MEMBERS: "Move Members in Voice Channels",
+            USE_VAD: "Use Voice Activity",
+            CHANGE_NICKNAME: "Change Nickname",
+            MANAGE_NICKNAMES: "Manage Nicknames",
+            MANAGE_ROLES_OR_PERMISSIONS: "Manage Roles",
+            MANAGE_WEBHOOKS: "Manage Webhooks",
+            MANAGE_EMOJIS: "Manage Emojis"
+        };
 
     }
 };
