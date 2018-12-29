@@ -48,6 +48,8 @@ module.exports = {
                         connection.disconnect();
                     }else{
                         let doot = args[1] && !isNaN(args[1]) ? parseInt(args[1]) : dootCount++ % files.length;
+                        if(!files[doot])
+                            return message.channel.send("No such doot.");
                         const file = "static/doot/"+files[doot];
                         bot.logger.log("Playing "+file);
                         message.channel.send(`:trumpet: Doot #${doot} (${files[doot]})\nUse \`${args[0]} ${doot}\` to play this again.`);

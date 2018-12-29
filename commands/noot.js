@@ -47,8 +47,9 @@ module.exports = {
                         connection.disconnect();
                     }else{
                         let noot = args[1] && !isNaN(args[1]) ? parseInt(args[1]) : nootCount++ % files.length;
+                        if(!files[noot])
+                            return message.channel.send("No such noot.");
                         const file = "static/noot/"+files[noot];
-                        bot.logger.log("Playing "+file);
                         message.channel.send(`<:noot:524657747757891615> Noot #${noot} (${files[noot]})\nUse \`${args[0]} ${noot}\` to play this again.`);
                         bot.logger.log("Playing "+file);
                         try {
@@ -60,7 +61,7 @@ module.exports = {
                         }catch(e){
                             bot.logger.log(e);
                             bot.raven.captureException(e);
-                            bot.channel.send("An error occurred. Try again later.");
+                            message.replyLang("GENERIC_ERROR");
                             connection.disconnect();
                         }
                     }
