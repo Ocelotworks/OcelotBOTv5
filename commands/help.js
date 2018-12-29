@@ -31,7 +31,7 @@ module.exports = {
         let output = "";
         for(let i in list){
             if(list.hasOwnProperty(i) && !list[i].hidden)
-                output += `${list[i].name}:: ${/*bot.prefixCache[message.guild.id] || */"!"}${list[i].usage}\n`
+                output += `${list[i].name}:: ${message.getSetting("prefix")}${list[i].usage}\n`
         }
         message.editLang("COMMANDS", output);
     },
@@ -79,7 +79,7 @@ module.exports = {
                 if(commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden)
                     if(unique.indexOf(commandUsages[i].name) === -1) {
                         unique.push(commandUsages[i].name);
-                        output += `${commandUsages[i].name}:: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}${commandUsages[i].usage}\n`
+                        output += `${commandUsages[i].name}:: ${message.getSetting("prefix")}${commandUsages[i].usage}\n`
                     }
             }
             message.replyLang("COMMANDS", {commands: output});
