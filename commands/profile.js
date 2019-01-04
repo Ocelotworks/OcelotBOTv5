@@ -116,10 +116,12 @@ module.exports = {
             const userID = user.id;
             let eligibleBadge = (await bot.database.getEligbleBadge(userID, series, value))[0];
             if(eligibleBadge){
-                bot.logger.log(`Awarding badge ${eligibleBadge.name} (${eligibleBadge.id}) to ${user} (${userID}). ${series} = ${value}`);
+                bot.logger.log(`Awarding badge ${eligibleBadge.name} (${eligibleBadge.id}) to ${user.username} (${userID}). ${series} = ${value}`);
                 await bot.database.deleteBadgeFromSeries(userID, series);
                 await bot.database.giveBadge(userID, eligibleBadge.id);
+                return eligibleBadge;
             }
+            return null;
         };
 
         bot.updateCommandsBadge = async function(user, commands){
