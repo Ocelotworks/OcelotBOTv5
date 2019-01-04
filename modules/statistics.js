@@ -57,9 +57,9 @@ module.exports = {
                     fields: {},
                     tags: ["shard"]
                 };
-                if(field.startswith('messages')){
+                if(field.startsWith('messages')){
                     outputField.fields.messages = Influx.FieldType.INTEGER
-                }else if(field.startswith('commands')){
+                }else if(field.startsWith('commands')){
                     outputField.fields.commands = Influx.FieldType.INTEGER
                 }else{
                     outputField.fields[field] = Influx.FieldType.INTEGER;
@@ -78,6 +78,9 @@ module.exports = {
             password: config.get("InfluxDB.password"),
             schema: buildSchema()
         });
+
+        let lastMessageCount = {};
+        let messageCount = {};
 
         bot.client.on("message", function(){
             bot.stats.messagesPerMinute++;
@@ -139,6 +142,8 @@ module.exports = {
             ]);
             bot.stats.messagesPerMinute = 0;
             bot.stats.commandsPerMinute = 0;
+
+
         }, 60000); //1 minute
     }
 };
