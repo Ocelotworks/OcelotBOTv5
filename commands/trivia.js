@@ -37,8 +37,10 @@ module.exports = {
                 message.channel.startTyping();
 
                 let leaderboardData;
-                if(args[2]){
+                if(args[2] && args[2].toLowerCase() === "monthly"){
                     leaderboardData = await bot.database.getMonthlyTriviaLeaderboard();
+                }else if(args[2] && args[2].toLowerCase() === "server" && message.guild) {
+                    leaderboardData = await bot.database.getServerTriviaLeaderboard(message.guild.members.keyArray());
                 }else{
                     leaderboardData = await bot.database.getTriviaLeaderboard();
                 }
@@ -198,7 +200,16 @@ module.exports = {
                                 }else{
                                     for(let i = 0; i < correct.length; i++){
                                         output +=  `<@${correct[i]}> `;
-                                        bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(function(){});
+                                        bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(async function(){
+                                            let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['COUNT(*)'];
+                                            if(count >= 10 && count < 50 && !(await bot.database.hasBadge(correct[i], 13))){
+                                                await bot.database.giveBadge(correct[i], 13);
+                                            }else if(count > 50 && count < 100 && !(await bot.database.hasBadge(correct[i], 14))){
+                                                await bot.database.giveBadge(correct[i], 14);
+                                            }else if(count > 100 && !(await bot.database.hasBadge(correct[i], 15))){
+                                                await bot.database.giveBadge(correct[i], 15);
+                                            }
+                                        });
                                     }
                                     output += "\n";
 
