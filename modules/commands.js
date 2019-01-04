@@ -11,8 +11,8 @@ module.exports = {
         bot.prefixCache = {};
 
 
-        function isRateLimited(user){
-            return !(!bot.rateLimits[user] || bot.rateLimits[user] < 100);
+        function isRateLimited(user, guild){
+            return !(!bot.rateLimits[user] || bot.rateLimits[user] < bot.config.get(guild, "rateLimit"));
         }
 
 
@@ -51,7 +51,7 @@ module.exports = {
                 bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
                 return;
             }
-            if(isRateLimited(message.author.id)){
+            if(isRateLimited(message.author.id, message.guild.id)){
                 if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
                     bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
                     message.replyLang("COMMAND_RATELIMIT");
@@ -102,7 +102,12 @@ module.exports = {
                 } else {
                     bot.commands[command](message, args, bot);
                 }
-                bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
+                const amt = bot.commandUsages[command].rateLimit || 1;
+                if(bot.rateLimits[message.author.id])
+                    bot.rateLimits[message.author.id] += amt;
+                else
+                    bot.rateLimits[message.author.id] = amt;
+                console.log(message.author.id,bot.rateLimits[message.author.id]);
             } catch (e) {
                 message.channel.stopTyping(true);
                 message.reply(e.toString());
