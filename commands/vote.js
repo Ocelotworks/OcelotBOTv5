@@ -14,7 +14,7 @@ module.exports = {
     init: function(bot){
         bot.waitingVoteChannels = [];
 
-        process.on("message", function vote(message){
+        process.on("message", async function vote(message){
            if(message.type === "registerVote"){
                 let user = message.payload.user;
                 let voteServer = null;
@@ -30,6 +30,9 @@ module.exports = {
                 if(voteServer || !bot.client.shard || bot.client.shard.id === 0){
                     bot.database.addVote(user, voteServer);
                     bot.logger.log("Logging vote from "+user);
+                    if(!(await bot.database.hasBadge(user, 12))){
+                        await bot.database.giveBadge(user, 12);
+                    }
                 }
 
            }
@@ -37,7 +40,7 @@ module.exports = {
     },
     run: async function(message, args, bot){
         if(args[1])return;
-        message.channel.send("Voting for OcelotBOT helps me grow and supports development. Click here to vote:\nhttps://discordbots.org/bot/146293573422284800/vote");
+        message.channel.send(`Voting for OcelotBOT helps me grow and supports development.\n**You'll also get a special <:supporter_1:529308223954616322> supporter badge on your ${message.getSetting("prefix")}profile**\nClick here to vote: https://discordbots.org/bot/146293573422284800/vote`);
         bot.waitingVoteChannels.push(message.channel);
     }
 };
