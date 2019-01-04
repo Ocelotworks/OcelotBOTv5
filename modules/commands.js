@@ -88,7 +88,7 @@ module.exports = {
                     } else if (permissions.has("SEND_MESSAGES")) {
                         let permission = "";
                         for(let i = 0; i < bot.commandUsages[command].requiredPermissions.length; i++){
-                            permission += bot.util.permissionsMap[bot.commandUsages[command][i]];
+                            permission += bot.util.permissionsMap[bot.commandUsages[command].requiredPermissions[i]];
                             if(i < bot.commandUsages[command].requiredPermissions.length-1)
                                 permission+=", ";
                         }
