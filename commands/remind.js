@@ -52,7 +52,8 @@ module.exports = {
             try{
                 const targetUser = await bot.client.fetchUser(reminder.user);
                 if(targetUser){
-                    await targetUser.send(await bot.lang.getTranslation(reminder.channel, "REMIND_REMINDER", {
+                    const dm = await targetUser.createDM();
+                    await dm.send(await bot.lang.getTranslation(reminder.channel, "REMIND_REMINDER", {
                         username: reminder.user,
                         date: new Date(reminder.timestamp).toString(),
                         message: reminder.message
@@ -60,7 +61,6 @@ module.exports = {
                 }else{
                     bot.logger.log("Couldn't retrieve the user.");
                 }
-
             }catch(e){
                 bot.logger.error("Error whilst sending to user");
                 bot.raven.captureException(e);
