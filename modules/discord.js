@@ -224,17 +224,17 @@ module.exports = {
             });
         });
 
-        process.on("message", async function(message){
+        process.on("message", async function onMessage(message){
            if(message.type === "requestData"){
                if(message.payload.name === "channels"){
                    let guild = message.payload.data.server;
-                   console.log("Looking for channel data for "+guild);
                    if(bot.client.guilds.has(guild)){
                        let callbackID = message.payload.callbackID;
-                       let channels = bot.client.guilds.get(guild).channels.map(function(channel){
+                       let guildObj = bot.client.guilds.get(guild);
+                       let channels = guildObj.channels.map(function(channel){
                            return {name: channel.name, id: channel.id}
                        });
-                       console.log("got channel data");
+                       bot.logger.log("Sending channel data for "+guildObj.name+" ("+guild+")");
                        bot.client.shard.send({
                            type: "dataCallback",
                            payload: {
