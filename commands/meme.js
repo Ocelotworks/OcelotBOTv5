@@ -28,8 +28,8 @@ module.exports = {
 
 
             const availableMemes = await bot.lang.getTranslation(guildID, "MEME_AVAILABLE_MEMES");
-            const availableGlobalMemes = await bot.lang.getTranslation(message.guild.id, "MEME_GLOBAL_MEMES");
-            const memeServer = message.guild ? await bot.lang.getTranslation(message.guild.id, "MEME_SERVER", {serverName: message.guild.name}) : "You should never see this.";
+            const availableGlobalMemes = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_GLOBAL_MEMES");
+            const memeServer = message.guild ? await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_SERVER", {serverName: message.guild.name}) : "You should never see this.";
 
 
             let index = 0;
@@ -126,6 +126,13 @@ module.exports = {
                         message.replyLang("MEME_ENTER_URL");
                         return;
                     }
+
+                    if(message.mentions.users.size > 0 && message.getSetting("meme.disallowTags")){
+                        message.channel.send("You're not allowed to tag people in memes.");
+                        return;
+                    }
+
+
                     const newMemeName = args[2].toLowerCase();
 
                     if (newMemeName.startsWith("http")) {
