@@ -79,14 +79,30 @@ module.exports = {
             message.channel.send(":warning: You cannot use this command in a DM channel.");
             return;
         }
-        const rargs = regex.exec(message.content);
-        if(!rargs || rargs.length < 3){
-            message.replyLang("REMIND_INVALID_MESSAGE");
-            return;
-        }
-
         const now = new Date();
-        const at = chrono.parseDate(message.content, now);
+        const rargs = regex.exec(message.content);
+        const chronoParse = (chrono.parse(message.content, now))[0];
+        let at = null;
+        if(chronoParse && chronoParse.start)
+            at = chronoParse.start.date();
+        
+        let reminder = null;
+        if(!rargs || rargs.length < 3){
+            if(chronoParse && chronoParse.text){
+                const guessedContent = message.content.substring(message.content.indexOf(chronoParse.text)+chronoParse.text.length);
+                if(guessedContent)
+                    reminder = guessedContent;
+                else {
+                    message.replyLang("REMIND_INVALID_MESSAGE");
+                    return;
+                }
+            }else{
+                message.replyLang("REMIND_INVALID_MESSAGE");
+                return;
+            }
+        }else{
+            reminder = rargs[2];
+        }
 
         if(!at){
             message.replyLang("REMIND_INVALID_TIME");
@@ -103,7 +119,7 @@ module.exports = {
             return;
         }
 
-        const offset = at - now.getTime();
+        const offset = at - now;
 
 
         if(offset < 1000){
@@ -111,14 +127,14 @@ module.exports = {
             return;
         }
         try {
-            const reminderResponse = await bot.database.addReminder("discord", message.author.id, message.guild.id, message.channel.id, at.getTime(), rargs[2]);
-            message.replyLang("REMIND_SUCCESS", {time: bot.util.prettySeconds(offset / 1000), date: at.toString()});
+            const reminderResponse = await bot.database.addReminder("discord", message.author.id, message.guild.id, message.channel.id, at.getTime(), reminder);
+            message.replyLang("REMIND_SUCCESS", {time: bot.util.prettySeconds((offset / 1000)+1), date: at.toString()});
             bot.util.setLongTimeout(async function () {
                 try {
                     message.replyLang("REMIND_REMINDER", {
                         username: message.author.id,
                         date: now.toString(),
-                        message: rargs[2]
+                        message: reminder
                     });
                     await bot.database.removeReminder(reminderResponse[0])
                 }catch(e){
