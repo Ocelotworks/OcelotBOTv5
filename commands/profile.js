@@ -112,34 +112,22 @@ module.exports = {
 
         bot.badges = {};
 
-        bot.badges.updateBadge = function updateBadge(user, badge, value){
-
+        bot.badges.updateBadge = async function updateBadge(user, series, value){
+            const userID = user.id;
+            let eligibleBadge = (await bot.database.getEligbleBadge(userID, series, value))[0];
+            if(eligibleBadge){
+                bot.logger.log(`Awarding badge ${eligibleBadge.name} (${eligibleBadge.id}) to ${user} (${userID}). ${series} = ${value}`);
+                await bot.database.deleteBadgeFromSeries(userID, series);
+                await bot.database.giveBadge(userID, eligibleBadge.id);
+            }
         };
 
         bot.updateCommandsBadge = async function(user, commands){
-            if(commands >= 100 && commands < 1000 && !(await bot.database.hasBadge(user.id, 3)))
-                await bot.database.giveBadge(user.id, 3);
-
-            if(commands >= 1000 && !(await bot.database.hasBadge(user.id, 4))) {
-                await bot.database.removeBadge(user.id, 3);
-                await bot.database.giveBadge(user.id, 4);
-            }
+            await bot.badges.updateBadge(user, 'commands', commands);
         };
 
         bot.updateServersBadge = async function(user, servers){
-            if(servers >= 2 && servers < 4 && !(await bot.database.hasBadge(user.id, 7)))
-                await bot.database.giveBadge(user.id, 7);
-
-            if(servers >= 4 && servers < 10 && !(await bot.database.hasBadge(user.id, 10))) {
-                await bot.database.removeBadge(user.id, 7);
-                await bot.database.giveBadge(user.id, 10);
-            }
-
-            if(servers >= 10 && !(await bot.database.hasBadge(user.id, 11))){
-                await bot.database.removeBadge(user.id, 7);
-                await bot.database.removeBadge(user.id, 10);
-                await bot.database.giveBadge(user.id, 11);
-            }
+            await bot.badges.updateBadge(user, 'servers', servers);
         };
     },
     run: async function(message, args, bot){

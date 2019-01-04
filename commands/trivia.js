@@ -201,14 +201,8 @@ module.exports = {
                                     for(let i = 0; i < correct.length; i++){
                                         output +=  `<@${correct[i]}> `;
                                         bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(async function(){
-                                            let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['COUNT(*)'];
-                                            if(count >= 10 && count < 50 && !(await bot.database.hasBadge(correct[i], 13))){
-                                                await bot.database.giveBadge(correct[i], 13);
-                                            }else if(count > 50 && count < 100 && !(await bot.database.hasBadge(correct[i], 14))){
-                                                await bot.database.giveBadge(correct[i], 14);
-                                            }else if(count > 100 && !(await bot.database.hasBadge(correct[i], 15))){
-                                                await bot.database.giveBadge(correct[i], 15);
-                                            }
+                                            let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['count(*)'];
+                                            bot.badges.updateBadge(bot.client.users.get(correct[i]), 'trivia', count);
                                         });
                                     }
                                     output += "\n";

@@ -309,7 +309,7 @@ module.exports = {
                 }).into(TRIVIA_TABLE);
             },
             getTriviaCorrectCount: function(user){
-                  return knex.select(knex.raw("count(*)")).from(TRIVIA_TABLE).where({user})
+                  return knex.select(knex.raw("count(*)")).from(TRIVIA_TABLE).where({user}).limit(1);
             },
             /**
              * Log a command
@@ -732,7 +732,18 @@ module.exports = {
             addVote: async function(user, referralServer){
                 await knex.insert({user, referralServer}).into("ocelotbot_votes");
             },
-
+            getEligbleBadge: function(user, series, count){
+                return knex.select()
+                    .from(BADGES_TABLE)
+                    .whereNotIn('id', knex.select('badge').from("ocelotbot_badge_assignments").where({user}))
+                    .andWhere({series})
+                    .andWhere('min', '<=', count)
+                    .andWhere('max', '>', count)
+                    .limit(1);
+            },
+            deleteBadgeFromSeries: async function(user, series){
+                await knex.raw(`delete s.* from \`ocelotbot_badge_assignments\` s INNER JOIN ocelotbot_badges ON ocelotbot_badges.id = s.badge where \`user\` = '${user}' and \`series\` = '${series}'`);
+            }
         };
     }
 };
