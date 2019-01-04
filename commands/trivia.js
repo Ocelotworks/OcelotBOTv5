@@ -202,7 +202,10 @@ module.exports = {
                                         output +=  `<@${correct[i]}> `;
                                         bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(async function(){
                                             let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['count(*)'];
-                                            bot.badges.updateBadge(bot.client.users.get(correct[i]), 'trivia', count);
+                                            let badge = await bot.badges.updateBadge(bot.client.users.get(correct[i]), 'trivia', count);
+                                            if(badge){
+                                                message.channel.send(`Congratulations <@${correct[i]}>, you just earned the ${badge.emoji} **${badge.name}** badge for your ${message.getSetting("prefix")}profile`)
+                                            }
                                         });
                                     }
                                     output += "\n";
