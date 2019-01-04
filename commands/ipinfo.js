@@ -14,6 +14,9 @@ module.exports = {
         if(args.length < 2){
             message.channel.send(`:bangbang: Invalid usage. ${args[0]} ip`);
         }else{
+            if(args[1].indexOf(".") === -1)
+                return message.channel.send(":bangbang: Invalid IP Address.");
+
             request(`http://ipinfo.io/${args[1]}/json`, async function(err, response, body){
                 try{
                     const data = JSON.parse(body);
