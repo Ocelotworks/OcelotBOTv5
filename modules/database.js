@@ -284,6 +284,14 @@ module.exports = {
                     .orderBy("Score", "DESC")
                     .groupBy("user");
             },
+            getServerTriviaLeaderboard: function getServerTriviaLeaderboard(users){
+                return knex.select("user", knex.raw("SUM(difficulty) as 'Score'"), knex.raw("COUNT(*) as 'correct'"))
+                    .from(TRIVIA_TABLE)
+                    .whereIn("user", users)
+                    .andWhere("correct", 1)
+                    .orderBy("Score", "DESC")
+                    .groupBy("user");
+            },
             /**
              * Logs a trivia event
              * @param {UserID} user The user ID
@@ -299,6 +307,9 @@ module.exports = {
                     difficulty: difficulty,
                     server: server
                 }).into(TRIVIA_TABLE);
+            },
+            getTriviaCorrectCount: function(user){
+                  return knex.select(knex.raw("count(*)")).from(TRIVIA_TABLE).where({user})
             },
             /**
              * Log a command
@@ -612,6 +623,18 @@ module.exports = {
             getProfile: function(user){
                 return knex.select().from("ocelotbot_profile").where({id: user}).limit(1);
             },
+            getProfileOption: function(id){
+                return knex.select().from("ocelotbot_profile_options").where({id}).limit(1);
+            },
+            getProfileOptions: function(type){
+                return knex.select().from("ocelotbot_profile_options").where({type, hidden: 0});
+            },
+            getProfileOptionByKey: function(key, type){
+                return knex.select().from("ocelotbot_profile_options").where({key, type}).limit(1);
+            },
+            setProfileOption: function(id, option, value){
+                return knex("ocelotbot_profile").update({[option]: value}).where({id}).limit(1);
+            },
             createProfile: async function(user){
                 return knex.insert({id: user, firstSeen: (await bot.database.getFirstSeen(user))[0]['MIN(timestamp)']}).into("ocelotbot_profile");
             },
@@ -708,7 +731,8 @@ module.exports = {
             },
             addVote: async function(user, referralServer){
                 await knex.insert({user, referralServer}).into("ocelotbot_votes");
-            }
+            },
+
         };
     }
 };
