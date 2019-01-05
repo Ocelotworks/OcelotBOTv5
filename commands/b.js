@@ -48,8 +48,13 @@ module.exports = {
         }, async function OCRResponse(err, resp, body){
             if(err){
                 bot.logger.error(err);
-                bot.raven.captureException(err);
-                message.replyLang("GENERIC_ERROR");
+                if(err.ErrorMessage){
+                    message.channel.send(err.ErrorMessage.join("\n"));
+                }else{
+
+                    bot.raven.captureException(err);
+                    message.replyLang("GENERIC_ERROR");
+                }
             }else{
                 try{
                     let positions = [];
