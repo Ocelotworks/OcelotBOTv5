@@ -406,5 +406,38 @@ module.exports = {
             MANAGE_EMOJIS: "Manage Emojis"
         };
 
+
+        const mainChannelRegex = /main|general|discussion|home|lobby/gi;
+        const secondaryChannelRegex = /bot.*|spam|off-topic/gi;
+        const requiredPermissions = ["SEND_MESSAGES", "READ_MESSAGES", "VIEW_CHANNEL"];
+
+        bot.util.determineMainChannel = function determineMainChannel(guild){
+            if(guild.defaultChannel && guild.defaultChannel.permissionsFor(bot.client.user).has(requiredPermissions, true)){
+                return guild.defaultChannel;
+            }
+
+            let channels = guild.channels;
+
+            let mainChannel = channels.find(function(channel){
+                return channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
+            });
+
+            if(mainChannel){
+                return mainChannel;
+            }
+
+            let secondaryChannel = channels.find(function(channel){
+                return channel.name.match(requiredPermissions) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
+            });
+
+            if(secondaryChannel){
+                return secondaryChannel;
+            }
+
+            return channels.find(function(channel){
+                return channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
+            });
+        }
+
     }
 };
