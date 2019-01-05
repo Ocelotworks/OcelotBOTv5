@@ -51,7 +51,7 @@ module.exports = {
                 bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
                 return;
             }
-            if(isRateLimited(message.author.id, message.guild.id)){
+            if(isRateLimited(message.author.id, message.guild ? message.guild.id : "global")){
                 if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
                     bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
                     message.replyLang("COMMAND_RATELIMIT");
