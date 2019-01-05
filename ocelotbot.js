@@ -43,11 +43,13 @@ function init(){
 
         let origin = `[${file[file.length-1]}${caller.functionName ? "/"+caller.functionName : ""}] `.bold;
 
-        let output = origin+message;
+        // if(typeof message === 'object')
+        //     message = JSON.stringify(message);
+        // let output = origin+message;
         if(error)
-            console.error(`[${bot.client && bot.client.shard ? bot.client.shard.id : "?"}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`+output);
+            console.error(`[${bot.client && bot.client.shard ? bot.client.shard.id : "?"}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`,origin, message);
         else
-            console.log(`[${bot.client && bot.client.shard ? bot.client.shard.id : "?"}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`+output);
+            console.log(`[${bot.client && bot.client.shard ? bot.client.shard.id : "?"}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, message);
     };
 
     bot.logger.error = function error(message){
