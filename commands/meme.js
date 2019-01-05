@@ -127,8 +127,8 @@ module.exports = {
                         return;
                     }
 
-                    if(message.mentions.users.size > 0 && message.getSetting("meme.disallowTags")){
-                        message.channel.send("You're not allowed to tag people in memes.");
+                    if(message.mentions.users.size > 0 || message.mentions.roles.size > 0 || message.content.indexOf("@everyone") > -1 && message.getSetting("meme.disallowTags")){
+                        message.channel.send("You're not allowed to tag people or roles in memes.");
                         return;
                     }
 
