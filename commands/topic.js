@@ -17,8 +17,7 @@ module.exports = {
     commands: ["topic"],
     hidden: true,
     run: async function(message, args, bot){
-        // noinspection EqualityComparisonWithCoercionJS
-        if(!message.guild || message.guild.id != "478950156654346292")return;
+        if(!message.getSetting("ocelotworks"))return;
         const arg = args[1] ? args[1].toLowerCase() : null;
         if(arg === "next"){
             await bot.changeTopic(message);

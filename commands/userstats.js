@@ -49,7 +49,7 @@ module.exports = {
     },
     run: async function run(message, args, bot) {
         // noinspection EqualityComparisonWithCoercionJS
-        if (message.guild && message.guild.id == "478950156654346292") {
+        if (message.getSetting("ocelotworks")) {
             await module.exports.ocelotStats(message, args, bot);
         } else if (!args[1]) {
             message.replyLang("USERSTATS_NO_USER");

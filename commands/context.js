@@ -7,8 +7,7 @@ module.exports = {
     commands: ["context", "ctx"],
     hidden: true,
     run: async function(message, args, bot){
-        // noinspection EqualityComparisonWithCoercionJS
-        if(message.guild.id != "478950156654346292")return;
+        if(!message.getSetting("ocelotworks"))return;
         message.channel.startTyping();
         const topic = message.channel.topic;
         const format = topic.substring(1).split("> ");

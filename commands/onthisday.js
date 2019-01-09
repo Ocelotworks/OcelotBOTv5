@@ -7,8 +7,7 @@ module.exports = {
     commands: ["onthisday", "otd"],
     hidden: true,
     run: async function(message, args, bot){
-        // noinspection EqualityComparisonWithCoercionJS
-        if(!message.guild || message.guild.id != "478950156654346292")return;
+        if(!message.getSetting("ocelotworks"))return;
 
         const now = new Date();
 
