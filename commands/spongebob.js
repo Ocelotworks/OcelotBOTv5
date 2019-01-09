@@ -18,7 +18,7 @@ module.exports = {
             message.channel.send(output, {
                 embed: {
                     image: {
-                        url: "https://imgflip.com/s/meme/Mocking-Spongebob.jpg"
+                        url: message.getSetting("spongebob.url")
                     }
                 }
             });
