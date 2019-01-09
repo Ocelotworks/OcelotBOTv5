@@ -122,21 +122,21 @@ module.exports = {
              const now = new Date();
              if(now-lastPresenceUpdate>100000) {
                  lastPresenceUpdate = now;
-                 request.post({
-                     headers: {
-                         "Authorization": config.get("Discord.discordBotsKey"),
-                         "Content-Type": "application/json"
-                     },
-                     url: "https://bots.discord.pw/api/bots/146293573422284800/stats",
-                     json: true,
-                     body: {
-                         server_count: bot.client.guilds.size,
-                         shard_id: bot.client.shard.id,
-                         shard_count: bot.client.shard.count
-                     }
-                 }, function (err, resp, body) {
-                     if(err)bot.raven.captureException(err);
-                 });
+                 // request.post({
+                 //     headers: {
+                 //         "Authorization": config.get("Discord.discordBotsKey"),
+                 //         "Content-Type": "application/json"
+                 //     },
+                 //     url: "https://bots.discord.pw/api/bots/146293573422284800/stats",
+                 //     json: true,
+                 //     body: {
+                 //         server_count: bot.client.guilds.size,
+                 //         shard_id: bot.client.shard.id,
+                 //         shard_count: bot.client.shard.count
+                 //     }
+                 // }, function (err, resp, body) {
+                 //     if(err)bot.raven.captureException(err);
+                 // });
                  request.post({
                      headers: {
                          "Authorization": config.get("Discord.discordBotsOrgKey"),
@@ -153,15 +153,77 @@ module.exports = {
                      if(err)bot.raven.captureException(err);
                  });
 
-                 if((new Date()).getMonth() >= 10) {
-                     const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-                     bot.client.user.setPresence({
-                         game: {
-                             name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
-                             type: "LISTENING"
-                         }
-                     });
-                 }
+                 request.post({
+                     headers: {
+                         "Authorization": config.get("Discord.discordBotsKey"),
+                         "Content-Type": "application/json"
+                     },
+                     url: "https://discord.bots.gg/api/v1/bots/146293573422284800/stats",
+                     json: true,
+                     body: {
+                         guildCount: bot.client.guilds.size,
+                         shardCount: bot.client.shard.count,
+                         shardId: bot.client.shard.id,
+                     }
+                 }, function (err, resp, body) {
+                     if(err)bot.raven.captureException(err);
+                 });
+
+                 const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+
+                 request.post({
+                     headers: {
+                         "Authorization": config.get("Discord.discordServicesKey"),
+                         "Content-Type": "application/json"
+                     },
+                     url: "https://discord.services/api/bots/146293573422284800",
+                     json: true,
+                     body: {
+                         server_count: serverCount,
+                     }
+                 }, function (err, resp, body) {
+                     if(err)bot.raven.captureException(err);
+                 });
+
+                 request.post({
+                     headers: {
+                         "Authorization": config.get("Discord.botsOnDiscordKey"),
+                         "Content-Type": "application/json"
+                     },
+                     url: "https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds",
+                     json: true,
+                     body: {
+                         guildCount: serverCount,
+                     }
+                 }, function (err, resp, body) {
+                     if(err)bot.raven.captureException(err);
+                 });
+
+                 request.post({
+                     headers: {
+                         "Authorization": config.get("Discord.discordBotWorldKey"),
+                         "Content-Type": "application/json"
+                     },
+                     url: "https://discordbot.world/api/bot/146293573422284800/stats",
+                     json: true,
+                     body: {
+                         guild_count: serverCount,
+                         shard_count: bot.client.shard.count
+                     }
+                 }, function (err, resp, body) {
+                     if(err)bot.raven.captureException(err);
+                 });
+
+
+
+
+
+                 bot.client.user.setPresence({
+                     game: {
+                         name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
+                         type: "LISTENING"
+                     }
+                 });
              }
              try {
                  let lang = "en-gb";
