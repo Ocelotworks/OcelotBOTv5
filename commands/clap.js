@@ -17,7 +17,7 @@ module.exports = {
        if(!args[1]){
             message.channel.send("You must supply some text.");
        }else{
-           message.channel.send(message.content.substring(message.content.indexOf(args[1])).replace(/ /g, "👏"))
+           message.channel.send(message.content.substring(message.content.indexOf(args[1])).replace(/ /g, message.getConfig("clap.emoji")))
        }
     }
 };
