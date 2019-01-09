@@ -80,7 +80,7 @@ module.exports = {
 
 
         if(message.guild.ownerID === message.author.id || message.member.roles.find(function(role){
-            return role.name.toLowerCase() === "bot master" || role.name.toLowerCase() === "bot controller";
+            return role.name.toLowerCase() === "bot master" || role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
         })){
             if(!args[1]){
                 message.channel.send(`:bangbang: Invalid usage. ${args[0]} list/set/help`);
@@ -115,7 +115,7 @@ module.exports = {
                 }
             }
         }else{
-            message.channel.send(":bangbang: You need to have the role 'Bot Controller' to use this command.");
+            message.channel.send(`:bangbang: You need to have the role '${message.getSetting("settings.role")}' to use this command.`);
         }
     }
 };
