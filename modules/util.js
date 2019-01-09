@@ -373,6 +373,8 @@ module.exports = {
             return i + "th";
         };
 
+
+
         bot.util.permissionsMap = {
             ADMINISTRATOR: "Administrator",
             CREATE_INSTANT_INVITE: "Create Instant Invite",
@@ -437,7 +439,24 @@ module.exports = {
             return channels.find(function(channel){
                 return channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
             });
-        }
+        };
+
+        bot.util.getUserFromMention = function getUserFromMention(mention) {
+            if (!mention) return null;
+
+            if (mention.startsWith('<@') && mention.endsWith('>')) {
+                mention = mention.slice(2, -1);
+
+                if (mention.startsWith('!')) {
+                    mention = mention.slice(1);
+                }
+
+                return bot.client.users.get(mention);
+            }
+
+            return null;
+
+        };
 
     }
 };
