@@ -4,7 +4,7 @@ module.exports = {
   categories: ["tools", "fun"],
   commands: ["8ball", "magic8ball"],
   run: function run(message, args, bot) {
-    message.replyLang(args.length < 2 ? "8BALL_NO_QUESTION" : `8BALL_RESPONSE_${bot.rig8ball || bot.util.intBetween(0,14)}`);
+    message.replyLang(args.length < 2 ? "8BALL_NO_QUESTION" : `8BALL_RESPONSE_${message.getSetting("8ball.rig") || bot.util.intBetween(0,14)}`);
   },
   test: function(test){
       test('8ball with args', function(t){
