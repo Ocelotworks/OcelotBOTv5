@@ -40,6 +40,16 @@ module.exports = {
                 }
                 return;
             }
+            const channelRestriction = message.getSetting(`${command}.channelRestriction`);
+            if(channelRestriction && channelRestriction.indexOf(message.channel.id) === -1){
+                if(message.getSetting("sendDisabledMessage") === "true") {
+                    const dm = await message.author.createDM();
+                    dm.send(`${command} is disabled in that channel`);
+                    //TODO: COMMAND_DISABLED_CHANNEL
+                    bot.logger.log(`${command} is disabled in that channel (${message.channel.id})`);
+                }
+                return;
+            }
             for(let i = 0; i < args.length; i++){
                 if(!args[i]){
                     bot.logger.log("Removing argument "+i);
