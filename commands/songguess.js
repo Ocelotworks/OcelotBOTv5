@@ -298,7 +298,7 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
         collector.on('end', function collectorEnd() {
             console.log("Collection Ended");
             if(!won)
-                message.channel.replyLang("SONGGUESS_OVER", {title});
+                message.replyLang("SONGGUESS_OVER", {title});
             if(timeouts[voiceChannel.id]) {
                 bot.logger.log("Clearing timeout");
                 clearTimeout(timeouts[voiceChannel.id])
