@@ -7,8 +7,27 @@ module.exports = {
 
         bot.util = {};
 
-
-        bot.util.vowels = ["a", "e", "i", "o", "u","ａ","ｅ","ｉ","ｏ","ｕ","Ａ","Ｅ","Ｉ","Ｏ","Ｕ"];
+        //Someone is definitely going to tell me a different way of doing this
+        bot.util.vowels = [ "a", "e", "i", "o", "u",
+                            "ａ","ｅ","ｉ","ｏ","ｕ",
+                            "Ａ","Ｅ","Ｉ","Ｏ","Ｕ",
+                            "𝕒","𝕖","𝕚","𝕠","𝕦",
+                            "ⓐ","ⓔ","ⓘ","ⓞ","ⓤ",
+                            "🅐","🅔","🅘","🅞","🅤",
+                            "𝐚","𝐞","𝐢","𝐨","𝐮",
+                            "𝖆","𝖊","𝖎","𝖔","𝖚",
+                            "𝒂","𝒆","𝒊","𝒐","𝒖",
+                            "𝓪","𝓮","𝓲","𝓸","𝓾",
+                            "𝖺","𝖾","𝗂","𝗈","𝗎",
+                            "𝗮","𝗲","𝗶","𝗼","𝘂",
+                            "𝙖","𝙚","𝙞","𝙤","𝙪",
+                            "𝘢","𝘦","𝘪","𝘰","𝘶",
+                            "⒜","⒠","⒤","⒪","⒰",
+                            "🇦","🇪","🇮","🇴","🇺",
+                            "🄰","🄴","🄸","🄾","🅄",
+                            "🅰","🅴","🅸","🅾","🆄",
+                            "A","ɘ","i","o","U"
+        ];
 
         /**
          * Returns a random number between `min` and `max`
@@ -414,14 +433,14 @@ module.exports = {
         const requiredPermissions = ["SEND_MESSAGES", "READ_MESSAGES", "VIEW_CHANNEL"];
 
         bot.util.determineMainChannel = function determineMainChannel(guild){
-            if(guild.defaultChannel && guild.defaultChannel.permissionsFor(bot.client.user).has(requiredPermissions, true)){
+            if(guild.defaultChannel && guild.defaultChannel.type === "text" && guild.defaultChannel.permissionsFor(bot.client.user).has(requiredPermissions, true)){
                 return guild.defaultChannel;
             }
 
             let channels = guild.channels;
 
             let mainChannel = channels.find(function(channel){
-                return channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
+                return channel.type === "text" && channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
             if(mainChannel){
@@ -429,7 +448,7 @@ module.exports = {
             }
 
             let secondaryChannel = channels.find(function(channel){
-                return channel.name.match(requiredPermissions) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
+                return channel.type === "text" && channel.name.match(requiredPermissions) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
             if(secondaryChannel){
@@ -437,7 +456,7 @@ module.exports = {
             }
 
             return channels.find(function(channel){
-                return channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
+                return channel.type === "text" &&channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
             });
         };
 
