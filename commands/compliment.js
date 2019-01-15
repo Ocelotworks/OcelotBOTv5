@@ -1,7 +1,7 @@
 module.exports = {
     name: "Compliment",
     usage: "compliment <person>",
-    categories: ["fun"],
+    categories: ["nsfw", "fun"],
     rateLimit: 10,
     commands: ["compliment", "complement", "complament"],
     init: function(bot){
