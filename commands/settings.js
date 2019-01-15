@@ -83,7 +83,7 @@ module.exports = {
             return role.name.toLowerCase() === "bot master" || role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
         })){
             if(!args[1]){
-                message.channel.send(`:bangbang: Invalid usage. ${args[0]} list/set/help`);
+                message.channel.send(`:bangbang: Invalid usage. ${args[0]} list/set/help\nOr visit the Dashboard: https://ocelot.xyz/dash/\``);
             }else{
                 let arg =  args[1].toLowerCase();
                 if(arg === "list"){
@@ -112,10 +112,12 @@ module.exports = {
                     }else{
                         message.channel.send(`:bangbang: You must supply a setting to get help on. Try ${args[0]} list`);
                     }
+                }else{
+                    message.channel.send(`:bangbang: Invalid usage. ${args[0]} list/set/help\nOr visit the Dashboard: https://ocelot.xyz/dash/`)
                 }
             }
         }else{
-            message.channel.send(`:bangbang: You need to have the role '${message.getSetting("settings.role")}' to use this command.`);
+            message.channel.send(`:bangbang: You need to have the role '${message.getSetting("settings.role")}' to use this command.\nOr visit the Dashboard: https://ocelot.xyz/dash/\``);
         }
     }
 };
