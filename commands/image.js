@@ -25,8 +25,11 @@ module.exports = {
                 embed.setAuthor(message.author.username, message.author.avatarURL);
                 embed.setTimestamp(new Date());
                 embed.setTitle(`Image results for '${query}'`);
-                embed.setImage(images[0].thumbnail.url || images[0].url);
-                embed.setDescription(images[0].title);
+                if(message.getSetting("image.useThumbnails"))
+                    embed.setImage(images[0].thumbnail.url);
+                else
+                    embed.setImage(images[0].url);
+                embed.setDescription(images[0].description);
                 embed.setFooter(`Page 1/${images.length}`);
                 let index = 0;
                 let sentMessage = await message.channel.send("", embed);
@@ -44,8 +47,11 @@ module.exports = {
                     if (index < 0) index = images.length - 1;
                     if (index > images.length - 1) index = 0;
 
-                    embed.setImage(images[index].thumbnail.url || images[index].url);
-                    embed.setDescription(images[index].title);
+                    if(message.getSetting("image.useThumbnails"))
+                        embed.setImage(images[index].thumbnail.url);
+                    else
+                        embed.setImage(images[index].url);
+                    embed.setDescription(images[index].description);
                     embed.setFooter(`Page ${index+1}/${images.length}`);
                     sentMessage.edit("", embed);
 
