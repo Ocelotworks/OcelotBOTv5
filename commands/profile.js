@@ -5,7 +5,7 @@ const wrap = require('word-wrap');
 module.exports = {
     name: "User Profile",
     usage: "profile help",
-    categories: ["image", "fun"],
+    categories: ["image"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["profile", "userprofile"],

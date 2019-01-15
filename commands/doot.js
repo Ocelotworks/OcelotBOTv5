@@ -5,7 +5,7 @@ module.exports = {
     name: "Doot Doot",
     usage: "doot",
     rateLimit: 50,
-    categories: ["memes", "fun", "voice"],
+    categories: ["memes", "voice"],
     requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["doot", "toot"],
     run:  async function run(message, args, bot){

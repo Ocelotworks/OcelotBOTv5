@@ -2,7 +2,7 @@ const christmas = new Date("25 December 2019");
 module.exports = {
     name: "Christmas Countdown",
     usage: "christmas",
-    categories: ["tools", "fun"],
+    categories: ["tools"],
     commands: ["xmas", "christmas"],
     run: function run(message, args, bot) {
        const diff = (christmas-(new Date()))/1000;

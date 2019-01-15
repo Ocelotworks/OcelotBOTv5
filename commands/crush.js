@@ -6,7 +6,7 @@ module.exports = {
     name: "Crush",
     usage: "crush <user or url>",
     rateLimit: 10,
-    categories: ["image", "fun", "memes"],
+    categories: ["image", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["crush"],
     run: async function run(message, args, bot){

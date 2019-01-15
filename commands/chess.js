@@ -42,7 +42,7 @@ module.exports = {
     usage: "chess start <@player>/<move>",
     accessLevel: 0,
     commands: ["chess", "playchess"],
-    categories: ["games", "fun"],
+    categories: ["games"],
     run: function run(message, args, bot){
         const subCommand = args[1];
         bot.raven.captureBreadcrumb({

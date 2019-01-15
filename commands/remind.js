@@ -85,7 +85,7 @@ module.exports = {
         let at = null;
         if(chronoParse && chronoParse.start)
             at = chronoParse.start.date();
-        
+
         let reminder = null;
         if(!rargs || rargs.length < 3){
             if(chronoParse && chronoParse.text){
