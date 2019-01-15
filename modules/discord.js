@@ -214,6 +214,20 @@ module.exports = {
                      if(err)bot.raven.captureException(err);
                  });
 
+                 request.post({
+                     headers: {
+                         "Authorization": config.get("Discord.discordBoatsClubKey"),
+                         "Content-Type": "application/json"
+                     },
+                     url: "https://discordboats.club/api/public/bot/stats",
+                     json: true,
+                     body: {
+                         server_count: serverCount,
+                     }
+                 }, function (err, resp, body) {
+                     if(err)bot.raven.captureException(err);
+                 });
+
 
 
 
@@ -231,17 +245,18 @@ module.exports = {
                      lang = "en-us";
                  await bot.database.addServer(guild.id, guild.owner_id, guild.name, guild.joined_at, lang);
 
-
-                 let mainChannel = bot.util.determineMainChannel(guild);
-                 if(mainChannel){
-                     bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
-                     let embed = new Discord.RichEmbed();
-                     embed.setColor(bot.config.get("global", "welcome.embedColour"));
-                     embed.setTitle("Welcome to OcelotBOT!");
-                     embed.setDescription("You can find my commands [here](https://ocelot.xyz/#commands) or by typing !help.");
-                     embed.addField("Administrators", "You can change the bot's settings by typing !settings or by using the [dashboard](https://ocelot.xyz/dash/)");
-                     embed.addField("Issues?", "If you have issues or suggestions, type !feedback or join our [support server](https://discord.gg/7YNHpfF).");
-                     mainChannel.send("", embed);
+                 if(bot.config.get("global", "welcome.enabled") && bot.config.get("global", "welcome.enabled") === "true") {
+                     let mainChannel = bot.util.determineMainChannel(guild);
+                     if (mainChannel) {
+                         bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
+                         let embed = new Discord.RichEmbed();
+                         embed.setColor(bot.config.get("global", "welcome.embedColour"));
+                         embed.setTitle("Welcome to OcelotBOT!");
+                         embed.setDescription("You can find my commands [here](https://ocelot.xyz/#commands) or by typing !help.");
+                         embed.addField("Administrators", "You can change the bot's settings by typing !settings or by using the [dashboard](https://ocelot.xyz/dash/)");
+                         embed.addField("Issues?", "If you have issues or suggestions, type !feedback or join our [support server](https://discord.gg/7YNHpfF).");
+                         mainChannel.send("", embed);
+                     }
                  }
 
              }catch(e){
