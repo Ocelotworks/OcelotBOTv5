@@ -9,14 +9,14 @@ module.exports = {
         //     supportInvite: "https://discord.gg/7YNHpfF"
         // });
 
-        message.channel.send(`Invite the bot to your server: https://discordapp.com/oauth2/authorize?client_id=171640650721132544&scope=bot&permissions=52288\nJoin the support server: https://discord.gg/7YNHpfF`)
+        message.channel.send(`Invite the bot to your server: https://ocelot.xyz/invite\nJoin the support server: https://discord.gg/7YNHpfF`)
     },
     test: function(test){
         test('invite', function(t){
             const message = {
                 channel: {
                     send: function(text){
-                        t.is(text,`Invite the bot to your server: https://discordapp.com/oauth2/authorize?client_id=171640650721132544&scope=bot&permissions=52288\nJoin the support server: https://discord.gg/7YNHpfF`);
+                        t.is(text,`Invite the bot to your server: https://ocelot.xyz/invite\nJoin the support server: https://discord.gg/7YNHpfF`);
                     }
                 }
             };
