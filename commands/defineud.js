@@ -6,7 +6,7 @@ const request = require('request');
 module.exports = {
     name: "Urban Dictionary",
     usage: "defineud <word>",
-    categories: ["tools", "fun"],
+    categories: ["tools", "fun", "nsfw"],
     commands: ["defineud", "ud", "urban", "urbandictionary"],
     run: function run(message, args, bot) {
         if(!args[1]){
