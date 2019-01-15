@@ -16,7 +16,7 @@ module.exports = {
                         bot.lastMessageCounts[message.channel.id] = 1;
                     if(message.getSetting("autorespond.threshold") <= 1)return;
                     if(bot.lastMessageCounts[message.channel.id] >= message.getSetting("autorespond.threshold")){
-                        if(!message.author.bot && !message.content.match(/@everyone|@here|raid|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
+                        if(!message.author.bot && !message.content.match(/@everyone|pls|@here|raid|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
                             bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
                             let matchableContent = message.content.toLowerCase();
                             if(matchableContent.indexOf("ocelotbot") > -1){
