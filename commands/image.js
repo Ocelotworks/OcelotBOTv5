@@ -21,11 +21,15 @@ module.exports = {
             message.channel.startTyping();
             try {
                 let images = await client.search(query, {safe: message.channel.nsfw ? "off" : "high"});
+                if(images.length === 0){
+                    message.channel.send(":warning: No results. "+(message.channel.nsfw && "If this is a NSFW search, try it in a NSFW channel."));
+                    return;
+                }
                 let embed = new Discord.RichEmbed();
                 embed.setAuthor(message.author.username, message.author.avatarURL);
                 embed.setTimestamp(new Date());
                 embed.setTitle(`Image results for '${query}'`);
-                if(message.getSetting("image.useThumbnails"))
+                if(message.getSetting("image.useThumbnails") || !images[0].url)
                     embed.setImage(images[0].thumbnail.url);
                 else
                     embed.setImage(images[0].url);
