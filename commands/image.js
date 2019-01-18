@@ -69,13 +69,14 @@ module.exports = {
                     sentMessage.clearReactions();
                 })
             }catch(e){
+                message.replyLang("GENERIC_ERROR");
                 console.log(e);
                 bot.raven.captureException(e);
             }finally{
                 message.channel.stopTyping(true);
             }
         }else{
-            message.channel.send("You must supply a ")
+            message.channel.send(":bangbang: You must supply a search query. Try **"+args[0]+" cute puppies**")
         }
     }
 };
