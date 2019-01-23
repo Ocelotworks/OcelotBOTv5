@@ -53,6 +53,25 @@ module.exports = {
                 }
             }
         },
+        seriousporn: {
+            name: "Serious Porn Suggest mode",
+            help: "Give actual suggestions with !pornsuggest instead of joke ones.",
+            setting: "seriousporn",
+            value: "true or false",
+            format: function(input){
+                return `\`${input}\``
+            },
+            onSet: async function(message, args, bot){
+                if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
+                    const bool = bools[args[3].toLowerCase()];
+                    await bot.database.setSetting(message.guild.id, "pornsuggest.serious", bool);
+                    await bot.config.reloadCacheForServer(message.guild.id);
+                    message.channel.send(`${bool ? "Enabled" : "Disabled"} serious porn suggestions.`);
+                }else{
+                    message.channel.send(`Try **${args[0]} set seriousporn false** to serious porn suggestions off.`);
+                }
+            }
+        },
         lang: {
             name: "Bot Language",
             help: "Choose the language OcelotBOT should respond in. Check !languages for a list",
