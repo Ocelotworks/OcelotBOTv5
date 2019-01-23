@@ -220,7 +220,25 @@ module.exports = {
             }
         }
 
+
+
         const timeMessage = time.toString();
-        message.replyLang("TIME_MESSAGE", {time: timeMessage.substring(0, timeMessage.indexOf("GMT"))});
+
+        if(timeMessage === "Invalid Date"){
+            message.channel.send("https://i.imgur.com/eAhW2Sy.png");
+        }else {
+
+            let twelveHourTime = time.getHours() < 12 ? time.getHours() : time.getHours() - 12;
+
+            let emoji = `:clock${twelveHourTime}${(time.getMinutes() >= 30) ? "30" : ""}:`;
+
+            if (twelveHourTime === 4 && time.getMinutes() === 20) emoji = "<:weed:478962396296380422>";
+            if (twelveHourTime === 9 && time.getMinutes() === 11) emoji = ":airplane: :office: :office:";
+
+            message.replyLang("TIME_MESSAGE", {
+                time: timeMessage.substring(0, timeMessage.indexOf("GMT")),
+                emoji: emoji
+            });
+        }
     }
 };
