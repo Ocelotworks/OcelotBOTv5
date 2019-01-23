@@ -65,7 +65,7 @@ module.exports = {
                 }, {
                     time: 60000
                 }).then(function removeReactions() {
-                    bot.logger.log(`Reactions on !defineud ${message.id} have expired.`);
+                    bot.logger.log(`Reactions on !image ${message.id} have expired.`);
                     sentMessage.clearReactions();
                 })
             }catch(e){
