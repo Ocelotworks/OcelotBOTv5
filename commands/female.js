@@ -29,6 +29,7 @@ module.exports = {
                     message.channel.stopTyping();
                 }catch(e){
                     bot.raven.captureException(e);
+                    message.replyLang("GENERIC_ERROR");
                 }finally{
                     message.channel.stopTyping();
                 }

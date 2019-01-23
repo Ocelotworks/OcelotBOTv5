@@ -28,6 +28,7 @@ module.exports = {
                     message.channel.send("", attachment);
                     message.channel.stopTyping();
                 }catch(e){
+                    message.replyLang("GENERIC_ERROR");
                     bot.raven.captureException(e);
                 }finally{
                     message.channel.stopTyping();
