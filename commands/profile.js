@@ -212,7 +212,12 @@ module.exports = {
                 }else{
                     message.channel.send(`:warning: Invalid frame. Try ${args[0]} frames`);
                 }
+            }else{
+                message.channel.send(`:bangbang: Invalid usage. ${args[0]} set frame/board/background/tagline Or try **${args[0]} help**`);
             }
+        }else {
+            message.channel.send(`:bangbang: Invalid usage. Try: ${args[0]} help`);
         }
     }
+
 };
