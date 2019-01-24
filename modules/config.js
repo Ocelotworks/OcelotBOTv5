@@ -62,10 +62,16 @@ module.exports = {
         let cacheReloads = [];
 
         process.on("message", function reloadConfig(msg){
-            if(msg.type === "reloadConfig" && msg.payload === "global" || bot.client.guilds.has(msg.payload)){
+            if(msg.type === "reloadConfig" && (msg.payload === "global" ||  msg.payload == bot.client.shard.id || bot.client.guilds.has(msg.payload))){
                 if(cacheReloads[msg.payload])return;
+
                 cacheReloads[msg.payload] = setTimeout(function(){
-                    bot.config.reloadCacheForServer(msg.payload);
+                    if(msg.payload === "global" || msg.payload == bot.client.shard.id){
+                        bot.config.loadGlobalCache();
+                    }else{
+                        bot.config.reloadCacheForServer(msg.payload);
+                    }
+
                     delete cacheReloads[msg.payload];
                 }, 5000);
                 bot.logger.log("Broker requested config reload for "+msg.payload);
