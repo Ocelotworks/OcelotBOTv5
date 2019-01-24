@@ -37,9 +37,6 @@ module.exports = {
     },
     run: function run(message, args, bot) {
         if(message.getSetting("pornsuggest.serious") && message.getSetting("pornsuggest.serious") === "1"){
-            if(!message.channel.nsfw)
-                return message.channel.send(":warning: You must be in a NSFW channel or turn serious mode off to use this command.\n_You can do this with !settings set seriousporn false_");
-
             if(!args[1])
                 return message.channel.send(":bangbang: You must enter a search term.");
 

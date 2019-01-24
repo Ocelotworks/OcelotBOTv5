@@ -53,6 +53,25 @@ module.exports = {
                 }
             }
         },
+        bypassnsfw: {
+            name: "Bypass NSFW check",
+            help: "Allow NSFW commands in any channel regardless of NSFW status",
+            setting: "bypassnsfw",
+            value: "true or false",
+            format: function(input){
+                return `\`${input}\``
+            },
+            onSet: async function(message, args, bot){
+                if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
+                    const bool = bools[args[3].toLowerCase()];
+                    await bot.database.setSetting(message.guild.id, "bypassNSFWCheck", bool);
+                    await bot.config.reloadCacheForServer(message.guild.id);
+                    message.channel.send(`${bool ? "Enabled" : "Disabled"} NSFW bypass.`);
+                }else{
+                    message.channel.send(`Try **${args[0]} set bypassnsfw false** to turn NSFW commands off.`);
+                }
+            }
+        },
         seriousporn: {
             name: "Serious Porn Suggest mode",
             help: "Give actual suggestions with !pornsuggest instead of joke ones.",
@@ -102,7 +121,7 @@ module.exports = {
             return role.name.toLowerCase() === "bot master" || role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
         })){
             if(!args[1]){
-                message.channel.send(`:bangbang: Invalid usage. ${args[0]} list/set/help\nOr visit the Dashboard: https://ocelot.xyz/dash/\``);
+                message.channel.send(`:bangbang: Invalid usage. ${args[0]} list/set/help\nOr visit the Dashboard: https://ocelot.xyz/dash/`);
             }else{
                 let arg =  args[1].toLowerCase();
                 if(arg === "list"){
@@ -136,7 +155,7 @@ module.exports = {
                 }
             }
         }else{
-            message.channel.send(`:bangbang: You need to have the role '${message.getSetting("settings.role")}' to use this command.\nOr visit the Dashboard: https://ocelot.xyz/dash/\``);
+            message.channel.send(`:bangbang: You need to have the role '${message.getSetting("settings.role")}' to use this command.`);
         }
     }
 };
