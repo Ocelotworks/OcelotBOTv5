@@ -492,6 +492,9 @@ module.exports = {
                     query = query.andWhere("message", "like", `%${phrase}%`);
                 return query;
             },
+            getPhraseCount: function(phrase){
+                return knex.select(knex.raw("COUNT(*)")).from("Messages").where("message", "like", `%${phrase}%`);
+            },
             /**
              * Gets the database stats
              * @returns {Promise.<{servers: Number, leftServers: Number, memes: Number, reminders: Number, commands: Number}>}

@@ -345,7 +345,7 @@ module.exports = {
             const targetMessage = previousMessages.find((previousMessage) =>{
                 if(previousMessage.content.startsWith("http"))return true;
                 if(previousMessage.attachments && previousMessage.attachments.size > 0)return true;
-                return (previousMessage.embeds && previousMessage.embeds.size > 0);
+                return (previousMessage.embeds && previousMessage.embeds.length > 0);
             });
             if(targetMessage){
                if(targetMessage.content.startsWith("http")) {
@@ -353,8 +353,10 @@ module.exports = {
                }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
                    const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
                    return targetAttachment.url || targetAttachment.proxyURL;
-               }else if(targetMessage.embeds && targetMessage.embeds.size > 0){
-                    const targetEmbed = targetMessage.embeds.find((embed)=> embed.image && (embed.image.url || embed.image.proxyURL));
+               }else if(targetMessage.embeds && targetMessage.embeds.length > 0){
+                    const targetEmbed = targetMessage.embeds.find(function (embed) {
+                        return embed.image && (embed.image.url || embed.image.proxyURL)
+                   });
                     return targetEmbed.image.url || targetEmbed.image.proxyURL;
                }
                return null;

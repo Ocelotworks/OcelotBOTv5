@@ -45,6 +45,8 @@ module.exports = {
                     message.channel.send("_hot damn_");
                 }else if(message.content.toLowerCase() === "shitpost"){
                     message.channel.send("A days power in half an hour");
+                }else if(message.content.toLowerCase() === "test"){
+                    message.channel.send("icles");
                 }
 
            }
