@@ -348,18 +348,20 @@ module.exports = {
                 return (previousMessage.embeds && previousMessage.embeds.length > 0);
             });
             if(targetMessage){
-               if(targetMessage.content.startsWith("http")) {
-                   return targetMessage.content.split(" ")[0];
-               }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
-                   const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
-                   return targetAttachment.url || targetAttachment.proxyURL;
-               }else if(targetMessage.embeds && targetMessage.embeds.length > 0){
-                    const targetEmbed = targetMessage.embeds.find(function (embed) {
-                        return embed.image && (embed.image.url || embed.image.proxyURL)
-                   });
-                    return targetEmbed.image.url || targetEmbed.image.proxyURL;
-               }
-               return null;
+                if(targetMessage.content.startsWith("http")) {
+                    return targetMessage.content.split(" ")[0];
+                }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
+                    const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
+                    if(!targetAttachment)return null;
+                    return targetAttachment.url || targetAttachment.proxyURL;
+                }else if(targetMessage.embeds && targetMessage.embeds.length > 0){
+                     const targetEmbed = targetMessage.embeds.find(function (embed) {
+                         return embed.image && (embed.image.url || embed.image.proxyURL)
+                    });
+                     if(!targetEmbed)return null;
+                     return targetEmbed.image.url || targetEmbed.image.proxyURL;
+                }
+                return null;
             }else{
                 return null;
             }
