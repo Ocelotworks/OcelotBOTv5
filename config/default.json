@@ -62,9 +62,11 @@
     "statistics",
     "bans",
     "commands",
+    "custom",
     "ocelotworks",
     "seasonal",
-    "autorespond"
+    "autorespond",
+    "botlists"
   ],
   "Seasonal": [
     {
