@@ -746,6 +746,9 @@ module.exports = {
             },
             deleteBadgeFromSeries: async function(user, series){
                 await knex.raw(`delete s.* from \`ocelotbot_badge_assignments\` s INNER JOIN ocelotbot_badges ON ocelotbot_badges.id = s.badge where \`user\` = '${user}' and \`series\` = '${series}'`);
+            },
+            getSongList: function(){
+                return knex.select("name", "title", "path").from("petify.songs").whereNotNull("mbid").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
             }
         };
     }

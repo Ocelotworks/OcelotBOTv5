@@ -19,26 +19,10 @@ module.exports = {
     categories: ["games", "voice"],
     requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["guess", "guesssong", "songguess", "namethattune", "quess", "gues"],
-    init: function init(bot){
+    init: async function init(bot){
         bot.logger.log("Loading song list...");
-        request("https://unacceptableuse.com/petify/api/song/", function getPetifySongs(err, resp, body){
-            if(err){
-                bot.logger.log("Unable to get song list from petify");
-                bot.logger.log(err);
-            }else{
-                try{
-                    const data = JSON.parse(body);
-                    bot.logger.log(data.length+" songs");
-                    songList = data;
-                    bot.util.shuffle(songList);
-                }catch(e){
-                    bot.logger.log("Error parsing petify response");
-                    bot.raven.captureException(e);
-                    console.log(e);
-                }
-            }
-        })
 
+        songList = await bot.database.getSongList();
     },
     run:  async function run(message, args, bot){
         if(args[1] && args[1].toLowerCase() === "stop"){
