@@ -165,24 +165,35 @@ module.exports = {
                 async.eachSeries(files, function loadCommands(command, callback) {
                     if (!fs.lstatSync("commands/" + command).isDirectory()) {
                         let loadedCommand = require("../commands/" + command);
-                        if (loadedCommand.init)
-                            loadedCommand.init(bot);
+                        if (loadedCommand.init) {
+                            try {
+                                loadedCommand.init(bot);
+                            }catch(e){
+                                bot.raven.captureException(e);
+                                bot.logger.error(e);
+                                if(bot.client && bot.client.shard){
+                                    bot.client.shard.send({type: "warning", payload: {
+                                        id: "badInit-"+command,
+                                        message: `Couldn't initialise command ${command}:\n${e.message}`
+                                    }});
+                                }
+                            }
+                        }
                         bot.logger.log(`Loaded command ${loadedCommand.name}`);
 
                         for (let i in loadedCommand.commands) {
                             if (loadedCommand.commands.hasOwnProperty(i)) {
                                 const commandName = loadedCommand.commands[i];
                                 bot.commands[commandName] = loadedCommand.run;
-                                    bot.commandUsages[commandName] = {
-                                        id: command,
-                                        name: loadedCommand.name,
-                                        usage: loadedCommand.usage,
-                                        requiredPermissions: loadedCommand.requiredPermissions,
-                                        hidden: loadedCommand.hidden,
-                                        categories: loadedCommand.categories,
-                                        rateLimit: loadedCommand.rateLimit
-                                    };
-
+                                bot.commandUsages[commandName] = {
+                                    id: command,
+                                    name: loadedCommand.name,
+                                    usage: loadedCommand.usage,
+                                    requiredPermissions: loadedCommand.requiredPermissions,
+                                    hidden: loadedCommand.hidden,
+                                    categories: loadedCommand.categories,
+                                    rateLimit: loadedCommand.rateLimit
+                                };
                             }
                         }
                     }
