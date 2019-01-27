@@ -54,21 +54,25 @@ module.exports = {
         } else if (!args[1]) {
             message.replyLang("USERSTATS_NO_USER");
         } else {
-            const target = args[1].replace(/[<>@!]/g, "");
-            try {
-                message.channel.startTyping();
-                let result = await bot.database.getUserStats(target);
-                if (!result[0]) {
-                    message.replyLang("USERSTATS_NO_COMMANDS");
-                } else {
-                    message.replyLang("USERSTATS_MESSAGE", {target: target, count: result[0].commandCount});
+            if(message.mentions.users.size > 0){
+                const target = message.mentions.users.firstKey();
+                try {
+                    message.channel.startTyping();
+                    let result = await bot.database.getUserStats(target);
+                    if (!result[0] || result[0].commandCount === 0) {
+                        message.replyLang("USERSTATS_NO_COMMANDS");
+                    } else {
+                        message.replyLang("USERSTATS_MESSAGE", {target: target, count: result[0].commandCount});
+                    }
+
+                    message.channel.stopTyping();
+
+                } catch (e) {
+                    bot.raven.captureException(e);
+                    message.replyLang("GENERIC_ERROR");
                 }
-
-                message.channel.stopTyping();
-
-            } catch (e) {
-                bot.raven.captureException(e);
-                message.replyLang("GENERIC_ERROR");
+            }else{
+                message.channel.send(":bangbang: Invalid usage. You must @mention a user.");
             }
         }
     },
