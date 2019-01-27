@@ -11,7 +11,7 @@ let client = new GoogleImages(config.get("cse"), config.get("key"));
 module.exports = {
     name: "Google Image Search",
     usage: "image <text>",
-    rateLimit: 10,
+    rateLimit: 50,
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
     commands: ["image", "images", "im", "googleimage"],
     categories: ["image", "fun", "memes"],
