@@ -4,7 +4,7 @@ module.exports = {
     accessLevel: 0,
     rateLimit: 10,
     categories: ["meta"],
-    commands: ["feedback", "complain", "report", "support", "error", "broken", "broke"],
+    commands: ["feedback", "complain", "report", "support", "broken", "broke"],
     init: function init(bot){
         if(bot.client.shard){
             bot.logger.log("Starting shard reciever for !feedback");
