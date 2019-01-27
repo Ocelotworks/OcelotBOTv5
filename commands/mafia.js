@@ -11,7 +11,7 @@ let mafiaLogo;
 module.exports = {
     name: "Mafia Boss",
     usage: "mafia <@user1> <@user2>",
-    requiredPermissions: ["EMBED_LINKS"],
+    requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["mafia", "mafiaboss"],
     categories: ["image", "memes"],
     init: async function(){
