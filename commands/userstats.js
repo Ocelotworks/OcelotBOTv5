@@ -171,7 +171,7 @@ module.exports = {
             const lastEmoji = emojisSorted[lastEmojiIndex];
 
             output.push(`- The most used emoji is **'${lastEmoji}'** with **${emojis[lastEmoji].toLocaleString()}** uses.`);
-            output.push(`They have used **${emojisSorted.length}** different emojis, **${totalEmojis.toLocaleString()}** total times.`);
+            output.push(`- They have used **${emojisSorted.length}** different emojis, **${totalEmojis.toLocaleString()}** total times.`);
 
             const lastChannelIndex = channelsSorted.length - 1;
             const lastChannel = channelsSorted[lastChannelIndex];
