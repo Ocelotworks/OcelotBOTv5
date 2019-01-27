@@ -16,7 +16,7 @@ module.exports = {
             function handleResponse(err, resp, body){
                 if(err) return bot.raven.captureException(err);
                 if(resp.statusCode >= 400){
-                    bot.logger.warn("Got bad response from "+resp.url);
+                    bot.logger.warn(`Got bad response from ${resp.uri} (${resp.statusCode})`);
                     bot.logger.warn(body);
                 }
             }
