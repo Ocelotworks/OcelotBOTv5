@@ -15,6 +15,9 @@ const manager = new ShardingManager(`${__dirname}/ocelotbot.js`, config.get("Dis
 let shardDeathCount = [];
 let shardDeathTimeout = [];
 
+
+let warnings = [];
+
 manager.spawn();
 
 manager.on('launch', function launchShard(shard) {
@@ -22,6 +25,7 @@ manager.on('launch', function launchShard(shard) {
 
     shardDeathCount[shard.id] = 0;
 
+    return;
     shard.on('death', function(){
         logger.warn(`Shard ${shard.id} died.`);
 
@@ -56,6 +60,18 @@ manager.on('message', function onMessage(process, message){
             }
             return;
         }
+
+        if(message.type === "warning"){
+            let warning = message.payload;
+            warnings[warning.id] = warning.message;
+            return;
+        }
+
+        if(message.type === "clearWarning"){
+            delete message.payload.id;
+            return;
+        }
+
         logger.log("Broadcasting message");
         manager.broadcast(message);
     }
@@ -89,6 +105,15 @@ app.get('/commands', function(req, res){
     res.json(commandList);
 });
 
+app.get('/restart', function(req, res){
+   res.json({});
+   process.exit(0);
+});
+
+app.get('/warnings', function(req, res){
+    res.json(warnings);
+});
+
 app.get('/shard/count', function(req, res){
    res.json({count: manager.totalShards});
 });
@@ -104,6 +129,18 @@ app.get('/server/:id/channels', function(req, res){
    }, {server: req.params.id});
 });
 
+
+app.get('/shard', function(req, res){
+    let output = [];
+    manager.shards.forEach(function(shard){
+        output.push({
+            id: shard.id,
+            ready: shard.ready
+        });
+    });
+    res.json(output);
+});
+
 app.get('/shard/:id', function(req, res){
    const shard = manager.shards.get(manager.shards.keyArray()[req.params.id]);
    if(shard) {
@@ -116,22 +153,34 @@ app.get('/shard/:id', function(req, res){
    }
 });
 
+app.get('/shard/:id/restart', function(req, res){
+    const shard = manager.shards.get(manager.shards.keyArray()[req.params.id]);
+    if(shard) {
+        shard.respawn();
+        res.json({success: true});
+    }else{
+        res.json({success: false});
+    }
+});
+
+app.get('/shard/:id/:field', function(req, res){
+    const shard = manager.shards.get(manager.shards.keyArray()[req.params.id]);
+    if(shard) {
+       requestData(req.params.field, function(resp){
+           res.json(resp);
+       }, {shard: req.params.id});
+    }else{
+        res.json({});
+    }
+});
+
+
 app.get('/user/:id/registerVote', function(req, res){
     console.log("Got vote from "+req.params.id);
     manager.broadcast({type: "registerVote", payload: {
         user: req.params.id
     }});
     res.json({});
-});
-
-app.post('/shard/:id/restart', function(req, res){
-    const shard = manager.shards.get(manager.shards.keyArray()[req.params.id]);
-    if(shard) {
-       shard.respawn();
-       res.json({success: true});
-    }else{
-        res.json({success: false});
-    }
 });
 
 

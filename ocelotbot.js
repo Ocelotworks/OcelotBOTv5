@@ -108,6 +108,14 @@ function loadModules(){
             //Modules that depend on the failed module's functions will probably also fail too.
             logger.error(`Error loading ${fileName}:`);
             console.error(e);
+            if(bot.client && bot.client.shard) {
+                bot.client.shard.send({
+                    type: "warning", payload: {
+                        id: "badModule-" + fileName,
+                        message: `Couldn't load module ${module}:\n${e.message}`
+                    }
+                });
+            }
         }
     }
 }
