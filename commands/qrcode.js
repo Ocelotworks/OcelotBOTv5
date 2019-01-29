@@ -3,7 +3,7 @@ module.exports = {
     name: "QR Code Generator",
     usage: "qr <text>",
     rateLimit: 10,
-    categories: ["image", "tools"],
+    categories: ["barcodes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["qr", "qrcode"],
     run:  function(message, args, bot){

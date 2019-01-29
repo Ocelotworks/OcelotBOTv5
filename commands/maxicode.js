@@ -5,7 +5,7 @@ module.exports = {
     name: "Maxi Code Generator",
     usage: "maxi <text>",
     rateLimit: 10,
-    categories: ["image", "tools"],
+    categories: ["barcodes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["maxi", "maxicode"],
     run:  function(message, args, bot){

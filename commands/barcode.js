@@ -3,7 +3,7 @@ module.exports = {
     name: "Barcode Generator",
     usage: "barcode <text>",
     rateLimit: 10,
-    categories: ["image", "tools"],
+    categories: ["barcodes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["barcode"],
     run:  function(message, args, bot){
