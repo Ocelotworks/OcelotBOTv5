@@ -263,7 +263,7 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
         });
 
 
-        collector.on('collect', function collect(message) {
+        collector.on('collect', async function collect(message) {
             if (message.author.id === "146293573422284800") return;
             if(bot.banCache.user.indexOf(message.author.id) > -1)return;
             const guessTime = new Date();
@@ -274,6 +274,22 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
                 won = true;
                 if (collector)
                     collector.stop();
+
+
+                let fastestTime = (await bot.database.getFastestSongGuess(title))[0];
+                let newOffset = guessTime-now;
+                if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset){
+                    message.channel.send(`:tada: You beat the previous fastest time for that song!`);
+                }
+
+                let totalGuesses = await bot.database.getTotalCorrectGuesses(message.author.id);
+
+                if(totalGuesses && totalGuesses[0] && totalGuesses[0]['COUNT(*)']) {
+                    let badge = await bot.badges.updateBadge(message.author, "guess", totalGuesses[0]['COUNT(*)'] + 1);
+                    if (badge) {
+                        message.channel.send(`Congratulations ${message.author}, you just earned the ${badge.emoji} **${badge.name}** badge for your ${message.getSetting("prefix")}profile`);
+                    }
+                }
             } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
                 message.replyLang("SONGGUESS_ARTIST", {id: message.author.id, artist: artistName});
             }
