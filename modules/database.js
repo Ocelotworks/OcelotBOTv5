@@ -749,6 +749,12 @@ module.exports = {
             },
             getSongList: function(){
                 return knex.select("name", "title", "path").from("petify.songs").whereNotNull("mbid").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
+            },
+            getFastestSongGuess: function(song){
+                return knex.select().from("ocelotbot_song_guess").where({song, correct: 1}).orderBy("elapsed", "ASC");
+            },
+            getTotalCorrectGuesses: function(user){
+                return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").groupBy("user").where({user, correct: 1});
             }
         };
     }
