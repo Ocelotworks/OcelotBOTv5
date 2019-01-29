@@ -23,7 +23,7 @@ module.exports = {
                     bot.logger.log("Creating profile for " + user.id);
                     await bot.database.createProfile(user.id);
                     profileInfo = {
-                        caption: "I should do !profile set",
+                        caption: "I should do !profile help",
                         background: 0,
                         frames: 2,
                         board: 3
@@ -49,7 +49,10 @@ module.exports = {
 
                 ctx.drawImage(avatar, 21, 14, 172, 172);
 
-                ctx.drawImage(frames, 17, 10);
+
+
+                if(frameInfo.textColour !== "over")
+                    ctx.drawImage(frames, 17, 10);
 
                 ctx.font = "30px Sans serif";
                 ctx.fillStyle = backgroundInfo.textColour;
@@ -85,7 +88,9 @@ module.exports = {
 
                 ctx.fillText(dateFormat(profileInfo.firstSeen, "dd/mm/yy"), 394, 163);
 
-                await bot.updateCommandsBadge(user, commandCount);
+                const now = new Date();
+
+                await bot.badges.updateBadge(user, "year", parseInt((now-profileInfo.firstSeen) / 3.154e+10));
                 await bot.updateServersBadge(user, mutualGuilds.length);
 
                 const badges = await bot.database.getProfileBadges(user.id);
@@ -95,6 +100,9 @@ module.exports = {
                     const img = await canvas.loadImage("static/profile/badges/" + badge.image);
                     ctx.drawImage(img, 210 + ((i % 4) * (32 + 10)), 86 + (Math.floor(i / 4) * 39));
                 }
+
+                if(frameInfo.textColour === "over")
+                    ctx.drawImage(frames, 17, 10);
 
                 return cnv.toBuffer("image/png");
             }catch(e){
