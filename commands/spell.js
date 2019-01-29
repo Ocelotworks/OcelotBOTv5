@@ -117,7 +117,11 @@ module.exports = {
                 if(output[i])
                     await targetMessage.react(output[i]);
             }catch(e){
-                bot.logger.log("Invalid emoji "+output[i]);
+                if(e.message === "Reaction blocked"){
+                    message.channel.send("The above user has blocked OcelotBOT :(");
+                    break;
+                }
+                bot.logger.log(`Invalid emoji ${output[i]} (${e.message})`);
             }
         }
 
