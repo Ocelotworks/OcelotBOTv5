@@ -90,7 +90,8 @@ module.exports = {
 
                 const now = new Date();
 
-                await bot.badges.updateBadge(user, "year", parseInt((now-profileInfo.firstSeen) / 3.154e+10));
+                if(profileInfo.firstSeen)
+                    await bot.badges.updateBadge(user, "year", parseInt((now-profileInfo.firstSeen) / 3.154e+10));
                 await bot.updateServersBadge(user, mutualGuilds.length);
 
                 const badges = await bot.database.getProfileBadges(user.id);
