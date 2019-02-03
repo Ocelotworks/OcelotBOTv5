@@ -79,6 +79,9 @@ module.exports = {
             message.channel.send(":warning: You cannot use this command in a DM channel.");
             return;
         }
+        //Hacky hack hack
+        message.content = message.content.replace(args[0], "in");
+        console.log(message.content);
         const now = new Date();
         const rargs = regex.exec(message.content);
         const chronoParse = (chrono.parse(message.content, now))[0];
