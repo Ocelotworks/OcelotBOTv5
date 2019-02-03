@@ -201,7 +201,7 @@ module.exports = {
     commands: ["time", "thetime"],
     categories: ["tools"],
     run: function run(message, args){
-        let targetTimezone = args[1].toUpperCase() || message.getSetting("time.zone") || (message.guild && regionTimezones[message.guild.region]) || "GMT";
+        let targetTimezone = (args[1] && args[1].toUpperCase()) || message.getSetting("time.zone") || (message.guild && regionTimezones[message.guild.region]) || "GMT";
         const time = new Date();
         if(timezones[targetTimezone]){
             time.setHours(time.getHours()+parseInt(timezones[targetTimezone]));
