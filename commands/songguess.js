@@ -12,9 +12,11 @@ const config = require('config');
 const request = require('request');
 const fs = require('fs');
 
+let leaveTimeouts = {};
+
 module.exports = {
     name: "Guess The Song",
-    usage: "guess",
+    usage: "guess [stop/stats]",
     rateLimit: 50,
     categories: ["games", "voice"],
     requiredPermissions: ["CONNECT", "SPEAK"],
@@ -25,9 +27,17 @@ module.exports = {
         songList = await bot.database.getSongList();
     },
     run:  async function run(message, args, bot){
-        if(args[1] && args[1].toLowerCase() === "stop"){
-            if(message.guild.voiceConnection)
+        if(args[1] && args[1].toLowerCase() === "stop") {
+            if (message.guild.voiceConnection)
                 await message.guild.voiceConnection.disconnect();
+        }else if(args[1] && args[1].toLowerCase() === "stats"){
+            let stats = await bot.database.getGuessStats();
+            let output = "**Guess Stats:**\n";
+            output += `**${songList.length.toLocaleString()}** available songs.\n`;
+            output += `**${stats.totalGuesses.toLocaleString()}** total guesses by **${stats.totalUsers}** users.\n`;
+            output += `**${stats.totalCorrect.toLocaleString()}** (**${parseInt((stats.totalCorrect/stats.totalGuesses)*100)}%**) correct guesses.\n`;
+            output += `Average of **${bot.util.prettySeconds(stats.averageTime/1000)}** until a correct guess.\n`;
+            message.channel.send(output);
         }else if(songList.length === 0){
             message.channel.send("OcelotBOT is currently in a limited functionality mode, which disables this command.");
         }else if(!message.guild){
@@ -44,19 +54,19 @@ module.exports = {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         }else if(runningGames[message.guild.id] && runningGames[message.guild.id].channel.id !== message.member.voiceChannel.id) {
             message.channel.send(`There is already a game running in ${runningGames[message.guild.id].channel.name}!`);
-        }else if(message.guild.voiceConnection && message.getSetting("songguess.disallowReguess")){
+        }else if(message.guild.voiceConnection && !leaveTimeouts[message.member.voiceChannel.id] && message.getSetting("songguess.disallowReguess")){
             message.channel.send("I'm already in a voice channel doing something.");
         }else{
             try {
                 bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
 
-                if(message.guild.voiceConnection)
+                if(message.guild.voiceConnection && !leaveTimeouts[message.member.voiceChannel.id])
                     await message.guild.voiceConnection.disconnect();
 
                 let connection = await message.member.voiceChannel.join();
                 doGuess(message.member.voiceChannel, message, connection, bot);
             }catch(e){
-                //bot.raven.captureException(e);
+                bot.raven.captureException(e);
                 bot.logger.log(e);
                 message.replyLang("GENERIC_ERROR");
             }
@@ -226,6 +236,8 @@ let runningGames = [];
 
 function doGuess(voiceChannel, message, voiceConnection, bot){
     try {
+        if(leaveTimeouts[voiceChannel.id])
+            clearTimeout(leaveTimeouts[voiceChannel.id]);
         if (voiceChannel.members.size <= 1)
             return voiceConnection.disconnect();
         if(timeouts[voiceChannel.id])
@@ -240,7 +252,7 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
         const now = new Date();
         const artistName = song.name;
         const title = artistName + " - " + song.title;
-        const answer = song.title.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "").split("ft")[0];
+        const answer = song.title.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "");
         const artist = artistName.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "");
         bot.logger.log("Title is " + answer);
         message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
@@ -312,7 +324,13 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
                 }, 2000);
             }else{
                 delete runningGames[voiceChannel.id];
-                voiceConnection.disconnect();
+                if(leaveTimeouts[voiceChannel.id])
+                    clearTimeout(leaveTimeouts[voiceChannel.id]);
+                leaveTimeouts[voiceChannel.id] = setTimeout(function leaveTimeout(){
+                    bot.logger.log(`Leaving voice channel ${voiceChannel.name} (${voiceChannel.id})`);
+                    voiceConnection.disconnect();
+                    delete leaveTimeouts[voiceChannel.id];
+                }, parseInt(message.getSetting("songguess.leaveTimeout")));
             }
         });
     }catch(e){
