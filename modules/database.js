@@ -748,13 +748,22 @@ module.exports = {
                 await knex.raw(`delete s.* from \`ocelotbot_badge_assignments\` s INNER JOIN ocelotbot_badges ON ocelotbot_badges.id = s.badge where \`user\` = '${user}' and \`series\` = '${series}'`);
             },
             getSongList: function(){
-                return knex.select("name", "title", "path").from("petify.songs").whereNotNull("mbid").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
+                //return knex.select("name", "title", "path").from("petify.songs").whereNotNull("mbid").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
+                return knex.select("name", "title", "path").from("petify.playlist_data").where({playlist_id: "62564ae2-b77b-41ee-8708-632815b23334"}).innerJoin("petify.songs", "petify.playlist_data.song_id", "petify.songs.id").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
             },
             getFastestSongGuess: function(song){
                 return knex.select().from("ocelotbot_song_guess").where({song, correct: 1}).orderBy("elapsed", "ASC");
             },
             getTotalCorrectGuesses: function(user){
                 return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").groupBy("user").where({user, correct: 1});
+            },
+            getGuessStats: async function(){
+                return {
+                    totalGuesses: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess"))[0]['COUNT(*)'],
+                    totalCorrect: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['COUNT(*)'],
+                    averageTime: (await knex.select(knex.raw("AVG(elapsed)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['AVG(elapsed)'],
+                    totalUsers: (await knex.select(knex.raw("COUNT(DISTINCT user)")).from("ocelotbot_song_guess"))[0]['COUNT(DISTINCT user)']
+                }
             }
         };
     }
