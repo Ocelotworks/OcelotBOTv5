@@ -43,12 +43,15 @@ module.exports = {
                     if(data.errors){
                         let output = "";
                         for(let i = 0; i < data.errors.length; i++){
+                            if(data.errors[i].title === "Insufficient credits"){
+                                output += `:warning: Quota has been reached for this month.\nThis command costs me money to have, if you'd like to donate to help increase the quota, join the support server with ${message.getSetting("prefix")}support\n`
+                            }
                             output += data.errors[i].title+"\n"
                         }
                         message.channel.send(output);
                     }else{
                         message.replyLang("GENERIC_ERROR");
-                    }
+                    }time
                 }catch(e){
                     bot.raven.captureException(e);
                     message.channel.send("Got a malformed response. Try again later.")
