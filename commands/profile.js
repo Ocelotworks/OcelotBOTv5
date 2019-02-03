@@ -56,7 +56,19 @@ module.exports = {
 
                 ctx.font = "30px Sans serif";
                 ctx.fillStyle = backgroundInfo.textColour;
-                ctx.fillText(user.username + "#" + user.discriminator, 211, 36);
+
+
+                const username = user.username + "#" + user.discriminator;
+
+                const measurement = ctx.measureText(username).width;
+                let y = 36;
+
+                if(measurement > 320) {
+                    ctx.font = "20px Sans serif";
+                    y = 31;
+                }
+
+                ctx.fillText(username, 211, y);
 
                 ctx.font = "15px Sans serif";
 
