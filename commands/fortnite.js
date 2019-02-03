@@ -70,7 +70,7 @@ module.exports = {
 
             embed.setAuthor(`Fortnite Statistics for ${body.epicUserHandle} on ${body.platformNameLong}`, "https://i.imgur.com/sWzW8fh.png");
             embed.setColor("#7C53B4");
-            const lastMatch = body.recentMatches[0];
+            //const lastMatch = body.recentMatches[0];
             //embed.setDescription(`Last match:\n${lastMatch.kills} kills, ${lastMatch.matches} matches.`);
             const stats = body.lifeTimeStats;
             for(let i = 0; i < stats.length; i++){
