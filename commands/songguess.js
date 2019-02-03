@@ -10,6 +10,8 @@ let count = 0;
 const path = "/home/peter/nsp";
 const config = require('config');
 const request = require('request');
+const columnify = require('columnify');
+const pasync = require('promise-async');
 const fs = require('fs');
 
 let leaveTimeouts = {};
@@ -30,14 +32,57 @@ module.exports = {
         if(args[1] && args[1].toLowerCase() === "stop") {
             if (message.guild.voiceConnection)
                 await message.guild.voiceConnection.disconnect();
-        }else if(args[1] && args[1].toLowerCase() === "stats"){
+        }else if(args[1] && args[1].toLowerCase() === "stats") {
             let stats = await bot.database.getGuessStats();
             let output = "**Guess Stats:**\n";
             output += `**${songList.length.toLocaleString()}** available songs.\n`;
             output += `**${stats.totalGuesses.toLocaleString()}** total guesses by **${stats.totalUsers}** users.\n`;
-            output += `**${stats.totalCorrect.toLocaleString()}** (**${parseInt((stats.totalCorrect/stats.totalGuesses)*100)}%**) correct guesses.\n`;
-            output += `Average of **${bot.util.prettySeconds(stats.averageTime/1000)}** until a correct guess.\n`;
+            output += `**${stats.totalCorrect.toLocaleString()}** (**${parseInt((stats.totalCorrect / stats.totalGuesses) * 100)}%**) correct guesses.\n`;
+            output += `Average of **${bot.util.prettySeconds(stats.averageTime / 1000)}** until a correct guess.\n`;
             message.channel.send(output);
+        }else if(args[1] && args[1].toLowerCase() === "leaderboard"){
+
+            let leaderboardData;
+            if(args[2] && args[2].toLowerCase() === "monthly"){
+                leaderboardData = await bot.database.getGuessMonthlyLeaderboard();
+            }else if(args[2] && args[2].toLowerCase() === "server" && message.guild) {
+                leaderboardData = await bot.database.getGuessServerLeaderboard(message.guild.members.keyArray());
+            }else{
+                leaderboardData = await bot.database.getGuessLeaderboard();
+            }
+
+            const unknownUserKey = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "TRIVIA_UNKNOWN_USER");
+            let i = 0;
+            let data = [];
+            let position = -1;
+
+            await pasync.eachSeries(leaderboardData, async function processLeaderboard(entry, cb){
+                i++;
+                if(entry.user === message.author.id){
+                    position = "#"+i;
+                    if(i > 10){
+                        cb();
+                        return;
+                    }
+                }
+                if(i <= 10)
+                    try {
+                        const user = bot.client.users.get(entry.user);
+                        data.push({
+                            "#": i,
+                            "user": user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,
+                            "Correct": entry.points,
+                            "Total": entry.total,
+                        });
+                    }catch(e){
+                        bot.logger.error("Error processing leaderboard entry");
+                        bot.logger.error(e);
+                    }finally{
+                        cb();
+                    }
+                else cb();
+            });
+            message.channel.send(`You are **${position}** out of **${leaderboardData.length}** total players${args[2] && args[2].toLowerCase() === "monthly" ? " this month." : "."}\n\`\`\`\n${columnify(data)}\n\`\`\``);
         }else if(songList.length === 0){
             message.channel.send("OcelotBOT is currently in a limited functionality mode, which disables this command.");
         }else if(!message.guild){

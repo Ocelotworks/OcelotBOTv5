@@ -764,7 +764,17 @@ module.exports = {
                     averageTime: (await knex.select(knex.raw("AVG(elapsed)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['AVG(elapsed)'],
                     totalUsers: (await knex.select(knex.raw("COUNT(DISTINCT user)")).from("ocelotbot_song_guess"))[0]['COUNT(DISTINCT user)']
                 }
+            },
+            getGuessLeaderboard: function(){
+                return knex.select(knex.raw("user, COUNT(*) AS total, SUM(correct) AS points")).from("ocelotbot_song_guess").groupBy("user").orderByRaw("SUM(correct) DESC");
+            },
+            getGuessMonthlyLeaderboard: function(){
+                return knex.select(knex.raw("user, COUNT(*) AS total, SUM(correct) AS points")).from("ocelotbot_song_guess").groupBy("user").orderByRaw("SUM(correct) DESC").whereRaw("MONTH(timestamp) = MONTH(CURRENT_TIMESTAMP)")
+            },
+            getGuessServerLeaderboard: function(users){
+                return knex.select(knex.raw("user, COUNT(*) AS total, SUM(correct) AS points")).from("ocelotbot_song_guess").groupBy("user").orderByRaw("SUM(correct) DESC").whereIn("user", users);
             }
+
         };
     }
 };
