@@ -82,7 +82,7 @@ module.exports = {
                     }
                 else cb();
             });
-            message.channel.send(`You are **${position}** out of **${leaderboardData.length}** total players${args[2] && args[2].toLowerCase() === "monthly" ? " this month." : "."}\n\`\`\`\n${columnify(data)}\n\`\`\``);
+            message.channel.send(`You are **${position}** out of **${leaderboardData.length}** total players${args[2] && args[2].toLowerCase() === "monthly" ? " this month." : "."}\n\`\`\`yaml\n${columnify(data)}\n\`\`\``);
         }else if(songList.length === 0){
             message.channel.send("OcelotBOT is currently in a limited functionality mode, which disables this command.");
         }else if(!message.guild){
