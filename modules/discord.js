@@ -122,6 +122,7 @@ module.exports = {
              const now = new Date();
              if(now-lastPresenceUpdate>100000) {
                  lastPresenceUpdate = now;
+                 const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
                  bot.client.user.setPresence({
                      game: {
                          name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
@@ -257,6 +258,15 @@ module.exports = {
                        dm.send(output);
                    }
                }
+           }else if(message.type === "presence"){
+               bot.presenceMessage = message.payload === "clear" ? null : message.payload;
+               const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+               bot.client.user.setPresence({
+                   game: {
+                       name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
+                       type: "LISTENING"
+                   }
+               });
            }
         });
 
