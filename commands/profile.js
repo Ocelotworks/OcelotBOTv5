@@ -164,15 +164,48 @@ module.exports = {
         }else if(args[1] === "help"){
             message.channel.send(":information_source: Profile Help:\n!profile - Show your profile\n!profile @user - Show a users profile\n!profile badges - Badges explained\n!profile backgrounds - View Backgrounds\n!profile boards - View Boards\n!profile frames - View Frames\n!profile set - Customize profile");
         }else if(args[1] === "badges") {
-            const result = await bot.database.getBadgeTypes();
-            let output = "Badges:\n";
-            for (let i = 0; i < result.length; i++) {
-                const badge = result[i];
-                if ((args[2] && args[2] === "all") || badge.display === 1)
-                    output += `${args[3] && args[3] === "ids" ? badge.id : ""}${badge.emoji} **${badge.name}** ${badge.desc}\n`;
+            if(!args[2]){
+                const result = await bot.database.getBadgeTypes();
+                let categories = {};
+                let output = "Badges:\n";
+                for (let i = 0; i < result.length; i++) {
+                    const badge = result[i];
+                    if(!badge.display)continue;
+                    const category = badge.series || "special";
+                    if(categories[category])
+                        categories[category].push(badge.emoji);
+                    else
+                        categories[category] = [badge.emoji];
+                }
 
+                let embed = new Discord.RichEmbed();
+                embed.setTitle("Profile Badges");
+                embed.setDescription(`To see more info about the categories, do **${args[0]} ${args[1]} _category_**`);
+                for(let category in categories){
+                    if(categories.hasOwnProperty(category))
+                        embed.addField(category, categories[category].join(" "));
+                }
+
+                message.channel.send("", embed);
+
+            }else{
+                let series = args[2].toLowerCase();
+                if(series === "special")
+                    series = null;
+                const result = await bot.database.getBadgesInSeries(series);
+                if(result.length === 0)
+                    return message.channel.send(`:warning: No such category. Try ${args[0]} ${args[1]} for a list of categories.`);
+
+                let output = `Badges in category **'${args[2]}'**:\n`;
+                for (let i = 0; i < result.length; i++) {
+                    const badge = result[i];
+                    if (badge.display === 1)
+                        output += `${args[3] && args[3] === "ids" ? badge.id : ""}${badge.emoji} **${badge.name}** ${badge.desc}\n`;
+
+                }
+                message.channel.send(output);
             }
-            message.channel.send(output);
+
         }else if(args[1] === "backgrounds"){
             const result = await bot.database.getProfileOptions("background");
             let output = "Backgrounds:\n";
