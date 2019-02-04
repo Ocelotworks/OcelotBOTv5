@@ -647,6 +647,9 @@ module.exports = {
             getBadgeTypes: function(){
                 return knex.select().from(BADGES_TABLE).orderBy("order");
             },
+            getBadgesInSeries: function(series){
+                return knex.select().from(BADGES_TABLE).orderBy("order").where({series});
+            },
             setProfileTagline: function(user, tagline){
                 return knex("ocelotbot_profile").update({caption: tagline}).where({id: user}).limit(1);
             },

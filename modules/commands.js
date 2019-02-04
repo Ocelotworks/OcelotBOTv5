@@ -10,6 +10,8 @@ module.exports = {
         bot.rateLimits = {};
         bot.prefixCache = {};
 
+        let lastRatelimitRefresh = new Date();
+
 
         function isRateLimited(user, guild){
             return !(!bot.rateLimits[user] || bot.rateLimits[user] < bot.config.get(guild, "rateLimit"));
@@ -65,14 +67,17 @@ module.exports = {
                 }
             }
             if(bot.checkBan(message)){
-                bot.bus.emit("commandRatelimited", command, message);
                 bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
                 return;
             }
             if(isRateLimited(message.author.id, message.guild ? message.guild.id : "global")){
+                bot.bus.emit("commandRatelimited", command, message);
                 if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
                     bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
-                    message.replyLang("COMMAND_RATELIMIT");
+                    const now = new Date();
+                    const timeDifference = now-lastRatelimitRefresh;
+                    let timeLeft = 60000-timeDifference;
+                    message.replyLang("COMMAND_RATELIMIT", {timeLeft: bot.util.prettySeconds(timeLeft/1000)});
                     bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
                 }else{
                     console.log(bot.rateLimits[message.author.id]);
@@ -140,6 +145,7 @@ module.exports = {
 
         setInterval(function(){
             bot.rateLimits = {};
+            lastRatelimitRefresh = new Date();
         }, 60000);
 
 
