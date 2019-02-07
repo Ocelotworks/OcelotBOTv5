@@ -19,18 +19,22 @@ module.exports = {
 
         const arg = args[1].toLowerCase();
 
-        if(arg === "list"){
+        if(arg === "list" || arg === "search"){
 
-            const memes = await bot.database.getMemes(message.guild ? message.guild.id : "global");
+            let memes;
+            if(arg === "search"){
+                if(!args[2])
+                    return message.channel.send(":warning: You must enter a search term.");
+                memes = await bot.database.searchMeme(args[2], message.guild ? message.guild.id : "global");
+            }else{
+                memes = await bot.database.getMemes(message.guild ? message.guild.id : "global");
+            }
+
             let pages = memes.chunk(30);//parseInt(message.getSetting("meme.pageSize")));
-
-
-
 
             const availableMemes = await bot.lang.getTranslation(guildID, "MEME_AVAILABLE_MEMES");
             const availableGlobalMemes = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_GLOBAL_MEMES");
             const memeServer = message.guild ? await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_SERVER", {serverName: message.guild.name}) : "You should never see this.";
-
 
             let index = 0;
             let sentMessage;
@@ -59,7 +63,7 @@ module.exports = {
 
                 let output;
 
-                output = `Page ${index+1}/${pages.length}\n**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ \n\`\`\`\n${globalMemes}\n\`\`\``;
+                output = `Page ${index+1}/${pages.length}\n**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ \n\`\`\`\n${globalMemes === "" ? "No global memes found." : globalMemes}\n\`\`\``;
                 if(message.guild)
                     output += `\n__:house_with_garden:${memeServer}__\n\`\`\`\n${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}\n\`\`\``;
 
@@ -70,11 +74,11 @@ module.exports = {
 
             };
 
+            await buildPage();
 
             if(pages.length === 1)
                 return;
 
-            await buildPage();
             (async function () {
                 await sentMessage.react("⏮");
                 await sentMessage.react("◀");
@@ -155,6 +159,7 @@ module.exports = {
             }
             return;
         }
+
         try {
             const memeResult = await bot.database.getMeme(arg, message.guild ? message.guild.id : "global");
 
