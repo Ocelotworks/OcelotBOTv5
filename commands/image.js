@@ -69,7 +69,11 @@ module.exports = {
                     sentMessage.clearReactions();
                 })
             }catch(e){
-                message.replyLang("GENERIC_ERROR");
+                if(e.message === "Response code 403 (Forbidden)"){
+                    message.channel.send(`:warning: Quota has been reached for this month.\nThis command costs me money to have, if you'd like to donate to help increase the quota, join the support server with ${message.getSetting("prefix")}support\n`);
+                }else{
+                    message.replyLang("GENERIC_ERROR");
+                }
                 console.log(e);
                 bot.raven.captureException(e);
             }finally{
