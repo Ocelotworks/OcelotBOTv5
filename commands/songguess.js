@@ -19,7 +19,7 @@ let leaveTimeouts = {};
 module.exports = {
     name: "Guess The Song",
     usage: "guess [stop/stats]",
-    rateLimit: 50,
+    rateLimit: 25,
     categories: ["games", "voice"],
     requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["guess", "guesssong", "songguess", "namethattune", "quess", "gues"],
