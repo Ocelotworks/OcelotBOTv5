@@ -53,21 +53,23 @@ module.exports = {
             return;
         }
         const arg = args[1].toLowerCase();
-        if(bot.commandUsages[arg]){
-            let command = bot.commandUsages[arg];
-            let output = `**${command.name} Help:**\n`;
-            if(command.detailedHelp)
-                output += command.detailedHelp+"\n";
-            output += `**Usage:** ${message.getSetting("prefix")}${command.usage}\n`;
-            if(command.usageExample)
-                output += `**Example:** ${command.usageExample}\n`;
+        if(!bot.commandCategories[arg]){
+            if(bot.commandUsages[arg]){
+                let command = bot.commandUsages[arg];
+                let output = `**${command.name} Help:**\n`;
+                if(command.detailedHelp)
+                    output += command.detailedHelp+"\n";
+                output += `**Usage:** ${message.getSetting("prefix")}${command.usage}\n`;
+                if(command.usageExample)
+                    output += `**Example:** ${command.usageExample}\n`;
 
-            message.channel.send(output);
+                message.channel.send(output);
 
-        }else if(!bot.commandCategories[arg]){
-            message.replyLang("COMMANDS_INVALID_CATEGORY", {
-                arg: args[0]
-            });
+            }else {
+                message.replyLang("COMMANDS_INVALID_CATEGORY", {
+                    arg: args[0]
+                });
+            }
         }else{
             let unique = []; //ahhh..
             let output = "";
