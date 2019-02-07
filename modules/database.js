@@ -218,6 +218,9 @@ module.exports = {
             getMeme: function getMeme(meme, server) {
                 return knex.select("meme").from(MEMES_TABLE).where({name: meme}).whereIn("server", [server, "global"]).orderBy("server");
             },
+            searchMeme: function searchMeme(query, server){
+               return knex.select("name", "server").from(MEMES_TABLE).whereIn("server", [server, "global"]).andWhere("name", "LIKE", `%${query}%`).orderBy("server");
+            },
             /**
              * Get a meme regardless of whether or not it belongs to the current serve
              * @param {String} meme The meme name
@@ -737,6 +740,9 @@ module.exports = {
             },
             addVote: async function(user, referralServer){
                 await knex.insert({user, referralServer}).into("ocelotbot_votes");
+            },
+            getVoteCount: async function(user){
+                return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_votes").where({user});
             },
             getEligbleBadge: function(user, series, count){
                 return knex.select()

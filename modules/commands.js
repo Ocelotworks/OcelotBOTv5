@@ -31,15 +31,18 @@ module.exports = {
 
             bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
+            if(bot.commandUsages[command].premium && (!message.getSetting("premium") || message.getSetting("premium") !== "true"))
+                return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_`);
 
             if(message.getSetting("allowNSFW") && message.getSetting("allowNSFW") === "0" && bot.commandUsages[command].categories.indexOf("nsfw") > -1)
                 return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
 
             if(message.guild && !message.channel.nsfw && bot.commandUsages[command].categories.indexOf("nsfw") > -1 &&  message.getSetting("bypassNSFWCheck") !== "1")
-                return message.channel.send(":warning: This command can only be used in NSFW channels.\n You can bypass this check with the !settings command.");
+                return message.channel.send(`:warning: This command can only be used in NSFW channels.\nYou can bypass this check with the ${message.getSetting("prefix")}settings command.`);
 
             if(message.getSetting(`${command}.disable`))
                 return bot.logger.log(`${command} is disabled in this server: ${message}`);
+
             const channelDisable = message.getSetting(`${command}.channelDisable`);
             if(channelDisable && channelDisable.indexOf(message.channel.id) > -1){
                 if(message.getSetting("sendDisabledMessage") === "true") {
@@ -198,7 +201,8 @@ module.exports = {
                                     requiredPermissions: loadedCommand.requiredPermissions,
                                     hidden: loadedCommand.hidden,
                                     categories: loadedCommand.categories,
-                                    rateLimit: loadedCommand.rateLimit
+                                    rateLimit: loadedCommand.rateLimit,
+                                    premium: loadedCommand.premium
                                 };
                             }
                         }
