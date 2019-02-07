@@ -18,8 +18,9 @@ module.exports = {
            if(message.type === "registerVote"){
                 let user = message.payload.user;
                 let voteServer = null;
+                let channel;
                 for(let i = 0; i < bot.waitingVoteChannels.length; i++){
-                    let channel = bot.waitingVoteChannels[i];
+                    channel = bot.waitingVoteChannels[i];
                     if(channel.members.has(user)){
                         bot.logger.log("Matched waiting vote channel for "+user);
                         channel.send(`Thanks for voting <@${user}>!\nI'd love it if you voted again tomorrow. <3`);
@@ -28,10 +29,13 @@ module.exports = {
                     }
                 }
                 if(voteServer || !bot.client.shard || bot.client.shard.id === 0){
-                    bot.database.addVote(user, voteServer);
+                    await bot.database.addVote(user, voteServer);
                     bot.logger.log("Logging vote from "+user);
-                    if(!(await bot.database.hasBadge(user, 12))){
-                        await bot.database.giveBadge(user, 12);
+                    let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
+                    console.log(count);
+                    let badge = await bot.badges.updateBadge({id: user}, 'votes', count);
+                    if(badge && channel){
+                        channel.send(`You just earned the ${badge.emoji} **${badge.name}** badge for your ${bot.config.get(voteServer, "prefix")}profile`);
                     }
                 }
 
