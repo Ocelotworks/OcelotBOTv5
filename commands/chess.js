@@ -55,7 +55,7 @@ module.exports = {
         if(subCommand && module.exports.subCommands[subCommand.toLowerCase()]){
             module.exports.subCommands[subCommand.toLowerCase()](message, args, bot);
         }else if(runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[a-z]{1,4}[0-9]/gi)) {
-            module.exports.doGo(message, subCommand, args);
+            module.exports.doGo(message, subCommand, args, bot);
         }else{
             message.replyLang("GAME_INVALID_USAGE", {arg: args[0]});
         }
@@ -101,17 +101,20 @@ module.exports = {
 
         return output;
     },
-    doGo: async function(message, command, args){
+    doGo: async function(message, command, args, bot){
         const channel = message.channel.id;
         const runningGame = runningGames[channel];
         if(runningGame){
             try {
                 runningGame.game.move(command);
-                if(runningGame.lastMessage)
-                    runningGame.lastMessage.delete();
-                runningGame.lastMessage = await message.channel.send(module.exports.renderBoard(channel, bot));
+                let newMessage = await message.channel.send(await module.exports.renderBoard(channel, bot));
+                if(runningGame.lastMessage) {
+                    await runningGame.lastMessage.delete();
+                    runningGame.lastMessage = newMessage;
+                }
                 runningGame.turn = !runningGame.turn;
             }catch(e){
+
                 let status = runningGame.game.getStatus();
                 for (let move in status.notatedMoves) {
                     let moveData = status.notatedMoves[move];
