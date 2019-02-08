@@ -27,12 +27,22 @@ const nicknames = [
     "is typing",
     "vore my ass",
     "daddy",
-    "OcelotBOT"
+    "OcelotBOT",
+    "better than ocelotbot",
+    "spook",
+    "gods mistake",
+    "sexy and i know it",
+    "lvl 100 mafia boss",
+    "forkknife",
+    "owl city",
+    "lady pickle",
+    "(:"
 ];
 module.exports = {
     name: "New Nickname Generator",
     usage: "newnick",
     categories: ["tools", "fun"],
+    rateLimit: 10,
     commands: ["newnick", "newnickname"],
     requiredPermissions: ["MANAGE_NICKNAMES"],
     run: async function run(message, args, bot) {

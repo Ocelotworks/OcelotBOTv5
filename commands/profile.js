@@ -134,6 +134,7 @@ module.exports = {
         bot.badges = {};
 
         bot.badges.updateBadge = async function updateBadge(user, series, value){
+            if(bot.config.get("global", "profile.disableBadgeUpdates") && bot.config.get("global", "profile.disableBadgeUpdates") === "1")return;
             const userID = user.id;
             let eligibleBadge = (await bot.database.getEligbleBadge(userID, series, value))[0];
             if(eligibleBadge){
