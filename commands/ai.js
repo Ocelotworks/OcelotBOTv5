@@ -25,7 +25,7 @@ module.exports = {
     name: "Artifical Intelligence",
     usage: "ai <message>",
     categories: ["fun"],
-    rateLimit: 5,
+    rateLimit: 20,
     commands: ["ai","cleverbot"],
     init: function(){
         fs.readFile("net2.json", function(err, file){
