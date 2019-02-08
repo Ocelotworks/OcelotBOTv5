@@ -10,6 +10,7 @@ let count = 0;
 const path = "/home/peter/nsp";
 const config = require('config');
 const request = require('request');
+const Discord = require('discord.js');
 const columnify = require('columnify');
 const pasync = require('promise-async');
 const fs = require('fs');
@@ -327,17 +328,30 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
             const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "");
             console.log(strippedMessage);
             if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
-                message.replyLang("SONGGUESS_WIN", {id: message.author.id, seconds: bot.util.prettySeconds((guessTime - now) / 1000), title});
-                won = true;
-                if (collector)
-                    collector.stop();
 
-
+                let embed = new Discord.RichEmbed();
+                embed.setColor("#77ee77");
+                embed.setTitle(`${message.author.username} wins!`);
+                embed.setThumbnail(`https://unacceptableuse.com/petify/album/${song.album}`);
+                embed.setDescription(`The song was **${title}**`);
+                embed.addField(":stopwatch: Time Taken", bot.util.prettySeconds((guessTime - now) / 1000));
                 let fastestTime = (await bot.database.getFastestSongGuess(title))[0];
+                if(fastestTime && fastestTime.elapsed){
+                    embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000));
+                }
+
+                message.channel.send(message.author, embed);
+
                 let newOffset = guessTime-now;
                 if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset){
                     message.channel.send(`:tada: You beat the previous fastest time for that song!`);
                 }
+
+               // message.replyLang("SONGGUESS_WIN", {id: message.author.id, seconds: bot.util.prettySeconds((guessTime - now) / 1000), title});
+                won = true;
+                if (collector)
+                    collector.stop();
+
 
                 let totalGuesses = await bot.database.getTotalCorrectGuesses(message.author.id);
 
