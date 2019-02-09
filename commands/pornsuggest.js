@@ -21,14 +21,14 @@ module.exports = {
 
         let commandCounts = {};
 
-        bot.bus.on("commandPerformed", async function(command, message){
+        bot.bus.on("commandPerformed", async function pervertDetector(command, message){
             if(!message.guild)return;
             if(commandCounts[message.guild.id]){
                 commandCounts[message.guild.id]++;
             }else{
                 commandCounts[message.guild.id] = 1;
             }
-            if((message.content.indexOf("pornsuggest") > -1 || message.content.indexOf("help nsfw")  > -1) && commandCounts[message.guild.id] < message.getSetting("pornsuggest.seriousThreshold")){
+            if((message.content.indexOf("pornsuggest") > -1 || message.content.indexOf("help nsfw")  > -1 || message.content.indexOf("sexydice")  > -1) && commandCounts[message.guild.id] < message.getSetting("pornsuggest.seriousThreshold")){
                 await bot.database.setSetting(message.guild.id, "pornsuggest.serious", true);
                 await bot.config.reloadCacheForServer(message.guild.id);
                 bot.logger.log(`Set serious mode on for ${message.guild.name} (${message.guild.id})`);
