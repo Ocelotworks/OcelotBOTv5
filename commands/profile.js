@@ -23,7 +23,7 @@ module.exports = {
                     bot.logger.log("Creating profile for " + user.id);
                     await bot.database.createProfile(user.id);
                     profileInfo = {
-                        caption: "I should do !profile help",
+                        caption: "I should do\n!profile help",
                         background: 0,
                         frames: 2,
                         board: 3
@@ -133,7 +133,7 @@ module.exports = {
 
         bot.badges = {};
 
-        bot.badges.updateBadge = async function updateBadge(user, series, value){
+        bot.badges.updateBadge = async function updateBadge(user, series, value, channel){
             if(bot.config.get("global", "profile.disableBadgeUpdates") && bot.config.get("global", "profile.disableBadgeUpdates") === "1")return;
             const userID = user.id;
             let eligibleBadge = (await bot.database.getEligbleBadge(userID, series, value))[0];
@@ -141,6 +141,17 @@ module.exports = {
                 bot.logger.log(`Awarding badge ${eligibleBadge.name} (${eligibleBadge.id}) to ${user.username} (${userID}). ${series} = ${value}`);
                 await bot.database.deleteBadgeFromSeries(userID, series);
                 await bot.database.giveBadge(userID, eligibleBadge.id);
+
+
+                if(channel){
+                    let embed = new Discord.RichEmbed();
+                    embed.setThumbnail(`https://ocelot.xyz/badge.php?id=${eligibleBadge.id}`);
+                    embed.setTitle(`You just earned ${eligibleBadge.name}`);
+                    embed.setDescription(`${eligibleBadge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
+                    embed.setColor("#3ba13b");
+                    channel.send(`<@${userID}>`, embed);
+                }
+
                 return eligibleBadge;
             }
             return null;

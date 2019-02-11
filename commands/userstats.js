@@ -38,10 +38,8 @@ module.exports = {
                 bot.logger.log(`Sending congrats to ${user} for ${commandCache[user]} commands`);
                 message.channel.send(`:tada: **Congratulations! You just performed your __${commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting. **Type: ${message.getSetting("prefix")}vote**`);
             }
-            let badge = await bot.badges.updateBadge(message.author, 'commands', commandCache[user]);
-            if(badge){
-                message.channel.send(`You just earned the ${badge.emoji} **${badge.name}** badge for your ${message.getSetting("prefix")}profile`);
-            }
+            bot.badges.updateBadge(message.author, 'commands', commandCache[user], message.channel);
+
 
         });
 

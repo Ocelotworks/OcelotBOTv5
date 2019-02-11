@@ -356,10 +356,7 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
                 let totalGuesses = await bot.database.getTotalCorrectGuesses(message.author.id);
 
                 if(totalGuesses && totalGuesses[0] && totalGuesses[0]['COUNT(*)']) {
-                    let badge = await bot.badges.updateBadge(message.author, "guess", totalGuesses[0]['COUNT(*)'] + 1);
-                    if (badge) {
-                        message.channel.send(`Congratulations ${message.author}, you just earned the ${badge.emoji} **${badge.name}** badge for your ${message.getSetting("prefix")}profile`);
-                    }
+                    bot.badges.updateBadge(message.author, "guess", totalGuesses[0]['COUNT(*)'] + 1, message.channel);
                 }
             } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
                 message.replyLang("SONGGUESS_ARTIST", {id: message.author.id, artist: artistName});
