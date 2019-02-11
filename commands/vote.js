@@ -33,10 +33,7 @@ module.exports = {
                     bot.logger.log("Logging vote from "+user);
                     let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
                     console.log(count);
-                    let badge = await bot.badges.updateBadge({id: user}, 'votes', count);
-                    if(badge && channel){
-                        channel.send(`You just earned the ${badge.emoji} **${badge.name}** badge for your ${bot.config.get(voteServer, "prefix")}profile`);
-                    }
+                    bot.badges.updateBadge({id: user}, 'votes', count, channel);
                 }
 
            }
