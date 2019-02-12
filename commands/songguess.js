@@ -329,6 +329,10 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
             console.log(strippedMessage);
             if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
 
+                won = true;
+                if (collector)
+                    collector.stop();
+
                 let embed = new Discord.RichEmbed();
                 embed.setColor("#77ee77");
                 embed.setTitle(`${message.author.username} wins!`);
@@ -346,12 +350,6 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
                 if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset){
                     message.channel.send(`:tada: You beat the previous fastest time for that song!`);
                 }
-
-               // message.replyLang("SONGGUESS_WIN", {id: message.author.id, seconds: bot.util.prettySeconds((guessTime - now) / 1000), title});
-                won = true;
-                if (collector)
-                    collector.stop();
-
 
                 let totalGuesses = await bot.database.getTotalCorrectGuesses(message.author.id);
 
