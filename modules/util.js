@@ -321,6 +321,8 @@ module.exports = {
             try {
                 if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
                     return message.mentions.users.first().avatarURL;
+                } else if (args[2] && args[2].indexOf("http") > -1) {
+                    return args[2]
                 } else if (args[1] && args[1].indexOf("http") > -1) {
                     return args[1];
                 } else {

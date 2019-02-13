@@ -6,8 +6,10 @@ module.exports = {
     categories: ["tools"],
     run: async function(message, args, bot){
         let target = message.author;
+        let targetMember = message.member;
         if(message.mentions && message.mentions.users && message.mentions.users.size > 0){
             target = message.mentions.users.first();
+            targetMember = message.mentions.members.first();
         }
         const now = new Date();
 
@@ -23,7 +25,7 @@ module.exports = {
         }
 
         let mutualGuildsText = mutualGuilds.slice(0, 10).join(", ");
-        if(mutualGuilds.length > 10)mutualGuildsText += `and ${mutualGuilds.length-10} more`;
+        if(mutualGuilds.length > 10)mutualGuildsText += ` and ${mutualGuilds.length-10} more`;
 
         message.channel.send("", {
             embed: {
@@ -39,6 +41,11 @@ module.exports = {
                     {
                         name: "Joined Discord",
                         value: `${target.createdAt.toDateString()}\n(${bot.util.prettySeconds((now-target.createdAt)/1000)} ago.)`,
+                        inline: true
+                    },
+                    {
+                        name: "Joined Guild",
+                        value: `${targetMember.joinedAt.toDateString()}\n(${bot.util.prettySeconds((now-targetMember.joinedAt)/1000)} ago.)`,
                         inline: true
                     },
                     {
