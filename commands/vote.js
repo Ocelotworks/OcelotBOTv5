@@ -18,7 +18,7 @@ module.exports = {
            if(message.type === "registerVote"){
                 let user = message.payload.user;
                 let voteServer = null;
-                let channel;
+                let channel = null;
                 for(let i = 0; i < bot.waitingVoteChannels.length; i++){
                     channel = bot.waitingVoteChannels[i];
                     if(channel.members.has(user)){
