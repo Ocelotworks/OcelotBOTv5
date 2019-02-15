@@ -4,12 +4,6 @@
  * ╚════ ║   (ocelotbotv5) snapchat
  *  ════╝
  */
-/**
- *   ╔════   Copyright 2019 Peter Maguire
- *  ║ ════╗  Created 08/02/2019
- * ╚════ ║   (ocelotbotv5) rotate
- *  ════╝
- */
 const Discord = require('discord.js');
 const canvas = require('canvas');
 module.exports = {
@@ -47,16 +41,24 @@ module.exports = {
 
         ctx.drawImage(img, 0,0);
 
-        ctx.font = "15px DroidSans";
+        const textSize = img.height/24;
+        const barHeight = textSize*2;
+        const barPosition = img.height-(img.height/3);
+
+        console.log(textSize, barHeight, barPosition);
+
+        ctx.font = textSize+"px DroidSans";
         ctx.fillStyle = "rgba(0,0,0,0.6)";
 
 
-        ctx.fillRect(0,img.height-(img.height/3)-25,img.width, 25);
+        ctx.fillRect(0,barPosition-barHeight,img.width, barHeight);
         ctx.fillStyle = 'white';
         ctx.textAlign = "center";
-        ctx.fillText(text,img.width/2, img.height-(img.height/3)-7);
+        ctx.fillText(text,img.width/2, barPosition-barHeight*0.4);
 
-        message.channel.send("", new Discord.Attachment(cnv.toBuffer("image/png"), "snapchat.png"));
+        message.channel.send("", new Discord.Attachment(cnv.toBuffer("image/png"), "snapchat.png")).catch(function(err){
+            message.channel.send("Error: "+err);
+        });
 
     }
 };
