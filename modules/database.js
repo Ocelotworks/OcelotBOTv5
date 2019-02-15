@@ -685,8 +685,11 @@ module.exports = {
             getAllSubscriptions: function(){
                 return knex.select().from("ocelotbot_subscriptions");
             },
-            updateLastCheck: function(server, channel, type, url){
-                return knex("ocelotbot_subscriptions").update({lastcheck: new Date()}).where({server: server, channel: channel, type: type, data: url}).limit(1);
+            getSubscriptionsForShard: function(servers){
+                return knex.select().from("ocelotbot_subscriptions").whereIn("server", servers);
+            },
+            updateLastCheck: function(id){
+                return knex("ocelotbot_subscriptions").update({lastcheck: new Date()}).where({id}).limit(1);
             },
             removeSubscription: function(server, channel, id){
                 return knex("ocelotbot_subscriptions").delete().where({

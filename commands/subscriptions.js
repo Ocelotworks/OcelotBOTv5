@@ -1,7 +1,12 @@
 const fs = require('fs');
+
+let subs = {
+};
+let checkTimer;
+
 module.exports = {
     name: "Subscriptions",
-    usage: "subscriptions add/list/remove",
+    usage: "subscriptions add/list/remove/types",
     rateLimit: 10,
     categories: ["tools"],
     requiredPermissions: ["ATTACH_FILES"],
@@ -35,19 +40,52 @@ module.exports = {
         });
         bot.client.on("ready", async function discordReady(){
             bot.logger.log("Loading active subscriptions...");
-            const subs = await bot.database.getAllSubscriptions();
-            for(let i = 0; i < subs.length; i++){
-                const sub = subs[i];
-                if(bot.client.guilds.has(sub.server)){
-                    bot.logger.log(`Subscription ${sub.id} (${sub.type}) belongs to this shard.`);
-                    if(bot.subscriptions[sub.type]){
-                        bot.subscriptions[sub.type].added(sub.server, sub.channel, sub.user, sub.data, sub.lastcheck, bot);
-                    }else{
-                        bot.logger.warn(`${sub.type} failed to initialise and is needed!`);
-                    }
-                }
+            const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.keyArray());
+            console.log(rawSubs);
+            bot.logger.log(`Loaded ${rawSubs.length} subs`);
+            for(let i = 0; i < rawSubs.length; i++){
+                const sub = rawSubs[i];
+                if(subs[sub.data])
+                    subs[sub.data].push(sub);
+                else
+                    subs[sub.data] = [sub];
+
             }
+            if(checkTimer)
+                clearInterval(checkTimer);
+            checkTimer = setInterval(module.exports.check, 60000, bot);
         });
+    },
+    check: async function check(bot){
+       for(let data in subs)
+           if(subs.hasOwnProperty(data)){
+               const subList = subs[data];
+               const sub = subList[0];
+               if(bot.subscriptions[sub.type]){
+                    let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
+                    for (let i = 0; i < subList.length; i++) {
+                       let chan = bot.client.channels.get(subList[i].channel);
+                       if(chan) {
+                           for(let j = 0; j < results.length; j++) {
+                               let result = results[j];
+                               bot.logger.log(`Sending result for ${sub.type} ID ${sub.id} to ${subList.length} channels.`);
+                                if(j >= 5){
+                                    chan.send(`:warning: **${results.length-5}** more results were omitted.`);
+                                    break;
+                                }else{
+                                    chan.send("", result);
+                                }
+                           }
+                       }else {
+                           bot.logger.warn(`${subList[i].channel} does not exist for sub ${subList[i].id}`);
+                       }
+                       await bot.database.updateLastCheck(subList[i].id);
+                       subList[i].lastcheck = new Date();
+                   }
+               }else{
+                   bot.logger.warn(`Invalid subscription type ${sub.type}`);
+               }
+           }
     },
     run: async function(message, args, bot){
         if(!message.guild){
@@ -61,15 +99,30 @@ module.exports = {
 
         const action = args[1].toLowerCase();
 
-        if(action === "add"){
+        if(action === "add" || action === "types"){
             if(args[2] && bot.subscriptions[args[2]] && args[3]){
+                let validation = bot.subscriptions[args[2]].validate(args[3]);
+                if(validation)
+                    return message.channel.send(validation);
                 await bot.database.addSubscription(message.guild.id, message.channel.id, message.author.id, args[2], args[3]);
-                bot.subscriptions[args[2]].added(message.guild.id, message.channel.id, message.author.id, args[3], new Date(), bot);
+                let subObject = {
+                    server: message.guild.id,
+                    channel: message.channel.id,
+                    user: message.author.id,
+                    type: args[2],
+                    data: args[3],
+                    lastcheck: new Date().getTime()
+                };
+                if(subs[subObject.data]){
+                    subs[subObject.data].push(subObject);
+                }else{
+                    subs[subObject.data] = [subObject];
+                }
                 message.channel.send(":white_check_mark: Your subscription has been added! You will receive messages in this channel whenever there are updates.");
             }else{
                 let output = "Usage: !subscription add name URL\nAvailable Subscriptions:\n";
                 for(let sub in bot.subscriptions){
-                    output += sub+" - "+bot.subscriptions[sub].name;
+                    output += sub+" - "+bot.subscriptions[sub].name+"\n";
                 }
                 message.channel.send(output);
             }
@@ -83,13 +136,13 @@ module.exports = {
                 }
                 message.channel.send(output);
             }else{
-                message.channel.send(`There are no subscriptions in this channel yet! Add one with ${args[0]} add`);
+                message.channel.send(`There are no subscriptions in this channel yet! Add one with ${args[0]} add\nor view available subscription types with **${args[0]} types**`);
             }
         }else if(action === "remove"){
             if(!args[3] || isNaN(args[3])){
                 message.channel.send(`:bangbang: Usage !subscriptions remove ID where ID is the number listed on ${args[0]} list`);
             }else{
-
+                message.channel.send("NYI, shout at peter");
             }
         }else{
             message.channel.send(`:bangbang: Usage: ${args[0]} add/list/remove`);
