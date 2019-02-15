@@ -20,8 +20,8 @@ module.exports = {
                 let voteServer = null;
                 let channel = null;
                 for(let i = 0; i < bot.waitingVoteChannels.length; i++){
-                    channel = bot.waitingVoteChannels[i];
-                    if(channel.members.has(user)){
+                    if(bot.waitingVoteChannels[i].members.has(user)){
+                        channel = bot.waitingVoteChannels[i];
                         bot.logger.log("Matched waiting vote channel for "+user);
                         channel.send(`Thanks for voting <@${user}>!\nI'd love it if you voted again tomorrow. <3`);
                         voteServer = channel.guild.id;
