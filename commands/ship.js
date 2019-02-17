@@ -34,10 +34,13 @@ module.exports = {
         }else{
             let split = message.cleanContent.split(" ");
             let person1, person2, shipName, shipPoints = 0;
+            let robotLove = false;
             if(message.mentions.members.size > 0){
                 person1 = message.mentions.members.first().displayName;
                 if(message.mentions.members.size > 1){
                     person2 = message.mentions.members.last().displayName;
+                    if(message.mentions.members.first().user.bot && message.mentions.members.last().user.bot)
+                        robotLove = true;
                 }else{
                     person2 = split[2];
                 }
@@ -99,7 +102,9 @@ module.exports = {
 
             if(shipName){
                 //shipPoints += shipName.length;
-                message.channel.send(`**Ship Generator:**\n:heart: Compatibility Score: __${shipPoints}__\n:yellow_heart: Ship Name: \`${shipName}\``);
+                if(robotLove)
+                    shipPoints += 1000;
+                message.channel.send(`**Ship Generator:**\n:heart: Compatibility Score: __${shipPoints}__\n:yellow_heart: Ship Name: \`${shipName}\`${robotLove ? "\n:robot: **Android Love Bonus** https://www.youtube.com/watch?v=UOJ12b7iNmw" : ""}`);
             }else{
                 message.channel.send(":broken_heart: I'm sorry... I couldn't ship these two people. It just wouldn't work.");
             }
