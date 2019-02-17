@@ -109,6 +109,8 @@ module.exports = {
 
         let lastPresenceUpdate = 0;
 
+        bot.presenceMessage = "!help";
+
         bot.client.on("guildCreate", async function joinGuild(guild){
             bot.logger.log(`Joined server ${guild.id} (${guild.name})`);
             bot.raven.captureBreadcrumb({
