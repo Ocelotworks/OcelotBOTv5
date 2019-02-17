@@ -659,6 +659,9 @@ module.exports = {
             giveBadge: function(user, badge){
                 return knex.insert({user: user, badge: badge}).into("ocelotbot_badge_assignments");
             },
+            getBadge: function(id){
+                return knex.select().from("ocelotbot_badges").where({id}).limit(1);
+            },
             hasBadge: async function(user, badge){
                 return (await knex.select().from("ocelotbot_badge_assignments").where({user: user, badge: badge}).limit(1)).length > 0
             },
