@@ -150,6 +150,8 @@ module.exports = {
                     embed.setDescription(`${eligibleBadge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
                     embed.setColor("#3ba13b");
                     channel.send(`<@${userID}>`, embed);
+                }else{
+                    bot.logger.log("No channel was given for sending the award message.");
                 }
 
                 return eligibleBadge;
