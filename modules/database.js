@@ -744,8 +744,11 @@ module.exports = {
             addVote: async function(user, referralServer){
                 await knex.insert({user, referralServer}).into("ocelotbot_votes");
             },
-            getVoteCount: async function(user){
+            getVoteCount: function(user){
                 return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_votes").where({user});
+            },
+            getLastVote: function(user){
+                return knex.select(knex.raw("MAX(timestamp)")).from("ocelotbot_votes").where({user}).limit(1);
             },
             getEligbleBadge: function(user, series, count){
                 return knex.select()
