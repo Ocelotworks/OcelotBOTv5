@@ -48,12 +48,32 @@ module.exports = {
             bot.logger.log(`Loading ${result.length} server config keys`);
         };
 
-        bot.config.loadGlobalCache();
-        bot.client.on("ready", bot.config.loadServerCache);
+        bot.config.loadUserCache = async function loadUserCache(){
+            bot.logger.log("Populating user setting cache...");
+            let result = await bot.database.getUserSettingsForShard(bot.client.users.keyArray());
+            for(let i = 0; i < result.length; i++){
+                const row = result[i];
+                if(bot.config.cache[row.user])
+                    bot.config.cache[row.user][row.setting] = row.value;
+                else
+                    bot.config.cache[row.user] = {
+                        [row.setting]: row.value
+                    }
+            }
+            bot.logger.log(`Loading ${result.length} server config keys`);
+        };
 
-        bot.config.get = function get(server, property){
+        bot.config.loadGlobalCache();
+        bot.client.on("ready", async function(){
+            await bot.config.loadServerCache();
+            await bot.config.loadUserCache();
+        });
+
+        bot.config.get = function get(server, property, user){
             if(bot.config.cache[server] && bot.config.cache[server][property])
                 return bot.config.cache[server][property];
+            if(user && bot.config.cache[user] && bot.config.cache[user][property])
+                return bot.config.cache[user][property];
             if(bot.config.cache.global[property])
                 return bot.config.cache.global[property];
             return null;

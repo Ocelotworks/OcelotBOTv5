@@ -22,6 +22,7 @@ module.exports = {
                 if (!profileInfo) {
                     bot.logger.log("Creating profile for " + user.id);
                     await bot.database.createProfile(user.id);
+                    console.log("Created profile");
                     profileInfo = {
                         caption: "I should do\n!profile help",
                         background: 0,
@@ -30,29 +31,34 @@ module.exports = {
                     };
                 }
 
+
                 const backgroundInfo = (await bot.database.getProfileOption(profileInfo.background))[0];
                 const frameInfo = (await bot.database.getProfileOption(profileInfo.frames))[0];
                 const boardInfo = (await bot.database.getProfileOption(profileInfo.board))[0];
 
                 const bg = await canvas.loadImage('static/profile/backgrounds/' + backgroundInfo.path);
-                const frames = await canvas.loadImage('static/profile/frames/' + frameInfo.path);
+
                 const board = await canvas.loadImage('static/profile/boards/' + boardInfo.path);
+
 
                 const cnv = canvas.createCanvas(bg.width, bg.height);
                 const ctx = cnv.getContext("2d");
+                let frames;
 
                 ctx.drawImage(bg, 0, 0);
 
                 ctx.drawImage(board, 384, 20);
 
-                const avatar = await canvas.loadImage(user.avatarURL);
+                if(user.avatarURL && frameInfo.path !== "transparent") {
+                    frames = await canvas.loadImage('static/profile/frames/' + frameInfo.path);
+                    const avatar = await canvas.loadImage(user.avatarURL);
 
-                ctx.drawImage(avatar, 21, 14, 172, 172);
+                    ctx.drawImage(avatar, 21, 14, 172, 172);
 
+                    if(frameInfo.textColour !== "over")
+                        ctx.drawImage(frames, 17, 10);
+                }
 
-
-                if(frameInfo.textColour !== "over")
-                    ctx.drawImage(frames, 17, 10);
 
                 ctx.font = "30px Sans serif";
                 ctx.fillStyle = backgroundInfo.textColour;
@@ -114,8 +120,13 @@ module.exports = {
                     ctx.drawImage(img, 210 + ((i % 4) * (32 + 10)), 86 + (Math.floor(i / 4) * 39));
                 }
 
-                if(frameInfo.textColour === "over")
+                if(frameInfo.path !== "transparent" && frameInfo.textColour === "over")
                     ctx.drawImage(frames, 17, 10);
+
+                if(bot.config.get(user.id, "premium") && bot.config.get(user.id, "premium") === "1"){
+                    const premium = await canvas.loadImage("static/profile/premium.png");
+                    ctx.drawImage(premium, 0,0 );
+                }
 
                 return cnv.toBuffer("image/png");
             }catch(e){

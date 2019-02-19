@@ -666,7 +666,7 @@ module.exports = {
                 return (await knex.select().from("ocelotbot_badge_assignments").where({user: user, badge: badge}).limit(1)).length > 0
             },
             removeBadge: function(user, badge){
-                return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge}).limit(1);
+                return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge});
             },
             getFirstSeen: function(user){
                 return knex.select(knex.raw("MIN(timestamp)")).from(COMMANDLOG_TABLE).where({userID: user})
@@ -725,6 +725,9 @@ module.exports = {
             },
             getServerSettings: function(server){
                 return knex.select().from(SERVER_SETTINGS_TABLE).where("server", server);
+            },
+            getUserSettingsForShard: function(users){
+                return knex.select().from("ocelotbot_user_settings");
             },
             getSettingsForShard: function(guilds){
                 return knex.select().from(SERVER_SETTINGS_TABLE).whereIn("server", guilds);

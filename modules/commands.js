@@ -38,7 +38,7 @@ module.exports = {
                 return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
 
             if(message.guild && !message.channel.nsfw && bot.commandUsages[command].categories.indexOf("nsfw") > -1 &&  message.getSetting("bypassNSFWCheck") !== "1")
-                return message.channel.send(`:warning: This command can only be used in NSFW channels.\nYou can bypass this check with the ${message.getSetting("prefix")}settings command.`);
+                return message.channel.send(`:warning: This command can only be used in NSFW channels.\nYou can bypass this check with  **${message.getSetting("prefix")}settings set bypassNSFW true**`);
 
             if(message.getSetting(`${command}.disable`))
                 return bot.logger.log(`${command} is disabled in this server: ${message}`);

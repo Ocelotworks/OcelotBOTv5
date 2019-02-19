@@ -19,12 +19,12 @@ module.exports = {
         };
 
         Discord.Guild.prototype.getSetting = function(setting){
-            return bot.config.get(this.id, setting);
+            return bot.config.get(this.id ? this.id : "global", setting, this.author ? this.author.id : null);
         };
 
         Discord.Message.prototype.getSetting = function(setting){
             if(this.guild)
-                return bot.config.get(this.guild.id, setting);
+                return bot.config.get(this.guild.id, setting, this.author.id);
             return bot.config.get("global", setting);
         };
 
