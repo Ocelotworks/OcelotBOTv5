@@ -26,7 +26,7 @@ module.exports = {
                     if(bot.waitingVoteChannels[i].members.has(user)){
                         channel = bot.waitingVoteChannels[i];
                         bot.logger.log("Matched waiting vote channel for "+user);
-                        channel.send(`Thanks for voting <@${user}>!\nI'd love it if you voted again tomorrow. <3`);
+                        channel.sendLang("VOTE_MESSAGE", {user});
                         voteServer = channel.guild.id;
                         break;
                     }
@@ -50,9 +50,9 @@ module.exports = {
         let difference = new Date()-lastVote;
 
         if(difference < timeout){
-            message.channel.send(`:hearts: Thanks for your vote, you can vote again in **${bot.util.prettySeconds((timeout-difference)/1000)}**\n_You can use the **${message.getSetting("prefix")}remind** command to make sure you don't forget_`);
+            message.replyLang("VOTE_TIMEOUT", {time: bot.util.prettySeconds((timeout-difference)/1000)});
         }else {
-            message.channel.send(`Voting for OcelotBOT helps me grow and supports development.\n**You'll also get a special <:supporter_1:529308223954616322> supporter badge on your ${message.getSetting("prefix")}profile**\nClick here to vote: https://discordbots.org/bot/146293573422284800/vote`);
+            message.replyLang("VOTE");
         }
         bot.waitingVoteChannels.push(message.channel);
     }

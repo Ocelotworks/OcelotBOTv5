@@ -20,7 +20,7 @@ module.exports = {
         const url =  await bot.util.getImage(message, args);
         if(!url) {
             message.channel.stopTyping(true);
-            return message.channel.send(":warning: No image found.");
+            return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
         }
         console.log(url);
         request({
@@ -44,22 +44,22 @@ module.exports = {
                         let output = "";
                         for(let i = 0; i < data.errors.length; i++){
                             if(data.errors[i].title === "Insufficient credits"){
-                                output += `:warning: Quota has been reached for this month.\nThis command costs me money to have, if you'd like to donate to help increase the quota, join the support server with ${message.getSetting("prefix")}support\n`
+                                return message.replyLang("REMOVEBG_QUOTA");
                             }
                             output += data.errors[i].title+"\n"
                         }
                         message.channel.send(output);
                     }else{
                         message.replyLang("GENERIC_ERROR");
-                    }time
+                    }
                 }catch(e){
                     bot.raven.captureException(e);
-                    message.channel.send("Got a malformed response. Try again later.")
+                    message.replyLang("GENERIC_ERROR");
                 }
                 message.channel.stopTyping(true);
             }else{
                 let attachment = new Discord.Attachment(body, "removebg.png");
-                message.channel.send("_Background removal provided by remove.bg_",attachment);
+                message.channel.send(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753"),attachment);
                 message.channel.stopTyping(true);
             }
         })
