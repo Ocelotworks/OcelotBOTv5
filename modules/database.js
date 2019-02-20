@@ -741,6 +741,12 @@ module.exports = {
                     return knex(SERVER_SETTINGS_TABLE).update({setting, value}).where({server, setting}).limit(1);
                 return knex.insert({server, setting, value}).into(SERVER_SETTINGS_TABLE);
             },
+            setUserSetting: async function(user, setting, value){
+                let currentKey = await knex.select().from("ocelotbot_user_settings").where({user, setting}).limit(1);
+                if(currentKey.length > 0)
+                    return knex("ocelotbot_user_settings").update({setting, value}).where({user, setting}).limit(1);
+                return knex.insert({user, setting, value}).into("ocelotbot_user_settings");
+            },
             deleteSetting: async function(server, setting){
                 await knex.delete().from(SERVER_SETTINGS_TABLE).where({server,setting}).limit(1);
             },

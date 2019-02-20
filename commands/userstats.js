@@ -61,17 +61,37 @@ module.exports = {
                 const target = message.mentions.users.firstKey();
                 try {
                     message.channel.startTyping();
-                    let result = await bot.database.getUserStats(target);
-                    if (!result[0] || result[0].commandCount === 0) {
-                        message.replyLang("USERSTATS_NO_COMMANDS");
-                    } else {
-                        message.replyLang("USERSTATS_MESSAGE", {target: target, count: result[0].commandCount});
-                    }
+                    let commandResult = (await bot.database.getUserStats(target))[0];
+                    let voteResult =(await bot.database.getVoteCount(target))[0];
+                    let guessResult =(await bot.database.getTotalCorrectGuesses(target))[0];
+                    let triviaResult = (await bot.database.getTriviaCorrectCount(target))[0];
+                    let voteCount = 0, guessCount = 0, triviaCount = 0, commandCount = 0;
+
+                    if(commandResult && commandResult['commandCount'])
+                        commandCount = commandResult['commandCount'].toLocaleString();
+
+                    if(voteResult && voteResult['COUNT(*)'])
+                        voteCount = voteResult['COUNT(*)'].toLocaleString();
+
+                    if(guessResult && guessResult['COUNT(*)'])
+                        guessCount = guessResult['COUNT(*)'].toLocaleString();
+
+                    if(triviaResult && triviaResult['count(*)'])
+                        triviaCount = triviaResult['count(*)'].toLocaleString();
+
+                    message.replyLang("USERSTATS_MESSAGE", {
+                        target,
+                        commandCount,
+                        voteCount,
+                        guessCount,
+                        triviaCount
+                    });
 
                     message.channel.stopTyping();
 
                 } catch (e) {
                     bot.raven.captureException(e);
+                    console.log(e);
                     message.replyLang("GENERIC_ERROR");
                 }
             }else{
