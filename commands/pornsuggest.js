@@ -44,7 +44,7 @@ module.exports = {
             let search = message.cleanContent.substring(args[0].length+1);
 
 
-            request(`https://www.pornmd.com/straight/${encodeURIComponent(search)}?start=20&ajax=true&limit=20&format=json`, async function getPorn(err, resp, body){
+            request(`https://www.pornmd.com/straight/${encodeURIComponent(search)}?start=1&ajax=true&limit=20&format=json`, async function getPorn(err, resp, body){
                 if(err)
                     return message.replyLang("GENERIC_ERROR");
                 try{
