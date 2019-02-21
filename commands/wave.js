@@ -9,30 +9,6 @@ module.exports = {
     commands: ["wave", "wavey", "waves"],
     categories: ["image", "fun"],
     run: async function(message, args, bot){
-
-        const url =  await bot.util.getImage(message, args);
-
-        if(!url || !url.startsWith("http"))
-            return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
-
-        const fileName = `temp/${Math.random()}.png`;
-
-        request(url).on("end", ()=>{
-            gm(fileName)
-                .wave(10,50)
-                .toBuffer("PNG", function(err, buffer){
-                    if(err){
-                        message.replyLang("GENERIC_ERROR");
-                        return;
-                    }
-                    let attachment = new Discord.Attachment(buffer, "wave.png");
-                    message.channel.send("", attachment).catch(function(e){
-                        console.log(e);
-                        message.channel.send("Upload error: "+e);
-                    });
-                    fs.unlink(fileName, function(){});
-                });
-        }).pipe(fs.createWriteStream(fileName));
-
+        bot.util.processImageFilter(module, message, args, "wave", [10, 50]);
     }
 };

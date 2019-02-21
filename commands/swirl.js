@@ -16,34 +16,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["swirl"],
     run: async function(message, args, bot){
-
-        const url =  await bot.util.getImage(message, args);
-
-        if(!url || !url.startsWith("http"))
-            return message.replyLang("GENERIC_NO_IMAGE", module.exports.image);
-
-        console.log(url);
-
-
-        const fileName = `temp/${Math.random()}.png`;
-
-        request(url).on("end", ()=>{
-            gm(fileName)
-                .autoOrient()
-                .swirl(message.getSetting("swirl.amount"))
-                .toBuffer("PNG", function(err, buffer){
-                    if(err){
-                        message.replyLang("GENERIC_ERROR");
-                        return;
-                    }
-                    let attachment = new Discord.Attachment(buffer, "lower.png");
-                    message.channel.send("", attachment).catch(function(e){
-                        console.log(e);
-                        message.channel.send("Upload error: "+e);
-                    });
-                    fs.unlink(fileName, function(){});
-                });
-        }).pipe(fs.createWriteStream(fileName));
-
+        bot.util.processImageFilter(module, message, args, "swirl", [message.getSetting("swirl.amount")]);
     }
 };

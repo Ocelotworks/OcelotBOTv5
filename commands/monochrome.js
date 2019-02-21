@@ -10,35 +10,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["monochrome", "blackandwhite"],
     run: async function(message, args, bot){
-
-        const url =  await bot.util.getImage(message, args);
-
-        if(!url || !url.startsWith("http")){
-            message.channel.send(`:bangbang: No image found. ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}${module.exports.usage}`);
-            return;
-        }
-        console.log(url);
-
-
-        const fileName = `temp/${Math.random()}.png`;
-
-        request(url).on("end", ()=>{
-            gm(fileName)
-                .monochrome()
-                .dither(true)
-                .toBuffer("PNG", function(err, buffer){
-                    if(err){
-                        message.replyLang("GENERIC_ERROR");
-                        return;
-                    }
-                    let attachment = new Discord.Attachment(buffer, "monochrome.png");
-                    message.channel.send("", attachment).catch(function(e){
-                        console.log(e);
-                        message.channel.send("Upload error: "+e);
-                    });
-                    fs.unlinkSync(fileName);
-                });
-        }).pipe(fs.createWriteStream(fileName));
-
+        bot.util.processImageFilter(module, message, args, "monochrome", []);
     }
 };
