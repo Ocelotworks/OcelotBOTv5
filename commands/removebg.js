@@ -12,7 +12,7 @@ const Discord = require('discord.js');
 module.exports = {
     name: "Remove Background",
     usage: "removebg [URL]",
-    rateLimit: 10,
+    rateLimit: 250,
     commands: ["removebg", "rbg", "removebackground"],
     categories: ["image", "tools"],
     run: async function run(message, args, bot) {
