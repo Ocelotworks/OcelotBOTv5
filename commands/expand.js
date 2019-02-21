@@ -7,10 +7,8 @@ module.exports = {
     commands: ["expand"],
     categories: ["fun"],
     run: function run(message, args) {
-        if(args.length < 2){
-            message.replyLang("EXPAND_NO_TEXT");
-            return;
-        }
+        if(args.length < 2)
+            return  message.replyLang("EXPAND_NO_TEXT");
 
         message.channel.send([...(message.cleanContent.substring(args[0].length+1))].join(" "));
     }
