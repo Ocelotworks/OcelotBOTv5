@@ -1,6 +1,8 @@
 const gm = require('gm');
 const wrap = require('word-wrap');
 const Discord = require('discord.js');
+const request = require('request');
+const fs = require('fs');
 module.exports = {
     name: "Utilities",
     init: function(bot){
@@ -290,6 +292,41 @@ module.exports = {
                     }
                     message.channel.stopTyping();
                 });
+        };
+
+        /**
+         *
+         * @param module The command module
+         * @param message The input message
+         * @param args The input arguments
+         * @param filter The desired GM filter
+         * @param input The input arguments
+         * @param format The output format
+         * @returns {Promise<*|void|Promise<*>>}
+         */
+        bot.util.processImageFilter = async function processImageFilter(module, message, args, filter, input, format = "PNG"){
+            const url =  await bot.util.getImage(message, args);
+            if(!url || !url.startsWith("http"))
+                return message.replyLang("GENERIC_NO_IMAGE", module.exports.image);
+
+            bot.logger.log(url);
+
+            const fileName = `temp/${Math.random()}.png`;
+
+            request(url).on("end", ()=>{
+                const initialProcess = gm(fileName).autoOrient();
+                initialProcess[filter].apply(initialProcess, input)
+                    .toBuffer(format, function toBuffer(err, buffer){
+                        if(err)
+                            return message.channel.send(":warning: Couldn't create image - did you enter an image URL?");
+                        const attachment = new Discord.Attachment(buffer, filter+".png");
+                        message.channel.send("", attachment).catch(function sendMessageError(e){
+                            console.log(e);
+                            message.channel.send("Upload error: "+e);
+                        });
+                        fs.unlink(fileName, function(){});
+                    });
+            }).pipe(fs.createWriteStream(fileName));
         };
 
         String.prototype.formatUnicorn = String.prototype.formatUnicorn ||
