@@ -1,7 +1,7 @@
 module.exports = {
     name: "Bot Invite Link",
     usage: "invite",
-    commands: ["invite", "joinserver", "addbot", "support", "supportserver"],
+    commands: ["invite", "joinserver", "addbot", "supportserver"],
     categories: ["meta"],
     run: function run(message) {
         // message.replyLang("INVITE", {

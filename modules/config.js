@@ -60,7 +60,7 @@ module.exports = {
                         [row.setting]: row.value
                     }
             }
-            bot.logger.log(`Loading ${result.length} server config keys`);
+            bot.logger.log(`Loading ${result.length} user config keys`);
         };
 
         bot.config.loadGlobalCache();

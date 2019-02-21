@@ -7,9 +7,8 @@
 module.exports = {
     name: "Ocelot Premium",
     usage: "premium",
-    commands: ["premium"],
+    commands: ["premium", "support", "donate"],
     rateLimit: 1,
-    hidden: true,
     categories: ["meta"],
     init: function(bot){
         bot.client.on("ready", function startPremiumListener(){
@@ -17,7 +16,9 @@ module.exports = {
                bot.logger.log("Listening for premium changes on this shard");
                bot.client.on("guildMemberUpdate", async function guildMemberUpdate(oldMember, newMember){
                     if(oldMember.guild.id !== "322032568558026753")return;
-                    if(newMember.hoistRole.name === "Premium"){
+                    if(oldMember.hoistRole.name === "Premium" && (!newMember.hoistRole || newMember.hoistRole.name !== "Premium")){
+
+                    }else if(newMember.hoistRole.name === "Premium"){
                         bot.logger.log("Found new premium subscriber "+newMember);
                         let user = newMember.user;
                         let dm = await user.createDM();
@@ -37,6 +38,6 @@ You now have access to the following features:
         });
     },
     run: async function run(message, args){
-        //sneaky deaky
+        message.channel.send("<:ocelotbot:533369578114514945> **Support OcelotBOT on Patreon and get Premium features: https://www.patreon.com/ocelotbot**\n\nJoin the support server: https://discord.gg/7YNHpfF");
     }
 };
