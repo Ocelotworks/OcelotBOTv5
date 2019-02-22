@@ -1,7 +1,3 @@
-const Discord = require('discord.js');
-const request = require('request');
-const gm = require('gm');
-const fs = require('fs');
 module.exports = {
     name: "Wave Image",
     usage: "wave [url]",
