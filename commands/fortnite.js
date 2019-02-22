@@ -73,13 +73,15 @@ module.exports = {
             //const lastMatch = body.recentMatches[0];
             //embed.setDescription(`Last match:\n${lastMatch.kills} kills, ${lastMatch.matches} matches.`);
             const stats = body.lifeTimeStats;
-            for(let i = 0; i < stats.length; i++){
-                const stat = stats[i];
-                embed.addField(stat.key, stat.value, true);
+            if(!stats){
+                message.channel.send(":warning: No stats found for that user.");
+            }else {
+                for (let i = 0; i < stats.length; i++) {
+                    const stat = stats[i];
+                    embed.addField(stat.key, stat.value, true);
+                }
+                message.channel.send("", embed);
             }
-
-            message.channel.send("", embed);
-
         });
 
     }
