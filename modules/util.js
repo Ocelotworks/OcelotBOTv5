@@ -312,8 +312,23 @@ module.exports = {
             bot.logger.log(url);
 
             const fileName = `temp/${Math.random()}.png`;
+            let shouldProcess = true;
 
-            request(url).on("end", ()=>{
+            request(url)
+            .on("response", function requestResponse(resp){
+                shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
+            })
+            .on("error", function requestError(err){
+                bot.raven.captureException(err);
+                bot.logger.log(err);
+                shouldProcess = false;
+            })
+            .on("end", function requestEnd(){
+                if(!shouldProcess){
+                    message.channel.send(":warning: The URL entered is not an image URL. Please try an image or a @user.");
+                    fs.unlink(fileName, function(){});
+                    return;
+                }
                 const initialProcess = gm(fileName).autoOrient();
                 initialProcess[filter].apply(initialProcess, input)
                     .toBuffer(format, function toBuffer(err, buffer){
