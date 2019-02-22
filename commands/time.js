@@ -4,10 +4,10 @@ const regionTimezones = {
     "brazil": "GMT-3",
     "sydney": "GMT+10",
     "singapore": "GMT+8",
-    "us-central": "CT",
-    "us-west": "PT",
-    "us-east": "ET",
-    "us-south": "CT"
+    "us-central": "CST",
+    "us-west": "PST",
+    "us-east": "EST",
+    "us-south": "CST"
 };
 //Fuck you joel, theres no easier way to do this.
 const timezones = {ACDT: "10.5",
@@ -211,10 +211,12 @@ module.exports = {
                 try {
                     time.setHours(time.getHours() + parseInt(regexMatch[2]));
                 }catch(e){
+                    console.log(e);
                     message.replyLang("TIME_INVALID_TIMEZONE");
                     return;
                 }
             }else{
+                console.log(targetTimezone);
                 message.replyLang("TIME_INVALID_TIMEZONE");
                 return;
             }
