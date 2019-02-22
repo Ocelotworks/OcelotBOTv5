@@ -63,7 +63,7 @@ module.exports = {
                         type: "LISTENING"
                     }
                 });
-            }, 10000);
+            }, 60000);
 
 
             bot.client.voiceConnections.forEach(function(connection){
