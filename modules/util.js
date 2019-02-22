@@ -307,7 +307,7 @@ module.exports = {
         bot.util.processImageFilter = async function processImageFilter(module, message, args, filter, input, format = "PNG"){
             const url =  await bot.util.getImage(message, args);
             if(!url || !url.startsWith("http"))
-                return message.replyLang("GENERIC_NO_IMAGE", module.exports.image);
+                return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
 
             bot.logger.log(url);
 
