@@ -64,8 +64,12 @@ module.exports = {
                 }, {
                     time: 60000
                 }).then(function removeReactions() {
-                    bot.logger.log(`Reactions on !image ${message.id} have expired.`);
-                    sentMessage.clearReactions();
+                    if(sentMessage.deleted){
+                        bot.logger.log(`!image response for ${message.id} was deleted before the reactions expired.`);
+                    }else{
+                        bot.logger.log(`Reactions on !image ${message.id} have expired.`);
+                        sentMessage.clearReactions();
+                    }
                 })
             }catch(e){
                 if(e.message === "Response code 403 (Forbidden)"){
