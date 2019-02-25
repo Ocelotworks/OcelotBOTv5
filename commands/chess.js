@@ -158,7 +158,7 @@ module.exports = {
                     };
                     message.replyLang("CHESS_CHALLENGE", {target: target.id, user: message.author.id, arg: args[0]});
                 }else{
-                    message.replyLang("GAME_CHALLANGE_NO_USER", {arg: args[0]});
+                    message.replyLang("GAME_CHALLENGE_NO_USER", {arg: args[0]});
                 }
             }
         },
