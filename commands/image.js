@@ -24,6 +24,7 @@ module.exports = {
         if(args.length > 1){
             const query = message.cleanContent.substring(args[0].length+1);
             if(naughtyRegex.test(query)){
+                bot.logger.warn("Blocking query");
                 let embed = new Discord.RichEmbed();
                 embed.setTitle("Search Blocked");
                 embed.setDescription("I'm not going to jail for your edgy joke");

@@ -10,6 +10,7 @@ const orientations = [
     "gay",
     "tranny"
 ];
+let naughtyRegex = /child|kid|baby|babies|toddler|1[0-7]|/gi;
 module.exports = {
     name: "Porn Suggest",
     usage: "pornsuggest [country] [gay/straight/tranny]",
@@ -42,6 +43,15 @@ module.exports = {
 
 
             let search = message.cleanContent.substring(args[0].length+1);
+
+            // if(naughtyRegex.test(search)){
+            //     bot.logger.warn("Blocking query");
+            //     let embed = new Discord.RichEmbed();
+            //     embed.setTitle("Search Blocked");
+            //     embed.setDescription("I'm not going to jail for your edgy joke");
+            //     embed.setImage("https://i.imgur.com/iHZJOnG.jpg");
+            //     return message.channel.send("", embed);
+            // }
 
 
             request(`https://www.pornmd.com/straight/${encodeURIComponent(search)}?start=1&ajax=true&limit=20&format=json`, async function getPorn(err, resp, body){
