@@ -334,7 +334,10 @@ module.exports = {
                     .toBuffer(format, function toBuffer(err, buffer){
                         if(err)
                             return message.channel.send(":warning: Couldn't create image - did you enter an image URL?");
-                        const attachment = new Discord.Attachment(buffer, filter+".png");
+                        let name = filter+".png";
+                        if(url.indexOf("SPOILER_") > -1)
+                            name = "SPOILER_"+name;
+                        const attachment = new Discord.Attachment(buffer, name);
                         message.channel.send("", attachment).catch(function sendMessageError(e){
                             console.log(e);
                             message.channel.send("Upload error: "+e);
