@@ -139,7 +139,7 @@ module.exports = {
                 console.log(e);
                 bot.raven.captureException(e);
             } finally {
-                bot.database.logCommand(message.author.id, message.channel.id, message.content).catch(function (e) {
+                bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command ,message.content).catch(function (e) {
                     bot.raven.captureException(e);
                     bot.logger.error(e);
                 }).then(async function millionthCommandCheck(res){

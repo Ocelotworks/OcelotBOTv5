@@ -314,19 +314,16 @@ module.exports = {
             getTriviaCorrectCount: function(user){
                   return knex.select(knex.raw("count(*)")).from(TRIVIA_TABLE).where({user}).limit(1);
             },
-            /**
-             * Log a command
-             * @param {UserID} user The user ID
-             * @param {ChannelID} channel The channel ID
-             * @param {String} command The full message content
-             * @returns {*}
-             */
-            logCommand: function logCommand(user, channel, command) {
+
+            logCommand: function logCommand(userID, channelID, serverID, messageID, commandID, command) {
                 return knex.insert({
-                    userID: user,
-                    channelID: channel,
-                    command: command,
-                    server: "ocelotbot-" + bot.client.shard ? bot.client.shard.id : "0"
+                    userID,
+                    channelID,
+                    serverID,
+                    messageID,
+                    commandID,
+                    command,
+                    server: bot.client.shard ? bot.client.shard.id : 0
                 }).into(COMMANDLOG_TABLE);
             },
             /**
