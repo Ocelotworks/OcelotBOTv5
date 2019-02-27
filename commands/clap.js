@@ -7,12 +7,9 @@
 module.exports = {
     name: "Clap Text",
     usage: "clap <text>",
-    categories: ["fun", "memes", "tools"],
+    categories: ["fun", "memes"],
     rateLimit: 10,
     commands: ["clap", "claptext"],
-    init: function(bot){
-        bot.usedTopicalCompliments = [];
-    },
     run: function run(message, args, bot) {
        if(!args[1]){
             message.channel.send("You must supply some text.");
