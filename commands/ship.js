@@ -104,7 +104,12 @@ module.exports = {
                 //shipPoints += shipName.length;
                 if(robotLove)
                     shipPoints += 1000;
-                message.channel.send(`**Ship Generator:**\n:heart: Compatibility Score: __${shipPoints}__\n:yellow_heart: Ship Name: \`${shipName}\`${robotLove ? "\n:robot: **Android Love Bonus** https://www.youtube.com/watch?v=UOJ12b7iNmw" : ""}`);
+                let output = `**Ship Generator:**\n:heart: Compatibility Score: __${shipPoints}__\n:yellow_heart: Ship Name: \`${shipName}\``;
+                if(robotLove)
+                    output += `\n:robot: **Android Love Bonus** https://www.youtube.com/watch?v=UOJ12b7iNmw`;
+                if(shipName === person1 || shipName === person2)
+                    output += `\n:thinking: **Wait... that's just the same name**`;
+                message.channel.send(output);
             }else{
                 message.channel.send(":broken_heart: I'm sorry... I couldn't ship these two people. It just wouldn't work.");
             }
