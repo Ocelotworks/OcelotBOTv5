@@ -54,6 +54,6 @@ module.exports = {
         }else {
             message.replyLang("VOTE");
         }
-        bot.waitingVoteChannels.push(message.channel);
+        bot.waitingVoteChannels.unshift(message.channel);
     }
 };
