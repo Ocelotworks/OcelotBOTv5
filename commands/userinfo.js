@@ -27,6 +27,8 @@ module.exports = {
         let mutualGuildsText = mutualGuilds.slice(0, 10).join(", ");
         if(mutualGuilds.length > 10)mutualGuildsText += ` and ${mutualGuilds.length-10} more`;
 
+        console.log(target.lastMessage.createdAt);
+
         message.channel.send("", {
             embed: {
                 color: 2437587,
