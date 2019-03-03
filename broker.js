@@ -25,24 +25,23 @@ manager.on('launch', function launchShard(shard) {
 
     shardDeathCount[shard.id] = 0;
 
-    return;
-    shard.on('death', function(){
-        logger.warn(`Shard ${shard.id} died.`);
-
-        if(shardDeathTimeout[shard.id])
-            clearTimeout(shardDeathTimeout[shard.id]);
-
-        if(++shardDeathCount[shard.id] > 15){
-            logger.error(`Shard ${shard.id} is misbehaving! Killing it completely.`);
-            shard.kill();
-            manager.broadcast({
-                type: "cockup",
-                payload: `Shard ${shard.id} has crashed too many times.`
-            });
-        }else {
-            shardDeathTimeout[shard.id] = setTimeout(resetShardDeaths, 30000, shard.id);
-        }
-    });
+    // shard.on('death', function(){
+    //     logger.warn(`Shard ${shard.id} died.`);
+    //
+    //     if(shardDeathTimeout[shard.id])
+    //         clearTimeout(shardDeathTimeout[shard.id]);
+    //
+    //     if(++shardDeathCount[shard.id] > 15){
+    //         logger.error(`Shard ${shard.id} is misbehaving! Killing it completely.`);
+    //         shard.kill();
+    //         manager.broadcast({
+    //             type: "cockup",
+    //             payload: `Shard ${shard.id} has crashed too many times.`
+    //         });
+    //     }else {
+    //         shardDeathTimeout[shard.id] = setTimeout(resetShardDeaths, 30000, shard.id);
+    //     }
+    // });
 });
 
 manager.on('message', function onMessage(process, message){
@@ -181,6 +180,30 @@ app.get('/user/:id/registerVote', function(req, res){
         user: req.params.id
     }});
     res.json({});
+});
+
+
+app.post('/sub/handle', function(req, res){
+    console.log(req.body);
+    res.json({});
+});
+
+app.post('/sub/:id/trigger', function(req, res){
+    manager.broadcase({
+        type: "triggerSub",
+        payload: {
+            id: req.params.id,
+            body: req.body
+        }
+    });
+    res.json({});
+});
+
+
+app.use(function notFoundHandler(req, res, next){
+    res.status(404);
+    logger.warn(`404 on ${req.url} (${req.query})`);
+    res.text('Not Found');
 });
 
 
