@@ -50,6 +50,9 @@ module.exports = {
                 else
                     subs[sub.data] = [sub];
 
+                if(bot.subscriptions[sub.type] && bot.subscriptions[sub.type].added)
+                    bot.subscriptions[sub.type].added(sub);
+
             }
             if(checkTimer)
                 clearInterval(checkTimer);
@@ -104,14 +107,15 @@ module.exports = {
                 let validation = bot.subscriptions[args[2]].validate(args[3]);
                 if(validation)
                     return message.channel.send(validation);
-                await bot.database.addSubscription(message.guild.id, message.channel.id, message.author.id, args[2], args[3]);
+                let res = await bot.database.addSubscription(message.guild.id, message.channel.id, message.author.id, args[2], args[3]);
                 let subObject = {
                     server: message.guild.id,
                     channel: message.channel.id,
                     user: message.author.id,
                     type: args[2],
                     data: args[3],
-                    lastcheck: new Date().getTime()
+                    lastcheck: new Date().getTime(),
+                    id: res[0]
                 };
                 if(subs[subObject.data]){
                     subs[subObject.data].push(subObject);
@@ -119,6 +123,9 @@ module.exports = {
                     subs[subObject.data] = [subObject];
                 }
                 message.channel.send(":white_check_mark: Your subscription has been added! You will receive messages in this channel whenever there are updates.");
+                if(bot.subscriptions[args[2]].added)
+                    bot.subscriptions[args[2]].added(subObject);
+
             }else{
                 let output = "Usage: !subscription add name URL\nAvailable Subscriptions:\n";
                 for(let sub in bot.subscriptions){
