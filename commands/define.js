@@ -18,11 +18,13 @@ module.exports = {
                 try{
                     const data = JSON.parse(body);
                     if (data.status !== 200) {
-                        message.channel.send("Error #" + data.status);
+                        message.channel.send(":bangbang: Error #" + data.status);
                     } else if (data.count === 0) {
-                        message.channel.send("No definitions found.");
+                        message.channel.send(":warning: No definitions found.");
+                    }else if(!data.results[0].senses){
+                        message.channel.send(":thinking: Word exists but has no definition.")
                     }else if(!data.results[0].senses[0].definition){
-                        message.channel.send("No definition for that word. Be more specific perhaps?");
+                        message.channel.send(":warning: No definition for that word. Be more specific perhaps?");
                     }else{
                         const result = data.results[0];
                         message.channel.send( `*${result.headword}* _${result.part_of_speech}_:\n\`\`\`\n${result.senses[0].definition}\n\`\`\``);
