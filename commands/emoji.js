@@ -3,7 +3,7 @@ module.exports = {
     usage: "emoji <term>",
     categories: ["fun","tools"],
     requiredPermissions: [],
-    commands: ["emoji", "emojisearch", "emojis"],
+    commands: ["emoji", "emojisearch", "emojis", "emote"],
     run: async function(message, args, bot){
         if(!args[1]){
             message.channel.send(`Usage: ${args[0]} <term> e.g ${args[0]} thonk`);
