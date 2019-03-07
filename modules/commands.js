@@ -7,15 +7,9 @@ module.exports = {
     init: function (bot) {
         bot.commandUsages = {};
         bot.commands = {};
-        bot.rateLimits = {};
+
         bot.prefixCache = {};
 
-        let lastRatelimitRefresh = new Date();
-
-
-        function isRateLimited(user, guild){
-            return !(!bot.rateLimits[user] || bot.rateLimits[user] < bot.config.get(guild, "rateLimit"));
-        }
 
 
         bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
@@ -73,12 +67,12 @@ module.exports = {
                 bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
                 return;
             }
-            if(isRateLimited(message.author.id, message.guild ? message.guild.id : "global")){
+            if(bot.isRateLimited(message.author.id, message.guild ? message.guild.id : "global")){
                 bot.bus.emit("commandRatelimited", command, message);
                 if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
                     bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
                     const now = new Date();
-                    const timeDifference = now-lastRatelimitRefresh;
+                    const timeDifference = now-bot.lastRatelimitRefresh;
                     let timeLeft = 60000-timeDifference;
                     message.replyLang("COMMAND_RATELIMIT", {timeLeft: bot.util.prettySeconds(timeLeft/1000)});
                     bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
@@ -127,12 +121,6 @@ module.exports = {
                 } else {
                     bot.commands[command](message, args, bot);
                 }
-                const amt = bot.commandUsages[command].rateLimit || 1;
-                if(bot.rateLimits[message.author.id])
-                    bot.rateLimits[message.author.id] += amt;
-                else
-                    bot.rateLimits[message.author.id] = amt;
-                console.log(message.author.id,bot.rateLimits[message.author.id]);
             } catch (e) {
                 message.channel.stopTyping(true);
                 message.reply(e.toString());
@@ -154,12 +142,6 @@ Have this <:1million:545604236826771467> exclusive badge for your **${message.ge
                 })
             }
         }));
-
-        setInterval(function(){
-            bot.rateLimits = {};
-            lastRatelimitRefresh = new Date();
-        }, 60000);
-
 
         module.exports.loadPrefixCache(bot);
         module.exports.loadCommands(bot);
