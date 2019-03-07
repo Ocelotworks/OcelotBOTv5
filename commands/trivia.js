@@ -156,9 +156,12 @@ module.exports = {
                         const correctReaction = reactions[answers.indexOf(correctAnswer)];
 
                         sentMessage.awaitReactions((reaction, user) => reactions.indexOf(reaction.emoji.name) > -1 && user.id === bot.client.user.id, {time: message.getSetting("trivia.seconds")*1000})
-                            .then(async function(reactionResult){
+                            .then(async function triviaEnded(reactionResult){
                                 message.channel.startTyping();
                                 const permissions = await message.channel.permissionsFor(bot.client.user);
+                                if(!permissions)
+                                    return bot.logger.log("Left server before trivia ended");
+
                                 if(permissions.has("MANAGE_MESSAGES"))
                                     sentMessage.clearReactions();
 
