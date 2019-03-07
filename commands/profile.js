@@ -78,7 +78,7 @@ module.exports = {
 
                 ctx.font = "15px Sans serif";
 
-                ctx.fillText(wrap(profileInfo.caption, {width: 25}), 200, 56);
+                ctx.fillText(wrap(profileInfo.caption, {width: 23}), 200, 56);
 
                 ctx.font = "12px Bitdust";
                 ctx.fillStyle = boardInfo.textColour === "inherit" ? backgroundInfo.textColour : boardInfo.textColour;
