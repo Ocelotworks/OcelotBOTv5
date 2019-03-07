@@ -66,6 +66,7 @@ module.exports = {
                const sub = subList[0];
                if(bot.subscriptions[sub.type]){
                     let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
+                    if(!results || results.length === 0)continue;
                     for (let i = 0; i < subList.length; i++) {
                        let chan = bot.client.channels.get(subList[i].channel);
                        if(chan) {
