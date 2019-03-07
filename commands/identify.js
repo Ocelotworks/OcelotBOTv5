@@ -25,9 +25,9 @@ const vowels = "aeiou";
 module.exports = {
     name: "Identify Image",
     usage: "identify [URL]",
-    rateLimit: 10,
+    rateLimit: 50,
     commands: ["identify", "ident"],
-    categories: ["image", "tools", "fun"],
+    categories: ["image"],
     run: async function run(message, args, bot) {
         const url =  await bot.util.getImage(message, args);
 
