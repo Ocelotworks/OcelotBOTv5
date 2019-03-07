@@ -4,19 +4,6 @@
  * ╚════ ║   (ocelotbotv5) apex
  *  ════╝
  */
-/**
- *   ╔════   Copyright 2019 Peter Maguire
- *  ║ ════╗  Created 23/02/2019
- * ╚════ ║   (ocelotbotv5) pubg
- *  ════╝
- */
-/**
- *   ╔════   Copyright 2019 Peter Maguire
- *  ║ ════╗  Created 25/01/2019
- * ╚════ ║   (ocelotbotv5) fortnite
- *  ════╝
- */
-
 const config = require('config');
 const request = require('request');
 const Discord = require('discord.js');
@@ -79,9 +66,8 @@ module.exports = {
                 return message.replyLang("GENERIC_ERROR");
             if(body.errors)
                 return message.channel.send(`${body.errors[0].message}\nIf you're looking for an xbox or playstation player, try entering the platform. For example for xbox:, ${args[0]} xbl ${username}`);
-
-
-
+            if(!body.data || !body.data.metadata)
+                return message.channel.send(":warning: No stats found for that user.");
 
             let embed = new Discord.RichEmbed();
 
