@@ -27,7 +27,7 @@ module.exports = {
                         message.channel.send(":warning: No definition for that word. Be more specific perhaps?");
                     }else{
                         const result = data.results[0];
-                        message.channel.send( `*${result.headword}* _${result.part_of_speech}_:\n\`\`\`\n${result.senses[0].definition}\n\`\`\``);
+                        message.channel.send( `*${result.headword}* _${result.part_of_speech ? result.part_of_speech : "Thing"}_:\n\`\`\`\n${result.senses[0].definition}\n\`\`\``);
                     }
                 }catch(e){
                     message.channel.send("Error: "+err);
