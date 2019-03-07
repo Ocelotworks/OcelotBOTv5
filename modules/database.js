@@ -797,6 +797,9 @@ module.exports = {
             },
             getGuessServerLeaderboard: function(users){
                 return knex.select(knex.raw("user, COUNT(*) AS total, SUM(correct) AS points")).from("ocelotbot_song_guess").groupBy("user").orderByRaw("SUM(correct) DESC").whereIn("user", users);
+            },
+            getCommandCount: function(){
+                return knex.select(knex.raw("MAX(id)")).from(COMMANDLOG_TABLE);
             }
 
         };
