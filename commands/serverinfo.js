@@ -36,6 +36,7 @@ module.exports = {
                 bot.logger.log("Retrieved server info for "+args[1]);
                 if(err){
                     message.channel.send(":warning: Error retrieving server information: "+err);
+                    message.channel.stopTyping();
                 }else{
                     sq.getPlayers(async function sourceQueryPlayers(err, players){
                         let output = ".";
