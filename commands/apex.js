@@ -60,7 +60,7 @@ module.exports = {
             url: url+`${platform}/${encodeURIComponent(username)}`,
             json: true
         },function(err, resp, body){
-            console.log(JSON.stringify(body));
+            //console.log(JSON.stringify(body));
             message.channel.stopTyping(true);
             if(err)
                 return message.replyLang("GENERIC_ERROR");
