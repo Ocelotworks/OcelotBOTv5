@@ -38,7 +38,7 @@ module.exports = {
             return bot.banCache.user.indexOf(message.author.id) > -1;
         };
 
-        function updateRateLimit(){
+        function updateRateLimit(command, message){
             const amt = bot.commandUsages[command].rateLimit || 10;
             if(bot.rateLimits[message.author.id])
                 bot.rateLimits[message.author.id] += amt;
@@ -47,7 +47,7 @@ module.exports = {
             bot.logger.log(`${message.author.id} at ${bot.rateLimits[message.author.id]}/${message.getSetting("rateLimit")}`);
         }
 
-        bot.bus.on("commandPerformed", updateRateLimit());
+        bot.bus.on("commandPerformed", updateRateLimit);
 
         let rateLimitLimits = [];
 
@@ -63,7 +63,7 @@ module.exports = {
             }else{
                 rateLimitLimits.push(message.guild.id);
             }
-            updateRateLimit();
+            updateRateLimit(command, message);
         });
 
         bot.isRateLimited = function isRateLimited(user, guild){
