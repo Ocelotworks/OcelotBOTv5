@@ -144,6 +144,17 @@ module.exports = {
 
         bot.badges = {};
 
+        bot.badges.giveBadge = async function(user, channel, id){
+            await bot.database.giveBadge(user.id, id);
+            const badge = (await bot.database.getBadge(id))[0];
+            let embed = new Discord.RichEmbed();
+            embed.setThumbnail(`https://ocelot.xyz/badge.php?id=${id}`);
+            embed.setTitle(`You just earned ${badge.name}`);
+            embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
+            embed.setColor("#3ba13b");
+            channel.send(user, embed);
+        };
+
         bot.badges.updateBadge = async function updateBadge(user, series, value, channel){
             if(bot.config.get("global", "profile.disableBadgeUpdates") && bot.config.get("global", "profile.disableBadgeUpdates") === "1")return;
             const userID = user.id;
