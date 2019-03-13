@@ -44,7 +44,7 @@ module.exports = {
                 bot.rateLimits[message.author.id] += amt;
             else
                 bot.rateLimits[message.author.id] = amt;
-            bot.logger.log(`${message.author.id} at ${bot.rateLimits[message.author.id]}/${message.getSetting("rateLimit")}`);
+            bot.logger.info(`${message.author.id} at ${bot.rateLimits[message.author.id]}/${message.getSetting("rateLimit")}`);
         }
 
         bot.bus.on("commandPerformed", updateRateLimit);
@@ -58,8 +58,12 @@ module.exports = {
         bot.bus.on("commandRatelimited", function rateLimited(command, message){
             if(rateLimitLimits.indexOf(message.guild.id) > -1){
                 let currentRatelimit = message.getSetting("rateLimit");
-                bot.logger.log(`Lowering rateLimit for ${message.guild.name} (${message.guild.id}) from ${currentRatelimit} to ${currentRatelimit/2}`);
-                bot.config.cache[message.guild.id].rateLimit = currentRatelimit/2;
+                let newRatelimit = currentRatelimit-10;
+                bot.logger.log(`Lowering rateLimit for ${message.guild.name} (${message.guild.id}) from ${currentRatelimit} to ${newRatelimit}`);
+                if(bot.config.cache[message.guild.id])
+                    bot.config.cache[message.guild.id].rateLimit = newRatelimit;
+                else
+                    bot.config.cache[message.guild.id] = {rateLimit: newRatelimit};
             }else{
                 rateLimitLimits.push(message.guild.id);
             }

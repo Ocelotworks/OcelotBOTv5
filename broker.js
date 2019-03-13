@@ -20,6 +20,9 @@ let warnings = [];
 
 manager.spawn();
 
+
+require('./broker/walter.js').init(manager, app);
+
 manager.on('launch', function launchShard(shard) {
     logger.log(`Successfully launched shard ${shard.id+1}/${manager.totalShards} (ID: ${shard.id})`);
 
@@ -70,6 +73,9 @@ manager.on('message', function onMessage(process, message){
             delete message.payload.id;
             return;
         }
+
+        if(message.type === "heartbeat")
+            return;
 
         logger.log("Broadcasting message");
         manager.broadcast(message);
