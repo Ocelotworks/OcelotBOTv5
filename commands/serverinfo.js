@@ -50,7 +50,11 @@ module.exports = {
 
                         let embed = new Discord.RichEmbed();
 
-                        embed.setColor(gameColours[info.folder] || "#45a569");
+                        if(message.getSetting("serverinfo.colour")){
+                            embed.setColor(message.getSetting("serverinfo.colour"));
+                        }else {
+                            embed.setColor(gameColours[info.folder] || "#45a569");
+                        }
 
                         embed.setTitle(info.name);
                         embed.addField(await bot.lang.getTranslation(message.guild.id, "SERVERINFO_PLAYERS"), `${info.bots}+${info.players}/${info.maxplayers}`, true);
