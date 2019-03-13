@@ -140,8 +140,21 @@ module.exports = {
                     fields: {servers: bot.client.guilds.size}
                 }
             ]);
+
+            if(bot.client.shard){
+                bot.client.shard.send({
+                    type: "heartbeat",
+                    payload: {
+                        messagesPerMinute: bot.stats.messagesPerMinute,
+                        shard: bot.client.shard.id
+                    }
+                });
+            }
+
             bot.stats.messagesPerMinute = 0;
             bot.stats.commandsPerMinute = 0;
+
+
 
 
         }, 60000); //1 minute
