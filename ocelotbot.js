@@ -26,7 +26,7 @@ let bot = {};
 function init(){
     bot.bus = new EventEmitter();
 
-    bot.admins = ["139871249567318017", "145200249005277184"];
+    bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225"];
 
     Raven.config(config.get("Raven.DSN"), {
         environment: os.hostname() === "Earth" ? "production" : "development"
@@ -44,7 +44,7 @@ function init(){
         let origin = `[${file[file.length-1]}${caller.functionName ? "/"+caller.functionName : ""}] `.bold;
 
         // if(typeof message === 'object')
-        //     message = JSON.stringify(message);
+        //     console.log(message);
         // let output = origin+message;
         if(error)
             console.error(`[${bot.client && bot.client.shard ? bot.client.shard.id : "?"}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`,origin, message);
@@ -58,6 +58,10 @@ function init(){
 
     bot.logger.warn = function warn(message){
         bot.logger.log(message.yellow, caller_id.getData());
+    };
+
+    bot.logger.info = function warn(message){
+        bot.logger.log(message.grey, caller_id.getData());
     };
 
 
