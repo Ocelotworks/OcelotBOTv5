@@ -17,6 +17,7 @@ module.exports = {
     commands: ["pornsuggest"],
     rateLimit: 5,
     nsfw: true,
+    requiredPermissions: ["ADD_REACTIONS", "MANAGE_MESSAGES"],
     categories: ["nsfw", "fun"],
     init: function(bot){
 
