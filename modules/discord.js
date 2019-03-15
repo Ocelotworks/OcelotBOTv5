@@ -2,6 +2,20 @@ const Discord = require('discord.js');
 const request = require('request');
 const config = require('config');
 const fs = require('fs');
+const presenceMessages = [
+    "!help",
+    "!profile",
+    "!guess",
+    "!premium",
+    "!vote",
+    "lord jesus help us all",
+    "oh god oh fuck",
+    "mcdonal",
+    "chiken nuget",
+    "borger"
+];
+
+
 module.exports = {
     name: "Discord.js Integration",
     init: function(bot){
@@ -39,11 +53,13 @@ module.exports = {
             output += content;
             if(options)
                 output += " (Embed)";
+
+
             bot.logger.log(output);
             return oldsend.apply(this, [content, options]);
         };
 
-        bot.presenceMessage = "";
+        bot.presenceMessage = null;
 
 
         bot.client = new Discord.Client();
@@ -59,7 +75,7 @@ module.exports = {
                 const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
                 bot.client.user.setPresence({
                     game: {
-                        name: `${serverCount} servers.`,
+                        name: `${bot.util.arrayRand(presenceMessages)} | ${serverCount} servers.`,
                         type: "LISTENING"
                     }
                 });
@@ -109,7 +125,7 @@ module.exports = {
 
         let lastPresenceUpdate = 0;
 
-        bot.presenceMessage = "!help";
+
 
         bot.client.on("guildCreate", async function joinGuild(guild){
             bot.logger.log(`Joined server ${guild.id} (${guild.name})`);
@@ -125,9 +141,10 @@ module.exports = {
              if(now-lastPresenceUpdate>100000) {
                  lastPresenceUpdate = now;
                  const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+
                  bot.client.user.setPresence({
                      game: {
-                         name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
+                         name: `${bot.presenceMessage ? bot.presenceMessage : bot.util.arrayRand(presenceMessages)} | ${serverCount} servers.`,
                          type: "LISTENING"
                      }
                  });
