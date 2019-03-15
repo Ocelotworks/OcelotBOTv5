@@ -71,7 +71,7 @@ module.exports = {
                             const line = lines[i];
                             for(let w = 0; w < line.Words.length; w++){
                                 const word = line.Words[w];
-                                const text = word.WordText;
+                                const text = word.WordText.toLowerCase();
                                 if(bot.util.vowels.indexOf(text.substring(1,2)) > -1){
                                     positions.push(word);
                                 }
