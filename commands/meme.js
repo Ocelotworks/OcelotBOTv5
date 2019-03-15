@@ -26,6 +26,8 @@ module.exports = {
                 if(!args[2])
                     return message.channel.send(":warning: You must enter a search term.");
                 memes = await bot.database.searchMeme(args[2], message.guild ? message.guild.id : "global");
+                if(memes.length === 0)
+                    return message.channel.send(":warning: No results.");
             }else{
                 memes = await bot.database.getMemes(message.guild ? message.guild.id : "global");
             }
