@@ -8,13 +8,20 @@ const port = 3006;
 Raven.config(config.get("Raven.DSN")).install();
 
 
-let commandList;
+
+
 
 const manager = new ShardingManager(`${__dirname}/ocelotbot.js`, config.get("Discord"),);
 
 let shardDeathCount = [];
 let shardDeathTimeout = [];
 
+let broker = {
+    app,
+    manager,
+    logger,
+    warnings: []
+};
 
 let warnings = [];
 

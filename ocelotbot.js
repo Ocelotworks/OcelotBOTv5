@@ -29,7 +29,7 @@ function init(){
     bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225"];
 
     Raven.config(config.get("Raven.DSN"), {
-        environment: os.hostname() === "Earth" ? "production" : "development"
+        environment: os.hostname() === "Jupiter" ? "production" : "development"
     }).install();
     bot.raven = Raven;
 
