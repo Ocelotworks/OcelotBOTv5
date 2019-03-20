@@ -16,7 +16,7 @@ module.exports = {
             function handleResponse(err, resp, body){
                 if(err) return bot.raven.captureException(err);
                 if(resp.statusCode >= 400){
-                    bot.logger.warn(`Got bad response from ${resp.uri} (${resp.statusCode})`);
+                    bot.logger.warn(`Got bad response from ${resp.headers ? resp.headers.host : "fuck this"} (${resp.statusCode})`);
                     bot.logger.warn(body);
                 }
             }
@@ -47,9 +47,9 @@ module.exports = {
 
             const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
 
-            postCount("https://discord.services/api/bots/146293573422284800", config.get("Discord.discordServicesKey"), {
-                server_count: serverCount
-            });
+            // postCount("https://discord.services/api/bots/146293573422284800", config.get("Discord.discordServicesKey"), {
+            //     server_count: serverCount
+            // });
 
             postCount("https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds", config.get("Discord.botsOnDiscordKey"), {
                 guildCount: serverCount
