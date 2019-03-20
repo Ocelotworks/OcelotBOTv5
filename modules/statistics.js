@@ -1,5 +1,6 @@
 const Influx = require("influx");
 const config = require('config');
+const os = require('os');
 module.exports = {
     name: "Statistics Aggregator",
     init: async function(bot){
@@ -113,33 +114,35 @@ module.exports = {
                         fields: {[keys[i].startsWith("commands") ? "commands" : keys[i].startsWith("messages") ? "messages" : "value"]: bot.stats[keys[i]]}
                     });
             }
-            await bot.stats.influx.writePoints([
-                {
-                    measurement: "commandsPerMinute",
-                    tags: {"shard": bot.client.shard.id},
-                    fields: {commands: bot.stats.commandsPerMinute}
-                },
-                {
-                    measurement: "messagesPerMinute",
-                    tags: {"shard": bot.client.shard.id},
-                    fields: {messages: bot.stats.messagesPerMinute}
-                },
-                {
-                    measurement: "commandsTotal",
-                    tags: {"shard": bot.client.shard.id},
-                    fields: {commands: bot.stats.commandsTotal}
-                },
-                {
-                    measurement: "messagesTotal",
-                    tags: {"shard": bot.client.shard.id},
-                    fields: {messages: bot.stats.messagesTotal}
-                },
-                {
-                    measurement: "serversTotal",
-                    tags: {"shard": bot.client.shard.id},
-                    fields: {servers: bot.client.guilds.size}
-                }
-            ]);
+            if(os.hostname() === "Jupiter") {
+                await bot.stats.influx.writePoints([
+                    {
+                        measurement: "commandsPerMinute",
+                        tags: {"shard": bot.client.shard.id},
+                        fields: {commands: bot.stats.commandsPerMinute}
+                    },
+                    {
+                        measurement: "messagesPerMinute",
+                        tags: {"shard": bot.client.shard.id},
+                        fields: {messages: bot.stats.messagesPerMinute}
+                    },
+                    {
+                        measurement: "commandsTotal",
+                        tags: {"shard": bot.client.shard.id},
+                        fields: {commands: bot.stats.commandsTotal}
+                    },
+                    {
+                        measurement: "messagesTotal",
+                        tags: {"shard": bot.client.shard.id},
+                        fields: {messages: bot.stats.messagesTotal}
+                    },
+                    {
+                        measurement: "serversTotal",
+                        tags: {"shard": bot.client.shard.id},
+                        fields: {servers: bot.client.guilds.size}
+                    }
+                ]);
+            }
 
             if(bot.client.shard){
                 bot.client.shard.send({
