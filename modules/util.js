@@ -539,5 +539,68 @@ module.exports = {
 
         };
 
+        bot.util.standardPagination = async function(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000){
+            let index = 0;
+            let sentMessage;
+
+            let buildPage = async function () {
+               let output = await formatMessage(pages[index], index);
+                if(sentMessage)
+                    await sentMessage.edit(output);
+                else
+                    sentMessage = await channel.send(output);
+            };
+
+            await buildPage();
+
+            if(pages.length === 1)
+                return;
+
+            (async function () {
+                if(fullReactions)
+                    await sentMessage.react("⏮");
+                await sentMessage.react("◀");
+                await sentMessage.react("▶");
+                if(fullReactions)
+                    await sentMessage.react("⏭");
+            })();
+
+            await sentMessage.awaitReactions(async function (reaction, user) {
+                if (user.id === bot.client.user.id) return false;
+                switch (reaction.emoji.name) {
+                    case "⏮":
+                        index = 0;
+                        await buildPage();
+                        break;
+                    case "◀":
+                        if (index > 0)
+                            index--;
+                        else
+                            index = pages.length - 1;
+                        await buildPage();
+                        break;
+                    case "▶":
+                        if (index < pages.length - 1)
+                            index++;
+                        else
+                            index = 0;
+                        await buildPage();
+                        break;
+                    case "⏭":
+                        index = pages.length - 1;
+                        await buildPage();
+                        break;
+                }
+                reaction.remove(user);
+
+            }, {time: reactionTime});
+            if(!sentMessage.deleted) {
+                bot.logger.log(`Reactions on ${sentMessage.id} have expired.`);
+                sentMessage.clearReactions();
+            }else{
+                bot.logger.log(`${sentMessage.id} was deleted before the reactions expired.`);
+            }
+        };
+
     }
 };

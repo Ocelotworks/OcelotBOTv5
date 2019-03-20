@@ -10,7 +10,7 @@ module.exports = {
             return;
         }
         const term = encodeURIComponent(args.slice(1).join(" "));
-        request("http://api.pearson.com/v2/dictionaries/ldoce5/entries?headword="+term+"&limit=1", function(err, resp, body){
+        request("http://api.pearson.com/v2/dictionaries/ldoce5/entries?headword="+term, function(err, resp, body){
             if(err){
                 message.channel.send("Error: "+err);
                 bot.raven.captureException(err);
@@ -26,8 +26,9 @@ module.exports = {
                     }else if(!data.results[0].senses[0].definition){
                         message.channel.send(":warning: No definition for that word. Be more specific perhaps?");
                     }else{
-                        const result = data.results[0];
-                        message.channel.send( `*${result.headword}* _${result.part_of_speech ? result.part_of_speech : "Thing"}_:\n\`\`\`\n${result.senses[0].definition}\n\`\`\``);
+                        bot.util.standardPagination(message.channel, data.results, async function(page){
+                            return `*${page.headword}* _${page.part_of_speech ? page.part_of_speech : "Thing"}_:\n\`\`\`\n${page.senses[0].definition}\n\`\`\``
+                        }, true);
                     }
                 }catch(e){
                     message.channel.send("Error: "+err);

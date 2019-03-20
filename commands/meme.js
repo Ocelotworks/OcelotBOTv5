@@ -38,12 +38,8 @@ module.exports = {
             const availableGlobalMemes = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_GLOBAL_MEMES");
             const memeServer = message.guild ? await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_SERVER", {serverName: message.guild.name}) : "You should never see this.";
 
-            let index = 0;
-            let sentMessage;
 
-            let buildPage = async function () {
-                const page = pages[index];
-
+            bot.util.standardPagination(message.channel, pages, async function(page, index){
                 //If you can't stand the heat get out of the kitchen
                 let globalColumns = [[],[],[],[],[]];
                 let serverColumns = [[],[],[],[],[]];
@@ -61,63 +57,13 @@ module.exports = {
                 let globalMemes = columnify(globalColumns, config);
                 let serverMemes = columnify(serverColumns, config);
 
-
-
                 let output;
 
                 output = `Page ${index+1}/${pages.length}\n**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ \n\`\`\`\n${globalMemes === "" ? "No global memes found." : globalMemes}\n\`\`\``;
                 if(message.guild)
                     output += `\n__:house_with_garden:${memeServer}__\n\`\`\`\n${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}\n\`\`\``;
-
-                if(sentMessage)
-                    await sentMessage.edit(output);
-                else
-                    sentMessage = await message.channel.send(output);
-
-            };
-
-            await buildPage();
-
-            if(pages.length === 1)
-                return;
-
-            (async function () {
-                await sentMessage.react("⏮");
-                await sentMessage.react("◀");
-                await sentMessage.react("▶");
-                await sentMessage.react("⏭");
-            })();
-
-            await sentMessage.awaitReactions(async function (reaction, user) {
-                if (user.id === bot.client.user.id) return false;
-                switch (reaction.emoji.name) {
-                    case "⏮":
-                        index = 0;
-                        await buildPage();
-                        break;
-                    case "◀":
-                        if (index > 0)
-                            index--;
-                        else
-                            index = pages.length - 1;
-                        await buildPage();
-                        break;
-                    case "▶":
-                        if (index < pages.length - 1)
-                            index++;
-                        else
-                            index = 0;
-                        await buildPage();
-                        break;
-                    case "⏭":
-                        index = pages.length - 1;
-                        await buildPage();
-                        break;
-                }
-                reaction.remove(user);
-
-            }, {time: message.getSetting("meme.pageTimeout")});
-            sentMessage.clearReactions();
+                return output;
+            }, true, message.getSetting("meme.pageTimeout"));
             return;
         }else if(arg === "add"){
             if(message.getSetting("meme.disallowAdding")) {
