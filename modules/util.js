@@ -539,6 +539,15 @@ module.exports = {
 
         };
 
+        /**
+         * The standard reaction pages used in most paginated commands
+         * @param {TextChannel} channel Target Channel
+         * @param {Array} pages The array of page data
+         * @param {function} formatMessage The function for building the pages
+         * @param {boolean} fullReactions Whether or not to use first/last page reactions
+         * @param {Number} reactionTime
+         * @returns {Promise<void>}
+         */
         bot.util.standardPagination = async function(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000){
             let index = 0;
             let sentMessage;
@@ -601,6 +610,62 @@ module.exports = {
                 bot.logger.log(`${sentMessage.id} was deleted before the reactions expired.`);
             }
         };
+
+
+        bot.util.nestedCommands = {};
+
+        bot.util.standardNestedCommandInit = function standardNestedCommandInit(id, directory = id){
+            bot.logger.log(`Initialising nested commands for ${id}`);
+            fs.readdir(`commands/${directory}`, function loadNestedCommands(err, files){
+                if(err){
+                    bot.raven.captureException(err);
+                    bot.logger.log(`Unable to read ${id} command dir (${directory})`);
+                    bot.logger.log(err);
+                }else{
+                    bot.util.nestedCommands[id] = {};
+                    for(let i = 0; i < files.length; i++){
+                        try{
+                            const command = require(`../commands/${directory}/${files[i]}`);
+                            bot.logger.log(`Loaded ${id} command ${command.name}`);
+                            for(let c = 0; c < command.commands.length; c++){
+                                bot.util.nestedCommands[id][command.commands[c]] = command;
+                                if(command.init){
+                                    bot.logger.log(`Performing init for ${id} command ${command.name}`);
+                                    command.init(bot);
+                                }
+                            }
+                        }catch(e){
+                            bot.raven.captureException(e);
+                            bot.logger.log(`Error loading ${id} command for ${files[i]}: ${e}`);
+                        }
+                    }
+                }
+            });
+        };
+
+        bot.util.standardNestedCommand = function standardNestedCommand(message, args, bot, id){
+            const commandName = args[1] && args[1].toLowerCase();
+            const commandType = bot.util.nestedCommands[id];
+            const command = commandType[commandName];
+            if(command){
+                command.run(message, args, bot);
+            }else if(commandName === "help"){
+                let output = "```asciidoc\nAvaiable Commands\n";
+                let usedAliases = [];
+                for(let helpItemName in commandType){
+                    if(!commandType.hasOwnProperty(helpItemName))continue;
+                    const helpItem = commandType[helpItemName];
+                    if(usedAliases.indexOf(helpItem.commands[0]) > -1)continue;
+                    if(!helpItem.hidden)
+                        output += `${helpItem.name} :: ${args[0]} ${helpItem.commands[0]}\n`;
+                    usedAliases.push.apply(usedAliases, helpItem.commands);
+                }
+                output += "\n```";
+                message.channel.send(output);
+            }else{
+                message.channel.send(`:bangbang: Invalid usage. Try ${args[0]} help`);
+            }
+        }
 
     }
 };
