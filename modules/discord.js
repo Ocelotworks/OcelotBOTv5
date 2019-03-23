@@ -286,6 +286,11 @@ module.exports = {
                        type: "LISTENING"
                    }
                });
+           }else if(message.type === "getUserInfo"){
+               let userID = message.payload;
+               if(bot.client.users.has(userID)){
+                    bot.client.shard.send({type: "getUserInfoResponse", payload: bot.client.users.get(userID)});
+               }
            }
         });
 

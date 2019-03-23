@@ -665,7 +665,27 @@ module.exports = {
             }else{
                 message.channel.send(`:bangbang: Invalid usage. Try ${args[0]} help`);
             }
-        }
+        };
+
+        let waitingUsers = {};
+        bot.util.getUserInfo = function getUserInfo(userID){
+            return new Promise(function getUserInfoPromise(fulfill){
+                bot.client.shard.send({type: "getUserInfo", payload: userID});
+                let timeout = setTimeout(fulfill, 200);
+                waitingUsers[userID] = [fulfill, timeout];
+            });
+        };
+
+        process.on("message", function (message){
+            if(message.type === "getUserInfoResponse"){
+                const waitingUser = waitingUsers[message.payload.id];
+                if(waitingUser){
+                    clearTimeout(waitingUser[1]);
+                    waitingUser[0](message.payload);
+                }
+            }
+        });
+
 
     }
 };
