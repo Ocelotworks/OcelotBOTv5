@@ -17,6 +17,17 @@ module.exports = {
     init: function(bot){
         bot.waitingVoteChannels = [];
 
+
+        let voteTimeouts = {};
+
+
+        async function logVote(user, voteServer){
+            await bot.database.addVote(user, voteServer);
+            bot.logger.log("Logging vote from "+user);
+            let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
+            bot.badges.updateBadge({id: user}, 'votes', count, channel);
+        }
+
         process.on("message", async function vote(message){
            if(message.type === "registerVote"){
                 let user = message.payload.user;
@@ -32,15 +43,22 @@ module.exports = {
                     }
                 }
                 if(voteServer || !bot.client.shard || bot.client.shard.id === 0){
-                    await bot.database.addVote(user, voteServer);
-                    bot.logger.log("Logging vote from "+user);
-                    let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
-                    console.log(count);
-                    bot.badges.updateBadge({id: user}, 'votes', count, channel);
+                    if(bot.client.shard && bot.client.shard.id === 0){
+                        voteTimeouts[user] = setTimeout(logVote, 5000);
+                    }else{
+                        logVote(user, voteServer);
+                        if(bot.client.shard)
+                            bot.client.shard.send({type: "clearVoteTimeout", payload: user});
+                    }
                 }
 
+           }else if(message.type === "clearVoteTimeout"){
+               clearTimeout(voteTimeouts[message.payload]);
            }
         });
+
+
+
     },
     run: async function(message, args, bot){
         if(args[1])return;
