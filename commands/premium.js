@@ -26,10 +26,12 @@ module.exports = {
 You now have access to the following features:
 - <:premium:547494108160196624> New profile badge
 - Custom profile background
+- More profile customisation
 - Premium profile border
 **More perks being added all the time for no additional charge!**`);
 
                         await bot.database.setUserSetting(user.id, "premium", 1);
+                        bot.client.shard.send({type: "reloadUserConfig"});
                         await bot.database.giveBadge(user.id, 52);
                         bot.client.channels.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Premium**! <3`);
                     }
