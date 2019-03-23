@@ -70,10 +70,10 @@ module.exports = {
         });
 
         bot.config.get = function get(server, property, user){
-            if(bot.config.cache[server] && bot.config.cache[server][property])
-                return bot.config.cache[server][property];
             if(user && bot.config.cache[user] && bot.config.cache[user][property])
                 return bot.config.cache[user][property];
+            if(bot.config.cache[server] && bot.config.cache[server][property])
+                return bot.config.cache[server][property];
             if(bot.config.cache.global[property])
                 return bot.config.cache.global[property];
             return null;
@@ -95,6 +95,9 @@ module.exports = {
                     delete cacheReloads[msg.payload];
                 }, 5000);
                 bot.logger.log("Broker requested config reload for "+msg.payload);
+            }else if(msg.type === "reloadUserConfig"){
+                bot.logger.log("Reloading user config");
+                bot.config.loadUserCache();
             }
         })
     }
