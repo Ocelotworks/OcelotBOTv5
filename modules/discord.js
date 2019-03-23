@@ -32,14 +32,14 @@ module.exports = {
             return this.edit(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
         };
 
-        Discord.Guild.prototype.getSetting = function(setting){
-            return bot.config.get(this.id ? this.id : "global", setting, this.author ? this.author.id : null);
+        Discord.Guild.prototype.getSetting = function(setting, user){
+            return bot.config.get(this.id ? this.id : "global", setting, user);
         };
 
         Discord.Message.prototype.getSetting = function(setting){
             if(this.guild)
                 return bot.config.get(this.guild.id, setting, this.author.id);
-            return bot.config.get("global", setting);
+            return bot.config.get("global", setting, this.author.id);
         };
 
         const oldsend = Discord.TextChannel.prototype.send;
