@@ -8,7 +8,7 @@
 module.exports = {
     name: "Set Config Key",
     usage: "setconfig server key value",
-    commands: ["setconfig"],
+    commands: ["setconfig", "sc"],
     run: async function(message, args, bot){
         const server = args[2] === "this" ? message.guild.id : args[2];
         const key = args[3];
