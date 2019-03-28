@@ -7,12 +7,12 @@ const presenceMessages = [
     "!profile",
     "!guess",
     "!premium",
+    "!premium",
     "!vote",
+    "Minecraft Parody Songs",
     "lord jesus help us all",
-    "oh god oh fuck",
-    "mcdonal",
-    "chiken nuget",
-    "borger"
+    "please god buy premium my children are starving",
+    "ass"
 ];
 
 
@@ -40,6 +40,11 @@ module.exports = {
             if(this.guild)
                 return bot.config.get(this.guild.id, setting, this.author.id);
             return bot.config.get("global", setting, this.author.id);
+        };
+
+        Discord.Message.prototype.getBool = function(setting){
+            let val = this.getSetting(setting);
+            return val && (val === "1" || val === "true")
         };
 
         const oldsend = Discord.TextChannel.prototype.send;

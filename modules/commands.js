@@ -25,21 +25,21 @@ module.exports = {
 
             bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
-            if(bot.commandUsages[command].premium && (!message.getSetting("premium") || message.getSetting("premium") !== "true"))
+            if(bot.commandUsages[command].premium && (message.getBool("premium") || message.getBool("serverPremium")))
                 return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_`);
 
-            if(message.getSetting("allowNSFW") && message.getSetting("allowNSFW") === "0" && bot.commandUsages[command].categories.indexOf("nsfw") > -1)
+            if(message.getBool("allowNSFW") && bot.commandUsages[command].categories.indexOf("nsfw") > -1)
                 return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
 
-            if(message.guild && !message.channel.nsfw && bot.commandUsages[command].categories.indexOf("nsfw") > -1 &&  message.getSetting("bypassNSFWCheck") !== "1")
+            if(message.guild && !message.channel.nsfw && bot.commandUsages[command].categories.indexOf("nsfw") > -1 &&  !message.getBool("bypassNSFWCheck"))
                 return message.channel.send(`:warning: This command can only be used in NSFW channels.\nYou can bypass this check with  **${message.getSetting("prefix")}settings set bypassNSFW true**`);
 
-            if(message.getSetting(`${command}.disable`))
+            if(message.getBool(`${command}.disable`))
                 return bot.logger.log(`${command} is disabled in this server: ${message}`);
 
             const channelDisable = message.getSetting(`${command}.channelDisable`);
             if(channelDisable && channelDisable.indexOf(message.channel.id) > -1){
-                if(message.getSetting("sendDisabledMessage") === "true") {
+                if(message.getBool("sendDisabledMessage")) {
                     const dm = await message.author.createDM();
                     dm.send(`${command} is disabled in that channel`);
                     //TODO: COMMAND_DISABLED_CHANNEL
@@ -49,7 +49,7 @@ module.exports = {
             }
             const channelRestriction = message.getSetting(`${command}.channelRestriction`);
             if(channelRestriction && channelRestriction.indexOf(message.channel.id) === -1){
-                if(message.getSetting("sendDisabledMessage") === "true") {
+                if(message.getBool("sendDisabledMessage")) {
                     const dm = await message.author.createDM();
                     dm.send(`${command} is disabled in that channel`);
                     //TODO: COMMAND_DISABLED_CHANNEL
@@ -97,6 +97,7 @@ module.exports = {
                     message.channel.send(message.getSetting("notice"));
                     bot.database.deleteSetting(message.guild.id, "notice");
                     bot.config.cache[message.guild.id].notice = null;
+
                 }
                 if (message.channel.permissionsFor && bot.commandUsages[command].requiredPermissions) {
                     bot.stats.time("commandGetPermissions");
