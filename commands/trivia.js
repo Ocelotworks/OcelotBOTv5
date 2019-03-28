@@ -54,6 +54,9 @@ module.exports = {
                 let data = [];
                 let position = -1;
 
+
+
+
                 await pasync.eachSeries(leaderboardData, async function processLeaderboard(entry, cb){
                     i++;
                     if(entry.user === message.author.id){
@@ -65,7 +68,9 @@ module.exports = {
                     }
                     if(i <= 10)
                         try {
-                            const user = bot.client.users.get(entry.user);
+                            let user = bot.client.users.get(entry.user);
+                            if(!user)
+                                user = await bot.util.getUserInfo(entry.user);
                             data.push({
                                 "#": i,
                                 [userKey]: user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,
