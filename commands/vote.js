@@ -21,7 +21,7 @@ module.exports = {
         let voteTimeouts = {};
 
 
-        async function logVote(user, voteServer){
+        async function logVote(user, voteServer, channel){
             await bot.database.addVote(user, voteServer);
             bot.logger.log("Logging vote from "+user);
             let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
@@ -44,9 +44,9 @@ module.exports = {
                 }
                 if(voteServer || !bot.client.shard || bot.client.shard.id === 0){
                     if(bot.client.shard && bot.client.shard.id === 0){
-                        voteTimeouts[user] = setTimeout(logVote, 5000);
+                        voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel);
                     }else{
-                        logVote(user, voteServer);
+                        logVote(user, voteServer, channel);
                         if(bot.client.shard)
                             bot.client.shard.send({type: "clearVoteTimeout", payload: user});
                     }
