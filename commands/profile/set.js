@@ -46,9 +46,11 @@ ${args[0]} set font <font> **(<:ocelotbot:533369578114514945> Premium Only)**`;
             } else if (premiumTypes.indexOf(key) > -1 && !(message.getSetting("premium") && message.getSetting("premium") === "1")) {
                 message.channel.send(`:bangbang: This requires **<:ocelotbot:533369578114514945> Ocelot Premium**. To find out more, type ${message.getSetting("prefix")}premium`);
             } else {
-                const keyType = keyTypes[key] || "";
+                let keyType = keyTypes[key] || "";
+
                 const item = (await bot.database.getProfileOptionByKey(args[3], keyType))[0];
                 if (item) {
+                    if(keyType === "frame")keyType += "s"; //Fuck myself
                     await bot.database.setProfileOption(message.author.id, keyType, item.id);
                     message.channel.send(`Set ${keyType} to ${item.name}`);
                 } else {
