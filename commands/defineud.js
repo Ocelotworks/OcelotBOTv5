@@ -23,8 +23,14 @@ module.exports = {
                 try{
                     const data = JSON.parse(body);
                     if(data && data.list.length > 0){
-                        const permissions = await message.channel.permissionsFor(bot.client.user);
-                        if(permissions.has(["ADD_REACTIONS", "MANAGE_MESSAGES"])){
+                        let hasPermission = false;
+                        if(!message.guild)
+                            hasPermission = true;
+                        else {
+                            const permissions = await message.channel.permissionsFor(bot.client.user);
+                            hasPermission = permissions.has(["ADD_REACTIONS", "MANAGE_MESSAGES"])
+                        }
+                        if(hasPermission){
                             bot.util.standardPagination(message.channel, data.list, async function(page){
                                 page.definition = page.definition.substring(0,800);
                                 page.example = page.example.substring(0,800);
