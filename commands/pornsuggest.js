@@ -15,7 +15,7 @@ module.exports = {
     name: "Porn Suggest",
     usage: "pornsuggest [country] [gay/straight/tranny]",
     commands: ["pornsuggest"],
-    rateLimit: 5,
+    rateLimit: 50,
     nsfw: true,
     requiredPermissions: ["ADD_REACTIONS", "MANAGE_MESSAGES"],
     categories: ["nsfw", "fun"],
