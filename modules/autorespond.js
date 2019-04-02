@@ -20,7 +20,7 @@ module.exports = {
                             bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
                             let matchableContent = message.content.toLowerCase();
                             if(matchableContent.indexOf("ocelotbot") > -1){
-                                matchableContent.replace("ocelotbot", `<@${message.author.id}>`);
+                                matchableContent = matchableContent.replace("ocelotbot", `<@${message.author.id}>`);
                                 message.channel.send(matchableContent);
                             }else{
                                 message.channel.send(message.content);
