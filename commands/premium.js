@@ -26,8 +26,10 @@ module.exports = {
 You now have access to the following features:
 - <:premium:547494108160196624> New profile badge
 - Custom profile background
-- More profile customisation
+- Custom profile font
 - Premium profile border
+- Fast track support 
+- Reliable uptime
 **More perks being added all the time for no additional charge!**`);
 
                         await bot.database.setUserSetting(user.id, "premium", 1);
@@ -40,6 +42,15 @@ You now have access to the following features:
         });
     },
     run: async function run(message, args){
-        message.channel.send("<:ocelotbot:533369578114514945> **Support OcelotBOT on Patreon and get Premium features: https://www.patreon.com/ocelotbot**\n\nJoin the support server: https://discord.gg/7YNHpfF");
+        message.channel.send(`<:ocelotbot:533369578114514945> **Support OcelotBOT on Patreon and get Premium features: https://www.patreon.com/ocelotbot**
+Joining Premium gets you:
+- A chance to have your own bot ideas implemented
+- <:premium:547494108160196624> New profile badge
+- Custom profile background
+- Custom profile font
+- Premium profile border
+- Fast track support 
+- Reliable uptime    
+Join the support server: https://discord.gg/7YNHpfF`);
     }
 };
