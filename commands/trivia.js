@@ -138,7 +138,7 @@ module.exports = {
 
                         embed.setTitle(await bot.lang.getTranslation(message.guild.id, "TRIVIA_SECONDS", {seconds: message.getSetting("trivia.seconds")}));
                         embed.setDescription(decodeURIComponent(question.question));
-                        embed.setAuthor(await bot.lang.getTranslation(message.guild.id, "TRIVIA_CATEGORY", decodeURIComponent(question.category)));
+                        embed.setAuthor(await bot.lang.getTranslation(message.guild.id, "TRIVIA_CATEGORY", {category: decodeURIComponent(question.category)}));
                         embed.setColor(difficultyColours[question.difficulty]);
 
                         if(isBoolean){
