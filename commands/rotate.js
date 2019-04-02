@@ -12,7 +12,7 @@ module.exports = {
     name: "Rotate Image",
     usage: "rotate [url] [deg]",
     categories: ["image"],
-    rateLimit: 10,
+    rateLimit: 20,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["rotate", "rot"],
     run: async function(message, args, bot){
