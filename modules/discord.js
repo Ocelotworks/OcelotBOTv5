@@ -168,6 +168,7 @@ module.exports = {
                          embed.setColor(bot.config.get("global", "welcome.embedColour"));
                          embed.setTitle("Welcome to OcelotBOT!");
                          embed.setDescription("You can find my commands [here](https://ocelot.xyz/#commands) or by typing !help.");
+                         embed.addField("Support", "You can support the bot by [voting](https://discordbots.org/bot/146293573422284800/vote) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
                          embed.addField("Administrators", "You can change the bot's settings by typing !settings or by using the [dashboard](https://ocelot.xyz/dash/)");
                          embed.addField("Issues?", "If you have issues or suggestions, type !feedback or join our [support server](https://discord.gg/7YNHpfF).");
                          mainChannel.send("", embed);
