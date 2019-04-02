@@ -105,13 +105,12 @@ module.exports = {
     hidden: true,
     commands: ["open", "crate"],
     init: function(bot){
+        return;
         bot.crates = {};
 
 
         bot.bus.on("commandPerformed", function giveCrate(command, message){
-            if(!message.guild)return;
-            const now = new Date();
-            if(now.getDay() !== 1 && now.getMonth() !== 3)return;
+            if(message.getBool("create.disable"))return;
             if(Math.random() > message.getSetting("crate.chance")){
                 if(bot.crates[message.author.id])
                     bot.crates[message.author.id]++;
@@ -122,6 +121,7 @@ module.exports = {
                 embed.setThumbnail("https://i.imgur.com/0JkoaVs.png");
                 embed.setTitle("You got an OcelotCRATE");
                 embed.setDescription(`Open it with ${message.getSetting("prefix")}open`);
+               // embed.setFooter("(April Fools)");
                 embed.setColor("#3ba13b");
                 message.channel.send("", embed);
                 bot.logger.log(`Giving a crate to ${message.author.username} (${message.author.id})`);
@@ -130,8 +130,8 @@ module.exports = {
 
     },
     run: async function run(message, args, bot) {
-       const now = new Date();
-       if(now.getDay() !== 1 && now.getMonth() !== 3)return;
+        return;
+       if(message.getBool("crate.disable"))return;
        if(bot.crates[message.author.id] && bot.crates[message.author.id] > 0){
 
 
@@ -141,6 +141,7 @@ module.exports = {
                 let hasBadge = await bot.database.hasBadge(message.author.id, 53);
                 if (!hasBadge) {
                     bot.badges.giveBadge(message.author, message.channel, 53);
+                    return;
                 }else{
                     i = 0;
                 }
