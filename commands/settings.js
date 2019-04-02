@@ -12,7 +12,7 @@ const bools = {
 };
 module.exports = {
     name: "Bot Settings",
-    usage: "settings help/set/list",
+    usage: "settings help/set/list/enableCommand/disableCommand",
     categories: ["meta"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["settings", "config"],
@@ -160,8 +160,8 @@ module.exports = {
         if(message.guild.ownerID === message.author.id || message.member.roles.find(function(role){
             return role.name.toLowerCase() === "bot master" || role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
         })){
-            let arg =  args[1].toLowerCase();
-            if(arg === "help" && args[2]){
+            let arg =  args[1] && args[1].toLowerCase();
+            if(arg && arg === "help" && args[2]){
                 if(module.exports.settings[args[2].toLowerCase()]){
                     const setting = module.exports.settings[args[2].toLowerCase()];
                     message.channel.send(`${setting.name}:\n${setting.help}`);
