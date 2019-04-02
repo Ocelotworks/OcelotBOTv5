@@ -40,7 +40,7 @@ module.exports = {
 
             //499354390126264340>
             if(message.getSetting("yikesUser") && message.author.id === message.getSetting("yikesUser") && message.content.length > message.getSetting("yikesThreshold")){
-                message.react("499354390126264340");
+                message.react(message.getSetting("yikesEmoji"));
             }
         }));
     }
