@@ -11,7 +11,11 @@ module.exports = {
     commands: ["remind", "remindme", "reminder", "setreminder"],
     categories: ["tools"],
     init: function init(bot){
+
         bot.client.on("ready", async function discordReady(){
+            if(bot.client.user.username === "OcelotBOT-Test")
+                return bot.logger.warn("Not loading reminders on test bot");
+
             if(!bot.remindersLoaded) {
                 bot.remindersLoaded = true;
                 bot.logger.log("Loading reminders...");
@@ -31,12 +35,38 @@ module.exports = {
                                 module.exports.sendReminder(reminder, bot);
                             }, remainingTime);
                         }
+                        if(bot.client.shard){
+                            bot.client.shard.send({type: "claimReminder", payload: reminder.id});
+                        }
                     }
                 }
             }else{
                 bot.logger.log("Prevented duplicate reminder loading");
             }
         });
+        if(bot.client.shard && bot.client.shard.id === 0) {
+            process.on("message", async function handleClaimedReminders(message) {
+                if (message.type === "handleClaimedReminders") {
+                    const now = new Date().getTime();
+                    let orphanedReminders = await bot.database.getOrphanedReminders(message.payload);
+                    bot.logger.log(`Found ${orphanedReminders.length} orphaned reminders.`);
+                    for(let i = 0; i < orphanedReminders.length; i++){
+                        let reminder = orphanedReminders[i];
+                        bot.logger.log(`Reminder ${orphanedReminders[i].id} is orphaned.`);
+                        const remainingTime = reminder.at - now;
+                        if (remainingTime <= 0) {
+                            bot.logger.log(`Reminder ${reminder.id} has expired.`);
+
+                            module.exports.sendReminder(reminder, bot);
+                        } else {
+                            bot.util.setLongTimeout(function () {
+                                module.exports.sendReminder(reminder, bot);
+                            }, remainingTime);
+                        }
+                    }
+                }
+            });
+        }
     },
     sendReminder: async function(reminder, bot){
         bot.logger.log(`Reminding ${reminder.id}: ${reminder.user}: ${reminder.message}`);

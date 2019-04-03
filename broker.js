@@ -54,6 +54,10 @@ manager.on('launch', function launchShard(shard) {
     // });
 });
 
+
+broker.claimedReminders = [];
+broker.claimedReminderTimeout = null;
+
 manager.on('message', function onMessage(process, message){
     if(message.type) {
         if(message.type === "commandList"){
@@ -83,6 +87,21 @@ manager.on('message', function onMessage(process, message){
 
         if(message.type === "heartbeat")
             return;
+
+        if(message.type === "claimReminder"){
+            broker.claimedReminders.push(message.payload);
+
+
+            if(broker.claimedReminderTimeout)
+                clearTimeout(broker.claimedReminderTimeout);
+
+            broker.claimedReminderTimeout = setTimeout(function handleClaimedReminders(){
+                logger.log(`Got ${broker.claimedReminders.length} claimed reminders`);
+                manager.broadcast({type: "handleClaimedReminders", payload: broker.claimedReminders});
+            }, 60000);
+
+            return;
+        }
 
         logger.log("Broadcasting message");
         manager.broadcast(message);
