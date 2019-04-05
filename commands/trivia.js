@@ -207,6 +207,7 @@ module.exports = {
                                     output += await bot.lang.getTranslation(message.guild.id, "TRIVIA_WIN_NONE")+"\n";
                                 }else{
                                     for(let i = 0; i < correct.length; i++){
+                                        if(cheaters.indexOf(correct[i]) > -1)continue;
                                         output +=  `<@${correct[i]}> `;
                                         bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(async function(){
                                             let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['count(*)'];
@@ -219,6 +220,8 @@ module.exports = {
                                     output += "\n";
 
                                     output += await bot.lang.getTranslation(message.guild.id, "TRIVIA_WIN"+ (correct.length === 1 ? "_SINGLE" : ""), {points});
+                                    if(cheaters.length > 0)
+                                        output += `\n${cheaters.length} ${cheaters.length === 1 ? "person" : "people"} tried to cheat.\nhttps://tenor.com/view/shame-go-t-game-of-thrones-walk-of-shame-shameful-gif-4949558`
                                 }
 
                                 message.channel.send(output);
