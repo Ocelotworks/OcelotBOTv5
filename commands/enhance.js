@@ -20,14 +20,16 @@ module.exports = {
         if(!url || !url.startsWith("http"))
             return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
         message.channel.startTyping();
-        try {
-            let result = await deepai.callStandardApi("torch-srgan", {image: url});
-            message.channel.send("", new Discord.Attachment(result.output_url));
-        }catch(e){
-            message.channel.send(":bangbang: The image is already at maximum resolution.");
 
-        }finally{
-            message.channel.stopTyping(true);
+        let result = await deepai.callStandardApi("torch-srgan", {image: url});
+        console.log(result);
+        if(result.output_url) {
+            message.channel.send("", new Discord.Attachment(result.output_url));
+        }else{
+            message.channel.send(":bangbang: The image is already at maximum resolution.");
         }
+
+        message.channel.stopTyping(true);
+
     }
 };
