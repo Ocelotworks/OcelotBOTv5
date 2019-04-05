@@ -37,6 +37,9 @@ module.exports = {
             if(message.getBool(`${command}.disable`))
                 return bot.logger.log(`${command} is disabled in this server: ${message}`);
 
+            if(message.getSetting(`${command}.override`))
+                return message.channel.send(message.getSetting(`${command}.override`));
+
             const channelDisable = message.getSetting(`${command}.channelDisable`);
             if(channelDisable && channelDisable.indexOf(message.channel.id) > -1){
                 if(message.getBool("sendDisabledMessage")) {
