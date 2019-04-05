@@ -32,10 +32,10 @@ module.exports = {
 
         };
 
-        bot.lang.getTranslation = function getTranslation(server, key, format = {}){
+        bot.lang.getTranslation = function getTranslation(server, key, format = {}, author){
             return new Promise(async function(fulfill){
-                format.prefix = "\\"+bot.config.get(server, "prefix");
-                const langOverride = bot.config.get(server, "lang."+key);
+                format.prefix = "\\"+bot.config.get(server, "prefix", author);
+                const langOverride = bot.config.get(server, "lang."+key, author);
                 if(langOverride){
                     fulfill(langOverride.formatUnicorn());
                 }else{
