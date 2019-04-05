@@ -50,8 +50,8 @@ module.exports = {
         try {
             message.channel.startTyping();
             if (comments.length > 0) {
-                // if (comments[commentIndex++].data.body.indexOf("gonewild") > -1)
-                //     commentIndex++;
+                 if (comments[commentIndex++].data.body.indexOf("http") > -1)
+                     commentIndex++;
 
                 message.channel.send(comments[commentIndex++].data.body);
 
