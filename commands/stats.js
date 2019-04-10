@@ -14,20 +14,21 @@ module.exports = {
         const tagline       = await bot.lang.getTranslation(server, "STATS_MESSAGE", {instance: `Shard ${bot.client.shard.id+1}/${bot.client.shard.count}`});
         const totalUsers    = await bot.lang.getTranslation(server, "STATS_TOTAL_USERS");
         const totalServers  = await bot.lang.getTranslation(server, "STATS_TOTAL_SERVERS");
+        const totalChannels = await bot.lang.getTranslation(server, "STATS_TOTAL_CHANNELS");
         const uptime        = await bot.lang.getTranslation(server, "STATS_UPTIME");
 
         const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
         const userCount     = (await bot.client.shard.fetchClientValues("users.size")).reduce((prev, val) => prev + val, 0);
-
+        const channelCount  = (await bot.client.shard.fetchClientValues("channels.size")).reduce((prev, val) => prev + val, 0);
 
         let embed = new Discord.RichEmbed();
         embed.setColor(0x189F06);
-        embed.setAuthor(title, "https://cdn.discordapp.com/avatars/146293573422284800/1f37ae7298e956cc7bf671d745ae10ff.png?size=128");
+        embed.setAuthor(title, bot.client.user.avatarURL);
         embed.setDescription(tagline);
         embed.addField(uptime, bot.util.prettySeconds(process.uptime()));
-        embed.addField(totalUsers, userCount, true);
-        embed.addField(totalServers, serverCount, true);
-
+        embed.addField(totalUsers, userCount.toLocaleString(), true);
+        embed.addField(totalServers, serverCount.toLocaleString(), true);
+        embed.addField(totalChannels, channelCount.toLocaleString(), true);
 
         message.channel.send("", embed);
     }
