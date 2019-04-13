@@ -62,8 +62,12 @@ module.exports = {
             message.channel.stopTyping(true);
             if(err)
                 return message.replyLang("GENERIC_ERROR");
-            if(body.error)
-                return message.channel.send(`${body.error}\nIf you're looking for an xbox or playstation player, try entering the platform. For example for xbox:, ${args[0]} xbl ${username}`);
+            if(body.error) {
+                let output = body.error;
+                if(platform !== "pc")
+                    output += `\nIf you're looking for an xbox or playstation player, try entering the platform. For example for xbox:, ${args[0]} xbl ${username}`;
+                return message.channel.send(output);
+            }
 
 
             let embed = new Discord.RichEmbed();
