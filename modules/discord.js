@@ -67,13 +67,16 @@ module.exports = {
         bot.presenceMessage = null;
 
 
-        bot.client = new Discord.Client();
+        bot.client = new Discord.Client({
+            disabledEvents: ["TYPING_START", "CHANNEL_PINS_UPDATE", "GUILD_BAD_ADD", "GUILD_BAN_REMOVE"]
+        });
 
         bot.client.on("ready", async function discordReady(){
             bot.logger.log(`Logged in as ${bot.client.user.tag}`);
             bot.raven.captureBreadcrumb({
                 message: "ready",
                 category:  "discord",
+                messageSweepInterval: 6000
             });
 
             setTimeout(async function(){
@@ -196,6 +199,7 @@ module.exports = {
 
         bot.client.on("error", function websocketError(evt){
             bot.logger.log("Websocket Error "+evt.message);
+            console.error(evt);
             bot.raven.captureException(evt.error);
         });
 
@@ -295,7 +299,12 @@ module.exports = {
            }else if(message.type === "getUserInfo"){
                let userID = message.payload;
                if(bot.client.users.has(userID)){
-                    bot.client.shard.send({type: "getUserInfoResponse", payload: bot.client.users.get(userID)});
+                    let user =  bot.client.users.get(userID);
+                    bot.client.shard.send({type: "getUserInfoResponse", payload: {
+                        id: user.id,
+                        username: user.username,
+                        discriminator: user.discriminator
+                    }});
                }
            }
         });
