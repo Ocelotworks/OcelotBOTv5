@@ -32,8 +32,8 @@ const logger = require('ocelot-logger');
 
                     if(concerns[shard].badMessageCounts > 5){
                         logger.error(`Shard ${shard} has been without messages for 5 minutes, killing....`);
-                        process.kill(1);
-
+                        console.log(process);
+                        //process.respawn(1000);
                     }
                 }else{
                     concerns[shard] = {badMessageCounts: 0};
