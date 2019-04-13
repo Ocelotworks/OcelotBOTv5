@@ -2,7 +2,7 @@ const request = require('request');
 module.exports = {
     name: "Morse Code Generator",
     usage: "morse <text>",
-    categories: ["fun", "tools"],
+    categories: ["tools"],
     rateLimit: 2,
     commands: ["morse", "morsecode"],
     run: function run(message, args, bot) {

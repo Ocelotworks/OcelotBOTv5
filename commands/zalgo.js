@@ -8,7 +8,7 @@ module.exports = {
     name: "Zalgo Text",
     usage: "zalgo <text>",
     commands: ["zalgo"],
-    categories: ["fun"],
+    categories: ["text"],
     run: async function(message, args, bot){
         if(!args[1])
             return message.channel.send(":bangbang: You must enter some text!");

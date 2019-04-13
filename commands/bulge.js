@@ -1,7 +1,7 @@
 module.exports = {
     name: "Bulge Image",
     usage: "bulge [url]",
-    categories: ["image", "fun"],
+    categories: ["image"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bulge", "explode", "buldge"],

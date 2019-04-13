@@ -5,7 +5,7 @@ module.exports = {
     usage: "face [url] or embed",
     accessLevel: 0,
     rateLimit: 10,
-    categories: ["tools", "fun", "image"],
+    categories: ["tools", "image"],
     commands: ["face", "age"],
     run: async function run(message, args, bot) {
         const url = await bot.util.getImage(message, args);

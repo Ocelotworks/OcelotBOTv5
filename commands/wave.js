@@ -3,7 +3,7 @@ module.exports = {
     usage: "wave [url]",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["wave", "wavey", "waves"],
-    categories: ["image", "fun"],
+    categories: ["image"],
     run: async function(message, args, bot){
         bot.util.processImageFilter(module, message, args, "wave", [10, 50]);
     }

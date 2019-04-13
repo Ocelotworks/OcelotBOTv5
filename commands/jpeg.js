@@ -17,7 +17,7 @@ const fs = require('fs');
 module.exports = {
     name: "JPEG-ify",
     usage: "jpeg [url]",
-    categories: ["image", "fun"],
+    categories: ["image"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jpeg", "jpg"],
