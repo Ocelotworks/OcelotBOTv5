@@ -47,6 +47,8 @@ module.exports = {
         if(bot.client.shard && bot.client.shard.id === 0) {
             process.on("message", async function handleClaimedReminders(message) {
                 if (message.type === "handleClaimedReminders") {
+                    if(bot.orphanedRemindersLoaded)return bot.logger.warn("Prevented duplicate orphaned reminder loading");
+                    bot.orphanedRemindersLoaded = true;
                     const now = new Date().getTime();
                     let orphanedReminders = await bot.database.getOrphanedReminders(message.payload);
                     bot.logger.log(`Found ${orphanedReminders.length} orphaned reminders.`);
