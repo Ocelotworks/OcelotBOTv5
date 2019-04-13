@@ -115,33 +115,37 @@ module.exports = {
                     });
             }
             if(os.hostname() === "Jupiter") {
-                await bot.stats.influx.writePoints([
-                    {
-                        measurement: "commandsPerMinute",
-                        tags: {"shard": bot.client.shard.id},
-                        fields: {commands: bot.stats.commandsPerMinute}
-                    },
-                    {
-                        measurement: "messagesPerMinute",
-                        tags: {"shard": bot.client.shard.id},
-                        fields: {messages: bot.stats.messagesPerMinute}
-                    },
-                    {
-                        measurement: "commandsTotal",
-                        tags: {"shard": bot.client.shard.id},
-                        fields: {commands: bot.stats.commandsTotal}
-                    },
-                    {
-                        measurement: "messagesTotal",
-                        tags: {"shard": bot.client.shard.id},
-                        fields: {messages: bot.stats.messagesTotal}
-                    },
-                    {
-                        measurement: "serversTotal",
-                        tags: {"shard": bot.client.shard.id},
-                        fields: {servers: bot.client.guilds.size}
-                    }
-                ]);
+                try {
+                    await bot.stats.influx.writePoints([
+                        {
+                            measurement: "commandsPerMinute",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {commands: bot.stats.commandsPerMinute}
+                        },
+                        {
+                            measurement: "messagesPerMinute",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {messages: bot.stats.messagesPerMinute}
+                        },
+                        {
+                            measurement: "commandsTotal",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {commands: bot.stats.commandsTotal}
+                        },
+                        {
+                            measurement: "messagesTotal",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {messages: bot.stats.messagesTotal}
+                        },
+                        {
+                            measurement: "serversTotal",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {servers: bot.client.guilds.size}
+                        }
+                    ]);
+                }catch(e){
+                    bot.logger.warn("Couldn't upload stats: "+e);
+                }
             }
 
             if(bot.client.shard){
