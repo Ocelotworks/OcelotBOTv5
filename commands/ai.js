@@ -26,15 +26,19 @@ module.exports = {
                     return message.replyLang("GENERIC_ERROR");
                 }
 
-                cbot.ask(message.cleanContent.substring(args[0].length+1), function(err, response){
-                    message.channel.stopTyping();
-                    if(err)
-                        return message.replyLang("GENERIC_ERROR");
+                try {
+                    cbot.ask(message.cleanContent.substring(args[0].length + 1), function (err, response) {
+                        message.channel.stopTyping();
+                        if (err)
+                            return message.replyLang("GENERIC_ERROR");
 
-                    message.channel.send(response);
+                        message.channel.send(response);
 
 
-                });
+                    });
+                }catch(e){
+                    message.replyLang("GENERIC_ERROR");
+                }
 
             });
         }catch(e){
