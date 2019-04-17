@@ -54,7 +54,7 @@ module.exports = {
         });
         if(subCommand && module.exports.subCommands[subCommand.toLowerCase()]){
             module.exports.subCommands[subCommand.toLowerCase()](message, args, bot);
-        }else if(runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[a-z]{1,4}[0-9]/gi)) {
+        }else if(subCommand && runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[a-z]{1,4}[0-9]/gi)) {
             module.exports.doGo(message, subCommand, args, bot);
         }else{
             message.replyLang("GAME_INVALID_USAGE", {arg: args[0]});
