@@ -29,7 +29,7 @@ module.exports = {
     requiredPermissions: [],
     commands: ["ship", "shipname", "relationship", "shipgenerator"],
     run: async function run(message, args, bot) {
-        if(args.length < 2){
+        if(args.length < 3){
             message.channel.send(`Usage: ${args[0]} @user1 @user2`);
         }else{
             let split = message.cleanContent.split(" ");
