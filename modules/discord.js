@@ -71,6 +71,8 @@ module.exports = {
             disabledEvents: ["TYPING_START", "CHANNEL_PINS_UPDATE", "GUILD_BAD_ADD", "GUILD_BAN_REMOVE"]
         });
 
+        bot.client.setMaxListeners(100);
+
         bot.client.on("ready", async function discordReady(){
             bot.logger.log(`Logged in as ${bot.client.user.tag}`);
             bot.raven.captureBreadcrumb({
@@ -199,7 +201,7 @@ module.exports = {
 
         bot.client.on("error", function websocketError(evt){
             bot.logger.log("Websocket Error "+evt.message);
-            console.error(evt);
+            //console.error(evt);
             bot.raven.captureException(evt.error);
         });
 
