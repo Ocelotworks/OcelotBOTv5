@@ -114,7 +114,8 @@ module.exports = {
                         fields: {[keys[i].startsWith("commands") ? "commands" : keys[i].startsWith("messages") ? "messages" : "value"]: bot.stats[keys[i]]}
                     });
             }
-            if(os.hostname() === "Jupiter") {
+            if(false &&os.hostname() === "Jupiter") {
+
                 try {
                     await bot.stats.influx.writePoints([
                         {
