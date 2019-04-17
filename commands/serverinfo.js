@@ -30,6 +30,10 @@ module.exports = {
                 port = args[2];
             }
 
+            if(port <= 0 || port > 65535)
+                return message.channel.send(":warning: Invalid port.");
+
+
             message.channel.startTyping();
             sq.open(ip, port);
             sq.getInfo(function sourceQueryInfo(err, info){
