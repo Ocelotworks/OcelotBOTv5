@@ -23,7 +23,7 @@ module.exports = {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         }else{
             try {
-                if(message.guild.voiceConnection) {
+                if(message.guild.voiceConnection && message.guild.voiceConnection.channel !== message.member.voiceChannel) {
                     message.guild.voiceConnection.disconnect();
                 }
                 bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
