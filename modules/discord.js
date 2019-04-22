@@ -37,18 +37,15 @@ module.exports = {
         };
 
         Discord.Message.prototype.getSetting = function(setting){
-            if(this.guild)
-                return bot.config.get(this.guild.id, setting, this.author.id);
-            return bot.config.get("global", setting, this.author.id);
+            return bot.config.get(this.guild ? this.guild.id : "global", setting, this.author.id);
         };
 
         Discord.Message.prototype.getBool = function(setting){
-            let val = this.getSetting(setting);
-            return val && (val === "1" || val === "true")
+           return bot.config.getBool(this.guild ? this.guild.id : "global", setting, this.author.id);
         };
 
         const oldsend = Discord.TextChannel.prototype.send;
-        Discord.TextChannel.prototype.send = function send(content, options){
+        Discord.TextChannel.prototype.send = async function send(content, options){
             let output = "";
             if(this.guild)
                 output += `${this.guild.name} (${this.guild.id})`;
@@ -61,7 +58,20 @@ module.exports = {
 
 
             bot.logger.log(output);
-            return oldsend.apply(this, [content, options]);
+            let result;
+            try {
+                result = await oldsend.apply(this, [content, options]);
+            }catch(e){
+                if(e.code === "ECONNRESET"){
+                    bot.logger.warn("Connection reset... trying again.");
+                    result = await oldsend.apply(this, [content, options]);
+                }else{
+                    bot.logger.warn("Message Send Error: "+e);
+                    bot.raven.captureException(e);
+                    return null;
+                }
+            }
+            return result;
         };
 
         bot.presenceMessage = null;
@@ -163,10 +173,10 @@ module.exports = {
                  let lang = "en-gb";
                  if(guild.region.startsWith("us"))
                      lang = "en-us";
-                 await bot.database.addServer(guild.id, guild.owner_id, guild.name, guild.joined_at, lang);
-
-                 if(bot.config.get("global", "welcome.enabled") && bot.config.get("global", "welcome.enabled") === "true") {
-                     let mainChannel = bot.util.determineMainChannel(guild);
+                 await bot.database.addServer(guild.id, guild.ownerID, guild.name, guild.joinedAt, lang);
+                 await bot.database.unleaveServer(guild.id);
+                 let mainChannel = bot.util.determineMainChannel(guild);
+                 if(bot.config.getBool("global", "welcome.enabled")) {
                      if (mainChannel) {
                          bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
                          let embed = new Discord.RichEmbed();
@@ -178,6 +188,18 @@ module.exports = {
                          embed.addField("Issues?", "If you have issues or suggestions, type !feedback or join our [support server](https://discord.gg/7YNHpfF).");
                          mainChannel.send("", embed);
                      }
+                 }
+
+                 if(bot.config.getBool("global", "webhook.enabled")){
+                     try {
+                         let webhook = await mainChannel.createWebhook("OcelotBOT", bot.client.avatarURL);
+                         bot.logger.log(`Created webhook for ${guild.id}: ${webhook.id}`);
+                         await bot.database.addServerWebhook(guild.id, webhook.id, webhook.token);
+                     }catch(e){
+                         bot.logger.warn("Failed to create webhook: "+e);
+                     }
+                 }else{
+                     bot.logger.log("Not creating webhook.");
                  }
 
              }catch(e){
@@ -197,6 +219,26 @@ module.exports = {
                 }
             });
             await bot.database.leaveServer(guild.id);
+
+            if(bot.config.getBool("global", "webhook.enabled")) {
+                bot.logger.log("Trying to send webhook...");
+                let webhookData = (await bot.database.getServerWebhook(guild.id))[0];
+                if (webhookData && webhookData.webhookID && webhookData.webhookToken) {
+                    try {
+                        let webhook = new Discord.Webhook(bot.client, webhookData.webhookID, webhookData.webhookToken);
+                        webhook.send("Thanks for trying OcelotBOT! If you have a minute, please fill in the feedback form to help us improve: https://forms.gle/KMwXQiAAQPKzmuAp7")
+                        bot.logger.log("Successfully sent webhook");
+                    } catch (e) {
+                        bot.logger.warn("Failed to send webhook");
+                        console.log(e);
+                        bot.raven.captureException(e);
+                    }
+                } else {
+                    bot.logger.warn("Server had no webhook...");
+                }
+            }else{
+                bot.logger.log("Not sending webhook");
+            }
         });
 
         bot.client.on("error", function websocketError(evt){
