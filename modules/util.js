@@ -506,17 +506,15 @@ module.exports = {
                 return channel.type === "text" && channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
-            if(mainChannel){
+            if(mainChannel)
                 return mainChannel;
-            }
 
             let secondaryChannel = channels.find(function(channel){
-                return channel.type === "text" && channel.name.match(requiredPermissions) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
+                return channel.type === "text" && channel.name.match(secondaryChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
-            if(secondaryChannel){
+            if(secondaryChannel)
                 return secondaryChannel;
-            }
 
             return channels.find(function(channel){
                 return channel.type === "text" &&channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
@@ -549,7 +547,7 @@ module.exports = {
          * @param {Number} reactionTime
          * @returns {Promise<void>}
          */
-        bot.util.standardPagination = async function(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000){
+        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000){
             let index = 0;
             let sentMessage;
 
