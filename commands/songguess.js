@@ -15,8 +15,6 @@ const columnify = require('columnify');
 const pasync = require('promise-async');
 const fs = require('fs');
 
-let leaveTimeouts = {};
-
 module.exports = {
     name: "Guess The Song",
     usage: "guess [stop/stats]",
@@ -25,6 +23,9 @@ module.exports = {
     requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["guess", "guesssong", "songguess", "namethattune", "quess", "gues"],
     init: async function init(bot){
+
+        bot.voiceLeaveTimeouts = {};
+
         bot.logger.log("Loading song list...");
 
         songList = await bot.database.getSongList();
@@ -102,13 +103,13 @@ module.exports = {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         }else if(runningGames[message.guild.id] && runningGames[message.guild.id].channel.id !== message.member.voiceChannel.id) {
             message.channel.send(`There is already a game running in ${runningGames[message.guild.id].channel.name}!`);
-        }else if(message.guild.voiceConnection && !leaveTimeouts[message.member.voiceChannel.id] && message.getSetting("songguess.disallowReguess")){
+        }else if(message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voiceChannel.id] && message.getSetting("songguess.disallowReguess")){
             message.channel.send("I'm already in a voice channel doing something.");
         }else{
             try {
                 bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
 
-                if(message.guild.voiceConnection && !leaveTimeouts[message.member.voiceChannel.id])
+                if(message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voiceChannel.id])
                     await message.guild.voiceConnection.disconnect();
 
                 let connection = await message.member.voiceChannel.join();
@@ -284,8 +285,8 @@ let runningGames = [];
 
 function doGuess(voiceChannel, message, voiceConnection, bot){
     try {
-        if(leaveTimeouts[voiceChannel.id])
-            clearTimeout(leaveTimeouts[voiceChannel.id]);
+        if(bot.voiceLeaveTimeouts[voiceChannel.id])
+            clearTimeout(bot.voiceLeaveTimeouts[voiceChannel.id]);
         if (voiceChannel.members.size <= 1)
             return voiceConnection.disconnect();
         if(timeouts[voiceChannel.id])
@@ -380,12 +381,12 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
                 }, 2000);
             }else{
                 delete runningGames[voiceChannel.id];
-                if(leaveTimeouts[voiceChannel.id])
-                    clearTimeout(leaveTimeouts[voiceChannel.id]);
-                leaveTimeouts[voiceChannel.id] = setTimeout(function leaveTimeout(){
+                if(bot.voiceLeaveTimeouts[voiceChannel.id])
+                    clearTimeout(bot.voiceLeaveTimeouts[voiceChannel.id]);
+                bot.voiceLeaveTimeouts[voiceChannel.id] = setTimeout(function leaveTimeout(){
                     bot.logger.log(`Leaving voice channel ${voiceChannel.name} (${voiceChannel.id})`);
                     voiceConnection.disconnect();
-                    delete leaveTimeouts[voiceChannel.id];
+                    delete bot.voiceLeaveTimeouts[voiceChannel.id];
                 }, parseInt(message.getSetting("songguess.leaveTimeout")));
             }
         });

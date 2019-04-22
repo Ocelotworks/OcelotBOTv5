@@ -23,9 +23,13 @@ module.exports = {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         }else{
             try {
-                if(message.guild.voiceConnection && message.guild.voiceConnection.channel !== message.member.voiceChannel) {
-                    message.guild.voiceConnection.disconnect();
-                }
+                if(message.guild.voiceConnection && message.guild.voiceConnection.channel.id !== message.member.voiceChannel.id && !bot.voiceLeaveTimeouts[message.member.voiceChannel.id])
+                    await message.guild.voiceConnection.disconnect();
+
+
+                if(bot.voiceLeaveTimeouts[message.member.voiceChannel.id])
+                    clearTimeout(bot.voiceLeaveTimeouts[message.member.voiceChannel.id]);
+
                 bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
                 let connection = await message.member.voiceChannel.join();
 
@@ -57,7 +61,15 @@ module.exports = {
                             const dispatcher = connection.playFile(file);
                             dispatcher.on("end", function fileEnd(){
                                 bot.logger.log("Finished playing");
-                                connection.disconnect();
+                                if(bot.voiceLeaveTimeouts[connection.channel.id])
+                                    clearTimeout(bot.voiceLeaveTimeouts[connection.channel.id]);
+                                bot.voiceLeaveTimeouts[connection.channel.id] = setTimeout(function leaveTimeout(){
+                                    if(connection) {
+                                        bot.logger.log(`Leaving voice channel ${connection.channel.name} (${connection.channel.id})`);
+                                        connection.disconnect();
+                                    }
+                                    delete bot.voiceLeaveTimeouts[connection.channel.id];
+                                }, parseInt(message.getSetting("songguess.leaveTimeout")));
                             })
                         }catch(e){
                             bot.logger.log(e);
