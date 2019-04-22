@@ -64,7 +64,7 @@ module.exports = {
                 return message.replyLang("GENERIC_ERROR");
             if(body.error) {
                 let output = body.error;
-                if(platform !== "pc")
+                if(platform === "pc")
                     output += `\nIf you're looking for an xbox or playstation player, try entering the platform. For example for xbox:, ${args[0]} xbl ${username}`;
                 return message.channel.send(output);
             }
