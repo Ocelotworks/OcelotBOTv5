@@ -79,6 +79,11 @@ module.exports = {
             return null;
         };
 
+        bot.config.getBool = function getBool(server, property, user){
+            let result = bot.config.get(server, property, user);
+            return result === "true" || result === "1";
+        };
+
         let cacheReloads = [];
 
         process.on("message", function reloadConfig(msg){
