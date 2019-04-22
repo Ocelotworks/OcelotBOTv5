@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 module.exports = {
-    name: "Stats Command",
+    name: "Stats",
     usage: "stats",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["stats", "statistics", "info", "about", "privacy"],
