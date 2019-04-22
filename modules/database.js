@@ -50,21 +50,23 @@ module.exports = {
         bot.database = {
             /**
              * Add a server to the database
-             * @param {ServerID} serverID The server's Snowflake ID
+             * @param {ServerID} server The server's Snowflake ID
              * @param {UserID} addedBy The server owner's Snowflake ID
              * @param {String} name The name of the server
              * @param {Number} [timestamp] The Unix Timestamp in milliseconds
-             * @param {String} lang Language
+             * @param {String} language Language
              * @returns {Promise<Array>}
              */
-            addServer: function addNewServer(serverID, addedBy, name, timestamp, lang = "en-gb") {
+            addServer: function addNewServer(server, addedBy, name, timestamp, language = "en-gb", webhookID, webhookToken) {
                 return knex.insert({
-                    server: serverID,
+                    server,
                     owner: addedBy,
-                    name: name,
+                    name,
                     prefix: "!",
                     timestamp: knex.raw(`FROM_UNIXTIME(${(timestamp ? new Date(timestamp).getTime() : new Date().getTime()) / 1000})`),
-                    language: lang
+                    language,
+                    webhookID,
+                    webhookToken
                 }).into(SERVERS_TABLE);
             },
             /**
@@ -82,14 +84,23 @@ module.exports = {
             },
             /**
              * Mark a server as left
-             * @param {ServerID} serverID The server's Snowflake ID
+             * @param {ServerID} server The server's Snowflake ID
              * @returns {Promise<Array>}
              */
-            leaveServer: function leaveServer(serverID) {
-                return knex.insert({
-                    server: serverID
-                })
-                    .into(LEFTSERVERS_TABLE);
+            leaveServer: function leaveServer(server) {
+                return knex.insert({server}).into(LEFTSERVERS_TABLE);
+            },
+            unleaveServer: function unleaveServer(server){
+                return knex.delete().from(LEFTSERVERS_TABLE).where({server}).limit(1);
+            },
+            addServerWebhook: function addServerWebhook(server, webhookID, webhookToken){
+                return knex(SERVERS_TABLE).update({webhookID, webhookToken}).where({server}).limit(1);
+            },
+            getServerWebhook: function getServerWebhook(server){
+                return knex.select("webhookID", "webhookToken").from(SERVERS_TABLE).where({server}).limit(1);
+            },
+            updateServer: function(server, update){
+                return knex(SERVERS_TABLE).update(update).where({server}).limit(1);
             },
             /**
              * Get a server's data from it's ID
