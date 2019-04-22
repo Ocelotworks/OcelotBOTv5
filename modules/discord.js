@@ -225,9 +225,11 @@ module.exports = {
                 let webhookData = (await bot.database.getServerWebhook(guild.id))[0];
                 if (webhookData && webhookData.webhookID && webhookData.webhookToken) {
                     try {
-                        let webhook = new Discord.Webhook(bot.client, webhookData.webhookID, webhookData.webhookToken);
-                        webhook.send("Thanks for trying OcelotBOT! If you have a minute, please fill in the feedback form to help us improve: https://forms.gle/KMwXQiAAQPKzmuAp7")
+                        let webhook = new Discord.WebhookClient(webhookData.webhookID, webhookData.webhookToken);
+                        await webhook.send("Thanks for trying OcelotBOT! If you have a minute, please fill in the feedback form to help us improve: https://forms.gle/KMwXQiAAQPKzmuAp7")
                         bot.logger.log("Successfully sent webhook");
+                        await webhook.delete("OcelotBOT was kicked");
+                        webhook.destroy();
                     } catch (e) {
                         bot.logger.warn("Failed to send webhook");
                         console.log(e);
