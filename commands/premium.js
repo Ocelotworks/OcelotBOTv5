@@ -41,16 +41,46 @@ You now have access to the following features:
            }
         });
     },
-    run: async function run(message, args){
-        message.channel.send(`<:ocelotbot:533369578114514945> **Support OcelotBOT on Patreon and get Premium features: https://www.patreon.com/ocelotbot**
+    run: async function run(message, args, bot){
+        if(args[1]){
+            if(!message.guild.id)
+                return message.channel.send(`:warning: You can't redeem a premium key in a DM, to learn about premium, just type ${args[0]}`);
+
+            if(message.getBool("serverPremium"))
+                return message.channel.send(":warning: This server already has premium. You must redeem the key in a server that hasn't already got premium.");
+
+            let result = await bot.database.getPremiumKey(args[1]);
+
+            if(!result[0])
+                return message.channel.send(`:warning: Invalid premium key. To use server premium, you must get a premium key. For more info, type ${args[0]}`);
+
+            let key = result[0];
+            if(key.redeemed)
+                return message.channel.send(":warning: That key has already been redeemed! You must get a new key to use it in a different server.");
+
+            await bot.database.redeemPremiumKey(args[1], message.guild.id);
+            await bot.config.set(message.guild.id, "serverPremium", true);
+            if(key.owner !== message.author.id){
+                let owner = await bot.client.fetchUser(key.owner);
+                bot.logger.warn("Key was redeemed by someone other than the owner.")
+                if(owner){
+                    let dm = await owner.createDM();
+                    dm.send(`Your Ocelot Premium key has been redeemed by **${message.author.tag}** for server **${message.guild.name}**. If you didn't authorize this, contact Big P#1843`);
+                }
+            }
+
+            message.channel.send("Congratulations! Your Ocelot Server Premium key has been redeemed for this server. All the users of this server can now enjoy the benefits!");
+            return;
+        }
+        message.channel.send(`**Support OcelotBOT on Patreon and get Premium features: https://www.patreon.com/ocelotbot**
 Joining Premium gets you:
 - A chance to have your own bot ideas implemented
-- <:premium:547494108160196624> New profile badge
+- New profile badge
 - Custom profile background
 - Custom profile font
 - Premium profile border
 - Fast track support 
-- Reliable uptime    
-Join the support server: https://discord.gg/7YNHpfF`);
+- Reliable uptime
+_If you have a Server Premium key, type ${args[0]} \`key\` to redeem it in this server._`);
     }
 };
