@@ -2,7 +2,7 @@ module.exports = {
     name: "Leave Feedback",
     usage: "feedback [message]",
     accessLevel: 0,
-    rateLimit: 10,
+    rateLimit: 30,
     categories: ["meta"],
     commands: ["feedback", "complain", "report", "support", "broken", "broke"],
     init: function init(bot){
@@ -52,7 +52,7 @@ module.exports = {
              }else{
                 bot.client.shard.send({type: "feedback", message: {
                         userID: message.member.id,
-                        message: message.content,
+                        message: bot.client.escapeMarkdown(message.content),
                         username: `${message.author.username}#${message.author.discriminator}`,
                         guildID: message.guild.id,
                         guild: message.guild.name,
