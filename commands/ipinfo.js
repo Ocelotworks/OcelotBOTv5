@@ -48,7 +48,7 @@ module.exports = {
                 });
             }
             if(!message.getSetting("ipinfo.disableTorrents")) {
-                request(`https://api.antitor.com/history/peer?ip=${args[1]}&key=${config.get("Commands.ipinfo.torrentKey")}`, function (err, resp, body) {
+                request(`https://api.antitor.com/history/peer?ip=${args[1]}&key=${config.get("Commands.ipinfo.torrentKey")}&days=30`, function (err, resp, body) {
                     try {
                         let data = JSON.parse(body);
                         let output = "";
