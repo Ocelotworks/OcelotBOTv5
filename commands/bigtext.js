@@ -2,7 +2,7 @@ const request = require('request');
 module.exports = {
     name: "Big Text Generator",
     usage: "bigtext <text>",
-    categories: ["image", "fun"],
+    categories: ["text"],
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["bigtext", "big"],
     run:  function(message, args, bot){
