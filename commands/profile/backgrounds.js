@@ -15,6 +15,7 @@ module.exports = {
             const background = result[i];
             output += `For **${background.name}**${background.premium ? " (<:ocelotbot:533369578114514945> **Premium**)" : ""}: \nΤype ${args[0]} set background ${background.key}\n`;
         }
+        output += `**Get a custom background with Ocelot Premium, for more info type: ${message.getSetting("prefix")}premium**`;
         message.channel.send(output);
     }
 };
