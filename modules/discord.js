@@ -1,3 +1,6 @@
+const Reattempt = require("reattempt").default;
+
+
 const Discord = require('discord.js');
 const request = require('request');
 const config = require('config');
@@ -11,7 +14,6 @@ const presenceMessages = [
     "!vote",
     "Minecraft Parody Songs",
     "lord jesus help us all",
-    "please god buy premium my children are starving",
     "ass"
 ];
 
@@ -58,20 +60,16 @@ module.exports = {
 
 
             bot.logger.log(output);
-            let result;
-            try {
-                result = await oldsend.apply(this, [content, options]);
-            }catch(e){
-                if(e.code === "ECONNRESET"){
-                    bot.logger.warn("Connection reset... trying again.");
-                    result = await oldsend.apply(this, [content, options]);
+
+            return await Reattempt.run({times: 3, onError: function(error, done, abort){
+                if(error.code !== "ECONNRESET"){
+                    bot.raven.captureException(error);
+                    abort();
+                    bot.logger.warn("Send Error: "+error);
                 }else{
-                    bot.logger.warn("Message Send Error: "+e);
-                    bot.raven.captureException(e);
-                    return null;
+                    bot.logger.warn("Connection reset, retrying send...");
                 }
-            }
-            return result;
+            }}, ()=>oldsend.apply(this, [content, options]));
         };
 
         bot.presenceMessage = null;
@@ -141,6 +139,14 @@ module.exports = {
                 category:  "discord",
             });
            bot.logger.warn("Disconnected");
+        });
+
+
+        bot.client.on("message", function mentionsListener(message){
+            if(message.author.bot)return;
+            if(message.mentions && message.mentions.users.has(bot.client.user.id)){
+                bot.logger.log(`Mentioned by ${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}): ${message.content}`);
+            }
         });
 
         let lastPresenceUpdate = 0;
