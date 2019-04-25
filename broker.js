@@ -11,7 +11,7 @@ Raven.config(config.get("Raven.DSN")).install();
 
 
 
-const manager = new ShardingManager(`${__dirname}/ocelotbot.js`, config.get("Discord"),);
+const manager = new ShardingManager(`${__dirname}/ocelotbot.js`, JSON.parse(JSON.stringify(config.get("Discord"))));
 
 let shardDeathCount = [];
 let shardDeathTimeout = [];
