@@ -30,12 +30,39 @@ You now have access to the following features:
 - Premium profile border
 - Fast track support 
 - Reliable uptime
+- Higher ratelimit
+- Access to the !usersettings command
 **More perks being added all the time for no additional charge!**`);
 
                         await bot.database.setUserSetting(user.id, "premium", 1);
+                        await bot.database.setUserSetting(user.id, "rateLimit", 400);
                         bot.client.shard.send({type: "reloadUserConfig"});
                         await bot.database.giveBadge(user.id, 52);
                         bot.client.channels.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Premium**! <3`);
+                    }else if(newMember.hoistRole && newMember.hoistRole.name === "Server Premium"){
+                        bot.logger.log("Found new server premium subscriber "+newMember);
+                        let user = newMember.user;
+                        let dm = await user.createDM();
+                        let key = await bot.database.createPremiumKey(newMember.id);
+                        dm.send(`:hearts: Thank you for purchasing **Ocelot Server Premium**!
+You now have access to the following features:
+- <:premium:547494108160196624> New profile badge
+- Custom profile background
+- Custom profile font
+- Premium profile border
+- Fast track support 
+- Reliable uptime
+- Higher ratelimit
+- Access to the !usersettings command
+**Also, as you have purchased Server Premium you can share some of these benefits with a server of your choosing**
+To Redeem Server Premium, run the following command in the server you choose: **!premium ${key}**
+The key is unique to you and can only be used in one server, so choose wisely!`);
+
+                        await bot.database.setUserSetting(user.id, "premium", 1);
+                        await bot.database.setUserSetting(user.id, "rateLimit", 400);
+                        bot.client.shard.send({type: "reloadUserConfig"});
+                        await bot.database.giveBadge(user.id, 52);
+                        bot.client.channels.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Server Premium**! <3`);
                     }
                });
            }
@@ -62,7 +89,7 @@ You now have access to the following features:
             await bot.config.set(message.guild.id, "serverPremium", true);
             if(key.owner !== message.author.id){
                 let owner = await bot.client.fetchUser(key.owner);
-                bot.logger.warn("Key was redeemed by someone other than the owner.")
+                bot.logger.warn("Key was redeemed by someone other than the owner.");
                 if(owner){
                     let dm = await owner.createDM();
                     dm.send(`Your Ocelot Premium key has been redeemed by **${message.author.tag}** for server **${message.guild.name}**. If you didn't authorize this, contact Big P#1843`);
@@ -81,6 +108,7 @@ Joining Premium gets you:
 - Premium profile border
 - Fast track support 
 - Reliable uptime
+- Higher ratelimit
 _If you have a Server Premium key, type ${args[0]} \`key\` to redeem it in this server._`);
     }
 };
