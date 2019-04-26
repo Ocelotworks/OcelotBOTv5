@@ -58,7 +58,7 @@ module.exports = {
                         if (data.hasChildPorno) {
                             output += ":bangbang: **This IP Address has downloaded CP in the last 30 days!!!!**\n";
                         }
-                        if (data.contents.length > 0) {
+                        if (data.contents && data.contents.length > 0) {
                             for (let i = 0; i < data.contents.length; i++) {
                                 const torrent = data.contents[i];
                                 output += `IP Torrented ${torrent.name} on ${torrent.startDate}\n`;
