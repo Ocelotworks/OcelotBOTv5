@@ -3,6 +3,8 @@ module.exports = {
     name: "Achievement Get!",
     usage: "achievement <text>",
     rateLimit: 10,
+    detailedHelp: "Creates a Minecraft-style achievement",
+    usageExample: "achievement Getting Wood",
     categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["achievement", "acheivement", "ach", "achievment"],

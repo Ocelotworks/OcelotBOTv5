@@ -28,6 +28,7 @@ module.exports = {
     name: "Wise Advice",
     usage: "advice",
     rateLimit: 10,
+    detailedHelp: "Get some great advice from the wise elders.",
     categories: ["tools", "fun"],
     requiredPermissions: [],
     commands: ["advice", "advise", "wise"],

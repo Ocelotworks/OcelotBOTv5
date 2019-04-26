@@ -11,6 +11,8 @@ let cbot = new cleverbot(config.get("user"), config.get("key"));
 module.exports = {
     name: "Artifical Intelligence",
     usage: "ai <message>",
+    detailedHelp: "Ask a question to the Artifical Intelligence",
+    usageExample: "ai what is the meaning of life?",
     categories: ["fun"],
     rateLimit: 20,
     commands: ["ai","cleverbot"],

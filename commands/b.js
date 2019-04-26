@@ -9,6 +9,7 @@ module.exports = {
     name: "B-ify",
     usage: "b <url>",
     rateLimit: 10,
+    detailedHelp: "Adds a 🅱 into the image wherever appropriate",
     categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["b", "bify"],

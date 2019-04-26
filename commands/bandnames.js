@@ -146,6 +146,7 @@ module.exports = {
     name: "Band Name Generator",
     usage: "bandname",
     rateLimit: 10,
+    detailedHelp: "Creates a brand new band name",
     categories: ["memes", "fun"],
     requiredPermissions: [],
     commands: ["bandname", "bandnames", "bn", "bands"],

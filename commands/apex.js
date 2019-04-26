@@ -38,6 +38,8 @@ const url = "https://public-api.tracker.gg/apex/v1/standard/profile/";
 module.exports = {
     name: game+" Stats",
     usage: game.toLowerCase()+" [platform] <player>",
+    detailedHelp: "Apex Legends Stats",
+    usageExample: "apex pc unacceptableuse",
     commands: [game.toLowerCase()],
     categories: ["tools", "games"],
     run: function run(message, args, bot) {
