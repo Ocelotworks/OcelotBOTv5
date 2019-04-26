@@ -13,6 +13,7 @@ module.exports = {
     name: "Remove Background",
     usage: "removebg [URL]",
     rateLimit: 100,
+    premium: true,
     commands: ["removebg", "rbg", "removebackground"],
     categories: ["image", "tools"],
     run: async function run(message, args, bot) {
