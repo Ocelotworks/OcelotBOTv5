@@ -603,10 +603,10 @@ module.exports = {
 
             }, {time: reactionTime});
             if(!sentMessage.deleted) {
-                bot.logger.log(`Reactions on ${sentMessage.id} have expired.`);
+                bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
                 sentMessage.clearReactions();
             }else{
-                bot.logger.log(`${sentMessage.id} was deleted before the reactions expired.`);
+                bot.logger.info(`${sentMessage.id} was deleted before the reactions expired.`);
             }
         };
 
@@ -618,7 +618,7 @@ module.exports = {
             fs.readdir(`commands/${directory}`, function loadNestedCommands(err, files){
                 if(err){
                     bot.raven.captureException(err);
-                    bot.logger.log(`Unable to read ${id} command dir (${directory})`);
+                    bot.logger.warn(`Unable to read ${id} command dir (${directory})`);
                     bot.logger.log(err);
                 }else{
                     bot.util.nestedCommands[id] = {};
