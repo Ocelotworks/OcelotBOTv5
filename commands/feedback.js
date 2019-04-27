@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 module.exports = {
     name: "Leave Feedback",
     usage: "feedback [message]",
@@ -52,7 +53,7 @@ module.exports = {
              }else{
                 bot.client.shard.send({type: "feedback", message: {
                         userID: message.member.id,
-                        message: bot.client.escapeMarkdown(message.content),
+                        message: Discord.escapeMarkdown(message.content),
                         username: `${message.author.username}#${message.author.discriminator}`,
                         guildID: message.guild.id,
                         guild: message.guild.name,
