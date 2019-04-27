@@ -5,8 +5,54 @@
  *  ════╝
  */
 const config = require('config').get("Commands.ai");
-const cleverbot = require('cleverbot.io');
-let cbot = new cleverbot(config.get("user"), config.get("key"));
+
+//Whoeever wrote the cleverbot.io package is honest to god retarded
+const base_url = "https://cleverbot.io/1.0/";
+var cio = function (user, key) {
+    this.user = user;
+    this.key = key;
+    this.setNick = function (nick) {
+        this.nick = nick;
+    };
+    this.create = function (callback) {
+        request.post({ url: base_url + "create", form: {
+                user: this.user,
+                key: this.key,
+                nick: this.nick
+            }}, function (err, httpResponse, body) {
+            if (err) return callback(err);
+            try{
+                const data = JSON.parse(body);
+                if(data.status === "success")
+                    this.nick = data.nick;
+                callback(false, this.nick);
+            }catch(e){
+                callback(e);
+            }
+        });
+    };
+
+    this.ask = function (input, callback) {
+        request.post({ url: base_url + "ask", form: {
+                user: this.user,
+                key: this.key,
+                nick: this.nick,
+                text: input
+            }}, function (err, httpResponse, body) {
+            if (err) return callback(err);
+            try{
+                const data = JSON.parse(body);
+                if(data.status === "success")
+                    return callback(false, JSON.parse(body).response);
+                callback(data.status, data.status);
+            }catch(e){
+                callback(e);
+            }
+        });
+    }
+};
+let cbot = new cio(config.get("user"), config.get("key"));
+
 
 module.exports = {
     name: "Artifical Intelligence",
