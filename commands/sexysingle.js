@@ -31,7 +31,6 @@ module.exports = {
                     bot.raven.captureException(e);
                     fs.unlink(outputFile, function deleteFileCB(err){
                         if(err){
-                            bot.raven.captureException(err);
                             bot.logger.error(`There was an error trying to delete ${outputFile}: ${err}`);
                         }else{
                             bot.logger.log(`Deleted ${outputFile}`);
@@ -51,7 +50,6 @@ module.exports = {
                     message.channel.stopTyping();
                     fs.unlink(outputFile, function deleteFileCB(err){
                         if(err){
-                            bot.raven.captureException(err);
                             bot.logger.error(`There was an error trying to delete ${outputFile}: ${err}`);
                         }else{
                             bot.logger.log(`Deleted ${outputFile}`);
@@ -87,7 +85,6 @@ module.exports = {
                             bot.logger.error(`Error during composite stage of !crush: ${err.stack}`);
                             fs.unlink(fileName, function deleteFailedCrush(err){
                                 if(err){
-                                    bot.raven.captureException(err);
                                     bot.logger.error(`There was an error trying to delete ${fileName}: ${err}`);
                                 }else{
                                     bot.logger.log(`Deleted ${fileName}`);
@@ -107,7 +104,6 @@ module.exports = {
                             }finally{
                                 fs.writeFile(outputFile, buffer, function(err){
                                     if(err){
-                                        bot.raven.captureException(err);
                                         bot.logger.warn(`Error caching crush file: ${err}`);
                                     }
                                 });
