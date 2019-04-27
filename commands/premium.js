@@ -16,6 +16,7 @@ module.exports = {
                bot.logger.log("Listening for premium changes on this shard");
                bot.client.on("guildMemberUpdate", async function guildMemberUpdate(oldMember, newMember){
                     if(oldMember.guild.id !== "322032568558026753")return;
+                    if(oldMember.hoistRole.name === newMember.hoistRole.name)return;
                     if(oldMember.hoistRole && oldMember.hoistRole.name === "Premium" && (!newMember.hoistRole || newMember.hoistRole.name !== "Premium")){
                         console.log(`${oldMember} is no longer premium`);
                     }else if(newMember.hoistRole && newMember.hoistRole.name === "Premium"){
@@ -109,6 +110,7 @@ Joining Premium gets you:
 - Fast track support 
 - Reliable uptime
 - Higher ratelimit
+- !usersettings and !removebg premium commands
 _If you have a Server Premium key, type ${args[0]} \`key\` to redeem it in this server._`);
     }
 };
