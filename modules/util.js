@@ -326,7 +326,7 @@ module.exports = {
             })
             .on("end", function requestEnd(){
                 if(!shouldProcess){
-                    message.channel.send(":warning: The URL entered is not an image URL. Please try an image or a @user.");
+                    message.replyLang("GENERIC_NO_IMAGE_URL");
                     fs.unlink(fileName, function(){});
                     return;
                 }
@@ -334,14 +334,14 @@ module.exports = {
                 initialProcess[filter].apply(initialProcess, input)
                     .toBuffer(format, function toBuffer(err, buffer){
                         if(err)
-                            return message.channel.send(":warning: Couldn't create image - did you enter an image URL?");
+                            return message.replyLang("GENERIC_CREATE_IMAGE_FAIL");
                         let name = filter+".png";
                         if(url.indexOf("SPOILER_") > -1)
                             name = "SPOILER_"+name;
                         const attachment = new Discord.Attachment(buffer, name);
                         message.channel.send("", attachment).catch(function sendMessageError(e){
                             console.log(e);
-                            message.channel.send("Upload error: "+e);
+                            message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                         });
                         fs.unlink(fileName, function(){});
                     });
@@ -642,7 +642,7 @@ module.exports = {
             });
         };
 
-        bot.util.standardNestedCommand = function standardNestedCommand(message, args, bot, id, data){
+        bot.util.standardNestedCommand = function standardNestedCommand(message, args, bot, id, data, invalidUsageFunction){
             const commandName = args[1] && args[1].toLowerCase();
             const commandType = bot.util.nestedCommands[id];
             if(!commandType){
@@ -653,7 +653,7 @@ module.exports = {
             if(command){
                 command.run(message, args, bot, data);
             }else if(commandName === "help"){
-                let output = "```asciidoc\nAvaiable Commands\n";
+                let output = "";
                 let usedAliases = [];
                 for(let helpItemName in commandType){
                     if(!commandType.hasOwnProperty(helpItemName))continue;
@@ -663,10 +663,12 @@ module.exports = {
                         output += `${helpItem.name} :: ${args[0]} ${helpItem.usage}\n`;
                     usedAliases.push.apply(usedAliases, helpItem.commands);
                 }
-                output += "\n```";
+                message.replyLang("COMMANDS", {commands: output});
                 message.channel.send(output);
             }else{
-                message.channel.send(`:bangbang: Invalid usage. Try ${args[0]} help`);
+                if(invalidUsageFunction)
+                    return invalidUsageFunction();
+                message.replyLang("GENERIC_INVALID_USAGE", {arg: args[0]});
             }
         };
 
@@ -688,6 +690,16 @@ module.exports = {
                 }
             }
         });
+
+
+        bot.util.bots = {
+            music: {
+                "235088799074484224": "Rythm",
+                "234395307759108106": "Groovy",
+                "239631525350604801": "Pancake",
+                "472714545723342848": "Ear Tensifier"
+            }
+        };
 
         bot.util.timezoneRegex = /(UTC|GMT)([+\-][0-9]+)/i;
 
