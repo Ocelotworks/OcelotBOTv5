@@ -39,7 +39,7 @@ module.exports = {
                 if(langOverride){
                     fulfill(langOverride.formatUnicorn());
                 }else{
-                    let output = bot.lang.getTranslationFor(bot.lang.getLocale(server), key);
+                    let output = bot.lang.getTranslationFor(bot.lang.getLocale(server, author), key);
                     fulfill(output.formatUnicorn(format));
                 }
             });
@@ -57,8 +57,8 @@ module.exports = {
             });
         };
 
-        bot.lang.getLocale = function getLocale(server){
-            return bot.config.get(server, "lang");
+        bot.lang.getLocale = function getLocale(server, user){
+            return bot.config.get(server, "lang", user);
         };
 
         bot.lang.getTranslationFor = function getTranslationFor(lang, key){
