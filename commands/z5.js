@@ -34,22 +34,46 @@ module.exports = {
     usage: "z7",
     commands: ["z5"],
     categories: ["fun"],
-    run: async function(message, args, bot) {
+    run: async function(message, args, bot){
 
-        if (!gameInProgress) {
-            game = new JSZM(fs.readFile("../zdungeon.z5", {}));
+        if(!gameInProgress){
+            let file = fs.readFileSync("./MINIZORK.Z3",{});
+            game = new JSZM(file);
+            console.log("Created new game");
 
-            game.run();
+            let buffer = "";
+
+            game.print = function* (text, scripting){
+                console.log("print");
+                buffer += text;
+                if(text.endsWith("\n")) {
+                    if(buffer.length > 1)
+                        message.channel.send(buffer);
+                    buffer = "";
+                }
+            };
+
+            game.verify = function(){
+                return true;
+            };
+
+            game.read = function*() {
+                return yield function(callback){
+                    callback(null, "ass");
+                }
+            };
         }
+
+        if(args[1] && waitingRead){
+            console.log("Got waiting read");
+           return waitingRead(null, message.content.substring(args[0].length+1));
+        }
+
+        console.log("Run");
         gameInProgress = true;
 
-        game.print = function* (text, scripting) {
-            message.channel.send(text);
-        };
-
-        game.read = function* (maxlen) {
-            return yield args[1];
-        };
-
+        (function* () {
+            yield* game.run();
+        })().next();
     }
 };
