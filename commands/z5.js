@@ -8,19 +8,22 @@ module.exports = {
     usage: "z7",
     commands: ["z5"],
     categories: ["fun"],
-    run: async function(message, args, bot){
+    run: async function(message, args, bot) {
 
-        if(!gameInProgress){
-            game = new JSZM(fs.readFile("../zdungeon.z5",{}));
-            game.print = function*(text, scripting){
-                message.channel.send(text);
-            };
+        if (!gameInProgress) {
+            game = new JSZM(fs.readFile("../zdungeon.z5", {}));
 
-            game.read = function*(maxlen){
-                return yield args[1];
-            };
+            game.run();
         }
         gameInProgress = true;
-        game.run();
+
+        game.print = function* (text, scripting) {
+            message.channel.send(text);
+        };
+
+        game.read = function* (maxlen) {
+            return yield args[1];
+        };
+
     }
 };
