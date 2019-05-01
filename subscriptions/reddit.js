@@ -27,7 +27,7 @@ module.exports = {
                     let post = data.data.children[i].data;
                     if(post.created_utc*1000 > lastCheck){
                         let embed = new Discord.RichEmbed();
-                        embed.setTitle(post.title);
+                        embed.setTitle(post.title.substring(0,256));
                         embed.setAuthor(post.author);
                         embed.setURL(`https://reddit.com${post.permalink}`);
                         embed.setFooter(`${post.ups} points on ${post.subreddit}`);
@@ -42,7 +42,7 @@ module.exports = {
                         }else if(post.url.indexOf("imgur") > -1) {
                             console.log("Setting post url");
                             embed.setImage(post.url);
-                        }else if(post.thumbnail) {
+                        }else if(post.thumbnail && post.thumbnail.startsWith("http")) {
                             console.log("Setting thumbnail");
                             embed.setThumbnail(post.thumbnail);
                         }else{
