@@ -24,6 +24,7 @@
 
 const config = require('config');
 const pasync = require('promise-async');
+const uuid = require('uuid/v4');
 var knex = require('knex')(config.get("Database"));
 module.exports = {
         name: "Database Module",
@@ -195,13 +196,11 @@ module.exports = {
              * Remove a meme from the database
              * @param {String} meme The meme's name
              * @param {ServerID} server The server ID
-             * @param {UserID} user The user ID who added the meme
              * @returns {string}
              */
-            removeMeme: function removeMeme(meme, server, user) {
+            removeMeme: function removeMeme(meme, server) {
                 return knex.raw(knex.delete().from(MEMES_TABLE).where({
                     name: meme,
-                    addedby: user
                 }).whereIn("server", [server, "global"]).toString() + " LIMIT 1");
             },
             /**
@@ -222,12 +221,15 @@ module.exports = {
             },
             /**
              * Get a meme by name and server
-             * @param {String} meme The meme name
+             * @param {String} name The meme name
              * @param {ServerID} server The server ID
              * @returns {*}
              */
-            getMeme: function getMeme(meme, server) {
-                return knex.select("meme").from(MEMES_TABLE).where({name: meme}).whereIn("server", [server, "global"]).orderBy("server");
+            getMeme: function getMeme(name, server) {
+                return knex.select("meme").from(MEMES_TABLE).where({name}).whereIn("server", [server, "global"]).orderBy("server");
+            },
+            getMemeInfo: function getMemeInfo(name, server){
+                return knex.select().from(MEMES_TABLE).where({name}).whereIn("server", [server, "global"]).orderBy("server");
             },
             searchMeme: function searchMeme(query, server){
                return knex.select("name", "server").from(MEMES_TABLE).whereIn("server", [server, "global"]).andWhere("name", "LIKE", `%${query}%`).orderBy("server");
@@ -814,7 +816,19 @@ module.exports = {
             },
             getCommandCount: function(){
                 return knex.select(knex.raw("MAX(id)")).from(COMMANDLOG_TABLE);
+            },
+            createPremiumKey: async function(owner){
+                let id = uuid();
+                await knex.insert({id, owner}).into("ocelotbot_premium_keys");
+                return id;
+            },
+            getPremiumKey: function(id){
+                return knex.select().from("ocelotbot_premium_keys").where({id});
+            },
+            redeemPremiumKey: function(id, server){
+                return knex("ocelotbot_premium_keys").update({server, redeemed: new Date()}).where({id}).limit(1);
             }
+
 
         };
     }
