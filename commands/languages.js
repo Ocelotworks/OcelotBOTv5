@@ -5,7 +5,7 @@ module.exports = {
     categories: ["meta"],
     run: async function(message, args, bot){
         if(args[1] && args[1].toLowerCase() === "contribute"){
-            message.channel.send("Language contribution is current disabled, sorry!");
+            message.channel.send(`If you'd like to contribute, send a DM to **Big P#1843** with the language you want to translate to. For contribution, you get a ${message.getSetting("prefix")}profile badge.`);
             return;
         }
         let output = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "LANGUAGE_AVAILABLE")+"\n";
