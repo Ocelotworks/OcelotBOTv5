@@ -84,6 +84,11 @@ module.exports = {
             return result === "true" || result === "1";
         };
 
+        bot.config.set = async function(server, property, value){
+            await bot.database.setSetting(server, property, value);
+            await bot.config.reloadCacheForServer(server);
+        };
+
         let cacheReloads = [];
 
         process.on("message", function reloadConfig(msg){
