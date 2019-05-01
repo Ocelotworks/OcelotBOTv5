@@ -24,6 +24,9 @@ let bot = {};
  * Initialise the Chat server
  */
 function init(){
+
+    process.setMaxListeners(100);
+
     bot.bus = new EventEmitter();
 
     bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225"];
