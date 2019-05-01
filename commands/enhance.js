@@ -26,7 +26,7 @@ module.exports = {
         if(result.output_url) {
             message.channel.send("", new Discord.Attachment(result.output_url));
         }else{
-            message.channel.send(":bangbang: The image is already at maximum resolution.");
+            message.replyLang("ENHANCE_MAXIMUM_RESOLUTION");
         }
 
         message.channel.stopTyping(true);
