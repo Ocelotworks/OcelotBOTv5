@@ -39,7 +39,7 @@ module.exports = {
          * @returns {number}
          */
         bot.util.intBetween = function(min, max){
-            return parseInt((Math.random() * max)+min);
+            return Math.round((Math.random() * (max - min))+min);
         };
 
         /**
