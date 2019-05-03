@@ -18,7 +18,7 @@ module.exports = {
             const prefixLength = prefix.length;
             if(!message.content.startsWith(prefix))
                 return;
-            const args = message.content.split(" ");
+            const args = message.content.split(/ +/g);
             const command = args[0].substring(prefixLength).toLowerCase();
             if(!bot.commands[command])
                 return;
@@ -60,16 +60,9 @@ module.exports = {
                 }
                 return;
             }
-            for(let i = 0; i < args.length; i++){
-                if(!args[i]){
-                    bot.logger.log("Removing argument "+i);
-                    args.splice(i, 1);
-                }
-            }
-            if(bot.checkBan(message)){
-                bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
-                return;
-            }
+            if(bot.checkBan(message))
+                return bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
+
             if(bot.isRateLimited(message.author.id, message.guild ? message.guild.id : "global")){
                 bot.bus.emit("commandRatelimited", command, message);
                 if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
@@ -100,15 +93,20 @@ module.exports = {
                     message.channel.send(message.getSetting("notice"));
                     bot.database.deleteSetting(message.guild.id, "notice");
                     bot.config.cache[message.guild.id].notice = null;
-
                 }
-                if (message.channel.permissionsFor && bot.commandUsages[command].requiredPermissions) {
-                    bot.stats.time("commandGetPermissions");
+
+                if(message.channel.permissionsFor){
                     const permissions = await message.channel.permissionsFor(bot.client.user);
-                    bot.stats.time("commandGetPermissions");
-                    if (permissions.has(bot.commandUsages[command].requiredPermissions)) {
-                        bot.commands[command](message, args, bot);
-                    } else if (permissions.has("SEND_MESSAGES")) {
+
+                    if(!permissions.has("SEND_MESSAGES")){
+                        bot.logger.log("No permission to send messages in this channel.");
+                        const dm = await message.author.createDM();
+                        dm.send(":warning: I don't have permission to send messages in that channel.");
+                        //TODO: COMMAND_NO_PERMS lang key
+                        return;
+                    }
+
+                    if(bot.commandUsages[command].requiredPermissions && !permissions.has(bot.commandUsages[command].requiredPermissions)){
                         let permission = "";
                         for(let i = 0; i < bot.commandUsages[command].requiredPermissions.length; i++){
                             permission += bot.util.permissionsMap[bot.commandUsages[command].requiredPermissions[i]];
@@ -116,15 +114,11 @@ module.exports = {
                                 permission+=", ";
                         }
                         message.replyLang("ERROR_NEEDS_PERMISSION", {permission});
-                    } else {
-                        const dm = await message.author.createDM();
-                        dm.send("I don't have permission to send messages in that channel.");
-                        //TODO: COMMAND_NO_PERMS lang key
-                        bot.logger.log("No permission to send messages in this channel.");
                     }
-                } else {
-                    bot.commands[command](message, args, bot);
                 }
+
+                bot.commands[command](message, args, bot);
+
             } catch (e) {
                 message.channel.stopTyping(true);
                 message.reply(e.toString());
