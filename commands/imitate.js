@@ -16,13 +16,17 @@ module.exports = {
         if(!message.guild.id)
             return message.replyLang("GENERIC_DM_CHANNEL");
 
-        if(message.mentions.users.size < 1)
-            return message.replyLang("IMITATE_NO_USER");
-
         if(args.length < 3)
             return message.replyLang("IMITATE_NO_MESSAGE", {author: message.author});
 
-        const target = message.mentions.members.first();
+        const targetUser = bot.util.getUserFromMention(args[1]);
+        if(!targetUser)
+            return message.replyLang("IMITATE_NO_USER");
+
+        const target = message.guild.members.get(targetUser.id);
+
+        if(!target)
+            return message.channel.send(":thinking: That user isn't in this server...");
 
         if(message.getSetting("imitate.blockedUsers") && message.getSetting("imitate.blockedUsers").indexOf(target.id) > -1)
             return message.replyLang("IMITATE_BLOCKED");
