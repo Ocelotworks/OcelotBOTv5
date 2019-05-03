@@ -36,6 +36,10 @@ module.exports = {
             return new Promise(async function(fulfill){
                 format.prefix = "\\"+bot.config.get(server, "prefix", author);
                 const langOverride = bot.config.get(server, "lang."+key, author);
+
+                if(bot.config.getBool(server, "lang.debug", author))
+                    return fulfill(`${key}: \`${JSON.stringify(format)}\` ${langOverride ? "OVERRIDDEN '"+langOverride+"'":""}`);
+
                 if(langOverride){
                     fulfill(langOverride.formatUnicorn());
                 }else{
