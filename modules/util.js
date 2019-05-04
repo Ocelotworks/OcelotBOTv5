@@ -672,6 +672,58 @@ module.exports = {
             }
         };
 
+
+        bot.util.coolTextGenerator = function(message, args, bot, options){
+            if(!args[1]){
+                return message.replyLang("GENERIC_TEXT", {command: args[0]});
+            }
+
+            const text = message.cleanContent.substring(args[0].length+1);
+            message.channel.startTyping();
+
+            options.text = text;
+
+            request.post({
+                method: "POST",
+                url: "https://cooltext.com/PostChange",
+                headers: {
+                    'content-type': "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                form: options
+            }, function(err, resp, body){
+                if(err){
+                    console.log(err);
+                    bot.raven.captureException(err);
+                    message.channel.stopTyping(true);
+                    return message.replyLang("GENERIC_ERROR");
+                }
+                try{
+                    let data = JSON.parse(body);
+                    if(data.renderLocation) {
+                        message.channel.send("", {
+                            embed: {
+                                image: {
+                                    url: data.renderLocation.replace(/ /g, "%20") //STILL eat a dick!
+                                }
+                            }
+                        });
+                    }else {
+                        message.replyLang("GENERIC_ERROR");
+                        bot.logger.warn("Invalid Response?");
+                        bot.logger.warn(body);
+                    }
+                }catch(e){
+                    bot.raven.captureException(e);
+                    bot.logger.error(e);
+                    console.log(e);
+                    console.log("Body:", body);
+                    message.replyLang("GENERIC_ERROR");
+                }finally{
+                    message.channel.stopTyping();
+                }
+            })
+        };
+
         let waitingUsers = {};
         bot.util.getUserInfo = function getUserInfo(userID){
             return new Promise(function getUserInfoPromise(fulfill){
