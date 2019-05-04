@@ -4,10 +4,6 @@
  * ╚════ ║   (ocelotbotv5) rotate
  *  ════╝
  */
-const Discord = require('discord.js');
-const request = require('request');
-const gm = require('gm');
-const fs = require('fs');
 module.exports = {
     name: "Rotate Image",
     usage: "rotate [url] [deg]",
