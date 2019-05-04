@@ -265,6 +265,14 @@ module.exports = {
             });
         });
 
+
+        bot.client.on("guildUpdate", async function guildUpdate(oldGuild, newGuild){
+             if(oldGuild.name !== newGuild.name){
+                 bot.logger.warn(`Guild ${oldGuild.name} (${oldGuild.id}) has changed it's name to ${newGuild.name}`);
+                 await bot.database.updateServer(oldGuild.id, {name: newGuild.name});
+             }
+        });
+
         // bot.client.on("rateLimit", function rateLimit(info){
         //     bot.logger.warn(`Rate Limit Hit ${info.method} ${info.path}`);
         //     bot.raven.captureBreadcrumb({
