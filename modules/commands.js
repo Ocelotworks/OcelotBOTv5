@@ -26,7 +26,7 @@ module.exports = {
             bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
             if(bot.commandUsages[command].premium && !(message.getBool("premium") || message.getBool("serverPremium")))
-                return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_`);
+                return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using !settings disableCommand ${command}`);
 
             if(message.getBool("allowNSFW") && bot.commandUsages[command].categories.indexOf("nsfw") > -1)
                 return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
