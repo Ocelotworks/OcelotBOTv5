@@ -599,7 +599,8 @@ module.exports = {
                         await buildPage();
                         break;
                 }
-                reaction.remove(user);
+                if(channel.guild)
+                    reaction.remove(user);
 
             }, {time: reactionTime});
             if(!sentMessage.deleted) {
@@ -664,7 +665,6 @@ module.exports = {
                     usedAliases.push.apply(usedAliases, helpItem.commands);
                 }
                 message.replyLang("COMMANDS", {commands: output});
-                message.channel.send(output);
             }else{
                 if(invalidUsageFunction)
                     return invalidUsageFunction();
