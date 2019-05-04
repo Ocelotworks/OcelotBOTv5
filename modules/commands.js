@@ -113,7 +113,7 @@ module.exports = {
                             if(i < bot.commandUsages[command].requiredPermissions.length-1)
                                 permission+=", ";
                         }
-                        message.replyLang("ERROR_NEEDS_PERMISSION", {permission});
+                        return message.replyLang("ERROR_NEEDS_PERMISSION", {permission});
                     }
                 }
 
