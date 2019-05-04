@@ -226,10 +226,13 @@ module.exports = {
              * @returns {*}
              */
             getMeme: function getMeme(name, server) {
-                return knex.select("meme").from(MEMES_TABLE).where({name}).whereIn("server", [server, "global"]).orderBy("server");
+                return knex.select("meme").from(MEMES_TABLE).where({name}).whereIn("server", [server, "global"]).orderBy("server").limit(1);
             },
             getMemeInfo: function getMemeInfo(name, server){
-                return knex.select().from(MEMES_TABLE).where({name}).whereIn("server", [server, "global"]).orderBy("server");
+                return knex.select().from(MEMES_TABLE).where({name}).whereIn("server", [server, "global"]).orderBy("server").limit(1);
+            },
+            getRandomMeme: function getRandomMeme(server){
+                return knex.select().from(MEMES_TABLE).whereIn("server", [server, "global"]).orderByRaw("RAND()").limit(1);
             },
             searchMeme: function searchMeme(query, server){
                return knex.select("name", "server").from(MEMES_TABLE).whereIn("server", [server, "global"]).andWhere("name", "LIKE", `%${query}%`).orderBy("server");
