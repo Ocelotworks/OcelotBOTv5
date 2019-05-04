@@ -33,14 +33,22 @@ module.exports = {
 
                 bot.logger.warn(`Populated command cache for ${user} at ${commandCache[user]}`);
             }
-
+            const eligbleBadge = await bot.badges.updateBadge(message.author, 'commands', commandCache[user], message.channel);
             if(milestones.indexOf(commandCache[user]) > -1){
                 bot.logger.log(`Sending congrats to ${user} for ${commandCache[user]} commands`);
                 message.channel.send(`:tada: **Congratulations! You just performed your __${commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting. **Type: ${message.getSetting("prefix")}vote**\n**Voting also gets you a special <:supporter_1:529308223954616322> supporter badge on your ${message.getSetting("prefix")}profile**`);
+                bot.client.shard.send({type: "clearCommandCache"});
+            }else if(eligbleBadge && bot.client.shard) {
+                bot.client.shard.send({type: "clearCommandCache"});
             }
-            bot.badges.updateBadge(message.author, 'commands', commandCache[user], message.channel);
+        });
 
 
+        process.on("message", function clearCommandCache(message){
+            if(message.type === "clearCommandCache"){
+                bot.logger.log("Clearing Command Cache");
+                commandCache = {};
+            }
         });
 
         // bot.client.on("presenceUpdate", function(oldMember, newMember){
