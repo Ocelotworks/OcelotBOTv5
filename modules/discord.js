@@ -294,6 +294,14 @@ module.exports = {
             });
         });
 
+        bot.client.on("guildMemberUpdate", function guildMemberUpdate(oldMember, newMember){
+            if(oldMember.id !== bot.client.user.id)return;
+            if(!newMember.nickname)return;
+            if(oldMember.nickname && oldMember.nickname === newMember.nickname)return;
+            bot.logger.warn(`Nickname changed in ${oldMember.guild.name} (${oldMember.guild.id}) changed to ${newMember.nickname}`);
+        });
+
+
         process.on("message", async function onMessage(message){
            if(message.type === "requestData"){
                if(message.payload.name === "channels"){
