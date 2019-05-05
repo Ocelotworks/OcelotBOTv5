@@ -1,5 +1,7 @@
 let JSZM = require('../jszm.js');
 let fs = require("fs");
+const Discord = require('discord.js');
+
 let gameInProgress = false;
 let game;
 let gameIterator;
@@ -35,7 +37,9 @@ module.exports = {
                     let location = lines[0];
                     let description = lines.slice(1).join("\n");
                     channelMessage += "```fix\n" + location + "\n```";
-                    channelMessage += "```yaml\n" + description + "\n```";
+                    if(description.replace('\n', '').length > 0) {
+                        channelMessage += "```yaml\n" + description + "\n```";
+                    }
                     message.channel.send(channelMessage);
                     buffer = "";
                 } else {
@@ -62,6 +66,7 @@ module.exports = {
             gameInProgress = true;
         }
 
-        gameIterator.next(args.slice(1).join(" "));
+        let input = Discord.escapeMarkdown(args.slice(1).join(" "));
+        gameIterator.next(input);
     }
 };
