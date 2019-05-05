@@ -26,7 +26,7 @@ module.exports = {
             bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
             if(bot.commandUsages[command].premium && !(message.getBool("premium") || message.getBool("serverPremium")))
-                return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using !settings disableCommand ${command}`);
+                return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type \\${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using \\${message.getSetting("prefix")}settings disableCommand ${command}`);
 
             if(message.getBool("allowNSFW") && bot.commandUsages[command].categories.indexOf("nsfw") > -1)
                 return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
@@ -66,7 +66,8 @@ module.exports = {
             if(bot.isRateLimited(message.author.id, message.guild ? message.guild.id : "global")){
                 bot.bus.emit("commandRatelimited", command, message);
                 if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
-                    bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
+                    console.log(bot.rateLimits[message.author.id]);
+                    bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) was ratelimited`);
                     const now = new Date();
                     const timeDifference = now-bot.lastRatelimitRefresh;
                     let timeLeft = 60000-timeDifference;
@@ -74,7 +75,7 @@ module.exports = {
                     bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
                 }else{
                     console.log(bot.rateLimits[message.author.id]);
-                    bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
+                    bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) was ratelimited`);
                 }
                 return;
             }
