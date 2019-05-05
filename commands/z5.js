@@ -5,31 +5,6 @@ let game;
 let gameIterator;
 
 
-
-let curriedR = function(originalFunction, argumentIndex) {
-    if(argumentIndex === undefined || argumentIndex === null)
-        argumentIndex = originalFunction.length-1;
-
-    return function() {
-        arguments.length = originalFunction.length;
-        return function(callback){
-            arguments[argumentIndex] = function(result){
-                return callback(null, result);
-            }
-            return originalFunction.apply(this,arguments);
-        };
-    };
-
-};
-
-let waitingRead;
-
-let gameRead =function*() {
-    return yield function(callback){
-        callback(null, "ass");
-    }
-};
-
 module.exports = {
     name: "Z5 Interpreter",
     usage: "z7",
@@ -43,19 +18,33 @@ module.exports = {
             console.log("Created new game");
 
             let buffer = "";
-
+            let didPrintHeader = false;
             game.print = function* (text){
-                console.log("print");
-                buffer += text;
-                if(text.endsWith("\n")) {
-                    if(buffer.length > 1)
-                        message.channel.send(buffer);
+                if(text.length === 1 && text === ">") {
+                    let channelMessage = "";
+                    // split by \n\n to pull out game header, only first time
+                    if(!didPrintHeader) {
+                        let headerLines = buffer.split("\n\n");
+                        channelMessage += "```css\n" + headerLines[0] + "\n```";
+                        buffer = headerLines.slice(1).join("\n\n");
+                        didPrintHeader = true;
+                    }
+
+                    // split location and description, then colorize
+                    let lines = buffer.split("\n");
+                    let location = lines[0];
+                    let description = lines.slice(1).join("\n");
+                    channelMessage += "```fix\n" + location + "\n```";
+                    channelMessage += "```yaml\n" + description + "\n```";
+                    message.channel.send(channelMessage);
                     buffer = "";
+                } else {
+                    buffer += text;
                 }
             };
 
             game.read = function*() {
-                return yield function(){return "go north";};
+                return yield "";
             };
 
             game.save = function*(data){
@@ -73,11 +62,6 @@ module.exports = {
             gameInProgress = true;
         }
 
-        if(args[1] && waitingRead){
-            console.log("Got waiting read");
-           return waitingRead(null, message.content.substring(args[0].length+1));
-        }
-
-        gameIterator.next();
+        gameIterator.next(args.slice(1).join(" "));
     }
 };
