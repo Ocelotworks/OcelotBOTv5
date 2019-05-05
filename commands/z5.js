@@ -1,7 +1,8 @@
-var JSZM = require('../jszm.js');
-var fs = require("fs");
-var gameInProgress = false;
-var game;
+let JSZM = require('../jszm.js');
+let fs = require("fs");
+let gameInProgress = false;
+let game;
+let gameIterator;
 
 
 
@@ -43,7 +44,7 @@ module.exports = {
 
             let buffer = "";
 
-            game.print = function* (text, scripting){
+            game.print = function* (text){
                 console.log("print");
                 buffer += text;
                 if(text.endsWith("\n")) {
@@ -53,15 +54,23 @@ module.exports = {
                 }
             };
 
-            game.verify = function(){
-                return true;
+            game.read = function*() {
+                return yield function(){return "go north";};
             };
 
-            game.read = function*() {
-                return yield function(callback){
-                    callback(null, "ass");
+            game.save = function*(data){
+                try{
+                    yield fs.writeFileSync("./z5saves/" + "", new Buffer(data.buffer), {});
+                    //TODO: Fix this, generate unique file name and send save name to channel
+                    return true;
+                } catch(e) {
+                    return false;
                 }
             };
+
+            gameIterator = game.run();
+            console.log("Run");
+            gameInProgress = true;
         }
 
         if(args[1] && waitingRead){
@@ -69,11 +78,6 @@ module.exports = {
            return waitingRead(null, message.content.substring(args[0].length+1));
         }
 
-        console.log("Run");
-        gameInProgress = true;
-
-        (function* () {
-            yield* game.run();
-        })().next();
+        gameIterator.next();
     }
 };
