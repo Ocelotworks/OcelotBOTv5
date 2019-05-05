@@ -15,7 +15,7 @@ module.exports = {
                 return message.channel.send(`:bangbang: Invalid Usage. Try ${args[0]} help`);
 
             try {
-                const memeResult = await bot.database.getMeme( args[1].toLowerCase(), message.guild ? message.guild.id : "global");
+                const memeResult = await bot.database.getMeme(args[1].toLowerCase(), message.guild ? message.guild.id : "global");
 
                 if (memeResult[0]) {
                     message.channel.send(memeResult[0].meme);

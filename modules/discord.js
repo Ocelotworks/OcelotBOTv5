@@ -38,6 +38,10 @@ module.exports = {
             return bot.config.get(this.id ? this.id : "global", setting, user);
         };
 
+        Discord.Guild.prototype.getBool = function(setting, user){
+            return bot.config.getBool(this.id, setting, user, );
+        };
+
         Discord.Message.prototype.getSetting = function(setting){
             return bot.config.get(this.guild ? this.guild.id : "global", setting, this.author.id);
         };
@@ -66,6 +70,7 @@ module.exports = {
                     bot.raven.captureException(error);
                     abort();
                     bot.logger.warn("Send Error: "+error);
+                    throw error;
                 }else{
                     bot.logger.warn("Connection reset, retrying send...");
                 }
@@ -142,12 +147,6 @@ module.exports = {
         });
 
 
-        bot.client.on("message", function mentionsListener(message){
-            if(message.author.bot)return;
-            if(message.mentions && message.mentions.users.has(bot.client.user.id)){
-                bot.logger.log(`Mentioned by ${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}): ${message.content}`);
-            }
-        });
 
         let lastPresenceUpdate = 0;
 
@@ -264,6 +263,14 @@ module.exports = {
                     id: guild.id,
                 }
             });
+        });
+
+
+        bot.client.on("guildUpdate", async function guildUpdate(oldGuild, newGuild){
+             if(oldGuild.name !== newGuild.name){
+                 bot.logger.warn(`Guild ${oldGuild.name} (${oldGuild.id}) has changed it's name to ${newGuild.name}`);
+                 await bot.database.updateServer(oldGuild.id, {name: newGuild.name});
+             }
         });
 
         // bot.client.on("rateLimit", function rateLimit(info){

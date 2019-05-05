@@ -26,14 +26,16 @@ module.exports = {
                 for(let i = 0; i < data.data.children.length; i++){
                     let post = data.data.children[i].data;
                     if(post.created_utc*1000 > lastCheck){
+                        console.log("Post time", post.created_utc*1000);
+                        console.log("Last check",lastCheck);
                         let embed = new Discord.RichEmbed();
-                        embed.setTitle(post.title);
+                        embed.setTitle(post.title.substring(0,256));
                         embed.setAuthor(post.author);
                         embed.setURL(`https://reddit.com${post.permalink}`);
                         embed.setFooter(`${post.ups} points on ${post.subreddit}`);
                         embed.setTimestamp(new Date(post.created_utc*1000));
                         if(post.selftext)
-                            embed.setDescription(post.selftext);
+                            embed.setDescription(post.selftext.substring(0,1024));
 
                         if(post.preview && post.preview.images && post.preview.images[0] && post.preview.images[0].source) {
                             console.log("Setting preview image");
@@ -42,12 +44,15 @@ module.exports = {
                         }else if(post.url.indexOf("imgur") > -1) {
                             console.log("Setting post url");
                             embed.setImage(post.url);
-                        }else if(post.thumbnail) {
+                        }else if(post.thumbnail && post.thumbnail.startsWith("http")) {
                             console.log("Setting thumbnail");
                             embed.setThumbnail(post.thumbnail);
                         }else{
                             console.log("dick all");
                         }
+
+                        console.log(embed.title);
+                        console.log("-"+embed.description);
 
                         output.push(embed);
                     }

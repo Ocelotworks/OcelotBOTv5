@@ -60,7 +60,8 @@ const first = [
     "Knife",
     "Initial",
     "Hello",
-    "Emotional"
+    "Emotional",
+    "Velvet"
 ];
 
 const second = [

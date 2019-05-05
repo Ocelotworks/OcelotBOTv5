@@ -26,7 +26,7 @@ module.exports = {
 
             let embed = new Discord.RichEmbed();
             embed.setTitle("Profile Badges");
-            embed.setDescription(`To see more info about the categories, do **${args[0]} ${args[1]} _category_**`);
+            embed.setDescription(`To see more info about the categories, do **${args[0]} ${args[1]} _category_**\nTo see more info about the badges you currently have, do **${args[0]} ${args[1]} mine**`);
             for(let category in categories){
                 if(categories.hasOwnProperty(category))
                     embed.addField(category, categories[category].join(" "));
@@ -38,11 +38,20 @@ module.exports = {
             let series = args[2].toLowerCase();
             if(series === "special")
                 series = null;
-            const result = await bot.database.getBadgesInSeries(series);
-            if(result.length === 0)
-                return message.channel.send(`:warning: No such category. Try ${args[0]} ${args[1]} for a list of categories.`);
 
-            let output = `Badges in category **'${args[2]}'**:\n`;
+            let result;
+
+            if(series === "mine"){
+                result = await bot.database.getProfileBadges(message.author.id);
+            }else{
+                result = await bot.database.getBadgesInSeries(series);
+            }
+
+            if(result.length === 0)
+                return message.channel.send(series === "mine" ? `:warning: You don't have any badges! Check out ${args[0]} ${args[1]} to see what badges you can earn.` :
+                                                                `:warning: No such category. Try ${args[0]} ${args[1]} for a list of categories.`);
+
+            let output = series === "mine" ? "Your Badges:\n" : `Badges in category **'${args[2]}'**:\n`;
             for (let i = 0; i < result.length; i++) {
                 const badge = result[i];
                 if (badge.display === 1)

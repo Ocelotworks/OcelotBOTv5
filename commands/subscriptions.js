@@ -69,6 +69,8 @@ module.exports = {
                     if(!results || results.length === 0)continue;
                     for (let i = 0; i < subList.length; i++) {
                        let chan = bot.client.channels.get(subList[i].channel);
+                        await bot.database.updateLastCheck(subList[i].id);
+                        subList[i].lastcheck = new Date();
                        if(chan) {
                            for(let j = 0; j < results.length; j++) {
                                let result = results[j];
@@ -83,8 +85,6 @@ module.exports = {
                        }else {
                            bot.logger.warn(`${subList[i].channel} does not exist for sub ${subList[i].id}`);
                        }
-                       await bot.database.updateLastCheck(subList[i].id);
-                       subList[i].lastcheck = new Date();
                    }
                }else{
                    bot.logger.warn(`Invalid subscription type ${sub.type}`);

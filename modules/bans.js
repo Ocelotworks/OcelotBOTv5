@@ -71,7 +71,7 @@ module.exports = {
         });
 
         bot.isRateLimited = function isRateLimited(user, guild){
-            return !(!bot.rateLimits[user] || bot.rateLimits[user] <= bot.config.get(guild, "rateLimit"));
+            return !(!bot.rateLimits[user] || bot.rateLimits[user] <= bot.config.get(guild, "rateLimit", user));
         }
     }
 };

@@ -18,15 +18,15 @@ module.exports = {
             const prefixLength = prefix.length;
             if(!message.content.startsWith(prefix))
                 return;
-            const args = message.content.split(" ");
+            const args = message.content.split(/ +/g);
             const command = args[0].substring(prefixLength).toLowerCase();
             if(!bot.commands[command])
                 return;
 
             bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
-            if(bot.commandUsages[command].premium && (message.getBool("premium") || message.getBool("serverPremium")))
-                return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_`);
+            if(bot.commandUsages[command].premium && !(message.getBool("premium") || message.getBool("serverPremium")))
+                return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type \\${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using \\${message.getSetting("prefix")}settings disableCommand ${command}`);
 
             if(message.getBool("allowNSFW") && bot.commandUsages[command].categories.indexOf("nsfw") > -1)
                 return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
@@ -60,20 +60,14 @@ module.exports = {
                 }
                 return;
             }
-            for(let i = 0; i < args.length; i++){
-                if(!args[i]){
-                    bot.logger.log("Removing argument "+i);
-                    args.splice(i, 1);
-                }
-            }
-            if(bot.checkBan(message)){
-                bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
-                return;
-            }
+            if(bot.checkBan(message))
+                return bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
+
             if(bot.isRateLimited(message.author.id, message.guild ? message.guild.id : "global")){
                 bot.bus.emit("commandRatelimited", command, message);
                 if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
-                    bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
+                    console.log(bot.rateLimits[message.author.id]);
+                    bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) was ratelimited`);
                     const now = new Date();
                     const timeDifference = now-bot.lastRatelimitRefresh;
                     let timeLeft = 60000-timeDifference;
@@ -81,7 +75,7 @@ module.exports = {
                     bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
                 }else{
                     console.log(bot.rateLimits[message.author.id]);
-                    bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is ratelimited: ${command}: ${message.content}`);
+                    bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) was ratelimited`);
                 }
                 return;
             }
@@ -100,31 +94,32 @@ module.exports = {
                     message.channel.send(message.getSetting("notice"));
                     bot.database.deleteSetting(message.guild.id, "notice");
                     bot.config.cache[message.guild.id].notice = null;
-
                 }
-                if (message.channel.permissionsFor && bot.commandUsages[command].requiredPermissions) {
-                    bot.stats.time("commandGetPermissions");
+
+                if(message.channel.permissionsFor){
                     const permissions = await message.channel.permissionsFor(bot.client.user);
-                    bot.stats.time("commandGetPermissions");
-                    if (permissions.has(bot.commandUsages[command].requiredPermissions)) {
-                        bot.commands[command](message, args, bot);
-                    } else if (permissions.has("SEND_MESSAGES")) {
+
+                    if(!permissions.has("SEND_MESSAGES")){
+                        bot.logger.log("No permission to send messages in this channel.");
+                        const dm = await message.author.createDM();
+                        dm.send(":warning: I don't have permission to send messages in that channel.");
+                        //TODO: COMMAND_NO_PERMS lang key
+                        return;
+                    }
+
+                    if(bot.commandUsages[command].requiredPermissions && !permissions.has(bot.commandUsages[command].requiredPermissions)){
                         let permission = "";
                         for(let i = 0; i < bot.commandUsages[command].requiredPermissions.length; i++){
                             permission += bot.util.permissionsMap[bot.commandUsages[command].requiredPermissions[i]];
                             if(i < bot.commandUsages[command].requiredPermissions.length-1)
                                 permission+=", ";
                         }
-                        message.replyLang("ERROR_NEEDS_PERMISSION", {permission});
-                    } else {
-                        const dm = await message.author.createDM();
-                        dm.send("I don't have permission to send messages in that channel.");
-                        //TODO: COMMAND_NO_PERMS lang key
-                        bot.logger.log("No permission to send messages in this channel.");
+                        return message.replyLang("ERROR_NEEDS_PERMISSION", {permission});
                     }
-                } else {
-                    bot.commands[command](message, args, bot);
                 }
+
+                bot.commands[command](message, args, bot);
+
             } catch (e) {
                 message.channel.stopTyping(true);
                 message.reply(e.toString());

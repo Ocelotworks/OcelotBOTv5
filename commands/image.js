@@ -26,8 +26,8 @@ module.exports = {
             if(naughtyRegex.test(query)){
                 bot.logger.warn("Blocking query");
                 let embed = new Discord.RichEmbed();
-                embed.setTitle("Search Blocked");
-                embed.setDescription("I'm not going to jail for your edgy joke");
+                embed.setTitle(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IMAGE_BLOCKED_QUERY_TITLE", {}, message.author.id));
+                embed.setDescription(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IMAGE_BLOCKED_QUERY_DESCRIPTION", {}, message.author.id));
                 embed.setImage("https://i.imgur.com/iHZJOnG.jpg");
                 return message.channel.send("", embed);
             }
@@ -43,7 +43,7 @@ module.exports = {
                     cache[type][query] = images;
                 }
                 if(images.length === 0)
-                    return message.channel.send(":warning: No results."+(message.channel.nsfw ? " If this is a NSFW search, try it in a NSFW channel." : ""));
+                    return message.replyLang(message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
 
                 let embed = new Discord.RichEmbed();
                 embed.setAuthor(message.author.username, message.author.avatarURL);
@@ -94,7 +94,7 @@ module.exports = {
                 })
             }catch(e){
                 if(e.message === "Response code 403 (Forbidden)"){
-                    message.channel.send(`:warning: Quota has been reached for this month.\nThis command costs me money to have, if you'd like to donate to help increase the quota, join the support server with ${message.getSetting("prefix")}support\n`);
+                    message.replyLang("REMOVEBG_QUOTA");
                 }else{
                     message.replyLang("GENERIC_ERROR");
                 }

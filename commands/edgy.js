@@ -11,7 +11,7 @@ module.exports = {
     categories: ["text"],
     run: async function(message, args, bot){
         if(!args[1])
-            return message.channel.send(":bangbang: You must enter some text!");
+            return message.replyLang("GENERIC_TEXT", {command: args[0]});
         message.channel.send(message.cleanContent.substring(args[0].length+1).trap);
     }
 };

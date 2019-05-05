@@ -61,6 +61,7 @@ module.exports = {
                             const dispatcher = connection.playFile(file);
                             dispatcher.on("end", function fileEnd(){
                                 bot.logger.log("Finished playing");
+                                if(!connection)return;
                                 if(bot.voiceLeaveTimeouts[connection.channel.id])
                                     clearTimeout(bot.voiceLeaveTimeouts[connection.channel.id]);
                                 bot.voiceLeaveTimeouts[connection.channel.id] = setTimeout(function leaveTimeout(){

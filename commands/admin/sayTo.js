@@ -17,7 +17,7 @@ module.exports = {
         }
     },
     run:  function(message, args, bot){
-        const content = message.content.substring(message.content.substring(args[0].length+args[1].length+args[2].length+4));
+        const content = message.content.substring(args[0].length+args[1].length+args[2].length+3);
         bot.client.shard.send({type: "sendMessage", message: {content: content, target: args[2]}});
         message.channel.send("Sent");
     }

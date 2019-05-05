@@ -36,10 +36,14 @@ module.exports = {
             return new Promise(async function(fulfill){
                 format.prefix = "\\"+bot.config.get(server, "prefix", author);
                 const langOverride = bot.config.get(server, "lang."+key, author);
+
+                if(bot.config.getBool(server, "lang.debug", author))
+                    return fulfill(`${key}: \`${JSON.stringify(format)}\` ${langOverride ? "OVERRIDDEN '"+langOverride+"'":""}`);
+
                 if(langOverride){
                     fulfill(langOverride.formatUnicorn());
                 }else{
-                    let output = bot.lang.getTranslationFor(bot.lang.getLocale(server), key);
+                    let output = bot.lang.getTranslationFor(bot.lang.getLocale(server, author), key);
                     fulfill(output.formatUnicorn(format));
                 }
             });
@@ -57,8 +61,8 @@ module.exports = {
             });
         };
 
-        bot.lang.getLocale = function getLocale(server){
-            return bot.config.get(server, "lang");
+        bot.lang.getLocale = function getLocale(server, user){
+            return bot.config.get(server, "lang", user);
         };
 
         bot.lang.getTranslationFor = function getTranslationFor(lang, key){
