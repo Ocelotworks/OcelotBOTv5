@@ -8,7 +8,7 @@ let gameIterator;
 module.exports = {
     name: "Z5 Interpreter",
     usage: "z7",
-    commands: ["z5"],
+    commands: ["z5", "zork"],
     categories: ["fun"],
     run: async function(message, args, bot){
 
