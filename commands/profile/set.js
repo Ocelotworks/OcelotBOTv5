@@ -31,7 +31,7 @@ ${args[0]} set font <font> **(<:ocelotbot:533369578114514945> Premium Only)**`;
         if(!args[2]){
             message.channel.send(helpMessage);
         }else if (args[2].toLowerCase() === "tagline" && args[3]){
-            const tagline = message.cleanContent.substring(message.cleanContent.indexOf(args[3]));
+            const tagline = message.cleanContent.substring(args[0].length+args[1].length+2);
             if(tagline.length > 45){
                 message.channel.send(":warning: Tagline must be 45 characters or less.");
             }else{
