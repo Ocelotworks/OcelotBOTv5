@@ -1,4 +1,4 @@
-let JSZM = require('../jszm.js');
+let JSZM = require('../lib/jszm.js');
 let fs = require("fs");
 const Discord = require('discord.js');
 
@@ -12,7 +12,7 @@ let printHeader = {};
 
 
 function startGame(id) {
-    let file = fs.readFileSync("./MINIZORK.Z3", {});
+    let file = fs.readFileSync("./z5games/MINIZORK.Z3", {});
 
     let game = new JSZM(file);
     deadCount[id] = 0;
@@ -135,14 +135,5 @@ module.exports = {
         } else {
             gameIterator[id].next(input);
         }
-
-        /*if(input !== "restore") {
-            if (games[id].save(games[id].getSerialData()).next()) {
-                console.log("saved");
-            } else {
-                console.log("failed");
-            }
-        }*/
-
     }
 };
