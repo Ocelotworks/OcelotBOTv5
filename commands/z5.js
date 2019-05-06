@@ -8,6 +8,7 @@ let games = {};
 let gameIterator = {};
 let deadCount = {};
 let channel;
+let printHeader = {};
 
 
 function startGame(id) {
@@ -34,6 +35,10 @@ function startGame(id) {
             let lines = buffer.split("\n");
             let location = lines[0];
             let description = lines.slice(1).join("\n");
+            if (printHeader[id] !== "") {
+                channelMessage += "```diff\n" + printHeader[id] + "\n```";
+                printHeader[id] = "";
+            }
             channelMessage += "```fix\n" + location + "\n```";
             if (description.replace('\n', '').length > 0) {
                 channelMessage += "```yaml\n" + description + "\n```";
@@ -42,6 +47,7 @@ function startGame(id) {
                 }
             }
             channel.send(channelMessage);
+
 
             buffer = "";
         } else {
@@ -70,7 +76,7 @@ function startGame(id) {
             return new Uint8Array(fs.readFileSync("./z5saves/" + id, {}));
         } catch (e) {
             console.log(e);
-            channel.send("Restore failed.")
+            channel.send("Restore failed.");
             return null;
         }
 
@@ -104,13 +110,17 @@ module.exports = {
                     games: games,
                     gameInProgress: gameInProgress,
                     deadCount: deadCount,
-                    gameIterator: gameIterator
+                    gameIterator: gameIterator,
+                    printHeader: printHeader
                 },
                 null, 2);
             return;
         }
 
         if (!gameInProgress[id] || gameInProgress[id] === undefined) {
+            if (fs.existsSync("./z5saves/" + id)) {
+                printHeader[id] = await bot.lang.getTranslation(id, "Z5_SAVE_WARNING");
+            }
             startGame(id);
         }
 
@@ -118,7 +128,7 @@ module.exports = {
 
         console.log(deadCount[id]);
         if (deadCount[id] === 2) {
-            channel.send("You have died twice, and have lost the game. Thanks for playing!");
+            channel.send(await bot.lang.getTranslation(id, "Z5_DEAD"));
             gameIterator[id] = null;
             gameInProgress[id] = false;
             games[id] = null;
