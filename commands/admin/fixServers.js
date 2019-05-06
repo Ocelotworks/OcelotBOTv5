@@ -11,7 +11,7 @@ module.exports = {
     init: function(bot){
       process.on("message", function fixServers(message){
             if(message.type === "fixServers"){
-                let timeout = bot.client.shard.id * 2000;
+                let timeout = bot.client.shard.id * 20000;
                 bot.logger.log(`Fixing Servers in ${timeout}ms`);
                 setTimeout(function(){
                     const servers = bot.client.guilds;
