@@ -92,7 +92,11 @@ module.exports = {
             case("admin"): {
                 if (bot.admins.indexOf(message.author.id) === -1) return;
                 switch (args[2].toLowerCase()) {
-                    case("list"): {
+                    case("help"): {
+                        channel.send(```Commands:\n listsaves, killgame, killallgames, loadother, saveother, globalsave, globalrestore, newgame, force, listgames```);
+                        break;
+                    }
+                    case("listsaves"): {
                         let buffer = "```Save games:\n";
                         fs.readdirSync("./z5saves/").forEach(file => {
                             buffer += file + "\n";
