@@ -51,7 +51,7 @@ function startGame(id) {
 
     game.save = function* (data) {
         try {
-            yield fs.writeFileSync("./z5saves/" + id, new Buffer(data.buffer), {});
+            fs.writeFileSync("./z5saves/" + id, new Buffer(data.buffer), {});
             return true;
         } catch (e) {
             console.log(e);
