@@ -6,6 +6,7 @@ let gameInProgress = {};
 //let game;
 let games = {};
 let gameIterator = {};
+let deadCount = {};
 let channel;
 
 
@@ -13,6 +14,7 @@ function startGame(id) {
     let file = fs.readFileSync("./MINIZORK.Z3", {});
 
     let game = new JSZM(file);
+    deadCount[id] = 0;
     console.log("Created new game");
 
     let buffer = "";
@@ -35,6 +37,9 @@ function startGame(id) {
             channelMessage += "```fix\n" + location + "\n```";
             if (description.replace('\n', '').length > 0) {
                 channelMessage += "```yaml\n" + description + "\n```";
+                if (channelMessage.includes("You have died")) {
+                    deadCount[id]++;
+                }
             }
             channel.send(channelMessage);
 
@@ -92,7 +97,11 @@ module.exports = {
             case("admin"): {
                 if (bot.admins.indexOf(message.author.id) === -1) return;
                 switch (args[2].toLowerCase()) {
-                    case("list"): {
+                    case("help"): {
+                        channel.send(```Commands:\n listsaves, killgame, killallgames, loadother, saveother, globalsave, globalrestore, newgame, force, listgames```);
+                        break;
+                    }
+                    case("listsaves"): {
                         let buffer = "```Save games:\n";
                         fs.readdirSync("./z5saves/").forEach(file => {
                             buffer += file + "\n";
@@ -148,7 +157,7 @@ module.exports = {
                     }
                     case("listgames"): {
                         let buffer = "```Current games:\n";
-                        Object.keys(games).forEach(function(key) {
+                        Object.keys(games).forEach(function (key) {
                             buffer += key + "\n";
                         });
                         buffer += "```";
@@ -171,7 +180,15 @@ module.exports = {
 
         let input = Discord.escapeMarkdown(args.slice(1).join(" "));
 
-        gameIterator[id].next(input);
+        console.log(deadCount[id]);
+        if (deadCount[id] === 2) {
+            channel.send("You have died twice, and have lost the game. Thanks for playing!");
+            gameIterator[id] = null;
+            gameInProgress[id] = false;
+            games[id] = null;
+        } else {
+            gameIterator[id].next(input);
+        }
 
         /*if(input !== "restore") {
             if (games[id].save(games[id].getSerialData()).next()) {
