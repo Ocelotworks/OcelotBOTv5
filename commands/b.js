@@ -14,7 +14,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["b", "bify"],
     init: async function(){
-        b = await canvas.loadImage("static/b.png");
+        b = await canvas.loadImage(__dirname+"/../static/b.png");
     },
     run: async function(message, args, bot){
         const url =  await bot.util.getImage(message, args);

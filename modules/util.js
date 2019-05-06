@@ -616,7 +616,7 @@ module.exports = {
 
         bot.util.standardNestedCommandInit = function standardNestedCommandInit(id, directory = id){
             bot.logger.log(`Initialising nested commands for ${id}`);
-            fs.readdir(`commands/${directory}`, function loadNestedCommands(err, files){
+            fs.readdir(`${__dirname}/../commands/${directory}`, function loadNestedCommands(err, files){
                 if(err){
                     bot.raven.captureException(err);
                     bot.logger.warn(`Unable to read ${id} command dir (${directory})`);

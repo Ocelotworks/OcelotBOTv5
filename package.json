@@ -43,6 +43,8 @@
     "tzdata": "^1.0.16",
     "vm2": "^3.8.0",
     "word-wrap": "^1.2.3",
-    "ytdl-core": "^0.29.1"
+    "ytdl-core": "^0.29.1",
+    "caller-id": "latest",
+    "static-eval": ">=2.0.0"
   }
 }
