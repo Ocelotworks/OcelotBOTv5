@@ -86,92 +86,28 @@ module.exports = {
     name: "Zork",
     usage: "zork [action]",
     commands: ["zork", "z5"],
-    categories: ["game"],
+    categories: ["games"],
+    init: function init(bot) {
+        bot.logger.log("Loading z5 commands...");
+        bot.util.standardNestedCommandInit("z5");
+    },
     run: async function (message, args, bot) {
 
         channel = message.channel;
 
         let id = (message.guild ? message.guild.id : message.author.id);
 
-        switch (args[1]) {
-            case("admin"): {
-                if (bot.admins.indexOf(message.author.id) === -1) return;
-                switch (args[2].toLowerCase()) {
-                    case("help"): {
-                        channel.send(```Commands:\n listsaves, killgame, killallgames, loadother, saveother, globalsave, globalrestore, newgame, force, listgames```);
-                        break;
-                    }
-                    case("listsaves"): {
-                        let buffer = "```Save games:\n";
-                        fs.readdirSync("./z5saves/").forEach(file => {
-                            buffer += file + "\n";
-                        });
-                        buffer += "```";
-                        channel.send(buffer);
-                        break;
-                    }
-                    case("killgame"): {
-                        games[id] = null;
-                        gameInProgress[id] = false;
-                        gameIterator[id] = null;
-                        channel.send("Killed current game.");
-                        break;
-                    }
-                    case("killallgames"): {
-                        games = {};
-                        gameInProgress = {};
-                        gameIterator = {};
-                        channel.send("Killed all games.");
-                        break;
-                    }
-                    case("loadother"): {
-                        //todo: load other channel's save
-                        startGame(id);
-
-                        break;
-                    }
-                    case("saveother"): {
-                        //games[id].getSerialData()).next()
-                        try {
-                            fs.writeFileSync("./z5saves/" + args[3], new Buffer(games[id].getSerialData().buffer), {});
-                        } catch (e) {
-                            console.log(e);
-                            channel.send("Save failed.");
-                            return;
-                        }
-                        channel.send("Saved.");
-                    }
-                    case("globalsave"): {
-                        break;
-                    }
-                    case("globalrestore"): {
-                        break;
-                    }
-                    case("newgame"): {
-                        startGame(args[3]);
-                        break;
-                    }
-                    case("force"): {
-                        gameIterator[args[3]].next(Discord.escapeMarkdown(args.slice(3).join(" ")));
-                        break;
-                    }
-                    case("listgames"): {
-                        let buffer = "```Current games:\n";
-                        Object.keys(games).forEach(function (key) {
-                            buffer += key + "\n";
-                        });
-                        buffer += "```";
-                        channel.send(buffer);
-                        break;
-                    }
-                    default: {
-                        break;
-                    }
-                }
-                return;
-            }
-            default: {
-            }
+        if (args.length > 1 && args[1].toLowerCase() === "admin") {
+            if (bot.admins.indexOf(message.author.id) === -1) return;
+            bot.util.standardNestedCommand(message, args, bot, "z5", {
+                    id: id,
+                    games: games,
+                    gameInProgress: gameInProgress,
+                    deadCount: deadCount,
+                    gameIterator: gameIterator
+                },
+                null, 2);
+            return;
         }
 
         if (!gameInProgress[id] || gameInProgress[id] === undefined) {
