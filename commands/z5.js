@@ -78,10 +78,10 @@ function startGame(id) {
 }
 
 module.exports = {
-    name: "Z5 Interpreter",
-    usage: "z7",
-    commands: ["z5", "zork"],
-    categories: ["fun"],
+    name: "Zork",
+    usage: "zork [action]",
+    commands: ["zork", "z5"],
+    categories: ["game"],
     run: async function (message, args, bot) {
 
         channel = message.channel;
