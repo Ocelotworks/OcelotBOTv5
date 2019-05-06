@@ -90,8 +90,13 @@ function JSZM(arr) {
     this.zorkid=(mem[2]<<(this.byteSwapped?0:8))|(mem[3]<<(this.byteSwapped?8:0));
 }
 
+let ds,cs,pc;
+
 JSZM.prototype={
     byteSwapped: false,
+    getSerialData:function(){
+        return this.serialize(ds,cs,pc);
+    },
     constructor: JSZM,
     deserialize: function(ar) {
         var e,i,j,ds,cs,pc,vi,purbot;
@@ -230,7 +235,7 @@ JSZM.prototype={
     restarted: ()=>[],
     restore: ()=>[],
     run: function*() {
-        var mem,pc,cs,ds,op0,op1,op2,op3,opc,inst,x,y,z;
+        var mem,op0,op1,op2,op3,opc,inst,x,y,z;
         var globals,objects,fwords,defprop;
         var addr,fetch,flagset,init,move,opfetch,pcfetch,pcget,pcgetb,pcgetu,predicate,propfind,ret,store,xfetch,xstore;
 
