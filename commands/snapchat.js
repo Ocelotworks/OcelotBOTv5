@@ -14,7 +14,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["snapchat", "snap"],
     init: function(){
-        canvas.registerFont("__dirname+\"/../static/DroidSans.ttf", {family: 'DroidSans'});
+        canvas.registerFont(__dirname+"/../static/DroidSans.ttf", {family: 'DroidSans'});
     },
     run: async function(message, args, bot){
 
