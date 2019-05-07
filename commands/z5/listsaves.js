@@ -6,7 +6,7 @@ module.exports = {
     commands: ["listsaves"],
     run: async function(message, args, bot, data){
         let buffer = "```Save games:\n";
-        fs.readdirSync("./z5saves/").forEach(file => {
+        fs.readdirSync(__dirname+"/../z5saves/").forEach(file => {
             buffer += file + "\n";
         });
         buffer += "```";

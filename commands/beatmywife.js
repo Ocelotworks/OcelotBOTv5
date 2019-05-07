@@ -20,12 +20,12 @@ module.exports = {
         console.log(url);
 
 
-        const fileName = `temp/${Math.random()}.png`;
+        const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
         request(url).on("end", ()=>{
             gm(fileName)
                 .resize(1070)
-                .append("static/beatmywife.png")
+                .append(__dirname+"/../static/beatmywife.png")
                 .toBuffer("PNG", function(err, buffer){
                     if(err){
                         message.replyLang("GENERIC_ERROR");

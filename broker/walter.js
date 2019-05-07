@@ -21,23 +21,7 @@ const logger = require('ocelot-logger');
 
         manager.on('message', function checkHeartbeat(process, message){
             if(message.type === "heartbeat"){
-                const shard = message.payload.shard;
-                if(message.payload.messagesPerMinute === 0){
-                    logger.warn(`0 messages per minute for shard ${shard}`);
-                    if(concerns[shard] && concerns[shard].badMessageCounts){
-                        concerns[shard].badMessageCounts++;
-                    }else{
-                        concerns[shard] = {badMessageCounts: 1};
-                    }
 
-                    if(concerns[shard].badMessageCounts > 5){
-                        logger.error(`Shard ${shard} has been without messages for 5 minutes, killing....`);
-                        console.log(process);
-                        //process.respawn(1000);
-                    }
-                }else{
-                    concerns[shard] = {badMessageCounts: 0};
-                }
             }
         });
 

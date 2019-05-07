@@ -44,7 +44,7 @@ module.exports = {
                 });
 
 
-                fs.readdir("static/doot", function readDir(err, files){
+                fs.readdir(__dirname+"/../static/doot", function readDir(err, files){
                     if(err){
                         bot.logger.log(err);
                         bot.raven.captureException(err);
@@ -54,7 +54,7 @@ module.exports = {
                         let doot = args[1] && !isNaN(args[1]) ? parseInt(args[1]) : dootCount++ % files.length;
                         if(!files[doot])
                             return message.channel.send("No such doot.");
-                        const file = "static/doot/"+files[doot];
+                        const file = __dirname+"/../static/doot/"+files[doot];
                         bot.logger.log("Playing "+file);
                         message.channel.send(`:trumpet: Doot #${doot} (${files[doot]})\nUse \`${args[0]} ${doot}\` to play this again.`);
                         try {

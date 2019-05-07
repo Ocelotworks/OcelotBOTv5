@@ -15,13 +15,14 @@ module.exports = {
     init: async function(bot){
         bot.logger.log("Loading subscriptions...");
         bot.subscriptions = {};
-        fs.readdir("subscriptions", function readDir(err, files){
+        fs.readdir(__dirname+"/../subscriptions", function readDir(err, files){
            if(err){
                bot.raven.captureException(err);
                bot.logger.warn("Couldn't load subscriptions dir");
+               console.error(err);
            }else{
                for(let i = 0; i < files.length; i++){
-                   const file = `../subscriptions/${files[i]}`;
+                   const file = `${__dirname}/../subscriptions/${files[i]}`;
                    try{
                        const sub = require(file);
                        if(sub.name){

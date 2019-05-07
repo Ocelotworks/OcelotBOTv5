@@ -29,7 +29,7 @@ function init(){
 
     bot.bus = new EventEmitter();
 
-    bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225"];
+    bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225", "145193838829371393"];
 
     Raven.config(config.get("Raven.DSN"), {
         environment: os.hostname() === "Jupiter" ? "production" : "development"

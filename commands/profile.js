@@ -2,6 +2,9 @@ const Discord = require('discord.js');
 const canvas = require('canvas');
 const dateFormat = require('dateformat');
 const wrap = require('word-wrap');
+
+const profileBase = `${__dirname}/../static/profile`;
+
 module.exports = {
     name: "User Profile",
     usage: "profile help",
@@ -12,8 +15,8 @@ module.exports = {
     init: async function(bot){
 
         //const bg = await canvas.loadImage("static/profile/background.png");
-        canvas.registerFont("static/profile/BITDUST1.TTF", {family: 'Bitdust'});
-        const errorbg = await canvas.loadImage('static/profile/backgrounds/error.png');
+        canvas.registerFont(profileBase+"/BITDUST1.TTF", {family: 'Bitdust'});
+        const errorbg = await canvas.loadImage(profileBase+"/backgrounds/error.png");
 
 
         bot.logger.log("Registering Fonts...");
@@ -22,7 +25,7 @@ module.exports = {
             if(!fonts[i].path)continue;
             try {
                 bot.logger.log(`Registering font ${fonts[i].name}`);
-                canvas.registerFont(`static/profile/fonts/${fonts[i].path}`, {family: fonts[i].name})
+                canvas.registerFont(`${profileBase}/fonts/${fonts[i].path}`, {family: fonts[i].name})
             }catch(e){
                 bot.raven.captureException(e);
                 bot.logger.warn(`Unable to load ${fonts[i].path}: ${e}`);
@@ -53,8 +56,8 @@ module.exports = {
                         frameInfo         = (await bot.database.getProfileOption(profileInfo.frames))[0],
                         boardInfo         = (await bot.database.getProfileOption(profileInfo.board))[0],
                         fontInfo          = (await bot.database.getProfileOption(profileInfo.font))[0],
-                        bg                = await canvas.loadImage('static/profile/backgrounds/' + backgroundInfo.path),
-                        board             = await canvas.loadImage('static/profile/boards/' + boardInfo.path);
+                        bg                = await canvas.loadImage(`${profileBase}/backgrounds/${backgroundInfo.path}`),
+                        board             = await canvas.loadImage(`${profileBase}/boards/${boardInfo.path}`);
 
 
                 const cnv = canvas.createCanvas(bg.width, bg.height);
@@ -66,7 +69,7 @@ module.exports = {
                 ctx.drawImage(board, 384, 20);
 
                 if(user.avatarURL && frameInfo.path !== "transparent") {
-                    frames = await canvas.loadImage(`static/profile/frames/${frameInfo.path}`);
+                    frames = await canvas.loadImage(`${profileBase}/frames/${frameInfo.path}`);
                     const avatar = await canvas.loadImage(user.avatarURL);
 
                     ctx.drawImage(avatar, 21, 14, 172, 172);
@@ -133,7 +136,7 @@ module.exports = {
 
                 for (let i = 0; i < badges.length; i++) {
                     const badge = badges[i];
-                    const img = await canvas.loadImage("static/profile/badges/" + badge.image);
+                    const img = await canvas.loadImage(`${profileBase}/badges/${badge.image}`);
                     ctx.drawImage(img, 210 + ((i % 4) * (32 + 10)), 86 + (Math.floor(i / 4) * 39));
                 }
 
@@ -141,7 +144,7 @@ module.exports = {
                     ctx.drawImage(frames, 17, 10);
 
                 if(premium){
-                    const premium = await canvas.loadImage("static/profile/premium.png");
+                    const premium = await canvas.loadImage(`${profileBase}/premium.png`);
                     ctx.drawImage(premium, 0,0 );
                 }
 
