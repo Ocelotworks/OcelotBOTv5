@@ -7,6 +7,11 @@ module.exports = {
         Object.keys(data.games).forEach(function (key) {
             buffer += key + "\n";
         });
+        buffer += "\nDead games:\n";
+        Object.keys(data.deadGames).forEach(function (key) {
+            if(data.deadGames[key])
+                buffer += key + "\n";
+        });
         buffer += "```";
         message.channel.send(buffer);
     }

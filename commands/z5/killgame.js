@@ -4,7 +4,7 @@ module.exports = {
     commands: ["killgame"],
     run: async function(message, args, bot, data){
 
-        if(args.length < 3 || args[3].toLowerCase() === "self") {
+        if(args.length < 4 || args[3].toLowerCase() === "self") {
             data.games[data.id] = null;
             data.gameInProgress[data.id] = false;
             data.gameIterator[data.id] = null;
