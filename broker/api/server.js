@@ -10,12 +10,12 @@ module.exports = {
     base: "/server",
     init: function init(broker) {
         let router = express.Router();
-        router.get('/server/:id/reloadConfig', function(req, res){
+        router.get('/:id/reloadConfig', function(req, res){
             res.json({});
             broker.manager.broadcast({type: "reloadConfig", payload: req.params.id});
         });
 
-        router.get('/server/:id/channels', function(req, res){
+        router.get('/:id/channels', function(req, res){
             broker.ipc.requestData("channels", function(channels){
                 res.json(channels);
             }, {server: req.params.id});
