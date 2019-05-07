@@ -42,7 +42,7 @@ module.exports = {
                     message.replyLang("GENERIC_ERROR");
                 });
 
-                fs.readdir("static/noot", function readDir(err, files){
+                fs.readdir(__dirname+"/../static/noot", function readDir(err, files){
                     if(err){
                         bot.logger.log(err);
                         bot.raven.captureException(err);
@@ -52,7 +52,7 @@ module.exports = {
                         let noot = args[1] && !isNaN(args[1]) ? parseInt(args[1]) : nootCount++ % files.length;
                         if(!files[noot])
                             return message.channel.send("No such noot.");
-                        const file = "static/noot/"+files[noot];
+                        const file = __dirname+"/../static/noot/"+files[noot];
                         message.channel.send(`<:noot:524657747757891615> Noot #${noot} (${files[noot]})\nUse \`${args[0]} ${noot}\` to play this again.`);
                         bot.logger.log("Playing "+file);
                         try {

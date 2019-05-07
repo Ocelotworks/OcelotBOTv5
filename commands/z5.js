@@ -10,9 +10,13 @@ let deadCount = {};
 let channel;
 let printHeader = {};
 
+const saves = __dirname+"/../z5saves";
+
 
 function startGame(id) {
-    let file = fs.readFileSync("./z5games/MINIZORK.Z3", {});
+
+    let file = fs.readFileSync(`${__dirname}/../MINIZORK.Z3`, {});
+
 
     let game = new JSZM(file);
     deadCount[id] = 0;
@@ -62,7 +66,7 @@ function startGame(id) {
 
     game.save = function* (data) {
         try {
-            fs.writeFileSync("./z5saves/" + id, new Buffer(data.buffer), {});
+            fs.writeFileSync(saves + id, new Buffer(data.buffer), {});
             return true;
         } catch (e) {
             console.log(e);
@@ -73,7 +77,7 @@ function startGame(id) {
     game.restore = function* () {
         try {
             channel.send("Attempting restore");
-            return new Uint8Array(fs.readFileSync("./z5saves/" + id, {}));
+            return new Uint8Array(fs.readFileSync(saves + id, {}));
         } catch (e) {
             console.log(e);
             channel.send("Restore failed.");

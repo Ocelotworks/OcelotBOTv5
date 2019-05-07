@@ -36,7 +36,7 @@ module.exports = {
                             bot.logger.error(`Error during avatar format stage of !crush: ${err.stack}`);
                         } else {
                             gm(buffer)
-                                .composite(config.get("template"))
+                                .composite(__dirname+"/../"+config.get("template"))
                                 .toBuffer('PNG', async function crushToBuffer(err, buffer) {
                                     if (err) {
                                         bot.raven.captureException(err);

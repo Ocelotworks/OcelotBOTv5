@@ -155,14 +155,14 @@ Have this <:1million:545604236826771467> exclusive badge for your **${message.ge
         bot.logger.log("Populated prefix cache with "+Object.keys(bot.prefixCache).length+" servers");
     },
     loadCommands: function (bot) {
-        fs.readdir("commands", function readCommands(err, files) {
+        fs.readdir(`${__dirname}/../commands`, function readCommands(err, files) {
             if (err) {
                 bot.logger.error("Error reading from commands directory");
-                bot.logger.error(err);
+                console.error(err);
                 bot.raven.captureException(err);
             } else {
                 async.eachSeries(files, function loadCommands(command, callback) {
-                    if (!fs.lstatSync("commands/" + command).isDirectory()) {
+                    if (!fs.lstatSync(`${__dirname}/../commands/${command}`).isDirectory()) {
                         let loadedCommand = require("../commands/" + command);
                         if (loadedCommand.init) {
                             try {
@@ -183,6 +183,10 @@ Have this <:1million:545604236826771467> exclusive badge for your **${message.ge
                         for (let i in loadedCommand.commands) {
                             if (loadedCommand.commands.hasOwnProperty(i)) {
                                 const commandName = loadedCommand.commands[i];
+                                if(bot.commands[commandName]){
+                                    if(bot.client.shard)
+                                        bot.client.shard.send({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists and is being overwritten!`}})
+                                }
                                 bot.commands[commandName] = loadedCommand.run;
                                 bot.commandUsages[commandName] = {
                                     id: command,

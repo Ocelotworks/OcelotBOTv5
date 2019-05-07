@@ -278,9 +278,11 @@ module.exports = {
                 return;
             }
 
+            filePath = __dirname+"/../"+filePath;
+
             message.channel.startTyping();
             gm(filePath)
-                .font("static/arial.ttf", textSize)
+                .font(__dirname+"/../static/arial.ttf", textSize)
                 .drawText(x, y, wrap(message.cleanContent.substring(args[0].length).substring(0,1010), {width: textWidth, indent: ''}))
                 .toBuffer('PNG', function convertToPNG(err, buffer){
                     if(err){
@@ -312,7 +314,7 @@ module.exports = {
 
             bot.logger.log(url);
 
-            const fileName = `temp/${Math.random()}.png`;
+            const fileName = `${__dirname}/../temp/${Math.random()}.png`;
             let shouldProcess = true;
 
             request(url)
@@ -343,7 +345,10 @@ module.exports = {
                             console.log(e);
                             message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                         });
-                        fs.unlink(fileName, function(){});
+                        fs.unlink(fileName, function(err){
+                            if(err)
+                                bot.logger.error(err);
+                        });
                     });
             }).pipe(fs.createWriteStream(fileName));
         };
@@ -616,7 +621,7 @@ module.exports = {
 
         bot.util.standardNestedCommandInit = function standardNestedCommandInit(id, directory = id){
             bot.logger.log(`Initialising nested commands for ${id}`);
-            fs.readdir(`commands/${directory}`, function loadNestedCommands(err, files){
+            fs.readdir(`${__dirname}/../commands/${directory}`, function loadNestedCommands(err, files){
                 if(err){
                     bot.raven.captureException(err);
                     bot.logger.warn(`Unable to read ${id} command dir (${directory})`);
