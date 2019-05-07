@@ -9,6 +9,7 @@ module.exports = {
     usage: "weed <command>",
     categories: ["games"],
     commands: ["weed", "weedsim"],
+    hidden: true,
     init: function init(bot) {
         bot.logger.log("Loading weedsim commands...");
         bot.util.standardNestedCommandInit("weed");
