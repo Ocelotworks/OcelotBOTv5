@@ -24,7 +24,20 @@ module.exports = {
             });
             message.channel.send(buffer + "```");
         } else if (args[3].toLowerCase() === "load"){
-
+            let buffer = "```State:\n";
+            Object.keys(data.games).forEach(function (key) {
+                try {
+                    buffer += ("Attempting restore...");
+                    data.games[data.id].setSerialData(new Uint8Array(fs.readFileSync("./z5saves/" + key, {})));
+                    buffer += ("Load done. \n");
+                } catch (e) {
+                    console.log(e);
+                    buffer += "Load failed. \n";
+                    return;
+                }
+                buffer += "Loaded."
+            });
+            message.channel.send(buffer + "```");
         } else {
             message.replyLang("GENERIC_INVALID_USAGE", {arg: args[0]});
         }
