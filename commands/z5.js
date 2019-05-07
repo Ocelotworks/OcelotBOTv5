@@ -9,6 +9,7 @@ let gameIterator = {};
 let deadCount = {};
 let channel;
 let printHeader = {};
+let deadGames = {};
 
 const saves = __dirname+"/../z5saves";
 
@@ -20,6 +21,7 @@ function startGame(id) {
 
     let game = new JSZM(file);
     deadCount[id] = 0;
+    deadGames[id] = false;
     console.log("Created new game");
 
     let buffer = "";
@@ -58,6 +60,15 @@ function startGame(id) {
             buffer += text;
         }
 
+    };
+
+    game.quit = function *() {
+        deadGames[id] = true;
+        yield;
+    };
+
+    game.onDeath = function() {
+        channel.send("Test");
     };
 
     game.read = function* () {
@@ -115,7 +126,8 @@ module.exports = {
                     gameInProgress: gameInProgress,
                     deadCount: deadCount,
                     gameIterator: gameIterator,
-                    printHeader: printHeader
+                    printHeader: printHeader,
+                    deadGames: deadGames
                 },
                 null, 2);
             return;
@@ -130,14 +142,19 @@ module.exports = {
 
         let input = Discord.escapeMarkdown(args.slice(1).join(" "));
 
-        console.log(deadCount[id]);
+        gameIterator[id].next(input);
+
+        if (deadGames[id]) {
+            games[id] = undefined;
+            gameInProgress[id] = false;
+            gameIterator[id] = undefined;
+            deadGames[id] = false;
+        }
         if (deadCount[id] === 2) {
             channel.send(await bot.lang.getTranslation(id, "Z5_DEAD"));
             gameIterator[id] = null;
             gameInProgress[id] = false;
             games[id] = null;
-        } else {
-            gameIterator[id].next(input);
         }
     }
 };
