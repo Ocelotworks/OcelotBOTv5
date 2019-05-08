@@ -31,7 +31,7 @@ module.exports = {
                 broker.logger.error(`Shard ${shard} has been without messages for 5 minutes, killing....`);
                 console.log(process);
                 try {
-                    shard.process.kill();
+                    process.respawn();
                 }catch(e)
                 {
                     broker.logger.error("no... thats not right");
