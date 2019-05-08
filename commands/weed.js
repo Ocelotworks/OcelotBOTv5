@@ -13,12 +13,12 @@ function plantify(value) {
 
 function sortLoadedWeeds(weedPlants, bot) {
     let lastId = 0;
-    weedPlants.forEach(function (value){
-        if(!(value.ownerID === lastId)){
+    weedPlants.forEach(function (value) {
+        if (!(value.ownerID === lastId)) {
             plants[value.ownerID] = [];
         }
         plants[value.ownerID].push(plantify(value));
-        loadedPlantCount ++;
+        loadedPlantCount++;
         lastId = value.ownerID;
     });
     bot.logger.log("Loaded " + loadedPlantCount + " weed plants from DB");
@@ -64,26 +64,15 @@ module.exports = {
             return;
         }
 
-        bot.util.standardNestedCommand(message, args, bot, "weed", {Plant, plants, status, weedbux, ageInterval, water, trimPlants});
+        bot.util.standardNestedCommand(message, args, bot, "weed", {
+            Plant,
+            plants,
+            status,
+            weedbux,
+            ageInterval
+        });
     }
 };
-
-function water(id){
-    console.log("Water");
-    plants[id].forEach(function (value) {
-        value.water = 43200;
-    });
-}
-
-function trimPlants(id){
-    plants[id].forEach(function (value) {
-        if(value.age === 5){
-            value.age = 4;
-            value.growTime = ageInterval[3];
-            weedbux[id]+=1000;
-        }
-    });
-}
 
 function Plant(id) {
     return {
@@ -126,8 +115,8 @@ function Plant(id) {
                 health: this.health
             };
         },
-        fromStorable:function (storable) {
-            try{
+        fromStorable: function (storable) {
+            try {
                 this.owner = storable.ownerID;
                 this.age = storable.age;
                 this.waterTime = storable.waterTime;
@@ -138,6 +127,21 @@ function Plant(id) {
             } catch {
                 return false;
             }
+        },
+        waterPlants: function () {
+            console.log(plants);
+            plants[this.owner].forEach(function (value) {
+                value.water = 43200;
+            })
+        },
+        trimPlants: function () {
+            plants[this.owner].forEach(function (value) {
+                if (value.age === 5) {
+                    value.age = 4;
+                    value.growTime = ageInterval[3];
+                    weedbux[id] += 1000;
+                }
+            })
         }
     };
 }

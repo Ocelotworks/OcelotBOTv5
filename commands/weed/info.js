@@ -8,6 +8,7 @@ module.exports = {
 
         let authorPlants = data.plants[message.author.id];
         let pages = authorPlants.chunk(3);
+        console.log(authorPlants[authorPlants.length-1]);
 
         bot.util.standardPagination(message.channel, pages, async function(page, index) {
             let embed = new Discord.RichEmbed();
@@ -31,7 +32,7 @@ module.exports = {
             }
 
             return embed;
-        }, true, 30000, {"💧":data.water(message.author.id), "✂":data.trimPlants(message.author.id)});
+        }, true, 30000, {"💧":authorPlants[authorPlants.length-1].waterPlants, "✂":authorPlants[authorPlants.length-1].trimPlants});
 
         /*async function listPlants() {
             let embed = new Discord.RichEmbed();
