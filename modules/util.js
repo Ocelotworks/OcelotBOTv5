@@ -552,7 +552,7 @@ module.exports = {
          * @param {Number} reactionTime
          * @returns {Promise<void>}
          */
-        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000){
+        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000, reactDict){
             let index = 0;
             let sentMessage;
 
@@ -576,10 +576,15 @@ module.exports = {
                 await sentMessage.react("▶");
                 if(fullReactions)
                     await sentMessage.react("⏭");
+
+                Object.keys(reactDict).forEach(async function (react) {
+                    await sentMessage.react(react);
+                });
             })();
 
             await sentMessage.awaitReactions(async function (reaction, user) {
                 if (user.id === bot.client.user.id) return false;
+
                 switch (reaction.emoji.name) {
                     case "⏮":
                         index = 0;
@@ -602,6 +607,12 @@ module.exports = {
                     case "⏭":
                         index = pages.length - 1;
                         await buildPage();
+                        break;
+                    default:
+                        if(reactDict[reaction.emoji.name] !== undefined) {
+                            reactDict[reaction.emoji.name]();
+                            await buildPage();
+                        }
                         break;
                 }
                 if(channel.guild)

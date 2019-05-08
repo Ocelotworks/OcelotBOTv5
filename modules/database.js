@@ -830,6 +830,30 @@ module.exports = {
             },
             redeemPremiumKey: function(id, server){
                 return knex("ocelotbot_premium_keys").update({server, redeemed: new Date()}).where({id}).limit(1);
+            },
+            getWeedPlants: function(ownerID){
+                if(ownerID !== undefined) {
+                    return knex.select().from("ocelotbot_weed").where({ownerID});
+                } else {
+                    return knex.select().from("ocelotbot_weed");
+                }
+            },
+            addNewPlant: async function(plant) {
+                await knex.insert(plant.toStorable()).into("ocelotbot_weed");
+                return knex.select("id").from("ocelotbot_weed").where(plant.toStorable());
+            },
+            updatePlant: function(plant){
+                return knex("ocelotbot_weed").update(plant.toStorable()).where({id:plant.id}).limit(1);
+            },
+            deletePlant: function(plant){
+                return knex("ocelotbot_weed").where({id:plant.id}).del();
+            },
+            saveAllPlants: function (plantDict) {
+                Object.keys(plantDict).forEach(function (key) {
+                    plantDict[key].forEach(async function (value) {
+                        await knex("ocelotbot_weed").update(value.toStorable()).where({id:value.id}).limit(1);
+                    })
+                });
             }
 
 
