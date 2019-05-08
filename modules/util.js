@@ -566,24 +566,36 @@ module.exports = {
 
             await buildPage();
 
-            if(pages.length === 1)
+            if(pages.length === 1 && !reactDict)
                 return;
 
             (async function () {
-                if(fullReactions)
-                    await sentMessage.react("⏮");
-                await sentMessage.react("◀");
-                await sentMessage.react("▶");
-                if(fullReactions)
-                    await sentMessage.react("⏭");
-
-                Object.keys(reactDict).forEach(async function (react) {
-                    await sentMessage.react(react);
-                });
+                if(pages.length > 1) {
+                    if (fullReactions)
+                        await sentMessage.react("⏮");
+                    await sentMessage.react("◀");
+                    await sentMessage.react("▶");
+                    if (fullReactions)
+                        await sentMessage.react("⏭");
+                }
+                if(reactDict) {
+                    Object.keys(reactDict).forEach(async function (react) {
+                        await sentMessage.react(react);
+                    });
+                }
             })();
 
             await sentMessage.awaitReactions(async function (reaction, user) {
                 if (user.id === bot.client.user.id) return false;
+                if(reactDict) {
+                    if (reactDict[reaction.emoji.name] !== undefined) {
+                        reactDict[reaction.emoji.name]();
+                        await buildPage();
+                        return;
+                    }
+                    if(pages.length === 1)
+                        return;
+                }
 
                 switch (reaction.emoji.name) {
                     case "⏮":
@@ -607,12 +619,6 @@ module.exports = {
                     case "⏭":
                         index = pages.length - 1;
                         await buildPage();
-                        break;
-                    default:
-                        if(reactDict[reaction.emoji.name] !== undefined) {
-                            reactDict[reaction.emoji.name]();
-                            await buildPage();
-                        }
                         break;
                 }
                 if(channel.guild)
