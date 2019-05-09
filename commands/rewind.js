@@ -42,7 +42,9 @@ module.exports = {
                     }
                     let attachment = new Discord.Attachment(buffer, "rewind.png");
                     message.channel.send("", attachment);
-                    fs.unlinkSync(fileName, function(){});
+                    fs.unlink(fileName, function unlink(err){
+                        console.log(err);
+                    });
                 });
         }).pipe(fs.createWriteStream(fileName));
 
