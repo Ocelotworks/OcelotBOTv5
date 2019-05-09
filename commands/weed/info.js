@@ -20,7 +20,6 @@ module.exports = {
                 let value = data.getPlants()[message.author.id][plant];
 
                 embed.addField("Plant " + (plant+1), data.status[value.statusIndex][value.age]);
-                console.log("A " + value.waterTime);
                 embed.addField(":droplet:", bot.util.prettySeconds(value.waterTime), true);
                 try {
                     embed.addField(":clock1:", bot.util.prettySeconds(data.ageInterval[value.age] - value.growTime), true);
