@@ -589,12 +589,15 @@ module.exports = {
                 if (user.id === bot.client.user.id) return false;
                 if(reactDict) {
                     if (reactDict[reaction.emoji.name] !== undefined) {
-                        reactDict[reaction.emoji.name]();
+                        await reactDict[reaction.emoji.name]();
                         await buildPage();
+
+                    }
+                    if(pages.length === 1) {
+                        if(channel.guild)
+                            reaction.remove(user);
                         return;
                     }
-                    if(pages.length === 1)
-                        return;
                 }
 
                 switch (reaction.emoji.name) {

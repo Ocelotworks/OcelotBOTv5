@@ -50,6 +50,28 @@ module.exports = {
         }, timeoutInterval * 60000) //15 minutes
     },
     run: function run(message, args, bot) {
+
+        function waterPlants() {
+            console.log("Watering");
+            plants[message.author.id].forEach(function (value) {
+                value.waterTime = 43200;
+            })
+        }
+
+        function trimPlants() {
+            plants[message.author.id].forEach(function (value) {
+                if (value.age === 5) {
+                    value.age = 4;
+                    value.growTime = ageInterval[3];
+                    weedbux[id] += 1000;
+                }
+            })
+        }
+
+        function getPlants() {
+            return plants;
+        }
+
         if (weedbux[message.author.id] === undefined) {
             weedbux[message.author.id] = 1000;
         }
@@ -66,10 +88,12 @@ module.exports = {
 
         bot.util.standardNestedCommand(message, args, bot, "weed", {
             Plant,
-            plants,
+            getPlants,
             status,
             weedbux,
-            ageInterval
+            ageInterval,
+            waterPlants,
+            trimPlants
         });
     }
 };
@@ -127,21 +151,6 @@ function Plant(id) {
             } catch {
                 return false;
             }
-        },
-        waterPlants: function () {
-            console.log(plants);
-            plants[this.owner].forEach(function (value) {
-                value.water = 43200;
-            })
-        },
-        trimPlants: function () {
-            plants[this.owner].forEach(function (value) {
-                if (value.age === 5) {
-                    value.age = 4;
-                    value.growTime = ageInterval[3];
-                    weedbux[id] += 1000;
-                }
-            })
         }
     };
 }
