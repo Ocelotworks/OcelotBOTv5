@@ -4,28 +4,35 @@ module.exports = {
     name: "Info",
     usage: "info",
     commands: ["info"],
-    run: async function(message, args, bot, data){
+    run: async function (message, args, bot, data) {
 
-        let embed = new Discord.RichEmbed();
-        embed.setColor(0x189F06);
-        embed.setAuthor(data.weedbux[message.author.id] + " WeedBux", bot.client.user.avatarURL);
-        let length = 1;
+        let authorPlants = data.getPlants()[message.author.id];
+        let pages = authorPlants.chunk(3);
+        //console.log(authorPlants[authorPlants.length-1]);
 
-        try {
-            data.plants[message.author.id].forEach(function (value) {
-                embed.addField("Plant " + length, data.status[value.statusIndex][value.age]);
-                embed.addField(":droplet:", (value.waterTime / 3600) + "h", true);
-                embed.addField(":clock1:", (value.growTime / data.ageInterval[value.age])*100 + "%", true);
+        bot.util.standardPagination(message.channel, pages, async function(page, index) {
+            let embed = new Discord.RichEmbed();
+            embed.setColor(0x189F06);
+            embed.setAuthor(data.weedbux[message.author.id] + " WeedBux", bot.client.user.avatarURL);
+
+            for(let i = 0; i < page.length; i++){
+                let plant = index * page.length + i;
+                let value = data.getPlants()[message.author.id][plant];
+
+                embed.addField("Plant " + (plant+1), data.status[value.statusIndex][value.age]);
+                console.log("A " + value.waterTime);
+                embed.addField(":droplet:", bot.util.prettySeconds(value.waterTime), true);
+                try {
+                    embed.addField(":clock1:", bot.util.prettySeconds(data.ageInterval[value.age] - value.growTime), true);
+                } catch {
+                    //Caught if a plant is ready to harvest, I'll improve this later
+                    embed.addField(":clock1:", "Ready to harvest", true);
+                }
                 embed.addField(":heart:", value.health + "%", true);
                 embed.addBlankField(false);
-                length++;
-            });
-        } catch (e) {
-            //ignore
-        }
+            }
 
-
-
-        message.channel.send("", embed);
+            return embed;
+        }, true, 60000, {"💧":data.waterPlants, "✂":data.trimPlants});
     }
 };

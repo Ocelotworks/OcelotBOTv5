@@ -1,18 +1,39 @@
 let plants = {};
+let loadedPlantCount = 0;
 let status = [["Just a seed", "Breaking soil", "A green shoot", "A tall plant", "A budding plant", "Ready to harvest"], ["Getting thirsty...", "Wilting...", "Leaves dropping...", "Buds shrinking...", "Buds shrinking..."]];
-let ageInterval = [1500, 3000, 15000, 75000, 78000];
+let ageInterval = [1500, 3000, 15000, 75000, 118200];
 let weedbux = {};
 let timeoutInterval = 15; //minutes
+
+function plantify(value) {
+    let plant = new Plant(value.id);
+    plant.fromStorable(value);
+    return plant;
+}
+
+function sortLoadedWeeds(weedPlants, bot) {
+    let lastId = 0;
+    weedPlants.forEach(function (value) {
+        if (!(value.ownerID === lastId)) {
+            plants[value.ownerID] = [];
+        }
+        plants[value.ownerID].push(plantify(value));
+        loadedPlantCount++;
+        lastId = value.ownerID;
+    });
+    bot.logger.log("Loaded " + loadedPlantCount + " weed plants from DB");
+}
 
 module.exports = {
     name: "Weedsim",
     usage: "weed <command>",
     categories: ["games"],
     commands: ["weed", "weedsim"],
-    hidden: true,
-    init: function init(bot) {
+    init: async function init(bot) {
         bot.logger.log("Loading weedsim commands...");
         bot.util.standardNestedCommandInit("weed");
+        sortLoadedWeeds(await bot.database.getWeedPlants(), bot);
+
 
         setInterval(function () {
             bot.logger.log("Doing Weed");
@@ -20,13 +41,37 @@ module.exports = {
                 plants[key].forEach(function (value) {
                     value.doPlant();
                     if (value.dead) {
+                        bot.database.deletePlant(value);
                         value = null;
                     }
                 })
             });
+            bot.database.saveAllPlants(plants);
         }, timeoutInterval * 60000) //15 minutes
     },
     run: function run(message, args, bot) {
+
+        function waterPlants() {
+            console.log("Watering");
+            plants[message.author.id].forEach(function (value) {
+                value.waterTime = 43200;
+            })
+        }
+
+        function trimPlants() {
+            plants[message.author.id].forEach(function (value) {
+                if (value.age === 5) {
+                    value.age = 4;
+                    value.growTime = ageInterval[3];
+                    weedbux[id] += 1000;
+                }
+            })
+        }
+
+        function getPlants() {
+            return plants;
+        }
+
         if (weedbux[message.author.id] === undefined) {
             weedbux[message.author.id] = 1000;
         }
@@ -37,10 +82,19 @@ module.exports = {
                     value.doPlant();
                 })
             });
+            bot.database.saveAllPlants(plants);
             return;
         }
 
-        bot.util.standardNestedCommand(message, args, bot, "weed", {Plant, plants, status, weedbux, ageInterval});
+        bot.util.standardNestedCommand(message, args, bot, "weed", {
+            Plant,
+            getPlants,
+            status,
+            weedbux,
+            ageInterval,
+            waterPlants,
+            trimPlants
+        });
     }
 };
 
@@ -72,8 +126,30 @@ function Plant(id) {
                 this.dead = true;
             }
 
-            if (this.growTime > ageInterval[this.age] && this.age < 4) {
+            if (this.growTime > ageInterval[this.age] && this.age < 5) {
                 this.age++;
+            }
+        },
+        toStorable: function () {
+            return {
+                ownerID: this.owner,
+                age: this.age,
+                waterTime: this.waterTime,
+                growTime: this.growTime,
+                health: this.health
+            };
+        },
+        fromStorable: function (storable) {
+            try {
+                this.owner = storable.ownerID;
+                this.age = storable.age;
+                this.waterTime = storable.waterTime;
+                this.growTime = storable.growTime;
+                this.health = storable.health;
+                this.id = storable.id;
+                return true;
+            } catch {
+                return false;
             }
         }
     };
