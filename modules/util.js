@@ -555,7 +555,7 @@ module.exports = {
          * @param {Number} reactionTime
          * @returns {Promise<void>}
          */
-        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000){
+        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000, reactDict){
             let index = 0;
             let sentMessage;
 
@@ -569,20 +569,40 @@ module.exports = {
 
             await buildPage();
 
-            if(pages.length === 1)
+            if(pages.length === 1 && !reactDict)
                 return;
 
             (async function () {
-                if(fullReactions)
-                    await sentMessage.react("⏮");
-                await sentMessage.react("◀");
-                await sentMessage.react("▶");
-                if(fullReactions)
-                    await sentMessage.react("⏭");
+                if(pages.length > 1) {
+                    if (fullReactions)
+                        await sentMessage.react("⏮");
+                    await sentMessage.react("◀");
+                    await sentMessage.react("▶");
+                    if (fullReactions)
+                        await sentMessage.react("⏭");
+                }
+                if(reactDict) {
+                    Object.keys(reactDict).forEach(async function (react) {
+                        await sentMessage.react(react);
+                    });
+                }
             })();
 
             await sentMessage.awaitReactions(async function (reaction, user) {
                 if (user.id === bot.client.user.id) return false;
+                if(reactDict) {
+                    if (reactDict[reaction.emoji.name] !== undefined) {
+                        await reactDict[reaction.emoji.name]();
+                        await buildPage();
+
+                    }
+                    if(pages.length === 1) {
+                        if(channel.guild)
+                            reaction.remove(user);
+                        return;
+                    }
+                }
+
                 switch (reaction.emoji.name) {
                     case "⏮":
                         index = 0;

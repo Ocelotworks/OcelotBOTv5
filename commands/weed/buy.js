@@ -8,8 +8,12 @@ module.exports = {
         }
 
         if(data.weedbux[message.author.id] >= 500) {
-            data.plants[message.author.id].push(new data.Plant(message.author.id));
+            let plant = new data.Plant(message.author.id)
+            data.plants[message.author.id].push(plant);
+
             data.weedbux[message.author.id] = data.weedbux[message.author.id] - 500;
+
+            plant.id = bot.database.addNewPlant(plant);
 
             message.channel.send("Bought new plant.");
         } else {
