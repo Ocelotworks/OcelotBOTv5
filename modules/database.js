@@ -839,15 +839,16 @@ module.exports = {
                 }
             },
             addNewPlant: async function(plant) {
-                await knex.insert(plant.toStorable()).into("ocelotbot_weed");
-                return knex.select("id").from("ocelotbot_weed").where(plant.toStorable());
+                return await knex.insert(plant.toStorable()).into("ocelotbot_weed").returning('id').then(function(id){
+                    return id;
+                })[0];
             },
             updatePlant: function(plant){
                 return knex("ocelotbot_weed").update(plant.toStorable()).where({id:plant.id}).limit(1);
             },
-            deletePlant: function(plant){
+            deletePlant: async function(plant){
                 //return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge});
-                return knex().delete().from("ocelotbot_weed").where({id:plant.id});
+                await knex().delete().from("ocelotbot_weed").where({id:plant.id});
             },
             saveAllPlants: function (plantDict) {
                 Object.keys(plantDict).forEach(function (key) {
