@@ -846,7 +846,8 @@ module.exports = {
                 return knex("ocelotbot_weed").update(plant.toStorable()).where({id:plant.id}).limit(1);
             },
             deletePlant: function(plant){
-                return knex("ocelotbot_weed").where({id:plant.id}).del();
+                //return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge});
+                return knex().delete().from("ocelotbot_weed").where({id:plant.id});
             },
             saveAllPlants: function (plantDict) {
                 Object.keys(plantDict).forEach(function (key) {

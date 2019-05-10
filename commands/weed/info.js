@@ -8,12 +8,13 @@ module.exports = {
 
         let authorPlants = data.getPlants()[message.author.id];
         let pages = authorPlants.chunk(3);
+        let weedbuxString = await bot.lang.getTranslation(message.author.id, "WEED_WEEDBUX", {"weedbux" : data.weedbux[message.author.id]}, message.author.id);
         //console.log(authorPlants[authorPlants.length-1]);
 
         bot.util.standardPagination(message.channel, pages, async function(page, index) {
             let embed = new Discord.RichEmbed();
             embed.setColor(0x189F06);
-            embed.setAuthor(data.weedbux[message.author.id] + " WeedBux", bot.client.user.avatarURL);
+            embed.setAuthor(weedbuxString, bot.client.user.avatarURL);
 
             for(let i = 0; i < page.length; i++){
                 let plant = index * page.length + i;

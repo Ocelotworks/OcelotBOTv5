@@ -37,14 +37,14 @@ module.exports = {
 
         setInterval(function () {
             bot.logger.log("Doing Weed");
-            Object.keys(plants).forEach(function (key) {
+            Object.keys(plants).forEach(async function (key) {
                 plants[key].forEach(function (value) {
                     value.doPlant();
                     if (value.dead) {
                         bot.database.deletePlant(value);
                         value = null;
                     }
-                })
+                });
             });
             bot.database.saveAllPlants(plants);
         }, timeoutInterval * 60000) //15 minutes
@@ -58,14 +58,16 @@ module.exports = {
             })
         }
 
-        function trimPlants() {
+        async function trimPlants() {
             plants[message.author.id].forEach(function (value) {
                 if (value.age === 5) {
                     value.age = 4;
                     value.growTime = ageInterval[3];
-                    weedbux[id] += 1000;
+                    weedbux[message.author.id] += 1000;
                 }
             })
+            await bot.database.setUserSetting(message.author.id, "weed.bux", weedbux[message.author.id]);
+            bot.client.shard.send({type: "reloadUserConfig"});
         }
 
         function getPlants() {
@@ -73,7 +75,11 @@ module.exports = {
         }
 
         if (weedbux[message.author.id] === undefined) {
-            weedbux[message.author.id] = 1000;
+            if(!message.getSetting("weed.bux")) {
+                weedbux[message.author.id] = 1000;
+            } else {
+                weedbux[message.author.id] = message.getSetting("weed.bux");
+            }
         }
 
         if (args[1] === "forceTick") {
