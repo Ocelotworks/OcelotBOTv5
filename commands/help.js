@@ -8,6 +8,7 @@ const numbers = [
 module.exports = {
     name: "Help Command",
     usage: "help [command]",
+    detailedHelp: "If you need help with the help command I can't help you.",
     commands: ["help", "commands"],
     categories: ["meta"],
     init: function init(bot){
