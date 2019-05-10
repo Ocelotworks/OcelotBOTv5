@@ -329,7 +329,10 @@ module.exports = {
             .on("end", function requestEnd(){
                 if(!shouldProcess){
                     message.replyLang("GENERIC_NO_IMAGE_URL");
-                    fs.unlink(fileName, function(){});
+                    fs.unlink(fileName, function unlinkInvalidFile(err){
+                        if(err)
+                            bot.logger.error(err);
+                    });
                     return;
                 }
                 const initialProcess = gm(fileName).autoOrient();
@@ -345,7 +348,7 @@ module.exports = {
                             console.log(e);
                             message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                         });
-                        fs.unlink(fileName, function(err){
+                        fs.unlink(fileName, function unlinkCompletedFile(err){
                             if(err)
                                 bot.logger.error(err);
                         });

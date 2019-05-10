@@ -33,7 +33,9 @@ module.exports = {
                     }
                     let attachment = new Discord.Attachment(buffer, "beatmywife.png");
                     message.channel.send("", attachment);
-                    fs.unlinkSync(fileName);
+                    fs.unlink(fileName, function unlink(err){
+                        console.log(err);
+                    });
                 });
         }).pipe(fs.createWriteStream(fileName));
 
