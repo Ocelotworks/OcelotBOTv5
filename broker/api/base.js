@@ -20,6 +20,11 @@ module.exports = {
             process.exit(0);
         });
 
+        router.get('/warnings', function(req, res){
+            res.json(broker.warnings);
+
+        });
+
 
         return router;
     }
