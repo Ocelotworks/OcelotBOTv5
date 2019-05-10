@@ -39,7 +39,11 @@ module.exports = {
                }
            }
         });
+        let loadedSubscriptions = false;
+
         bot.client.on("ready", async function discordReady(){
+            if(loadedSubscriptions) return;
+            loadedSubscriptions = true;
             bot.logger.log("Loading active subscriptions...");
             const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.keyArray());
             console.log(rawSubs);
