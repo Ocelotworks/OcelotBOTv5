@@ -3,19 +3,18 @@ module.exports = {
     usage: "buy",
     commands: ["buy"],
     run: async function(message, args, bot, data){
-        if(!data.plants[message.author.id]){
-            data.plants[message.author.id] = [];
+        if(!data.getPlants()[message.author.id]){
+            data.getPlants()[message.author.id] = [];
         }
 
-        if(data.weedbux[message.author.id] >= 500) {
+        if(message.getSetting("weed.bux") >= 500) {
             let plant = new data.Plant(message.author.id)
-            data.plants[message.author.id].push(plant);
+            data.getPlants()[message.author.id].push(plant);
 
-            data.weedbux[message.author.id] = data.weedbux[message.author.id] - 500;
-
-            plant.id = bot.database.addNewPlant(plant);
+            plant.id = await bot.database.addNewPlant(plant);
 
             message.channel.send("Bought new plant.");
+            data.removeBux(bot, message, 500);
         } else {
             message.channel.send("Insufficient funds.");
         }

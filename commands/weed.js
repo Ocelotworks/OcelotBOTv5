@@ -2,7 +2,6 @@ let plants = {};
 let loadedPlantCount = 0;
 let status = [["Just a seed", "Breaking soil", "A green shoot", "A tall plant", "A budding plant", "Ready to harvest"], ["Getting thirsty...", "Wilting...", "Leaves dropping...", "Buds shrinking...", "Buds shrinking..."]];
 let ageInterval = [1500, 3000, 15000, 75000, 118200];
-let weedbux = {};
 let timeoutInterval = 15; //minutes
 
 function plantify(value) {
@@ -24,6 +23,21 @@ function sortLoadedWeeds(weedPlants, bot) {
     bot.logger.log("Loaded " + loadedPlantCount + " weed plants from DB");
 }
 
+async function addBux(bot, message, value) {
+    await bot.database.setUserSetting(message.author.id, "weed.bux", message.getSetting("weed.bux") + value);
+    bot.client.shard.send({type: "reloadUserConfig"});
+}
+
+async function removeBux(bot, message, value) {
+    await bot.database.setUserSetting(message.author.id, "weed.bux", message.getSetting("weed.bux") - value);
+    bot.client.shard.send({type: "reloadUserConfig"});
+}
+
+async function setBux(bot, id, value) {
+    await bot.database.setUserSetting(id, "weed.bux", value);
+    bot.client.shard.send({type: "reloadUserConfig"});
+}
+
 module.exports = {
     name: "Weedsim",
     usage: "weed <command>",
@@ -40,16 +54,17 @@ module.exports = {
             Object.keys(plants).forEach(async function (key) {
                 plants[key].forEach(function (value) {
                     value.doPlant();
-                    if (value.dead) {
+                    if (value.health <= 0) {
+                        bot.logger.log("Deleting Plant");
+                        value.dead = true;
                         bot.database.deletePlant(value);
-                        value = null;
                     }
                 });
             });
             bot.database.saveAllPlants(plants);
         }, timeoutInterval * 60000) //15 minutes
     },
-    run: function run(message, args, bot) {
+    run: async function run(message, args, bot) {
 
         function waterPlants() {
             console.log("Watering");
@@ -63,43 +78,29 @@ module.exports = {
                 if (value.age === 5) {
                     value.age = 4;
                     value.growTime = ageInterval[3];
-                    weedbux[message.author.id] += 1000;
+                    addBux(bot, message, 1000);
                 }
-            })
-            await bot.database.setUserSetting(message.author.id, "weed.bux", weedbux[message.author.id]);
-            bot.client.shard.send({type: "reloadUserConfig"});
+            });
         }
 
         function getPlants() {
             return plants;
         }
 
-        if (weedbux[message.author.id] === undefined) {
-            if(!message.getSetting("weed.bux")) {
-                weedbux[message.author.id] = 1000;
-            } else {
-                weedbux[message.author.id] = message.getSetting("weed.bux");
-            }
-        }
-
-        if (args[1] === "forceTick") {
-            Object.keys(plants).forEach(function (key) {
-                plants[key].forEach(function (value) {
-                    value.doPlant();
-                })
-            });
-            bot.database.saveAllPlants(plants);
-            return;
+        if (!message.getSetting("weed.bux")) {
+            setBux(bot, message, 1000);
         }
 
         bot.util.standardNestedCommand(message, args, bot, "weed", {
             Plant,
             getPlants,
             status,
-            weedbux,
             ageInterval,
             waterPlants,
-            trimPlants
+            trimPlants,
+            setBux,
+            addBux,
+            removeBux
         });
     }
 };
@@ -126,10 +127,6 @@ function Plant(id) {
                 this.statusIndex = 1;
             } else {
                 this.statusIndex = 0;
-            }
-
-            if (this.health <= 0) {
-                this.dead = true;
             }
 
             if (this.growTime > ageInterval[this.age] && this.age < 5) {
