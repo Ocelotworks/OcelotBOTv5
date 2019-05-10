@@ -16,7 +16,8 @@ module.exports = {
                bot.logger.log("Listening for premium changes on this shard");
                bot.client.on("guildMemberUpdate", async function guildMemberUpdate(oldMember, newMember){
                     if(oldMember.guild.id !== "322032568558026753")return;
-                    if(oldMember.hoistRole.name === newMember.hoistRole.name)return;
+                    if(!newMember.hoistRole)return;
+                    if(oldMember.hoistRole && oldMember.hoistRole.name === newMember.hoistRole.name)return;
                     if(oldMember.hoistRole && oldMember.hoistRole.name === "Premium" && (!newMember.hoistRole || newMember.hoistRole.name !== "Premium")){
                         console.log(`${oldMember} is no longer premium`);
                     }else if(newMember.hoistRole && newMember.hoistRole.name === "Premium"){
