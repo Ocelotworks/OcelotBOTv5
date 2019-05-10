@@ -11,7 +11,7 @@ let channel;
 let printHeader = {};
 let deadGames = {};
 
-const saves = __dirname+"/../z5saves";
+const saves = __dirname+"/../z5saves/";
 
 
 function startGame(id) {
