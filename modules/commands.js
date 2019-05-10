@@ -193,6 +193,7 @@ Have this <:1million:545604236826771467> exclusive badge for your **${message.ge
                                     name: loadedCommand.name,
                                     usage: loadedCommand.usage,
                                     requiredPermissions: loadedCommand.requiredPermissions,
+                                    detailedHelp: loadedCommand.detailedHelp,
                                     hidden: loadedCommand.hidden,
                                     categories: loadedCommand.categories,
                                     rateLimit: loadedCommand.rateLimit,
