@@ -14,6 +14,35 @@ const   caller_id       = require('caller-id'),
         path            = require('path'),
         dateFormat      = require('dateformat');
 
+const header ="\n".white+
+    "                `-+shdmNMMMMNmdhs+-`              \n" +
+    "            :smMMMMmdyssoossydmMMMMms:            \n" +
+    "         :yNMMmy+-              -+ymMMNy:         \n" +
+    "       /mMMMm/                      -omMMm/       \n" +
+    "     -mMMMMMMMNy:                 .odNMMMMMm-     \n" +
+    "    sMMNdMMMMMMMMh``-:/++++/:-` .yMMMMMMMMMMMs    \n" +
+    "  `dMMh`/MMMMMMMMMMMMMMMMMMMMMMNNMMMMMMMMM-hMMh`  \n" +
+    "  dMMs   sMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMo  sMMd  \n" +
+    " sMMy     /NMMMMMMMMMMMMMMMMMMMmmNMMMMMm:    yMMs \n" +
+    "-MMN`     :MMMMd"+"ssss".green+"hNMMMMMMNy"+"ssssy".green+"MMMM/     `NMM-\t© Copyright 2014-2019\n" +
+    "yMMo      NMMMMh"+"sssss".green+"yMMMMMMd"+"sssss".green+"mMMMMN      oMMy\tOcelotworks\n" +
+    "mMM:...--:MMMMMMN"+"dddd".green+"NMMMMMMM"+"mddm".green+"MMMMMMM:----.:MMm\tpetermaguire.xyz\n" +
+    "MMMyysssssmMMMMMMMMMMMMMMMMMMMMMMMMMMMMmosssssyMMM\n" +
+    "NMM.      .mMMMMMMMMMMMMMMMMMMMMMMMMMMm.      .MMN\n" +
+    "hMM/       `sMMMMMMMMMMMMMMMMMMMMMMMMs`       /MMh\n" +
+    "/MMd         `odMMMMMMMMMMMMMMMMMMmo`         dMM/\n" +
+    " mMM/           .sMMMMMMMMMMMMMN+.           /MMm \n" +
+    " -NMN-         /mMMMMMMMMMMMMMMMMy.         -NMN- \n" +
+    "  :NMN:       yMMMMMMMMMMMMMMMMMMMMo       :NMN:  \n" +
+    "   -mMMs`    sMMMMMMMMMMMMMMMMMMMMMMs    `sMMm-   \n" +
+    "    `yMMm/  `MMMMMMMMMMMMMMMMMMMMMMMM-  /mMMy`    \n" +
+    "      -dMMmo-MMMMMMMMMMMMMMMMMMMMMMMMsomMMd-      \n" +
+    "        -yMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMy-        \n" +
+    "          `/hNMMMMMMMMMMMMMMMMMMMMMMNh/`          \n" +
+    "              -+ydNMMMMMMMMMMMMNdy+-              \n" +
+    "                   `-://++//:-`      ";
+
+
 
 let broker = {};
 
@@ -45,6 +74,9 @@ function init(){
     broker.logger.info = function warn(message){
         broker.logger.log(message.grey, caller_id.getData());
     };
+
+    broker.logger.log(header);
+
 
     Raven.config(config.get("Raven.DSN"), {
         environment: os.hostname() === "Jupiter" ? "production" : "development"
