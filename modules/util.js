@@ -672,7 +672,7 @@ module.exports = {
         };
 
         bot.util.standardNestedCommand = function standardNestedCommand(message, args, bot, id, data, invalidUsageFunction, subCommandIndex = 1){
-            const commandName = args[subCommandIndex] && args[subCommandIndex].toLowerCase();
+            const commandName = args[subCommandIndex] ? args[subCommandIndex].toLowerCase() : "help";
             const commandType = bot.util.nestedCommands[id];
             if(!commandType){
                 bot.logger.warn(`No nested command init detected for ${id}!`);
