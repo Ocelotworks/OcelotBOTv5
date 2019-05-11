@@ -42,6 +42,8 @@ module.exports = {
 
             const channelDisable = message.getSetting(`${command}.channelDisable`);
             if(channelDisable && channelDisable.indexOf(message.channel.id) > -1){
+                if(message.guild && message.guild.id === "318432654880014347")
+                    message.channel.send(`${command} is disabled in this channel.\nhttps://media.discordapp.net/attachments/318432654880014347/575690927495053347/unknown.png`);
                 if(message.getBool("sendDisabledMessage")) {
                     const dm = await message.author.createDM();
                     dm.send(`${command} is disabled in that channel`);
@@ -52,6 +54,8 @@ module.exports = {
             }
             const channelRestriction = message.getSetting(`${command}.channelRestriction`);
             if(channelRestriction && channelRestriction.indexOf(message.channel.id) === -1){
+                if(message.guild && message.guild.id === "318432654880014347")
+                    message.channel.send(`${command} is disabled in this channel.\nhttps://media.discordapp.net/attachments/318432654880014347/575690927495053347/unknown.png`);
                 if(message.getBool("sendDisabledMessage")) {
                     const dm = await message.author.createDM();
                     dm.send(`${command} is disabled in that channel`);

@@ -103,19 +103,14 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
             message.channel.send("Congratulations! Your Ocelot Server Premium key has been redeemed for this server. All the users of this server can now enjoy the benefits!");
             return;
         }
-        message.channel.send(`**Support OcelotBOT on Patreon and get Premium features:**
-Joining Premium gets you:
-- A chance to have your own bot ideas implemented
-- New profile badge
-- Custom profile background
-- Custom profile font
-- Premium profile border
-- Fast track support 
-- Reliable uptime
-- Higher ratelimit
-- !usersettings and !removebg premium commands
-- Have a shard named after you
-**Join here:** https://www.patreon.com/join/2412814
-_If you have a Server Premium key, type ${args[0]} \`key\` to redeem it in this server._`);
+
+        let output = "**Support OcelotBOT on Patreon and get Premium Features**\nhttps://ocelot.xyz/premium";
+
+        if(message.getBool("serverPremium"))
+            output += "\n_This server already has Premium, so you can enjoy the features here!_ <3";
+        else
+            output += `\n_If you have a Premium SERVER key, redeem it with ${args[0]} \`key\``;
+
+        message.channel.send(output);
     }
 };
