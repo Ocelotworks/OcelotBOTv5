@@ -52,6 +52,9 @@ module.exports = {
 
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = async function send(content, options){
+            if(bot.stats){
+                bot.stats.messagesSentPerMinute++;
+            }
             let output = "";
             if(this.guild)
                 output += `${this.guild.name} (${this.guild.id})`;
@@ -246,6 +249,10 @@ module.exports = {
             }else{
                 bot.logger.log("Not sending webhook");
             }
+        });
+
+        bot.client.on("webhookUpdate", function webhookUpdate(channel){
+
         });
 
         bot.client.on("error", function websocketError(evt){
