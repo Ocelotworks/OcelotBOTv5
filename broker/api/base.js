@@ -22,6 +22,10 @@ module.exports = {
 
         router.get('/warnings', function(req, res){
             res.json(broker.warnings);
+        });
+
+        router.get('/lastcrash', function(req, res){
+            res.send(broker.lastCrash.getTime().toString());
 
         });
 
