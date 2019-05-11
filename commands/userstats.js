@@ -18,25 +18,25 @@ module.exports = {
         bot.logger.log("Init milestones");
 
         const milestones = [69, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10];
-        let commandCache = {};
+        bot.commandCache = {};
 
         bot.bus.on("commandPerformed", async function commandPerformed(command, message){
             const user = message.author.id;
-            if(commandCache[user]){
-                commandCache[user]++;
+            if(bot.commandCache[user]){
+                bot.commandCache[user]++;
             }else{
                 const result = await bot.database.getUserStats(user);
                 if(result[0])
-                    commandCache[user] = result[0].commandCount;
+                    bot.commandCache[user] = result[0].commandCount;
                 else
-                    commandCache[user] = 1;
+                    bot.commandCache[user] = 1;
 
-                bot.logger.warn(`Populated command cache for ${user} at ${commandCache[user]}`);
+                bot.logger.warn(`Populated command cache for ${user} at ${bot.commandCache[user]}`);
             }
-            const eligbleBadge = await bot.badges.updateBadge(message.author, 'commands', commandCache[user], message.channel);
-            if(milestones.indexOf(commandCache[user]) > -1){
-                bot.logger.log(`Sending congrats to ${user} for ${commandCache[user]} commands`);
-                message.channel.send(`:tada: **Congratulations! You just performed your __${commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting. **Type: ${message.getSetting("prefix")}vote**\n**Voting also gets you a special <:supporter_1:529308223954616322> supporter badge on your ${message.getSetting("prefix")}profile**`);
+            const eligbleBadge = await bot.badges.updateBadge(message.author, 'commands', bot.commandCache[user], message.channel);
+            if(milestones.indexOf(bot.commandCache[user]) > -1){
+                bot.logger.log(`Sending congrats to ${user} for ${bot.commandCache[user]} commands`);
+                message.channel.send(`:tada: **Congratulations! You just performed your __${bot.commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting. **Type: ${message.getSetting("prefix")}vote**\n**Voting also gets you a special <:supporter_1:529308223954616322> supporter badge on your ${message.getSetting("prefix")}profile**`);
                 bot.client.shard.send({type: "clearCommandCache"});
             }else if(eligbleBadge && bot.client.shard) {
                 bot.client.shard.send({type: "clearCommandCache"});
@@ -47,7 +47,7 @@ module.exports = {
         process.on("message", function clearCommandCache(message){
             if(message.type === "clearCommandCache"){
                 bot.logger.log("Clearing Command Cache");
-                commandCache = {};
+                bot.commandCache = {};
             }
         });
 
