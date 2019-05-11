@@ -7,6 +7,7 @@ module.exports = {
         bot.stats = {
             messagesPerMinute: 0,
             messagesTotal: 0,
+            messagesSentPerMinute: 0,
             commandsPerMinute: 0,
             commandsTotal: 0,
             warnings: 0,
@@ -38,6 +39,7 @@ module.exports = {
         function buildSchema(){
             const fields = [
                 'messagesPerMinute',
+                'messagesSentPerMinute',
                 'commandsPerMinute',
                 'messagesTotal',
                 'commandsTotal',
@@ -142,6 +144,31 @@ module.exports = {
                             measurement: "serversTotal",
                             tags: {"shard": bot.client.shard.id},
                             fields: {servers: bot.client.guilds.size}
+                        },
+                        {
+                            measurement: "websocketPing",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {websocketPing: bot.client.ping}
+                        },
+                        {
+                            measurement: "messagesSentPerMinute",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {messages: bot.stats.messagesSentPerMinute}
+                        },
+                        {
+                            measurement: "botRateLimits",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {botRateLimits: bot.stats.botRateLimits}
+                        },
+                        {
+                            measurement: "errors",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {errors: bot.stats.errors}
+                        },
+                        {
+                            measurement: "warnings",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {warnings: bot.stats.warnings}
                         }
                     ]);
                 }catch(e){
@@ -161,9 +188,10 @@ module.exports = {
 
             bot.stats.messagesPerMinute = 0;
             bot.stats.commandsPerMinute = 0;
-
-
-
+            bot.stats.messagesSentPerMinute = 0;
+            bot.stats.botRateLimits = 0;
+            bot.stats.warnings = 0;
+            bot.stats.errors = 0;
 
         }, 60000); //1 minute
     }
