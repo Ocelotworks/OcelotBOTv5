@@ -1,4 +1,10 @@
 const Discord = require('discord.js');
+const shardNames = [
+    "King Viking",
+    "Deezy",
+    "Sexy Trap Wife",
+    "Wasteland Doctrine"
+];
 module.exports = {
     name: "Stats",
     usage: "stats",
@@ -11,7 +17,7 @@ module.exports = {
     run: async function run(message, args, bot){
         const server        = message.guild ? message.guild.id : "322032568558026753";
         const title         = await bot.lang.getTranslation(server, "STATS_VERSION", {version: bot.version});
-        const tagline       = await bot.lang.getTranslation(server, "STATS_MESSAGE", {instance: `Shard ${bot.client.shard.id+1}/${bot.client.shard.count}`});
+        const tagline       = await bot.lang.getTranslation(server, "STATS_MESSAGE", {instance: `Shard ${bot.client.shard.id+1}/${bot.client.shard.count} ${shardNames[bot.client.shard.id] ? "'"+shardNames[bot.client.shard.id]+"'" : ""}`});
         const totalUsers    = await bot.lang.getTranslation(server, "STATS_TOTAL_USERS");
         const totalServers  = await bot.lang.getTranslation(server, "STATS_TOTAL_SERVERS");
         const totalChannels = await bot.lang.getTranslation(server, "STATS_TOTAL_CHANNELS");

@@ -7,7 +7,7 @@
 module.exports = {
     name: "Ocelot Premium",
     usage: "premium",
-    commands: ["premium", "support", "donate"],
+    commands: ["premium", "support", "donate", "patreon"],
     rateLimit: 1,
     categories: ["meta"],
     init: function(bot){
@@ -34,6 +34,7 @@ You now have access to the following features:
 - Reliable uptime
 - Higher ratelimit
 - Access to the !usersettings command
+- Have a shard named after you
 **More perks being added all the time for no additional charge!**`);
 
                         await bot.database.setUserSetting(user.id, "premium", 1);
@@ -56,6 +57,7 @@ You now have access to the following features:
 - Reliable uptime
 - Higher ratelimit
 - Access to the !usersettings command
+- Have a shard named after you
 **Also, as you have purchased Server Premium you can share some of these benefits with a server of your choosing**
 To Redeem Server Premium, run the following command in the server you choose: **!premium ${key}**
 The key is unique to you and can only be used in one server, so choose wisely!`);
@@ -112,6 +114,7 @@ Joining Premium gets you:
 - Reliable uptime
 - Higher ratelimit
 - !usersettings and !removebg premium commands
+- Have a shard named after you
 **Join here:** https://www.patreon.com/join/2412814
 _If you have a Server Premium key, type ${args[0]} \`key\` to redeem it in this server._`);
     }
