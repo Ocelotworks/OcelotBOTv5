@@ -13,12 +13,14 @@ module.exports = {
             bot.logger.log("Loading shard receiver for !admin loadCommand");
             process.on("message", function(msg){
                 if(msg.type === "loadCommand"){
-                    bot.loadCommand(msg.payload);
+                    bot.loadCommand(msg.message);
                 }
             });
         }
     },
     run: async function(message, args, bot){
+        if(!args[2])
+            return message.channel.send("You must enter a command file to load.");
         bot.client.shard.send({type: "loadCommand", message: args[2]});
         bot.logger.log("Loading Command");
     }
