@@ -133,10 +133,9 @@ module.exports = {
 
         if(!players[id]){
             players[id] = [];
-
+            if(players[id].indexOf(message.author.id) === -1)
+                players[id].push(message.author.id);
         }
-
-        players[id].push(message.author.id);
 
         if (args.length > 1 && args[1].toLowerCase() === "admin") {
             if (bot.admins.indexOf(message.author.id) === -1) return;
