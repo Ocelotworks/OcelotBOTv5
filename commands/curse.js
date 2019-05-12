@@ -24,7 +24,7 @@ module.exports = {
 
         console.log(url);
 
-        const fileName = `temp/${Math.random()}.png`;
+        const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
         request(url).on("end", ()=>{
             gm(fileName)

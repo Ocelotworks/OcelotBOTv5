@@ -17,7 +17,7 @@ module.exports = {
     categories: ["image"],
     commands: ["eyes", "eye"],
     init: async function(){
-        red = await canvas.loadImage("static/eyes/red.png");
+        red = await canvas.loadImage(__dirname+"/../static/eyes/red.png");
     },
     run: async function run(message, args, bot) {
         const url = await bot.util.getImage(message, args);

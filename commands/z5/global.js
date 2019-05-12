@@ -14,7 +14,7 @@ module.exports = {
             let buffer = "```State:\n";
             Object.keys(data.games).forEach(function (key) {
                 try {
-                    fs.writeFileSync("./z5saves/" + key, new Buffer(data.games[key].getSerialData().buffer), {});
+                    fs.writeFileSync(__dirname+"/../z5saves/" + key, new Buffer(data.games[key].getSerialData().buffer), {});
                 } catch (e) {
                     console.log(e);
                     buffer += "Save failed.";

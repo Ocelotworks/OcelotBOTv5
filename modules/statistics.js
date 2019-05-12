@@ -7,6 +7,7 @@ module.exports = {
         bot.stats = {
             messagesPerMinute: 0,
             messagesTotal: 0,
+            messagesSentPerMinute: 0,
             commandsPerMinute: 0,
             commandsTotal: 0,
             warnings: 0,
@@ -38,16 +39,21 @@ module.exports = {
         function buildSchema(){
             const fields = [
                 'messagesPerMinute',
+                'messagesSentPerMinute',
                 'commandsPerMinute',
                 'messagesTotal',
                 'commandsTotal',
                 'servers',
+                'usersTotal',
+                'channelsTotal',
                 'voiceConnections',
                 'websocketPing',
                 'warnings',
                 'errors',
                 'botRateLimits',
-                'userRateLimits'
+                'userRateLimits',
+                'commandCacheSize',
+                'connectionStatus'
             ];
 
             let output = [];
@@ -104,16 +110,16 @@ module.exports = {
         });
 
         setInterval(async function(){
-            let points = [];
-            const keys = Object.keys(bot.stats);
-            for(let i = 0; i < keys.length; i++){
-                points.push(
-                    {
-                        measurement: keys[i],
-                        tags: {"shard": bot.client.shard.id},
-                        fields: {[keys[i].startsWith("commands") ? "commands" : keys[i].startsWith("messages") ? "messages" : "value"]: bot.stats[keys[i]]}
-                    });
-            }
+            // let points = [];
+            // const keys = Object.keys(bot.stats);
+            // for(let i = 0; i < keys.length; i++){
+            //     points.push(
+            //         {
+            //             measurement: keys[i],
+            //             tags: {"shard": bot.client.shard.id},
+            //             fields: {[keys[i].startsWith("commands") ? "commands" : keys[i].startsWith("messages") ? "messages" : "value"]: bot.stats[keys[i]]}
+            //         });
+            // }
             if(os.hostname() === "Jupiter") {
 
                 try {
@@ -142,6 +148,56 @@ module.exports = {
                             measurement: "serversTotal",
                             tags: {"shard": bot.client.shard.id},
                             fields: {servers: bot.client.guilds.size}
+                        },
+                        {
+                            measurement: "usersTotal",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {usersTotal: bot.client.users.size}
+                        },
+                        {
+                            measurement: "channelsTotal",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {channelsTotal: bot.client.channels.size}
+                        },
+                        {
+                            measurement: "websocketPing",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {websocketPing: bot.client.ping}
+                        },
+                        {
+                            measurement: "messagesSentPerMinute",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {messages: bot.stats.messagesSentPerMinute}
+                        },
+                        {
+                            measurement: "botRateLimits",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {botRateLimits: bot.stats.botRateLimits}
+                        },
+                        {
+                            measurement: "errors",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {errors: bot.stats.errors}
+                        },
+                        {
+                            measurement: "warnings",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {warnings: bot.stats.warnings}
+                        },
+                        {
+                            measurement: "commandCacheSize",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {commandCacheSize: Object.keys(bot.commandCache).length}
+                        },
+                        {
+                            measurement: "voiceConnections",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {voiceConnections: bot.client.voiceConnections.size}
+                        },
+                        {
+                            measurement: "connectionStatus",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {connectionStatus: bot.client.status}
                         }
                     ]);
                 }catch(e){
@@ -161,9 +217,10 @@ module.exports = {
 
             bot.stats.messagesPerMinute = 0;
             bot.stats.commandsPerMinute = 0;
-
-
-
+            bot.stats.messagesSentPerMinute = 0;
+            bot.stats.botRateLimits = 0;
+            bot.stats.warnings = 0;
+            bot.stats.errors = 0;
 
         }, 60000); //1 minute
     }

@@ -278,9 +278,11 @@ module.exports = {
                 return;
             }
 
+            filePath = __dirname+"/../"+filePath;
+
             message.channel.startTyping();
             gm(filePath)
-                .font("static/arial.ttf", textSize)
+                .font(__dirname+"/../static/arial.ttf", textSize)
                 .drawText(x, y, wrap(message.cleanContent.substring(args[0].length).substring(0,1010), {width: textWidth, indent: ''}))
                 .toBuffer('PNG', function convertToPNG(err, buffer){
                     if(err){
@@ -312,7 +314,7 @@ module.exports = {
 
             bot.logger.log(url);
 
-            const fileName = `temp/${Math.random()}.png`;
+            const fileName = `${__dirname}/../temp/${Math.random()}.png`;
             let shouldProcess = true;
 
             request(url)
@@ -327,7 +329,10 @@ module.exports = {
             .on("end", function requestEnd(){
                 if(!shouldProcess){
                     message.replyLang("GENERIC_NO_IMAGE_URL");
-                    fs.unlink(fileName, function(){});
+                    fs.unlink(fileName, function unlinkInvalidFile(err){
+                        if(err)
+                            bot.logger.error(err);
+                    });
                     return;
                 }
                 const initialProcess = gm(fileName).autoOrient();
@@ -343,7 +348,10 @@ module.exports = {
                             console.log(e);
                             message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                         });
-                        fs.unlink(fileName, function(){});
+                        fs.unlink(fileName, function unlinkCompletedFile(err){
+                            if(err)
+                                bot.logger.error(err);
+                        });
                     });
             }).pipe(fs.createWriteStream(fileName));
         };
@@ -547,7 +555,7 @@ module.exports = {
          * @param {Number} reactionTime
          * @returns {Promise<void>}
          */
-        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000){
+        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000, reactDict){
             let index = 0;
             let sentMessage;
 
@@ -561,20 +569,40 @@ module.exports = {
 
             await buildPage();
 
-            if(pages.length === 1)
+            if(pages.length === 1 && !reactDict)
                 return;
 
             (async function () {
-                if(fullReactions)
-                    await sentMessage.react("⏮");
-                await sentMessage.react("◀");
-                await sentMessage.react("▶");
-                if(fullReactions)
-                    await sentMessage.react("⏭");
+                if(pages.length > 1) {
+                    if (fullReactions)
+                        await sentMessage.react("⏮");
+                    await sentMessage.react("◀");
+                    await sentMessage.react("▶");
+                    if (fullReactions)
+                        await sentMessage.react("⏭");
+                }
+                if(reactDict) {
+                    Object.keys(reactDict).forEach(async function (react) {
+                        await sentMessage.react(react);
+                    });
+                }
             })();
 
             await sentMessage.awaitReactions(async function (reaction, user) {
                 if (user.id === bot.client.user.id) return false;
+                if(reactDict) {
+                    if (reactDict[reaction.emoji.name] !== undefined) {
+                        await reactDict[reaction.emoji.name]();
+                        await buildPage();
+
+                    }
+                    if(pages.length === 1) {
+                        if(channel.guild)
+                            reaction.remove(user);
+                        return;
+                    }
+                }
+
                 switch (reaction.emoji.name) {
                     case "⏮":
                         index = 0;
@@ -616,7 +644,7 @@ module.exports = {
 
         bot.util.standardNestedCommandInit = function standardNestedCommandInit(id, directory = id){
             bot.logger.log(`Initialising nested commands for ${id}`);
-            fs.readdir(`commands/${directory}`, function loadNestedCommands(err, files){
+            fs.readdir(`${__dirname}/../commands/${directory}`, function loadNestedCommands(err, files){
                 if(err){
                     bot.raven.captureException(err);
                     bot.logger.warn(`Unable to read ${id} command dir (${directory})`);
@@ -644,7 +672,7 @@ module.exports = {
         };
 
         bot.util.standardNestedCommand = function standardNestedCommand(message, args, bot, id, data, invalidUsageFunction, subCommandIndex = 1){
-            const commandName = args[subCommandIndex] && args[subCommandIndex].toLowerCase();
+            const commandName = args[subCommandIndex] ? args[subCommandIndex].toLowerCase() : "help";
             const commandType = bot.util.nestedCommands[id];
             if(!commandType){
                 bot.logger.warn(`No nested command init detected for ${id}!`);

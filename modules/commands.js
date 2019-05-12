@@ -42,6 +42,8 @@ module.exports = {
 
             const channelDisable = message.getSetting(`${command}.channelDisable`);
             if(channelDisable && channelDisable.indexOf(message.channel.id) > -1){
+                if(message.guild && message.guild.id === "318432654880014347")
+                    message.channel.send(`${command} is disabled in this channel.\nhttps://media.discordapp.net/attachments/318432654880014347/575690927495053347/unknown.png`);
                 if(message.getBool("sendDisabledMessage")) {
                     const dm = await message.author.createDM();
                     dm.send(`${command} is disabled in that channel`);
@@ -52,6 +54,8 @@ module.exports = {
             }
             const channelRestriction = message.getSetting(`${command}.channelRestriction`);
             if(channelRestriction && channelRestriction.indexOf(message.channel.id) === -1){
+                if(message.guild && message.guild.id === "318432654880014347")
+                    message.channel.send(`${command} is disabled in this channel.\nhttps://media.discordapp.net/attachments/318432654880014347/575690927495053347/unknown.png`);
                 if(message.getBool("sendDisabledMessage")) {
                     const dm = await message.author.createDM();
                     dm.send(`${command} is disabled in that channel`);
@@ -155,14 +159,14 @@ Have this <:1million:545604236826771467> exclusive badge for your **${message.ge
         bot.logger.log("Populated prefix cache with "+Object.keys(bot.prefixCache).length+" servers");
     },
     loadCommands: function (bot) {
-        fs.readdir("commands", function readCommands(err, files) {
+        fs.readdir(`${__dirname}/../commands`, function readCommands(err, files) {
             if (err) {
                 bot.logger.error("Error reading from commands directory");
-                bot.logger.error(err);
+                console.error(err);
                 bot.raven.captureException(err);
             } else {
                 async.eachSeries(files, function loadCommands(command, callback) {
-                    if (!fs.lstatSync("commands/" + command).isDirectory()) {
+                    if (!fs.lstatSync(`${__dirname}/../commands/${command}`).isDirectory()) {
                         let loadedCommand = require("../commands/" + command);
                         if (loadedCommand.init) {
                             try {
@@ -183,12 +187,17 @@ Have this <:1million:545604236826771467> exclusive badge for your **${message.ge
                         for (let i in loadedCommand.commands) {
                             if (loadedCommand.commands.hasOwnProperty(i)) {
                                 const commandName = loadedCommand.commands[i];
+                                if(bot.commands[commandName]){
+                                    if(bot.client.shard)
+                                        bot.client.shard.send({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists and is being overwritten!`}})
+                                }
                                 bot.commands[commandName] = loadedCommand.run;
                                 bot.commandUsages[commandName] = {
                                     id: command,
                                     name: loadedCommand.name,
                                     usage: loadedCommand.usage,
                                     requiredPermissions: loadedCommand.requiredPermissions,
+                                    detailedHelp: loadedCommand.detailedHelp,
                                     hidden: loadedCommand.hidden,
                                     categories: loadedCommand.categories,
                                     rateLimit: loadedCommand.rateLimit,

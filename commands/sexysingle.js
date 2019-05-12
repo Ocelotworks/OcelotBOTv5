@@ -76,7 +76,7 @@ module.exports = {
                 });
                 gm(fileName)
                     .resize(500, 500)
-                    .append(message.getSetting("sexysingle.template"), true)
+                    .append(__dirname+"/../"+message.getSetting("sexysingle.template"), true)
                     .toBuffer('PNG', async function crushToBuffer(err, buffer){
                         if(err){
                             bot.raven.captureException(err);
@@ -120,7 +120,7 @@ module.exports = {
             message.channel.stopTyping();
             return;
         }
-        downloadOrGet(url, `${config.get("dir")}icon-${encodeURIComponent(url)}.png`, `${config.get("dir")}sexysingle-${encodeURIComponent(url)}.png`)
+        downloadOrGet(url, `${__dirname}/../${config.get("dir")}icon-${encodeURIComponent(url)}.png`, `${__dirname}/../${config.get("dir")}sexysingle-${encodeURIComponent(url)}.png`)
 
     }
 };

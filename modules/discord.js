@@ -52,6 +52,9 @@ module.exports = {
 
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = async function send(content, options){
+            if(bot.stats){
+                bot.stats.messagesSentPerMinute++;
+            }
             let output = "";
             if(this.guild)
                 output += `${this.guild.name} (${this.guild.id})`;
@@ -65,11 +68,11 @@ module.exports = {
 
             bot.logger.log(output);
 
-            return await Reattempt.run({times: 3, onError: function(error, done, abort){
+            return Reattempt.run({times: 3, onError: function(error, done, abort){
                 if(error.code !== "ECONNRESET"){
                     bot.raven.captureException(error);
-                    abort();
                     bot.logger.warn("Send Error: "+error);
+                    abort();
                     throw error;
                 }else{
                     bot.logger.warn("Connection reset, retrying send...");
@@ -231,7 +234,7 @@ module.exports = {
                 if (webhookData && webhookData.webhookID && webhookData.webhookToken) {
                     try {
                         let webhook = new Discord.WebhookClient(webhookData.webhookID, webhookData.webhookToken);
-                        await webhook.send("Thanks for trying OcelotBOT! If you have a minute, please fill in the feedback form to help us improve: https://forms.gle/KMwXQiAAQPKzmuAp7")
+                        await webhook.send("Thanks for trying OcelotBOT! If you have a minute, please fill in the feedback form to help us improve: https://forms.gle/KMwXQiAAQPKzmuAp7");
                         bot.logger.log("Successfully sent webhook");
                         await webhook.delete("OcelotBOT was kicked");
                         webhook.destroy();
@@ -246,6 +249,10 @@ module.exports = {
             }else{
                 bot.logger.log("Not sending webhook");
             }
+        });
+
+        bot.client.on("webhookUpdate", function webhookUpdate(channel){
+
         });
 
         bot.client.on("error", function websocketError(evt){

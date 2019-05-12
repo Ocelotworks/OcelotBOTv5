@@ -20,7 +20,7 @@ module.exports = {
         console.log(url);
 
 
-        const fileName = `temp/${Math.random()}.png`;
+        const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
         var req = request(url);
 

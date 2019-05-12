@@ -6,7 +6,7 @@ module.exports = {
     commands: ["save"],
     run: async function(message, args, bot, data){
         try {
-            fs.writeFileSync("./z5saves/" + args[3], new Buffer(data.games[data.id].getSerialData().buffer), {});
+            fs.writeFileSync(__dirname+"/../z5saves/" + args[3], new Buffer(data.games[data.id].getSerialData().buffer), {});
         } catch (e) {
             console.log(e);
             message.channel.send("Save failed.");

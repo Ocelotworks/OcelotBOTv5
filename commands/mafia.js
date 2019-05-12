@@ -15,7 +15,7 @@ module.exports = {
     commands: ["mafia", "mafiaboss"],
     categories: ["image", "memes"],
     init: async function(){
-        mafiaLogo = await canvas.loadImage("static/mafia.png");
+        mafiaLogo = await canvas.loadImage(__dirname+"/../static/mafia.png");
     },
     run: async function run(message, args, bot) {
 

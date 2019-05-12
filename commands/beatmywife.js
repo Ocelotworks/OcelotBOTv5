@@ -20,12 +20,12 @@ module.exports = {
         console.log(url);
 
 
-        const fileName = `temp/${Math.random()}.png`;
+        const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
         request(url).on("end", ()=>{
             gm(fileName)
                 .resize(1070)
-                .append("static/beatmywife.png")
+                .append(__dirname+"/../static/beatmywife.png")
                 .toBuffer("PNG", function(err, buffer){
                     if(err){
                         message.replyLang("GENERIC_ERROR");
@@ -33,7 +33,9 @@ module.exports = {
                     }
                     let attachment = new Discord.Attachment(buffer, "beatmywife.png");
                     message.channel.send("", attachment);
-                    fs.unlinkSync(fileName);
+                    fs.unlink(fileName, function unlink(err){
+                        console.log(err);
+                    });
                 });
         }).pipe(fs.createWriteStream(fileName));
 
