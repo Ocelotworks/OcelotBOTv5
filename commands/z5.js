@@ -8,15 +8,24 @@ let games = {};
 let gameIterator = {};
 let deadCount = {};
 let channel;
+let gBot;
 let printHeader = {};
 let deadGames = {};
+let players = {};
 
 const saves = __dirname+"/../z5saves/";
 
 
-function startGame(id) {
+function onWon(id, bot) {
+    players[id].forEach(function(value){
+        gBot.database.giveBadge(value, 62);
+    });
+    channel.send("You won! Everyone involved in the game has recieved the :zork: Zork Badge on their !profile");
+    deadGames[id] = true;
+}
 
-    let file = fs.readFileSync(`${__dirname}/../MINIZORK.Z3`, {});
+function startGame(id) {
+    let file = fs.readFileSync(`${__dirname}/../z5games/MINIZORK.Z3`, {});
 
 
     let game = new JSZM(file);
@@ -46,6 +55,9 @@ function startGame(id) {
                 printHeader[id] = "";
             }
             channelMessage += "```fix\n" + location + "\n```";
+            if(location.contains("Barrow")){
+                onWon(id);
+            }
             if (description.replace('\n', '').length > 0) {
                 channelMessage += "```yaml\n" + description + "\n```";
                 if (channelMessage.includes("You have died")) {
@@ -115,8 +127,16 @@ module.exports = {
     run: async function (message, args, bot) {
 
         channel = message.channel;
+        gBot = bot;
 
         let id = (message.guild ? message.guild.id : message.author.id);
+
+        if(!players[id]){
+            players[id] = [];
+
+        }
+
+        players[id].push(message.author.id);
 
         if (args.length > 1 && args[1].toLowerCase() === "admin") {
             if (bot.admins.indexOf(message.author.id) === -1) return;
@@ -142,19 +162,23 @@ module.exports = {
 
         let input = Discord.escapeMarkdown(args.slice(1).join(" "));
 
+        games[id].commands++;
+        if(games[id].commands % 10 === 0){
+            fs.writeFileSync(__dirname+"/../z5saves/" + args[3], new Buffer(games[id].getSerialData().buffer), {});
+            bot.logger.log("Saving game " + id);
+        }
         gameIterator[id].next(input);
+
+        if (deadCount[id] === 2) {
+            channel.send(await bot.lang.getTranslation(id, "Z5_DEAD"));
+            deadGames[id] = true;
+        }
 
         if (deadGames[id]) {
             games[id] = undefined;
             gameInProgress[id] = false;
             gameIterator[id] = undefined;
             deadGames[id] = false;
-        }
-        if (deadCount[id] === 2) {
-            channel.send(await bot.lang.getTranslation(id, "Z5_DEAD"));
-            gameIterator[id] = null;
-            gameInProgress[id] = false;
-            games[id] = null;
         }
     }
 };
