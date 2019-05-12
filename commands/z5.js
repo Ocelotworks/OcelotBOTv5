@@ -20,7 +20,7 @@ function onWon(id, bot) {
     players[id].forEach(function(value){
         gBot.database.giveBadge(value, 62);
     });
-    channel.send("You won! Everyone involved in the game has recieved the :zork: Zork Badge on their !profile");
+    channel.send("You won! Everyone involved in the game has received the <:zork:576842329789562930> Zork Badge on their !profile");
     deadGames[id] = true;
 }
 
