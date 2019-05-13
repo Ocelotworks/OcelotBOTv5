@@ -11,8 +11,8 @@ module.exports = {
     usage: "print <text>",
     commands: ["print"],
     run: async function(message, args, bot, data){
-        Object.keys(data.games).forEach(function (key) {
-            data.printHeader[key] = Discord.escapeMarkdown(args.slice(3).join(" "));
+        Object.keys(data.gameContainers).forEach(function (key) {
+            data.gameContainers[key].printHeader = Discord.escapeMarkdown(args.slice(3).join(" "));
         });
         message.channel.send("Printing " + args.slice(3).join(" "));
     }

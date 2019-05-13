@@ -20,7 +20,7 @@ module.exports = {
             let buffer = "```State:\n";
             Object.keys(data.games).forEach(function (key) {
                 try {
-                    fs.writeFileSync(__dirname+"/../z5saves/" + key, new Buffer(data.games[key].getSerialData().buffer), {});
+                    fs.writeFileSync(__dirname+"/../z5saves/" + key, new Buffer(data.gameContainers[key].game.getSerialData().buffer), {});
                 } catch (e) {
                     console.log(e);
                     buffer += "Save failed.";
@@ -34,7 +34,7 @@ module.exports = {
             Object.keys(data.games).forEach(function (key) {
                 try {
                     buffer += ("Attempting restore...");
-                    data.games[data.id].setSerialData(new Uint8Array(fs.readFileSync("./z5saves/" + key, {})));
+                    data.gameContainers[data.id].game.setSerialData(new Uint8Array(fs.readFileSync("./z5saves/" + key, {})));
                     buffer += ("Load done. \n");
                 } catch (e) {
                     console.log(e);
