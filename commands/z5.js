@@ -1,3 +1,10 @@
+/**
+ * Copyright 2019 Neil Trotter
+ * Created 01/05/2019
+ * (ocelotbotv5) z5
+ */
+
+
 let JSZM = require('../lib/jszm.js');
 let fs = require("fs");
 const Discord = require('discord.js');
@@ -16,7 +23,7 @@ let players = {};
 const saves = __dirname+"/../z5saves/";
 
 
-function onWon(id, bot) {
+function onWon(id) {
     players[id].forEach(function(value){
         gBot.database.giveBadge(value, 62);
     });

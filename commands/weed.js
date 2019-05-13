@@ -1,3 +1,9 @@
+/**
+ * Copyright 2019 Neil Trotter
+ * Created 01/05/2019
+ * (ocelotbotv5) weed
+ */
+
 let plants = {};
 let loadedPlantCount = 0;
 let status = [["Just a seed", "Breaking soil", "A green shoot", "A tall plant", "A budding plant", "Ready to harvest"], ["Getting thirsty...", "Wilting...", "Leaves dropping...", "Buds shrinking...", "Buds shrinking..."]];

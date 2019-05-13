@@ -1,3 +1,9 @@
+/**
+ * Copyright 2019 Neil Trotter
+ * Created 01/05/2019
+ * (OcelotBOTv5) test
+ */
+
 const Discord = require('discord.js');
 
 module.exports = {
