@@ -555,7 +555,7 @@ module.exports = {
          * @param {Number} reactionTime
          * @returns {Promise<void>}
          */
-        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000, reactDict){
+        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 120000, reactDict){
             let index = 0;
             let sentMessage;
 
