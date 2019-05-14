@@ -25,7 +25,7 @@ module.exports = {
         request(url).on("end", ()=>{
             gm(fileName)
                 .resize(429)
-                .append("static/epic.png")
+                .append(__dirname+"/../static/epic.png")
                 .toBuffer("PNG", function(err, buffer){
                     if(err){
                         message.replyLang("GENERIC_ERROR");
