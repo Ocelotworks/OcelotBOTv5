@@ -41,7 +41,7 @@ module.exports = {
                     return fulfill(`${key}: \`${JSON.stringify(format)}\` ${langOverride ? "OVERRIDDEN '"+langOverride+"'":""}`);
 
                 if(langOverride){
-                    fulfill(langOverride.formatUnicorn());
+                    fulfill(langOverride.formatUnicorn(format));
                 }else{
                     let output = bot.lang.getTranslationFor(bot.lang.getLocale(server, author), key);
                     fulfill(output.formatUnicorn(format));
@@ -72,6 +72,10 @@ module.exports = {
                 return bot.lang.strings.default[key];
             }else{
                 bot.logger.warn("Tried to translate unknown key: "+key);
+                bot.client.shard.send({type: "warning", payload: {
+                        id: "langKey-"+key,
+                        message: `Tried to translate unknown lang key ${key}`
+                }});
                 return key;
             }
         };
