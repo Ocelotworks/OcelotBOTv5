@@ -46,7 +46,6 @@ module.exports = {
             loadedSubscriptions = true;
             bot.logger.log("Loading active subscriptions...");
             const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.keyArray());
-            console.log(rawSubs);
             bot.logger.log(`Loaded ${rawSubs.length} subs`);
             for(let i = 0; i < rawSubs.length; i++){
                 const sub = rawSubs[i];
@@ -63,6 +62,8 @@ module.exports = {
                 clearInterval(checkTimer);
             checkTimer = setInterval(module.exports.check, 60000, bot);
         });
+
+        bot.util.standardNestedCommandInit("subscriptions");
     },
     check: async function check(bot){
        for(let data in subs)
@@ -98,14 +99,11 @@ module.exports = {
            }
     },
     run: async function(message, args, bot){
-        if(!message.guild){
-            message.channel.send(":bangbang: This can't be used in a DM channel.");
-            return;
-        }
-        if(!args[1]){
-            message.channel.send(`:bangbang: Usage: ${args[0]} add/list/remove`);
-            return;
-        }
+        if(!message.guild)
+            return message.channel.send(":bangbang: This can't be used in a DM channel.");
+
+        bot.util.standardNestedCommand(message, args, bot, "subscriptions", {subs});
+        return;
 
         const action = args[1].toLowerCase();
 
