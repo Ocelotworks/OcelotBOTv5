@@ -80,13 +80,17 @@ module.exports = {
         }
 
         async function trimPlants() {
+            let i = 0;
             plants[message.author.id].forEach(function (value) {
                 if (value.age === 5) {
+                    i = i + 1000;
                     value.age = 4;
                     value.growTime = ageInterval[3];
                     addBux(bot, message, 1000);
                 }
             });
+            let weedbuxString = await bot.lang.getTranslation(message.author.id, "WEED_WEEDBUX", {"weedbux" : i}, message.author.id);
+            message.channel.send("You just got " + weedbuxString);
         }
 
         function getPlants() {
