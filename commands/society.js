@@ -33,7 +33,7 @@ module.exports = {
         req.on("end", ()=>{
             gm(fileName)
                 .resize(660)
-                .append("static/society.png")
+                .append(__dirname+"/../static/society.png")
                 .toBuffer("PNG", function(err, buffer){
                     if(err){
                         message.replyLang("GENERIC_ERROR");

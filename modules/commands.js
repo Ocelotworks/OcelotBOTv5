@@ -189,7 +189,7 @@ Have this <:1million:545604236826771467> exclusive badge for your **${message.ge
                                 const commandName = loadedCommand.commands[i];
                                 if(bot.commands[commandName]){
                                     if(bot.client.shard)
-                                        bot.client.shard.send({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists and is being overwritten!`}})
+                                        bot.client.shard.send({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`}})
                                 }
                                 bot.commands[commandName] = loadedCommand.run;
                                 bot.commandUsages[commandName] = {

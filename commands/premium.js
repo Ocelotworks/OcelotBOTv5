@@ -109,7 +109,7 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
         if(message.getBool("serverPremium"))
             output += "\n_This server already has Premium, so you can enjoy the features here!_ <3";
         else
-            output += `\n_If you have a Premium SERVER key, redeem it with ${args[0]} \`key\``;
+            output += `\n_If you have a Premium SERVER key, redeem it with ${args[0]} \`key\`_`;
 
         message.channel.send(output);
     }

@@ -555,7 +555,7 @@ module.exports = {
          * @param {Number} reactionTime
          * @returns {Promise<void>}
          */
-        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 60000, reactDict){
+        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 120000, reactDict){
             let index = 0;
             let sentMessage;
 
@@ -676,6 +676,9 @@ module.exports = {
             const commandType = bot.util.nestedCommands[id];
             if(!commandType){
                 bot.logger.warn(`No nested command init detected for ${id}!`);
+                bot.client.shard.send({type: "warning", payload: {
+                    id: "noNestedInit-"+id, message: `No nested command init for ${id}`
+                }});
                 return message.channel.send("No nested command init detected - Big P Screwed this up.");
             }
             const command = commandType[commandName];

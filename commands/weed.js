@@ -1,3 +1,9 @@
+/**
+ * Copyright 2019 Neil Trotter
+ * Created 01/05/2019
+ * (ocelotbotv5) weed
+ */
+
 let plants = {};
 let loadedPlantCount = 0;
 let status = [["Just a seed", "Breaking soil", "A green shoot", "A tall plant", "A budding plant", "Ready to harvest"], ["Getting thirsty...", "Wilting...", "Leaves dropping...", "Buds shrinking...", "Buds shrinking..."]];
@@ -74,13 +80,17 @@ module.exports = {
         }
 
         async function trimPlants() {
+            let i = 0;
             plants[message.author.id].forEach(function (value) {
                 if (value.age === 5) {
+                    i = i + 1000;
                     value.age = 4;
                     value.growTime = ageInterval[3];
                     addBux(bot, message, 1000);
                 }
             });
+            let weedbuxString = await bot.lang.getTranslation(message.author.id, "WEED_WEEDBUX", {"weedbux" : i}, message.author.id);
+            message.channel.send("You just got " + weedbuxString);
         }
 
         function getPlants() {

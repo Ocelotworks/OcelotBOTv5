@@ -13,7 +13,7 @@ module.exports = {
             if(message.type === "fixServers"){
                 let timeout = bot.client.shard.id * 20000;
                 bot.logger.log(`Fixing Servers in ${timeout}ms`);
-                setTimeout(function(){
+                setTimeout(async function(){
                     const servers = bot.client.guilds;
                     servers.forEach(async function(server){
                         try {
@@ -39,16 +39,31 @@ module.exports = {
                                         bot.logger.log(`Created webhook for ${server.id}: ${webhook.id}`);
                                         await bot.database.addServerWebhook(server.id, webhook.id, webhook.token);
                                     } else {
-                                        bot.logger.warn("Couldn't get a main channel to create webhook in.")
+                                       // bot.logger.warn("Couldn't get a main channel to create webhook in.")
                                     }
                                 } else {
                                     //bot.logger.warn("No permission to create a webhook.");
                                 }
                             }
                         }catch(e){
-                            bot.logger.error(`Failed for server ${server.name} (${server.id}): ${e}`);
+                            //bot.logger.error(`Failed for server ${server.name} (${server.id}): ${e}`);
                         }
                     });
+
+                    if(bot.client.shard.id === 1){
+                        let servers = await bot.database.getActiveServers();
+                        for(let i = 0; i < servers.length; i++){
+                            let row = servers[i];
+                            if(row.server === "global" || row.server === "default")continue;
+                            let result = await bot.client.shard.broadcastEval(`this.guilds.has('${row.server}')`);
+                            //onsole.log(result);
+                            if(result.indexOf(true) > -1)
+                                continue;
+                            bot.logger.warn(`Server ${row.name} (${row.server}) was left`);
+                            await bot.database.leaveServer(row.server, new Date(0));
+                        }
+                    }
+
                 }, timeout);
             }
       });

@@ -88,8 +88,8 @@ module.exports = {
              * @param {ServerID} server The server's Snowflake ID
              * @returns {Promise<Array>}
              */
-            leaveServer: function leaveServer(server) {
-                return knex.insert({server}).into(LEFTSERVERS_TABLE);
+            leaveServer: function leaveServer(server, timestamp = new Date()) {
+                return knex.insert({server, timestamp}).into(LEFTSERVERS_TABLE);
             },
             unleaveServer: function unleaveServer(server){
                 return knex.delete().from(LEFTSERVERS_TABLE).where({server}).limit(1);
@@ -142,6 +142,9 @@ module.exports = {
              */
             getServers: function getServers() {
                 return knex.select().from(SERVERS_TABLE);
+            },
+            getActiveServers: function getActiveServers() {
+                return knex.select().from(SERVERS_TABLE).whereNotIn("server", knex.select("server").from(LEFTSERVERS_TABLE));
             },
             /**
              * Gets all servers with a particular setting enabled

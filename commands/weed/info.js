@@ -1,3 +1,9 @@
+/**
+ * Copyright 2019 Neil Trotter
+ * Created 01/05/2019
+ * (OcelotBOTv5) test
+ */
+
 const Discord = require('discord.js');
 const util = require('util');
 
@@ -22,6 +28,7 @@ module.exports = {
             let embed = new Discord.RichEmbed();
             embed.setColor(0x189F06);
             embed.setAuthor(weedbuxString, bot.client.user.avatarURL);
+            embed.addField("✂ to harvest all harvest-able plants", "💧 to water all plants to full.");
 
             for(let i = 0; i < page.length; i++){
                 let plant = (index * 3) + i;

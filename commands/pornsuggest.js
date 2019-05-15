@@ -61,62 +61,26 @@ module.exports = {
                 try{
                     let data = JSON.parse(body);
                     let images = data.videos;
-                    if(images.length === 0){
-                        message.channel.send(":warning: No results.");
-                        return;
-                    }
-                    let embed = new Discord.RichEmbed();
-                    embed.setAuthor(images[0].source);
-                    embed.setTimestamp(new Date(images[0].pub_date));
-                    embed.setTitle(images[0].title);
-                    embed.setImage(images[0].thumb);
-                    const url = "https://pornmd.com"+images[0].link;
-                    embed.setURL(url);
-                    embed.setDescription(`Rating: ${images[0].video_rating_str}\nDuration: ${images[0].duration}\n[Click here to watch](${url})`);
-                    embed.setFooter(`Page 1/${images.length}`);
-                    let index = 0;
-                    let sentMessage = await message.channel.send("", embed);
-                    await sentMessage.react("⬅");
-                    await sentMessage.react("➡");
-                    sentMessage.awaitReactions(async function processReaction(reaction, user) {
-                        if (user.id === bot.client.user.id) return false;
-
-                        if (reaction.emoji.name === "➡") { //Move forwards
-                            index++;
-                        } else if (reaction.emoji.name === "⬅") { //Move backwards
-                            index--;
-                        }
-
-                        if (index < 0) index = images.length - 1;
-                        if (index > images.length - 1) index = 0;
-
-                        embed.setAuthor(images[index].source);
-                        embed.setTimestamp(new Date(images[index].pub_date));
-                        embed.setTitle(images[index].title);
-                        embed.setImage(images[index].thumb);
-                        const url = "https://pornmd.com"+images[index].link;
+                    if(images.length === 0)
+                        return message.channel.send(":warning: No results.");
+                    bot.util.standardPagination(message.channel, images, async function(page, index){
+                        let embed = new Discord.RichEmbed();
+                        embed.setAuthor(page.source);
+                        embed.setTimestamp(new Date(page.pub_date));
+                        embed.setTitle(page.title);
+                        embed.setImage(page.thumb);
+                        const url = "https://pornmd.com"+page.link;
                         embed.setURL(url);
-                        embed.setDescription(`Rating: ${images[index].video_rating_str}\nDuration: ${images[index].duration}\n[Click here to watch](${url})`);
+                        embed.setDescription(`Rating: ${page.video_rating_str}\nDuration: ${page.duration}\n[Click here to watch](${url})`);
                         embed.setFooter(`Page ${index+1}/${images.length}`);
-                        sentMessage.edit("", embed);
-
-                        reaction.remove(user);
-
-                        return true;
-                    }, {
-                        time: 60000
-                    }).then(function removeReactions() {
-                        bot.logger.log(`Reactions on !pornsuggest (${message.id}) have expired.`);
-                        sentMessage.clearReactions();
-                    })
+                        return embed;
+                    }, true);
                 }catch(e){
                     bot.raven.captureException(e);
                     console.log(e);
                     message.replyLang("GENERIC_ERROR");
                 }
             });
-
-
             return;
         }
        const country = args[1] ? getCode(args[1]) || args[1] : "";

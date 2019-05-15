@@ -45,53 +45,19 @@ module.exports = {
                 if(images.length === 0)
                     return message.replyLang(message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
 
-                let embed = new Discord.RichEmbed();
-                embed.setAuthor(message.author.username, message.author.avatarURL);
-                embed.setTimestamp(new Date());
-                embed.setTitle(`Image results for '${query}'`);
-                if(message.getSetting("image.useThumbnails") || !images[0].url)
-                    embed.setImage(images[0].thumbnail.url);
-                else
-                    embed.setImage(images[0].url);
-                embed.setDescription(images[0].description);
-                embed.setFooter(`Page 1/${images.length}`);
-                let index = 0;
-                let sentMessage = await message.channel.send("", embed);
-                await sentMessage.react("⬅");
-                await sentMessage.react("➡");
-                sentMessage.awaitReactions(async function processReaction(reaction, user) {
-                    if (user.id === bot.client.user.id) return false;
-
-                    if (reaction.emoji.name === "➡") { //Move forwards
-                        index++;
-                    } else if (reaction.emoji.name === "⬅") { //Move backwards
-                        index--;
-                    }
-
-                    if (index < 0) index = images.length - 1;
-                    if (index > images.length - 1) index = 0;
-
-                    if(message.getSetting("image.useThumbnails"))
-                        embed.setImage(images[index].thumbnail.url);
+                bot.util.standardPagination(message.channel, images, async function(page, index){
+                    let embed = new Discord.RichEmbed();
+                    embed.setAuthor(message.author.username, message.author.avatarURL);
+                    embed.setTimestamp(new Date());
+                    embed.setTitle(`Image results for '${query}'`);
+                    if(message.getSetting("image.useThumbnails") || !page.url)
+                        embed.setImage(page.thumbnail.url);
                     else
-                        embed.setImage(images[index].url);
-                    embed.setDescription(images[index].description);
+                        embed.setImage(page.url);
+                    embed.setDescription(page.description);
                     embed.setFooter(`Page ${index+1}/${images.length}`);
-                    sentMessage.edit("", embed);
-
-                    reaction.remove(user);
-
-                    return true;
-                }, {
-                    time: 60000
-                }).then(function removeReactions() {
-                    if(sentMessage.deleted){
-                        bot.logger.log(`!image response for ${message.id} was deleted before the reactions expired.`);
-                    }else{
-                        bot.logger.log(`Reactions on !image ${message.id} have expired.`);
-                        sentMessage.clearReactions();
-                    }
-                })
+                   return embed;
+                }, true);
             }catch(e){
                 if(e.message === "Response code 403 (Forbidden)"){
                     message.replyLang("REMOVEBG_QUOTA");
