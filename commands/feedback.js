@@ -52,11 +52,11 @@ module.exports = {
                 bot.client.channels.get("344931831151329302").send(`Feedback from ${message.author.id} (${message.author.username}#${message.author.discriminator}) in ${message.guild ? message.guild.id :"DM Channel"} (${message.guild ? message.guild.name : "DM Channel"}):\n\`\`\`\n${message.content}\n\`\`\``);
              }else{
                 bot.client.shard.send({type: "feedback", message: {
-                        userID: message.member.id,
+                        userID: message.author.id,
                         message: Discord.escapeMarkdown(message.content),
                         username: `${message.author.username}#${message.author.discriminator}`,
-                        guildID: message.guild.id,
-                        guild: message.guild.name,
+                        guildID: message.guild ? message.guild.id : "DM Channel",
+                        guild: message.guild ? message.guild.name : "DM Channel",
                         channelID: message.channel.id
                 }});
             }
