@@ -3,9 +3,8 @@
  * Created 01/05/2019
  * (OcelotBOTv5) mcstatus
  */
-let Gamedig = require('gamedig');
 let Discord = require('discord.js');
-let hiddenMods = ["minecraft", "mcp", "forge", "FML"];
+let Gamedig = require('gamedig');
 
 module.exports = {
     name: "Minecraft Status",
@@ -13,7 +12,6 @@ module.exports = {
     commands: ["mc", "minecraft"],
     categories: ["fun"],
     run: async function run(message, args, bot) {
-
         Gamedig.query({
             type: 'minecraft',
             host: args[1] || 'localhost',
@@ -26,16 +24,6 @@ module.exports = {
             embed.addField("Players", state.raw.players.online  +" / " + state.raw.players.max,true);
             embed.addField("Version", state.raw.version.name,true);
             embed.addField("Modded?", (state.raw.modinfo.type==='FML' ? "Yes": "No"),true);
-            let buffer = "";
-
-            state.raw.modinfo.modList.forEach(function(value){
-                if(hiddenMods.indexOf(value.modid) === -1) {
-                    buffer += value.modid + ", ";
-                }
-            });
-
-            if(state.raw.modinfo.type==='FML')
-               embed.addField("Mods", buffer.substr(0,buffer.substr(0, 1015).lastIndexOf(" ")) + " and more");
             message.channel.send("",embed);
         }).catch((error) => {
             console.log(error);
