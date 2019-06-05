@@ -21,20 +21,18 @@ module.exports = {
                 let connection = await message.member.voiceChannel.join();
                 music.listeners[guild] = {
                     connection: connection,
-                    queue: [query],
-                    server: message.guild.id,
+                    queue: [],
+                    server: guild,
                     channel: message.channel,
                     playing: null
                 };
-                music.playNextInQueue(message.guild.id);
-            }else{
-                music.listeners[guild].queue.push(query);
-                if(music.listeners[guild].playing){
-                    message.channel.send("Added to queue");
-                }else{
-                    music.playNextInQueue(listener.server);
-                }
+
             }
+            let song = await music.addToQueue(guild, query);
+            message.channel.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
+
+
+
         }
 
     }

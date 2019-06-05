@@ -6,6 +6,7 @@
  */
 
 const ytdl = require('ytdl-core');
+const ytdl_discord = require('ytdl-core-discord');
 const fs = require('fs');
 let Discord = require('discord.js');
 let bot;
@@ -37,6 +38,26 @@ module.exports = {
     run: function (message, args, bot) {
         bot.util.standardNestedCommand(message,args,bot,'music', module.exports);
     },
+    addToQueue: async function(server, search){
+        let listener = module.exports.listeners[server];
+        const isValid = ytdl.validateID(search) || ytdl.validateURL(search);
+        if(isValid){
+            let info = await ytdl.getBasicInfo(search);
+            let song = {
+                author: info.media && info.media.artist ? info.media.artist : info.author.name,
+                title: info.media && info.media.song ? info.media.song : info.title,
+                seconds: info.length_seconds,
+                url: info.video_url,
+                thumbnail: info.thumbnail_url
+            };
+            listener.queue.push(song);
+
+            if(!listener.playing)
+                module.exports.playNextInQueue(server);
+            return song;
+        }
+
+    },
     playNextInQueue: function(server){
       if(!module.exports.listeners[server]) {
           console.warn("Nothing is queued");
@@ -45,38 +66,54 @@ module.exports = {
         let listener = module.exports.listeners[server];
         listener.playing = listener.queue.pop();
 
-        ytdl.getBasicInfo(listener.playing, function(err, info){
-            console.log(JSON.stringify(info));
-            if(!info)return;
-            let title = info.title;
-            let thumbnail = info.thumbnail_url;
-            let embed = new Discord.RichEmbed();
-            embed.setColor("#36393f");
-            embed.setTitle("Now Playing");
-            embed.setThumbnail(thumbnail);
-            embed.addField("Title", title);
-            embed.addField("Length", "a:"+bot.util.prettySeconds(info.lengthSeconds));
-            listener.channel.send("",embed);
+        if(!listener.playing)
+            return;
 
-        });
+        console.log(listener.playing);
+
+
         console.log("Playing");
-        module.exports.playSong(listener)
+        module.exports.playSong(listener);
+
+        let embed = new Discord.RichEmbed();
+        embed.setColor("#36393f");
+        embed.setTitle("Now Playing");
+        embed.setURL(listener.playing.url);
+        embed.setThumbnail(listener.playing.thumbnail);
+        embed.addField("Title", listener.playing.title);
+        embed.addField("Author", listener.playing.author);
+
+        embed.addField("Length", bot.util.prettySeconds(parseInt(listener.playing.seconds)));
+        listener.channel.send("",embed);
+
     },
-    playSong: function(listener){
-        const stream = ytdl(listener.playing, {filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1024 * 1024 * 10});
+    playSong: async function playSong(listener){
+        console.log("play play");
+        try {
+            const stream = await ytdl_discord(listener.playing.url, {
+                filter: 'audioonly',
+                quality: 'highestaudio',
+                highWaterMark: 1024 * 1024 * 10
+            });
+            console.log("stream stream");
+            stream.on('error', console.error);
 
-        stream.on('end', function streamEnd(){
-            console.log('stream end');
-            console.log(arguments);
-        });
+            if (listener.connection.dispatcher) {
+                bot.logger.log("Attempting to destroy previous dispatcher");
+                listener.connection.dispatcher.end();
+            }
 
-        stream.on('error', console.log);
+            const dispatcher = listener.connection.playOpusStream(stream);
+            console.log("dispatchy spatch spatch");
+            dispatcher.on('end', function dispatcherEnd() {
+                console.log("Dispatcher ended");
+                module.exports.playNextInQueue(listener.server);
+            });
 
-        const dispatcher = listener.connection.playStream(stream);
-
-        dispatcher.on('end', function dispatcherEnd(){
-            console.log("Dispatcher ended");
+            dispatcher.on('error', console.error);
+        }catch(e){
+            console.error(e);
             module.exports.playNextInQueue(listener.server);
-        })
+        }
     }
 };
