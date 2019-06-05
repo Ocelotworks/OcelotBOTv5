@@ -50,6 +50,7 @@ module.exports = {
     categories: ["games"],
     commands: ["weed", "weedsim"],
     init: async function init(bot) {
+        return;
         bot.logger.log("Loading weedsim commands...");
         bot.util.standardNestedCommandInit("weed");
         sortLoadedWeeds(await bot.database.getWeedPlants(), bot);
