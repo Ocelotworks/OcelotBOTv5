@@ -23,10 +23,8 @@ module.exports = {
         test('achievement no text', function(t){
             const args = ["achievement"];
             const message = {
-                channel: {
-                    send: function(message){
-                        t.is(message, ":bangbang: You must provide some text! i.e !achievement hello world");
-                    }
+                replyLang: function(message){
+                    t.is(message, "GENERIC_TEXT")
                 }
             };
             module.exports.run(message, args);
@@ -34,9 +32,15 @@ module.exports = {
         test('achievement', function(t){
             const args = ["achievement", "test", "test"];
             const message = {
+                guild: {
+                    getSetting: function(key){
+                        t.is(key, "achievement.url");
+                        return "TEST"
+                    }
+                },
                 channel: {
                     send: function(message, attachment){
-                        t.is(attachment.file.attachment, 'https://mcgen.herokuapp.com/a.php?i=1&h=Achievement%20Get!&t=%20test%20test');
+                        t.is(attachment.file.attachment, 'TEST%20test%20test');
                         t.is(attachment.file.name, 'ach.png');
                     },
                     startTyping: function(){

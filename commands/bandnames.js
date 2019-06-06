@@ -164,10 +164,9 @@ module.exports = {
                 }
             };
             const message = {
-                channel: {
-                    send: function(message){
-                        t.is(message, ":guitar: :musical_keyboard: Starting a band? You should call it `Falafel D`");
-                    }
+                replyLang: function(key){
+                      t.is(key, "BANDNAME");
+                      return "";
                 }
             };
             module.exports.run(message, [], bot);

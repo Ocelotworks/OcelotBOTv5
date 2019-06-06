@@ -27,6 +27,12 @@ module.exports = {
 
     },
     run: function run(message, args, bot) {
+        if(message.getSetting("prefix") === "!" && args[0].indexOf("feedback") > -1 && message.channel.members.has("467944868963024896"))  //Fast Food Bot
+            return message.channel.send(`:warning: Fast Food Bot is in this channel, to send OcelotBOT feedback, use !complain or change the prefix with !settings`);
+
+        if(args[0].indexOf("report") > -1 && message.mentions.size > 0)
+            message.channel.send(`:warning: This command is not for reporting users, this is for reporting issues with OcelotBOT.\nIf I'm interfering with another bot, change my prefix with ${message.getSetting("prefix")}settings`);
+
         if(args.length > 1){
             if(args[1].toLowerCase() === "respond" && bot.admins.indexOf(message.author.id) > -1){
                 if(bot.lastFeedbackChannel){

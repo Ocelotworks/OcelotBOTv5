@@ -27,10 +27,8 @@ module.exports = {
         test('barcode no text', function(t){
             const args = ["barcode"];
             const message = {
-                channel: {
-                    send: function(message){
-                        t.is(message, ":bangbang: You must provide some text! i.e !barcode hello world");
-                    }
+                replyLang: function(message){
+                    t.is(message, "GENERIC_TEXT")
                 }
             };
             module.exports.run(message, args);

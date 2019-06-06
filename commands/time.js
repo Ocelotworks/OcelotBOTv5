@@ -53,7 +53,8 @@ module.exports = {
 
             if (twelveHourTime === 4 && time.getMinutes() === 20) emoji = "<:weed:478962396296380422>";
             if (twelveHourTime === 9 && time.getMinutes() === 11) emoji = ":airplane: :office: :office:";
-
+            if (twelveHourTime === 5 && time.getMinutes() === 5) emoji = "Whether it's a 7 hour flight or a 45 minute drive - ";
+            if (twelveHourTime === 12 && time.getMinutes() === 34) emoji = "🔢";
             message.replyLang("TIME_MESSAGE", {
                 time: timeMessage.substring(0, timeMessage.indexOf("GMT")),
                 emoji: emoji

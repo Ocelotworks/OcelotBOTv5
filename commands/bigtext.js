@@ -27,10 +27,8 @@ module.exports = {
         test('bigtext no text', function(t){
             const args = ["bigtext"];
             const message = {
-                channel: {
-                    send: function(message){
-                        t.is(message, ":bangbang: You must provide some text! i.e !bigtext hello world");
-                    }
+                replyLang: function(message){
+                    t.is(message, "GENERIC_TEXT")
                 }
             };
             module.exports.run(message, args);
@@ -39,6 +37,10 @@ module.exports = {
             const args = ["!bigtext", "test", "test"];
             const message = {
                 cleanContent: "!bigtext test test",
+                getSetting: function(key){
+                    t.is(key, "bigtext.colour");
+                    return null;
+                },
                 channel: {
                     send: function(message, attachment){
                         t.is(message, "");

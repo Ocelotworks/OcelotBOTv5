@@ -115,6 +115,7 @@ module.exports = {
          * @returns {String}
          */
         bot.util.prettySeconds = function prettySeconds(seconds) {
+            seconds = parseInt(seconds);
             if(seconds < 1) return "less than a second";
 
             var prettyString = '',

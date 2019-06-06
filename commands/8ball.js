@@ -13,6 +13,10 @@ module.exports = {
           const message = {
               replyLang: function(message){
                 t.is(message, "8BALL_RESPONSE_0");
+              },
+              getSetting: function(setting){
+                  t.is(setting, "8ball.rig");
+                  return null;
               }
           };
           const args = ["some", "arguments", "here"];
@@ -29,10 +33,37 @@ module.exports = {
           const message = {
               replyLang: function(message){
                   t.is(message, "8BALL_NO_QUESTION");
+              },
+              getSetting: function(setting){
+                  t.is(setting, "8ball.rig");
+                  return null;
               }
+
           };
           const args = [];
           module.exports.run(message, args);
       });
+      test('8ball rigged', function(t){
+          const message = {
+              replyLang: function(message){
+                  t.is(message, "8BALL_RESPONSE_5");
+              },
+              getSetting: function(setting){
+                  t.is(setting, "8ball.rig");
+                  return 5;
+              }
+          };
+          const args = ["some", "arguments", "here"];
+          const bot = {
+              util: {
+                  intBetween: function(x, y){
+                      t.fail();
+                      return 0;
+                  }
+              }
+          };
+          module.exports.run(message, args, bot);
+      });
+
   }
 };

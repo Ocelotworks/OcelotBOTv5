@@ -55,7 +55,7 @@ module.exports = {
     },
     run: async function(message, args, bot){
         if(!args[1]){
-            message.channel.send(`Usage: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}calc <expression>`);
+            message.channel.send(`Usage: ${message.getSetting("prefix")}calc <expression>`);
         }else {
             try {
                 message.channel.send(limitedEval(message.content.substring(args[0].length + 1), scope).toString());
@@ -63,5 +63,85 @@ module.exports = {
                 message.channel.send(e.toString());
             }
         }
+    },
+    test: function(test){
+        const bot = {
+            logger: {
+                warn: function(){}
+            },
+            raven: {
+                captureException: function(){}
+            }
+        };
+        module.exports.init(bot);
+
+        test('calc no arguments', function(t){
+            const args = ["calc"];
+            const message = {
+                channel: {
+                    send: function(message){
+                        if(message.startsWith("Usage:"))
+                            t.pass();
+                        else
+                            t.fail();
+                    }
+                },
+                getSetting: function(key){
+                    t.is(key, "prefix");
+                    return "!";
+                }
+            };
+            module.exports.run(message, args);
+        });
+
+        test('calc 1+1 single argument', function(t){
+            const args = ["calc", "1+1"];
+            const message = {
+                content: "calc 1+1",
+                channel: {
+                    send: function(message){
+                       t.is(message, "2");
+                    }
+                }
+            };
+            module.exports.run(message, args);
+        });
+
+        test('calc 1+1 triple argument', function(t){
+            const args = ["calc", "1+1"];
+            const message = {
+                content: "calc 1 + 1",
+                channel: {
+                    send: function(message){
+                        t.is(message, "2");
+                    }
+                }
+            };
+            module.exports.run(message, args);
+        });
+
+        function disabledTest(name){
+            test('calc disabled '+name, function(t){
+                const args = ["calc", "aaaa"];
+                const message = {
+                    content: `calc ${name}(1,5)`,
+                    channel: {
+                        send: function(message){
+                            t.is(message, `Error: Function ${name} is disabled`)
+                        }
+                    }
+                };
+                module.exports.run(message, args);
+            });
+        }
+        disabledTest('import');
+        disabledTest('createUnit');
+        disabledTest('eval');
+        disabledTest('parse');
+        disabledTest('simplify');
+        disabledTest('derivative');
+        disabledTest('range');
+
+
     }
 };

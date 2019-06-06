@@ -12,9 +12,20 @@ module.exports = {
     commands: ["clap", "claptext"],
     run: function run(message, args, bot) {
        if(!args[1]){
-            message.channel.send("You must supply some text.");
+            return message.replyLang("GENERIC_TEXT", {command: args[0]})
        }else{
            message.channel.send(message.content.substring(message.content.indexOf(args[1])).replace(/ /g, message.getSetting("clap.emoji")))
        }
+    },
+    test: function(test) {
+        test('clap no text', function (t) {
+            const args = ["clap"];
+            const message = {
+                replyLang: function (message) {
+                    t.is(message, "GENERIC_TEXT")
+                }
+            };
+            module.exports.run(message, args);
+        });
     }
 };
