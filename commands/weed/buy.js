@@ -14,13 +14,13 @@ module.exports = {
         }
 
         if(message.getSetting("weed.bux") >= 500) {
-            let plant = new data.Plant(message.author.id)
-            data.getPlants()[message.author.id].push(plant);
+            let plant = new data.Plant(message.author.id);
 
             plant.id = await bot.database.addNewPlant(plant);
 
             message.channel.send("Bought new plant.");
-            data.removeBux(bot, message, 500);
+            data.getPlants()[message.author.id].push(plant);
+            await data.removeBux(bot, message, 500);
         } else {
             message.channel.send("Insufficient funds.");
         }

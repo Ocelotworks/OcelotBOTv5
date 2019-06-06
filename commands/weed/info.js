@@ -15,6 +15,18 @@ module.exports = {
 
         let authorPlants = data.getPlants()[message.author.id];
 
+        Object.keys(data.getPlants()).forEach(async function (key) {
+            data.getPlants()[key].forEach(function (value) {
+                value.doPlant();
+                if (value.health <= 0) {
+                    bot.logger.log("Deleting Plant");
+                    value.dead = true;
+                    bot.database.deletePlant(value);
+                }
+            });
+        });
+        bot.database.saveAllPlants(data.getPlants());
+
         if(authorPlants === undefined || authorPlants.length === 0) {
             message.channel.send("No plants. Buy some with `!weed buy`");
             return;
@@ -38,9 +50,9 @@ module.exports = {
                 }
 
                 embed.addField("Plant " + (plant+1), data.status[value.statusIndex][value.age]);
-                embed.addField(":droplet:", bot.util.prettySeconds(value.waterTime), true);
+                embed.addField(":droplet:", bot.util.prettySeconds((value.waterTime-data.epoch())/1000), true);
                 try {
-                    embed.addField(":clock1:", bot.util.prettySeconds(data.ageInterval[value.age] - value.growTime), true);
+                    embed.addField(":clock1:", bot.util.prettySeconds((value.growTime - data.epoch()) / 1000), true);
                 } catch {
                     //Caught if a plant is ready to harvest, I'll improve this later
                     embed.addField(":clock1:", "Ready to harvest", true);

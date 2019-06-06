@@ -856,7 +856,11 @@ module.exports = {
             saveAllPlants: function (plantDict) {
                 Object.keys(plantDict).forEach(function (key) {
                     plantDict[key].forEach(async function (value) {
-                        await knex("ocelotbot_weed").update(value.toStorable()).where({id:value.id}).limit(1);
+                        try {
+                            await knex("ocelotbot_weed").update(value.toStorable()).where({id: value.id}).limit(1);
+                        } catch {
+                            bot.logger.log("Plant update error.");
+                        }
                     })
                 });
             }
