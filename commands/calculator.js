@@ -1,6 +1,7 @@
 const math = require('mathjs');
 const request = require('request');
 const config = require('config');
+const Discord = require('discord.js');
 const limitedEval = math.eval;
 let scope = {};
 
@@ -24,14 +25,13 @@ module.exports = {
                     const data = JSON.parse(body);
                     if (data.base && data.rates) {
                         math.createUnit(data.base);
-                        for (let currency in data.rates) {
-                            if(!data.rates.hasOwnProperty(currency))continue;
-                            if(currency === data.base)continue;
-                            math.createUnit(currency, {
-                                definition: `${data.rates[currency]} ${data.base}`,
-                                aliases: currency !== "CUP" ? [currency.toLowerCase()] : null
+                        Object.keys(data.rates)
+                            .filter(function (currency) {
+                                return currency !== data.base
+                            })
+                            .forEach(function (currency) {
+                                math.createUnit(currency, math.unit(1 / data.rates[currency], data.base))
                             });
-                        }
                     }
                 } catch (e) {
                     bot.logger.warn(`Error parsing currencies: ${e}`);
@@ -58,7 +58,7 @@ module.exports = {
             message.channel.send(`Usage: ${message.getSetting("prefix")}calc <expression>`);
         }else {
             try {
-                message.channel.send(limitedEval(message.content.substring(args[0].length + 1), scope).toString());
+                message.channel.send(Discord.escapeMarkdown(limitedEval(message.content.substring(args[0].length + 1), scope).toString()).replace(/[@!#]/gi, ""));
             } catch (e) {
                 message.channel.send(e.toString());
             }
