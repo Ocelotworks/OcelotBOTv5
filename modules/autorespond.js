@@ -40,7 +40,7 @@ module.exports = {
 
             if(message.mentions && message.mentions.users.has(bot.client.user.id) && !message.author.bot){
                 bot.logger.warn(`Mentioned by ${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}): ${message.cleanContent}`);
-                if(message.cleanContent.toLowerCase().indexOf("prefix") > -1)
+                if(message.content.toLowerCase().indexOf("prefix") > -1 )
                     message.channel.send(`My prefix is **${message.getSetting("prefix")}**`);
             }
 
