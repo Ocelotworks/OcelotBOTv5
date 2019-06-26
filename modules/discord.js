@@ -14,7 +14,10 @@ const presenceMessages = [
     "!vote",
     "Minecraft Parody Songs",
     "lord jesus help us all",
-    "ass"
+    "ass",
+    "is this thing on",
+    "cha cha real smooth",
+    "stonks"
 ];
 
 
