@@ -50,5 +50,8 @@
     "word-wrap": "^1.2.3",
     "ytdl-core": "^0.29.2",
     "ytdl-core-discord": "^1.0.3"
+  },
+  "devDependencies": {
+    "ava": "^2.0.0"
   }
 }

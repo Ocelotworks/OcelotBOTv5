@@ -162,6 +162,14 @@ bot.isRatelimited = function(){
 }
 
 
+bot.database = {
+    logCommand: function(){
+        return new Promise(function(resolve){
+            resolve([0]);
+        })
+    }
+};
+
 
 let commands = require('./modules/commands.js');
 
@@ -187,7 +195,6 @@ test('command processing bot account', function(t){
 });
 
 
-
 test('command processing non-command message', function(t){
     const message = {
         author: {},
@@ -205,6 +212,7 @@ test('command processing non-command message', function(t){
     bot.client.emit("message", message);
     t.pass();
 });
+
 
 test('command processing command not found', function(t){
 
@@ -226,6 +234,7 @@ test('command processing command not found', function(t){
     bot.client.emit("message", message);
     t.pass();
 });
+
 
 test('command processing premium command with no premium', function(t){
     bot.commands = {premium: t.fail};
@@ -255,16 +264,23 @@ test('command processing premium command with no premium', function(t){
 test('command processing premium command with premium', function(t){
     bot.commands = {premium: t.pass};
     bot.commandUsages = {premium: {premium: true, categories: []}};
+    bot.checkBan = function(){
+      return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
     const config = {
         premium: true,
         serverPremium: false,
         allowNSFW: true,
+        prefix: "!"
     };
     const message = {
         author: {},
         guild: {},
-        getSetting: function(){
-            return "!"
+        getSetting: function(key){
+            return config[key]
         },
         getBool: function(key){
            return config[key];
@@ -281,4 +297,257 @@ test('command processing premium command with premium', function(t){
 });
 
 
+test('command processing NSFW command with NSFW disabled', function(t){
+    bot.commands = {nsfw: t.fail};
+    bot.commandUsages = {nsfw: {categories: ["nsfw"]}};
 
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: true,
+        prefix: "!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "!nsfw",
+        reply: t.fail,
+        channel: {
+            send: t.fail
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+    t.pass();
+});
+
+test('command processing NSFW command with NSFW enabled but no NSFW channel', function(t){
+    bot.commands = {nsfw: t.fail};
+    bot.commandUsages = {nsfw: {categories: ["nsfw"]}};
+    bot.checkBan = function(){
+        return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: false,
+        prefix: "!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "!nsfw",
+        reply: t.fail,
+        channel: {
+            send: t.pass
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+});
+
+test('command processing NSFW command with NSFW enabled with NSFW channel', function(t){
+    bot.commands = {nsfw: t.pass};
+    bot.commandUsages = {nsfw: {categories: ["nsfw"]}};
+    bot.checkBan = function(){
+        return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: false,
+        prefix: "!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "!nsfw",
+        reply: t.fail,
+        channel: {
+            send: t.fail,
+            nsfw: true
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+});
+
+test('command processing NSFW command with NSFW enabled but no NSFW channel with bypass enabled', function(t){
+    bot.commands = {nsfw: t.pass};
+    bot.commandUsages = {nsfw: {categories: ["nsfw"]}};
+    bot.checkBan = function(){
+        return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: false,
+        bypassNSFWCheck: true,
+        prefix: "!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "!nsfw",
+        reply: t.fail,
+        channel: {
+            send: t.fail
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+});
+
+test('command processing command disabled', function(t){
+    bot.commands = {test: t.fail};
+    bot.commandUsages = {test: {categories: []}};
+    bot.checkBan = function(){
+        return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: false,
+        "test.disable": true,
+        prefix: "!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "!test",
+        reply: t.fail,
+        channel: {
+            send: t.fail
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+    t.pass();
+});
+
+test('command processing override', function(t){
+    bot.commands = {test: t.fail};
+    bot.commandUsages = {test: {categories: []}};
+    bot.checkBan = function(){
+        return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: false,
+        "test.override": "override!",
+        prefix: "!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "!test",
+        reply: t.fail,
+        channel: {
+            send: function(message){
+                t.is(message, "override!");
+            }
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+});
+
+test('command processing banned', function(t){
+    bot.commands = {test: t.fail};
+    bot.commandUsages = {test: {categories: []}};
+    bot.checkBan = function(){
+        return true;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: false,
+        prefix: "!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "!test",
+        reply: t.fail,
+        channel: {
+            send: t.fail
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+    t.pass();
+});
