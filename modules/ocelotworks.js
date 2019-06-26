@@ -20,6 +20,8 @@ const emojiMaps = {
 const ts3 = require('ts3');
 const config = require('config');
 
+const thatsTrue = /.*that('?)s true.*/ig;
+
 module.exports = {
     name: "Ocelotworks Specific Functions",
     init: function(bot){
@@ -49,6 +51,8 @@ module.exports = {
                     message.channel.send("A days power in half an hour");
                 }else if(message.content.toLowerCase() === "test"){
                     message.channel.send("icles");
+                }else if(thatsTrue.test(message.content)){
+                    message.channel.send("thAts trUE");
                 }
 
            }
