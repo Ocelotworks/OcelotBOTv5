@@ -49,6 +49,7 @@ module.exports = {
 
  
         bot.database = {
+            knex,
             /**
              * Add a server to the database
              * @param {ServerID} server The server's Snowflake ID
