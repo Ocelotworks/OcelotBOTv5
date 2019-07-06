@@ -3,7 +3,11 @@ const shardNames = [
     "King Viking",
     "Deezy",
     "Sexy Trap Wife",
-    "Wasteland Doctrine"
+    "Wasteland Doctrine",
+    //----
+    "Anex",
+    "cursed_shard",
+    "blessed_shard"
 ];
 module.exports = {
     name: "Stats",
@@ -17,7 +21,7 @@ module.exports = {
     run: async function run(message, args, bot){
         const server        = message.guild ? message.guild.id : "322032568558026753";
         const title         = await bot.lang.getTranslation(server, "STATS_VERSION", {version: bot.version});
-        const tagline       = await bot.lang.getTranslation(server, "STATS_MESSAGE", {instance: `Shard ${bot.client.shard.id+1}/${bot.client.shard.count} ${shardNames[bot.client.shard.id] ? "'"+shardNames[bot.client.shard.id]+"'" : ""}`});
+        const tagline       = await bot.lang.getTranslation(server, "STATS_MESSAGE", {instance: `Shard ${shardNames[bot.client.shard.id] ? "'"+shardNames[bot.client.shard.id]+"'" : "Unnamed"} (${bot.client.shard.id+1}/${bot.client.shard.count})`});
         const totalUsers    = await bot.lang.getTranslation(server, "STATS_TOTAL_USERS");
         const totalServers  = await bot.lang.getTranslation(server, "STATS_TOTAL_SERVERS");
         const totalChannels = await bot.lang.getTranslation(server, "STATS_TOTAL_CHANNELS");
@@ -31,6 +35,7 @@ module.exports = {
         embed.setColor(0x189F06);
         embed.setAuthor(title, bot.client.user.avatarURL);
         embed.setDescription(tagline);
+        embed.addField("Sponsor a Shard","Give this shard a name with [OcelotBOT Premium](https://ocelot.xyz/premium)");
         embed.addField(uptime, bot.util.prettySeconds(process.uptime()));
         embed.addField(totalUsers, userCount.toLocaleString(), true);
         embed.addField(totalServers, serverCount.toLocaleString(), true);
