@@ -3,20 +3,30 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const gm = require('gm');
 const config = require('config').get("Commands.sexysingle");
+let templates = [];
+
 module.exports = {
     name: "Sexy Singles",
-    usage: "sexysingle <user or url>",
+    usage: "sexysingle <@user or url>",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["sexysingle", "sexy", "single"],
     categories: ["image", "fun", "memes"],
+    init: function init(bot){
+        bot.logger.log("Loading sexysingle templates");
+         fs.readdir(__dirname+"/../static/sexysingle", function readDir(err, files){
+             templates = files;
+             bot.logger.log(`Loaded ${templates.length} templates.`);
+         });
+
+    },
     run: async function run(message, args, bot){
         //It's sad to me that I have to do this
         //And completely indicative of the user base of OcelotBOT
-        if(args[1] && args[1].toLowerCase() === "dice"){
-            bot.commands["sexydice"](message, args, bot);
-            return;
-        }
+        if(args[1] && args[1].toLowerCase() === "dice")
+            return bot.commands["sexydice"](message, args, bot);
+
+
         message.channel.startTyping();
         async function downloadOrGet(url, fileName, outputFile){
             if(fs.existsSync(outputFile)) {
@@ -28,7 +38,6 @@ module.exports = {
                     await message.channel.send("", attachment);
                     message.channel.stopTyping();
                 }catch(e){
-                    bot.raven.captureException(e);
                     fs.unlink(outputFile, function deleteFileCB(err){
                         if(err){
                             bot.logger.error(`There was an error trying to delete ${outputFile}: ${err}`);
@@ -59,58 +68,30 @@ module.exports = {
             }
         }
 
-        function makeMeme(fileName, outputFile){
-            bot.raven.context(()=>{
-                bot.raven.setContext({
-                    user: {
-                        id: message.author.id,
-                        username: message.author.username
-                    },
-                    tags: {
-                        command: "sexysingle"
-                    },
-                    extra: {
-                        fileName: fileName,
-                        outputFile: outputFile
+        function makeMeme(fileName) {
+            gm(fileName)
+                .resize(500, 500)
+                .append(__dirname + "/../static/sexysingle/" +bot.util.arrayRand(templates), true)
+                .toBuffer('PNG', async function crushToBuffer(err, buffer) {
+                    if (err) {
+                        message.replyLang("CRUSH_ERROR");
+                        message.channel.stopTyping();
+                        bot.logger.error(`Error during composite stage of !crush: ${err.stack}`);
+                    } else {
+                        try {
+                            let attachment = new Discord.Attachment(buffer, config.get("filename"));
+                            message.channel.send("", attachment);
+                            message.channel.stopTyping();
+                        } catch (e) {
+                            bot.raven.captureException(e);
+                            bot.logger.error("Error uploading crush file");
+                            message.channel.stopTyping();
+                            message.replyLang("GENERIC_ERROR");
+                            console.log(e);
+                        } finally {
+                        }
                     }
                 });
-                gm(fileName)
-                    .resize(500, 500)
-                    .append(__dirname+"/../"+message.getSetting("sexysingle.template"), true)
-                    .toBuffer('PNG', async function crushToBuffer(err, buffer){
-                        if(err){
-                            bot.raven.captureException(err);
-                            message.replyLang("CRUSH_ERROR");
-                            message.channel.stopTyping();
-                            bot.logger.error(`Error during composite stage of !crush: ${err.stack}`);
-                            fs.unlink(fileName, function deleteFailedCrush(err){
-                                if(err){
-                                    bot.logger.error(`There was an error trying to delete ${fileName}: ${err}`);
-                                }else{
-                                    bot.logger.log(`Deleted ${fileName}`);
-                                }
-                            });
-                        }else{
-                            try{
-                                let attachment = new Discord.Attachment(buffer, config.get("filename"));
-                                message.channel.send("", attachment);
-                                message.channel.stopTyping();
-                            }catch(e){
-                                bot.raven.captureException(e);
-                                bot.logger.error("Error uploading crush file");
-                                message.channel.stopTyping();
-                                message.replyLang("GENERIC_ERROR");
-                                console.log(e);
-                            }finally{
-                                fs.writeFile(outputFile, buffer, function(err){
-                                    if(err){
-                                        bot.logger.warn(`Error caching crush file: ${err}`);
-                                    }
-                                });
-                            }
-                        }
-                    });
-            });
 
         }
 
@@ -120,7 +101,7 @@ module.exports = {
             message.channel.stopTyping();
             return;
         }
-        downloadOrGet(url, `${__dirname}/../${config.get("dir")}icon-${encodeURIComponent(url)}.png`, `${__dirname}/../${config.get("dir")}sexysingle-${encodeURIComponent(url)}.png`)
+        downloadOrGet(url, `${__dirname}/../${config.get("dir")}icon-${encodeURIComponent(url)}.png`)
 
     }
 };
