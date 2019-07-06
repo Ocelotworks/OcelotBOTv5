@@ -1,14 +1,43 @@
 const Discord = require('discord.js');
-const numWords = require('num-words');
+const options = [
+    ":one:",
+    ":two:",
+    ":three:",
+    ":four:",
+    ":five:",
+    ":six:",
+    ":seven:",
+    ":eight:",
+    ":nine:",
+    ":keycap_ten:",
+    ":regional_indicator_a:",
+    ":regional_indicator_b:",
+    ":regional_indicator_c:",
+    ":regional_indicator_d:",
+    ":regional_indicator_e:",
+    ":regional_indicator_f:",
+    ":regional_indicator_g:",
+    ":regional_indicator_h:",
+    ":regional_indicator_i:",
+    ":regional_indicator_j:",
+];
 
 module.exports = {
     name: "Poll",
-    usage: "poll <option 1, option 2, option 3..>",
+    usage: "poll <option 1, option 2, option 3...>",
+    detailedHelp: "Separate each option in the poll with a comma",
     categories: ["fun"],
     commands: ["poll"],
     run: async function (message, args, bot) {
         let fullArgs = Discord.escapeMarkdown(args.slice(1).join(" "));
         let options = fullArgs.split(',');
+        if(options.length < 2)
+            return message.channel.send(`:bangbang: You need to enter at least 2 poll items. For example, ${args[0]} Dogs, Cats`);
+
+        if(options.length > 20)
+            return message.channel.send(":bangbang: You can only enter a maximum of 20 poll options.");
+
+
         let count = 1;
         let output = "Poll:\n";
         let votes = [];
@@ -19,7 +48,7 @@ module.exports = {
 
         //write line for each entry
         options.forEach(function (item) {
-            output += ":" + numWords(count) + ": - " + item + "\n";
+            output += `${options[count]} - ${item}\n`;
             votes[count-1] = 0;
             count++
         });
