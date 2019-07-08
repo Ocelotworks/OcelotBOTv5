@@ -307,6 +307,7 @@ module.exports = {
                     .from(TRIVIA_TABLE)
                     .where("correct", 1)
                     .andWhereRaw("MONTH(timestamp) = MONTH(CURRENT_TIMESTAMP)")
+                    .andWhereRaw("YEAR(timestamp) = YEAR(CURRENT_TIMESTAMP)")
                     .orderBy("Score", "DESC")
                     .groupBy("user");
             },
