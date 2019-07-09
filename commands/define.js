@@ -6,7 +6,7 @@ module.exports = {
     commands: ["define", "def", "dictionary", "dict"],
     run: function run(message, args, bot) {
         if(!args[1]){
-            message.channel.send(`Usage: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}define <term>`);
+            message.channel.send(`Usage: ${args[0]} <term>`);
             return;
         }
         const term = encodeURIComponent(args.slice(1).join(" "));
@@ -18,13 +18,14 @@ module.exports = {
                 try{
                     const data = JSON.parse(body);
                     if (data.status !== 200) {
-                        message.channel.send(":bangbang: Error #" + data.status);
+                        message.replyLang("DEFINE_ERRORNUM", {num: data.status});
                     } else if (data.count === 0) {
-                        message.channel.send(":warning: No definitions found.");
+                        message.replyLang("DEFINE_NOT_FOUND");
                     }else if(!data.results[0].senses){
+                        message.replyLang("DEFINE_NO_SENSES");
                         message.channel.send(":thinking: Word exists but has no definition.")
                     }else if(!data.results[0].senses[0].definition){
-                        message.channel.send(":warning: No definition for that word. Be more specific perhaps?");
+                        message.replyLang("DEFINE_NO_DEFINITION");
                     }else{
                         bot.util.standardPagination(message.channel, data.results, async function(page){
                             return `*${page.headword}* _${page.part_of_speech ? page.part_of_speech : "Thing"}_:\n\`\`\`\n${page.senses[0] ? page.senses[0].definition : ":thinking: Word exists but has no definition."}\n\`\`\``
