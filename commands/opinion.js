@@ -55,7 +55,7 @@ module.exports = {
 
                 message.channel.send(comments[commentIndex++].data.body);
 
-                if (commentIndex >= comments.length)
+                if (commentIndex >= comments.length-3)
                     module.exports.downloadComments(bot);
             } else {
                 message.replyLang("GENERIC_ERROR");
