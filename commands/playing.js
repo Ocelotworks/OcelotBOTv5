@@ -8,6 +8,7 @@ const substitutes = {
     "counterstrike": "Counter-Strike: Global Offensive",
     "gtav": "Grand Theft Auto V",
     "gta5": "Grand Theft Auto V",
+    "gta": "Grand Theft Auto V",
     "rainbow 6": "Rainbow Six Siege",
     "r6": "Rainbow Six Siege",
     "ftl": "FTL: Faster Than Light",
@@ -44,9 +45,11 @@ module.exports = {
        if(!args[1]){
            message.channel.send(`:bangbang: Usage ${args[0]} <game> Try: ${args[0]} Fortnite`);
        }else{
+
            let term = message.content.substring(message.content.indexOf(args[1])).toLowerCase();
            if(substitutes[term])
                term = substitutes[term].toLowerCase();
+           message.channel.send(`Looking for '${term}' players...`);
            message.channel.startTyping();
            let results = await bot.client.shard.broadcastEval(getCountFunction(term));
            let count = results.reduce((prev, val) => prev + (val && val[0]), 0);
