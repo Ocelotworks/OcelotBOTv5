@@ -28,14 +28,13 @@ module.exports = {
                 if(args[3]) {
                     //Idiot guard
                     if(args[3].toLowerCase() === "value")
-                        return message.channel.send(`:warning: I'm sure you don't want to set the prefix to 'value'\nYou have to enter the prefix you want in place of the word **value**\nFor example, ${args[0]} set prefix o! if you wanted the prefix **o!**`);
-
+                        return message.replyLang("SETTINGS_PREFIX_IDIOT", {arg: args[0]});
 
                     await bot.database.setSetting(message.guild.id, "prefix", args[3]);
                     await bot.config.reloadCacheForServer(message.guild.id);
-                    message.channel.send(`Successfully set the prefix to **${args[3]}**.\nFor example, the help command is now: ${args[3]}help\nIf you've managed to set a prefix you can't use, send a message to Big P#1843`);
+                    message.replyLang("SETTINGS_PREFIX_SET", {prefix: args[3]});
                 }else{
-                    message.channel.send(`You must include a prefix, for example **${args[0]} set prefix !** would set the prefix to !`);
+                    message.replyLang("SETTINGS_PREFIX_NONE", {arg: args[0]});
                 }
             }
         },
@@ -52,9 +51,9 @@ module.exports = {
                     const bool = bools[args[3].toLowerCase()];
                     await bot.database.setSetting(message.guild.id, "allowNSFW", bool);
                     await bot.config.reloadCacheForServer(message.guild.id);
-                    message.channel.send(`${bool ? "Enabled" : "Disabled"} NSFW commands.`);
+                    message.replyLang(`SETTINGS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
                 }else{
-                    message.channel.send(`Try **${args[0]} set allownsfw false** to turn NSFW commands off.`);
+                    message.replyLang("SETTINGS_NSFW_NONE", {arg: args[0]});
                 }
             }
         },
@@ -71,9 +70,9 @@ module.exports = {
                     const bool = bools[args[3].toLowerCase()];
                     await bot.database.setSetting(message.guild.id, "bypassNSFWCheck", bool);
                     await bot.config.reloadCacheForServer(message.guild.id);
-                    message.channel.send(`${bool ? "Enabled" : "Disabled"} NSFW bypass.`);
+                    message.replyLang(`SETTINGS_BYPASS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
                 }else{
-                    message.channel.send(`Try **${args[0]} set bypassnsfw false** to turn NSFW commands off.`);
+                    message.replyLang("SETTINGS_BYPASS_NSFW_NONE", {arg: args[0]});
                 }
             }
         },
@@ -90,9 +89,9 @@ module.exports = {
                     const bool = bools[args[3].toLowerCase()];
                     await bot.database.setSetting(message.guild.id, "pornsuggest.serious", bool);
                     await bot.config.reloadCacheForServer(message.guild.id);
-                    message.channel.send(`${bool ? "Enabled" : "Disabled"} serious porn suggestions.`);
-                }else{
-                    message.channel.send(`Try **${args[0]} set seriousporn false** to turn serious porn suggestions off.`);
+                    message.replyLang(`SETTINGS_SERIOUS_PORN_${bool ? "ENABLE":"DISABLE"}`);
+                }else {
+                    message.replyLang("SETTINGS_SERIOUS_PORN_NONE", {arg: args[0]});
                 }
             }
         },
@@ -108,9 +107,9 @@ module.exports = {
                 if(args[3] && bot.lang.strings[args[3].toLowerCase()]) {
                     await bot.database.setSetting(message.guild.id, "lang", args[3].toLowerCase());
                     await bot.config.reloadCacheForServer(message.guild.id);
-                    message.channel.send(`:white_check_mark: Successfully set the language to ${args[3]} (${bot.lang.strings[args[3].toLowerCase()].LANGUAGE_NAME})`);
+                    message.replyLang("SETTINGS_LANGUAGE_SET", {code: args[3], name: bot.lang.strings[args[3].toLowerCase()].LANGUAGE_NAME});
                 }else{
-                    message.channel.send(`:bangbang: Invalid language. Do ${message.getSetting("prefix")}languages to see the available languages.`);
+                    message.replyLang("SETTINGS_LANGUAGE_NONE", {arg: args[0]});
                 }
             }
         },
@@ -127,11 +126,11 @@ module.exports = {
                     roleName = message.mentions.roles.first().name;
 
                 if(!roleName)
-                    return message.channel.send(":bangbang: You must either enter a role name (e.g bot controller) or @mention the role you want.");
+                    return message.replyLang("SETTINGS_ROLE_INVALID");
 
                 await bot.database.setSetting(message.guild.id, "settings.role", roleName.toLowerCase());
                 await bot.config.reloadCacheForServer(message.guild.id);
-                message.channel.send(`:white_check_mark: Successfully set the settings role to '${roleName}'.`);
+                message.replyLang("SETTINGS_ROLE_SET", {roleName});
             }
         },
         timezone: {
@@ -146,9 +145,9 @@ module.exports = {
                 if(bot.util.timezones[timezone] || bot.util.timezoneRegex.exec(timezone)){
                     await bot.database.setSetting(message.guild.id, "time.zone", timezone);
                     await bot.config.reloadCacheForServer(message.guild.id);
-                    message.channel.send(`:white_check_mark: Successfully set the timezone to '${timezone}'.`);
+                    message.replyLang("SETTINGS_TIMEZONE_SET");
                 }else{
-                    message.channel.send(":bangbang: Invalid Timezone. Try something like CST or GMT+2");
+                    message.replyLang("SETTINGS_TIMEZONE_NONE");
                 }
             }
         }
@@ -171,13 +170,13 @@ module.exports = {
                     const setting = module.exports.settings[args[2].toLowerCase()];
                     message.channel.send(`${setting.name}:\n${setting.help}`);
                 }else{
-                    message.channel.send(`:bangbang: You must supply a valid setting to get help on. Try ${args[0]} list`);
+                    message.replyLang("SETTINGS_HELP_SETTING");
                 }
             }else {
                 bot.util.standardNestedCommand(message, args, bot, 'settings', module.exports);
             }
         }else{
-            message.channel.send(`:bangbang: You need to have the role **'${message.getSetting("settings.role")}'* or be the owner of the guild to use this command.`);
+            message.replyLang("SETTINGS_NO_ROLE", {role: message.getSetting("settings.role")});
         }
     }
 };
