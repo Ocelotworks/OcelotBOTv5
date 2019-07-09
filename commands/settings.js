@@ -26,6 +26,11 @@ module.exports = {
             },
             onSet: async function(message, args, bot){
                 if(args[3]) {
+                    //Idiot guard
+                    if(args[3].toLowerCase() === "value")
+                        return message.channel.send(`:warning: I'm sure you don't want to set the prefix to 'value'\nYou have to enter the prefix you want in place of the word **value**\nFor example, ${args[0]} set prefix o! if you wanted the prefix **o!**`);
+
+
                     await bot.database.setSetting(message.guild.id, "prefix", args[3]);
                     await bot.config.reloadCacheForServer(message.guild.id);
                     message.channel.send(`Successfully set the prefix to **${args[3]}**.\nFor example, the help command is now: ${args[3]}help\nIf you've managed to set a prefix you can't use, send a message to Big P#1843`);
