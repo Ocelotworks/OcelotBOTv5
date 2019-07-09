@@ -27,7 +27,7 @@ module.exports = {
                         message.channel.send(":warning: No definition for that word. Be more specific perhaps?");
                     }else{
                         bot.util.standardPagination(message.channel, data.results, async function(page){
-                            return `*${page.headword}* _${page.part_of_speech ? page.part_of_speech : "Thing"}_:\n\`\`\`\n${page.senses[0].definition}\n\`\`\``
+                            return `*${page.headword}* _${page.part_of_speech ? page.part_of_speech : "Thing"}_:\n\`\`\`\n${page.senses[0] ? page.senses[0].definition : ":thinking: Word exists but has no definition."}\n\`\`\``
                         }, true);
                     }
                 }catch(e){
