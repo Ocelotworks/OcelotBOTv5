@@ -133,15 +133,6 @@ module.exports = {
                 bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command ,message.content).catch(function (e) {
                     bot.raven.captureException(e);
                     bot.logger.error(e);
-                }).then(async function millionthCommandCheck(res){
-                    let id = res[0];
-                    if(id === 1000000){
-                        bot.logger.log("1 millionth command!");
-                        message.channel.send(`:tada: :tada: :tada: You just performed the **1,000,000th command on OcelotBOT!**
-I hope it was a good one!
-Have this <:1million:545604236826771467> exclusive badge for your **${message.getSetting("prefix")}profile**`);
-                        await bot.database.giveBadge(message.author.id, 50);
-                    }
                 })
             }
         }));
