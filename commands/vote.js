@@ -65,7 +65,7 @@ module.exports = {
             lastVote = lastVote[0]['MAX(timestamp)'];
         let difference = new Date()-lastVote;
 
-        if(difference > bot.util.voteTimeout){
+        if(difference < bot.util.voteTimeout){
             message.replyLang("VOTE_TIMEOUT", {time: bot.util.prettySeconds((bot.util.voteTimeout-difference)/1000)});
         }else {
             message.replyLang("VOTE");
