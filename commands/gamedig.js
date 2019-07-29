@@ -9,11 +9,10 @@ let hiddenMods = ["minecraft", "mcp", "forge", "FML"];
 
 module.exports = {
     name: "Gamedig",
-    usage: "gamedig <game> [ip] [port]",
+    usage: "gamedig <game> <ip> [port]",
     commands: ["game", "gd", "gamedig"],
     categories: ["fun"],
     run: async function run(message, args, bot) {
-
         Gamedig.query({
             type: args[1],
             host: args[2],
