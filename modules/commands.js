@@ -25,6 +25,18 @@ module.exports = {
 
             bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
+            if(bot.commandUsages[command].vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))){
+                console.log("Command requires vote")
+                let lastVote = await bot.database.getLastVote(message.author.id);
+                if(lastVote[0])
+                    lastVote = lastVote[0]['MAX(timestamp)'];
+
+                let difference = new Date()-lastVote;
+                console.log("difference is "+difference);
+                if(difference > bot.util.voteTimeout)
+                    return message.replyLang("COMMAND_VOTE_REQUIRED")
+            }
+
             if(bot.commandUsages[command].premium && !(message.getBool("premium") || message.getBool("serverPremium")))
                 return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type \\${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using \\${message.getSetting("prefix")}settings disableCommand ${command}`);
 
@@ -192,7 +204,8 @@ module.exports = {
                                     hidden: loadedCommand.hidden,
                                     categories: loadedCommand.categories,
                                     rateLimit: loadedCommand.rateLimit,
-                                    premium: loadedCommand.premium
+                                    premium: loadedCommand.premium,
+                                    vote: loadedCommand.vote
                                 };
                             }
                         }

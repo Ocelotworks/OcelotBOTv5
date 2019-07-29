@@ -32,8 +32,8 @@ module.exports = {
                             "о"
         ];
 
-
-
+        bot.util.voteTimeout = 43200000;
+//59640014
         /**
          * Returns a random number between `min` and `max`
          * @param {Number} min
@@ -51,6 +51,19 @@ module.exports = {
         */
         bot.util.arrayRand = function arrayRand(array){
             return array[Math.round(Math.random()*(array.length-1))];
+        };
+
+        bot.util.fetchMessages = async function(channel, amount){
+            let iterations = Math.ceil(amount/100);
+            let before;
+            let messages = [];
+            for(let i = 0; i < iterations; i++){
+                let messageChunk = await channel.fetchMessages({before, limit: 100});
+                messages = messages.concat(messageChunk.array());
+                before = messageChunk.lastKey();
+            }
+
+            return messages;
         };
 
         /**

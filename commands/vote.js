@@ -5,8 +5,6 @@
  *  ════╝
  */
 
-const timeout = 43200000;
-
 module.exports = {
     name: "Vote For OcelotBOT",
     usage: "vote",
@@ -67,8 +65,8 @@ module.exports = {
             lastVote = lastVote[0]['MAX(timestamp)'];
         let difference = new Date()-lastVote;
 
-        if(difference < timeout){
-            message.replyLang("VOTE_TIMEOUT", {time: bot.util.prettySeconds((timeout-difference)/1000)});
+        if(difference > bot.util.voteTimeout){
+            message.replyLang("VOTE_TIMEOUT", {time: bot.util.prettySeconds((bot.util.voteTimeout-difference)/1000)});
         }else {
             message.replyLang("VOTE");
         }
