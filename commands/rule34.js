@@ -13,7 +13,7 @@ module.exports = {
     rateLimit: 50,
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
     commands: ["rule34", "r34"],
-    premium: true,
+    vote: true,
     run: async function(message, args, bot){
         if(!args[1])
             return message.channel.send(":bangbang: You must enter a tag to search for");

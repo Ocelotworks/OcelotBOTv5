@@ -19,6 +19,7 @@ module.exports = {
     rateLimit: 50,
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
     commands: ["image", "images", "im", "googleimage"],
+    vote: true,
     categories: ["image"],
     run:  async function(message, args, bot){
         if(args.length > 1){
