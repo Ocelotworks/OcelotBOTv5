@@ -1,25 +1,25 @@
 const Discord = require('discord.js');
-const options = [
-    ":one:",
-    ":two:",
-    ":three:",
-    ":four:",
-    ":five:",
-    ":six:",
-    ":seven:",
-    ":eight:",
-    ":nine:",
-    ":keycap_ten:",
-    ":regional_indicator_a:",
-    ":regional_indicator_b:",
-    ":regional_indicator_c:",
-    ":regional_indicator_d:",
-    ":regional_indicator_e:",
-    ":regional_indicator_f:",
-    ":regional_indicator_g:",
-    ":regional_indicator_h:",
-    ":regional_indicator_i:",
-    ":regional_indicator_j:",
+const emojis = [
+    "1⃣",
+    "2⃣",
+    "3⃣",
+    "4⃣",
+    "5⃣",
+    "6⃣",
+    "7⃣",
+    "8⃣",
+    "9⃣",
+    "🔟",
+    "🇦",
+    "🇧",
+    "🇨",
+    "🇩",
+    "🇪",
+    "🇫",
+    "🇬",
+    "🇭",
+    "🇮",
+    "🇯"
 ];
 
 module.exports = {
@@ -38,8 +38,8 @@ module.exports = {
             return message.channel.send(":bangbang: You can only enter a maximum of 20 poll options.");
 
 
-        let count = 1;
-        let output = "Poll:\n";
+        let count = 0;
+        let output = "Poll (30 Seconds):\n";
         let votes = [];
         let voters = [];
         let currentVotes = {};
@@ -48,15 +48,16 @@ module.exports = {
 
         //write line for each entry
         options.forEach(function (item) {
-            output += `${options[count]} - ${item}\n`;
-            votes[count-1] = 0;
+            output += `${emojis[count]} - ${item}\n`;
+            votes[count] = 0;
             count++
         });
 
         //send the message and add reactions
         let sentMessage = await message.channel.send(output);
-        for (let i = 1; i < count; i++) {
-            await sentMessage.react(i + "⃣");
+        for (let i = 0; i < count; i++) {
+            console.log(emojis[i]);
+            await sentMessage.react(emojis[i]);
         }
 
 
@@ -78,7 +79,7 @@ module.exports = {
             voteReactions[user] = reaction;
             votes[vote]++;
 
-        }, {time: 120000 / 4});
+        }, {time: 30000});
 
 
         //Count which option wins
