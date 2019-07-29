@@ -14,13 +14,16 @@ module.exports = {
             let newStrings = {};
             for(let i = 0; i < languages.length; i++){
                 const lang = languages[i];
-                newStrings[lang.code] = {
-                    "LANGUAGE_NAME": lang.name,
-                    "LANGUAGE_FLAG": lang.flag
-                };
+                    newStrings[lang.code] = {
+                        "LANGUAGE_NAME": lang.name,
+                        "LANGUAGE_FLAG": lang.flag,
+                        "LANGUAGE_HIDDEN": lang.hidden,
+                        "LANGUAGE_GENERATED": lang.generate
+                    };
             }
             for(let j = 0; j < langKeys.length; j++){
                 const row = langKeys[j];
+                if(newStrings[row.lang]['LANGUAGE_GENERATED'])continue;
                 if(newStrings[row.lang]){
                     newStrings[row.lang][row.key] = row.message;
                 }else {
@@ -43,8 +46,13 @@ module.exports = {
                 if(langOverride){
                     fulfill(langOverride.formatUnicorn(format));
                 }else{
-                    let output = bot.lang.getTranslationFor(bot.lang.getLocale(server, author), key);
-                    fulfill(output.formatUnicorn(format));
+                    const lang = bot.lang.getLocale(server, author);
+                    let output = bot.lang.getTranslationFor(lang, key);
+                    let formattedString = output.formatUnicorn(format);
+                    if(bot.lang.strings[lang]["LANGUAGE_GENERATED"])
+                       return fulfill(bot.lang.langGenerators[lang](formattedString));
+
+                    fulfill(formattedString);
                 }
             });
         };
@@ -84,6 +92,23 @@ module.exports = {
         bot.lang.languageCache = {};
 
         bot.lang.loadLanguages();
+
+        bot.lang.langGenerators = {
+          "en-owo": function(input){
+              input = input.replace(/[rl]/g, "w");
+              input = input.replace(/[RL]/g, "W");
+              input = input.replace(/n([aeiou])/g, 'ny$1');
+              input = input.replace(/N([aeiou])/g, 'Ny$1');
+              input = input.replace(/N([AEIOU])/g, 'Ny$1');
+              input = input.replace(/([cv])([aeiou])/g, '$1w$2');
+              input = input.replace(/ove/g, "uv");
+              input = input.replace(/:(.*?):/g, "<:cuteanimegrill:452909779480870922>"); //Sometimes the best solutions are the easiest ones.
+              return input;
+          }
+        };
+
+
+
 
         // bot.client.on("ready", async function discordReady(){
         //     bot.logger.log("Populating language cache...");
