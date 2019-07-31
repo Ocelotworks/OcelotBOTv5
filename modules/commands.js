@@ -26,14 +26,14 @@ module.exports = {
             bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
             if(bot.commandUsages[command].vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))){
-                console.log("Command requires vote")
+                console.log("Command requires vote");
                 let lastVote = await bot.database.getLastVote(message.author.id);
                 if(lastVote[0])
                     lastVote = lastVote[0]['MAX(timestamp)'];
 
                 let difference = new Date()-lastVote;
                 console.log("difference is "+difference);
-                if(difference > bot.util.voteTimeout)
+                if(difference > bot.util.voteTimeout*2)
                     return message.replyLang("COMMAND_VOTE_REQUIRED")
             }
 
