@@ -104,7 +104,7 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
             return;
         }
 
-        let output = "**Support OcelotBOT on Patreon and get Premium Features**\nhttps://ocelot.xyz/premium";
+        let output = "**Support OcelotBOT on Patreon and get Premium Features for just $2 a month**\nhttps://ocelot.xyz/premium";
 
         if(message.getBool("serverPremium"))
             output += "\n_This server already has Premium, so you can enjoy the features here!_ <3";
