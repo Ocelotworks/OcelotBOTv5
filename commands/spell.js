@@ -12,9 +12,9 @@ module.exports = {
         }
         const messageFetch = await message.channel.fetchMessages({limit: 2});
         let letters = {
-            ab: ["🆎"],
-            abc: ["🔤"],
             abcd: ["🔡","🔠"],
+            abc: ["🔤"],
+            ab: ["🆎"],
             id: ["🆔"],
             vs: ["🆚"],
             ok: ["🆗"],
@@ -108,7 +108,7 @@ module.exports = {
             }
         }
 
-        const output = target.replace(/[A-z]/g, "").split(" ");
+        const output = target.replace(/[A-z%$+\-:/\\"'@£^~.,\[\]><()]/g, "").split(" ");
 
         const targetMessage = messageFetch.last();
 
@@ -118,7 +118,10 @@ module.exports = {
                     await targetMessage.react(output[i]);
             }catch(e){
                 if(e.message === "Reaction blocked"){
-                    message.channel.send("The above user has blocked OcelotBOT :(");
+                    message.replyLang("SPELL_REACTION_BLOCKED");
+                    break;
+                }else if(e.message.startsWith("Maximum number of reactions reached")){
+                    message.replyLang("SPELL_MAXIMUM_REACHED");
                     break;
                 }
                 bot.logger.log(`Invalid emoji ${output[i]} (${e.message})`);
