@@ -24,7 +24,7 @@ module.exports = {
             return message.replyLang("8BALL_NO_QUESTION");
         try {
             message.channel.startTyping();
-            let input = message.cleanContent.substring(args[0].length + 1);
+            let input = encodeURIComponent(message.cleanContent.substring(args[0].length + 1));
             let response = await clev.query(input);
 
             if(response.output)
