@@ -5,6 +5,31 @@ const wrap = require('word-wrap');
 
 const profileBase = `${__dirname}/../static/profile`;
 
+const bigpCaptions = [
+    "Perverted",
+    "Perversions",
+    "Personality",
+    "Prius",
+    "Premeditated Murder",
+    "Pea",
+    "Puzzle",
+    "Programmer",
+    "Pizza",
+    "Package",
+    "Panic Attack",
+    "Perjury",
+    "Plant",
+    "Pretzel",
+    "Playa",
+    "Pimping",
+    "Pumpkin",
+    "Postmates™",
+    "Payout",
+    "Puppy",
+    "Pornstar",
+    "Princess"
+];
+
 module.exports = {
     name: "User Profile",
     usage: "profile help",
@@ -97,7 +122,8 @@ module.exports = {
 
                 ctx.font = `15px ${fontInfo.name}`;
 
-                ctx.fillText(wrap(profileInfo.caption, {width: 23}), 200, 56);
+
+                ctx.fillText(wrap(user.id === '139871249567318017' ? `The P Stands for '${bot.util.arrayRand(bigpCaptions)}'` : profileInfo.caption, {width: 23}), 200, 56);
 
                 ctx.font = "12px Bitdust";
                 ctx.fillStyle = boardInfo.textColour === "inherit" ? backgroundInfo.textColour : boardInfo.textColour;
@@ -164,6 +190,9 @@ module.exports = {
 
         bot.badges = {};
 
+
+
+
         bot.badges.giveBadge = async function(user, channel, id){
             await bot.database.giveBadge(user.id, id);
             const badge = (await bot.database.getBadge(id))[0];
@@ -173,6 +202,11 @@ module.exports = {
             embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
             embed.setColor("#3ba13b");
             channel.send(user, embed);
+        };
+
+        bot.badges.giveBadgeOnce = async function(user, channel, id){
+            if(await bot.database.hasBadge(user.id, id))return;
+            return bot.badges.giveBadge(user, channel, id);
         };
 
         bot.badges.updateBadge = async function updateBadge(user, series, value, channel){
