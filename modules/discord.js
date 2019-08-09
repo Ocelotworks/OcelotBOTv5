@@ -17,7 +17,8 @@ const presenceMessages = [
     "ass",
     "is this thing on",
     "cha cha real smooth",
-    "stonks"
+    "stonks",
+    "farts"
 ];
 
 
