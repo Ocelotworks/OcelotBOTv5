@@ -187,22 +187,23 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
                 embed.setDescription(`The song was **${title}**`);
                 embed.addField(":stopwatch: Time Taken", bot.util.prettySeconds((guessTime - now) / 1000));
                 let fastestTime = (await bot.database.getFastestSongGuess(title))[0];
-                if(fastestTime && fastestTime.elapsed){
+                if(fastestTime && fastestTime.elapsed)
                     embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000));
-                }
 
                 message.channel.send(message.author, embed);
 
                 let newOffset = guessTime-now;
-                if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset){
+                if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset)
                     message.channel.send(`:tada: You beat the previous fastest time for that song!`);
-                }
 
                 let totalGuesses = await bot.database.getTotalCorrectGuesses(message.author.id);
 
-                if(totalGuesses && totalGuesses[0] && totalGuesses[0]['COUNT(*)']) {
+                if(totalGuesses && totalGuesses[0] && totalGuesses[0]['COUNT(*)'])
                     bot.badges.updateBadge(message.author, "guess", totalGuesses[0]['COUNT(*)'] + 1, message.channel);
-                }
+
+                if(!voiceChannel.members.has(message.author.id))
+                    bot.badges.giveBadgeOnce(message.author, message.channel, 5); //Psychic Badge
+
             } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
                 message.replyLang("SONGGUESS_ARTIST", {id: message.author.id, artist: artistName});
             }
