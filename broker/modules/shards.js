@@ -12,6 +12,8 @@ module.exports = {
 
         broker.lastCrash = new Date();
 
+        broker.crashes = [];
+
         broker.manager =  new ShardingManager(`${__dirname}/../../ocelotbot.js`, JSON.parse(JSON.stringify(config.get("Discord"))));
 
         broker.manager.spawn();
@@ -20,8 +22,10 @@ module.exports = {
             broker.logger.log(`Successfully launched shard ${shard.id+1}/${broker.manager.totalShards} (ID: ${shard.id})`);
             let closeListener = function processClosed(code){
                 broker.logger.warn("Process exited with code "+code);
-                if(code !==  0)
+                if(code !==  0) {
                     broker.lastCrash = new Date();
+                    broker.crashes[shard.id] ? broker.crashes[shard.id]++ : broker.crashes[shard.id] = 1;
+                }
             };
             shard.process.on('exit', closeListener);
 
