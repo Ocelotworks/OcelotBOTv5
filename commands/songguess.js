@@ -187,8 +187,10 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
                 embed.setDescription(`The song was **${title}**`);
                 embed.addField(":stopwatch: Time Taken", bot.util.prettySeconds((guessTime - now) / 1000));
                 let fastestTime = (await bot.database.getFastestSongGuess(title))[0];
-                if(fastestTime && fastestTime.elapsed)
-                    embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000));
+                if(fastestTime && fastestTime.elapsed) {
+                    let fastestUser = await bot.util.getUserInfo(fastestTime.user);
+                    embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000)+(fastestUser ? `(${fastestUser.username}#${fastestUser.discriminator})` : ""));
+                }
 
                 message.channel.send(message.author, embed);
 
