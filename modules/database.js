@@ -868,9 +868,33 @@ module.exports = {
                         }
                     })
                 });
+            },
+            getStreak: async function(user, type){
+                let output = (await knex.select("streak", "started").from("ocelotbot_streaks").where({user, type}).limit(1))[0];
+                if(output)
+                    return output.streak;
+                return null;
+            },
+            setStreak: function(user, type, streak){
+                return knex("ocelotbot_streaks").update({streak}).where({user, type}).limit(1)
+            },
+            incrementStreak: async function(user, type){
+                let streak = await bot.database.getStreak(user, type);
+                if(streak === null)
+                    await knex.insert({user, type}).into("ocelotbot_streaks");
+                else
+                    await bot.database.setStreak(user, type, streak+1);
+                return streak+1;
+            },
+            resetStreak: async function(user, type){
+                let streak = await bot.database.getStreak(user, type);
+                if(!streak)return;
+                await knex("ocelotbot_streaks").update({highest: streak, achieved: new Date()}).where({user, type}).andWhere("highest", "<", streak).limit(1);
+                await bot.database.setStreak(user, type, 0);
+            },
+            getHighestStreak: async function(user, type){
+                return (await knex.select("highest", "achieved").from("ocelotbot_streaks").where({user, type}).limit(1))[0];
             }
-
-
         };
     }
 };

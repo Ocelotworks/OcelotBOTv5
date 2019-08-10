@@ -176,25 +176,23 @@ module.exports = {
 
                                 const reactionArray = reactionResult.array();
 
-                                reactionArray.forEach(async function(reaction){
+                                for (const reaction of reactionArray) {
                                     const userArray = reaction.users.array();
-                                    userArray.forEach(function(user){
+                                    for (const user of userArray) {
                                         if(user.id === bot.client.user.id)
-                                            return;
+                                            continue;
                                         if (cheaters.indexOf(user.id) > -1)
-                                            return;
+                                            continue;
 
                                         if (answered.indexOf(user.id) > -1) {
                                             cheaters.push(user.id);
-                                            return;
+                                            continue;
                                         }
                                         answered.push(user.id);
-
-                                        if(reaction._emoji.name === correctReaction){
+                                        if(reaction._emoji.name === correctReaction)
                                             correct.push(user.id);
-                                        }
-                                    });
-                                });
+                                    }
+                                }
 
                                 message.channel.stopTyping();
                                 if(runningGames.indexOf(message.channel.id) > -1)
@@ -209,28 +207,38 @@ module.exports = {
                                     for(let i = 0; i < correct.length; i++){
                                         if(cheaters.indexOf(correct[i]) > -1)continue;
                                         output +=  `<@${correct[i]}> `;
+                                        let streak = await bot.database.incrementStreak(correct[i], "trivia");
+                                        if(streak > 1)
+                                            output += `(🔥 **${streak}**) `;
+
                                         bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(async function(){
                                             let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['count(*)'];
-                                            bot.badges.updateBadge(bot.client.users.get(correct[i]), 'trivia', count, message.channel);
-                                            // if(badge){
-                                            //     message.channel.send(`Congratulations <@${correct[i]}>, you just earned the ${badge.emoji} **${badge.name}** badge for your ${message.getSetting("prefix")}profile`)
-                                            // }
+                                            await bot.badges.updateBadge(bot.client.users.get(correct[i]), 'trivia', count, message.channel);
+                                            await bot.badges.updateBadge(bot.client.users.get(correct[i]), 'streak', streak, message.channel);
                                         });
                                     }
+
+
                                     output += "\n";
 
                                     output += await bot.lang.getTranslation(message.guild.id, "TRIVIA_WIN"+ (correct.length === 1 ? "_SINGLE" : ""), {points});
-                                    if(cheaters.length > 0)
-                                        output += `\n${cheaters.length} ${cheaters.length === 1 ? "person" : "people"} tried to cheat.\nhttps://tenor.com/view/shame-go-t-game-of-thrones-walk-of-shame-shameful-gif-4949558`
                                 }
+
+                                for(let i = 0; i < answered.length; i++){
+                                    let user = answered[i];
+                                    if(correct.indexOf(user) > -1)continue;
+                                    bot.logger.log("Ended the streak of "+user);
+                                    bot.database.resetStreak(user, "trivia");
+                                }
+
+                                if(cheaters.length > 0)
+                                    output += `\n${cheaters.length} ${cheaters.length === 1 ? "person" : "people"} tried to cheat.\nhttps://tenor.com/view/shame-go-t-game-of-thrones-walk-of-shame-shameful-gif-4949558`
 
                                 message.channel.send(output);
                             });
 
-                       for(let i = 0; i < reactions.length; i++){
+                       for(let i = 0; i < reactions.length; i++)
                            await sentMessage.react(reactions[i]);
-                       }
-
                     }else{
                         message.replyLang("TRIVIA_ERROR");
                         bot.logger.error("Trivia service gave back no questions!");
