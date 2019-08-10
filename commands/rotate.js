@@ -18,6 +18,6 @@ module.exports = {
         else if(args[2] && !isNaN(args[2]))
             num = args[2];
 
-        bot.util.processImageFilter(module, message, args, "rotate", ['black', num]);
+        bot.util.processImageFilter(module, message, args, "rotate", ['black', num % 360]);
     }
 };
