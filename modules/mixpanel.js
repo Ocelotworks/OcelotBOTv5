@@ -33,7 +33,7 @@ module.exports = {
                 server_name: message.guild ? message.guild.name : "DM Channel",
                 command: command,
                 message: message.cleanContent
-            })
+            });
         });
 
         bot.bus.on("commandRatelimited", function rateLimited(command, message){
@@ -46,7 +46,7 @@ module.exports = {
                 server_name: message.guild ? message.guild.name : "DM Channel",
                 command: command,
                 message: message.cleanContent
-            })
+            });
         });
 
     }

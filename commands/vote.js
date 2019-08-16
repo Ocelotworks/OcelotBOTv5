@@ -24,6 +24,13 @@ module.exports = {
             bot.logger.log("Logging vote from "+user);
             let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
             bot.badges.updateBadge({id: user}, 'votes', count, channel);
+            bot.mixpanel.track("Vote", {
+                distinct_id: user,
+                server_id: voteServer,
+                channel_id: channel ? channel.id : "0",
+                channel_name: channel ? channel.name : "Unknown",
+                server_name: bot.client.guilds.has(voteServer) ? bot.client.guilds.get(voteServer).name : "Unknown",
+            })
         }
 
         process.on("message", async function vote(message){
