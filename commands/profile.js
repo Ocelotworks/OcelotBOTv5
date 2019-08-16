@@ -59,7 +59,7 @@ module.exports = {
 
         bot.util.standardNestedCommandInit("profile");
 
-        bot.generateProfileImage = async function generateProfileImage(user){
+        bot.generateProfileImage = async function generateProfileImage(user, guild){
             try {
                 let profileInfo = (await bot.database.getProfile(user.id))[0];
 
@@ -158,6 +158,10 @@ module.exports = {
                     await bot.badges.updateBadge(user, "year", parseInt((now-profileInfo.firstSeen) / 3.154e+10));
                 await bot.updateServersBadge(user, mutualGuilds.length);
 
+                if(guild && bot.config.get(guild.id, "profile.complimentaryBadge", user.id))
+                    await bot.badges.giveBadgeOnce(user, null, bot.config.get(guild.id, "profile.complimentaryBadge", user.id));
+
+
                 const badges = await bot.database.getProfileBadges(user.id);
 
                 for (let i = 0; i < badges.length; i++) {
@@ -196,12 +200,14 @@ module.exports = {
         bot.badges.giveBadge = async function(user, channel, id){
             await bot.database.giveBadge(user.id, id);
             const badge = (await bot.database.getBadge(id))[0];
-            let embed = new Discord.RichEmbed();
-            embed.setThumbnail(`https://ocelot.xyz/badge.php?id=${id}`);
-            embed.setTitle(`You just earned ${badge.name}`);
-            embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
-            embed.setColor("#3ba13b");
-            channel.send(user, embed);
+            if(channel) {
+                let embed = new Discord.RichEmbed();
+                embed.setThumbnail(`https://ocelot.xyz/badge.php?id=${id}`);
+                embed.setTitle(`You just earned ${badge.name}`);
+                embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
+                embed.setColor("#3ba13b");
+                channel.send(user, embed);
+            }
         };
 
         bot.badges.giveBadgeOnce = async function(user, channel, id){
@@ -247,7 +253,7 @@ module.exports = {
         if(args.length === 1 || message.mentions.users && message.mentions.users.size > 0){
             const target = message.mentions.users.size > 0 ? message.mentions.users.first() : message.author;
             message.channel.startTyping();
-            const attachment = new Discord.Attachment(await bot.generateProfileImage(target), "profile.png");
+            const attachment = new Discord.Attachment(await bot.generateProfileImage(target, message.guild), "profile.png");
             message.channel.send("", attachment);
             message.channel.stopTyping();
         }else{
