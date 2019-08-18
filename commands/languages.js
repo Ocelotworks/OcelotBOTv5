@@ -13,7 +13,7 @@ module.exports = {
         for(let i in bot.lang.strings){
             const strings = bot.lang.strings[i];
             if(strings.LANGUAGE_HIDDEN)continue;
-            const length = Object.keys(strings).length;
+            const length = strings.LANGUAGE_GENERATED ? totalStrings : Object.keys(strings).length;
             output += `\`${i}\` - ${strings.LANGUAGE_FLAG} ${strings.LANGUAGE_NAME} - **${parseInt((length/totalStrings)*100)}% Translated**\n`;
         }
 
