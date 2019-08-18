@@ -20,6 +20,16 @@ module.exports = {
 
 
         async function logVote(user, voteServer, channel){
+
+            let lastVote = await bot.database.getLastVote(user);
+            if(lastVote[0])
+                lastVote = lastVote[0]['MAX(timestamp)'];
+            let difference = new Date()-lastVote;
+            if(difference < bot.util.voteTimeout)
+                await bot.database.incrementStreak(user, "vote");
+            else
+                await bot.database.resetStreak(user, "vote");
+
             await bot.database.addVote(user, voteServer);
             bot.logger.log("Logging vote from "+user);
             let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
@@ -30,7 +40,7 @@ module.exports = {
                 channel_id: channel ? channel.id : "0",
                 channel_name: channel ? channel.name : "Unknown",
                 server_name: bot.client.guilds.has(voteServer) ? bot.client.guilds.get(voteServer).name : "Unknown",
-            })
+            });
         }
 
         process.on("message", async function vote(message){
@@ -42,7 +52,11 @@ module.exports = {
                     if(bot.waitingVoteChannels[i].members && bot.waitingVoteChannels[i].members.has(user)){
                         channel = bot.waitingVoteChannels[i];
                         bot.logger.log("Matched waiting vote channel for "+user);
-                        channel.sendLang("VOTE_MESSAGE", {user});
+                        const streak = await bot.database.getStreak(user, "vote");
+                        if(streak > 1)
+                            channel.sendLang("VOTE_MESSAGE_STREAK", {user, streak});
+                        else
+                            channel.sendLang("VOTE_MESSAGE", {user});
                         voteServer = channel.guild.id;
                         break;
                     }
