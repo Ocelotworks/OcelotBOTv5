@@ -23,7 +23,6 @@ module.exports = {
                         message.replyLang("DEFINE_NOT_FOUND");
                     }else if(!data.results[0].senses){
                         message.replyLang("DEFINE_NO_SENSES");
-                        message.channel.send(":thinking: Word exists but has no definition.")
                     }else if(!data.results[0].senses[0].definition){
                         message.replyLang("DEFINE_NO_DEFINITION");
                     }else{

@@ -12,7 +12,7 @@ module.exports = {
     commands: ["halloween"],
     run: function run(message, args, bot) {
         const diff = (christmas-(new Date()))/1000;
-        message.channel.send(`:ghost: **${bot.util.prettySeconds(diff)}** until halloween!`);
+        message.replyLang("HALLOWEEN", {time: bot.util.prettySeconds(diff)});
     }
 
 };

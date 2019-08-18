@@ -32,7 +32,7 @@ module.exports = {
             return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
 
         if(!user1.avatarURL || !user2.avatarURL)
-            return message.channel.send("Both users must have an avatar.");
+            return message.replyLang("MAFIA_NO_AVATAR");
 
         const endedWith = await canvas.loadImage(user1.avatarURL);
         const bestfriend = await canvas.loadImage(user2.avatarURL);

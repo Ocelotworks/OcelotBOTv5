@@ -38,7 +38,7 @@ module.exports = {
                     let attachment = new Discord.Attachment(buffer, "jpeg.jpg");
                     message.channel.send("", attachment).catch(function(e){
                         console.log(e);
-                        message.channel.send("Upload error: "+e);
+                        message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                     });
                     fs.unlink(fileName, function(){});
                 });

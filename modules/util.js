@@ -569,6 +569,7 @@ module.exports = {
          * @param {function} formatMessage The function for building the pages
          * @param {boolean} fullReactions Whether or not to use first/last page reactions
          * @param {Number} reactionTime
+         * @param reactDict
          * @returns {Promise<void>}
          */
         bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 120000, reactDict){

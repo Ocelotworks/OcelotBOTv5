@@ -48,15 +48,15 @@ module.exports = {
                     if(err){
                         bot.logger.log(err);
                         bot.raven.captureException(err);
-                        message.channel.send("An error occurred. Try again later.");
+                        message.replyLang("GENERIC_ERROR");
                         connection.disconnect();
                     }else{
                         let doot = args[1] && !isNaN(args[1]) ? parseInt(args[1]) : dootCount++ % files.length;
                         if(!files[doot])
-                            return message.channel.send("No such doot.");
+                            return message.replyLang("DOOT_NOT_FOUND");
                         const file = __dirname+"/../static/doot/"+files[doot];
                         bot.logger.log("Playing "+file);
-                        message.channel.send(`:trumpet: Doot #${doot} (${files[doot]})\nUse \`${args[0]} ${doot}\` to play this again.`);
+                        message.replyLang("DOOT", {doot, arg: args[0], fileName: files[doot]});
                         try {
                             const dispatcher = connection.playFile(file);
                             dispatcher.on("end", function fileEnd(){
@@ -75,7 +75,7 @@ module.exports = {
                         }catch(e){
                             bot.logger.log(e);
                             bot.raven.captureException(e);
-                            bot.channel.send("An error occurred. Try again later.");
+                            bot.replyLang("GENERIC_ERROR");
                             connection.disconnect();
                         }
                     }

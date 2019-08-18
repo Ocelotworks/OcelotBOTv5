@@ -32,7 +32,7 @@ module.exports = {
             if(body.areaOfInterest)
                 bot.util.processImageFilter(module, message, args, "crop", [body.areaOfInterest.w, body.areaOfInterest.h, body.areaOfInterest.x, body.areaOfInterest.y]);
             else
-                message.channel.send("No area of interest found");
+                message.replyLang("CROP_NO_AOI");
         })
 
 
