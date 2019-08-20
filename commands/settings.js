@@ -38,6 +38,27 @@ module.exports = {
                 }
             }
         },
+        wholesome: {
+            name: "Wholesome mode",
+            help: "Makes the  bot more wholesome",
+            setting: "wholesome",
+            value: "true or false",
+            format: function(input){
+                return `\`${input}\``
+            },
+            onSet: async function(message, args, bot){
+                if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
+                    const bool = bools[args[3].toLowerCase()];
+                    await bot.database.setSetting(message.guild.id, "wholesome", bool);
+                    await bot.config.reloadCacheForServer(message.guild.id);
+                    message.channel.send("Enabled wholesome mode.");
+                   // message.replyLang(`SETTINGS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
+                }else{
+                    message.channel.send("Disabled wholesome mode");
+                    //message.replyLang("SETTINGS_NSFW_NONE", {arg: args[0]});
+                }
+            }
+        },
         allownsfw: {
             name: "Allow NSFW",
             help: "Allow NSFW commands such as !pornsuggest",

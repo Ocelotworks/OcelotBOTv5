@@ -8,6 +8,7 @@ module.exports = {
     categories: ["memes", "voice"],
     requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["noot", "pingu"],
+    unwholesome: true,
     run:  async function run(message, args, bot){
         if(!message.guild){
             message.replyLang("GENERIC_DM_CHANNEL");

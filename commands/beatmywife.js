@@ -9,6 +9,7 @@ module.exports = {
     categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["beatmywife", "bmw", "sosad"],
+    unwholesome: true,
     run: async function(message, args, bot){
 
         const url =  await bot.util.getImage(message, args);

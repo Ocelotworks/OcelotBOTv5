@@ -3,6 +3,7 @@ module.exports = {
     usage: "insult <person>",
     commands: ["insult"],
     categories: ["fun"],
+    unwholesome: true,
     init: function(bot){
         bot.usedTopicalInsults = [];
     },

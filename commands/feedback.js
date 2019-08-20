@@ -27,7 +27,7 @@ module.exports = {
 
     },
     run: function run(message, args, bot) {
-        if(message.getSetting("prefix") === "!" && args[0].indexOf("feedback") > -1 && message.channel.members.has("467944868963024896"))  //Fast Food Bot
+        if(message.getSetting("prefix") === "!" && args[0].indexOf("feedback") > -1 && message.channel.members.has("507970352501227523"))  //Fast Food Bot
             return message.replyLang("FEEDBACK_FASTFOOD_BOT");
 
         if(args[0].indexOf("report") > -1 && message.mentions.size > 0)

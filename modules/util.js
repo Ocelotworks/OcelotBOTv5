@@ -551,6 +551,9 @@ module.exports = {
             if (mention.startsWith('<@') && mention.endsWith('>')) {
                 mention = mention.slice(2, -1);
 
+                if(mention.startsWith('&'))
+                    return null;
+
                 if (mention.startsWith('!')) {
                     mention = mention.slice(1);
                 }
@@ -801,6 +804,9 @@ module.exports = {
                 "155149108183695360": "Dyno"
             }
         };
+
+
+        bot.util.swearRegex = /fuck|shit|cunt|n[i1!]g*(er|a)|f[4a]g*[o0e]t|piss|dick|asshole|cum/gi
 
         bot.util.timezoneRegex = /(UTC|GMT)([+\-][0-9]+)/i;
 

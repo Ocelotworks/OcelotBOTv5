@@ -13,6 +13,7 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["friendship", "freindship"],
     categories: ["image", "memes"],
+    unwholesome: true,
     init: async function(){
         background = await canvas.loadImage(__dirname+"/../static/friendship.png");
         cross1 = await canvas.loadImage(__dirname+"/../static/friendship_cross1.png");

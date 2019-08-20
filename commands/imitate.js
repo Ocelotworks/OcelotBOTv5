@@ -12,6 +12,7 @@ module.exports = {
     requiredPermissions: ["MANAGE_WEBHOOKS"],
     commands: ["imitate", "imatate"],
     categories: ["fun"],
+    unwholesome: true,
     run: async function run(message, args, bot) {
         if(!message.guild.id)
             return message.replyLang("GENERIC_DM_CHANNEL");

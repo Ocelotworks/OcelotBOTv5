@@ -12,6 +12,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["sexysingle", "sexy", "single"],
     categories: ["image", "fun", "memes"],
+    unwholesome: true,
     init: function init(bot){
         bot.logger.log("Loading sexysingle templates");
          fs.readdir(__dirname+"/../static/sexysingle", function readDir(err, files){

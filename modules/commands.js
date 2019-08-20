@@ -25,7 +25,9 @@ module.exports = {
 
             bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
-            if(bot.commandUsages[command].vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))){
+            let commandUsage = bot.commandUsages[command];
+
+            if(commandUsage.vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))){
                 console.log("Command requires vote");
                 let lastVote = await bot.database.getLastVote(message.author.id);
                 if(lastVote[0])
@@ -37,13 +39,13 @@ module.exports = {
                     return message.replyLang("COMMAND_VOTE_REQUIRED")
             }
 
-            if(bot.commandUsages[command].premium && !(message.getBool("premium") || message.getBool("serverPremium")))
+            if(commandUsage.premium && !(message.getBool("premium") || message.getBool("serverPremium")))
                 return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type \\${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using \\${message.getSetting("prefix")}settings disableCommand ${command}`);
 
-            if(message.getBool("allowNSFW") && bot.commandUsages[command].categories.indexOf("nsfw") > -1)
+            if(message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1)
                 return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
 
-            if(message.guild && !message.channel.nsfw && bot.commandUsages[command].categories.indexOf("nsfw") > -1 &&  !message.getBool("bypassNSFWCheck"))
+            if(message.guild && !message.channel.nsfw && commandUsage.categories.indexOf("nsfw") > -1 &&  !message.getBool("bypassNSFWCheck"))
                 return message.channel.send(`:warning: This command can only be used in NSFW channels.\nYou can bypass this check with  **${message.getSetting("prefix")}settings set bypassNSFW true**`);
 
             if(message.getBool(`${command}.disable`))
@@ -51,6 +53,14 @@ module.exports = {
 
             if(message.getSetting(`${command}.override`))
                 return message.channel.send(message.getSetting(`${command}.override`));
+
+            if(message.getBool("wholesome")){
+                if(commandUsage.categories.indexOf("nsfw") > -1 || commandUsage.unwholesome){
+                    return message.channel.send(":star:  This command is not allowed in wholesome mode!");
+                }
+                if(bot.util.swearRegex.exec(message.content))
+                    return message.channel.send("No swearing!");
+            }
 
             const channelDisable = message.getSetting(`${command}.channelDisable`);
             if(channelDisable && channelDisable.indexOf(message.channel.id) > -1){
@@ -205,7 +215,8 @@ module.exports = {
                                     categories: loadedCommand.categories,
                                     rateLimit: loadedCommand.rateLimit,
                                     premium: loadedCommand.premium,
-                                    vote: loadedCommand.vote
+                                    vote: loadedCommand.vote,
+                                    unwholesome: loadedCommand.unwholesome
                                 };
                             }
                         }

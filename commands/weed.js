@@ -58,6 +58,7 @@ module.exports = {
     usage: "weed <command>",
     categories: ["games"],
     commands: ["weed", "weedsim"],
+    unwholesome: true,
     init: async function init(bot) {
         bot.logger.log("Loading weedsim commands...");
         bot.util.standardNestedCommandInit("weed");

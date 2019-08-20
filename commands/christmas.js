@@ -12,5 +12,4 @@ module.exports = {
            message.channel.send(`:santa: **${bot.util.prettySeconds(diff)}** until christmas!`);
        }
     }
-
 };

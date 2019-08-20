@@ -9,6 +9,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["screenshot", "screencap"],
     categories: ["image", "tools"],
+    unwholesome: true,
     run:  function(message, args, bot){
         if(!args[1]){
             message.channel.send(`Usage: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}screenshot <URL> e.g ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}screenshot http://google.com`);
