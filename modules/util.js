@@ -3,6 +3,7 @@ const wrap = require('word-wrap');
 const Discord = require('discord.js');
 const request = require('request');
 const fs = require('fs');
+const twemoji = require('twemoji-parser');
 module.exports = {
     name: "Utilities",
     init: function(bot){
@@ -395,17 +396,30 @@ module.exports = {
          * Get an image for use in meme templates
          * @param {Object} message The message object
          * @param {Array<String>} args
+         * @param {Number} argument
          * @returns {Promise.<*>}
          */
-        bot.util.getImage = async function getImage(message, args){
+        bot.util.getImage = async function getImage(message, args, argument){
             try {
-                if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
+                if(argument){
+                    const arg = args[argument];
+                    if(!arg)return null;
+                    const user = bot.util.getUserFromMention(arg);
+                    if(user) return user.avatarURL;
+                    if(arg.startsWith("http"))return arg;
+                    const emoji = bot.util.getEmojiURLFromMention(arg);
+                    if(emoji)return emoji;
+                }else if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
                     return message.mentions.users.first().avatarURL;
                 } else if (args[2] && args[2].indexOf("http") > -1) {
                     return args[2]
                 } else if (args[1] && args[1].indexOf("http") > -1) {
                     return args[1];
-                } else {
+                }else if(args[1] && bot.util.getEmojiURLFromMention(args[1])){
+                    return bot.util.getEmojiURLFromMention(args[1]);
+                }else if(args[2] && bot.util.getEmojiURLFromMention(args[2])){
+                    return bot.util.getEmojiURLFromMention(args[2]);
+                }else {
                     message.channel.startTyping();
                     const result = bot.util.getImageFromPrevious(message);
                     message.channel.stopTyping();
@@ -415,7 +429,6 @@ module.exports = {
                 bot.raven.captureException(e);
                 return null;
             }
-
         };
 
         /**
@@ -547,22 +560,37 @@ module.exports = {
 
         bot.util.getUserFromMention = function getUserFromMention(mention) {
             if (!mention) return null;
-
             if (mention.startsWith('<@') && mention.endsWith('>')) {
                 mention = mention.slice(2, -1);
-
                 if(mention.startsWith('&'))
                     return null;
-
-                if (mention.startsWith('!')) {
+                if (mention.startsWith('!'))
                     mention = mention.slice(1);
-                }
-
                 return bot.client.users.get(mention);
             }
+            return null;
+        };
+
+        bot.util.getEmojiURLFromMention = function getEmojiURLFromMention(mention){
+            if(!mention) return null;
+            if(mention.startsWith("<:") && mention.endsWith(">")){
+                let id = mention.substring(2).split(":")[1];
+                if(!id)return null;
+                id = id.substring(0,id.length-1);
+                return `https://cdn.discordapp.com/emojis/${id}.png?v=1`;
+            }
+
+            if(mention.startsWith("<a:") && mention.endsWith(">")){
+                let id = mention.substring(3).split(":")[1];
+                if(!id)return null;
+                id = id.substring(0,id.length-1);
+                return `https://cdn.discordapp.com/emojis/${id}.gif?v=1`;
+            }
+
+            let parse = twemoji.parse(mention, { assetType: 'png' });
+            if(parse[0])return parse[0].url;
 
             return null;
-
         };
 
         /**
