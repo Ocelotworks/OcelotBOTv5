@@ -26,6 +26,32 @@ const util = require('./modules/util.js');
 let bot = {};
 util.init(bot);
 
+bot.logger = console;
+bot.client = new EventEmitter();
+bot.database = {};
+
+bot.raven = {
+    wrap: function(arg){
+        return arg;
+    },
+    captureBreadcrumb: function(){}
+};
+
+bot.bus = new EventEmitter();
+
+bot.isRatelimited = function(){
+    return false;
+};
+
+
+bot.database = {
+    logCommand: function(){
+        return new Promise(function(resolve){
+            resolve([0]);
+        })
+    }
+};
+
 
 test.expectReplyLang = function(t, content, str, obj, run){
     const args = content.split(" ");
@@ -141,35 +167,233 @@ test('number prefix weird th', function(t){
     t.is(bot.util.getNumberPrefix(112), "112th")
 });
 
-bot.logger = console;
+test('getUserFromMention no input', function(t){
+    t.is(bot.util.getUserFromMention(), null)
+});
 
-bot.database = {
-};
 
-bot.client = new EventEmitter();
 
-bot.raven = {
-    wrap: function(arg){
-        return arg;
-    },
-    captureBreadcrumb: function(){}
-};
+test('getUserFromMention no mention', function(t){
+    t.is(bot.util.getUserFromMention("this is not a mention"), null)
+});
 
-bot.bus = new EventEmitter();
+test('getUserFromMention role', function(t){
+    t.is(bot.util.getUserFromMention("<@&432933265209557002>"), null)
+});
 
-bot.isRatelimited = function(){
-    return false;
+test('getUserFromMention channel', function(t){
+    t.is(bot.util.getUserFromMention("<#318432654880014347>"), null)
+});
+
+test('getUserFromMention user', function(t){
+    bot.client.users = {
+        get: t.pass
+    };
+    bot.util.getUserFromMention("<@139871249567318017>");
+});
+
+test('determineMainChannel defaultChannel text', function(t){
+    const guild = {
+        defaultChannel: {
+            type: "text",
+            permissionsFor: ()=> {
+                return {has: ()=>true}
+            }
+        }
+    };
+    t.is(bot.util.determineMainChannel(guild), guild.defaultChannel);
+});
+
+test('determineMainChannel defaultChannel voice', function(t){
+    const guild = {
+        defaultChannel: {
+            type: "voice",
+            permissionsFor: ()=> {
+                return {has: ()=>true}
+            }
+        },
+        channels: {
+            find: ()=>"mainChannel"
+        }
+    };
+    t.is(bot.util.determineMainChannel(guild), "mainChannel");
+});
+
+test('determineMainChannel defaultChannel no perms', function(t){
+    const guild = {
+        defaultChannel: {
+            type: "text",
+            permissionsFor: ()=> {
+                return {has: ()=>false}
+            }
+        },
+        channels: {
+            find: ()=>"mainChannel"
+        }
+    };
+    t.is(bot.util.determineMainChannel(guild), "mainChannel");
+});
+
+test('determineMainChannel defaultChannel null', function(t){
+    const guild = {
+        defaultChannel: null,
+        channels: {
+            find: ()=>"mainChannel"
+        }
+    };
+    t.is(bot.util.determineMainChannel(guild), "mainChannel");
+});
+
+test('determineMainChannel mainChannel regex voice', function(t){
+    const guild = {
+        defaultChannel: null,
+        channels: {
+            find: function(func){
+                t.falsy(func({type: "voice", name: "off-topic", permissionsFor: t.fail}));
+            }
+        }
+    };
+    bot.util.determineMainChannel(guild);
+});
+
+
+
+function testMainChannelRegex(channelName){
+    return function(t) {
+        const guild = {
+            defaultChannel: null,
+            channels: {
+                find: function (func) {
+                    t.truthy.skip(func({
+                        type: "text", name: channelName, permissionsFor: () => {
+                            return {has: () => true}
+                        }
+                    }));
+                }
+            }
+        };
+        bot.util.determineMainChannel(guild);
+    }
 }
 
+test('determineMainChannel mainChannel regex main', testMainChannelRegex("main"));
+test('determineMainChannel mainChannel regex general', testMainChannelRegex("general"));
+test('determineMainChannel mainChannel regex discussion', testMainChannelRegex("discussion"));
+test('determineMainChannel mainChannel regex home', testMainChannelRegex("home"));
+test('determineMainChannel mainChannel regex lobby', testMainChannelRegex("lobby"));
 
-bot.database = {
-    logCommand: function(){
-        return new Promise(function(resolve){
-            resolve([0]);
-        })
-    }
-};
+test('util getEmojiURLFromMention no mention', function(t){
+    t.is(bot.util.getEmojiURLFromMention(), null);
+});
 
+test('util getEmojiURLFromMention invalid mention', function(t){
+    t.is(bot.util.getEmojiURLFromMention("this is not a mention"), null);
+});
+
+test('util getEmojiURLFromMention corrupt mention', function(t){
+    t.is(bot.util.getEmojiURLFromMention("<:j>"), null);
+});
+
+test('util getEmojiURLFromMention corrupt emoji mention', function(t){
+    t.is(bot.util.getEmojiURLFromMention("<a:j>"), null);
+});
+
+test('util getEmojiURLFromMention valid mention', function(t){
+    t.is(bot.util.getEmojiURLFromMention("<:peter:478962397281779713>"), "https://cdn.discordapp.com/emojis/478962397281779713.png?v=1");
+});
+
+test('util getEmojiURLFromMention valid animated mention', function(t){
+    t.is(bot.util.getEmojiURLFromMention("<a:anibanned:423328266750001162>"), "https://cdn.discordapp.com/emojis/423328266750001162.gif?v=1");
+});
+
+test('util getEmojiURLFromMention valid emoji', function(t){
+    t.is(bot.util.getEmojiURLFromMention("🤔"), "https://twemoji.maxcdn.com/2/72x72/1f914.png");
+});
+
+test('util getEmojiURLFromMention valid flag emoji', function(t){
+    t.is(bot.util.getEmojiURLFromMention("🇦🇩"), "https://twemoji.maxcdn.com/2/72x72/1f1e6-1f1e9.png");
+});
+
+test('util regex timezoneRegex GMT+1', function(t){
+    let result = bot.util.timezoneRegex.exec("GMT+1");
+    t.is(result[1], "GMT");
+    t.is(result[2], "+1");
+});
+
+test('util regex timezoneRegex GMT+100', function(t){
+    let result = bot.util.timezoneRegex.exec("GMT+100");
+    t.is(result[1], "GMT");
+    t.is(result[2], "+100");
+});
+
+test('util regex timezoneRegex GMT+0', function(t){
+    let result = bot.util.timezoneRegex.exec("GMT+0");
+    t.is(result[1], "GMT");
+    t.is(result[2], "+0");
+});
+
+test('util regex timezoneRegex GMT+01', function(t){
+    let result = bot.util.timezoneRegex.exec("GMT+01");
+    t.is(result[1], "GMT");
+    t.is(result[2], "+01");
+});
+
+test('util regex timezoneRegex GMT+123456789', function(t){
+    let result = bot.util.timezoneRegex.exec("GMT+123456789");
+    t.is(result[1], "GMT");
+    t.is(result[2], "+123456789");
+});
+
+test('util regex timezoneRegex UTC+1', function(t){
+    let result = bot.util.timezoneRegex.exec("UTC+1");
+    t.is(result[1], "UTC");
+    t.is(result[2], "+1");
+});
+
+test('util regex timezoneRegex UTC+100', function(t){
+    let result = bot.util.timezoneRegex.exec("UTC+100");
+    t.is(result[1], "UTC");
+    t.is(result[2], "+100");
+});
+
+test('util regex timezoneRegex UTC+0', function(t){
+    let result = bot.util.timezoneRegex.exec("UTC+0");
+    t.is(result[1], "UTC");
+    t.is(result[2], "+0");
+});
+
+test('util regex timezoneRegex UTC+01', function(t){
+    let result = bot.util.timezoneRegex.exec("UTC+01");
+    t.is(result[1], "UTC");
+    t.is(result[2], "+01");
+});
+
+test('util regex timezoneRegex UTC+123456789', function(t){
+    let result = bot.util.timezoneRegex.exec("UTC+123456789");
+    t.is(result[1], "UTC");
+    t.is(result[2], "+123456789");
+});
+
+
+test('util regex swearRegex fuck you', function(t){
+    t.true(bot.util.swearRegex.exec("fuck you"));
+});
+
+test('util regex swearRegex shit', function(t){
+    t.true(bot.util.swearRegex.exec("shit"));
+});
+
+test('util regex swearRegex faggot', function(t){
+    t.true(bot.util.swearRegex.exec("faggot"));
+});
+
+test('util regex swearRegex fagget', function(t){
+    t.true(bot.util.swearRegex.exec("fagget"));
+});
+
+test('util regex swearRegex fagot', function(t){
+    t.true(bot.util.swearRegex.exec("fagot"));
+});
 
 let commands = require('./modules/commands.js');
 
@@ -262,6 +486,7 @@ test('command processing premium command with no premium', function(t){
 });
 
 test('command processing premium command with premium', function(t){
+    t.plan(1);
     bot.commands = {premium: t.pass};
     bot.commandUsages = {premium: {premium: true, categories: []}};
     bot.checkBan = function(){
@@ -329,6 +554,7 @@ test('command processing NSFW command with NSFW disabled', function(t){
 });
 
 test('command processing NSFW command with NSFW enabled but no NSFW channel', function(t){
+    t.plan(1);
     bot.commands = {nsfw: t.fail};
     bot.commandUsages = {nsfw: {categories: ["nsfw"]}};
     bot.checkBan = function(){
@@ -365,6 +591,7 @@ test('command processing NSFW command with NSFW enabled but no NSFW channel', fu
 });
 
 test('command processing NSFW command with NSFW enabled with NSFW channel', function(t){
+    t.plan(1);
     bot.commands = {nsfw: t.pass};
     bot.commandUsages = {nsfw: {categories: ["nsfw"]}};
     bot.checkBan = function(){
@@ -402,6 +629,7 @@ test('command processing NSFW command with NSFW enabled with NSFW channel', func
 });
 
 test('command processing NSFW command with NSFW enabled but no NSFW channel with bypass enabled', function(t){
+    t.plan(1);
     bot.commands = {nsfw: t.pass};
     bot.commandUsages = {nsfw: {categories: ["nsfw"]}};
     bot.checkBan = function(){
@@ -551,3 +779,116 @@ test('command processing banned', function(t){
     bot.client.emit("message", message);
     t.pass();
 });
+
+
+test('command processing', function(t){
+    t.plan(1);
+    bot.commands = {command: t.pass};
+    bot.commandUsages = {command: {categories: []}};
+    bot.checkBan = function(){
+        return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: false,
+        prefix: "!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "!command",
+        reply: t.fail,
+        channel: {
+            send: t.fail,
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+});
+
+test('command processing long prefix', function(t){
+    t.plan(1);
+    bot.commands = {command: t.pass};
+    bot.commandUsages = {command: {categories: []}};
+    bot.checkBan = function(){
+        return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: false,
+        prefix: "hellohellohello!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "hellohellohello!command",
+        reply: t.fail,
+        channel: {
+            send: t.fail,
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+});
+
+test('command processing weird prefix', function(t){
+    t.plan(1);
+    bot.commands = {command: t.pass};
+    bot.commandUsages = {command: {categories: []}};
+    bot.checkBan = function(){
+        return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+
+    const config = {
+        premium: false,
+        serverPremium: false,
+        allowNSFW: false,
+        prefix: "***1234***"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: "***1234***command",
+        reply: t.fail,
+        channel: {
+            send: t.fail,
+        },
+        replyLang: t.fail
+    };
+
+    bot.client.emit("message", message);
+});
+
