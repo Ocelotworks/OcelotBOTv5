@@ -76,7 +76,8 @@ module.exports = {
                 util: {
                     intBetween: function(){
                         return 0;
-                    }
+                    },
+                    getUserFromMention: ()=>undefined,
                 },
                 client: {
                     user: {
@@ -95,8 +96,21 @@ module.exports = {
                     }
                 }
             };
+            const bot = {
+                util: {
+                    intBetween: function(){
+                        return 0;
+                    },
+                    getUserFromMention: ()=>undefined,
+                },
+                client: {
+                    user: {
+                        username: "ocelotbot"
+                    }
+                }
+            };
             const args = ["!insult", "@everyone"];
-            module.exports.run(message, args);
+            module.exports.run(message, args, bot);
         });
         test('insult self', function(t){
             const message = {
@@ -113,7 +127,8 @@ module.exports = {
                 util: {
                     intBetween: function(){
                         return 0;
-                    }
+                    },
+                    getUserFromMention: ()=>undefined,
                 },
                 client: {
                     user: {
