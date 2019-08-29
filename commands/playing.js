@@ -14,7 +14,9 @@ const substitutes = {
     "ftl": "FTL: Faster Than Light",
     "faster than light": "FTL: Faster Than Light",
     "battlefield 5": "Battlefield™ V",
-    "battlefield v": "Battlefield™ V"
+    "battlefield v": "Battlefield™ V",
+    "tf2": "Team Fortress 2",
+    "tf": "Team Fortress"
 };
 
 function getCountFunction(term){
