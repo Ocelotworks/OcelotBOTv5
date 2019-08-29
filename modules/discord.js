@@ -76,7 +76,7 @@ module.exports = {
                 if(error.code !== "ECONNRESET"){
                     bot.raven.captureException(error);
                     bot.logger.warn("Send Error: "+error);
-                    abort();
+                    abort(error);
                     throw error;
                 }else{
                     bot.logger.warn("Connection reset, retrying send...");
@@ -84,7 +84,7 @@ module.exports = {
             }}, ()=>oldsend.apply(this, [content, options]));
         };
 
-        bot.presenceMessage = null;
+        //bot.presenceMessage = null;
 
 
         bot.client = new Discord.Client({
@@ -92,6 +92,20 @@ module.exports = {
         });
 
         bot.client.setMaxListeners(100);
+        bot.lastPresenceUpdate = 0;
+        bot.updatePresence = async function(){
+            const now = new Date();
+            if(now-bot.lastPresenceUpdate>100000) {
+                bot.lastPresenceUpdate = now;
+                const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+                bot.client.user.setPresence({
+                    game: {
+                        name: `${bot.presenceMessage ? bot.presenceMessage : bot.util.arrayRand(presenceMessages)} | ${serverCount.toLocaleString()} servers.`,
+                        type: "LISTENING"
+                    }
+                });
+            }
+        };
 
         bot.client.on("ready", async function discordReady(){
             bot.logger.log(`Logged in as ${bot.client.user.tag}`);
@@ -101,15 +115,7 @@ module.exports = {
                 messageSweepInterval: 6000
             });
 
-            setTimeout(async function(){
-                const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-                bot.client.user.setPresence({
-                    game: {
-                        name: `${bot.util.arrayRand(presenceMessages)} | ${serverCount} servers.`,
-                        type: "LISTENING"
-                    }
-                });
-            }, 60000);
+            setTimeout(bot.updatePresence, 60000);
 
 
             bot.client.voiceConnections.forEach(function(connection){
@@ -155,10 +161,6 @@ module.exports = {
 
 
 
-        let lastPresenceUpdate = 0;
-
-
-
         bot.client.on("guildCreate", async function joinGuild(guild){
             bot.logger.log(`Joined server ${guild.id} (${guild.name})`);
             bot.raven.captureBreadcrumb({
@@ -169,18 +171,7 @@ module.exports = {
                     name: guild.name
                 }
             });
-             const now = new Date();
-             if(now-lastPresenceUpdate>100000) {
-                 lastPresenceUpdate = now;
-                 const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-
-                 bot.client.user.setPresence({
-                     game: {
-                         name: `${bot.presenceMessage ? bot.presenceMessage : bot.util.arrayRand(presenceMessages)} | ${serverCount} servers.`,
-                         type: "LISTENING"
-                     }
-                 });
-             }
+            bot.updatePresence();
              try {
                  let lang = "en-gb";
                  if(guild.region.startsWith("us"))
@@ -195,9 +186,10 @@ module.exports = {
                          embed.setColor(bot.config.get("global", "welcome.embedColour"));
                          embed.setTitle("Welcome to OcelotBOT!");
                          embed.setDescription("You can find my commands [here](https://ocelot.xyz/#commands) or by typing !help.");
+                         embed.addField("Wholesome?", "Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **!settings set wholesome true**");
+                         embed.addField("Administrators", "You can change the bot's settings by typing **!settings help**");
+                         embed.addField("Stuck?", "If you have issues or suggestions, type **!feedback** or join our [support server](https://discord.gg/7YNHpfF).");
                          embed.addField("Support", "You can support the bot by [voting](https://discordbots.org/bot/146293573422284800/vote) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
-                         embed.addField("Administrators", "You can change the bot's settings by typing !settings or by using the [dashboard](https://ocelot.xyz/dash/)");
-                         embed.addField("Issues?", "If you have issues or suggestions, type !feedback or join our [support server](https://discord.gg/7YNHpfF).");
                          mainChannel.send("", embed);
                      }
                  }
