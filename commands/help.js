@@ -60,6 +60,24 @@ module.exports = {
                 let output = `**${command.name} Help:**\n`;
                 if(command.detailedHelp)
                     output += command.detailedHelp+"\n";
+                if(message.getBool(`${arg}.disable`))
+                    output += "🚫 This command is **disabled**. You cannot run it here (or maybe anywhere)\n";
+                if(message.getSetting(`${arg}.override`))
+                    output += "❓ This command is **overridden**. This usually means it's temporarily disabled.\n";
+                if(message.getSetting(`${arg}.channelDisable`))
+                    output += "🚫 This command is **disabled in the following channels**: <#"+message.getSetting(`${arg}.channelDisable`).replace(/,/g, "> <#")+"> \n"; //Genius
+                if(message.getSetting(`${arg}.channelRestriction`))
+                    output += "🚫 This command is **restricted to the following channels**: <#"+message.getSetting(`${arg}.channelRestriction`).replace(/,/g, "> <#")+"> \n"; //Genius
+                if(command.hidden)
+                    output += ":eyes: This command is **hidden**. How did you find it?\n";
+                if(command.premium)
+                    output += "<:ocelotbot:533369578114514945> This command requires **OcelotBOT Premium**\n";
+                if(command.vote)
+                    output += "<:supporter_1:529308223954616322> This command requires you to **vote for OcelotBOT** every 24 hours.\n";
+                if(command.categories.indexOf("nsfw") > -1)
+                    output += "🔞 This command is **Not Safe For Work**\n";
+                if(command.unwholesome)
+                    output += "⭐ This command can't be used in **Wholesome Mode**\n";
                 output += `**Usage:** ${message.getSetting("prefix")}${command.usage}\n`;
                 if(command.usageExample)
                     output += `**Example:** ${command.usageExample}\n`;

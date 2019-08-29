@@ -2,6 +2,9 @@
   "name": "ocelotbot5",
   "version": "5.0.0",
   "private": true,
+  "scripts": {
+    "test": "ava"
+  },
   "dependencies": {
     "@tensorflow-models/toxicity": "^1.1.0",
     "@tensorflow/tfjs": "^1.2.2",
@@ -20,7 +23,7 @@
     "cytoscape": "^3.7.3",
     "cytoscape-euler": "^1.2.1",
     "dateformat": "^3.0.3",
-    "deepai": "^1.0.0",
+    "deepai": "^1.0.10",
     "discord.js": "^11.5.0",
     "express": "^4.16.4",
     "faceapp": "^0.4.7",
@@ -31,6 +34,7 @@
     "influx": "^5.0.7",
     "knex": "^0.16.5",
     "mathjs": "^5.9.0",
+    "matomo-tracker": "^2.2.1",
     "mcquery": "^1.0.0",
     "mixpanel": "^0.10.2",
     "mocha": "^6.1.4",
@@ -52,6 +56,8 @@
     "static-eval": ">=2.0.0",
     "timezonecomplete": "^5.7.0",
     "ts3": "^1.0.1-1",
+    "twemoji": "^12.1.2",
+    "twemoji-parser": "latest",
     "tzdata": "^1.0.16",
     "vm2": "^3.8.0",
     "word-wrap": "^1.2.3",
@@ -59,7 +65,7 @@
     "ytdl-core-discord": "^1.0.3"
   },
   "devDependencies": {
-    "ava": "^2.0.0",
+    "ava": "^2.3.0",
     "blessed": "latest"
   }
 }
