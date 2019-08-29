@@ -45,14 +45,14 @@ module.exports = {
                 else if(message.content.toLowerCase().indexOf("help") > -1)
                     message.channel.send(`You can see my commands with ${message.getSetting("prefix")}help`);
 
-                bot.mixpanel.track("Bot mentioned", {
-                    distinct_id: message.author.id,
-                    channel_id: message.channel.id,
-                    channel_name: message.channel.name,
-                    server_id: message.guild ? message.guild.id : "0",
-                    server_name: message.guild ? message.guild.name : "DM Channel",
-                    message: message.cleanContent
-                })
+                // bot.mixpanel.track("Bot mentioned", {
+                //     distinct_id: message.author.id,
+                //     channel_id: message.channel.id,
+                //     channel_name: message.channel.name,
+                //     server_id: message.guild ? message.guild.id : "0",
+                //     server_name: message.guild ? message.guild.name : "DM Channel",
+                //     message: message.cleanContent
+                // })
             }
 
             //499354390126264340>

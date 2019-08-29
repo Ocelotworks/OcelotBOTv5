@@ -5,47 +5,62 @@
  *  ════╝
  */
 const config = require('config');
-const Mixpanel = require('mixpanel');
+const MatomoTracker = require('matomo-tracker');
 module.exports = {
     name: "Mixpanel Integration",
     init: function(bot){
-        bot.mixpanel = Mixpanel.init(config.get("Mixpanel.token"));
+        bot.matomo = new MatomoTracker(config.get("Matomo.SiteID"), config.get("Matomo.URL"));
         let cachedUsers = [];
 
         bot.bus.on("commandPerformed", async function(command, message){
-            if(cachedUsers.indexOf(message.author.id) === -1) {
-                cachedUsers.push(message.author.id);
-                bot.mixpanel.people.set_once({
-                    "$distinct_id": message.author.id,
-                    "$name": message.author.tag,
-                    "created": message.author.createdAt,
-                    "commands_performed": (await bot.database.getUserStats(message.author.id))[0].commandCount
-                });
-            }
+            // if(cachedUsers.indexOf(message.author.id) === -1) {
+            //     cachedUsers.push(message.author.id);
+            //     bot.mixpanel.people.set_once({
+            //         "$distinct_id": message.author.id,
+            //         "$name": message.author.tag,
+            //         "created": message.author.createdAt,
+            //         "commands_performed": (await bot.database.getUserStats(message.author.id))[0].commandCount
+            //     });
+            // }
 
-            bot.mixpanel.people.increment(message.author.id, 'commands_performed');
 
-            bot.mixpanel.track(command+" Performed", {
-                distinct_id: message.author.id,
-                channel_id: message.channel.id,
-                channel_name: message.channel.name,
-                server_id: message.guild ? message.guild.id : "0",
-                server_name: message.guild ? message.guild.name : "DM Channel",
-                command: command,
-                message: message.cleanContent
+
+            bot.matomo.track({
+                action_name: "Command Performed",
+                _id: message.author.id.substring(1, 17),
+                url: `http://bot.ocelot.xyz/${command}`,
+                ua: "Shard "+bot.client.shard_id,
+                e_c: "Command",
+                e_a: "Performed",
+                e_n: command,
+                e_v: 1,
+                cvar: JSON.stringify({
+                    1: ['Server ID', message.guild ? message.guild.id : "0"],
+                    2: ['Server Name', message.guild ? message.guild.name : "DM Channel"],
+                    3: ['Message', message.cleanContent],
+                    4: ['Channel Name', message.channel.name],
+                    5: ['Channel ID', message.channel.id]
+                })
             });
         });
 
         bot.bus.on("commandRatelimited", function rateLimited(command, message){
-            bot.mixpanel.track("Command RateLimited", {
-                distinct_id: message.author.id,
-                user: message.author.tag,
-                channel_id: message.channel.id,
-                channel_name: message.channel.name,
-                server_id: message.guild ? message.guild.id : "0",
-                server_name: message.guild ? message.guild.name : "DM Channel",
-                command: command,
-                message: message.cleanContent
+            bot.matomo.track({
+                action_name: "Command Rate Limited",
+                _id: message.author.id.substring(1, 17),
+                url: `http://bot.ocelot.xyz/${command}`,
+                ua: "Shard "+bot.client.shard_id,
+                e_c: "Command",
+                e_a: "Rate Limited",
+                e_n: command,
+                e_v: 1,
+                cvar: JSON.stringify({
+                    1: ['Server ID', message.guild ? message.guild.id : "0"],
+                    2: ['Server Name', message.guild ? message.guild.name : "DM Channel"],
+                    3: ['Message', message.cleanContent],
+                    4: ['Channel Name', message.channel.name],
+                    5: ['Channel ID', message.channel.id]
+                })
             });
         });
 

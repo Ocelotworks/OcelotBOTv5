@@ -25,7 +25,7 @@ module.exports = {
             if(lastVote[0])
                 lastVote = lastVote[0]['MAX(timestamp)'];
             let difference = new Date()-lastVote;
-            if(difference < bot.util.voteTimeout)
+            if(difference < bot.util.voteTimeout*2)
                 await bot.database.incrementStreak(user, "vote");
             else
                 await bot.database.resetStreak(user, "vote");
@@ -34,13 +34,25 @@ module.exports = {
             bot.logger.log("Logging vote from "+user);
             let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
             bot.badges.updateBadge({id: user}, 'votes', count, channel);
-            bot.mixpanel.track("Vote", {
-                distinct_id: user,
-                server_id: voteServer,
-                channel_id: channel ? channel.id : "0",
-                channel_name: channel ? channel.name : "Unknown",
-                server_name: bot.client.guilds.has(voteServer) ? bot.client.guilds.get(voteServer).name : "Unknown",
+
+            bot.matomo.track({
+                action_name: "Vote",
+                _id: user.substring(1, 17),
+                url: `http://bot.ocelot.xyz/vote/done`,
+                ua: "Shard "+bot.client.shard_id,
+                e_c: "Vote",
+                e_a: "Voted",
+                e_n: user,
+                e_v: 1,
+                cvar: JSON.stringify({
+                    1: ['Server ID', voteServer],
+                    2: ['Server Name',bot.client.guilds.has(voteServer) ? bot.client.guilds.get(voteServer).name : "Unknown"],
+                    3: ['Message', message.cleanContent],
+                    4: ['Channel Name', channel ? channel.id : "0"],
+                    5: ['Channel ID', channel ? channel.name : "Unknown"]
+                })
             });
+
         }
 
         process.on("message", async function vote(message){
@@ -86,7 +98,7 @@ module.exports = {
             lastVote = lastVote[0]['MAX(timestamp)'];
         let difference = new Date()-lastVote;
 
-        if(difference < bot.util.voteTimeout*2){
+        if(difference < bot.util.voteTimeout){
             message.replyLang("VOTE_TIMEOUT", {time: bot.util.prettySeconds((bot.util.voteTimeout-difference)/1000)});
         }else {
             message.replyLang("VOTE");
