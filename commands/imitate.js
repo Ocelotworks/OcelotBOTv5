@@ -45,6 +45,8 @@ module.exports = {
 
         const content = message.content.substring(args[0].length+args[1].length+2);
 
+        if(content.startsWith(message.getSetting("prefix")+"spook"))
+            return message.replyLang("IMITATE_SPOOK");
 
         webhook.send(content, {
             username: target.displayName,
