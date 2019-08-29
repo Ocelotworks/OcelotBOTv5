@@ -1,13 +1,50 @@
 const Discord = require('discord.js');
-const end = new Date(1541030400000);
+const end = new Date("1 November 2019");
+const start = new Date("1 October 2019");
+const teaserStart = new Date("29 August 2019");
 module.exports = {
     name: "Spook",
     usage: "spook <user>",
     categories: ["fun"],
     requiredPermissions: [],
     commands: ["spook", "spooked"],
-    hidden: true,
     init: async function(bot){
+
+        function setTeaserMessage(){
+            bot.logger.log("Updating teaser message");
+            const days = Math.round((start-new Date())/86400000);
+            bot.presenceMessage = `👻 ${days} DAYS`;
+            setInterval(setTeaserMessage, 86400000)
+        }
+
+        bot.client.on("ready", async function ready(){
+            const now = new Date();
+            const teaserDiff = teaserStart-now;
+            const startDiff = start-now;
+            if(startDiff <= 0) {
+                bot.updatePresence = async function(){
+                    const now = new Date();
+                    if(now-bot.lastPresenceUpdate>100000) {
+                        bot.lastPresenceUpdate = now;
+                        const result = await bot.database.getSpookedServers();
+                        bot.client.user.setPresence({
+                            game: {
+                                name: `👻 !spook ~ ${result.total[0]['COUNT(*)'].toLocaleString()} SPOOKED.`,
+                                type: "WATCHING"
+                            }
+                        });
+                    }
+                };
+            } else if(teaserDiff <= 0){
+                bot.logger.log("Spook teaser time");
+                setTeaserMessage();
+            }else{
+                bot.logger.log("Teaser in "+teaserDiff+"ms");
+                bot.util.setLongTimeout(setTeaserMessage, teaserDiff);
+            }
+        });
+
+
         // bot.setSpookyPresence = async function(){
         //     const result = await bot.database.getSpookedServers();
         //     bot.client.user.setPresence({
@@ -231,51 +268,57 @@ module.exports = {
 
     },
     run: async function(message, args, bot){
-        if(!message.guild)return;
-        if(end-new Date() <= 0){
-            bot.sendSpookEnd(message.guild.id, message.channel);
-            return;
-        }
-        if(!message.guild){
-            message.channel.send("This command cannot be used in a DM or group.");
-        }else if(args.length > 1){
+        if(!message.guild)
+            return message.replyLang("GENERIC_DM_CHANNEL");
+
+        const now = new Date();
+        if(start-now > 0)
+            return message.replyLang("SPOOK_TEASER", {time: bot.util.prettySeconds((start-now)/1000)});
+
+        if(end-now <= 0)
+            return bot.sendSpookEnd(message.guild.id, message.channel);
+
+        if(args.length > 1){
            const canSpook = await bot.database.canSpook(message.author.id, message.guild.id);
-            if (!canSpook) {
-                message.channel.send(":ghost: You are unable to spook. Type !spook to see who is currently spooked.")
-            }else if(message.content.indexOf("@everyone") > -1 || message.content.indexOf("@here") > -1){
-                message.channel.send(":ghost: Seriously? You can't spook everyone....");
-            }else if (!message.mentions || !message.mentions.users || message.mentions.users.size === 0) {
-                message.channel.send(":ghost: To spook someone you must @mention them.");
-            }else if(message.mentions.users.first().bot){
-                message.channel.send(":ghost: Bots can't get spooked!");
-            }else if(message.mentions.users.first().presence.status === "offline"){
-                message.channel.send(":ghost: You can't spook someone who's offline!");
-            }else{
-                const target = message.mentions.users.first();
-                // noinspection EqualityComparisonWithCoercionJS
-                if(target.id == message.author.id){
-                    message.channel.send(":ghost: You can't spook yourself!");
-                }else {
-                    const result = await bot.database.getSpookCount(target.id, message.guild.id);
-                    message.channel.send(`:ghost: **<@${target.id}> has been spooked for the ${bot.util.getNumberPrefix(result[0]['COUNT(*)']+1)} time!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
-                    await bot.database.spook(target.id, message.author.id, message.guild.id, message.author.username, target.username);
-                    await bot.setSpookyPresence();
-                    if (bot.spooked[message.guild.id])
-                        clearTimeout(bot.spooked[message.guild.id].timer);
-                    bot.spooked[message.guild.id] = {
-                        user: target.id,
-                        timer: setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id) //24 Hours
-                    };
-                }
-            }
+            if (!canSpook)
+                return message.replyLang("SPOOK_UNABLE");
+
+            if(message.content.indexOf("@everyone") > -1 || message.content.indexOf("@here") > -1)
+                return message.replyLang("SPOOK_EVERYONE");
+
+            if (!message.mentions || !message.mentions.users || message.mentions.users.size === 0)
+                return message.replyLang("SPOOK_MENTION");
+
+            if(message.mentions.users.size > 1)
+                return message.replyLang("SPOOK_MULTIPLE");
+
+            if(message.mentions.users.first().bot)
+                return message.replyLang("SPOOK_BOT");
+
+            if(message.mentions.users.first().presence.status === "offline")
+                return message.replyLang("SPOOK_OFFLINE");
+
+            const target = message.mentions.users.first();
+
+            if(target.id === message.author.id)
+                return message.replyLang("SPOOK_SELF");
+
+            const result = await bot.database.getSpookCount(target.id, message.guild.id);
+            message.channel.send(`:ghost: **<@${target.id}> has been spooked for the ${bot.util.getNumberPrefix(result[0]['COUNT(*)'] + 1)} time!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
+            await bot.database.spook(target.id, message.author.id, message.guild.id, message.author.username, target.username);
+            await bot.setSpookyPresence();
+            if (bot.spooked[message.guild.id])
+                clearTimeout(bot.spooked[message.guild.id].timer);
+            bot.spooked[message.guild.id] = {
+                user: target.id,
+                timer: setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id) //24 Hours
+            };
         }else{
             const now = new Date();
             const result = await bot.database.getSpooked(message.guild.id);
-            if(result[0]){
-                message.channel.send(`:ghost: <@${result[0].spooked}> is currently spooked.\nThey are able to spook anyone else on the server with !spook @user.\n**The spooking ends in ${bot.util.prettySeconds((end-now)/1000)}**`)
-            }else{
-                message.channel.send(`:ghost: Nobody is currently spooked! Spook someone with !spook @user\n**The person who is spooked at midnight on the 31st of October loses!**`)
-            }
+            if(result[0])
+                return message.replyLang("SPOOK_CURRENT", {spooked: result[0].spook, time: bot.util.prettySeconds((end-now)/1000)});
+            message.replyLang("SPOOK_NOBODY");
         }
     }
 };
