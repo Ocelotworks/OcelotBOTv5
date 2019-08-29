@@ -51,10 +51,11 @@ module.exports = {
                     const bool = bools[args[3].toLowerCase()];
                     await bot.database.setSetting(message.guild.id, "wholesome", bool);
                     await bot.config.reloadCacheForServer(message.guild.id);
-                    message.channel.send("Enabled wholesome mode.");
+
+                    message.channel.send((bool? "Enabled" : "Disabled")+" wholesome mode.");
                    // message.replyLang(`SETTINGS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
                 }else{
-                    message.channel.send("Disabled wholesome mode");
+                    message.channel.send("You must enter a value either true or false.");
                     //message.replyLang("SETTINGS_NSFW_NONE", {arg: args[0]});
                 }
             }
