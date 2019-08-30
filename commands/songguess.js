@@ -189,7 +189,7 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
                 let fastestTime = (await bot.database.getFastestSongGuess(title))[0];
                 if(fastestTime && fastestTime.elapsed) {
                     let fastestUser = await bot.util.getUserInfo(fastestTime.user);
-                    embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000)+(fastestUser ? `(${fastestUser.username}#${fastestUser.discriminator})` : ""));
+                    embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000)+(fastestUser ? ` (${fastestUser.username}#${fastestUser.discriminator})` : ""));
                 }
 
                 message.channel.send(message.author, embed);
