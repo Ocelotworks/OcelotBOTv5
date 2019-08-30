@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canv" width="1024" height="1024"></canvas>
+<script>
+    let canv = document.getElementById("canv");
+    let ctx = canv.getContext("2d");
+
+    async function drawImage(src, x, y, sx, sy){
+        return new Promise(function(fulfill) {
+            const img = new Image();
+            img.src = src;
+            img.onload = ()=>{
+                ctx.drawImage(img, x, y, sx, sy);
+                fulfill()
+            };
+        })
+
+    }
+
+    const AVATAR_SIZE       = 256;
+    const AVATAR_OFFSET     = 50;
+    const USERNAME_SIZE     = 60;
+    const USERNAME_X        = AVATAR_OFFSET+AVATAR_SIZE+15;
+    const USERNAME_Y        = USERNAME_SIZE+AVATAR_OFFSET;
+    const TAGLINE_SIZE      = 40;
+    const TAGLINE_X         = USERNAME_X;
+    const TAGLINE_Y         = USERNAME_Y + USERNAME_SIZE / 2 + TAGLINE_SIZE / 2;
+
+
+    async function draw() {
+
+        await drawImage("http://placekitten.com/1024/1024", 0, 0, 1024, 1024);
+
+        //Avatar
+        await drawImage("http://placekitten.com/256/256", AVATAR_OFFSET, AVATAR_OFFSET, AVATAR_SIZE, AVATAR_SIZE);
+        ctx.strokeRect(AVATAR_OFFSET-1, AVATAR_OFFSET-1, AVATAR_SIZE+2, AVATAR_SIZE+2);
+
+        ctx.font = `${USERNAME_SIZE}px Sans-serif`;
+        ctx.fillText("Big P#1843", USERNAME_X, USERNAME_Y);
+        ctx.font = `${TAGLINE_SIZE}px Sans-serif`;
+        ctx.fillText("Presented in Dolby Surround where\n available", TAGLINE_X, TAGLINE_Y);
+
+    }
+
+
+    draw();
+
+
+</script>
+</body>
+</html>
