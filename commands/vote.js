@@ -37,7 +37,7 @@ module.exports = {
 
             bot.matomo.track({
                 action_name: "Vote",
-                _id: user.substring(1, 17),
+                uid:  user,
                 url: `http://bot.ocelot.xyz/vote/done`,
                 ua: "Shard "+bot.client.shard_id,
                 e_c: "Vote",
@@ -47,7 +47,7 @@ module.exports = {
                 cvar: JSON.stringify({
                     1: ['Server ID', voteServer],
                     2: ['Server Name',bot.client.guilds.has(voteServer) ? bot.client.guilds.get(voteServer).name : "Unknown"],
-                    3: ['Message', message.cleanContent],
+                    3: ['Message', ""],
                     4: ['Channel Name', channel ? channel.id : "0"],
                     5: ['Channel ID', channel ? channel.name : "Unknown"]
                 })

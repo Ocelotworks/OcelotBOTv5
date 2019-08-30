@@ -27,7 +27,7 @@ module.exports = {
 
             bot.matomo.track({
                 action_name: "Command Performed",
-                _id: message.author.id.substring(1, 17),
+                uid: message.author.id,
                 url: `http://bot.ocelot.xyz/${command}`,
                 ua: "Shard "+bot.client.shard_id,
                 e_c: "Command",
@@ -47,7 +47,7 @@ module.exports = {
         bot.bus.on("commandRatelimited", function rateLimited(command, message){
             bot.matomo.track({
                 action_name: "Command Rate Limited",
-                _id: message.author.id.substring(1, 17),
+                uid: message.author.id,
                 url: `http://bot.ocelot.xyz/${command}`,
                 ua: "Shard "+bot.client.shard_id,
                 e_c: "Command",

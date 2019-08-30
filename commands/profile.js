@@ -123,7 +123,7 @@ module.exports = {
                 ctx.font = `15px ${fontInfo.name}`;
 
 
-                ctx.fillText(wrap(user.id === '139871249567318017' ? `The P Stands for '${bot.util.arrayRand(bigpCaptions)}'` : profileInfo.caption, {width: 23}), 200, 56);
+                ctx.fillText(wrap( profileInfo.caption, {width: 23}), 200, 56);
 
                 ctx.font = "12px Bitdust";
                 ctx.fillStyle = boardInfo.textColour === "inherit" ? backgroundInfo.textColour : boardInfo.textColour;
