@@ -20,9 +20,10 @@ module.exports = {
             console.log(state);
             let embed = new Discord.RichEmbed();
             embed.setColor(0x2471a3);
-            embed.setAuthor(state.raw.description.text);
+            embed.setAuthor((state.raw.description.text !== undefined ? state.raw.description.text : state.connect));
             embed.addField("Players", state.raw.players.online  +" / " + state.raw.players.max,true);
             embed.addField("Version", state.raw.version.name,true);
+            embed.addField("Modded", (state.raw.modinfo !== undefined && state.raw.modinfo.type === "FML" ? "Yes" : "No"), true)
             message.channel.send("",embed);
         }).catch((error) => {
             console.log(error);
