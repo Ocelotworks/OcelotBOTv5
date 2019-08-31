@@ -23,6 +23,7 @@ module.exports = {
             embed.setAuthor(state.raw.description.text);
             embed.addField("Players", state.raw.players.online  +" / " + state.raw.players.max,true);
             embed.addField("Version", state.raw.version.name,true);
+            embed.addField("Modded", (state.raw.modinfo !== undefined && state.raw.modinfo.type === "FML" ? "Yes" : "No"), true)
             message.channel.send("",embed);
         }).catch((error) => {
             console.log(error);
