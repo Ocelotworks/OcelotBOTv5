@@ -13,23 +13,13 @@ module.exports = {
         let cachedUsers = [];
 
         bot.bus.on("commandPerformed", async function(command, message){
-            // if(cachedUsers.indexOf(message.author.id) === -1) {
-            //     cachedUsers.push(message.author.id);
-            //     bot.mixpanel.people.set_once({
-            //         "$distinct_id": message.author.id,
-            //         "$name": message.author.tag,
-            //         "created": message.author.createdAt,
-            //         "commands_performed": (await bot.database.getUserStats(message.author.id))[0].commandCount
-            //     });
-            // }
-
-
-
+             let newVisit  = cachedUsers.indexOf(message.author.id) === -1;
             bot.matomo.track({
                 action_name: "Command Performed",
                 uid: message.author.id,
                 url: `http://bot.ocelot.xyz/${command}`,
-                ua: "Shard "+bot.client.shard_id,
+                ua: message.guild ? message.guild.name : "DM Channel",
+                new_visit: newVisit,
                 e_c: "Command",
                 e_a: "Performed",
                 e_n: command,
@@ -49,7 +39,7 @@ module.exports = {
                 action_name: "Command Rate Limited",
                 uid: message.author.id,
                 url: `http://bot.ocelot.xyz/${command}`,
-                ua: "Shard "+bot.client.shard_id,
+                ua:  message.guild ? message.guild.name : "DM Channel",
                 e_c: "Command",
                 e_a: "Rate Limited",
                 e_n: command,

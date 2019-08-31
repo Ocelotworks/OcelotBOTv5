@@ -115,7 +115,7 @@ module.exports = {
                 messageSweepInterval: 6000
             });
 
-            setTimeout(bot.updatePresence, 60000);
+            setTimeout(bot.updatePresence, 120000);
 
 
             bot.client.voiceConnections.forEach(function(connection){

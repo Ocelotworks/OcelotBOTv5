@@ -58,6 +58,16 @@ module.exports = {
         }
 
 
+        if(target.premiumSince){
+            const ago = (now-target.premiumSince/1000);
+            fields.push({
+                name: "Nitro Booster",
+                inline: true,
+                value: `${target.lastMessage.createdAt.toDateString()}\n(${ago > 0 ? bot.util.prettySeconds(ago) : "Just Now."})`
+            });
+        }
+
+
         fields.push({
             name: `Seen in ${mutualGuilds.length} server${mutualGuilds.length > 1 ? "s" : ""}:`,
             value: `\`${mutualGuildsText}\``
