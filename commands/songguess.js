@@ -32,8 +32,11 @@ module.exports = {
     },
     run:  async function run(message, args, bot){
         if(args[1] && args[1].toLowerCase() === "stop") {
-            if (message.guild.voiceConnection)
-                await message.guild.voiceConnection.disconnect();
+            if (message.member.voiceChannel && runningGames[message.member.voiceChannel.id]) {
+                await runningGames[message.member.voiceChannel.id].stop();
+            }else{
+                message.channel.send(":warning: You are not currently in a voice channel that is playing guess!");
+            }
         }else if(args[1] && args[1].toLowerCase() === "stats") {
             let stats = await bot.database.getGuessStats();
             let output = "**Guess Stats:**\n";
@@ -41,6 +44,7 @@ module.exports = {
             output += `**${stats.totalGuesses.toLocaleString()}** total guesses by **${stats.totalUsers}** users.\n`;
             output += `**${stats.totalCorrect.toLocaleString()}** (**${parseInt((stats.totalCorrect / stats.totalGuesses) * 100)}%**) correct guesses.\n`;
             output += `Average of **${bot.util.prettySeconds(stats.averageTime / 1000)}** until a correct guess.\n`;
+            output += `**${bot.util.prettySeconds(stats.totalTime / 1000)}** spent guessing in total.\n`;
             message.channel.send(output);
         }else if(args[1] && args[1].toLowerCase() === "leaderboard"){
 
@@ -109,11 +113,7 @@ module.exports = {
             try {
                 bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
 
-                if(message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voiceChannel.id])
-                    await message.guild.voiceConnection.disconnect();
-
-                let connection = await message.member.voiceChannel.join();
-                doGuess(message.member.voiceChannel, message, connection, bot);
+                doGuess(message.member.voiceChannel, message, bot);
             }catch(e){
                 bot.raven.captureException(e);
                 bot.logger.log(e);
@@ -127,19 +127,14 @@ let timeouts = [];
 
 let runningGames = [];
 
-function doGuess(voiceChannel, message, voiceConnection, bot){
+async function doGuess(voiceChannel, message, bot){
     try {
-        if(bot.voiceLeaveTimeouts[voiceChannel.id])
-            clearTimeout(bot.voiceLeaveTimeouts[voiceChannel.id]);
-        if (voiceChannel.members.size <= 1)
-            return voiceConnection.disconnect();
+        if (voiceChannel.members.size === 1 && voiceChannel.members.first().id === bot.client.user.id)
+            return bot.lavaqueue.requestLeave(voiceChannel);
         if(timeouts[voiceChannel.id])
             return;
         if(runningGames[voiceChannel.id])
             return;
-
-        runningGames[voiceChannel.id] = voiceConnection;
-
         const song = songList[count++ % songList.length];
         const file = song.path;
         const now = new Date();
@@ -149,24 +144,18 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
         const artist = artistName.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "");
         bot.logger.log("Title is " + answer);
         message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
-        const dispatcher = voiceConnection.playFile(file, {seek: message.getSetting("songguess.seek")});
+        console.log("Joining");
+        let {player} = await bot.lavaqueue.playOneSong(voiceChannel, file);
+        console.log(player);
+        runningGames[voiceChannel.id] = player;
         let won = false;
         let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
-        dispatcher.on("end", function fileEnd() {
-            bot.logger.log("Finished playing");
-            if (!won) {
-                if (collector) {
-                    collector.stop();
-                }
-                //setTimeout(doGuess, 1000, voiceChannel, message, voiceConnection, bot);
+        player.seek(10);
+        player.once("end", function(){
+            if (!won && collector) {
+                collector.stop();
             }
         });
-        dispatcher.on("error", function fileError(err) {
-            bot.raven.captureException(err);
-            console.log(err);
-            message.replyLang("GENERIC_ERROR");
-        });
-
 
         collector.on('collect', async function collect(message) {
             if (message.author.id === "146293573422284800") return;
@@ -211,35 +200,23 @@ function doGuess(voiceChannel, message, voiceConnection, bot){
             }
             bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
         });
-        collector.on('end', function collectorEnd() {
+        collector.on('end', async function collectorEnd() {
             console.log("Collection Ended");
             if(!won)
                 message.replyLang("SONGGUESS_OVER", {title});
-            if(timeouts[voiceChannel.id]) {
-                bot.logger.log("Clearing timeout");
-                clearTimeout(timeouts[voiceChannel.id])
-            }
-            dispatcher.end();
+            await player.stop();
+            bot.lavaqueue.requestLeave(voiceChannel);
             if(message.getSetting("guess.repeat")) {
                 timeouts[voiceChannel.id] = setTimeout(function () {
                     delete timeouts[voiceChannel.id];
                     delete runningGames[voiceChannel.id];
-                    doGuess(voiceChannel, message, voiceConnection, bot);
+                    doGuess(voiceChannel, message, bot);
                 }, 2000);
             }else{
                 delete runningGames[voiceChannel.id];
-                if(bot.voiceLeaveTimeouts[voiceChannel.id])
-                    clearTimeout(bot.voiceLeaveTimeouts[voiceChannel.id]);
-                bot.voiceLeaveTimeouts[voiceChannel.id] = setTimeout(function leaveTimeout(){
-                    bot.logger.log(`Leaving voice channel ${voiceChannel.name} (${voiceChannel.id})`);
-                    voiceConnection.disconnect();
-                    delete bot.voiceLeaveTimeouts[voiceChannel.id];
-                }, parseInt(message.getSetting("songguess.leaveTimeout")));
             }
         });
     }catch(e){
-        if(voiceConnection)
-            voiceConnection.disconnect();
         if(message)
             message.replyLang("GENERIC_ERROR");
         console.log(e);
