@@ -161,6 +161,34 @@ module.exports = {
             return prettyString;
         };
 
+        bot.util.shortSeconds = function(totalSeconds){
+            let hours = Math.floor(totalSeconds / 3600);
+            totalSeconds %= 3600;
+            let minutes = Math.floor(totalSeconds / 60);
+            let seconds = Math.round(totalSeconds % 60);
+
+            if(minutes < 10)
+                minutes = "0"+minutes;
+            if(seconds < 10)
+                seconds = "0"+seconds;
+
+            if(hours >= 1) {
+                if(hours < 10)
+                    hours = "0"+hours;
+                return `${hours}:${minutes}:${seconds}`
+            }
+            return `${minutes}:${seconds}`;
+        };
+
+        bot.util.progressBar = function(current, total, width = 50){
+            let progress = width*(current/total);
+            let output = "[";
+            for(let i = 0; i < width; i++)
+                output+= i < progress ? "█" :  "░";
+            output += "]";
+            return output;
+        };
+
         /**
          * Format memory as a string
          * @param {Number} bytes The number of Bytes

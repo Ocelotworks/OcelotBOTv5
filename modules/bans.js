@@ -56,17 +56,17 @@ module.exports = {
         }, 240000);
 
         bot.bus.on("commandRatelimited", function rateLimited(command, message){
-            if(rateLimitLimits.indexOf(message.guild.id) > -1){
-                let currentRatelimit = message.getSetting("rateLimit");
-                let newRatelimit = currentRatelimit <= 10 ? 10 : currentRatelimit-10;
-                bot.logger.log(`Lowering rateLimit for ${message.guild.name} (${message.guild.id}) from ${currentRatelimit} to ${newRatelimit}`);
-                if(bot.config.cache[message.guild.id])
-                    bot.config.cache[message.guild.id].rateLimit = newRatelimit;
-                else
-                    bot.config.cache[message.guild.id] = {rateLimit: newRatelimit};
-            }else{
-                rateLimitLimits.push(message.guild.id);
-            }
+            // if(rateLimitLimits.indexOf(message.guild.id) > -1){
+            //     // let currentRatelimit = message.getSetting("rateLimit");
+            //     // let newRatelimit = currentRatelimit <= 10 ? 10 : currentRatelimit-10;
+            //     // bot.logger.log(`Lowering rateLimit for ${message.guild.name} (${message.guild.id}) from ${currentRatelimit} to ${newRatelimit}`);
+            //     // if(bot.config.cache[message.guild.id])
+            //     //     bot.config.cache[message.guild.id].rateLimit = newRatelimit;
+            //     // else
+            //     //     bot.config.cache[message.guild.id] = {rateLimit: newRatelimit};
+            // }else{
+            //     rateLimitLimits.push(message.guild.id);
+            // }
             updateRateLimit(command, message);
         });
 

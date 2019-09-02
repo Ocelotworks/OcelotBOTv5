@@ -252,8 +252,7 @@ module.exports = {
         });
 
         bot.client.on("error", function websocketError(evt){
-            bot.logger.log("Websocket Error "+evt.message);
-            //console.error(evt);
+            bot.logger.error("Websocket Error", evt);
             bot.raven.captureException(evt.error);
         });
 

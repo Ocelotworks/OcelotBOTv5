@@ -24,14 +24,9 @@ module.exports = {
                 request({url: `http://${node.host}:${node.port}/loadtracks?${params.toString()}`,  headers: { Authorization: node.password } }, function(err, resp, body){
                     if(err)
                         return reject(err);
-                    console.log(body);
                     try {
                         let data = JSON.parse(body);
-                        if (data.tracks)
-                            fulfill(data.tracks);
-                        else
-                            fulfill();
-
+                        fulfill(data);
                     }catch(e){
                         reject(e);
                     }
@@ -40,7 +35,7 @@ module.exports = {
         };
 
         bot.lavaqueue.getSong = async function getSong(search) {
-           return (await bot.lavaqueue.getSongs(search))[0];
+           return (await bot.lavaqueue.getSongs(search)).tracks[0];
         };
 
         bot.lavaqueue.leaveTimeouts = [];

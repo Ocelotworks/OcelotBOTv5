@@ -22,13 +22,6 @@ module.exports = {
     commands: ["music", "m"],
     subCommands: {},
     listeners: {
-        'dummy': {
-            playing: "aaaaa bboooobs",
-            connection: null,
-            channel: null,
-            server: null,
-            queue: []
-        }
     },
     init: function init(fuckdamn){
         //fuck you
@@ -40,23 +33,34 @@ module.exports = {
     },
     addToQueue: async function(server, search){
         let listener = module.exports.listeners[server];
-        const isValid = ytdl.validateID(search) || ytdl.validateURL(search);
-        if(isValid){
-            let info = await ytdl.getBasicInfo(search);
-            let song = {
-                author: info.media && info.media.artist ? info.media.artist : info.author.name,
-                title: info.media && info.media.song ? info.media.song : info.title,
-                seconds: info.length_seconds,
-                url: info.video_url,
-                thumbnail: info.thumbnail_url
-            };
-            listener.queue.push(song);
+        if(!search.startsWith("http"))
+            search = "ytsearch:"+search;
 
-            if(!listener.playing)
-                module.exports.playNextInQueue(server);
-            return song;
+        let result = await bot.lavaqueue.getSongs(search);
+        let obj = null;
+        // noinspection FallThroughInSwitchStatementJS
+        switch(result.loadType){
+            case "SEARCH_RESULT":
+            case "TRACK_LOADED":
+                listener.queue.push(result.tracks[0]);
+                obj = result.tracks[0].info;
+                break;
+            case "PLAYLIST_LOADED":
+                listener.queue.push(...result.tracks);
+                obj = { count: result.tracks.length,
+                        name: result.playlistInfo.name,
+                        duration: result.tracks.reduce((p, t)=>p+t.info.length, 0)};
+                break;
+            default:
+                console.warn("Unknown type "+result.loadType);
+            case "LOAD_FAILED":
+            case "NO_MATCHES":
+                obj = null;
         }
+        if(!listener.playing)
+            module.exports.playNextInQueue(server);
 
+        return obj;
     },
     playNextInQueue: function(server){
       if(!module.exports.listeners[server]) {
@@ -64,56 +68,55 @@ module.exports = {
           throw new Error("Nothing is queued");
       }
         let listener = module.exports.listeners[server];
-        listener.playing = listener.queue.pop();
+        let newSong= listener.queue.shift();
 
-        if(!listener.playing)
-            return;
+        if(!newSong)
+            return listener.connection.stop();
 
+        listener.playing = newSong;
+
+        listener.voteSkips = [];
+        console.log("Now playing");
         console.log(listener.playing);
 
 
         console.log("Playing");
         module.exports.playSong(listener);
-
+        listener.channel.send(module.exports.createNowPlayingEmbed(listener));
+    },
+    createNowPlayingEmbed: function(listener) {
         let embed = new Discord.RichEmbed();
-        embed.setColor("#36393f");
-        embed.setTitle("Now Playing");
-        embed.setURL(listener.playing.url);
-        embed.setThumbnail(listener.playing.thumbnail);
-        embed.addField("Title", listener.playing.title);
-        embed.addField("Author", listener.playing.author);
+        embed.setColor("#FF0000");
+        embed.setTitle("\\▶ "+listener.playing.info.title);
+        if(listener.playing.info.uri.indexOf("youtu") > -1)
+            embed.setFooter("YouTube", "https://i.imgur.com/8iyBEbO.png");
+        embed.setAuthor("🔈 "+listener.voiceChannel.name);
+        embed.setURL(listener.playing.info.uri);
+        embed.setDescription(listener.playing.info.author);
 
-        embed.addField("Length", bot.util.prettySeconds(parseInt(listener.playing.seconds)));
-        listener.channel.send("",embed);
+        let elapsed = (new Date()-listener.connection.timestamp);
+        let length = bot.util.progressBar(elapsed, listener.playing.info.length, 25);
+        length += "`"+bot.util.shortSeconds(elapsed/1000)+"`/";
+        length += "`"+bot.util.shortSeconds(listener.playing.info.length/1000)+"`";
+        embed.addField("Length", length);
 
+        return embed;
     },
     playSong: async function playSong(listener){
         console.log("play play");
-        try {
-            const stream = await ytdl_discord(listener.playing.url, {
-                filter: 'audioonly',
-                quality: 'highestaudio',
-                highWaterMark: 1024 * 1024 * 10
-            });
-            console.log("stream stream");
-            stream.on('error', console.error);
 
-            if (listener.connection.dispatcher) {
-                bot.logger.log("Attempting to destroy previous dispatcher");
-                listener.connection.dispatcher.end();
-            }
+        listener.connection.play(listener.playing.track);
+        setTimeout(bot.lavaqueue.cancelLeave, 500, listener.voiceChannel);
 
-            const dispatcher = listener.connection.playOpusStream(stream);
-            console.log("dispatchy spatch spatch");
-            dispatcher.on('end', function dispatcherEnd() {
-                console.log("Dispatcher ended");
-                module.exports.playNextInQueue(listener.server);
-            });
-
-            dispatcher.on('error', console.error);
-        }catch(e){
-            console.error(e);
+        listener.connection.on("error", function playerError(error){
+           console.log(error);
+           module.exports.playNextInQueue(listener.server);
+        });
+        listener.connection.once("end", data => {
+            if (data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops
+            bot.logger.log("Song ended");
             module.exports.playNextInQueue(listener.server);
-        }
+            bot.lavaqueue.requestLeave(listener.voiceChannel);
+        });
     }
 };
