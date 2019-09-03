@@ -6,7 +6,7 @@
  */
 module.exports = {
     name: "Oil Painting",
-    usage: "pain [url]",
+    usage: "paint [url]",
     categories: ["image"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
