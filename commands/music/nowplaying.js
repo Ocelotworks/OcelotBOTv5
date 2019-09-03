@@ -14,6 +14,12 @@ module.exports = {
             return message.channel.send(`:warning: Nothing is currently playing! To play a song, type ${args[0]} queue <search or URL>`);
 
         const listener = music.listeners[guild];
-        message.channel.send(music.createNowPlayingEmbed(listener));
+
+        if(!listener.connection.playing) {
+            bot.logger.warn("Caught an uh-oh");
+            return music.playNextInQueue(guild);
+        }
+
+        listener.lastMessage = await message.channel.send(music.createNowPlayingEmbed(listener));
     }
 };

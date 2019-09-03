@@ -33,7 +33,7 @@ module.exports = {
                 };
 
             }
-            let song = await music.addToQueue(guild, query);
+            let song = await music.addToQueue(guild, query, message.author.id);
             if(music.listeners[guild].queue.length > 0) {
                 if (!song)
                     return message.channel.send(":warning: No results.");

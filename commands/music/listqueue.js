@@ -7,7 +7,7 @@
 module.exports = {
     name: "List Queue",
     usage: "listqueue",
-    commands: ["list", "lq", "upnext", "vq", "viewqueue", "listqueue"],
+    commands: ["list", "lq", "upnext", "vq", "viewqueue", "listqueue", "ql"],
     run: async function (message, args, bot, music) {
         const guild = message.guild.id;
         if(!music.listeners[guild] || !music.listeners[guild].playing)
