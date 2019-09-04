@@ -5,13 +5,13 @@
  *  ════╝
  */
 module.exports = {
-    name: "Mirror Image",
-    usage: "mirror [url]",
+    name: "Spread Image",
+    usage: "spread [url]",
     categories: ["image"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
-    commands: ["mirror", "flipimage"],
+    commands: ["spread"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "flip", []);
+        bot.util.processImageFilter(module, message, args, "spread", [message.getSetting("spread.amount")]);
     }
 };
