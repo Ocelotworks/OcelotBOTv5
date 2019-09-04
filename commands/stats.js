@@ -1,16 +1,16 @@
 const Discord = require('discord.js');
 const shardNames = [
-    "Ocelotworks",
+    "Remo.tv",
     "Let's Robot",
     "Sexy Trap Wife",
     "Autistic",
-    "Anex TTT",
+    "Wankish",
     "Wiking",
-    "Anex TTT",
     "cursed_shard",
+    "Anex TTT",
     "blessed_shard",
     "King Viking",
-    "Remo.tv"
+    "S1othy",
 ];
 module.exports = {
     name: "Stats",
