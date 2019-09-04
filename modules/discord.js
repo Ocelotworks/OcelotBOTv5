@@ -26,20 +26,22 @@ module.exports = {
     name: "Discord.js Integration",
     init: function(bot){
 
+        const FALLBACK_GUILD = "322032568558026753";
+        
         Discord.Message.prototype.replyLang = async function(message, values){
-            return this.channel.send(bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, this.author.id));
+            return this.channel.send(bot.lang.getTranslation(this.guild ? this.guild.id : FALLBACK_GUILD, message, values, this.author.id));
         };
 
         Discord.TextChannel.prototype.sendLang = async function(message, values){
-            return this.send(bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
+            return this.send(bot.lang.getTranslation(this.guild ? this.guild.id : FALLBACK_GUILD, message, values));
         };
 
         Discord.Message.prototype.editLang = async function(message, values){
-            return this.edit(bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, this.author.id));
+            return this.edit(bot.lang.getTranslation(this.guild ? this.guild.id : FALLBACK_GUILD, message, values, this.author.id));
         };
 
         Discord.TextChannel.prototype.getLangString = function(message, values, user){
-            return bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, user)
+            return bot.lang.getTranslation(this.guild ? this.guild.id : FALLBACK_GUILD, message, values, user)
         };
 
         Discord.Guild.prototype.getSetting = function(setting, user){
@@ -57,6 +59,19 @@ module.exports = {
         Discord.Message.prototype.getBool = function(setting){
            return bot.config.getBool(this.guild ? this.guild.id : "global", setting, this.author.id);
         };
+
+        Discord.RichEmbed.addFieldLang = function addFieldLang(title, body, values, guild){
+            this.addField(bot.lang.getTranslation(guild ? guild.id : FALLBACK_GUILD, title, values), bot.lang.getTranslation(guild ? guild.id : FALLBACK_GUILD, body, values))
+        };
+
+        Discord.RichEmbed.setTitleLang = function setTitleLang(title, values, guild){
+            this.setTitle(bot.lang.getTranslation(guild ? guild.id : FALLBACK_GUILD, title, values))
+        };
+
+        Discord.RichEmbed.setDescriptionLang = function setTitleLang(desc, values, guild){
+            this.setDescription(bot.lang.getTranslation(guild ? guild.id : FALLBACK_GUILD, desc, values))
+        };
+
 
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = async function send(content, options){
@@ -188,12 +203,12 @@ module.exports = {
                          bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
                          let embed = new Discord.RichEmbed();
                          embed.setColor(bot.config.get("global", "welcome.embedColour"));
-                         embed.setTitle("Welcome to OcelotBOT!");
-                         embed.setDescription("You can find my commands [here](https://ocelot.xyz/#commands) or by typing !help.");
-                         embed.addField("Wholesome?", "Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **!settings set wholesome true**");
-                         embed.addField("Administrators", "You can change the bot's settings by typing **!settings help**");
-                         embed.addField("Stuck?", "If you have issues or suggestions, type **!feedback** or join our [support server](https://discord.gg/7YNHpfF).");
-                         embed.addField("Support", "You can support the bot by [voting](https://discordbots.org/bot/146293573422284800/vote) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
+                         embed.setTitleLang("WELCOME_TITLE", {}, guild);
+                         embed.setDescriptionLang("WELCOME_DESC", {}, guild);
+                         embed.addFieldLang("WELCOME_WHOLESOME_TITLE", "WELCOME_WHOLESOME_DESC", {}, guild);
+                         embed.addFieldLang("WELCOME_ADMINISTRATORS_TITLE", "WELCOME_ADMINISTRATORS_DESC", {}, guild);
+                         embed.addFieldLang("WELCOME_STUCK_TITLE", "WELCOME_STUCK_DESC", {}, guild);
+                         embed.addFieldLang("WELCOME_SUPPORT_TITLE", "WELCOME_SUPPORT_DESC", {}, guild);
                          mainChannel.send("", embed);
                      }
                  }
@@ -241,7 +256,6 @@ module.exports = {
                     } catch (e) {
                         bot.logger.warn("Failed to send webhook");
                         console.log(e);
-                        bot.raven.captureException(e);
                     }
                 } else {
                     bot.logger.warn("Server had no webhook...");
