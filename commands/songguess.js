@@ -197,6 +197,8 @@ async function doGuess(voiceChannel, message, bot){
 
             } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
                 message.replyLang("SONGGUESS_ARTIST", {id: message.author.id, artist: artistName});
+            }else if(strippedMessage.indexOf(title) > -1){
+                message.reply("the song title is somewhere in your message!");
             }
             bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
         });
