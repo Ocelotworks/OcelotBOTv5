@@ -6,7 +6,7 @@
  */
 module.exports = {
     name: "Queue Song",
-    usage: "queue <url>",
+    usage: "queue <url/next>",
     commands: ["queue", "play", "add", "q"],
     run: async function(message, args, bot, music){
         if(!args[2]){
