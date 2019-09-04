@@ -10,7 +10,7 @@ module.exports = {
     commands: ["next", "queuenext", "addnext", "playnext", "qn"],
     run: async function(message, args, bot, music){
         if(!args[2]){
-            message.channel.send(`:warning: Invalid usage. You must add an URL to queue. ${args[0]} ${args[1]} <url>\nTo view the current queue, type ${args[0]} list`);
+            message.replyLang("MUSIC_QUEUE_USAGE");
         }else{
             let query = message.cleanContent.substring(args[0].length+args[1].length+2).trim();
             let guild = message.guild.id;
@@ -36,13 +36,13 @@ module.exports = {
             let song = await music.addToQueue(guild, query, message.author.id, true);
             if(music.listeners[guild].queue.length > 0) {
                 if (!song)
-                    return message.channel.send(":warning: No results.");
+                    return message.replyLang("MUSIC_NO_RESULTS");
                 if (song.count)
-                    return message.channel.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000)})`);
+                    return message.replyLang("MUSIC_ADD_PLAYLIST", {count: song.count, playlist: song.name, length: bot.util.prettySeconds(song.duration / 1000)});
                 if(song.title.indexOf("-") > -1)
-                    return message.channel.send(`:white_check_mark: Added **${song.title}** to the queue.`);
+                    return message.replyLang("MUSIC_ADD_SONG", {title: song.title});
 
-                message.channel.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
+                message.replyLang("MUSIC_ADD_VIDEO", {title: song.title, author: song.author});
             }
         }
 

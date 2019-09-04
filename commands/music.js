@@ -157,7 +157,7 @@ module.exports = {
     },
     playSong: async function playSong(listener){
         if(listener.playing.info.length <= 1000){
-            listener.channel.send(":warning: That track is too short to play.");
+            listener.channel.replyLang("MUSIC_PLAY_SHORT");
             return module.exports.playNextInQueue(listener.server);
         }
 
@@ -167,7 +167,7 @@ module.exports = {
         if(listener.playing.info.length >= 3.6e+6) { //1 hour
             listener.checkInterval = setInterval(function checkInterval() {
                 if(listener.voiceChannel.members.size === 1){
-                    listener.channel.send(":zzz: Disconnected due to inactivity.");
+                    listener.channel.replyLang("MUSIC_PLAY_INACTIVE");
                     listener.player.disconnect();
                     module.exports.deconstructListener(listener.server);
                 }

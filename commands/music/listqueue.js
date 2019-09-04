@@ -11,12 +11,12 @@ module.exports = {
     run: async function (message, args, bot, music) {
         const guild = message.guild.id;
         if(!music.listeners[guild] || !music.listeners[guild].playing)
-            return message.channel.send(`:warning: Nothing is currently playing! To play a song, type ${args[0]} queue <search or URL>`);
+            return message.replyLang("MUSIC_NOTHING_PLAYING");
 
         const listener = music.listeners[guild];
 
         if(listener.queue.length === 0)
-            return message.channel.send(`:spider_web: The queue is empty! Add some songs with ${args[0]} queue <search or URL>`);
+            return message.replyLang("MUSIC_QUEUE_EMPTY");
 
 
         let output = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000)})\n============\n`;

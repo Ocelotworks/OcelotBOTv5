@@ -75,19 +75,19 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
     run: async function run(message, args, bot){
         if(args[1]){
             if(!message.guild.id)
-                return message.channel.send(`:warning: You can't redeem a premium key in a DM, to learn about premium, just type ${args[0]}`);
+                return message.replyLang("PREMIUM_DM_CHANEL", {arg: args[0]});
 
             if(message.getBool("serverPremium"))
-                return message.channel.send(":warning: This server already has premium. You must redeem the key in a server that hasn't already got premium.");
+                return message.replyLang("PREMIUM_ALREADY_HAS");
 
             let result = await bot.database.getPremiumKey(args[1]);
 
             if(!result[0])
-                return message.channel.send(`:warning: Invalid premium key. To use server premium, you must get a premium key. For more info, type ${args[0]}`);
+                return message.replyLang("PREMIUM_INVALID", {arg: args[0]});
 
             let key = result[0];
             if(key.redeemed)
-                return message.channel.send(":warning: That key has already been redeemed! You must get a new key to use it in a different server.");
+                return message.replyLang("PREMIUM_KEY_ALREADY_REDEEMED");
 
             await bot.database.redeemPremiumKey(args[1], message.guild.id);
             await bot.config.set(message.guild.id, "serverPremium", true);
@@ -96,11 +96,12 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
                 bot.logger.warn("Key was redeemed by someone other than the owner.");
                 if(owner){
                     let dm = await owner.createDM();
+                    //KEY_REDEEMED_DM
                     dm.send(`Your Ocelot Premium key has been redeemed by **${message.author.tag}** for server **${message.guild.name}**. If you didn't authorize this, contact Big P#1843`);
                 }
             }
 
-            message.channel.send("Congratulations! Your Ocelot Server Premium key has been redeemed for this server. All the users of this server can now enjoy the benefits!");
+            message.replyLang("PREMIUM_KEY_REDEEMED");
             return;
         }
 

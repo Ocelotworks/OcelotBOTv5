@@ -395,6 +395,83 @@ test('util regex swearRegex fagot', function(t){
     t.true(bot.util.swearRegex.exec("fagot"));
 });
 
+
+test('util shortSeconds 1 second', function(t){
+    t.is(bot.util.shortSeconds(1), "00:01");
+});
+
+test('util shortSeconds 0 seconds', function(t){
+    t.is(bot.util.shortSeconds(1), "00:00");
+});
+
+test('util shortSeconds 10 seconds', function(t){
+    t.is(bot.util.shortSeconds(10), "00:10");
+});
+
+test('util shortSeconds 1 minute', function(t){
+    t.is(bot.util.shortSeconds(60), "01:00");
+});
+
+test('util shortSeconds 1 and a half minutes', function(t){
+    t.is(bot.util.shortSeconds(90), "01:30");
+});
+
+test('util shortSeconds 10 minutes', function(t){
+    t.is(bot.util.shortSeconds(600), "10:00");
+});
+
+test('util shortSeconds 1 hour', function(t){
+    t.is(bot.util.shortSeconds(3600), "01:00:00");
+});
+
+test('util shortSeconds 10 hours', function(t){
+    t.is(bot.util.shortSeconds(36000), "10:00:00");
+});
+
+test('util shortSeconds 100 hours', function(t){
+    t.is(bot.util.shortSeconds(360000), "100:00:00");
+});
+
+test('util progressBar full', function(t){
+    t.is(bot.util.progressBar(10,10), "[██████████████████████████████████████████████████]");
+});
+
+test('util progressBar over full', function(t){
+    t.is(bot.util.progressBar(100,10), "[██████████████████████████████████████████████████]");
+});
+
+test('util progressBar half', function(t){
+    t.is(bot.util.progressBar(5,10), "[█████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░]");
+});
+
+test('util progressBar empty', function(t){
+    t.is(bot.util.progressBar(0,10), "[░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]");
+});
+
+test('util progressBar negative', function(t){
+    t.is(bot.util.progressBar(-10,10), "[░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]");
+});
+
+test('util progressBar half width full', function(t){
+    t.is(bot.util.progressBar(10,10), "[███████████████████████████]");
+});
+
+test('util progressBar half width over full', function(t){
+    t.is(bot.util.progressBar(100,10), "[███████████████████████████]");
+});
+
+test('util progressBar half width half', function(t){
+    t.is(bot.util.progressBar(5,10), "[█████████████░░░░░░░░░░░░░]");
+});
+
+test('util progressBar half width empty', function(t){
+    t.is(bot.util.progressBar(0,10), "[░░░░░░░░░░░░░░░░░░░░░░░░░░]");
+});
+
+test('util progressBar half width negative', function(t){
+    t.is(bot.util.progressBar(-10,10), "[░░░░░░░░░░░░░░░░░░░░░░░░░░]");
+});
+
 let commands = require('./modules/commands.js');
 
 commands.loadCommands = function(){};

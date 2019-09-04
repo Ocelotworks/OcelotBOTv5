@@ -54,6 +54,12 @@ module.exports = {
             return array[Math.round(Math.random()*(array.length-1))];
         };
 
+        /**
+         * Fetch any amount of messages in 100 message chunks
+         * @param {Discord.TextChannel} channel
+         * @param {Number} amount
+         * @returns {Promise<[Discord.Message]>}
+         */
         bot.util.fetchMessages = async function(channel, amount){
             let iterations = Math.ceil(amount/100);
             let before;
@@ -203,17 +209,20 @@ module.exports = {
             return parseInt(bytes/1e+15)+"PB";
         };
 
+        //Why is this here
+        bot.bans = {
+            user: [],
+            channel: [],
+            server: []
+        };
+
         /**
          *
          * @param {Function} func
          * @param {Number} wait
          * @param {Boolean} immediate
          * @returns {Function}
-         */        bot.bans = {
-          user: [],
-          channel: [],
-          server: []
-        };
+         */
         bot.util.debounce = function debounce(func, wait, immediate) {
             var timeout;
             return function() {
@@ -560,6 +569,11 @@ module.exports = {
         const secondaryChannelRegex = /bot.*|spam|off-topic/gi;
         const requiredPermissions = ["SEND_MESSAGES", "READ_MESSAGES", "VIEW_CHANNEL"];
 
+        /**
+         * Attempt to find the main channel for a specified guild
+         * @param {Discord.Guild} guild
+         * @returns {Discord.TextChannel}
+         */
         bot.util.determineMainChannel = function determineMainChannel(guild){
             if(guild.defaultChannel && guild.defaultChannel.type === "text" && guild.defaultChannel.permissionsFor(bot.client.user).has(requiredPermissions, true)){
                 return guild.defaultChannel;
@@ -586,6 +600,11 @@ module.exports = {
             });
         };
 
+        /**
+         * Find the user mentioned and return their probiel
+         * @param {string} mention
+         * @returns {Discord.User|null}
+         */
         bot.util.getUserFromMention = function getUserFromMention(mention) {
             if (!mention) return null;
             if (mention.startsWith('<@') && mention.endsWith('>')) {
@@ -599,6 +618,11 @@ module.exports = {
             return null;
         };
 
+        /**
+         * Get the URL pointing to an emoji, including custom and animated ones.
+         * @param {string} mention
+         * @returns {string|null}
+         */
         bot.util.getEmojiURLFromMention = function getEmojiURLFromMention(mention){
             if(!mention) return null;
             if(mention.startsWith("<:") && mention.endsWith(">")){

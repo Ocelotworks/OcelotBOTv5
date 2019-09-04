@@ -10,7 +10,7 @@ module.exports = {
     commands: ["queue", "play", "add", "q"],
     run: async function(message, args, bot, music){
         if(!args[2]){
-            message.channel.send(`:warning: Invalid usage. You must add an URL to queue. ${args[0]} ${args[1]} <url>\nTo view the current queue, type ${args[0]} list`);
+            message.replyLang("MUSIC_QUEUE_USAGE");
         }else{
             let query = message.cleanContent.substring(args[0].length+args[1].length+2).trim();
             let guild = message.guild.id;
