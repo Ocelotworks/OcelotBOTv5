@@ -31,12 +31,11 @@ module.exports = {
             if(!listener.queue[pos])
                 return message.channel.send(`:warning: There is no item at that position, retrieve the number from **${args[0]} list**`);
 
-
             if(listener.voiceChannel.members.size > 2 && listener.queue[pos].requester !== message.author.id)
                 return message.channel.send(`:bangbang: Only the person who requested the song (<@${listener.queue[pos].requester}>) can remove this song.`);
 
+            message.channel.send(`:white_check_mark: Removed **${listener.queue[pos].title}**`);
             listener.queue.splice(pos, 1);
-            message.channel.send(":white_check_mark: Removed.");
         }
 
     }
