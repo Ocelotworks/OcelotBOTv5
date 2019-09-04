@@ -200,5 +200,23 @@ module.exports = {
             });
         }, 1000);
 
+        bot.matomo.track({
+            action_name: "Stream Song",
+            uid:  listener.playing.requester,
+            url: `http://bot.ocelot.xyz/stream`,
+            ua: "Shard "+bot.client.shard_id,
+            e_c: "Song",
+            e_a: "Streamed",
+            e_n: listener.playing.info.title,
+            e_v: 1,
+            cvar: JSON.stringify({
+                1: ['Server ID', listener.server],
+                2: ['Server Name', bot.client.guilds.get(listener.server).name],
+                3: ['Message', ""],
+                4: ['Channel Name', listener.channel.name],
+                5: ['Channel ID', listener.channel.id]
+            })
+        });
+
     }
 };
