@@ -7,7 +7,7 @@
 module.exports = {
     name: "Skip Song",
     usage: "skip",
-    commands: ["skip", "next", "s"],
+    commands: ["skip", "next", "s", "n"],
     run: async function (message, args, bot, music) {
         const guild = message.guild.id;
         if (!music.listeners[guild] || !music.listeners[guild].playing)
