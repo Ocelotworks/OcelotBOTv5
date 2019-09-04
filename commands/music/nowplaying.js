@@ -6,7 +6,7 @@
  */
 module.exports = {
     name: "Now Playing",
-    usage: "nowplaying <url>",
+    usage: "nowplaying",
     commands: ["nowplaying", "np", "playing"],
     run: async function (message, args, bot, music) {
         const guild = message.guild.id;
