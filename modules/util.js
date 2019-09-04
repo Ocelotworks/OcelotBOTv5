@@ -374,6 +374,8 @@ module.exports = {
             request(url)
             .on("response", function requestResponse(resp){
                 shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
+                if(format !== "JPEG" && resp.headers && resp.headers['content-type'].toLowerCase() === "image/gif")
+                    format = "GIF";
             })
             .on("error", function requestError(err){
                 bot.raven.captureException(err);
