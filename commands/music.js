@@ -31,7 +31,7 @@ module.exports = {
     run: function (message, args, bot) {
         bot.util.standardNestedCommand(message,args,bot,'music', module.exports);
     },
-    addToQueue: async function(server, search, requester){
+    addToQueue: async function(server, search, requester, next = false){
         let listener = module.exports.listeners[server];
         if(!search.startsWith("http"))
             search = "ytsearch:"+search;
@@ -43,12 +43,12 @@ module.exports = {
             case "SEARCH_RESULT":
             case "TRACK_LOADED":
                 result.tracks[0].requester = requester;
-                listener.queue.push(result.tracks[0]);
+                listener.queue[next ? "unshift" : "push"](result.tracks[0]); //I don't like this but it works
                 obj = result.tracks[0].info;
                 break;
             case "PLAYLIST_LOADED":
                 result.tracks.forEach((t)=>t.requester = requester);
-                listener.queue.push(...result.tracks);
+                listener.queue[next ? "unshift" : "push"](...result.tracks);
                 obj = { count: result.tracks.length,
                         name: result.playlistInfo.name,
                         duration: result.tracks.reduce((p, t)=>p+t.info.length, 0)};
@@ -77,7 +77,7 @@ module.exports = {
 
         if(!newSong || (listener.voiceChannel && listener.voiceChannel.members.size === 1)) {
             bot.logger.log("Clearing listener for "+server);
-            return module.exports.listeners[server] = null;//Clear listener
+            return module.exports.deconstructListener(server);
         }
 
         listener.playing = newSong;
@@ -146,10 +146,32 @@ module.exports = {
           }//else
            // clearInterval(listener.editInterval);
     },
+    deconstructListener: function(server){
+        const listener = module.exports.listeners[server];
+        if(listener.checkInterval)
+            clearInterval(listener.checkInterval);
+        if(listener.editInterval)
+            clearInterval(listener.editInterval);
+
+        module.exports.listeners[server] = null;
+    },
     playSong: async function playSong(listener){
         if(listener.playing.info.length <= 1000){
             listener.channel.send(":warning: That track is too short to play.");
             return module.exports.playNextInQueue(listener.server);
+        }
+
+        if(listener.checkInterval)
+            clearInterval(listener.checkInterval);
+
+        if(listener.playing.info.length >= 3.6e+6) { //1 hour
+            listener.checkInterval = setInterval(function checkInterval() {
+                if(listener.voiceChannel.members.size === 1){
+                    listener.channel.send(":zzz: Disconnected due to inactivity.");
+                    listener.player.disconnect();
+                    module.exports.deconstructListener(listener.server);
+                }
+            }, 1.8e+6);
         }
 
         bot.raven.captureBreadcrumb({
@@ -158,6 +180,7 @@ module.exports = {
             server:listener.guild
         });
         listener.connection.play(listener.playing.track);
+
         setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);
 
         setTimeout(function(){
