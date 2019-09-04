@@ -10,8 +10,6 @@ module.exports = {
 
         bot.prefixCache = {};
 
-
-
         bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
             if(message.author.bot)return;
             const prefix = message.getSetting("prefix");
@@ -106,16 +104,16 @@ module.exports = {
                 return;
             }
             bot.bus.emit("commandPerformed", command, message);
+            bot.raven.captureBreadcrumb({
+                user: {
+                    username: message.author.username,
+                    id: message.author.id
+                },
+                message: message.content,
+                channel: message.channel.id,
+                server: message.guild ? message.guild.id : "DM Channel"
+            });
             try {
-                bot.raven.captureBreadcrumb({
-                    user: {
-                        username: message.author.username,
-                        id: message.author.id
-                    },
-                    message: message.content,
-                    channel: message.channel.id,
-                    server: message.guild ? message.guild.id : "DM Channel"
-                });
                 if(message.getSetting("notice")){
                     message.channel.send(message.getSetting("notice"));
                     bot.database.deleteSetting(message.guild.id, "notice");
