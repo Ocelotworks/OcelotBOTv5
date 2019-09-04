@@ -27,15 +27,19 @@ module.exports = {
     init: function(bot){
 
         Discord.Message.prototype.replyLang = async function(message, values){
-            return this.channel.send(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, this.author.id));
+            return this.channel.send(bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, this.author.id));
         };
 
         Discord.TextChannel.prototype.sendLang = async function(message, values){
-            return this.send(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
+            return this.send(bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
         };
 
         Discord.Message.prototype.editLang = async function(message, values){
-            return this.edit(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, this.author.id));
+            return this.edit(bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, this.author.id));
+        };
+
+        Discord.TextChannel.prototype.getLangString = function(message, values, user){
+            return bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, user)
         };
 
         Discord.Guild.prototype.getSetting = function(setting, user){
