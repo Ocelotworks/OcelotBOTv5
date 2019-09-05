@@ -17,11 +17,13 @@ module.exports = {
             if(!music.listeners[guild]){
                 if(!message.member.voiceChannel)
                     return message.channel.send(":warning: You have to be in a voice channel to use this command.");
+                const host = bot.util.arrayRand(message.getSetting("music.host").split(","));
+                bot.logger.log("Using host "+host);
                 const player = await bot.lavaqueue.manager.join({
                     guild:    message.guild.id,
                     channel:  message.member.voiceChannel.id,
-                    host:     "boywanders.us"
-                });
+                    host
+                }, {selfdeaf: true});
                 music.listeners[guild] = {
                     connection: player,
                     voiceChannel: message.member.voiceChannel,
@@ -29,6 +31,7 @@ module.exports = {
                     queue: [],
                     server: guild,
                     channel: message.channel,
+                    host,
                     playing: null
                 };
 
