@@ -66,8 +66,7 @@ module.exports = {
     },
     playNextInQueue: function playNextInQueue(server){
       if(!module.exports.listeners[server]) {
-          console.warn("Nothing is queued");
-          throw new Error("Nothing is queued");
+          return bot.logger.warn("Queue is missing!");
       }
         let listener = module.exports.listeners[server];
         let newSong= listener.queue.shift();
@@ -76,6 +75,8 @@ module.exports = {
             clearInterval(listener.editInterval);
 
         if(!newSong || (listener.voiceChannel && listener.voiceChannel.members.size === 1)) {
+            console.log(!!newSong);
+            console.log((listener.voiceChannel && listener.voiceChannel.members.size === 1))
             bot.logger.log("Clearing listener for "+server);
             return module.exports.deconstructListener(server);
         }
@@ -100,7 +101,8 @@ module.exports = {
     createNowPlayingEmbed: function(listener) {
         let embed = new Discord.RichEmbed();
         embed.setColor("#FF0000");
-        embed.setTitle("\\▶ "+listener.playing.info.title);
+
+        embed.setTitle((listener.connection.paused ? "\\⏸" : "\\▶")+listener.playing.info.title);
         let footer = "";
         let footerIcon = null;
         if(listener.playing.info.uri.indexOf("youtu") > -1) {
@@ -119,7 +121,7 @@ module.exports = {
         embed.setAuthor("🔈 "+listener.voiceChannel.name);
         embed.setURL(listener.playing.info.uri);
         embed.setDescription(listener.playing.info.author);
-        let elapsed = (new Date() - listener.connection.timestamp);
+        let elapsed = listener.connection.state.position || 0;
         let length;
         if(listener.playing.info.length < 9223372036854776000) {//max int
             length = bot.util.progressBar(elapsed, listener.playing.info.length, 25);
@@ -147,13 +149,15 @@ module.exports = {
            // clearInterval(listener.editInterval);
     },
     deconstructListener: function(server){
+        bot.logger.log("Deconstructing listener "+server);
         const listener = module.exports.listeners[server];
+        bot.lavaqueue.requestLeave(listener.voiceChannel);
         if(listener.checkInterval)
             clearInterval(listener.checkInterval);
         if(listener.editInterval)
             clearInterval(listener.editInterval);
 
-        module.exports.listeners[server] = null;
+        module.exports.listeners[server] = undefined;
     },
     playSong: async function playSong(listener){
         if(listener.playing.info.length <= 1000){
