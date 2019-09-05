@@ -156,7 +156,6 @@ module.exports = {
     },
     test: function(test){
         test('band name generator', function(t){
-            t.expect(1);
             const bot = {
                 util: {
                     arrayRand: function(array){

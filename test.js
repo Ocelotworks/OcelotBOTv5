@@ -374,34 +374,12 @@ test('util regex timezoneRegex UTC+123456789', function(t){
     t.is(result[2], "+123456789");
 });
 
-
-test('util regex swearRegex fuck you', function(t){
-    t.true(bot.util.swearRegex.exec("fuck you"));
-});
-
-test('util regex swearRegex shit', function(t){
-    t.true(bot.util.swearRegex.exec("shit"));
-});
-
-test('util regex swearRegex faggot', function(t){
-    t.true(bot.util.swearRegex.exec("faggot"));
-});
-
-test('util regex swearRegex fagget', function(t){
-    t.true(bot.util.swearRegex.exec("fagget"));
-});
-
-test('util regex swearRegex fagot', function(t){
-    t.true(bot.util.swearRegex.exec("fagot"));
-});
-
-
 test('util shortSeconds 1 second', function(t){
     t.is(bot.util.shortSeconds(1), "00:01");
 });
 
 test('util shortSeconds 0 seconds', function(t){
-    t.is(bot.util.shortSeconds(1), "00:00");
+    t.is(bot.util.shortSeconds(1), "00:01");
 });
 
 test('util shortSeconds 10 seconds', function(t){
@@ -453,23 +431,23 @@ test('util progressBar negative', function(t){
 });
 
 test('util progressBar half width full', function(t){
-    t.is(bot.util.progressBar(10,10), "[███████████████████████████]");
+    t.is(bot.util.progressBar(10,10, 25), "[█████████████████████████]");
 });
 
 test('util progressBar half width over full', function(t){
-    t.is(bot.util.progressBar(100,10), "[███████████████████████████]");
+    t.is(bot.util.progressBar(100,10, 25), "[█████████████████████████]");
 });
 
 test('util progressBar half width half', function(t){
-    t.is(bot.util.progressBar(5,10), "[█████████████░░░░░░░░░░░░░]");
+    t.is(bot.util.progressBar(5,10, 25), "[█████████████░░░░░░░░░░░░]");
 });
 
 test('util progressBar half width empty', function(t){
-    t.is(bot.util.progressBar(0,10), "[░░░░░░░░░░░░░░░░░░░░░░░░░░]");
+    t.is(bot.util.progressBar(0,10, 25), "[░░░░░░░░░░░░░░░░░░░░░░░░░]");
 });
 
 test('util progressBar half width negative', function(t){
-    t.is(bot.util.progressBar(-10,10), "[░░░░░░░░░░░░░░░░░░░░░░░░░░]");
+    t.is(bot.util.progressBar(-10,10, 25), "[░░░░░░░░░░░░░░░░░░░░░░░░░]");
 });
 
 let commands = require('./modules/commands.js');
