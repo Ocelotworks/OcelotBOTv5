@@ -5,22 +5,20 @@
  *  ════╝
  */
 module.exports = {
-    name: "Leave channel",
+    name: "Leave Channel",
     usage: "leave",
     commands: ["leave", "quit"],
     run: async function (message, args, bot, music) {
         const guild = message.guild.id;
-        if (!music.listeners[guild] || !music.listeners[guild].playing)
+        if (!music.listeners[guild])
             return message.replyLang("MUSIC_NOTHING_PLAYING");
 
         const listener = music.listeners[guild];
-
-
         if(listener.playing && listener.voiceChannel.members.size > 2)
             return message.channel.send(`:bangbang: You can only use this command if you're the only one listening.`);
 
         message.channel.send(":wave: Goodbye.");
-        await listener.connection.disconnect();
+        await listener.connection.leave();
         music.deconstructListener(guild);
     }
 };
