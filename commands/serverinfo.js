@@ -63,11 +63,11 @@ module.exports = {
                         let guild = message.guild ? message.guild.id : "322032568558026753";
 
                         embed.setTitle(info.name);
-                        embed.addField(bot.lang.getTranslation(guild, "SERVERINFO_PLAYERS"), `${info.bots}+${info.players}/${info.maxplayers}`, true);
-                        embed.addField(bot.lang.getTranslation(guild, "SERVERINFO_MAP"), info.map, true);
-                        embed.addField(bot.lang.getTranslation(guild, "SERVERINFO_GAMEMODE"), info.game, true);
-                        embed.addField(bot.lang.getTranslation(guild, "SERVERINFO_VERSION"), info.version, true);
-                        embed.addField(bot.lang.getTranslation(guild, "SERVERINFO_PLAYERS"), output);
+                        embed.addField(await bot.lang.getTranslation(guild, "SERVERINFO_PLAYERS"), `${info.bots}+${info.players}/${info.maxplayers}`, true);
+                        embed.addField(await bot.lang.getTranslation(guild, "SERVERINFO_MAP"), info.map, true);
+                        embed.addField(await bot.lang.getTranslation(guild, "SERVERINFO_GAMEMODE"), info.game, true);
+                        embed.addField(await bot.lang.getTranslation(guild, "SERVERINFO_VERSION"), info.version, true);
+                        embed.addField(await bot.lang.getTranslation(guild, "SERVERINFO_PLAYERS"), output);
                         embed.setDescription(`steam://connect/${ip}:${port}`);
 
                         message.channel.send("", embed);
