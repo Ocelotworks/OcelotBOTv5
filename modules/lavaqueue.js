@@ -45,7 +45,7 @@ module.exports = {
             bot.lavaqueue.leaveTimeouts[channel.id] = setTimeout(async function leaveVoiceChannel(){
                 bot.logger.log("Leaving voice channel "+channel.id);
                 await bot.lavaqueue.manager.leave(channel.guild.id);
-            }, 15000);
+            }, 60000);
         };
         bot.lavaqueue.cancelLeave = function cancelLeave(channel){
             if(bot.lavaqueue.leaveTimeouts[channel.id]) {
@@ -60,7 +60,7 @@ module.exports = {
                 guild: voiceChannel.guild.id, // Guild id
                 channel:  voiceChannel.id, // Channel id
                 host: "boywanders.us" // lavalink host, based on array of nodes
-            });
+            }, {selfdeaf: true});
             let songData = await bot.lavaqueue.getSong(song);
             console.log(songData);
             player.play(songData.track);
