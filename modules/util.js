@@ -4,6 +4,7 @@ const Discord = require('discord.js');
 const request = require('request');
 const fs = require('fs');
 const twemoji = require('twemoji-parser');
+const config = require('config');
 module.exports = {
     name: "Utilities",
     init: function(bot){
@@ -396,7 +397,7 @@ module.exports = {
                     .toBuffer(format, function toBuffer(err, buffer){
                         if(err)
                             return message.replyLang("GENERIC_CREATE_IMAGE_FAIL");
-                        let name = filter+".png";
+                        let name = filter+"."+(format.toLowerCase());
                         if(url.indexOf("SPOILER_") > -1)
                             name = "SPOILER_"+name;
                         const attachment = new Discord.Attachment(buffer, name);
@@ -470,6 +471,38 @@ module.exports = {
             }
         };
 
+        bot.util.getImageFromTenorURL = function(url){
+            return new Promise(function(fulfill){
+                 const urlSplit = url.split("-");
+                 const id = urlSplit[urlSplit.length-1];
+                 if(isNaN(id)) {
+                     bot.logger.warn("Invalid tenor URL: "+url);
+                     return fulfill(null);
+                 }
+
+                 request(`https://api.tenor.com/v1/gifs?ids=${id}&key=${config.get("Tenor.key")}`, function tenorResponse(err, resp, body){
+                     if(err){
+                         bot.raven.captureException(err);
+                         return fulfill(null);
+                     }
+                     try {
+                         let data = JSON.parse(body);
+                         if(data.error || !data.results || data.results.length === 0 || !data.results[0].media){
+                             bot.logger.warn("Malformed tenor URL "+url);
+                             bot.logger.warn(body);
+                             return fulfill(null);
+                         }
+                         fulfill(data.results[0].media[0].gif.url);
+                     }catch(e){
+                         bot.raven.captureException(e);
+                         fulfill(null);
+                     }
+
+
+                 })
+            });
+        };
+
         /**
          * Get an image from previous messages
          * @param {Object} message
@@ -484,7 +517,10 @@ module.exports = {
             });
             if(targetMessage){
                 if(targetMessage.content.startsWith("http")) {
-                    return targetMessage.content.split(" ")[0];
+                    let url = targetMessage.content.split(" ")[0];
+                    if(url.startsWith("https://tenor.com/"))
+                        return await bot.util.getImageFromTenorURL(url);
+                    return url;
                 }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
                     const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
                     if(!targetAttachment)return null;
