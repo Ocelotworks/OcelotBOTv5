@@ -49,10 +49,16 @@ function init(){
         // if(typeof message === 'object')
         //     console.log(message);
         // let output = origin+message;
+        let shard = "?";
+        if(bot.client && bot.client.shard){
+            shard = bot.client.shard.id;
+            if(shard < 10)
+                shard = "0"+shard;
+        }
         if(error)
-            console.error(`[${bot.client && bot.client.shard ? bot.client.shard.id : "?"}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`,origin, message);
+            console.error(`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`,origin, message);
         else
-            console.log(`[${bot.client && bot.client.shard ? bot.client.shard.id : "?"}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, message);
+            console.log(`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, message);
     };
 
     bot.logger.error = function error(message){
