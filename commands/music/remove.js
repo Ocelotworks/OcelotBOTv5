@@ -7,7 +7,7 @@
 module.exports = {
     name: "Remove Queue Item",
     usage: "remove",
-    commands: ["remove", "rq", "rem", "removequeue"],
+    commands: ["remove", "r", "rem", "removequeue"],
     run: async function (message, args, bot, music) {
         const guild = message.guild.id;
         if(!music.listeners[guild] || !music.listeners[guild].playing)
@@ -34,7 +34,7 @@ module.exports = {
             if(listener.voiceChannel.members.size > 2 && listener.queue[pos].requester !== message.author.id)
                 return message.channel.send(`:bangbang: Only the person who requested the song (<@${listener.queue[pos].requester}>) can remove this song.`);
 
-            message.channel.send(`:white_check_mark: Removed **${listener.queue[pos].title}**`);
+            await message.channel.send(`:white_check_mark: Removed **${listener.queue[pos].title}**`);
             listener.queue.splice(pos, 1);
         }
 
