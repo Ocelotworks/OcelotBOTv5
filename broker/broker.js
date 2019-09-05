@@ -58,9 +58,9 @@ function init(){
         let origin = `[${file[file.length-1]}${caller.functionName ? "/"+caller.functionName : ""}] `.bold;
 
         if(error)
-            console.error(`[B][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`.cyan,origin.cyan, message);
+            console.error(`[BR][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`.cyan,origin.cyan, message);
         else
-            console.log(`[B][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`.cyan, origin.cyan, message.cyan);
+            console.log(`[BR][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`.cyan, origin.cyan, message.cyan);
     };
 
     broker.logger.error = function error(message){
