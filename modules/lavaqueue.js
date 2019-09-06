@@ -41,7 +41,7 @@ module.exports = {
         bot.lavaqueue.leaveTimeouts = [];
         bot.lavaqueue.requestLeave = function requestLeave(channel){
             bot.logger.log("Requested leave for "+channel.id);
-           bot.lavaqueue.cancelLeave(channel);
+            bot.lavaqueue.cancelLeave(channel);
             bot.lavaqueue.leaveTimeouts[channel.id] = setTimeout(async function leaveVoiceChannel(){
                 bot.logger.log("Leaving voice channel "+channel.id);
                 await bot.lavaqueue.manager.leave(channel.guild.id);
@@ -62,7 +62,6 @@ module.exports = {
                 host: "boywanders.us" // lavalink host, based on array of nodes
             }, {selfdeaf: true});
             let songData = await bot.lavaqueue.getSong(song);
-            console.log(songData);
             player.play(songData.track);
             player.on("error", function playerError(error){
                 bot.raven.captureException(error);
