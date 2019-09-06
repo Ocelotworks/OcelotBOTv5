@@ -13,7 +13,7 @@ module.exports = {
         let cachedUsers = [];
 
         bot.bus.on("commandPerformed", async function(command, message){
-             let newVisit  = cachedUsers.indexOf(message.author.id) === -1;
+            let newVisit  = cachedUsers.indexOf(message.author.id) === -1;
             bot.matomo.track({
                 action_name: "Command Performed",
                 uid: message.author.id,
