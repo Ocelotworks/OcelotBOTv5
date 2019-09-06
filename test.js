@@ -450,6 +450,26 @@ test('util progressBar half width negative', function(t){
     t.is(bot.util.progressBar(-10,10, 25), "[░░░░░░░░░░░░░░░░░░░░░░░░░]");
 });
 
+test('util formatUnicorn one argument', function(t){
+    t.is("hello {{thing}}".formatUnicorn({thing: "world"}), "hello world");
+});
+
+test('util formatUnicorn two argument', function(t){
+    t.is("{{a}} {{thing}}".formatUnicorn({thing: "world", a: "hello"}), "hello world");
+});
+
+test('util formatUnicorn single argument alt', function(t){
+    t.is("{{0}} world".formatUnicorn("hello"), "hello world");
+});
+
+test('util formatUnicorn no arguments', function(t){
+    t.is("hello world".formatUnicorn({}), "hello world");
+});
+
+test('util formatUnicorn invalid argument', function(t){
+    t.is("hello world {{no}}".formatUnicorn({}), "hello world {{no}}");
+});
+
 let commands = require('./modules/commands.js');
 
 commands.loadCommands = function(){};
@@ -947,3 +967,62 @@ test('command processing weird prefix', function(t){
     bot.client.emit("message", message);
 });
 
+const blns = (fs.readFileSync("test/resources/blns.txt")).toString().split("\n");
+function stringTest(name, callback){
+    for(let i = 0; i < blns.length; i++){
+        let str = blns[i];
+        if(str.startsWith("#"))continue;
+        if(str.length === 0)continue;
+        test(`BLNS: ${name} #${i} '${blns[i]}'`, function(t){
+            t.plan(1);
+            try {
+                callback(str);
+            }catch(e){
+                t.fail(e.message);
+            }finally{
+                t.pass();
+            }
+        });
+
+    }
+}
+
+stringTest("getUserFromMention", bot.util.getUserFromMention);
+stringTest("getEmojiURLFromMention", bot.util.getEmojiURLFromMention);
+stringTest("getNumberPrefix", bot.util.getNumberPrefix);
+stringTest("prettyMemory", bot.util.prettyMemory);
+stringTest("formatUnicorn", (str)=>str.formatUnicorn({}));
+stringTest("command processor", function(str){
+    bot.commands = {};
+    bot.commandUsages = {premium: {premium: true, categories: []}};
+    bot.checkBan = function(){
+        return false;
+    };
+    bot.isRateLimited = function(){
+        return false;
+    };
+    const config = {
+        premium: true,
+        serverPremium: false,
+        allowNSFW: true,
+        prefix: "!"
+    };
+    const message = {
+        author: {},
+        guild: {},
+        getSetting: function(key){
+            return config[key]
+        },
+        getBool: function(key){
+            return config[key];
+        },
+        content: str,
+        reply: function(){},
+        channel: {
+            send: function(){},
+        },
+        replyLang: function(){},
+    };
+
+    bot.client.emit("message", message);
+});
