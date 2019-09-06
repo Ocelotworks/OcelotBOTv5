@@ -557,18 +557,17 @@ module.exports = {
              * @param {UserID} user The user who was spooked
              * @param {UserID} spooker The user who did the spooking
              * @param {ServerID} server The server where the spook happened
+             * @param channel
              * @param {String} spookerUsername The spooker's username
              * @param {String} spookedUsername
+             * @param spookerColour
+             * @param spookedColour
              * @returns {*}
              */
-            spook: function(user, spooker, server, spookerUsername, spookedUsername){
+            spook: function(spooked, spooker, server, channel, spookerUsername, spookedUsername, spookerColour, spookedColour){
                 return knex.insert({
-                    spooker: spooker,
-                    spooked: user,
-                    server: server,
-                    spookerUsername: spookerUsername,
-                    spookedUsername: spookedUsername
-                }).into("ocelotbot_spooks");
+                    spooked, spooker, server, channel, spookerUsername, spookedUsername, spookerColour, spookedColour
+                }).into(SPOOK_TABLE);
             },
             /**
              * Get the person who is currently spooked
@@ -577,9 +576,9 @@ module.exports = {
              */
             getSpooked: function(server){
                 if(!server) {
-                    return knex.select().from("ocelotbot_spooks").orderBy("timestamp", "desc");
+                    return knex.select().from(SPOOK_TABLE).orderBy("timestamp", "desc");
                 }
-                return knex.select().from("ocelotbot_spooks").where({server: server}).orderBy("timestamp", "desc").limit(1);
+                return knex.select().from(SPOOK_TABLE).where({server}).orderBy("timestamp", "desc").limit(1);
             },
             /**
              * Gets spooked server stats
@@ -587,8 +586,8 @@ module.exports = {
              */
             getSpookedServers: async function(){
                 return{
-                    servers: await knex.select("server", knex.raw("COUNT(*)")).from("ocelotbot_spooks").groupBy("server"),
-                    total: await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks")
+                    servers: await knex.select("server", knex.raw("COUNT(*)")).from(SPOOK_TABLE).groupBy("server"),
+                    total: await knex.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE)
                 }
             },
             /**
@@ -596,14 +595,14 @@ module.exports = {
              * @returns {Array|*}
              */
             getParticipatingServers: function(){
-                return knex.select().distinct("server").from("ocelotbot_spooks");
+                return knex.select().distinct("server").from(SPOOK_TABLE);
             },
             /**
              * Gets all users that have participated in the spooking
              * @returns {Array|*}
              */
             getParticipatingUsers: function(){
-                return knex.select().distinct("spooker", "spooked").from("ocelotbot_spooks");
+                return knex.select().distinct("spooker", "spooked").from(SPOOK_TABLE);
             },
             /**
              * Gets all spooks where there is a username missing
