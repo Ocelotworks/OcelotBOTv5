@@ -18,6 +18,8 @@ module.exports = {
 
            try{
                const data = JSON.parse(body);
+               if(data.results.length === 0)
+                   return message.channel.send("No results.");
                bot.util.standardPagination(message.channel, data.results, async function(result){
                    const embed = new Discord.RichEmbed();
 
