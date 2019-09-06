@@ -19,7 +19,8 @@ module.exports = {
                 channel.send(message.formatUnicorn({
                     user: guildMember.user,
                     username: guildMember.user.username,
-                    server: guildMember.guild.name
+                    server: guildMember.guild.name,
+                    userCount: guildMember.guild.members.size
                 }));
             }
         });

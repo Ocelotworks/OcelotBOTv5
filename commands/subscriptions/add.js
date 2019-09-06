@@ -10,11 +10,11 @@ module.exports = {
     commands: ["add", "types", "new"],
     run:  async function(message, args, bot, data){
         if(args[2] && bot.subscriptions[args[2]] && args[3]){
-            let data = message.content.substring(args[0].length+args[1].length+args[2].length+2);
-            let validation = bot.subscriptions[args[2]].validate(data);
+            let content = message.content.substring(args[0].length+args[1].length+args[2].length+2);
+            let validation = bot.subscriptions[args[2]].validate(content);
             if(validation)
                 return message.channel.send(validation);
-            let res = await bot.database.addSubscription(message.guild.id, message.channel.id, message.author.id, args[2], args[3]);
+            let res = await bot.database.addSubscription(message.guild.id, message.channel.id, message.author.id, args[2], content);
             let subObject = {
                 server: message.guild.id,
                 channel: message.channel.id,
