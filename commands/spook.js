@@ -44,139 +44,88 @@ module.exports = {
             }
         });
 
-
-        // bot.setSpookyPresence = async function(){
-        //     const result = await bot.database.getSpookedServers();
-        //     bot.client.user.setPresence({
-        //         game: {
-        //             name: `👻 !spook ~ ${result.total[0]['COUNT(*)']} SPOOKED.`,
-        //             type: "WATCHING"
-        //         }
-        //     });
-        // };
-        //
-        // bot.client.on("ready", async function ready(){
-        //     bot.logger.log("Setting spooky presence");
-        //     await bot.setSpookyPresence();
-        //
-        //     bot.spooked = {};
-        //
-        //     const spookedResult = await bot.database.getSpooked();
-        //
-        //     for(let i = 0; i < spookedResult.length; i++){
-        //         const spook = spookedResult[i];
-        //         if(bot.client.guilds.has(spook.server) && !bot.spooked[spook.server]){
-        //             bot.spooked[spook.server] = {
-        //                 user: spook.spooked,
-        //                 timer: setTimeout(bot.generateNewSpook, 8.64e+7, spook.server) //24 Hours
-        //             }
-        //         }
-        //     }
-        //     bot.logger.log("This shard has "+Object.keys(bot.spooked).length+" spooked servers.");
-        // });
-        //
-        // bot.spookReactChance = 0.6;
-        //
-        // bot.client.on("message", function(message){
-        //    if(bot.spooked && message.guild && bot.spooked[message.guild.id]){
-        //        // noinspection EqualityComparisonWithCoercionJS
-        //        if(bot.spooked[message.guild.id].user == message.author.id){
-        //            clearTimeout(bot.spooked[message.guild.id].timer);
-        //            bot.spooked[message.guild.id].timer = setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id);
-        //            // if(message.channel.permissionsFor(bot.client.user).has("ADD_REACTIONS") && Math.random() > bot.spookReactChance){
-        //            //      bot.logger.log(`Reacting to message in ${message.guild.name} (${message.guild.id})`);
-        //            //      message.react("👻");
-        //            // }
-        //        }
-        //    }
-        // });
+        bot.spook = {};
+        bot.spook.spooked = [];
 
 
-        // bot.generateNewSpook = async function generateNewSpook(server, left){
-        //     bot.logger.warn("Generating new spook for "+server);
-        //     if (!bot.client.guilds.has(server)) {
-        //         bot.logger.warn("Spooked server no longer exists.");
-        //     }else{
-        //         const guild = bot.client.guilds.get(server);
-        //         const lastSpook = await bot.database.getSpooked(server);
-        //         let channel = guild.channels.find(function(channel){
-        //            return (channel.name.indexOf("general") > -1 || channel.name.indexOf("main") > -1) && channel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
-        //         });
-        //         if(!channel) {
-        //             const availableChannels = guild.channels.filter(function (guildChannel) {
-        //                 return guildChannel.type === "text" && guildChannel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
-        //             });
-        //             channel = availableChannels.random(1)[0];
-        //         }
-        //         const lastMessages = (await channel.fetchMessages({limit: 50})).filter(function(message){
-        //             return !message.author.bot && message.guild.members.has(message.author.id);
-        //         });
-        //         const randomMessage = lastMessages.random(1)[0];
-        //         let target;
-        //         if(randomMessage){
-        //             target = randomMessage.author;
-        //         }else{
-        //             const onlineUsers = guild.members.filter(function(member){
-        //                 return !member.user.bot && member.id !== lastSpook[0].spooked && member.user.presence.status !== "offline"
-        //             });
-        //             if(onlineUsers.size === 0){
-        //                 bot.logger.warn(`Couldn't generate a new spook for ${guild.name} (${guild.id})`);
-        //                 return;
-        //             }
-        //             target = onlineUsers.random(1);
-        //         }
-        //
-        //         if(!target){
-        //             bot.logger.warn("No target found");
-        //             return;
-        //         }
-        //
-        //         bot.logger.log("New target is "+target.id);
-        //         bot.logger.log(`Spooked server name is ${guild.name} (${guild.id}) - notifying in ${channel.name} (${channel.id})`);
-        //         if(left)
-        //             channel.send(`:ghost: The spooked user has left the server.\n**The spook passes to <@${target.id}>!**`);
-        //         else
-        //             channel.send(`:ghost: The spooked user (<@${lastSpook[0].spooked}>) has not spoken for 24 hours.\n**The spook passes to <@${target.id}>!**`);
-        //
-        //         await bot.database.spook(target.id, lastSpook[0].spooked, server, lastSpook[0].spookedUsername, target.username);
-        //         if(bot.spooked[server].timer)
-        //             clearTimeout(bot.spooked[server].timer);
-        //         bot.spooked[server] = {
-        //             user: target.id,
-        //             timer: setTimeout(bot.generateNewSpook, 8.64e+7, server) //24 Hours
-        //         };
-        //     }
-        // };
+        bot.client.on("message", function spookTimeout(message){
+            if(!message.guild)return;
+            if(!bot.spook.spooked[message.guild.id])return;
 
-        // bot.client.on("guildMemberRemove", async function guildMemberRemove(member){
-        //     const guild = member.guild;
-        //     const result = await bot.database.getSpooked(guild.id);
-        //     if(result[0] && result[0].spooked == member.id){
-        //         bot.logger.log("Spooked user left");
-        //         bot.generateNewSpook(guild.id, true);
-        //     }
-        // });
+            clearTimeout(bot.spook.spooked[message.guild.id].timer);
+            bot.spook.spooked[message.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, message.guild.id);
+        });
 
+        bot.client.on("guildMemberRemove", function spookLeaveCheck(member){
+            if(!bot.spook.spooked[member.guild.id])return;
+            if(bot.spook.spooked[member.guild.id].user !== member.id)return;
+            bot.logger.log("Spooked user left, generating new...");
+            bot.spook.generateNew(member.guild.id);
+        });
 
+        bot.spook.getSpookChannel = async function getLastSpookChannel(server){
+            let spooked = await bot.database.getSpooked(server);
+            if(!spooked || !spooked[0])
+                return bot.util.determineMainChannel(bot.client.guilds.get(server));
 
-        // bot.spookSanityCheck = async function spookSanityCheck(){
-        //     bot.logger.log("Sanity checking spooks...");
-        //     const servers = await bot.database.getParticipatingServers();
-        //     for(let i = 0; i < servers.length; i++){
-        //         const serverID = servers[i].server;
-        //         if(bot.client.guilds.has(serverID)){
-        //             const spooked = await bot.database.getSpooked(serverID);
-        //             const guild = bot.client.guilds.get(serverID);
-        //             const members = guild.members;
-        //             if(!guild.members.has(spooked[0].spooked) || guild.members.get(spooked[0].spooked).bot){
-        //                 bot.logger.log("Spooked user no longer exists for "+serverID);
-        //                 bot.generateNewSpook(serverID, true);
-        //             }
-        //         }
-        //     }
-        // };
-        //
-        // bot.spookSanityCheck();
+            return bot.client.channels.get(spooked[0].channel)
+        };
+
+        bot.spook.checkSpecialRoles = function checkSpecialRoles(){
+
+        };
+
+        bot.spook.getColour = function getColour(guild, user){
+            if(!guild.members.has(user.id))
+                return "#ffffff";
+            let hoistRole = guild.members.get(user.id).hoistRole;
+            if(!hoistRole)
+                return "#ffffff";
+
+            return hoistRole.hexColor;
+        };
+
+        bot.spook.createSpook  = async function spook(channel, spooker, spooked){
+            await bot.database.spook(
+                spooked.id,
+                spooker.id,
+                channel.guild.id,
+                spooker.username,
+                spooked.username,
+                bot.spook.getColour(channel.guild, spooker),
+                bot.spook.getColour(channel.guild, spooked));
+            bot.updatePresence();
+            bot.spook.checkSpecialRoles();
+            if (bot.spook.spooked[channel.guild.id])
+                clearTimeout(bot.spooked[channel.guild.id].timer);
+            bot.spook.spooked[message.guild.id] = {
+                user: spooked.id,
+                timer: setTimeout(bot.spook.generateNew, 8.64e+7, channel.guild.id) //24 Hours
+            };
+        };
+
+        bot.spook.generateNew = async function generateNew(server){
+            if(!bot.client.guilds.has("server")) //No longer exists
+                return bot.logger.warn("Spooked guild no longer exists");
+
+            const guild = bot.client.guilds.get(server);
+            const lastSpooked = bot.database.getSpooked(server)[0].spooked;
+            const left = guild.users.has(lastSpooked);
+            const channel = bot.spook.getSpookChannel(server);
+            const lastMessages = (await channel.fetchMessages({limit: 50})).filter(function(message){
+                return !message.author.bot && message.guild.members.has(message.author.id) && message.author.id !== lastSpooked;
+            });
+            let targetUser;
+            if(lastMessages.size === 1){
+                bot.logger.warn("No eligible users found...");
+                targetUser = guild.users.filter((u)=>!u.bot).random(1)[0];
+            }else
+                targetUser = lastMessages.random(1)[0].author;
+
+            bot.logger.log("Spooking new user "+targetUser);
+            await bot.spook.createSpook(channel, lastSpooked, targetUser.id);
+            channel.replyLang(left ? "SPOOK_USER_LEFT" : "SPOOK_USER_IDLE", {old: lastSpooked, spooked: targetUser});
+        };
 
 
         bot.doSpookEnd = async function doSpookEnd(){
@@ -219,7 +168,7 @@ module.exports = {
             //     }
             // });
             //
-            // bot.spooked = [];
+            //
 
 
         };
@@ -302,17 +251,12 @@ module.exports = {
 
             if(target.id === message.author.id)
                 return message.replyLang("SPOOK_SELF");
-
             const result = await bot.database.getSpookCount(target.id, message.guild.id);
-            message.channel.send(`:ghost: **<@${target.id}> has been spooked for the ${bot.util.getNumberPrefix(result[0]['COUNT(*)'] + 1)} time!**\nThey are now able to spook anyone else on the server.\n**The person who is spooked at midnight on the 31st of October loses!**`);
-            await bot.database.spook(target.id, message.author.id, message.guild.id, message.author.username, target.username);
-            await bot.setSpookyPresence();
-            if (bot.spooked[message.guild.id])
-                clearTimeout(bot.spooked[message.guild.id].timer);
-            bot.spooked[message.guild.id] = {
-                user: target.id,
-                timer: setTimeout(bot.generateNewSpook, 8.64e+7, message.guild.id) //24 Hours
-            };
+            message.replyLang("spook", {
+                count: bot.util.getNumberPrefix(result[0]['COUNT(*)'] + 1),
+                spooked: target.id
+            });
+            await bot.spook.createSpook(message.channel, message.author, target);
         }else{
             const now = new Date();
             const result = await bot.database.getSpooked(message.guild.id);

@@ -109,13 +109,16 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
         let embed = new Discord.RichEmbed();
         embed.setTitle("Premium Status");
         embed.setURL("https://ocelot.xyz/premium");
+        embed.setThumbnail("https://ocelot.xyz/badge.php?id=52");
         if(message.getBool("serverPremium")) {
             embed.setDescription("**[Server Premium](https://ocelot.xyz/premium)** - You can enjoy premium commands in this server.");
             if(message.getBool("premium")) {
                 embed.setColor("#378515");
                 embed.addField("User Premium", "You also have premium, so you can enjoy all the benefits!");
-            } else
+            } else {
                 embed.setColor("#c07012");
+                embed.addField("Use Premium", "Enjoy extra benefits from $5 a month with user premium: https://ocelot.xyz/premium")
+            }
         }else if(message.getBool("premium")){
             embed.setColor("#378515");
             embed.setDescription("**[User Premium](https://ocelot.xyz/premium)** - You have user premium, so you can enjoy the benefits anywhere!");
