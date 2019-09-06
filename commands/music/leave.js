@@ -18,7 +18,7 @@ module.exports = {
             return message.channel.send(`:bangbang: You can only use this command if you're the only one listening.`);
 
         message.channel.send(":wave: Goodbye.");
-        await listener.connection.leave();
+        await listener.connection.stop();
         music.deconstructListener(guild);
     }
 };
