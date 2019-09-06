@@ -31,6 +31,7 @@ module.exports = {
                 else
                     bot.commandCache[user] = 1;
 
+                bot.bus.emit("cacheUser", user, bot.commandCache[user]);
                 bot.logger.warn(`Populated command cache for ${user} at ${bot.commandCache[user]}`);
             }
             const eligbleBadge = await bot.badges.updateBadge(message.author, 'commands', bot.commandCache[user], message.channel);
