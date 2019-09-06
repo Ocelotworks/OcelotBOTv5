@@ -186,6 +186,7 @@ module.exports = {
                          embed.setColor(bot.config.get("global", "welcome.embedColour"));
                          embed.setTitle("Welcome to OcelotBOT!");
                          embed.setDescription("You can find my commands [here](https://ocelot.xyz/#commands) or by typing !help.");
+                         embed.addField("Prefix", "The default prefix is !, if you want to change it type **!settings set prefix %**");
                          embed.addField("Wholesome?", "Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **!settings set wholesome true**");
                          embed.addField("Administrators", "You can change the bot's settings by typing **!settings help**");
                          embed.addField("Stuck?", "If you have issues or suggestions, type **!feedback** or join our [support server](https://discord.gg/7YNHpfF).");
