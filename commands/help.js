@@ -87,9 +87,7 @@ module.exports = {
                 message.channel.send(output);
 
             }else {
-                message.replyLang("COMMANDS_INVALID_CATEGORY", {
-                    arg: args[0]
-                });
+                message.replyLang("COMMANDS_INVALID_CATEGORY", {arg: args[0]});
             }
         }else{
             let unique = []; //ahhh..
@@ -99,7 +97,7 @@ module.exports = {
                 commandUsages = bot.commandCategories[arg];
             }
             for(let i in commandUsages){
-                if(commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden)
+                if(commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden && !message.getBool(`${i}.disable`))
                     if(unique.indexOf(commandUsages[i].name) === -1) {
                         unique.push(commandUsages[i].name);
                         output += `${commandUsages[i].name}:: ${message.getSetting("prefix")}${commandUsages[i].usage}\n`

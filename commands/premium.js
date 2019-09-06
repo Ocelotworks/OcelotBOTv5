@@ -4,6 +4,7 @@
  * ╚════ ║   (ocelotbotv5) premium
  *  ════╝
  */
+const Discord = require('discord.js');
 module.exports = {
     name: "Ocelot Premium",
     usage: "premium",
@@ -105,13 +106,27 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
             return;
         }
 
-        let output = "**Support OcelotBOT on Patreon and get Premium Features for just $2 a month**\nhttps://ocelot.xyz/premium";
+        let embed = new Discord.RichEmbed();
+        embed.setTitle("Premium Status");
+        embed.setURL("https://ocelot.xyz/premium");
+        if(message.getBool("serverPremium")) {
+            embed.setDescription("**[Server Premium](https://ocelot.xyz/premium)** - You can enjoy premium commands in this server.");
+            if(message.getBool("premium")) {
+                embed.setColor("#378515");
+                embed.addField("User Premium", "You also have premium, so you can enjoy all the benefits!");
+            } else
+                embed.setColor("#c07012");
+        }else if(message.getBool("premium")){
+            embed.setColor("#378515");
+            embed.setDescription("**[User Premium](https://ocelot.xyz/premium)** - You have user premium, so you can enjoy the benefits anywhere!");
+            embed.addField("Server Premium", "Upgrade the whole server to premium for just $5 a month at https://ocelot.xyz/premium");
+            embed.addField("Got a Key?", `Redeem it with ${args[0]} \`key\``);
+        }else{
+            embed.setColor("#707070");
+            embed.setDescription("No premium benefits. Premium starts at $2 a month: https://ocelot.xyz/premium");
+            embed.addField("Got a Key?", `Redeem it with ${args[0]} \`key\``);
+        }
 
-        if(message.getBool("serverPremium"))
-            output += "\n_This server already has Premium, so you can enjoy the features here!_ <3";
-        else
-            output += `\n_If you have a Premium SERVER key, redeem it with ${args[0]} \`key\`_`;
-
-        message.channel.send(output);
+        message.channel.send(embed);
     }
 };
