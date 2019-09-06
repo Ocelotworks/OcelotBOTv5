@@ -95,6 +95,7 @@ module.exports = {
 
         bot.lang.langGenerators = {
           "en-owo": function(input){
+              if(input.indexOf("http") > -1 || input.indexOf("```") > -1)return input; //Can't be fucked dealing with trying to fix this
               input = input.replace(/[rl]/g, "w");
               input = input.replace(/[RL]/g, "W");
               input = input.replace(/n([aeiou])/g, 'ny$1');
