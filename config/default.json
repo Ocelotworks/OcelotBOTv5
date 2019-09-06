@@ -57,6 +57,7 @@
     "util",
     "database",
     "discord",
+    "rabbit",
     "config",
     "lang",
     "statistics",
