@@ -214,7 +214,8 @@ module.exports = {
                                     rateLimit: loadedCommand.rateLimit,
                                     premium: loadedCommand.premium,
                                     vote: loadedCommand.vote,
-                                    unwholesome: loadedCommand.unwholesome
+                                    unwholesome: loadedCommand.unwholesome,
+                                    commands: loadedCommand.commands
                                 };
                             }
                         }
