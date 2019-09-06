@@ -5,9 +5,7 @@
  *  ════╝
  */
 
-const ytdl = require('ytdl-core');
-const ytdl_discord = require('ytdl-core-discord');
-const fs = require('fs');
+const request = require('request');
 let Discord = require('discord.js');
 let bot;
 
@@ -21,12 +19,14 @@ module.exports = {
     hidden: true,
     commands: ["music", "m"],
     subCommands: {},
+    shuffleQueue: [],
     listeners: {
     },
     init: function init(fuckdamn){
         //fuck you
         bot = fuckdamn;
         bot.util.standardNestedCommandInit('music');
+        module.exports.populateShuffleQueue();
     },
     run: function (message, args, bot) {
         bot.util.standardNestedCommand(message,args,bot,'music', module.exports);
@@ -64,7 +64,52 @@ module.exports = {
 
         return obj;
     },
-    playNextInQueue: function playNextInQueue(server){
+    populateShuffleQueue: function populateShuffleQueue(){
+        bot.logger.log("Populating shuffle queue");
+        request("https://unacceptableuse.com/petify/templates/songs/shuffleQueue", function(err, resp, body){
+           if(!err && body){
+               try {
+                   module.exports.shuffleQueue = JSON.parse(body);
+               }catch(e){
+                   console.error(e);
+               }
+           } else{
+               bot.logger.warn("Failed to populate shuffleQueue");
+           }
+        });
+    },
+    getAutoDJSong: async function getAutoDJSong(){
+        return new Promise(async function(fulfill){
+            let petifySong = module.exports.shuffleQueue.shift();
+
+            if(!petifySong){
+                let songData = await bot.lavaqueue.getSong("https://unacceptableuse.com/petify/song/ecf0cfe1-a893-4594-b353-1dbd7063e241"); //FUCK!
+                songData.info.author = "Moloko";
+                songData.info.title = "Moloko - The Time Is Now";
+                fulfill(songData);
+            }else {
+                request(`https://unacceptableuse.com/petify/api/song/${petifySong.id}/info`, async function (err, resp, body) {
+                    try {
+                        const data = JSON.parse(body);
+                        let path = data.path;
+                        let songData = await bot.lavaqueue.getSong(path);
+                        songData.info.author = petifySong.artist;
+                        songData.info.title = `${petifySong.artist} - ${petifySong.title}`;
+                        songData.info.albumArt = "https://unacceptableuse.com/petify/album/"+data.album;
+                        fulfill(songData);
+                    } catch (e) {
+                        //shid
+                        console.error(e);
+                    }
+                });
+
+            }
+            if(module.exports.shuffleQueue.size < 5)
+                module.exports.populateShuffleQueue();
+        });
+
+    },
+    playNextInQueue: async function playNextInQueue(server){
       if(!module.exports.listeners[server]) {
           return bot.logger.warn("Queue is missing!");
       }
@@ -75,10 +120,13 @@ module.exports = {
             clearInterval(listener.editInterval);
 
         if(!newSong || (listener.voiceChannel && listener.voiceChannel.members.size === 1)) {
-            console.log(!!newSong);
-            console.log((listener.voiceChannel && listener.voiceChannel.members.size === 1))
-            bot.logger.log("Clearing listener for "+server);
-            return module.exports.deconstructListener(server);
+
+            if(listener.autodj)
+                newSong = await module.exports.getAutoDJSong();
+            else {
+                bot.logger.log("Clearing listener for " + server);
+                return bot.lavaqueue.requestLeave(server);
+            }
         }
 
         listener.playing = newSong;
@@ -109,6 +157,15 @@ module.exports = {
             footer = "YouTube";
             footerIcon = "https://i.imgur.com/8iyBEbO.png";
         }
+        if(listener.playing.info.uri.startsWith("/home/")) {
+            footer = "AutoDJ";
+            footerIcon = "https://ocelot.xyz/res/highres.png";
+            embed.setColor("#00d800");
+        }
+
+        if(listener.playing.info.albumArt)
+            embed.setThumbnail(listener.playing.info.albumArt);
+
         if(listener.queue.length > 0) {
             let title = listener.queue[0].info.title;
             if(title.length > 50)
@@ -117,9 +174,10 @@ module.exports = {
         }
 
         embed.setFooter(footer, footerIcon);
-
         embed.setAuthor("🔈 "+listener.voiceChannel.name);
-        embed.setURL(listener.playing.info.uri);
+
+        if(listener.playing.info.uri.startsWith("http"))
+            embed.setURL(listener.playing.info.uri);
         embed.setDescription(listener.playing.info.author);
         let elapsed = listener.connection.state.position || 0;
         let length;
