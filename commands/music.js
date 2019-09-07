@@ -16,7 +16,6 @@ module.exports = {
     categories: ["voice"],
     requiredPermissions: ["CONNECT", "SPEAK"],
     premium: false,
-    hidden: true,
     commands: ["music", "m"],
     subCommands: {},
     shuffleQueue: [],
@@ -173,6 +172,8 @@ module.exports = {
             footer += " | Next: " + title;
         }
 
+        embed.addField("ℹ Beta", `Music streaming is in Beta. Report any issues with !feedback`);
+
         embed.setFooter(footer, footerIcon);
         embed.setAuthor("🔈 "+listener.voiceChannel.name);
 
@@ -182,7 +183,7 @@ module.exports = {
         let elapsed = listener.connection.state.position || 0;
         let length;
         if(listener.playing.info.length < 9223372036854776000) {//max int
-            length = bot.util.progressBar(elapsed, listener.playing.info.length, 25);
+            length = bot.util.progressBar(elapsed, listener.playing.info.length, 20);
             length += "`" + bot.util.shortSeconds(elapsed / 1000) + "`/";
             length += "`" + bot.util.shortSeconds(listener.playing.info.length / 1000) + "`";
         }else{
