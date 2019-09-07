@@ -11,7 +11,10 @@ module.exports = {
     name: "LavaQueue",
     init: function (bot) {
         bot.client.on("ready", function(){
-            bot.lavaqueue.manager = new PlayerManager(bot.client,  [{host: "boywanders.us", port: 2333, password: config.get("Lavalink.password")}], {user: bot.client.user.id, shards: bot.client.shard.count});
+            bot.lavaqueue.manager = new PlayerManager(bot.client,  [
+                {host: "boywanders.us", port: 2333, password: config.get("Lavalink.password")},
+                {host: "lava-backup.ocelot.xyz", port: 2333, password: config.get("Lavalink.password")}
+                ], {user: bot.client.user.id, shards: bot.client.shard.count});
         });
 
         bot.lavaqueue = {};
