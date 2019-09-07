@@ -31,6 +31,9 @@ module.exports = {
                 playing: null
             };
         }
+
+        if(music.listeners[guild].host !== "boywanders.us")
+            return message.channel.send("AutoDJ cannot currently be used due to high traffic, please try again later.");
         // noinspection JSAssignmentUsedAsCondition
         if(music.listeners[guild].autodj = !music.listeners[guild].autodj){
             message.channel.send(":robot: AutoDJ **Enabled**. Songs will be played automatically until a song is queued or everyone leaves.");
