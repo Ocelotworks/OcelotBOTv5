@@ -4,18 +4,21 @@
  * ╚════ ║   (ocelotbotv5) voiceConnections
  *  ════╝
  */
+const columnify = require('columnify');
 module.exports = {
     name: "Voice Connections",
     usage: "voiceConnections",
     commands: ["vcs", "voiceconnections"],
     run: async function(message, args, bot){
-       let connections = await bot.client.shard.fetchClientValues("voiceConnections.size");
-       let output = "```\nActive Voice Connections:\n";
-        for(let i = 0; i < connections.length; i++){
-            output += `Shard ${i}: ${connections[i]}\n`;
-        }
-        output += "\n```";
-        message.channel.send(output);
-
+        let formatted = [];
+        bot.lavaqueue.manager.nodes.forEach(function(node, host){
+            formatted.push({
+                "host ::": host+" ::",
+                ready: node.ready ? "✔": "✖",
+                playing: node.stats.playingPlayers,
+                total: node.stats.players
+            });
+        });
+        message.channel.send(`\`\`\`asciidoc\n${columnify(formatted)}\n\`\`\``);
     }
 };
