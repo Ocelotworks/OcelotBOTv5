@@ -34,6 +34,21 @@ module.exports = {
                             "о"
         ];
 
+        bot.util.months = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ];
+
         bot.util.voteTimeout = 43200000;
 //59640014
         /**
@@ -367,14 +382,61 @@ module.exports = {
             if(!url || !url.startsWith("http"))
                 return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
 
+
             bot.logger.log(url);
-            let response = await bot.rabbit.rpc("imageFilter", {url, filter, input, format});
-            if(response.err){
-                console.log(response);
-               return message.channel.send(response.err);
+            if(message.getBool("imageFilter.useExternal")) {
+                let response = await bot.rabbit.rpc("imageFilter", {url, filter, input, format});
+                if (response.err) {
+                    console.log(response);
+                    return message.channel.send(response.err);
+                }
+                let attachment = new Discord.Attachment(Buffer.from(response.image, 'base64'), response.name);
+                message.channel.send(attachment);
+            }else {
+                const fileName = `${__dirname}/../temp/${Math.random()}.png`;
+                let shouldProcess = true;
+
+
+                request(url)
+                    .on("response", function requestResponse(resp) {
+                        shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
+                        if (format !== "JPEG" && resp.headers && resp.headers['content-type'].toLowerCase() === "image/gif")
+                            format = "GIF";
+                    })
+                    .on("error", function requestError(err) {
+                        bot.raven.captureException(err);
+                        bot.logger.log(err);
+                        shouldProcess = false;
+                    })
+                    .on("end", function requestEnd() {
+                        if (!shouldProcess) {
+                            message.replyLang("GENERIC_NO_IMAGE_URL");
+                            fs.unlink(fileName, function unlinkInvalidFile(err) {
+                                if (err)
+                                    bot.logger.error(err);
+                            });
+                            return;
+                        }
+                        const initialProcess = gm(fileName).autoOrient();
+                        initialProcess[filter].apply(initialProcess, input)
+                            .toBuffer(format, function toBuffer(err, buffer) {
+                                if (err)
+                                    return message.replyLang("GENERIC_CREATE_IMAGE_FAIL");
+                                let name = filter + "." + (format.toLowerCase());
+                                if (url.indexOf("SPOILER_") > -1)
+                                    name = "SPOILER_" + name;
+                                const attachment = new Discord.Attachment(buffer, name);
+                                message.channel.send("", attachment).catch(function sendMessageError(e) {
+                                    console.log(e);
+                                    message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
+                                });
+                                fs.unlink(fileName, function unlinkCompletedFile(err) {
+                                    if (err)
+                                        bot.logger.error(err);
+                                });
+                            });
+                    }).pipe(fs.createWriteStream(fileName));
             }
-            let attachment = new Discord.Attachment(Buffer.from(response.image, 'base64'), response.name);
-            message.channel.send(attachment);
         };
 
         String.prototype.formatUnicorn = String.prototype.formatUnicorn ||

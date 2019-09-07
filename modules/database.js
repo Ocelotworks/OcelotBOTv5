@@ -894,7 +894,20 @@ module.exports = {
             },
             getHighestStreak: async function(user, type){
                 return (await knex.select("highest", "achieved").from("ocelotbot_streaks").where({user, type}).limit(1))[0];
+            },
+            getBirthdays:  function(server){
+                return knex.select().from("ocelotbot_birthdays").where({server}).orderBy("birthday");
+            },
+            addBirthday: async function(user, server, birthday){
+                return knex.insert({user, server, birthday}).into("ocelotbot_birthdays");
+            },
+            getBirthday: async function(user, server){
+                let result = await knex.select().from("ocelotbot_birthdays").where({user, server}).limit(1);
+                if(result.length === 0)
+                    return null;
+                return result[0];
             }
+
         };
     }
 };
