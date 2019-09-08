@@ -28,6 +28,7 @@ module.exports = {
         module.exports.populateShuffleQueue();
     },
     run: function (message, args, bot) {
+        if(!message.guild)return message.replyLang("GENERIC_DM_CHANNEL");
         bot.util.standardNestedCommand(message,args,bot,'music', module.exports);
     },
     addToQueue: async function(server, search, requester, next = false){
@@ -79,6 +80,8 @@ module.exports = {
     },
     getAutoDJSong: async function getAutoDJSong(){
         return new Promise(async function(fulfill){
+            if(module.exports.shuffleQueue.size < 5)
+                module.exports.populateShuffleQueue();
             let petifySong = module.exports.shuffleQueue.shift();
 
             if(!petifySong){
@@ -103,8 +106,6 @@ module.exports = {
                 });
 
             }
-            if(module.exports.shuffleQueue.size < 5)
-                module.exports.populateShuffleQueue();
         });
 
     },
