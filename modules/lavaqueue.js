@@ -44,10 +44,16 @@ module.exports = {
         bot.lavaqueue.leaveTimeouts = [];
         bot.lavaqueue.requestLeave = function requestLeave(channel){
             bot.logger.log("Requested leave for "+channel.id);
-            bot.lavaqueue.cancelLeave(channel);
+            if(bot.lavaqueue.leaveTimeouts[channel.id])
+                clearTimeout(bot.lavaqueue.leaveTimeouts[channel.id]);
             bot.lavaqueue.leaveTimeouts[channel.id] = setTimeout(async function leaveVoiceChannel(){
                 bot.logger.log("Leaving voice channel "+channel.id);
-                await bot.lavaqueue.manager.leave(channel.guild.id);
+                if(channel.guild)
+                    await bot.lavaqueue.manager.leave(channel.guild.id);
+                else {
+                    bot.logger.warn("Tried to leave undefined voice channel");
+                    console.log(channel);
+                }
             }, 60000);
         };
         bot.lavaqueue.cancelLeave = function cancelLeave(channel){
@@ -66,13 +72,12 @@ module.exports = {
             }, {selfdeaf: true});
             let songData = await bot.lavaqueue.getSong(song);
             player.play(songData.track);
-            player.on("error", function playerError(error){
+            player.once("error", function playerError(error){
                 bot.raven.captureException(error);
                 bot.logger.error(error.error); //YEs
             });
             player.once("end", data => {
                 if (data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops
-                console.log(data);
                 bot.logger.log("Song ended");
                 bot.lavaqueue.requestLeave(voiceChannel);
             });
