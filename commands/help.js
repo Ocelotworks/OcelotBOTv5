@@ -61,7 +61,7 @@ module.exports = {
                 if(command.detailedHelp)
                     output += command.detailedHelp+"\n";
                 if(command.commands.length > 1)
-                    output += `**Aliases:** ${command.commands.join(",")}`;
+                    output += `**Aliases:** ${command.commands.join(",")}\n`;
                 if(message.getBool(`${arg}.disable`))
                     output += "🚫 This command is **disabled**. You cannot run it here (or maybe anywhere)\n";
                 if(message.getSetting(`${arg}.override`))
