@@ -11,10 +11,18 @@ module.exports = {
     name: "LavaQueue",
     init: function (bot) {
         bot.client.on("ready", function(){
+            const resumeKey = bot.client.user.id+"-"+bot.client.shard.id;
             bot.lavaqueue.manager = new PlayerManager(bot.client,  [
-                {host: "boywanders.us", port: 2333, password: config.get("Lavalink.password")},
-                {host: "lava-backup.ocelot.xyz", port: 2333, password: config.get("Lavalink.password")}
+                {host: "boywanders.us", port: 2333, password: config.get("Lavalink.password"), resumeKey},
+                {host: "lava-backup.ocelot.xyz", port: 2333, password: config.get("Lavalink.password"), resumeKey}
                 ], {user: bot.client.user.id, shards: bot.client.shard.count});
+
+            bot.lavaqueue.manager.nodes.forEach(function(node, host){
+                node.once("ready", function nodeReady(){
+                    console.log("Sending resume to "+host);
+                    node.send({"op":"configureResuming", "key": resumeKey, "timeout": 240});
+                });
+            })
         });
 
         bot.lavaqueue = {};
@@ -42,12 +50,12 @@ module.exports = {
         };
 
         bot.lavaqueue.leaveTimeouts = [];
-        bot.lavaqueue.requestLeave = function requestLeave(channel){
+        bot.lavaqueue.requestLeave = function requestLeave(channel, source){
             bot.logger.log("Requested leave for "+channel.id);
             if(bot.lavaqueue.leaveTimeouts[channel.id])
                 clearTimeout(bot.lavaqueue.leaveTimeouts[channel.id]);
             bot.lavaqueue.leaveTimeouts[channel.id] = setTimeout(async function leaveVoiceChannel(){
-                bot.logger.log("Leaving voice channel "+channel.id);
+                bot.logger.log("Leaving voice channel "+channel.id+" due to "+source);
                 if(channel.guild)
                     await bot.lavaqueue.manager.leave(channel.guild.id);
                 else {
@@ -79,7 +87,7 @@ module.exports = {
             player.once("end", data => {
                 if (data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops
                 bot.logger.log("Song ended");
-                bot.lavaqueue.requestLeave(voiceChannel);
+                bot.lavaqueue.requestLeave(voiceChannel, "Song ended");
             });
             return {songData, player};
         };

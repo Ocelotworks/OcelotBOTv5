@@ -906,6 +906,31 @@ module.exports = {
                 if(result.length === 0)
                     return null;
                 return result[0];
+            },
+            createMusicSession: async function(server, voiceChannel, textChannel){
+                let result = await knex.insert({server, voiceChannel, textChannel}).into("ocelotbot_music_sessions");
+                return result[0];
+            },
+            endMusicSession: function(id){
+                return knex("ocelotbot_music_sessions").update({ended: new Date()}).where({id}).limit(1);
+            },
+            queueSong: async function(session, uri, requester, next = false){
+                let order = (await knex.select(knex.raw(`${next?"MIN(\`order\`)-1":"MAX(\`order\`)+1"} AS 'val'`)).from("ocelotbot_music_queue").where({session}))[0].val || 10;
+                console.log("Order",order);
+                let result = await knex.insert({session, order, uri, requester}).into("ocelotbot_music_queue");
+                return result[0];
+            },
+            removeSong: async function(id){
+                await knex.delete().from("ocelotbot_music_queue").where({id}).limit(1);
+            },
+            getActiveSessions: function(){
+                return knex.select().from("ocelotbot_music_sessions").whereNull("ended")
+            },
+            getQueueForSession: async function(session){
+                return knex.select().from("ocelotbot_music_queue").where({session}).orderBy("order", "asc");
+            },
+            updateNowPlaying: async function(id, uri){
+                return knex("ocelotbot_music_sessions").update({playing: uri}).where({id}).limit(1);
             }
 
         };

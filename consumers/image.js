@@ -26,6 +26,7 @@ async function init(){
     channel.assertQueue('imageFilter');
 
     channel.consume('imageFilter', function(msg){
+        console.log("Processing "+msg.content.toString());
         let {url, format, filter, input} = JSON.parse(msg.content.toString());
         let fileName = `${__dirname}/../temp/${Math.random()}.png`;
         let shouldProcess = true;
@@ -33,7 +34,7 @@ async function init(){
             .on("response", function requestResponse(resp){
                 console.log("Aye aye capn");
                 shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
-                if(format !== "JPEG" && resp.headers && resp.headers['content-type'].toLowerCase() === "image/gif")
+                if(format !== "JPEG" && resp.headers && resp.headers['content-type'] && resp.headers['content-type'].toLowerCase() === "image/gif")
                     format = "GIF";
 
             })

@@ -26,12 +26,39 @@ module.exports = {
         bot = fuckdamn;
         bot.util.standardNestedCommandInit('music');
         module.exports.populateShuffleQueue();
+
+        bot.client.on("ready", async function ready(){
+            let activeSessions = await bot.database.getActiveSessions();
+            for(let i = 0; i < activeSessions.length; i++){
+                const session = activeSessions[i];
+                if(bot.client.guilds.has(session.server)){
+                    bot.logger.log(`Resuming session ${session.id}`);
+                    const listener = await module.exports.constructListener(bot.client.guilds.get(session.server), bot.client.channels.get(session.voiceChannel), bot.client.channels.get(session.textChannel), session.id);
+                    listener.playing = await bot.lavaqueue.getSong(session.playing);
+                    let queue = await bot.database.getQueueForSession(session.id);
+                    bot.logger.log("Populating queue with "+queue.length+" songs.");
+                    for(let i = 0; i < queue.length; i++){
+                        let song = queue[i];
+                        await module.exports.addToQueue(session.server,  song.uri, song.requester, false, song.id);
+                    }
+                }
+            }
+        });
     },
     run: function (message, args, bot) {
         if(!message.guild)return message.replyLang("GENERIC_DM_CHANNEL");
         bot.util.standardNestedCommand(message,args,bot,'music', module.exports);
     },
-    addToQueue: async function(server, search, requester, next = false){
+    //shit
+    _addToQueue: async function(listener, track, requester, next, id){
+        track.requester = requester;
+        if(!id)
+            track.id = await bot.database.queueSong(listener.id, track.info.uri, requester, next);
+        else
+            track.id = id;
+        listener.queue[next ? "unshift" : "push"](track);
+    },
+    addToQueue: async function(server, search, requester, next = false, id){
         let listener = module.exports.listeners[server];
         if(!search.startsWith("http"))
             search = "ytsearch:"+search;
@@ -42,13 +69,11 @@ module.exports = {
         switch(result.loadType){
             case "SEARCH_RESULT":
             case "TRACK_LOADED":
-                result.tracks[0].requester = requester;
-                listener.queue[next ? "unshift" : "push"](result.tracks[0]); //I don't like this but it works
+                await module.exports._addToQueue(listener, result.tracks[0], requester, next, id);
                 obj = result.tracks[0].info;
                 break;
             case "PLAYLIST_LOADED":
-                result.tracks.forEach((t)=>t.requester = requester);
-                listener.queue[next ? "unshift" : "push"](...result.tracks);
+                result.tracks.forEach(async (t)=>await module.exports._addToQueue(listener, t, requester, next, id));
                 obj = { count: result.tracks.length,
                         name: result.playlistInfo.name,
                         duration: result.tracks.reduce((p, t)=>p+t.info.length, 0)};
@@ -59,8 +84,11 @@ module.exports = {
             case "NO_MATCHES":
                 obj = null;
         }
-        if(!listener.playing)
+
+        if(!listener.playing && !id) {
+            bot.logger.log("Playing next in queue");
             module.exports.playNextInQueue(server);
+        }
 
         return obj;
     },
@@ -116,18 +144,20 @@ module.exports = {
         let listener = module.exports.listeners[server];
         let newSong= listener.queue.shift();
 
+
         if(listener.editInterval)
             clearInterval(listener.editInterval);
 
         if(!newSong || (listener.voiceChannel && listener.voiceChannel.members.size === 1)) {
-
             if(listener.autodj)
                 newSong = await module.exports.getAutoDJSong();
             else {
-                bot.logger.log("Clearing listener for " + server);
-                return bot.lavaqueue.requestLeave(server);
+                return bot.lavaqueue.requestLeave(listener.voiceChannel, "Queue is empty and AutoDJ is disabled.");
             }
         }
+
+        if(newSong.id)
+            await bot.database.removeSong(newSong.id);
 
         listener.playing = newSong;
 
@@ -191,8 +221,6 @@ module.exports = {
             length = bot.util.prettySeconds(elapsed/1000) + " elapsed.";
         }
         embed.addField("Length", length);
-
-
         return embed;
     },
     updateOrSendMessage: async function(listener, message, resend = true){
@@ -208,22 +236,79 @@ module.exports = {
           }//else
            // clearInterval(listener.editInterval);
     },
-    deconstructListener: function(server){
+    constructListener: async function constructListener(server, voiceChannel, channel, id){
+        const host = bot.util.arrayRand(server.getSetting("music.host").split(","));
+        bot.logger.log("Using host "+host);
+
+        const data = {
+            guild:    server.id,
+            channel:  voiceChannel.id,
+            host
+        };
+        if(voiceChannel.members.has(bot.client.user.id)) {
+            bot.logger.log("Player already exists");
+            await bot.lavaqueue.manager.sendWS({
+                op: 4,
+                d: {
+                    guild_id: server.id,
+                    channel_id: voiceChannel.id,
+                    self_mute: false,
+                    self_deaf: false
+                }
+            });
+        }
+
+        let player = await bot.lavaqueue.manager.join(data, {selfdeaf: true});
+
+        if(!id)
+            id = await bot.database.createMusicSession(server.id, voiceChannel.id, channel.id);
+        let listener = module.exports.listeners[server.id] = {
+            connection: player,
+            voteSkips: [],
+            queue: [],
+            server: server.id,
+            playing: null,
+            voiceChannel,
+            channel,
+            host,
+            id,
+        };
+
+        listener.connection.on("error", function playerError(error){
+            console.log(error);
+            listener.channel.send(":warning: "+error.error);
+            bot.raven.captureException(error.error);
+            module.exports.playNextInQueue(listener.server);
+        });
+
+        listener.connection.on("end", function playerEnd(data){
+            if (data.reason === "REPLACED")
+                return bot.logger.log("Song replaced");
+            bot.logger.log("Song ended");
+            module.exports.playNextInQueue(listener.server);
+            bot.lavaqueue.requestLeave(listener.voiceChannel, "Song has ended");
+        });
+        return listener;
+    },
+    deconstructListener: async function(server){
         bot.logger.log("Deconstructing listener "+server);
         const listener = module.exports.listeners[server];
-        bot.lavaqueue.requestLeave(listener.voiceChannel);
+        if(!listener)return;
+        bot.lavaqueue.requestLeave(listener.voiceChannel, "Listener was deconstructed");
         if(listener.checkInterval)
             clearInterval(listener.checkInterval);
         if(listener.editInterval)
             clearInterval(listener.editInterval);
-
         module.exports.listeners[server] = undefined;
+        await bot.database.endMusicSession(listener.id);
     },
     playSong: async function playSong(listener){
         if(listener.playing.info.length <= 1000){
             listener.channel.replyLang("MUSIC_PLAY_SHORT");
             return module.exports.playNextInQueue(listener.server);
         }
+
+        await bot.database.updateNowPlaying(listener.id, listener.playing.info.uri);
 
         if(listener.checkInterval)
             clearInterval(listener.checkInterval);
@@ -243,27 +328,10 @@ module.exports = {
             track: listener.connection.track,
             server:listener.guild
         });
+        await listener.connection.stop();
         listener.connection.play(listener.playing.track);
 
         setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);
-
-        setTimeout(function(){
-            listener.connection.once("error", function playerError(error){
-                console.log(error);
-                listener.channel.send(":warning: "+error.error);
-                bot.raven.captureException(error.error);
-                module.exports.playNextInQueue(listener.server);
-            });
-            listener.connection.once("end", function playerEnd(data){
-                if (data.reason === "REPLACED") {
-                    return bot.logger.log("Song replaced"); // Ignore REPLACED reason to prevent skip loops
-                }
-                bot.logger.log("Song ended");
-                module.exports.playNextInQueue(listener.server);
-                bot.lavaqueue.requestLeave(listener.voiceChannel);
-            });
-        }, 1000);
-
         bot.matomo.track({
             action_name: "Stream Song",
             uid:  listener.playing.requester,

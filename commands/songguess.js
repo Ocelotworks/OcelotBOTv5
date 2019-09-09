@@ -130,7 +130,7 @@ let runningGames = [];
 async function doGuess(voiceChannel, message, bot){
     try {
         if (voiceChannel.members.size === 1 && voiceChannel.members.first().id === bot.client.user.id)
-            return bot.lavaqueue.requestLeave(voiceChannel);
+            return bot.lavaqueue.requestLeave(voiceChannel, "Channel was empty");
         if(timeouts[voiceChannel.id])
             return;
         if(runningGames[voiceChannel.id])
@@ -207,7 +207,7 @@ async function doGuess(voiceChannel, message, bot){
             if(!won)
                 message.replyLang("SONGGUESS_OVER", {title});
             await player.stop();
-            bot.lavaqueue.requestLeave(voiceChannel);
+            bot.lavaqueue.requestLeave(voiceChannel, "Song is over");
             if(message.getSetting("guess.repeat")) {
                 timeouts[voiceChannel.id] = setTimeout(function () {
                     delete timeouts[voiceChannel.id];

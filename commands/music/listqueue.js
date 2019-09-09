@@ -10,7 +10,7 @@ module.exports = {
     commands: ["list", "lq", "upnext", "vq", "viewqueue", "listqueue", "ql"],
     run: async function (message, args, bot, music) {
         const guild = message.guild.id;
-        if(!music.listeners[guild] || !music.listeners[guild].playing)
+        if(!music.listeners[guild])
             return message.replyLang("MUSIC_NOTHING_PLAYING");
 
         const listener = music.listeners[guild];

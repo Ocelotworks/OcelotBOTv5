@@ -34,7 +34,8 @@ module.exports = {
             if(listener.voiceChannel.members.size > 2 && listener.queue[pos].requester !== message.author.id)
                 return message.channel.send(`:bangbang: Only the person who requested the song (<@${listener.queue[pos].requester}>) can remove this song.`);
 
-            await message.channel.send(`:white_check_mark: Removed **${listener.queue[pos].title}**`);
+            await message.channel.send(`:white_check_mark: Removed **${listener.queue[pos].info.title}**`);
+            await bot.database.removeSong(listener.queue[pos].id);
             listener.queue.splice(pos, 1);
         }
 

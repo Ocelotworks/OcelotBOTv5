@@ -15,10 +15,10 @@ module.exports = {
 
         const listener = music.listeners[guild];
 
-        if(!listener.connection.playing) {
-            bot.logger.warn("Caught an uh-oh");
-            return music.playNextInQueue(guild);
-        }
+        // if(!listener.connection.playing) {
+        //     bot.logger.warn("Caught an uh-oh");
+        //     return music.playNextInQueue(guild);
+        // }
 
         listener.lastMessage = await message.channel.send(music.createNowPlayingEmbed(listener));
     }
