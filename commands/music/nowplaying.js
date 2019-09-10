@@ -21,5 +21,6 @@ module.exports = {
         // }
 
         listener.lastMessage = await message.channel.send(music.createNowPlayingEmbed(listener));
+        await bot.database.updateLastMessage(listener.id, listener.lastMessage.id);
     }
 };

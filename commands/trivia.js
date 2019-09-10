@@ -31,6 +31,9 @@ module.exports = {
     commands: ["trivia"],
     categories: ["tools", "fun", "games"],
     requiredPermissions: ["EMBED_LINKS", "ADD_REACTIONS"],
+    init: function(bot){
+       //TODO destruct!
+    },
     run: async function run(message, args, bot) {
        if(args[1]){
             if(args[1].toLowerCase().startsWith("leaderboard")){

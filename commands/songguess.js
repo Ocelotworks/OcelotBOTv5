@@ -29,6 +29,18 @@ module.exports = {
         bot.logger.log("Loading song list...");
 
         songList = await bot.database.getSongList();
+
+        process.on('message', async function(message){
+            if(message.type === "destruct"){
+                bot.logger.log("Shutting down running guess games");
+                let keys = Object.keys(runningGames);
+                for(let i = 0; i < keys.length; i++){
+                    bot.logger.log("Shutting down running guess game "+keys[i]);
+                    let game = runningGames[keys[i]];
+                    await game.leave();
+                    await game.destroy();
+                }}
+        });
     },
     run:  async function run(message, args, bot){
         if(args[1] && args[1].toLowerCase() === "stop") {
@@ -159,6 +171,7 @@ async function doGuess(voiceChannel, message, bot){
 
         collector.on('collect', async function collect(message) {
             if (message.author.id === "146293573422284800") return;
+            if (message.author.bot)return;
             if(bot.banCache.user.indexOf(message.author.id) > -1)return;
             const guessTime = new Date();
             const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "");

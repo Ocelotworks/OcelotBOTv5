@@ -7,32 +7,37 @@
 const {PlayerManager} = require("discord.js-lavalink");
 const config = require('config');
 const request = require('request');
+const {NodeManager} = require('@lavalink/discord.js');
 module.exports = {
     name: "LavaQueue",
     init: function (bot) {
         bot.client.on("ready", function(){
             const resumeKey = bot.client.user.id+"-"+bot.client.shard.id;
-            bot.lavaqueue.manager = new PlayerManager(bot.client,  [
-                {host: "boywanders.us", port: 2333, password: config.get("Lavalink.password"), resumeKey},
-                {host: "lava-backup.ocelot.xyz", port: 2333, password: config.get("Lavalink.password"), resumeKey}
-                ], {user: bot.client.user.id, shards: bot.client.shard.count});
-
-            bot.lavaqueue.manager.nodes.forEach(function(node, host){
-                node.once("ready", function nodeReady(){
-                    console.log("Sending resume to "+host);
-                    node.send({"op":"configureResuming", "key": resumeKey, "timeout": 240});
-                });
-            })
+            bot.lavaqueue.manager = new NodeManager(bot.client, {
+                userID: bot.client.user.id,
+                shardCount: bot.client.shard.count,
+                password: config.get("Lavalink.password"),
+                hosts: {
+                    rest: "http://boywanders.us:2333",
+                    ws: {
+                        url: "http://boywanders.us:2333",
+                        options: {
+                            resumeKey,
+                            resumeTimeout: 60
+                        }
+                    }
+                }
+            });
         });
 
         bot.lavaqueue = {};
         bot.lavaqueue.getSongs = async function getSongs(search) {
             return new Promise(function(fulfill, reject){
-                const node = bot.lavaqueue.manager.nodes.first();
+                const node = bot.lavaqueue.manager;
 
                 const params = new URLSearchParams();
                 params.append("identifier", search);
-                request({url: `http://${node.host}:${node.port}/loadtracks?${params.toString()}`,  headers: { Authorization: node.password } }, function(err, resp, body){
+                request({url: `http://boywanders.us:2333/loadtracks?${params.toString()}`,  headers: { Authorization: node.password } }, function(err, resp, body){
                     if(err)
                         return reject(err);
                     try {
@@ -56,9 +61,10 @@ module.exports = {
                 clearTimeout(bot.lavaqueue.leaveTimeouts[channel.id]);
             bot.lavaqueue.leaveTimeouts[channel.id] = setTimeout(async function leaveVoiceChannel(){
                 bot.logger.log("Leaving voice channel "+channel.id+" due to "+source);
-                if(channel.guild)
-                    await bot.lavaqueue.manager.leave(channel.guild.id);
-                else {
+                if(channel.guild) {
+                    let player = bot.lavaqueue.manager.players.get(channel.guild.id);
+                    await player.destroy();
+                }else {
                     bot.logger.warn("Tried to leave undefined voice channel");
                     console.log(channel);
                 }
@@ -73,21 +79,18 @@ module.exports = {
 
         bot.lavaqueue.playOneSong = async function playOneSong(voiceChannel, song){
             bot.lavaqueue.cancelLeave(voiceChannel);
-            const player = await bot.lavaqueue.manager.join({
-                guild: voiceChannel.guild.id, // Guild id
-                channel:  voiceChannel.id, // Channel id
-                host: "boywanders.us" // lavalink host, based on array of nodes
-            }, {selfdeaf: true});
+            let player = bot.lavaqueue.manager.players.get(voiceChannel.guild.id);
+            await player.join(voiceChannel.id);
             let songData = await bot.lavaqueue.getSong(song);
             player.play(songData.track);
             player.once("error", function playerError(error){
                 bot.raven.captureException(error);
                 bot.logger.error(error.error); //YEs
             });
-            player.once("end", data => {
+            player.once("event", data => {
                 if (data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops
                 bot.logger.log("Song ended");
-                bot.lavaqueue.requestLeave(voiceChannel, "Song ended");
+                bot.lavaqueue.requestLeave(voiceChannel, "player playOneSong Song ended");
             });
             return {songData, player};
         };

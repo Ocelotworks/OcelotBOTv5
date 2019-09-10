@@ -926,13 +926,28 @@ module.exports = {
             getActiveSessions: function(){
                 return knex.select().from("ocelotbot_music_sessions").whereNull("ended")
             },
+            hasActiveSession: async function(server){
+                let result = await knex.select().from("ocelotbot_music_sessions").where({server}).whereNull("ended").limit(1);
+                return result.length > 0;
+            },
             getQueueForSession: async function(session){
-                return knex.select().from("ocelotbot_music_queue").where({session}).orderBy("order", "asc");
+                return knex.select().from("ocelotbot_music_queue").where({session}).orderByRaw("`order` asc, id asc");
             },
             updateNowPlaying: async function(id, uri){
                 return knex("ocelotbot_music_sessions").update({playing: uri}).where({id}).limit(1);
+            },
+            updateLastMessage: async function(id, lastMessage){
+                return knex("ocelotbot_music_sessions").update({lastMessage}).where({id}).limit(1);
+            },
+            purgeQueue: function(session){
+                return knex.delete().from("ocelotbot_msuic_queue").where({session});
+            },
+            getPreviousQueue: async function(server, currentSession){
+                return knex.select().from("ocelotbot_music_queue")
+                    .innerJoin("ocelotbot_music_sessions", "ocelotbot_music_queue.session", "ocelotbot_music_sessions.id")
+                    .where({server})
+                    .andWhereNot({session: currentSession})
             }
-
         };
     }
 };

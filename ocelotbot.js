@@ -13,7 +13,8 @@ const   config          = require('config'),
         dateFormat      = require('dateformat'),
         colors          = require('colors'),
         caller_id       = require('caller-id'),
-        path            = require('path');
+        path            = require('path'),
+        tracer          = require('dd-trace');
 
 
 //The app object is shared between all modules, it will contain any functions the modules expose and also the event bus.
@@ -24,7 +25,7 @@ let bot = {};
  * Initialise the Chat server
  */
 function init(){
-
+    tracer.init({analytics: true});
     process.setMaxListeners(100);
 
     bot.bus = new EventEmitter();

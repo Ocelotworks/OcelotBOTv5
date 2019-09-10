@@ -24,5 +24,6 @@ module.exports = {
 
         message.channel.send(`:white_check_mark: Cleared **${listener.queue.length}** items from the queue.`);
         listener.queue = [];
+        await bot.database.clearQueue(listener.id);
     }
 };

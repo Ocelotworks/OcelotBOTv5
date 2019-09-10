@@ -6,6 +6,7 @@
     "test": "ava"
   },
   "dependencies": {
+    "@lavalink/discord.js": "^0.1.0",
     "@tensorflow-models/toxicity": "^1.1.0",
     "@tensorflow/tfjs": "^1.2.2",
     "@tensorflow/tfjs-node": "^1.2.1",
@@ -24,6 +25,7 @@
     "cytoscape": "^3.7.3",
     "cytoscape-euler": "^1.2.1",
     "dateformat": "^3.0.3",
+    "dd-trace": "^0.15.0",
     "deepai": "^1.0.10",
     "discord.js": "^11.5.0",
     "discord.js-lavalink": "^2.2.3",

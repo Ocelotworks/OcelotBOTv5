@@ -35,6 +35,15 @@ module.exports = {
                     bot.logger.log(`Resuming session ${session.id}`);
                     const listener = await module.exports.constructListener(bot.client.guilds.get(session.server), bot.client.channels.get(session.voiceChannel), bot.client.channels.get(session.textChannel), session.id);
                     listener.playing = await bot.lavaqueue.getSong(session.playing);
+                    if(session.lastMessage){
+                        listener.lastMessage = await listener.channel.fetchMessage(session.lastMessage);
+                        module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
+                        if(listener.channel.guild.getBool("music.updateNowPlaying")) {
+                            listener.editInterval = setInterval(function updateNowPlaying() {
+                                module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false);
+                            }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
+                        }
+                    }
                     let queue = await bot.database.getQueueForSession(session.id);
                     bot.logger.log("Populating queue with "+queue.length+" songs.");
                     for(let i = 0; i < queue.length; i++){
@@ -88,6 +97,8 @@ module.exports = {
         if(!listener.playing && !id) {
             bot.logger.log("Playing next in queue");
             module.exports.playNextInQueue(server);
+        }else{
+            bot.logger.log("Not playing now as something is playing or this is a session resume");
         }
 
         return obj;
@@ -152,10 +163,10 @@ module.exports = {
             if(listener.autodj)
                 newSong = await module.exports.getAutoDJSong();
             else {
+                listener.playing = null;
                 return bot.lavaqueue.requestLeave(listener.voiceChannel, "Queue is empty and AutoDJ is disabled.");
             }
         }
-
         if(newSong.id)
             await bot.database.removeSong(newSong.id);
 
@@ -178,14 +189,15 @@ module.exports = {
     },
     createNowPlayingEmbed: function(listener) {
         let embed = new Discord.RichEmbed();
-        embed.setColor("#FF0000");
 
+        embed.setColor("#2d303d");
         embed.setTitle((listener.connection.paused ? "\\⏸" : "\\▶")+listener.playing.info.title);
         let footer = "";
         let footerIcon = null;
         if(listener.playing.info.uri.indexOf("youtu") > -1) {
             footer = "YouTube";
             footerIcon = "https://i.imgur.com/8iyBEbO.png";
+            embed.setColor("#FF0000");
         }
         if(listener.playing.info.uri.startsWith("/home/")) {
             footer = "AutoDJ";
@@ -211,7 +223,7 @@ module.exports = {
         if(listener.playing.info.uri.startsWith("http"))
             embed.setURL(listener.playing.info.uri);
         embed.setDescription(listener.playing.info.author);
-        let elapsed = listener.connection.state.position || 0;
+        let elapsed = listener.playing.position || 0;
         let length;
         if(listener.playing.info.length < 9223372036854776000) {//max int
             length = bot.util.progressBar(elapsed, listener.playing.info.length, 20);
@@ -233,6 +245,7 @@ module.exports = {
               if(listener.lastMessage)
                   await listener.lastMessage.delete();
               listener.lastMessage = await listener.channel.send(message);
+              await bot.database.updateLastMessage(listener.id, listener.lastMessage.id);
           }//else
            // clearInterval(listener.editInterval);
     },
@@ -245,21 +258,8 @@ module.exports = {
             channel:  voiceChannel.id,
             host
         };
-        if(voiceChannel.members.has(bot.client.user.id)) {
-            bot.logger.log("Player already exists");
-            await bot.lavaqueue.manager.sendWS({
-                op: 4,
-                d: {
-                    guild_id: server.id,
-                    channel_id: voiceChannel.id,
-                    self_mute: false,
-                    self_deaf: false
-                }
-            });
-        }
-
-        let player = await bot.lavaqueue.manager.join(data, {selfdeaf: true});
-
+        let player = bot.lavaqueue.manager.players.get(server.id);
+        await player.join(voiceChannel.id);
         if(!id)
             id = await bot.database.createMusicSession(server.id, voiceChannel.id, channel.id);
         let listener = module.exports.listeners[server.id] = {
@@ -273,7 +273,19 @@ module.exports = {
             host,
             id,
         };
-
+        listener.connection.on("event", function trackEvent(evt){
+            if(evt.type === "TrackEndEvent" && evt.reason !== "REPLACED"){
+                bot.logger.log("Song ended");
+                module.exports.playNextInQueue(listener.server);
+                bot.lavaqueue.requestLeave(listener.voiceChannel, "Song has ended");
+            }else{
+                console.log(evt);
+            }
+        });
+        listener.connection.on("playerUpdate", function playerUpdate(evt){
+            if(listener && listener.playing)
+                listener.playing.position = evt.state.position;
+        });
         listener.connection.on("error", function playerError(error){
             console.log(error);
             listener.channel.send(":warning: "+error.error);
@@ -281,13 +293,6 @@ module.exports = {
             module.exports.playNextInQueue(listener.server);
         });
 
-        listener.connection.on("end", function playerEnd(data){
-            if (data.reason === "REPLACED")
-                return bot.logger.log("Song replaced");
-            bot.logger.log("Song ended");
-            module.exports.playNextInQueue(listener.server);
-            bot.lavaqueue.requestLeave(listener.voiceChannel, "Song has ended");
-        });
         return listener;
     },
     deconstructListener: async function(server){
@@ -314,10 +319,10 @@ module.exports = {
             clearInterval(listener.checkInterval);
 
         if(listener.playing.info.length >= 3.6e+6) { //1 hour
-            listener.checkInterval = setInterval(function checkInterval() {
+            listener.checkInterval = setInterval(async function checkInterval() {
                 if(listener.voiceChannel.members.size === 1){
-                    listener.channel.replyLang("MUSIC_PLAY_INACTIVE");
-                    listener.player.disconnect();
+                    //listener.channel.replyLang("MUSIC_PLAY_INACTIVE"); hm
+                    await listener.player.leave();
                     module.exports.deconstructListener(listener.server);
                 }
             }, 1.8e+6);
@@ -328,7 +333,6 @@ module.exports = {
             track: listener.connection.track,
             server:listener.guild
         });
-        await listener.connection.stop();
         listener.connection.play(listener.playing.track);
 
         setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);

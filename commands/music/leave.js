@@ -18,8 +18,7 @@ module.exports = {
             return message.channel.send(`:bangbang: You can only use this command if you're the only one listening.`);
 
         message.channel.send(":wave: Goodbye.");
-        await listener.connection.stop();
-        await bot.lavaqueue.manager.leave(guild);
+        await listener.connection.leave();
         music.deconstructListener(guild);
     }
 };
