@@ -36,16 +36,17 @@ module.exports = {
                 let keys = Object.keys(runningGames);
                 for(let i = 0; i < keys.length; i++){
                     bot.logger.log("Shutting down running guess game "+keys[i]);
-                    let game = runningGames[keys[i]];
-                    await game.leave();
-                    await game.destroy();
+                    let {player} = runningGames[keys[i]];
+                    await player.seek(100000);
+                    await player.leave();
+                    await player.destroy();
                 }}
         });
     },
     run:  async function run(message, args, bot){
         if(args[1] && args[1].toLowerCase() === "stop") {
             if (message.member.voiceChannel && runningGames[message.member.voiceChannel.id]) {
-                await runningGames[message.member.voiceChannel.id].stop();
+                await runningGames[message.member.voiceChannel.id].collector.stop();
             }else{
                 message.channel.send(":warning: You are not currently in a voice channel that is playing guess!");
             }
@@ -119,12 +120,13 @@ module.exports = {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         }else if(runningGames[message.guild.id] && runningGames[message.guild.id].channel.id !== message.member.voiceChannel.id) {
             message.channel.send(`There is already a game running in ${runningGames[message.guild.id].channel.name}!`);
-        }else if(message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voiceChannel.id] && message.getSetting("songguess.disallowReguess")){
+        }else if(message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voiceChannel.id] && message.getSetting("songguess.disallowReguess")) {
             message.channel.send("I'm already in a voice channel doing something.");
+        }else if(await bot.database.hasActiveSession(message.guild.id)){
+            message.channel.send("The bot is currently playing music. Please wait for the queue to end to start guessing");
         }else{
             try {
                 bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
-
                 doGuess(message.member.voiceChannel, message, bot);
             }catch(e){
                 bot.raven.captureException(e);
@@ -159,9 +161,9 @@ async function doGuess(voiceChannel, message, bot){
         console.log("Joining");
         let {player} = await bot.lavaqueue.playOneSong(voiceChannel, file);
         console.log(player);
-        runningGames[voiceChannel.id] = player;
         let won = false;
         let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
+        runningGames[voiceChannel.id] = {player, collector};
         player.seek(10);
         player.once("end", function(){
             if (!won && collector) {

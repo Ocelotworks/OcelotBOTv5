@@ -24,7 +24,7 @@ module.exports = {
 
         let position = args[2];
         if(args[2].startsWith("+") || args[2].startsWith("-"))
-            position = (listener.connection.state.position/1000)+(parseInt(args[2]));
+            position = (listener.playing.position/1000)+(parseInt(args[2]));
 
         if(position*1000 > listener.playing.info.length)
             return message.channel.send(`:warning: That would seek past the end of the song. To skip, type ${args[0]} skip`);

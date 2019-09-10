@@ -13,6 +13,7 @@ module.exports = {
     name: "Twitch",
     id: "twitch",
     alias: ["twitch.tv"],
+    hidden: true,
     validate: function(input){
     },
     check: async function check(sub, lastCheck){

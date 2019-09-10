@@ -4,7 +4,6 @@
  * ╚════ ║   (ocelotbotv5) lavaqueue
  *  ════╝
  */
-const {PlayerManager} = require("discord.js-lavalink");
 const config = require('config');
 const request = require('request');
 const {NodeManager} = require('@lavalink/discord.js');
@@ -60,9 +59,10 @@ module.exports = {
             if(bot.lavaqueue.leaveTimeouts[channel.id])
                 clearTimeout(bot.lavaqueue.leaveTimeouts[channel.id]);
             bot.lavaqueue.leaveTimeouts[channel.id] = setTimeout(async function leaveVoiceChannel(){
-                bot.logger.log("Leaving voice channel "+channel.id+" due to "+source);
+                bot.logger.info("Leaving voice channel "+channel.id+" due to "+source);
                 if(channel.guild) {
                     let player = bot.lavaqueue.manager.players.get(channel.guild.id);
+                    await player.leave();
                     await player.destroy();
                 }else {
                     bot.logger.warn("Tried to leave undefined voice channel");
@@ -72,7 +72,7 @@ module.exports = {
         };
         bot.lavaqueue.cancelLeave = function cancelLeave(channel){
             if(bot.lavaqueue.leaveTimeouts[channel.id]) {
-                bot.logger.log("Leave cancelled bot "+channel.id);
+                bot.logger.info("Leave cancelled bot "+channel.id);
                 clearTimeout(bot.lavaqueue.leaveTimeouts[channel.id]);
             }
         };
