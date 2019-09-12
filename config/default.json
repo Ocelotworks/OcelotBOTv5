@@ -70,7 +70,8 @@
     "autorespond",
     "botlists",
     "mixpanel",
-    "datadog"
+    "datadog",
+    "tasks"
   ],
   "Seasonal": [
     {

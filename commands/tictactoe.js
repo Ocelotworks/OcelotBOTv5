@@ -42,7 +42,7 @@ module.exports = {
         }else if(runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[abc][123]/i)) {
             const row = cols.indexOf(subCommand[0].toUpperCase());
             const col = subCommand[1]-1;
-            module.exports.doGo(message, col, row);
+            module.exports.doGo(message, col, row, bot);
         }else{
             message.channel.send(`:bangbang: Invalid usage! To start a game type ${args[0]} start @player`);
         }
@@ -70,7 +70,7 @@ module.exports = {
         }
         return true;
     },
-    doGo: async function(message, row, col){
+    doGo: async function(message, row, col, bot){
         const game = runningGames[message.channel.id];
         if(game.board[row][col] < 2){
             message.channel.send(":warning: That space is occupied. Try another space.");
@@ -82,9 +82,11 @@ module.exports = {
                 if(game.lastMessage)
                     game.lastMessage.delete();
                 message.channel.send(`${winnerUser} wins!\n${module.exports.renderBoard(message.channel.id)}`);
+                bot.tasks.endTask("tictactoe", message.channel.id);
                 delete runningGames[message.channel.id];
             }else if(module.exports.getDraw(message)){
                 message.channel.send(`Draw! Everyone wins! :rainbow: \n${module.exports.renderBoard(message.channel.id)}`);
+                bot.tasks.endTask("tictactoe", message.channel.id);
                 delete runningGames[message.channel.id];
             }else{
                 game.turn = !game.turn;
@@ -152,6 +154,7 @@ module.exports = {
                     players: [request.from, message.author],
                     board: [[2, 2, 2],[2, 2, 2],[2, 2, 2]],
                 };
+                bot.tasks.startTask("tictactoe", message.channel.id);
                 runningGames[message.channel.id].lastMessage = await message.channel.send(`${request.from}, your request has been accepted! It is your turn.\n${module.exports.renderBoard(message.channel.id)}\nMove with ${args[0]} [position] i.e ${args[0]} B2 for the middle.`);
                 delete gameRequests[message.channel.id];
             }else{

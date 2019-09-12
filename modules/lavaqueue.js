@@ -58,6 +58,7 @@ module.exports = {
             bot.logger.log("Requested leave for "+channel.id);
             if(bot.lavaqueue.leaveTimeouts[channel.id])
                 clearTimeout(bot.lavaqueue.leaveTimeouts[channel.id]);
+            bot.tasks.endTask("voiceChannel", channel.id);
             bot.lavaqueue.leaveTimeouts[channel.id] = setTimeout(async function leaveVoiceChannel(){
                 bot.logger.info("Leaving voice channel "+channel.id+" due to "+source);
                 if(channel.guild) {
@@ -83,6 +84,7 @@ module.exports = {
 
         bot.lavaqueue.playOneSong = async function playOneSong(voiceChannel, song){
             bot.lavaqueue.cancelLeave(voiceChannel);
+            bot.tasks.startTask("playOneSong", voiceChannel.id);
             let player = bot.lavaqueue.manager.players.get(voiceChannel.guild.id);
             await player.join(voiceChannel.id);
             let songData = await bot.lavaqueue.getSong(song);
@@ -93,6 +95,7 @@ module.exports = {
             });
             player.once("event", data => {
                 if (data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops
+                bot.tasks.endTask("playOneSong", voiceChannel.id);
                 bot.logger.log("Song ended");
                 bot.lavaqueue.requestLeave(voiceChannel, "player playOneSong Song ended");
             });

@@ -160,7 +160,6 @@ async function doGuess(voiceChannel, message, bot){
         message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
         console.log("Joining");
         let {player} = await bot.lavaqueue.playOneSong(voiceChannel, file);
-        console.log(player);
         let won = false;
         let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
         runningGames[voiceChannel.id] = {player, collector};

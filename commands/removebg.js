@@ -24,6 +24,7 @@ module.exports = {
             return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
         }
         console.log(url);
+        bot.tasks.startTask("removebg", message.id);
         request({
             encoding: null,
             method: 'POST',
@@ -45,6 +46,7 @@ module.exports = {
                         let output = "";
                         for(let i = 0; i < data.errors.length; i++){
                             if(data.errors[i].title === "Insufficient credits"){
+                                bot.tasks.endTask("removebg", message.id);
                                 return message.replyLang("REMOVEBG_QUOTA");
                             }
                             output += data.errors[i].title+"\n"
@@ -57,11 +59,13 @@ module.exports = {
                     bot.raven.captureException(e);
                     message.replyLang("GENERIC_ERROR");
                 }
+                bot.tasks.endTask("removebg", message.id);
                 message.channel.stopTyping(true);
             }else{
                 let attachment = new Discord.Attachment(body, "removebg.png");
                 message.channel.send(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "REMOVEBG_ENDORSEMENT"),attachment);
                 message.channel.stopTyping(true);
+                bot.tasks.endTask("removebg", message.id);
             }
         })
 

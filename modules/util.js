@@ -333,7 +333,7 @@ module.exports = {
 
         /**
          *
-         * @param {String} message
+         * @param {Message} message
          * @param {Array<String>} args
          * @param {Number} x The x position of the text
          * @param {Number} y The y position of the text
@@ -347,6 +347,8 @@ module.exports = {
                 message.replyLang("IMAGE_NO_TEXT");
                 return;
             }
+
+            bot.tasks.startTask("imageMeme", message.id);
 
             filePath = __dirname+"/../"+filePath;
 
@@ -363,6 +365,7 @@ module.exports = {
                         const attachment = new Discord.Attachment(buffer, fileName);
                         message.channel.send("", attachment);
                     }
+                    bot.tasks.endTask("imageMeme", message.id);
                     message.channel.stopTyping();
                 });
         };
@@ -382,6 +385,7 @@ module.exports = {
             if(!url || !url.startsWith("http"))
                 return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
 
+            bot.tasks.startTask("imageFilter", message.id);
 
             bot.logger.log(url);
             if(message.getBool("imageFilter.useExternal")) {
@@ -392,6 +396,7 @@ module.exports = {
                 }
                 let attachment = new Discord.Attachment(Buffer.from(response.image, 'base64'), response.name);
                 message.channel.send(attachment);
+                bot.tasks.endTask("imageFilter", message.id);
             }else {
                 const fileName = `${__dirname}/../temp/${Math.random()}.png`;
                 let shouldProcess = true;
@@ -412,8 +417,10 @@ module.exports = {
                         if (!shouldProcess) {
                             message.replyLang("GENERIC_NO_IMAGE_URL");
                             fs.unlink(fileName, function unlinkInvalidFile(err) {
-                                if (err)
+                                if (err) {
                                     bot.logger.error(err);
+                                    bot.tasks.endTask("imageFilter", message.id);
+                                }
                             });
                             return;
                         }
@@ -430,6 +437,7 @@ module.exports = {
                                     console.log(e);
                                     message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                                 });
+                                bot.tasks.endTask("imageFilter", message.id);
                                 fs.unlink(fileName, function unlinkCompletedFile(err) {
                                     if (err)
                                         bot.logger.error(err);
