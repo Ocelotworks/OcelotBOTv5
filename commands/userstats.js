@@ -63,48 +63,42 @@ module.exports = {
         // noinspection EqualityComparisonWithCoercionJS
         if (message.getSetting("ocelotworks")) {
             await module.exports.ocelotStats(message, args, bot);
-        } else if (!args[1]) {
-            message.replyLang("USERSTATS_NO_USER");
-        } else {
-            if(message.mentions.users.size > 0){
-                const target = message.mentions.users.firstKey();
-                try {
-                    message.channel.startTyping();
-                    let commandResult = (await bot.database.getUserStats(target))[0];
-                    let voteResult =(await bot.database.getVoteCount(target))[0];
-                    let guessResult =(await bot.database.getTotalCorrectGuesses(target))[0];
-                    let triviaResult = (await bot.database.getTriviaCorrectCount(target))[0];
-                    let voteCount = 0, guessCount = 0, triviaCount = 0, commandCount = 0;
+        }else{
+            const target = message.mentions.users.size > 0 ? message.mentions.users.firstKey() : message.author;
+            try {
+                message.channel.startTyping();
+                let commandResult = (await bot.database.getUserStats(target))[0];
+                let voteResult =(await bot.database.getVoteCount(target))[0];
+                let guessResult =(await bot.database.getTotalCorrectGuesses(target))[0];
+                let triviaResult = (await bot.database.getTriviaCorrectCount(target))[0];
+                let voteCount = 0, guessCount = 0, triviaCount = 0, commandCount = 0;
 
-                    if(commandResult && commandResult['commandCount'])
-                        commandCount = commandResult['commandCount'].toLocaleString();
+                if(commandResult && commandResult['commandCount'])
+                    commandCount = commandResult['commandCount'].toLocaleString();
 
-                    if(voteResult && voteResult['COUNT(*)'])
-                        voteCount = voteResult['COUNT(*)'].toLocaleString();
+                if(voteResult && voteResult['COUNT(*)'])
+                    voteCount = voteResult['COUNT(*)'].toLocaleString();
 
-                    if(guessResult && guessResult['COUNT(*)'])
-                        guessCount = guessResult['COUNT(*)'].toLocaleString();
+                if(guessResult && guessResult['COUNT(*)'])
+                    guessCount = guessResult['COUNT(*)'].toLocaleString();
 
-                    if(triviaResult && triviaResult['count(*)'])
-                        triviaCount = triviaResult['count(*)'].toLocaleString();
+                if(triviaResult && triviaResult['count(*)'])
+                    triviaCount = triviaResult['count(*)'].toLocaleString();
 
-                    message.replyLang("USERSTATS_MESSAGE", {
-                        target,
-                        commandCount,
-                        voteCount,
-                        guessCount,
-                        triviaCount
-                    });
+                message.replyLang("USERSTATS_MESSAGE", {
+                    target,
+                    commandCount,
+                    voteCount,
+                    guessCount,
+                    triviaCount
+                });
 
-                    message.channel.stopTyping();
+                message.channel.stopTyping();
 
-                } catch (e) {
-                    bot.raven.captureException(e);
-                    console.log(e);
-                    message.replyLang("GENERIC_ERROR");
-                }
-            }else{
-                message.channel.send(":bangbang: Invalid usage. You must @mention a user.");
+            } catch (e) {
+                bot.raven.captureException(e);
+                console.log(e);
+                message.replyLang("GENERIC_ERROR");
             }
         }
     },
