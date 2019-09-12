@@ -71,6 +71,11 @@ module.exports = {
             return bot.client.channels.get(spooked[0].channel)
         };
 
+        bot.spook.giveSpecialRoles = async function giveSpecialRoles(channel){
+            const lastMessages = (await bot.util.fetchMessages(channel, 100)).filter((m)=>!m.author.bot);
+            const specialRoles = bot.database.getSpecialRoles()
+        };
+
         bot.spook.checkSpecialRoles = function checkSpecialRoles(){
 
         };
