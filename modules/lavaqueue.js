@@ -64,6 +64,10 @@ module.exports = {
                     let player = bot.lavaqueue.manager.players.get(channel.guild.id);
                     await player.leave();
                     await player.destroy();
+
+                    if(bot.music){
+                        bot.music.deconstructListener(channel.guild.id);
+                    }
                 }else {
                     bot.logger.warn("Tried to leave undefined voice channel");
                     console.log(channel);

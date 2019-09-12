@@ -53,6 +53,7 @@ module.exports = {
                 }
             }
         });
+        bot.music = module.exports;
     },
     run: function (message, args, bot) {
         if(!message.guild)return message.replyLang("GENERIC_DM_CHANNEL");
