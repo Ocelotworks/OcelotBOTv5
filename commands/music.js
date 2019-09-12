@@ -40,7 +40,8 @@ module.exports = {
                         module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
                         if(listener.channel.guild.getBool("music.updateNowPlaying")) {
                             listener.editInterval = setInterval(function updateNowPlaying() {
-                                module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false);
+                                if(module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false))
+                                    clearInterval(listener.editInterval);
                             }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
                         }
                     }
@@ -184,7 +185,8 @@ module.exports = {
 
         if(listener.channel.guild.getBool("music.updateNowPlaying")) {
             listener.editInterval = setInterval(function updateNowPlaying() {
-                module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false);
+                if(module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false))
+                    clearInterval(listener.editInterval);
             }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
         }
     },
@@ -237,18 +239,24 @@ module.exports = {
         return embed;
     },
     updateOrSendMessage: async function(listener, message, resend = true){
-          if(listener.lastMessage && listener.channel.messages.has(listener.lastMessage.id)){
+          if(listener.lastMessage && listener.channel.messages.has(listener.lastMessage.id) && !listener.lastMessage.deleted){
               let keyArray = listener.channel.messages.keyArray();
-              if (keyArray.length - keyArray.indexOf(listener.lastMessage.id) < 15)
-                  return listener.lastMessage.edit(message);
+              if (keyArray.length - keyArray.indexOf(listener.lastMessage.id) < 15) {
+                  listener.lastMessage.edit(message);
+                  return false;
+              }
           }
           if(resend) {
-              if(listener.lastMessage)
-                  await listener.lastMessage.delete();
-              listener.lastMessage = await listener.channel.send(message);
-              await bot.database.updateLastMessage(listener.id, listener.lastMessage.id);
-          }//else
-           // clearInterval(listener.editInterval);
+              try {
+                if(listener.lastMessage)
+                    await listener.lastMessage.delete();
+                  listener.lastMessage = await listener.channel.send(message);
+                  await bot.database.updateLastMessage(listener.id, listener.lastMessage.id);
+              }catch(e){
+                  return true;
+              }
+          }
+          return false;
     },
     constructListener: async function constructListener(server, voiceChannel, channel, id){
         const host = bot.util.arrayRand(server.getSetting("music.host").split(","));
