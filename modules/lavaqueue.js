@@ -10,23 +10,27 @@ const {NodeManager} = require('@lavalink/discord.js');
 module.exports = {
     name: "LavaQueue",
     init: function (bot) {
+        let firstReady = true;
         bot.client.on("ready", function(){
-            const resumeKey = bot.client.user.id+"-"+bot.client.shard.id;
-            bot.lavaqueue.manager = new NodeManager(bot.client, {
-                userID: bot.client.user.id,
-                shardCount: bot.client.shard.count,
-                password: config.get("Lavalink.password"),
-                hosts: {
-                    rest: "http://boywanders.us:2333",
-                    ws: {
-                        url: "http://boywanders.us:2333",
-                        options: {
-                            resumeKey,
-                            resumeTimeout: 60
+            if(firstReady) {
+                firstReady = false;
+                const resumeKey = bot.client.user.id + "-" + bot.client.shard.id;
+                bot.lavaqueue.manager = new NodeManager(bot.client, {
+                    userID: bot.client.user.id,
+                    shardCount: bot.client.shard.count,
+                    password: config.get("Lavalink.password"),
+                    hosts: {
+                        rest: "http://boywanders.us:2333",
+                        ws: {
+                            url: "http://boywanders.us:2333",
+                            options: {
+                                resumeKey,
+                                resumeTimeout: 60
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         });
 
         bot.lavaqueue = {};
