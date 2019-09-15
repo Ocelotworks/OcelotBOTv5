@@ -113,7 +113,7 @@ module.exports = {
                message.channel.send(":warning: Only one trivia game can run at a time");
                return;
            }
-           bot.tasks.startTask("trivia", message.channel.id);
+           bot.tasks.startTask("trivia", message.id);
            message.channel.startTyping();
            runningGames.push(message.channel.id);
            request(message.guild.getSetting("trivia.url"), async function triviaResponse(err, resp, body){
@@ -123,7 +123,7 @@ module.exports = {
                    if(runningGames.indexOf(message.channel.id) > -1)
                        runningGames.splice(runningGames.indexOf(message.channel.id), 1); //Is this right?
                    message.channel.stopTyping();
-                   bot.tasks.endTask("trivia", message.channel.id);
+                   bot.tasks.endTask("trivia", message.id);
                    return;
                }
                bot.raven.captureBreadcrumb({
@@ -170,7 +170,7 @@ module.exports = {
                                 message.channel.startTyping();
                                 const permissions = await message.channel.permissionsFor(bot.client.user);
                                 if(!permissions) {
-                                    bot.tasks.endTask("trivia", message.channel.id);
+                                    bot.tasks.endTask("trivia", message.id);
                                     return bot.logger.log("Left server before trivia ended");
                                 }
 
@@ -242,13 +242,13 @@ module.exports = {
                                     output += `\n${cheaters.length} ${cheaters.length === 1 ? "person" : "people"} tried to cheat.\nhttps://tenor.com/view/shame-go-t-game-of-thrones-walk-of-shame-shameful-gif-4949558`
 
                                 message.channel.send(output);
-                                bot.tasks.endTask("trivia", message.channel.id);
+                                bot.tasks.endTask("trivia", message.id);
                             });
 
                        for(let i = 0; i < reactions.length; i++)
                            await sentMessage.react(reactions[i]);
                     }else{
-                        bot.tasks.endTask("trivia", message.channel.id);
+                        bot.tasks.endTask("trivia", message.id);
                         message.replyLang("TRIVIA_ERROR");
                         bot.logger.error("Trivia service gave back no questions!");
                         message.channel.stopTyping();
@@ -265,6 +265,7 @@ module.exports = {
                    if(runningGames.indexOf(message.channel.id) > -1)
                     runningGames.splice(runningGames.indexOf(message.channel.id), 1);
                    message.channel.stopTyping();
+                   bot.tasks.endTask("trivia", message.id);
                }
            });
        }
