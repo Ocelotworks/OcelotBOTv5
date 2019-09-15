@@ -13,7 +13,7 @@ const orientations = [
 let naughtyRegex = /child|kid|baby|babies|toddler|1[0-7]|/gi;
 module.exports = {
     name: "Porn Suggest",
-    usage: "pornsuggest [country] [gay/straight/tranny]",
+    usage: "pornsuggest <search>",
     commands: ["pornsuggest"],
     rateLimit: 50,
     nsfw: true,

@@ -7,15 +7,15 @@
 const nicknames = [
     "mom",
     "dad",
+    "mommy",
     "a series of tubes",
-    "i wanna be tracer",
-    "im allready tracer",
+    "dank memer",
+    "not dank memer",
     "foreskin",
     "thot",
     "thot patrol",
     "big tiddy goth gf",
     "your new nickname",
-    "they did surgery on a grape",
     "butt",
     "ecksdee",
     "Grinch",
@@ -36,7 +36,13 @@ const nicknames = [
     "forkknife",
     "owl city",
     "lady pickle",
-    "(:"
+    "(:",
+    ":)",
+    "oh no",
+    "ocelotbot number 1 fan",
+    "spooky",
+    "big chungus",
+    "Something went wrong, try again later."
 ];
 module.exports = {
     name: "New Nickname Generator",
@@ -45,6 +51,7 @@ module.exports = {
     rateLimit: 10,
     commands: ["newnick", "newnickname"],
     requiredPermissions: ["MANAGE_NICKNAMES"],
+    unwholesome: true,
     run: async function run(message, args, bot) {
         if(message.member) {
             let oldNickname = message.member.nickname;
