@@ -387,21 +387,25 @@ module.exports = {
 
             bot.tasks.startTask("imageFilter", message.id);
 
+            let loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
+
             bot.logger.log(url);
             if(message.getBool("imageFilter.useExternal")) {
                 let response = await bot.rabbit.rpc("imageFilter", {url, filter, input, format});
+                if(loadingMessage)
+                    await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
                 if (response.err) {
                     console.log(response);
+                    await loadingMessage.delete();
                     return message.channel.send(response.err);
                 }
                 let attachment = new Discord.Attachment(Buffer.from(response.image, 'base64'), response.name);
-                message.channel.send(attachment);
+                await message.channel.send(attachment);
+                await loadingMessage.delete();
                 bot.tasks.endTask("imageFilter", message.id);
             }else {
                 const fileName = `${__dirname}/../temp/${Math.random()}.png`;
                 let shouldProcess = true;
-
-
                 request(url)
                     .on("response", function requestResponse(resp) {
                         shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
@@ -731,6 +735,7 @@ module.exports = {
             let index = 0;
             let sentMessage;
 
+
             let buildPage = async function () {
                let output = await formatMessage(pages[index], index);
                 if(sentMessage)
@@ -740,6 +745,8 @@ module.exports = {
             };
 
             await buildPage();
+
+            bot.tasks.startTask("standardPagination", sentMessage.id);
 
             if(pages.length === 1 && !reactDict)
                 return;
@@ -809,6 +816,7 @@ module.exports = {
             }else{
                 bot.logger.info(`${sentMessage.id} was deleted before the reactions expired.`);
             }
+            bot.tasks.endTask("standardPagination", sentMessage.id);
         };
 
 
