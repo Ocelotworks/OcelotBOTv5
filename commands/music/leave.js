@@ -14,8 +14,8 @@ module.exports = {
             return message.replyLang("MUSIC_NOTHING_PLAYING");
 
         const listener = music.listeners[guild];
-        if(listener.playing && listener.voiceChannel.members.size > 2)
-            return message.channel.send(`:bangbang: You can only use this command if you're the only one listening.`);
+        //if(listener.playing && listener.voiceChannel.members.size > 2)
+         //   return message.channel.send(`:bangbang: You can only use this command if you're the only one listening.`);
 
         message.channel.send(":wave: Goodbye.");
         await listener.connection.leave();
