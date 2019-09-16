@@ -47,6 +47,7 @@ module.exports = {
                         for(let i = 0; i < data.errors.length; i++){
                             if(data.errors[i].title === "Insufficient credits"){
                                 bot.tasks.endTask("removebg", message.id);
+                                message.channel.stopTyping(true);
                                 return message.replyLang("REMOVEBG_QUOTA");
                             }
                             output += data.errors[i].title+"\n"
