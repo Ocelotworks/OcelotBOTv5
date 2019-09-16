@@ -64,7 +64,7 @@ module.exports = {
         if (message.getSetting("ocelotworks")) {
             await module.exports.ocelotStats(message, args, bot);
         }else{
-            const target = message.mentions.users.size > 0 ? message.mentions.users.firstKey() : message.author;
+            const target = message.mentions.users.size > 0 ? message.mentions.users.firstKey() : message.author.id;
             try {
                 message.channel.startTyping();
                 let commandResult = (await bot.database.getUserStats(target))[0];
