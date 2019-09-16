@@ -9,6 +9,9 @@ module.exports = {
     id: "respawn",
     received: function received(broker, process, payload){
         broker.logger.warn("Respawning all shards.");
-        broker.manager.respawnAll();
+        broker.manager.broadcast({"type": "destruct"});
+        setTimeout(function(){
+            broker.manager.respawnAll();
+        }, 2000);
     }
 };

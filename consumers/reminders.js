@@ -40,7 +40,7 @@ async function init(){
     for(let i = 0; i < reminders.length; i++){
         let reminder = reminders[i];
         let diff = reminder.at-now;
-        setLongTimeout(triggerReminder, diff, reminder);
+        setLongTimeout(()=>triggerReminder(reminder), diff);
     }
 
     let con = await amqplib.connect(config.get("RabbitMQ.productionHost"));
