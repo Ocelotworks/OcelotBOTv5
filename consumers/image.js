@@ -24,7 +24,7 @@ async function init(){
     }
 
     channel.assertQueue('imageFilter');
-    channel.basicQos(5);
+    channel.prefetch(5);
 
     channel.consume('imageFilter', function(msg){
         console.log("Processing "+msg.content.toString());
