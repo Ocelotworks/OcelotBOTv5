@@ -128,6 +128,22 @@ module.exports = {
     init: function init(bot) {
         bot.logger.log("Loading z5 commands...");
         bot.util.standardNestedCommandInit("z5");
+
+        process.on('message', async function(message){
+            if(message.type === "destruct"){
+                bot.logger.log("Z5 got destruct. Forcing save of all games in progress...")
+
+                Object.keys(gameContainers).forEach(function (key) {
+                    try {
+                        fs.writeFileSync(__dirname+"/../z5saves/" + key, new Buffer(gameContainers[key].game.getSerialData().buffer), {});
+                    } catch (e) {
+                        console.log(e);
+                    }
+                });
+
+                bot.logger.log("Saved!")
+            }
+        });
     },
     run: async function (message, args, bot) {
 
