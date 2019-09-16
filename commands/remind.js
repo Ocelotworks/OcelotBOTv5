@@ -19,9 +19,9 @@ module.exports = {
                 let reminder = JSON.parse(message.content);
                 if(bot.client.channels.has(reminder.channel) || bot.client.shard.id === 0){
                     module.exports.sendReminder(reminder, bot);
-                }else{
+                    bot.rabbit.channel.ack(message);
+                }else
                     bot.rabbit.channel.nack(message);
-                }
             }catch(e){
                 bot.raven.captureException(e);
                 bot.logger.error(e);
