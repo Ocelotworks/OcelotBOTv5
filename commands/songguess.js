@@ -17,7 +17,7 @@ const fs = require('fs');
 
 module.exports = {
     name: "Guess The Song",
-    usage: "guess [stop/stats]",
+    usage: "guess [stop/stats/leaderboard]",
     rateLimit: 25,
     categories: ["games", "voice"],
     requiredPermissions: ["CONNECT", "SPEAK"],
