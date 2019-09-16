@@ -20,7 +20,7 @@ module.exports = {
                 channel: message.channel.id,
                 user: message.author.id,
                 type: args[2],
-                data: args[3],
+                data: content,
                 lastcheck: new Date().getTime(),
                 id: res[0]
             };
