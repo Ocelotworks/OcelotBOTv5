@@ -20,20 +20,26 @@ module.exports = {
         };
         let replyCount = 0;
         let waitingCallbacks = {};
+        let callbackTimers = {};
 
         bot.rabbit.rpcChannel.assertQueue("reply-"+bot.client.shard.id, {exclusive: true});
         bot.rabbit.rpcChannel.consume("reply-"+bot.client.shard.id, function(msg){
             if(waitingCallbacks[msg.properties.correlationId]){
                 waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
+                clearTimeout(callbackTimers[msg.properties.correlationId]);
             }
         });
 
-        bot.rabbit.rpc = async function(name, payload){
+        bot.rabbit.rpc = async function(name, payload, timeout = 300000){
             return new Promise(function(fulfill){
                 bot.rabbit.rpcChannel.assertQueue(name);
                 const correlationId = bot.client.shard.id+"-"+(replyCount++);
                 bot.rabbit.rpcChannel.sendToQueue(name, Buffer.from(JSON.stringify(payload)), {correlationId, replyTo: "reply-"+bot.client.shard.id});
                 waitingCallbacks[correlationId] = fulfill;
+                callbackTimers[correlationId] = setTimeout(function rpcTimeout(){
+                    bot.logger.warn("RPC "+name+" timed out");
+                    fulfill("timeout");
+                }, timeout);
             });
         };
 

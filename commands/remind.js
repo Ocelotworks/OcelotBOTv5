@@ -144,55 +144,51 @@ module.exports = {
                 const guessedContent = message.content.substring(message.content.indexOf(chronoParse.text)+chronoParse.text.length);
                 if(guessedContent)
                     reminder = guessedContent;
-                else {
-                    message.replyLang("REMIND_INVALID_MESSAGE");
-                    return;
-                }
-            }else{
-                message.replyLang("REMIND_INVALID_MESSAGE");
-                return;
-            }
-        }else{
+                else
+                    return message.replyLang("REMIND_INVALID_MESSAGE");
+            }else
+                return message.replyLang("REMIND_INVALID_MESSAGE");
+        }else
             reminder = rargs[2];
-        }
 
-        if(!at){
-            message.replyLang("REMIND_INVALID_TIME");
-            return;
-        }
 
-        if(at.getTime() >= 253370764800000){
-            message.replyLang("REMIND_LONG_TIME");
-            return;
-        }
+        if(!at)
+            return message.replyLang("REMIND_INVALID_TIME");
 
-        if(at.getTime() >= 2147483647000){
-            message.channel.send(":stopwatch: You can't set a reminder for on or after 19th January 2038");
-            return;
-        }
+        if(at.getTime() >= 253370764800000)
+            return message.replyLang("REMIND_LONG_TIME");
+
+        if(at.getTime() >= 2147483647000)
+            return message.channel.send(":stopwatch: You can't set a reminder for on or after 19th January 2038");
 
         const offset = at - now;
 
-
-        if(offset < 1000){
-            message.replyLang("REMIND_SHORT_TIME");
-            return;
-        }
+        if(offset < 1000)
+            return message.replyLang("REMIND_SHORT_TIME");
         try {
-            const reminderResponse = await bot.database.addReminder("discord", message.author.id, message.guild.id, message.channel.id, at.getTime(), reminder);
             message.replyLang("REMIND_SUCCESS", {time: bot.util.prettySeconds((offset / 1000)+1), date: at.toString()});
-            bot.util.setLongTimeout(async function () {
-                try {
-                    message.replyLang("REMIND_REMINDER", {
-                        username: message.author.id,
-                        date: now.toString(),
-                        message: reminder
-                    });
-                    await bot.database.removeReminder(reminderResponse[0])
-                }catch(e){
-                    bot.raven.captureException(e);
-                }
-            }, offset);
+            if(message.getBool("remind.useQueue")) {
+                bot.rabbit.channel.sendToQueue("newReminder", Buffer.from(JSON.stringify({
+                    username: message.author.id,
+                    date: now.toString(),
+                    message: reminder,
+                    at: at.getTime(),
+                })));
+            }else {
+                const reminderResponse = await bot.database.addReminder("discord", message.author.id, message.guild.id, message.channel.id, at.getTime(), reminder);
+                bot.util.setLongTimeout(async function () {
+                    try {
+                        await message.replyLang("REMIND_REMINDER", {
+                            username: message.author.id,
+                            date: now.toString(),
+                            message: reminder
+                        });
+                        await bot.database.removeReminder(reminderResponse[0])
+                    } catch (e) {
+                        bot.raven.captureException(e);
+                    }
+                }, offset);
+            }
         }catch(e){
             message.replyLang("REMIND_ERROR");
             bot.raven.captureException(e);
