@@ -28,6 +28,7 @@ module.exports = {
                 waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
                 clearTimeout(callbackTimers[msg.properties.correlationId]);
             }
+            bot.rabbit.rpcChannel.ack(msg);
         });
 
         bot.rabbit.rpc = async function(name, payload, timeout = 300000){
