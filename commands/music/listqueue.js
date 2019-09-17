@@ -18,14 +18,20 @@ module.exports = {
         if(listener.queue.length === 0)
             return message.replyLang("MUSIC_QUEUE_EMPTY");
 
+        let header = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000)})\n============\n`;
 
-        let output = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000)})\n============\n`;
-        for(let i = 0; i < listener.queue.length; i++){
-            output += `${i+1} :: ${listener.queue[i].info.title}\n`;
-        }
-        output += "\n```";
-
-        message.channel.send(output);
+        let chunkedQueue = listener.queue.chunk(50);
+        bot.util.standardPagination(message.channel, chunkedQueue, async function(page, index){
+            let output = "";
+            output += header;
+            for(let i = 0; i < pagelength; i++){
+                output += `${i+1} :: ${page.info.title}\n`;
+            }
+            if(chunkedQueue.length > 1)
+                output += `\nPage ${index+1}/${chunkedQueue.length}`;
+            output += "\n```";
+            message.channel.send(output);
+        });
 
     }
 };
