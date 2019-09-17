@@ -13,21 +13,22 @@ module.exports = {
     init: function init(bot){
 
         //if(bot.client.user.username !== "OcelotBOT-Test") {
-        bot.rabbit.channel.assertQueue("reminder");
-        bot.rabbit.channel.consume("reminder", {"x-priority": bot.client.shard.id},function reminderConsumer(message){
-            try {
-                let reminder = JSON.parse(message.content);
-                if(bot.client.channels.has(reminder.channel) || bot.client.shard.id === 0){
-                    module.exports.sendReminder(reminder, bot);
-                    bot.rabbit.channel.ack(message);
-                }else
-                    bot.rabbit.channel.nack(message);
-            }catch(e){
-                bot.raven.captureException(e);
-                bot.logger.error(e);
-            }
+        bot.client.on("ready", function(){
+            bot.rabbit.channel.assertQueue("reminder");
+            bot.rabbit.channel.consume("reminder", {"x-priority": bot.client.shard.id},function reminderConsumer(message){
+                try {
+                    let reminder = JSON.parse(message.content);
+                    if(bot.client.channels.has(reminder.channel) || bot.client.shard.id === 0){
+                        module.exports.sendReminder(reminder, bot);
+                        bot.rabbit.channel.ack(message);
+                    }else
+                        bot.rabbit.channel.nack(message);
+                }catch(e){
+                    bot.raven.captureException(e);
+                    bot.logger.error(e);
+                }
+            });
         });
-
 
         bot.client.on("ready", async function discordReady(){
             if(bot.client.user.username === "OcelotBOT-Test")
