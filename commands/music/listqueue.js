@@ -20,17 +20,17 @@ module.exports = {
 
         let header = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000)})\n============\n`;
 
-        let chunkedQueue = listener.queue.chunk(50);
+        let chunkedQueue = listener.queue.chunk(20);
         bot.util.standardPagination(message.channel, chunkedQueue, async function(page, index){
             let output = "";
             output += header;
-            for(let i = 0; i < pagelength; i++){
-                output += `${i+1} :: ${page.info.title}\n`;
+            for(let i = 0; i < page.length; i++){
+                output += `${i+1} :: ${page[i].info.title}\n`;
             }
             if(chunkedQueue.length > 1)
                 output += `\nPage ${index+1}/${chunkedQueue.length}`;
             output += "\n```";
-            message.channel.send(output);
+            return output;
         });
 
     }
