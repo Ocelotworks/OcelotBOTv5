@@ -215,6 +215,8 @@ module.exports = {
 
         bot.client.on("guildDelete", async function leaveGuild(guild){
             bot.logger.log(`Left server ${guild.id} (${guild.name})`);
+            if(guild.unavailable)
+                return bot.logger.warn("Left due to discord issues");
             bot.raven.captureBreadcrumb({
                 message: "guildDelete",
                 category:  "discord",
