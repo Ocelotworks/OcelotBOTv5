@@ -946,10 +946,16 @@ module.exports = {
                 return knex.delete().from("ocelotbot_msuic_queue").where({session});
             },
             getPreviousQueue: async function(server, currentSession){
-                return knex.select().from("ocelotbot_music_queue")
+                let q = knex.select("ocelotbot_music_queue.session", "ocelotbot_music_sessions.started", "ocelotbot_music_sessions.ended", knex.raw("COUNT(*) as length")).from("ocelotbot_music_queue")
                     .innerJoin("ocelotbot_music_sessions", "ocelotbot_music_queue.session", "ocelotbot_music_sessions.id")
                     .where({server})
-                    .andWhereNot({session: currentSession})
+                    .groupBy("session")
+                    .orderBy("started", "desc");
+
+                if(currentSession)
+                    q = q.andWhereNot({session: currentSession});
+
+                return q;
             }
         };
     }

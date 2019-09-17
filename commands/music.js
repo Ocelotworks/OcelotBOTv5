@@ -45,16 +45,18 @@ module.exports = {
                             }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
                         }
                     }
-                    let queue = await bot.database.getQueueForSession(session.id);
-                    bot.logger.log("Populating queue with "+queue.length+" songs.");
-                    for(let i = 0; i < queue.length; i++){
-                        let song = queue[i];
-                        await module.exports.addToQueue(session.server,  song.uri, song.requester, false, song.id);
-                    }
+                    module.exports.requeue(session, await bot.database.getQueueForSession(session.id));
                 }
             }
         });
         bot.music = module.exports;
+    },
+    requeue: async function requeue(session, queue){
+        bot.logger.log("Populating queue with "+queue.length+" songs.");
+        for(let i = 0; i < queue.length; i++){
+            let song = queue[i];
+            await module.exports.addToQueue(session.server,  song.uri, song.requester, false, song.id);
+        }
     },
     run: function (message, args, bot) {
         if(!message.guild)return message.replyLang("GENERIC_DM_CHANNEL");
@@ -261,16 +263,16 @@ module.exports = {
     constructListener: async function constructListener(server, voiceChannel, channel, id){
         const host = bot.util.arrayRand(server.getSetting("music.host").split(","));
         bot.logger.log("Using host "+host);
-
-        const data = {
-            guild:    server.id,
-            channel:  voiceChannel.id,
-            host
-        };
         let player = bot.lavaqueue.manager.players.get(server.id);
         await player.join(voiceChannel.id);
-        if(!id)
+        if(!id) {
             id = await bot.database.createMusicSession(server.id, voiceChannel.id, channel.id);
+
+
+            let oldQueues = await bot.database.getPreviousQueue(server, id);
+            if(oldQueues.length > 0)
+                channel.send(`:information_source: You have **${oldQueues.length}** previous queues stored. To restore or clear them, type ${channel.guild.getSetting("prefix")}music requeue`);
+        }
         let listener = module.exports.listeners[server.id] = {
             connection: player,
             voteSkips: [],
