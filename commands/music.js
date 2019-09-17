@@ -267,11 +267,9 @@ module.exports = {
         await player.join(voiceChannel.id);
         if(!id) {
             id = await bot.database.createMusicSession(server.id, voiceChannel.id, channel.id);
-
-
-            let oldQueues = await bot.database.getPreviousQueue(server, id);
-            if(oldQueues.length > 0)
-                channel.send(`:information_source: You have **${oldQueues.length}** previous queues stored. To restore or clear them, type ${channel.guild.getSetting("prefix")}music requeue`);
+           //let oldQueues = await bot.database.getPreviousQueue(server, id);
+           //if(oldQueues.length > 0)
+           //    channel.send(`:information_source: You have **${oldQueues.length}** previous queues stored. To restore or clear them, type ${channel.guild.getSetting("prefix")}music requeue`);
         }
         let listener = module.exports.listeners[server.id] = {
             connection: player,

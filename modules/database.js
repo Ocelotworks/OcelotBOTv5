@@ -948,7 +948,7 @@ module.exports = {
             getPreviousQueue: async function(server, currentSession){
                 let q = knex.select("ocelotbot_music_queue.session", "ocelotbot_music_sessions.started", "ocelotbot_music_sessions.ended", knex.raw("COUNT(*) as length")).from("ocelotbot_music_queue")
                     .innerJoin("ocelotbot_music_sessions", "ocelotbot_music_queue.session", "ocelotbot_music_sessions.id")
-                    .where({server})
+                    .where({server: server.id})
                     .groupBy("session")
                     .orderBy("started", "desc");
 
