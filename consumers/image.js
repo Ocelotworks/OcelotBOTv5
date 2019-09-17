@@ -31,44 +31,49 @@ async function init(){
         let {url, format, filter, input} = JSON.parse(msg.content.toString());
         let fileName = `${__dirname}/../temp/${Math.random()}.png`;
         let shouldProcess = true;
-        request(url)
-            .on("response", function requestResponse(resp){
-                console.log("Aye aye capn");
-                shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
-                if(format !== "JPEG" && resp.headers && resp.headers['content-type'] && resp.headers['content-type'].toLowerCase() === "image/gif")
-                    format = "GIF";
+            request(url)
+                .on("response", function requestResponse(resp) {
+                    console.log("Aye aye capn");
+                    shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
+                    if (format !== "JPEG" && resp.headers && resp.headers['content-type'] && resp.headers['content-type'].toLowerCase() === "image/gif")
+                        format = "GIF";
 
-            })
-            .on("error", function requestError(){
-                shouldProcess = false;
-            })
-            .on("end", function requestEnd(){
-                if(!shouldProcess){
-                    fs.unlink(fileName, function unlinkInvalidFile(err){
-                        if(err)
-                            reply(msg, {err: "Error unlinking invalid file"});
-                        else
-                            reply(msg, {err: "Not a valid image type"});
-                    });
-                    return;
-                }
-                const initialProcess = gm(fileName).autoOrient();
-                initialProcess[filter].apply(initialProcess, input)
-                    .toBuffer(format, function toBuffer(err, buffer){
-                        if(err) {
-                            console.log(err);
-                            return reply(msg, {err: "Error creating buffer"});
-                        }
-                        let name = filter+"."+(format.toLowerCase());
-                        if(url.indexOf("SPOILER_") > -1)
-                            name = "SPOILER_"+name;
-                        reply(msg, {image: buffer.toString('base64'), name});
-                        fs.unlink(fileName, function unlinkCompletedFile(err){
-                            if(err)
-                                console.warn(err);
+                })
+                .on("error", function requestError() {
+                    shouldProcess = false;
+                })
+                .on("end", function requestEnd() {
+                    if (!shouldProcess) {
+                        fs.unlink(fileName, function unlinkInvalidFile(err) {
+                            if (err)
+                                reply(msg, {err: "Error unlinking invalid file"});
+                            else
+                                reply(msg, {err: "Not a valid image type"});
                         });
-                    });
-            }).pipe(fs.createWriteStream(fileName));
+                        return;
+                    }
+                    try {
+                        const initialProcess = gm(fileName).autoOrient();
+                        initialProcess[filter].apply(initialProcess, input)
+                            .toBuffer(format, function toBuffer(err, buffer) {
+                                if (err) {
+                                    console.log(err);
+                                    return reply(msg, {err: "Error creating buffer"});
+                                }
+                                let name = filter + "." + (format.toLowerCase());
+                                if (url.indexOf("SPOILER_") > -1)
+                                    name = "SPOILER_" + name;
+                                reply(msg, {image: buffer.toString('base64'), name});
+                                fs.unlink(fileName, function unlinkCompletedFile(err) {
+                                    if (err)
+                                        console.warn(err);
+                                });
+                            });
+                    }catch(e){
+                        console.error(e);
+                        reply(msg, {err: e});
+                    }
+                }).pipe(fs.createWriteStream(fileName));
     });
 
 }
