@@ -45,7 +45,9 @@ module.exports = {
                 const target = messageFetch.last();
                 try {
                     await bot.database.addTopic(userMaps[target.author.id], target.content);
-                    message.channel.send(`:white_check_mark: Added _<${userMaps[target.author.id]}> ${target.content}_ to the list of topics`)
+                    message.channel.send(`:white_check_mark: Added _<${userMaps[target.author.id]}> ${target.content}_ to the list of topics`);
+                    if(target.author.id === message.author.id)
+                        message.channel.send("_topicing something you said is like laughing at your own joke_ - Neil 2015");
                 } catch (e) {
                     message.channel.send("Error adding topic");
                 }
