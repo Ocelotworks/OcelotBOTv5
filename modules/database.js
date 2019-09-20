@@ -956,7 +956,7 @@ module.exports = {
                     q = q.andWhereNot({session: currentSession});
 
                 return q;
-            }
+            },
         };
     }
 };

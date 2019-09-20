@@ -71,9 +71,42 @@ module.exports = {
             return bot.client.channels.get(spooked[0].channel)
         };
 
+
+
         bot.spook.giveSpecialRoles = async function giveSpecialRoles(channel){
-            const lastMessages = (await bot.util.fetchMessages(channel, 100)).filter((m)=>!m.author.bot);
-            const specialRoles = bot.database.getSpecialRoles()
+            //This line is pornographic
+            const eligibleUsers = [...new Set((await bot.util.fetchMessages(channel, 100)).filter((m)=>!m.author.bot).map((m)=>m.author))];
+            const specialRoles = await bot.database.getSpookRoles();
+
+            let giving = true;
+            let passes = 0;
+            let userIndex = 0;
+            bot.util.shuffle(eligibleUsers);
+            console.log(eligibleUsers.length);
+            let passMultiplier = 1;
+            while(giving) {
+                passes++;
+                console.log("Pass "+passes+" UI "+userIndex);
+                for (let i = 0; i < specialRoles.length; i++) {
+                    const role = specialRoles[i];
+                    const user = eligibleUsers[userIndex++];
+                    giving = false;
+                    if (user) {
+                        if(role.rate <= (passes * passMultiplier)) {
+                            bot.spook.assignRole(user, role);
+                            giving = true;
+                        }
+                    } else
+                        break;
+                }
+            }
+        };
+
+        bot.spook.superSecretFunction = bot.spook.giveSpecialRoles;
+
+
+        bot.spook.assignRole = function assignRole(user, role){
+            console.log("Assigning "+user.username+" "+role.name);
         };
 
         bot.spook.checkSpecialRoles = function checkSpecialRoles(){
