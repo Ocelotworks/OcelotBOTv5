@@ -88,7 +88,8 @@ module.exports = {
 
 
         bot.client = new Discord.Client({
-            disabledEvents: ["TYPING_START", "CHANNEL_PINS_UPDATE", "GUILD_BAD_ADD", "GUILD_BAN_REMOVE"]
+            disabledEvents: ["TYPING_START", "CHANNEL_PINS_UPDATE", "GUILD_BAD_ADD", "GUILD_BAN_REMOVE"],
+            disableEveryone: true
         });
 
         bot.client.setMaxListeners(100);
