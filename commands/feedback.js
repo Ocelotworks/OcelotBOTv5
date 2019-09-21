@@ -56,7 +56,7 @@ module.exports = {
            bot.lastFeedbackChannel = message.channel.id;
            message.replyLang("FEEDBACK_SUCCESS");
             if(!bot.client.shard || bot.client.channels.has("344931831151329302")){
-                bot.client.channels.get("344931831151329302").send(`Feedback from ${message.author.id} (${message.author.username}#${message.author.discriminator}) in ${message.guild ? message.guild.id :"DM Channel"} (${message.guild ? message.guild.name : "DM Channel"}):\n\`\`\`\n${message.content}\n\`\`\``);
+                bot.client.channels.get("344931831151329302").send(`Feedback from ${message.author.id} (${message.author.username}#${message.author.discriminator}) in ${message.guild ? message.guild.id :"DM Channel"} (${message.guild ? message.guild.name : "DM Channel"}):\n\`\`\`\n${ Discord.escapeMarkdown(message.content)}\n\`\`\``);
              }else{
                 bot.client.shard.send({type: "feedback", message: {
                         userID: message.author.id,
