@@ -123,15 +123,17 @@ module.exports = {
     },
     getAutoDJSong: async function getAutoDJSong(){
         return new Promise(async function(fulfill){
-            if(module.exports.shuffleQueue.size < 5)
+            if(module.exports.shuffleQueue.length < 5)
                 module.exports.populateShuffleQueue();
             let petifySong = module.exports.shuffleQueue.shift();
 
             if(!petifySong){
+                bot.logger.warn("Shits fucked");
                 let songData = await bot.lavaqueue.getSong("https://unacceptableuse.com/petify/song/ecf0cfe1-a893-4594-b353-1dbd7063e241"); //FUCK!
                 songData.info.author = "Moloko";
                 songData.info.title = "Moloko - The Time Is Now";
                 fulfill(songData);
+                module.exports.populateShuffleQueue();
             }else {
                 request(`https://unacceptableuse.com/petify/api/song/${petifySong.id}/info`, async function (err, resp, body) {
                     try {
