@@ -112,10 +112,14 @@ module.exports = {
 
         const targetMessage = messageFetch.last();
 
+        if(!targetMessage.react)
+            return message.channel.send(":bangbang: Could not find a message to react to...");
+
         for(let i = 0; i < output.length; i++){
             try {
                 if(output[i])
                     await targetMessage.react(output[i]);
+
             }catch(e){
                 if(e.message === "Reaction blocked"){
                     message.replyLang("SPELL_REACTION_BLOCKED");
