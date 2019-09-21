@@ -12,7 +12,8 @@ const   caller_id       = require('caller-id'),
         os              = require('os'),
         fs              = require('fs'),
         path            = require('path'),
-        dateFormat      = require('dateformat');
+        dateFormat      = require('dateformat'),
+        tracer          = require('dd-trace');
 
 const header ="\n".white+
     "                `-+shdmNMMMMNmdhs+-`              \n" +
@@ -47,6 +48,7 @@ const header ="\n".white+
 let broker = {};
 
 function init(){
+    tracer.init({analytics: true});
     broker.logger = {};
     broker.logger.log = function log(message, caller, error){
         if(!caller)
