@@ -29,29 +29,32 @@ function triggerReminder(reminder){
     channel.sendToQueue("reminder", Buffer.from(JSON.stringify(reminder)));
 }
 
+function setReminder(reminder){
+    let now = new Date();
+    let diff = reminder.at-now;
+    setLongTimeout(()=>triggerReminder(reminder), diff);
+}
+
 async function init(){
 
     console.log("Loading reminders");
     reminders = await knex.select().from("ocelotbot_reminders");
 
     console.log("Loaded "+reminders.length+" reminders.");
-
-    let now = new Date();
     for(let i = 0; i < reminders.length; i++){
         let reminder = reminders[i];
-        let diff = reminder.at-now;
-        setLongTimeout(()=>triggerReminder(reminder), diff);
+        setReminder(reminder);
     }
 
-    let con = await amqplib.connect(config.get("RabbitMQ.productionHost"));
+    let con = await amqplib.connect(config.get("RabbitMQ.host"));
     channel = await con.createChannel();
 
-    channel.assertQueue("triggerReminder");
-    channel.assertQueue('addReminder');
-    channel.consume('addReminder', function(msg){
+    channel.assertQueue("reminder");
+    channel.assertQueue('newReminder');
+    channel.consume('newReminder', function(msg){
         console.log("Processing "+msg.content.toString());
         let reminder = JSON.parse(msg.content.toString());
-
+        setReminder(reminder);
     });
 
 }
