@@ -84,6 +84,8 @@ module.exports = {
             bot.util.shuffle(eligibleUsers);
             console.log(eligibleUsers.length);
             let passMultiplier = 1;
+            if(eligibleUsers >= 50)
+                passMultiplier = 2;
             while(giving) {
                 passes++;
                 console.log("Pass "+passes+" UI "+userIndex);
@@ -93,7 +95,13 @@ module.exports = {
                     giving = false;
                     if (user) {
                         if(role.rate <= (passes * passMultiplier)) {
-                            bot.spook.assignRole(user, role);
+                            let target = user;
+                            let spooker = user;
+                            if(role.id !== 3) //victim
+                                target = userIndex === 0 ? eligibleUsers[userIndex+1] : eligibleUsers[userIndex-1];
+                            if(role.id === 2)//Joker
+                                spooker = userIndex < 2 ? eligibleUsers[userIndex+2] : eligibleUsers[userIndex-2];
+                            bot.spook.assignRole(user, role, target, channel.guild, spooker);
                             giving = true;
                         }
                     } else
@@ -104,9 +112,21 @@ module.exports = {
 
         bot.spook.superSecretFunction = bot.spook.giveSpecialRoles;
 
+        bot.spook.assignRole = async function assignRole(user, role, target, guild, spooker){
+            let required = 0;
+            if(role.id !== 4)//bodyguard
+                required = bot.util.intBetween(5, 50);
+            bot.logger.log(`${user.username} assigned role ${role.name} against ${target} with requirement ${required}`);
+            await bot.database.assignSpookRole(role.id, user.id, target.id, required, guild.id, spooker.id);
 
-        bot.spook.assignRole = function assignRole(user, role){
-            console.log("Assigning "+user.username+" "+role.name);
+            let dm = await bot.client.users.get("139871249567318017").createDM();
+            let embed = new Discord.RichEmbed();
+            embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL);
+            embed.setColor("#bf621a");
+            embed.setTitle("You have been assigned a special role!");
+            embed.setDescription("**Do NOT tell anyone about this role!**\nOther people may be out to sabotage you.\nIf you accomplish your goal, you will get a unique badge.");
+            embed.addField(role.name.toUpperCase(), role.desc.formatUnicorn({spooked: target, spooker, num: required}));
+            dm.send(embed);
         };
 
         bot.spook.checkSpecialRoles = function checkSpecialRoles(){

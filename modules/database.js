@@ -649,6 +649,9 @@ module.exports = {
             getSpookRoles: function(){
                 return knex.select().from("ocelotbot_spook_roles");
             },
+            assignSpookRole: function(role, user, spooked, required, server, spooker){
+                return knex.insert({role, user, spooker, spooked, required, server}).into("ocelotbot_spook_role_assignments");
+            },
             getProfile: function(user){
                 return knex.select().from("ocelotbot_profile").where({id: user}).limit(1);
             },
