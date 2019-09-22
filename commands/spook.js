@@ -18,6 +18,7 @@ module.exports = {
         }
 
         bot.client.on("ready", async function ready(){
+            bot.rabbit.channel.assertQueue("spook");
             const now = new Date();
             const teaserDiff = teaserStart-now;
             const startDiff = start-now;
@@ -160,6 +161,15 @@ module.exports = {
                 user: spooked.id,
                 timer: setTimeout(bot.spook.generateNew, 8.64e+7, channel.guild.id) //24 Hours
             };
+            bot.rabbit.channel.sendToQueue("spook", Buffer.from(JSON.stringify({
+                spooked: spooked.id,
+                spooker: spooker.id,
+                server: channel.guild.id,
+                spookedUsername: spooker.username,
+                spookerUsername: spooked.username,
+                spookerColour: bot.spook.getColour(channel.guild, spooker),
+                spookedColour: bot.spook.getColour(channel.guild, spooked)
+            })));
         };
 
         bot.spook.generateNew = async function generateNew(server){
