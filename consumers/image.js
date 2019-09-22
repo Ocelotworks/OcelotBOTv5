@@ -33,7 +33,7 @@ async function init(){
         let shouldProcess = true;
             request(url)
                 .on("response", function requestResponse(resp) {
-                    console.log("Aye aye capn");
+                    console.log("Downloading Image");
                     shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
                     if (format !== "JPEG" && resp.headers && resp.headers['content-type'] && resp.headers['content-type'].toLowerCase() === "image/gif")
                         format = "GIF";
@@ -63,6 +63,7 @@ async function init(){
                                 let name = filter + "." + (format.toLowerCase());
                                 if (url.indexOf("SPOILER_") > -1)
                                     name = "SPOILER_" + name;
+                                console.log("Done");
                                 reply(msg, {image: buffer.toString('base64'), name});
                                 fs.unlink(fileName, function unlinkCompletedFile(err) {
                                     if (err)
