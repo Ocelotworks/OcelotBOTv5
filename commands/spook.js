@@ -18,6 +18,7 @@ module.exports = {
         }
 
         bot.client.on("ready", async function ready(){
+            bot.rabbit.channel.assertQueue("spook");
             const now = new Date();
             const teaserDiff = teaserStart-now;
             const startDiff = start-now;
@@ -71,9 +72,62 @@ module.exports = {
             return bot.client.channels.get(spooked[0].channel)
         };
 
+
+
         bot.spook.giveSpecialRoles = async function giveSpecialRoles(channel){
-            const lastMessages = (await bot.util.fetchMessages(channel, 100)).filter((m)=>!m.author.bot);
-            const specialRoles = bot.database.getSpecialRoles()
+            //This line is pornographic
+            const eligibleUsers = [...new Set((await bot.util.fetchMessages(channel, 100)).filter((m)=>!m.author.bot).map((m)=>m.author))];
+            const specialRoles = await bot.database.getSpookRoles();
+
+            let giving = true;
+            let passes = 0;
+            let userIndex = 0;
+            bot.util.shuffle(eligibleUsers);
+            console.log(eligibleUsers.length);
+            let passMultiplier = 1;
+            if(eligibleUsers >= 50)
+                passMultiplier = 2;
+            while(giving) {
+                passes++;
+                console.log("Pass "+passes+" UI "+userIndex);
+                for (let i = 0; i < specialRoles.length; i++) {
+                    const role = specialRoles[i];
+                    const user = eligibleUsers[userIndex++];
+                    giving = false;
+                    if (user) {
+                        if(role.rate <= (passes * passMultiplier)) {
+                            let target = user;
+                            let spooker = user;
+                            if(role.id !== 3) //victim
+                                target = userIndex === 0 ? eligibleUsers[userIndex+1] : eligibleUsers[userIndex-1];
+                            if(role.id === 2)//Joker
+                                spooker = userIndex < 2 ? eligibleUsers[userIndex+2] : eligibleUsers[userIndex-2];
+                            bot.spook.assignRole(user, role, target, channel.guild, spooker);
+                            giving = true;
+                        }
+                    } else
+                        break;
+                }
+            }
+        };
+
+        bot.spook.superSecretFunction = bot.spook.giveSpecialRoles;
+
+        bot.spook.assignRole = async function assignRole(user, role, target, guild, spooker){
+            let required = 0;
+            if(role.id !== 4)//bodyguard
+                required = bot.util.intBetween(5, 50);
+            bot.logger.log(`${user.username} assigned role ${role.name} against ${target} with requirement ${required}`);
+            await bot.database.assignSpookRole(role.id, user.id, target.id, required, guild.id, spooker.id);
+
+            let dm = await bot.client.users.get("139871249567318017").createDM();
+            let embed = new Discord.RichEmbed();
+            embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL);
+            embed.setColor("#bf621a");
+            embed.setTitle("You have been assigned a special role!");
+            embed.setDescription("**Do NOT tell anyone about this role!**\nOther people may be out to sabotage you.\nIf you accomplish your goal, you will get a unique badge.");
+            embed.addField(role.name.toUpperCase(), role.desc.formatUnicorn({spooked: target, spooker, num: required}));
+            dm.send(embed);
         };
 
         bot.spook.checkSpecialRoles = function checkSpecialRoles(){
@@ -107,6 +161,15 @@ module.exports = {
                 user: spooked.id,
                 timer: setTimeout(bot.spook.generateNew, 8.64e+7, channel.guild.id) //24 Hours
             };
+            bot.rabbit.channel.sendToQueue("spook", Buffer.from(JSON.stringify({
+                spooked: spooked.id,
+                spooker: spooker.id,
+                server: channel.guild.id,
+                spookedUsername: spooker.username,
+                spookerUsername: spooked.username,
+                spookerColour: bot.spook.getColour(channel.guild, spooker),
+                spookedColour: bot.spook.getColour(channel.guild, spooked)
+            })));
         };
 
         bot.spook.generateNew = async function generateNew(server){

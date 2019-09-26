@@ -649,6 +649,9 @@ module.exports = {
             getSpookRoles: function(){
                 return knex.select().from("ocelotbot_spook_roles");
             },
+            assignSpookRole: function(role, user, spooked, required, server, spooker){
+                return knex.insert({role, user, spooker, spooked, required, server}).into("ocelotbot_spook_role_assignments");
+            },
             getProfile: function(user){
                 return knex.select().from("ocelotbot_profile").where({id: user}).limit(1);
             },
@@ -942,7 +945,7 @@ module.exports = {
             updateLastMessage: async function(id, lastMessage){
                 return knex("ocelotbot_music_sessions").update({lastMessage}).where({id}).limit(1);
             },
-            purgeQueue: function(session){
+            clearQueue: function(session){
                 return knex.delete().from("ocelotbot_msuic_queue").where({session});
             },
             getPreviousQueue: async function(server, currentSession){
@@ -956,7 +959,7 @@ module.exports = {
                     q = q.andWhereNot({session: currentSession});
 
                 return q;
-            }
+            },
         };
     }
 };
