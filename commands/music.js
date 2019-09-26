@@ -337,7 +337,8 @@ module.exports = {
             listener.checkInterval = setInterval(async function checkInterval() {
                 if(listener.voiceChannel.members.size === 1){
                     //listener.channel.replyLang("MUSIC_PLAY_INACTIVE"); hm
-                    await listener.player.leave();
+                    if(listener && listener.connection)
+                        await listener.connection.leave();
                     module.exports.deconstructListener(listener.server);
                 }
             }, 1.8e+6);
