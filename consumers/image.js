@@ -35,7 +35,7 @@ async function init(){
         let {url, format, filter, input} = JSON.parse(msg.content.toString());
         let fileName = `${__dirname}/../temp/${Math.random()}.png`;
         let shouldProcess = true;
-            request(url)
+            request({uri: url, timeout: 10000})
                 .on("response", function requestResponse(resp) {
                     console.log("Downloading Image");
                     shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
