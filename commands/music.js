@@ -195,25 +195,29 @@ module.exports = {
         }
     },
     createNowPlayingEmbed: function(listener) {
+        if(!listener)return;
+        if(!listener.playing||!listener.playing.info)return;
         let embed = new Discord.RichEmbed();
 
         embed.setColor("#2d303d");
-        embed.setTitle((listener.connection.paused ? "\\⏸" : "\\▶")+listener.playing.info.title);
+
+        embed.setTitle((listener.connection.paused ? "\\⏸" : "\\▶") + listener.playing.info.title);
         let footer = "";
         let footerIcon = null;
-        if(listener.playing.info.uri.indexOf("youtu") > -1) {
+        if (listener.playing.info.uri.indexOf("youtu") > -1) {
             footer = "YouTube";
             footerIcon = "https://i.imgur.com/8iyBEbO.png";
             embed.setColor("#FF0000");
         }
-        if(listener.playing.info.uri.startsWith("/home/")) {
+        if (listener.playing.info.uri.startsWith("/home/")) {
             footer = "AutoDJ";
             footerIcon = "https://ocelot.xyz/res/highres.png";
             embed.setColor("#00d800");
         }
 
-        if(listener.playing.info.albumArt)
+        if (listener.playing.info.albumArt)
             embed.setThumbnail(listener.playing.info.albumArt);
+
 
         if(listener.queue.length > 0) {
             let title = listener.queue[0].info.title;
