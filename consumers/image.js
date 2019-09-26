@@ -9,10 +9,14 @@ const   config          = require('config'),
         amqplib         = require('amqplib'),
         gm              = require('gm'),
         request         = require('request'),
-        fs              = require('fs');
+        fs              = require('fs'),
+        tracer          = require('dd-trace');
 
 
 async function init(){
+    tracer.init({
+        analytics: true
+    });
     let con = await amqplib.connect(config.get("RabbitMQ.host"));
     let channel = await con.createChannel();
 

@@ -9,10 +9,14 @@ const   config          = require('config'),
         amqplib         = require('amqplib'),
         https           = require('https'),
         fs              = require('fs'),
-        ws              = require('ws');
+        ws              = require('ws'),
+        tracer          = require('dd-trace');
 
 
 async function init(){
+    tracer.init({
+        analytics: true
+    });
 
     const server = https.createServer({
         key: fs.readFileSync('/home/peter/privkey.pem'),

@@ -7,7 +7,8 @@
 process.env["NODE_CONFIG_DIR"] = "../config";
 const   config          = require('config'),
         amqplib         = require('amqplib'),
-        knex            = require('knex')(config.get("Database"));
+        knex            = require('knex')(config.get("Database")),
+        tracer          = require('dd-trace');
 
 
 let reminders = [];
@@ -36,7 +37,9 @@ function setReminder(reminder){
 }
 
 async function init(){
-
+    tracer.init({
+        analytics: true
+    });
     console.log("Loading reminders");
     reminders = await knex.select().from("ocelotbot_reminders");
 
