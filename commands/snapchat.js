@@ -33,6 +33,9 @@ module.exports = {
         else
             text = message.content.substring(args[0].length+1);
 
+        if(!text)
+            return message.channel.send(":bangbang: You need to enter some text.");
+
         const img = await canvas.loadImage(url);
 
 
