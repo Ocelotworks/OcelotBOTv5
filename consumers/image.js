@@ -8,7 +8,7 @@ process.env["NODE_CONFIG_DIR"] = "../config";
 const   config          = require('config'),
         amqplib         = require('amqplib'),
         gm              = require('gm'),
-        request         = require('request'),
+        request         = require('paranoid-request'),
         fs              = require('fs'),
         tracer          = require('dd-trace');
 
