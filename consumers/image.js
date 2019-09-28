@@ -8,7 +8,7 @@ process.env["NODE_CONFIG_DIR"] = "../config";
 const   config          = require('config'),
         amqplib         = require('amqplib'),
         gm              = require('gm'),
-        request         = require('paranoid-request'),
+        request         = require('@naturalatlas/paranoid-request'),
         fs              = require('fs'),
         tracer          = require('dd-trace');
 

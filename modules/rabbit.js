@@ -10,7 +10,7 @@ module.exports = {
     name: "RabbitMQ",
     init: async function(bot){
         bot.rabbit = {};
-        bot.rabbit.connection = await amqplib.connect(config.get("RabbitMQ.host"));
+        bot.rabbit.connection = await amqplib.connect(config.get("RabbitMQ.productionHost"));
         bot.rabbit.channel = await bot.rabbit.connection.createChannel();
         bot.rabbit.rpcChannel = await bot.rabbit.connection.createChannel();
         bot.rabbit.pubsub = {};
@@ -22,14 +22,14 @@ module.exports = {
         let waitingCallbacks = {};
         let callbackTimers = {};
 
-        bot.rabbit.rpcChannel.assertQueue("reply-"+bot.client.shard.id, {exclusive: true});
-        bot.rabbit.rpcChannel.consume("reply-"+bot.client.shard.id, function(msg){
-            if(waitingCallbacks[msg.properties.correlationId]){
-                waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
-                clearTimeout(callbackTimers[msg.properties.correlationId]);
-            }
-            bot.rabbit.rpcChannel.ack(msg);
-        });
+        //bot.rabbit.rpcChannel.assertQueue("reply-"+bot.client.shard.id, {exclusive: true});
+        //bot.rabbit.rpcChannel.consume("reply-"+bot.client.shard.id, function(msg){
+        //    if(waitingCallbacks[msg.properties.correlationId]){
+        //        waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
+        //        clearTimeout(callbackTimers[msg.properties.correlationId]);
+        //    }
+        //    bot.rabbit.rpcChannel.ack(msg);
+        //});
 
         bot.rabbit.rpc = async function(name, payload, timeout = 300000){
             return new Promise(function(fulfill){

@@ -9,12 +9,33 @@ module.exports = {
     requiredPermissions: [],
     commands: ["spook", "spooked"],
     init: async function(bot){
-
+        let updateInterval;
         function setTeaserMessage(){
             bot.logger.log("Updating teaser message");
             const days = Math.round((start-new Date())/86400000);
             bot.presenceMessage = `👻 ${days} DAYS`;
-            setInterval(setTeaserMessage, 86400000)
+            updateInterval = setInterval(setTeaserMessage, 86400000)
+        }
+
+        function activateSpooking(){
+            bot.logger.log("Spooking is activated");
+            bot.updatePresence = async function(){
+                const now = new Date();
+                if(now-bot.lastPresenceUpdate>100000) {
+                    bot.lastPresenceUpdate = now;
+                    const result = await bot.database.getSpookedServers();
+                    bot.client.user.setPresence({
+                        game: {
+                            name: `👻 !spook ~ ${result.total[0]['COUNT(*)'].toLocaleString()} SPOOKED.`,
+                            type: "WATCHING"
+                        }
+                    });
+                }
+            };
+            if(updateInterval)
+                clearInterval(updateInterval);
+
+            bot.updatePresence();
         }
 
         bot.client.on("ready", async function ready(){
@@ -23,25 +44,11 @@ module.exports = {
             const teaserDiff = teaserStart-now;
             const startDiff = start-now;
             if(startDiff <= 0) {
-                bot.updatePresence = async function(){
-                    const now = new Date();
-                    if(now-bot.lastPresenceUpdate>100000) {
-                        bot.lastPresenceUpdate = now;
-                        const result = await bot.database.getSpookedServers();
-                        bot.client.user.setPresence({
-                            game: {
-                                name: `👻 !spook ~ ${result.total[0]['COUNT(*)'].toLocaleString()} SPOOKED.`,
-                                type: "WATCHING"
-                            }
-                        });
-                    }
-                };
+              activateSpooking();
             } else if(teaserDiff <= 0){
                 bot.logger.log("Spook teaser time");
                 setTeaserMessage();
-            }else{
-                bot.logger.log("Teaser in "+teaserDiff+"ms");
-                bot.util.setLongTimeout(setTeaserMessage, teaserDiff);
+                bot.util.setLongTimeout(activateSpooking, startDiff);
             }
         });
 
@@ -98,10 +105,14 @@ module.exports = {
                         if(role.rate <= (passes * passMultiplier)) {
                             let target = user;
                             let spooker = user;
-                            if(role.id !== 3) //victim
-                                target = userIndex === 0 ? eligibleUsers[userIndex+1] : eligibleUsers[userIndex-1];
-                            if(role.id === 2)//Joker
-                                spooker = userIndex < 2 ? eligibleUsers[userIndex+2] : eligibleUsers[userIndex-2];
+                            if(role.id !== 3) { //saboteur
+                                target = eligibleUsers[(userIndex + 1) % eligibleUsers.length];
+                                if(target === user)
+                                    return console.warn("Not giving role");
+                            }
+                            if(role.id === 2) //Joker
+                                spooker = eligibleUsers[(userIndex + 2) % eligibleUsers.length];
+
                             bot.spook.assignRole(user, role, target, channel.guild, spooker);
                             giving = true;
                         }
@@ -120,7 +131,7 @@ module.exports = {
             bot.logger.log(`${user.username} assigned role ${role.name} against ${target} with requirement ${required}`);
             await bot.database.assignSpookRole(role.id, user.id, target.id, required, guild.id, spooker.id);
 
-            let dm = await bot.client.users.get("139871249567318017").createDM();
+            let dm = await user.createDM();
             let embed = new Discord.RichEmbed();
             embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL);
             embed.setColor("#bf621a");
@@ -130,7 +141,11 @@ module.exports = {
             dm.send(embed);
         };
 
-        bot.spook.checkSpecialRoles = function checkSpecialRoles(){
+        bot.spook.checkSpecialRoles = async function checkSpecialRoles(channel, spooker, spooked){
+            let roleCount = await bot.database.getSpecialRoleCount(channel.guild.id);
+            if(roleCount === 0)
+                await bot.spook.giveSpecialRoles(channel);
+            await bot.database.incrementSpecialRole(channel.guild.id, spooker.id, spooked.id);
 
         };
 
@@ -149,15 +164,18 @@ module.exports = {
                 spooked.id,
                 spooker.id,
                 channel.guild.id,
+                channel.id,
                 spooker.username,
                 spooked.username,
                 bot.spook.getColour(channel.guild, spooker),
-                bot.spook.getColour(channel.guild, spooked));
+                bot.spook.getColour(channel.guild, spooked),
+                spooker.avatarURL,
+                spooked.avatarURL);
             bot.updatePresence();
-            bot.spook.checkSpecialRoles();
+            bot.spook.checkSpecialRoles(channel, spooker, spooked);
             if (bot.spook.spooked[channel.guild.id])
-                clearTimeout(bot.spooked[channel.guild.id].timer);
-            bot.spook.spooked[message.guild.id] = {
+                clearTimeout(bot.spook.spooked[channel.guild.id].timer);
+            bot.spook.spooked[channel.guild.id] = {
                 user: spooked.id,
                 timer: setTimeout(bot.spook.generateNew, 8.64e+7, channel.guild.id) //24 Hours
             };
@@ -168,7 +186,9 @@ module.exports = {
                 spookedUsername: spooker.username,
                 spookerUsername: spooked.username,
                 spookerColour: bot.spook.getColour(channel.guild, spooker),
-                spookedColour: bot.spook.getColour(channel.guild, spooked)
+                spookedColour: bot.spook.getColour(channel.guild, spooked),
+                spookerAvatar: spooker.avatarURL,
+                spookedAvatar: spooked.avatarURL
             })));
         };
 
@@ -296,7 +316,7 @@ module.exports = {
             return bot.sendSpookEnd(message.guild.id, message.channel);
 
         if(args.length > 1){
-           const canSpook = await bot.database.canSpook(message.author.id, message.guild.id);
+            const canSpook = await bot.database.canSpook(message.author.id, message.guild.id);
             if (!canSpook)
                 return message.replyLang("SPOOK_UNABLE");
 
@@ -320,16 +340,20 @@ module.exports = {
             if(target.id === message.author.id)
                 return message.replyLang("SPOOK_SELF");
             const result = await bot.database.getSpookCount(target.id, message.guild.id);
-            message.replyLang("spook", {
-                count: bot.util.getNumberPrefix(result[0]['COUNT(*)'] + 1),
+            let count = result[0]['COUNT(*)'] + 1;
+            message.replyLang("SPOOK", {
+                count: bot.util.getNumberPrefix(count),
                 spooked: target.id
             });
+
             await bot.spook.createSpook(message.channel, message.author, target);
+            if(count === 1)
+                await bot.spook.giveSpecialRoles(message.channel);
         }else{
             const now = new Date();
             const result = await bot.database.getSpooked(message.guild.id);
             if(result[0])
-                return message.replyLang("SPOOK_CURRENT", {spooked: result[0].spook, time: bot.util.prettySeconds((end-now)/1000)});
+                return message.replyLang("SPOOK_CURRENT", {spooked: result[0].spooked, time: bot.util.prettySeconds((end-now)/1000), server: message.guild.id});
             message.replyLang("SPOOK_NOBODY");
         }
     }
