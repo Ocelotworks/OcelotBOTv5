@@ -20,12 +20,10 @@ module.exports = {
             const birthday = birthdays[i];
             let user = await bot.util.getUserInfo(birthday.user);
             let d = birthday.birthday; //Yes
-            console.log(d-now);
             if(d <= now)
                 d.setYear(now.getFullYear()+1);
-
-            console.log(d);
-
+            else
+                d.setYear(now.getFullYear());
             let days = Math.floor((d-now)/8.64e+7);
             if(days === 365)
                 days = "🎉 Today!";
