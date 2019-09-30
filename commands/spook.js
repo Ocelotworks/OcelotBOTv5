@@ -83,7 +83,7 @@ module.exports = {
 
         bot.spook.giveSpecialRoles = async function giveSpecialRoles(channel){
             //This line is pornographic
-            const eligibleUsers = [...new Set((await bot.util.fetchMessages(channel, 100)).filter((m)=>true || !m.author.bot).map((m)=>m.author))];
+            const eligibleUsers = [...new Set((await bot.util.fetchMessages(channel, 100)).filter((m)=>!m.author.bot).map((m)=>m.author))];
             const specialRoles = await bot.database.getSpookRoles();
 
             let giving = true;
@@ -192,8 +192,8 @@ module.exports = {
                 spooked: spooked.id,
                 spooker: spooker.id,
                 server: channel.guild.id,
-                spookedUsername: spooker.username,
-                spookerUsername: spooked.username,
+                spookedUsername: spooked.username,
+                spookerUsername: spooker.username,
                 spookerColour: bot.spook.getColour(channel.guild, spooker),
                 spookedColour: bot.spook.getColour(channel.guild, spooked),
                 spookerAvatar: spooker.avatarURL,
