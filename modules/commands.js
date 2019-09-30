@@ -117,7 +117,8 @@ module.exports = {
                 if(message.getSetting("notice")){
                     message.channel.send(message.getSetting("notice"));
                     bot.database.deleteSetting(message.guild.id, "notice");
-                    bot.config.cache[message.guild.id].notice = null;
+                    if(bot.config.cache[message.guild.id])
+                        bot.config.cache[message.guild.id].notice = null;
                 }
 
                 if(message.channel.permissionsFor){
