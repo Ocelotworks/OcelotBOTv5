@@ -262,7 +262,7 @@ module.exports = {
         bot.client.on("error", function websocketError(evt){
             bot.logger.log("Websocket Error");
             bot.logger.log(evt);
-            bot.raven.captureEsxception(evt.error);
+            bot.raven.captureException(evt.error);
         });
 
         bot.client.on("guildUnavailable", function guildUnavailable(guild){
