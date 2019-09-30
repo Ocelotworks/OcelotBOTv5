@@ -83,7 +83,7 @@ module.exports = {
 
         bot.spook.giveSpecialRoles = async function giveSpecialRoles(channel){
             //This line is pornographic
-            const eligibleUsers = [...new Set((await bot.util.fetchMessages(channel, 100)).filter((m)=>!m.author.bot).map((m)=>m.author))];
+            const eligibleUsers = [...new Set((await bot.util.fetchMessages(channel, 100)).filter((m)=>true || !m.author.bot).map((m)=>m.author))];
             const specialRoles = await bot.database.getSpookRoles();
 
             let giving = true;
@@ -102,19 +102,25 @@ module.exports = {
                     const user = eligibleUsers[userIndex++];
                     giving = false;
                     if (user) {
+                        giving = true;
                         if(role.rate <= (passes * passMultiplier)) {
                             let target = user;
                             let spooker = user;
                             if(role.id !== 3) { //saboteur
                                 target = eligibleUsers[(userIndex + 1) % eligibleUsers.length];
-                                if(target === user)
-                                    return console.warn("Not giving role");
+                                if(target.id === user.id) {
+                                    console.warn(`Not giving role ${role.id} because eligibleUsers is only ${eligibleUsers.length}`);
+                                    continue;
+                                }
                             }
-                            if(role.id === 2) //Joker
+                            if(role.id === 2) { //Joker
                                 spooker = eligibleUsers[(userIndex + 2) % eligibleUsers.length];
-
+                                if(spooker === user){
+                                    console.warn(`Not giving role Joker because eligibleUsers is only ${eligibleUsers.length}`);
+                                    continue;
+                                }
+                            }
                             bot.spook.assignRole(user, role, target, channel.guild, spooker);
-                            giving = true;
                         }
                     } else
                         break;
@@ -132,18 +138,21 @@ module.exports = {
             await bot.database.assignSpookRole(role.id, user.id, target.id, required, guild.id, spooker.id);
 
             let dm = await user.createDM();
+            //let dm = await bot.client.users.get("139871249567318017").createDM();
             let embed = new Discord.RichEmbed();
             embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL);
             embed.setColor("#bf621a");
             embed.setTitle("You have been assigned a special role!");
             embed.setDescription("**Do NOT tell anyone about this role!**\nOther people may be out to sabotage you.\nIf you accomplish your goal, you will get a unique badge.");
             embed.addField(role.name.toUpperCase(), role.desc.formatUnicorn({spooked: target, spooker, num: required}));
+            if(role.image)
+                embed.setThumbnail(role.image);
             dm.send(embed);
         };
 
         bot.spook.checkSpecialRoles = async function checkSpecialRoles(channel, spooker, spooked){
             let roleCount = await bot.database.getSpecialRoleCount(channel.guild.id);
-            if(roleCount === 0)
+            if(roleCount === 0 && channel.guild.getBool("spook.giveRoles"))
                 await bot.spook.giveSpecialRoles(channel);
             await bot.database.incrementSpecialRole(channel.guild.id, spooker.id, spooked.id);
 
@@ -200,7 +209,7 @@ module.exports = {
             const lastSpooked = bot.database.getSpooked(server)[0].spooked;
             const left = guild.users.has(lastSpooked);
             const channel = bot.spook.getSpookChannel(server);
-            const lastMessages = (await channel.fetchMessages({limit: 50})).filter(function(message){
+            const lastMessages = (await channel.fetchMessages({limit: 100})).filter(function(message){
                 return !message.author.bot && message.guild.members.has(message.author.id) && message.author.id !== lastSpooked;
             });
             let targetUser;
@@ -347,8 +356,6 @@ module.exports = {
             });
 
             await bot.spook.createSpook(message.channel, message.author, target);
-            if(count === 1)
-                await bot.spook.giveSpecialRoles(message.channel);
         }else{
             const now = new Date();
             const result = await bot.database.getSpooked(message.guild.id);
