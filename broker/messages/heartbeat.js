@@ -29,8 +29,10 @@ module.exports = {
 
             if(broker.concerns[shard].badMessageCounts > 5){
                 broker.logger.error(`Shard ${shard} has been without messages for 5 minutes, killing....`);
-                console.log(process);
+                //console.log(process);
                 try {
+                    broker.concerns[shard].badMessageCounts = 0;
+                    broker.concerns[shard].restarts++;
                     process.respawn();
                 }catch(e)
                 {

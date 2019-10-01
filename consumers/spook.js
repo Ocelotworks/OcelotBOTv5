@@ -24,7 +24,6 @@ async function init(){
     });
     const wss = new ws.Server({server});
 
-
     server.listen(8234);
     let con = await amqplib.connect(config.get("RabbitMQ.host"));
     let channel = await con.createChannel();
@@ -33,9 +32,9 @@ async function init(){
 
     channel.consume('spook', function(msg){
         const str = msg.content.toString();
-        console.log("Processing "+str);
+        console.log("Processing new spook.");
         let spook = JSON.parse(msg.content);
-        console.log(spook);
+        console.log(spook.spookerUsername+"->"+spook.spookedUsername);
         wss.clients.forEach(function(client){
             console.log(client.filter);
             if(!client.filter || client.filter === spook.server)

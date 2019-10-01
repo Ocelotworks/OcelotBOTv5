@@ -175,7 +175,7 @@ async function doGuess(voiceChannel, message, bot){
             if (message.author.bot)return;
             if(bot.banCache.user.indexOf(message.author.id) > -1)return;
             const guessTime = new Date();
-            const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "");
+            const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "").replace(message.getSetting("prefix")+"guess");
             console.log(strippedMessage);
             if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
 

@@ -31,7 +31,7 @@ module.exports = {
         if(message.getSetting("prefix") === "!" && args[0].indexOf("feedback") > -1 && message.channel.members.has("507970352501227523"))  //Fast Food Bot
             return message.replyLang("FEEDBACK_FASTFOOD_BOT");
 
-        if(args[0].indexOf("report") > -1 && message.mentions.size > 0)
+        if(args[0].indexOf("report") > -1 && message.mentions.users.size > 0)
             message.replyLang("FEEDBACK_REPORT_USER");
         if(args.length > 1){
             if(args[1].toLowerCase() === "respond" && bot.admins.indexOf(message.author.id) > -1){

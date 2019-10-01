@@ -22,6 +22,8 @@ const presenceMessages = [
 ];
 
 
+let lastWebhook = 0;
+
 module.exports = {
     name: "Discord.js Integration",
     init: function(bot){
@@ -228,7 +230,8 @@ module.exports = {
             });
             await bot.database.leaveServer(guild.id);
 
-            if(bot.config.getBool("global", "webhook.enabled")) {
+            const now = new Date();
+            if(bot.config.getBool("global", "webhook.enabled") && now-lastWebhook > 60000) {
                 bot.logger.log("Trying to send webhook...");
                 let webhookData = (await bot.database.getServerWebhook(guild.id))[0];
                 if (webhookData && webhookData.webhookID && webhookData.webhookToken) {
@@ -249,6 +252,7 @@ module.exports = {
             }else{
                 bot.logger.log("Not sending webhook");
             }
+            lastWebhook = now;
         });
 
         bot.client.on("webhookUpdate", function webhookUpdate(channel){
@@ -360,13 +364,7 @@ module.exports = {
                }
            }else if(message.type === "presence"){
                bot.presenceMessage = message.payload === "clear" ? null : message.payload;
-               const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-               bot.client.user.setPresence({
-                   game: {
-                       name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
-                       type: "LISTENING"
-                   }
-               });
+               bot.updatePresence();
            }else if(message.type === "getUserInfo"){
                let userID = message.payload;
                if(bot.client.users.has(userID)){
