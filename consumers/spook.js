@@ -10,10 +10,12 @@ const   config          = require('config'),
         https           = require('https'),
         fs              = require('fs'),
         ws              = require('ws'),
-        tracer          = require('dd-trace');
+        tracer          = require('dd-trace'),
+        StatsD          = require('node-dogstatsd').StatsD;
 
 
 async function init(){
+    const statsd = new StatsD();
     tracer.init({
         analytics: true
     });
@@ -46,9 +48,15 @@ async function init(){
 
     wss.on('connection', function(ws){
         console.log("Connection");
+        statsd.increment('ocelotbot.spook.connections');
         ws.on('message', function(data){
             console.log(data);
             ws.filter = data;
+        });
+
+        ws.on('close', function(){
+            console.log("Connection closed");
+            statsd.decrement('ocelotbot.spook.connections');
         });
     });
 }
