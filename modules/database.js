@@ -925,11 +925,14 @@ module.exports = {
             getHighestStreak: async function(user, type){
                 return (await knex.select("highest", "achieved").from("ocelotbot_streaks").where({user, type}).limit(1))[0];
             },
-            getBirthdays:  function(server){
+            getBirthdays: function(server){
                 return knex.select().from("ocelotbot_birthdays").where({server}).orderBy("birthday");
             },
-            addBirthday: async function(user, server, birthday){
+            addBirthday: function(user, server, birthday){
                 return knex.insert({user, server, birthday}).into("ocelotbot_birthdays");
+            },
+            removeBirthday: async function(user, server){
+                return knex.delete().from("ocelotbot_birthdays").where({user, server}).limit(1);
             },
             getBirthday: async function(user, server){
                 let result = await knex.select().from("ocelotbot_birthdays").where({user, server}).limit(1);

@@ -193,10 +193,10 @@ module.exports = {
                 let dm = await spooker.createDM();
                 dm.send(`:ghost: Your goal for ${channel.guild.name} has been fulfilled... Now make sure it stays that way until the 31st.`);
             }else if(role.role < 3 && role.complete === 0 && role.required > role.current){
-                bot.logger.log("Sending role fail DM to "+spooker);
-                await bot.database.setRoleComplete(channel.guild.id, spooker.id, -1);
-                let dm = await spooker.createDM();
-                dm.send(`:ghost: You have failed your goal for ${channel.guild.name}.`);
+               //bot.logger.log("Sending role fail DM to "+spooker);
+               //await bot.database.setRoleComplete(channel.guild.id, spooker.id, -1);
+               //let dm = await spooker.createDM();
+               //dm.send(`:ghost: You have failed your goal for ${channel.guild.name}.`);
             }
 
         };
