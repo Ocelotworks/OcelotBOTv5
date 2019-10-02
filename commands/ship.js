@@ -35,7 +35,7 @@ module.exports = {
             let split = message.cleanContent.split(" ");
             let person1, person2, shipName, shipPoints = 0;
             let robotLove = false;
-            if(message.mentions.members.size > 0){
+            if(message.mentions.members && message.mentions.members.size > 0){
                 person1 = message.mentions.members.first().displayName;
                 if(message.mentions.members.size > 1){
                     person2 = message.mentions.members.last().displayName;
