@@ -551,7 +551,7 @@ module.exports = {
             const targetMessage = previousMessages.find((previousMessage) =>{
                 if(previousMessage.content.startsWith("http"))return true;
                 if(previousMessage.attachments && previousMessage.attachments.size > 0)return true;
-                return (previousMessage.embeds && previousMessage.embeds.length > 0);
+                return (previousMessage.embeds && previousMessage.embeds.length > 0 && previousMessage.embeds[0].image);
             });
             if(targetMessage){
                 if(targetMessage.content.startsWith("http")) {
