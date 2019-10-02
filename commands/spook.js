@@ -386,6 +386,9 @@ module.exports = {
             if(message.mentions.users.first().presence.status === "offline")
                 return message.replyLang("SPOOK_OFFLINE");
 
+            if(message.author.presence.status === "offline")
+                return message.channel.send(":ghost: It's not fair to spook someone whilst pretending to be offline!");
+
             const target = message.mentions.users.first();
 
             if(target.id === message.author.id)

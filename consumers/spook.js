@@ -10,10 +10,12 @@ const   config          = require('config'),
         https           = require('https'),
         fs              = require('fs'),
         ws              = require('ws'),
-        tracer          = require('dd-trace');
+        tracer          = require('dd-trace'),
+        StatsD          = require('node-dogstatsd').StatsD;
 
 
 async function init(){
+    const statsd = new StatsD();
     tracer.init({
         analytics: true
     });
@@ -34,21 +36,30 @@ async function init(){
         const str = msg.content.toString();
         console.log("Processing new spook.");
         let spook = JSON.parse(msg.content);
-        console.log(spook.spookerUsername+"->"+spook.spookedUsername);
+        console.log(spook.spookerUsername+" -> "+spook.spookedUsername);
+        console.log("Got "+wss.clients.size+" clients.");
         wss.clients.forEach(function(client){
-            console.log(client.filter);
-            if(!client.filter || client.filter === spook.server)
+            if(!client.filter || client.filter === spook.server) {
+                statsd.increment('ocelotbot.spook.messages');
+                console.log("Sending to client with filter "+client.filter);
                 client.send(str);
+            }
         });
 
         channel.ack(msg);
     });
 
     wss.on('connection', function(ws){
-        console.log("Connection");
+        console.log("Received Connection");
+        statsd.increment('ocelotbot.spook.connections');
         ws.on('message', function(data){
-            console.log(data);
+            console.log("Filter set to "+data);
             ws.filter = data;
+        });
+
+        ws.on('close', function(){
+            console.log("Connection closed");
+            statsd.decrement('ocelotbot.spook.connections');
         });
     });
 }
