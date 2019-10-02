@@ -17,8 +17,13 @@ module.exports = {
         if(!date)
             return message.channel.send(`You need to enter a date, e.g **${args[0]} ${args[1]} add ${bot.client.user} 19th January**`);
         try{
-            await bot.database.addBirthday(target.id, message.guild.id, date);
-            message.channel.send(":tada: Birthday added!");
+            try {
+                await bot.database.addBirthday(target.id, message.guild.id, date);
+                message.channel.send(":tada: Birthday added!");
+            }catch(e){
+                message.channel.send(`:warning: Birthday already exists. To change it, remove it first with ${args[0]} remove ${target}`);
+            }
+
         }catch(e){
             console.error(e);
         }
