@@ -131,6 +131,7 @@ module.exports = {
         bot.spook.superSecretFunction = bot.spook.giveSpecialRoles;
 
         bot.spook.assignRole = async function assignRole(user, role, target, guild, spooker){
+            if(await bot.database.hasSpookRole(guild.id, user.id))return;
             let required = 0;
             if(role.id !== 4)//bodyguard
                 required = bot.util.intBetween(5, 50);
@@ -142,7 +143,7 @@ module.exports = {
             let embed = new Discord.RichEmbed();
             embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL);
             embed.setColor("#bf621a");
-            embed.setTitle("You have been assigned a special role!");
+            embed.setTitle(`You have been assigned a special role for **'${guild.name}'**`);
             embed.setDescription("**Do NOT tell anyone about this role!**\nOther people may be out to sabotage you.\nIf you accomplish your goal, you will get a unique badge.");
             embed.addField(role.name.toUpperCase(), role.desc.formatUnicorn({spooked: target, spooker, num: required}));
             if(role.image)
@@ -156,8 +157,49 @@ module.exports = {
                 await bot.spook.giveSpecialRoles(channel);
             await bot.database.incrementSpecialRole(channel.guild.id, spooker.id, spooked.id);
 
-        };
+            let role = await bot.database.getSpookRole(channel.guild.id, spooker.id);
 
+            if(!role)return;
+            let spookerUser = channel.guild.members.get(role.spooker);
+            let spookedUser = channel.guild.members.get(role.spooked);
+
+            if(!spookerUser || !spookedUser || spookerUser.user.bot || spookedUser.user.bot){
+                bot.logger.warn(`${role.user}'s role in ${channel.guild.name} (${channel.guild.id}) is invalid.`);
+                console.log(role);
+                await bot.database.deleteSpookRole(channel.guild.id, spooker.id);
+                let targets = channel.guild.members.filter(function(member){return !member.user.bot && member.presence.status !== "offline" && member.id !== spooker.id});
+                if(targets.size === 0)return;
+                let target = targets.random();
+                let required = 0;
+                if(role.id !== 4)//bodyguard
+                    required = bot.util.intBetween(5, 50);
+                let dm = await spooker.createDM();
+                let embed = new Discord.RichEmbed();
+                embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL);
+                embed.setColor("#bf621a");
+                embed.setTitle(`You have been assigned a NEW special role for **'${channel.guild.name}'**`);
+                embed.setDescription("Sorry that your old one was a bot/has now left the server, your new goal is below.\nIf you accomplish your goal, you will get a unique badge.");
+                embed.addField(role.name.toUpperCase(), role.desc.formatUnicorn({spooked: target, spooker, num: required}));
+                if(role.image)
+                    embed.setThumbnail(role.image);
+                dm.send(embed);
+                await bot.database.assignSpookRole(role.id, spooker.id, target.id, required, channel.guild.id, role.spooker);
+                return;
+            }
+
+            if(role.role < 3 && role.required === role.current && role.complete === 0){
+                bot.logger.log("Sending role complete DM to "+spooker);
+                await bot.database.setRoleComplete(channel.guild.id, spooker.id);
+                let dm = await spooker.createDM();
+                dm.send(`:ghost: Your goal for ${channel.guild.name} has been fulfilled... Now make sure it stays that way until the 31st.`);
+            }else if(role.role < 3 && role.complete === 0 && role.required > role.current){
+                bot.logger.log("Sending role fail DM to "+spooker);
+                await bot.database.setRoleComplete(channel.guild.id, spooker.id, -1);
+                let dm = await spooker.createDM();
+                dm.send(`:ghost: You have failed your goal for ${channel.guild.name}.`);
+            }
+
+        };
         bot.spook.getColour = function getColour(guild, user){
             if(!guild.members.has(user.id))
                 return "#ffffff";
