@@ -10,7 +10,7 @@ const   config          = require('config'),
         knex            = require('knex')(config.get("Database")),
         tracer          = require('dd-trace');
 
-
+let shardCount = 12;
 let reminders = [];
 let channel;
 function setLongTimeout(callback, timeout_ms){
@@ -24,10 +24,15 @@ function setLongTimeout(callback, timeout_ms){
     }
 }
 
+function getShard(guild){
+    if(!guild)return 0;
+    return (BigInt(guild) >> BigInt(22)) % BigInt(shardCount);
+}
+
 function triggerReminder(reminder){
     console.log("Triggered reminder");
     console.log(reminder);
-    channel.sendToQueue("reminder", Buffer.from(JSON.stringify(reminder)));
+    channel.sendToQueue("reminder-"+getShard(reminder.server), Buffer.from(JSON.stringify(reminder)));
 }
 
 function setReminder(reminder){
@@ -52,11 +57,12 @@ async function init(){
     let con = await amqplib.connect(config.get("RabbitMQ.host"));
     channel = await con.createChannel();
 
-    channel.assertQueue("reminder");
     channel.assertQueue('newReminder');
     channel.consume('newReminder', function(msg){
         console.log("Processing "+msg.content.toString());
+        channel.ack(msg);
         let reminder = JSON.parse(msg.content.toString());
+        if(!reminder.server)return console.warn("Not processing.");
         setReminder(reminder);
     });
 

@@ -14,28 +14,27 @@ module.exports = {
 
         //if(bot.client.user.username !== "OcelotBOT-Test") {
         bot.client.on("ready", function(){
-            bot.rabbit.channel.assertQueue("reminder");
-
-            // bot.rabbit.channel.consume("reminder",function reminderConsumer(message){
-            //     try {
-            //         let reminder = JSON.parse(message.content);
-            //         if(bot.client.channels.has(reminder.channel) || bot.client.shard.id === 0){
-            //             if(bot.config.getBool("global", "remind.silentQueueTest")) {
-            //                 bot.logger.warn("Silent test: got reminder from reminder worker");
-            //                 bot.logger.log(reminder);
-            //             }else{
-            //                 module.exports.sendReminder(reminder, bot);
-            //             }
-            //             bot.rabbit.channel.ack(message);
-            //         }else {
-            //             bot.logger.log("Nacking reminder as it does not exist on this shard");
-            //             bot.rabbit.channel.reject(message);
-            //         }
-            //     }catch(e){
-            //         bot.raven.captureException(e);
-            //         bot.logger.error(e);
-            //     }
-            // },  {priority: bot.client.shard.id});
+            bot.rabbit.channel.assertQueue("reminder-"+bot.client.shard.id, {exclusive: true});
+            bot.rabbit.channel.consume("reminder-"+bot.client.shard.id,function reminderConsumer(message){
+                try {
+                    let reminder = JSON.parse(message.content);
+                    if(bot.client.channels.has(reminder.channel)){
+                        if(bot.config.getBool("global", "remind.silentQueueTest")) {
+                            bot.logger.warn("Silent test: got reminder from reminder worker");
+                            bot.logger.log(reminder);
+                        }else{
+                            module.exports.sendReminder(reminder, bot);
+                        }
+                        bot.rabbit.channel.ack(message);
+                    }else {
+                        bot.logger.log("Nacking reminder as it does not exist on this shard");
+                        bot.rabbit.channel.reject(message);
+                    }
+                }catch(e){
+                    bot.raven.captureException(e);
+                    bot.logger.error(e);
+                }
+            });
         });
 
         bot.client.on("ready", async function discordReady(){
@@ -179,6 +178,8 @@ module.exports = {
             if(message.getBool("remind.silentQueueTest")) {
                 bot.rabbit.channel.sendToQueue("newReminder", Buffer.from(JSON.stringify({
                     username: message.author.id,
+                    server: message.guild.id,
+                    channel: message.channel.id,
                     date: now.toString(),
                     message: reminder,
                     at: at.getTime(),
@@ -187,6 +188,8 @@ module.exports = {
             if(message.getBool("remind.useQueue")) {
                 bot.rabbit.channel.sendToQueue("newReminder", Buffer.from(JSON.stringify({
                     username: message.author.id,
+                    server: message.guild.id,
+                    channel: message.channel.id,
                     date: now.toString(),
                     message: reminder,
                     at: at.getTime(),
@@ -197,6 +200,7 @@ module.exports = {
                     try {
                         await message.replyLang("REMIND_REMINDER", {
                             username: message.author.id,
+                            server: message.guild.id,
                             date: now.toString(),
                             message: reminder
                         });
