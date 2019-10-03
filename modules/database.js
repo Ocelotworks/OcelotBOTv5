@@ -973,7 +973,7 @@ module.exports = {
                 return knex("ocelotbot_music_sessions").update({lastMessage}).where({id}).limit(1);
             },
             clearQueue: function(session){
-                return knex.delete().from("ocelotbot_msuic_queue").where({session});
+                return knex.delete().from("ocelotbot_music_queue").where({session});
             },
             getPreviousQueue: async function(server, currentSession){
                 let q = knex.select("ocelotbot_music_queue.session", "ocelotbot_music_sessions.started", "ocelotbot_music_sessions.ended", knex.raw("COUNT(*) as length")).from("ocelotbot_music_queue")
