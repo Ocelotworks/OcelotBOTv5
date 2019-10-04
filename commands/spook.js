@@ -10,6 +10,8 @@ module.exports = {
     commands: ["spook", "spooked"],
     init: async function(bot){
         let updateInterval;
+        bot.spook = {};
+        bot.spook.spooked = [];
         function setTeaserMessage(){
             bot.logger.log("Updating teaser message");
             const days = Math.round((start-new Date())/86400000);
@@ -17,7 +19,7 @@ module.exports = {
             updateInterval = setInterval(setTeaserMessage, 86400000)
         }
 
-        function activateSpooking(){
+        async function activateSpooking(){
             bot.logger.log("Spooking is activated");
             bot.updatePresence = async function(){
                 const now = new Date();
@@ -36,6 +38,22 @@ module.exports = {
                 clearInterval(updateInterval);
 
             bot.updatePresence();
+            bot.logger.log("Getting currently spooked...");
+            let currentlySpooked = await bot.database.getCurrentlySpookedForShard(bot.client.guilds.keyArray());
+            bot.logger.log(`${currentlySpooked.length} currently spooked.`);
+            for(let i = 0; i < currentlySpooked.length; i++) {
+                let spook = currentlySpooked[i];
+                if(!bot.client.guilds.has(spook.server))continue;
+                if(bot.client.guilds.get(spook.server).members.has(spook.spooked)) {
+                    bot.spook.spooked[spook.server] = {
+                        user: spook.spooked,
+                        timer: setTimeout(bot.spook.generateNew, 4.32e+7, spook.server)
+                    };
+                }else{
+                    bot.logger.log("Spooked user has left");
+                    await bot.spook.generateNew(spook.server);
+                }
+            }
         }
 
         bot.client.on("ready", async function ready(){
@@ -52,8 +70,7 @@ module.exports = {
             }
         });
 
-        bot.spook = {};
-        bot.spook.spooked = [];
+
 
 
         bot.client.on("message", function spookTimeout(message){
@@ -169,7 +186,10 @@ module.exports = {
                 await bot.database.deleteSpookRole(channel.guild.id, spooker.id);
                 let targets = channel.guild.members.filter(function(member){return !member.user.bot && member.presence.status !== "offline" && member.id !== spooker.id});
                 if(targets.size === 0)return;
-                let target = targets.random();
+                let matchedTargets = targets.random(2);
+                let target = matchedTargets[0];
+                if(!spookerUser || spookerUser.id !== spooker.id)
+                    spooker = matchedTargets[1];
                 let required = 0;
                 if(role.id !== 4)//bodyguard
                     required = bot.util.intBetween(5, 50);
@@ -183,6 +203,7 @@ module.exports = {
                 if(role.image)
                     embed.setThumbnail(role.image);
                 dm.send(embed);
+                //: function(role, user, spooked, required, server, spooker){
                 await bot.database.assignSpookRole(role.id, spooker.id, target.id, required, channel.guild.id, role.spooker);
                 return;
             }
@@ -244,13 +265,13 @@ module.exports = {
         };
 
         bot.spook.generateNew = async function generateNew(server){
-            if(!bot.client.guilds.has("server")) //No longer exists
+            if(!bot.client.guilds.has(server)) //No longer exists
                 return bot.logger.warn("Spooked guild no longer exists");
 
             const guild = bot.client.guilds.get(server);
-            const lastSpooked = bot.database.getSpooked(server)[0].spooked;
-            const left = guild.users.has(lastSpooked);
-            const channel = bot.spook.getSpookChannel(server);
+            const lastSpooked =(await bot.database.getSpooked(server))[0].spooked;
+            const left = !guild.members.has(lastSpooked);
+            const channel = await bot.spook.getSpookChannel(server);
             const lastMessages = (await channel.fetchMessages({limit: 100})).filter(function(message){
                 return !message.author.bot && message.guild.members.has(message.author.id) && message.author.id !== lastSpooked;
             });
@@ -262,8 +283,8 @@ module.exports = {
                 targetUser = lastMessages.random(1)[0].author;
 
             bot.logger.log("Spooking new user "+targetUser);
-            await bot.spook.createSpook(channel, lastSpooked, targetUser.id);
-            channel.replyLang(left ? "SPOOK_USER_LEFT" : "SPOOK_USER_IDLE", {old: lastSpooked, spooked: targetUser});
+            await bot.spook.createSpook(channel, bot.client.user, targetUser);
+            channel.sendLang(left ? "SPOOK_USER_LEFT" : "SPOOK_USER_IDLE", {old: lastSpooked, spooked: targetUser.id});
         };
 
 

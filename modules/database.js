@@ -649,6 +649,9 @@ module.exports = {
                     longestSpook: (await knex.select("spooked", knex.raw("TIMESTAMPDIFF(SECOND, timestamp, (SELECT timestamp FROM ocelotbot_spooks AS spooks3 WHERE id = (SELECT min(id) FROM ocelotbot_spooks AS spooks2 WHERE spooks2.id > ocelotbot_spooks.id AND spooks2.server = ocelotbot_spooks.server))) as diff")).from("ocelotbot_spooks").where({server, series}).orderBy("diff", "DESC").limit(1))[0]
                 }
             },
+            getCurrentlySpookedForShard: function(servers){
+                return knex.select("server", "spooked").from(knex.raw("ocelotbot_spooks as a")).whereIn("server", servers).andWhere("id", knex.select(knex.raw("MAX(id)")).from(knex.raw("ocelotbot_spooks as b")).whereRaw("a.server = b.server")).andWhere("series", 2019);
+            },
             incrementSpecialRole: function(server, spooker, spooked){
                 return knex("ocelotbot_spook_role_assignments").increment("current").where({spooker, spooked}).limit(1);
             },

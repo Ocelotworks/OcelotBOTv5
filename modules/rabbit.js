@@ -21,15 +21,15 @@ module.exports = {
         let replyCount = 0;
         let waitingCallbacks = {};
         let callbackTimers = {};
-
-        bot.rabbit.rpcChannel.assertQueue("reply-"+bot.client.shard.id, {exclusive: true});
-        bot.rabbit.rpcChannel.consume("reply-"+bot.client.shard.id, function(msg){
-           if(waitingCallbacks[msg.properties.correlationId]){
-               waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
-               clearTimeout(callbackTimers[msg.properties.correlationId]);
-           }
-           bot.rabbit.rpcChannel.ack(msg);
+        bot.rabbit.rpcChannel.assertQueue("reply-" + bot.client.shard.id, {exclusive: true});
+        bot.rabbit.rpcChannel.consume("reply-" + bot.client.shard.id, function (msg) {
+            if (waitingCallbacks[msg.properties.correlationId]) {
+                waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
+                clearTimeout(callbackTimers[msg.properties.correlationId]);
+            }
+            bot.rabbit.rpcChannel.ack(msg);
         });
+
 
         bot.rabbit.rpc = async function(name, payload, timeout = 300000){
             return new Promise(function(fulfill){
