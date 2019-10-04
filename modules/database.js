@@ -659,6 +659,20 @@ module.exports = {
             getSpookRoles: function(){
                 return knex.select().from("ocelotbot_spook_roles");
             },
+            getSpookRole: async function(server, user){
+                let result = await knex.select().from("ocelotbot_spook_role_assignments").where({server, user}).limit(1).innerJoin("ocelotbot_spook_roles", "ocelotbot_spook_roles.id", "ocelotbot_spook_role_assignments.role");
+                return result[0];
+            },
+            deleteSpookRole: function(server, user){
+                return knex.delete().from("ocelotbot_spook_role_assignments").where({server, user}).limit(1);
+            },
+            setRoleComplete: function(server, user, complete = 1){
+                return knex("ocelotbot_spook_role_assignments").update({complete}).where({server, user}).limit(1);
+            },
+            hasSpookRole: async function(server, user){
+                let result = await knex.select('user').from("ocelotbot_spook_role_assignments").where({server, user}).limit(1);
+                return !!result[0]
+            },
             assignSpookRole: function(role, user, spooked, required, server, spooker){
                 return knex.insert({role, user, spooker, spooked, required, server}).into("ocelotbot_spook_role_assignments");
             },
@@ -911,11 +925,14 @@ module.exports = {
             getHighestStreak: async function(user, type){
                 return (await knex.select("highest", "achieved").from("ocelotbot_streaks").where({user, type}).limit(1))[0];
             },
-            getBirthdays:  function(server){
+            getBirthdays: function(server){
                 return knex.select().from("ocelotbot_birthdays").where({server}).orderBy("birthday");
             },
-            addBirthday: async function(user, server, birthday){
+            addBirthday: function(user, server, birthday){
                 return knex.insert({user, server, birthday}).into("ocelotbot_birthdays");
+            },
+            removeBirthday: async function(user, server){
+                return knex.delete().from("ocelotbot_birthdays").where({user, server}).limit(1);
             },
             getBirthday: async function(user, server){
                 let result = await knex.select().from("ocelotbot_birthdays").where({user, server}).limit(1);
@@ -956,7 +973,7 @@ module.exports = {
                 return knex("ocelotbot_music_sessions").update({lastMessage}).where({id}).limit(1);
             },
             clearQueue: function(session){
-                return knex.delete().from("ocelotbot_msuic_queue").where({session});
+                return knex.delete().from("ocelotbot_music_queue").where({session});
             },
             getPreviousQueue: async function(server, currentSession){
                 let q = knex.select("ocelotbot_music_queue.session", "ocelotbot_music_sessions.started", "ocelotbot_music_sessions.ended", knex.raw("COUNT(*) as length")).from("ocelotbot_music_queue")

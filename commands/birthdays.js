@@ -25,8 +25,10 @@ module.exports = {
                 return message.channel.send(`That user doesn't have a birthday set up! If you know it, do ${args[0]} add`);
             const now = new Date();
             let d = birthday.birthday;
+            d.setYear(now.getYear());
             if(d <= now)
                 d.setYear(now.getYear()+1);
+
             message.channel.send(`${target}'s birthday is the **${bot.util.getNumberPrefix(d.getDate())} of ${bot.util.months[d.getMonth()]}**\n That's in ${bot.util.prettySeconds((d - now) / 1000)}`);
         });
     }
