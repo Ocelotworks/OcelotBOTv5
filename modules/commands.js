@@ -21,6 +21,13 @@ module.exports = {
             if(!bot.commands[command])
                 return;
 
+            bot.raven.setContext({
+                user: {
+                    username: message.author.username,
+                    id: message.author.id
+                }
+            });
+
             bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
             let commandUsage = bot.commandUsages[command];
