@@ -65,6 +65,7 @@ module.exports = {
         bot.client.on("voiceStateUpdate", function voiceStateUpdate(oldMember, newMember){
             if(!newMember.voiceChannelID)return;
             if(oldMember.voiceChannelID === newMember.voiceChannelID)return;
+            if(!newMember.guild.me)return;
             if(!newMember.guild.me.voiceChannelID)return;
             if(newMember.guild.me.voiceChannelID !== newMember.voiceChannelID)return;
             if(!bot.util.bots.music[newMember.id])return;
