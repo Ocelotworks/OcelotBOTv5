@@ -60,6 +60,7 @@ module.exports = {
         bot.util.standardNestedCommandInit("profile");
 
         bot.generateProfileImage = async function generateProfileImage(user, guild){
+            bot.tasks.startTask("profile", user.id);
             try {
                 let profileInfo = (await bot.database.getProfile(user.id))[0];
 

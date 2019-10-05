@@ -7,11 +7,21 @@
 module.exports = {
     name: "Respawn All",
     id: "respawn",
-    received: function received(broker, process, payload){
+    init: function init(broker){
+        broker.awaitingRestart = [];
+    },
+    received: function received(broker){
         broker.logger.warn("Respawning all shards.");
-        broker.manager.broadcast({"type": "destruct"});
-        setTimeout(function(){
-            broker.manager.respawnAll();
-        }, 2000);
+        for(let i = 0; i < broker.manager.totalShards; i++) {
+            if(!broker.shardTasks[i]){
+                broker.logger.log(`Shard ${i} can be restarted now`);
+                broker.shards.get(i).respawn();
+            }else if(broker.awaitingRestart.indexOf(i) === -1){
+                broker.awaitingRestart.push(i);
+            }else{
+                broker.logger.warn(`Shard ${i} is already waiting to be respawned!`)
+            }
+        }
+        console.log(broker.awaitingRestart);
     }
 };

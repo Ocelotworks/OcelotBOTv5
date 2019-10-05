@@ -13,8 +13,6 @@ const   config          = require('config'),
 const   matomo      = new MatomoTracker(config.get("Matomo.SiteID"), config.get("Matomo.URL")),
         dogstatsd   = new StatsD();
 
-
-
 async function init(){
     let con = await amqplib.connect(config.get("RabbitMQ.host"));
     //let channel = await con.createChannel();
@@ -32,7 +30,6 @@ async function init(){
     createSub("commandPerformed", function(msg){
         const shard = msg.properties.appId.split("-")[1];
         const {message, command} = JSON.parse(msg.content.toString());
-        console.log(message, command);
         matomo.track({
             action_name: "Command Performed",
             uid: message.author.id,
@@ -57,8 +54,7 @@ async function init(){
     createSub("commandRatelimited", function(msg){
         const shard = msg.properties.appId.split("-")[1];
         const {message, command} = JSON.parse(msg.content.toString());
-        console.log(message, command);
-        bot.matomo.track({
+        matomo.track({
             action_name: "Command Rate Limited",
             uid: message.author.id,
             url: `http://bot.ocelot.xyz/${command}`,

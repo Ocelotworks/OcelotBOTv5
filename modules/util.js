@@ -360,7 +360,7 @@ module.exports = {
                     if(err){
                         message.replyLang("GENERIC_ERROR");
                         bot.logger.log(err);
-                        bot.raven.captureException(err);
+                        bot.raven.captureException(err);``
                     }else{
                         const attachment = new Discord.Attachment(buffer, fileName);
                         message.channel.send("", attachment);

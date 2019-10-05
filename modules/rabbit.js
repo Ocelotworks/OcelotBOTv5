@@ -10,7 +10,7 @@ module.exports = {
     name: "RabbitMQ",
     init: async function(bot){
         bot.rabbit = {};
-        bot.rabbit.connection = await amqplib.connect(config.get("RabbitMQ.productionHost"));
+        bot.rabbit.connection = await amqplib.connect(config.get("RabbitMQ.host"));
         bot.rabbit.channel = await bot.rabbit.connection.createChannel();
         bot.rabbit.rpcChannel = await bot.rabbit.connection.createChannel();
         bot.rabbit.pubsub = {};
@@ -21,37 +21,43 @@ module.exports = {
         let replyCount = 0;
         let waitingCallbacks = {};
         let callbackTimers = {};
-        bot.rabbit.rpcChannel.assertQueue("reply-" + bot.client.shard.id, {exclusive: true});
-        bot.rabbit.rpcChannel.consume("reply-" + bot.client.shard.id, function (msg) {
-            if (waitingCallbacks[msg.properties.correlationId]) {
-                waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
-                clearTimeout(callbackTimers[msg.properties.correlationId]);
-            }
-            bot.rabbit.rpcChannel.ack(msg);
-        });
+       bot.rabbit.rpcChannel.assertQueue("reply-" + bot.client.shard.id, {exclusive: true});
+       bot.rabbit.rpcChannel.consume("reply-" + bot.client.shard.id, function (msg) {
+          if (waitingCallbacks[msg.properties.correlationId]) {
+              bot.tasks.endTask("ipc", msg.properties.correlationId);
+              waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
+              clearTimeout(callbackTimers[msg.properties.correlationId]);
+          }
+          bot.rabbit.rpcChannel.ack(msg);
+       });
 
 
         bot.rabbit.rpc = async function(name, payload, timeout = 300000){
             return new Promise(function(fulfill){
+
                 bot.rabbit.rpcChannel.assertQueue(name);
                 const correlationId = bot.client.shard.id+"-"+(replyCount++);
+                bot.tasks.startTask("ipc", correlationId);
                 bot.rabbit.rpcChannel.sendToQueue(name, Buffer.from(JSON.stringify(payload)), {correlationId, replyTo: "reply-"+bot.client.shard.id});
                 waitingCallbacks[correlationId] = fulfill;
                 callbackTimers[correlationId] = setTimeout(function rpcTimeout(){
+                    bot.tasks.endTask("ipc", correlationId);
                     bot.logger.warn("RPC "+name+" timed out");
-                    fulfill("timeout");
+                    fulfill({err: "timeout"});
                 }, timeout);
             });
         };
 
         bot.rabbit.emit = async function emit(type, payload){
+            //console.log("Emitting type "+type);
             let buf = Buffer.from(JSON.stringify(payload));
             if(!bot.rabbit.pubsub[type])
                 bot.rabbit.pubsub[type] = await bot.rabbit.createPubsub(type);
             bot.rabbit.pubsub[type].publish(type, '', buf, {appId: "ocelotbot-"+bot.client.shard.id});
         };
 
-        bot.rabbit.createPubsub = async function(name){
+        bot.rabbit.createPubsub = async function createPubsub(name){
+            bot.logger.log("Creating queue");
             const channel = await bot.rabbit.connection.createChannel();
             channel.assertExchange(name, 'fanout', {'durable': false});
             return channel;
@@ -76,10 +82,6 @@ module.exports = {
             }
         }
 
-        bot.bus.on("cacheUser", function(userID, commandCount){
-            bot.rabbit.emit("cacheUser", {userID, commandCount});
-        });
-
         bot.bus.on("commandPerformed", function(command, message){
             bot.rabbit.emit("commandPerformed", {
                 command,
@@ -97,7 +99,7 @@ module.exports = {
         bot.client.on("guildCreate", function(guild){
             bot.rabbit.emit("guildCreate", {
                 id: guild.id,
-                name: guild.name
+                name: guild.name,
             });
         });
 

@@ -35,23 +35,23 @@ module.exports = {
             let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
             bot.badges.updateBadge({id: user}, 'votes', count, channel);
 
-            bot.matomo.track({
-                action_name: "Vote",
-                uid:  user,
-                url: `http://bot.ocelot.xyz/vote/done`,
-                ua: "Shard "+bot.client.shard_id,
-                e_c: "Vote",
-                e_a: "Voted",
-                e_n: user,
-                e_v: 1,
-                cvar: JSON.stringify({
-                    1: ['Server ID', voteServer],
-                    2: ['Server Name',bot.client.guilds.has(voteServer) ? bot.client.guilds.get(voteServer).name : "Unknown"],
-                    3: ['Message', ""],
-                    4: ['Channel Name', channel ? channel.id : "0"],
-                    5: ['Channel ID', channel ? channel.name : "Unknown"]
-                })
-            });
+            // bot.matomo.track({
+            //     action_name: "Vote",
+            //     uid:  user,
+            //     url: `http://bot.ocelot.xyz/vote/done`,
+            //     ua: "Shard "+bot.client.shard_id,
+            //     e_c: "Vote",
+            //     e_a: "Voted",
+            //     e_n: user,
+            //     e_v: 1,
+            //     cvar: JSON.stringify({
+            //         1: ['Server ID', voteServer],
+            //         2: ['Server Name',bot.client.guilds.has(voteServer) ? bot.client.guilds.get(voteServer).name : "Unknown"],
+            //         3: ['Message', ""],
+            //         4: ['Channel Name', channel ? channel.id : "0"],
+            //         5: ['Channel ID', channel ? channel.name : "Unknown"]
+            //     })
+            // });
 
         }
 

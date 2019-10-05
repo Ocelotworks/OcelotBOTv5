@@ -65,7 +65,6 @@ async function init(){
         if(!reminder.server)return console.warn("Not processing.");
         setReminder(reminder);
     });
-
 }
 
 init();

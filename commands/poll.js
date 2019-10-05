@@ -37,6 +37,7 @@ module.exports = {
         if(options.length > 20)
             return message.channel.send(":bangbang: You can only enter a maximum of 20 poll options.");
 
+        bot.tasks.startTask("poll", message.id);
 
         let count = 0;
         let output = "Poll (30 Seconds):\n";
@@ -105,5 +106,7 @@ module.exports = {
         } else {
             message.channel.send("There was a draw!");
         }
+
+        bot.tasks.endTask("poll", message.id);
     }
 };

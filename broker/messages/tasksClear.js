@@ -8,14 +8,30 @@ module.exports = {
     name: "Task Management",
     id: "tasksClear",
     init: function init(broker){
-        broker.freeShards = [];
+        broker.shardTasks = [];
     },
     received: function received(broker, shard, free){
-        if(free){
-            if(broker.freeShards.indexOf(shard.id) === -1)
-                broker.freeShards.push(shard.id);
+        if(!free){
+            if(broker.shardTasks[shard.id])
+                broker.shardTasks[shard.id]++;
+            else
+                broker.shardTasks[shard.id] = 1;
         }else{
-            broker.freeShards.splice(broker.freeShards.indexOf(shard.id))
+            if(broker.shardTasks[shard.id])
+                broker.shardTasks[shard.id]--;
+            else
+                broker.shardTasks[shard.id] = 0;
+
+            if(broker.shardTasks[shard.id] === 0 && broker.awaitingRestart.indexOf(shard.id) > -1){
+                broker.logger.warn("Shard "+shard.id+" was awaiting restart and is now free.");
+                broker.awaitingRestart.splice(broker.awaitingRestart.indexOf(shard.id));
+                shard.send({"type": "destruct"});
+                setTimeout(function(){
+                    shard.respawn();
+                }, 2000);
+            }
         }
+        console.log(broker.shardTasks);
+        console.log(free);
     }
 };

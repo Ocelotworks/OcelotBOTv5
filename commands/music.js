@@ -35,6 +35,7 @@ module.exports = {
                     bot.logger.log(`Resuming session ${session.id}`);
                     const listener = await module.exports.constructListener(bot.client.guilds.get(session.server), bot.client.channels.get(session.voiceChannel), bot.client.channels.get(session.textChannel), session.id);
                     listener.playing = await bot.lavaqueue.getSong(session.playing);
+                    listener.autodj = session.autodj;
                     if(session.lastMessage){
                         listener.lastMessage = await listener.channel.fetchMessage(session.lastMessage);
                         module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
@@ -352,23 +353,24 @@ module.exports = {
         listener.connection.play(listener.playing.track);
 
         setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);
-        bot.matomo.track({
-            action_name: "Stream Song",
-            uid:  listener.playing.requester,
-            url: `http://bot.ocelot.xyz/stream`,
-            ua: "Shard "+bot.client.shard_id,
-            e_c: "Song",
-            e_a: "Streamed",
-            e_n: listener.playing.info.title,
-            e_v: 1,
-            cvar: JSON.stringify({
-                1: ['Server ID', listener.server],
-                2: ['Server Name', bot.client.guilds.get(listener.server).name],
-                3: ['Message', ""],
-                4: ['Channel Name', listener.channel.name],
-                5: ['Channel ID', listener.channel.id]
-            })
-        });
+
+        // bot.matomo.track({
+        //     action_name: "Stream Song",
+        //     uid:  listener.playing.requester,
+        //     url: `http://bot.ocelot.xyz/stream`,
+        //     ua: "Shard "+bot.client.shard_id,
+        //     e_c: "Song",
+        //     e_a: "Streamed",
+        //     e_n: listener.playing.info.title,
+        //     e_v: 1,
+        //     cvar: JSON.stringify({
+        //         1: ['Server ID', listener.server],
+        //         2: ['Server Name', bot.client.guilds.get(listener.server).name],
+        //         3: ['Message', ""],
+        //         4: ['Channel Name', listener.channel.name],
+        //         5: ['Channel ID', listener.channel.id]
+        //     })
+        // });
 
     }
 };
