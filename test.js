@@ -34,7 +34,8 @@ bot.raven = {
     wrap: function(arg){
         return arg;
     },
-    captureBreadcrumb: function(){}
+    captureBreadcrumb: function(){},
+    setContext: function(){},
 };
 
 bot.bus = new EventEmitter();
