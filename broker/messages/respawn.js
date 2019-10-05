@@ -15,7 +15,7 @@ module.exports = {
         for(let i = 0; i < broker.manager.totalShards; i++) {
             if(!broker.shardTasks[i]){
                 broker.logger.log(`Shard ${i} can be restarted now`);
-                broker.shards.get(i).respawn();
+                broker.manager.shards.get(i).respawn();
             }else if(broker.awaitingRestart.indexOf(i) === -1){
                 broker.awaitingRestart.push(i);
             }else{

@@ -17,8 +17,7 @@ module.exports = {
             bot.tasks.running.push(name+id);
             bot.logger.info(`Started task ${name} (${id})`);
 
-            if(bot.tasks.running.length === 1)
-                bot.client.shard.send({type: "tasksClear", payload: false});
+           bot.client.shard.send({type: "tasksClear", payload: false});
        };
 
 
@@ -36,8 +35,7 @@ module.exports = {
                return bot.logger.warn(`Task ${name} ${id} doesn't exist!`);
             bot.logger.info(`Ended task ${name} (${id})`);
             bot.tasks.running.splice(index, 1);
-            if(bot.tasks.running.length === 0)
-                bot.client.shard.send({type: "tasksClear", payload: true});
+           bot.client.shard.send({type: "tasksClear", payload: true});
        };
     }
 };
