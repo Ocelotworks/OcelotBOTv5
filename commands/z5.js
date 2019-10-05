@@ -129,13 +129,13 @@ module.exports = {
         bot.logger.log("Loading z5 commands...");
         bot.util.standardNestedCommandInit("z5");
 
-        process.on('message', async function(message){
-            if(message.type === "destruct"){
+        process.on('message', async function (message) {
+            if (message.type === "destruct") {
                 bot.logger.log("Z5 got destruct. Forcing save of all games in progress...")
 
                 Object.keys(gameContainers).forEach(function (key) {
                     try {
-                        fs.writeFileSync(__dirname+"/../z5saves/" + key, new Buffer(gameContainers[key].game.getSerialData().buffer), {});
+                        fs.writeFileSync(__dirname + "/../z5saves/" + key, new Buffer(gameContainers[key].game.getSerialData().buffer), {});
                     } catch (e) {
                         console.log(e);
                     }
@@ -171,7 +171,12 @@ module.exports = {
         if (gameContainers[id].players.indexOf(message.author.id) === -1)
             gameContainers[id].players.push(message.author.id);
 
-        let input = Discord.escapeMarkdown(args.slice(1).join(" "));
+
+        let input = message.cleanContent //get the input string, split it into a space separated array, slice the first entry ("!zork"), join the rest and then filter out any weird special characters
+            .split(" ")
+            .slice(1)
+            .join(" ")
+            .replace(/>/g, "");
 
         // Auto-save every 10 commands run
         gameContainers[id].game.commands++;
