@@ -16,7 +16,7 @@ module.exports = {
             if (bot.tasks.hasTask(name, id))
                 return bot.logger.warn(`Task ${name} ${id} already exists!`);
             bot.tasks.running.push(name + id);
-            bot.tasks.taskTimers = setTimeout(function taskTimeout() {
+            bot.tasks.taskTimers[name + id] = setTimeout(function taskTimeout() {
                 bot.logger.warn(`Task ${name}-${id} did not end!`);
                 bot.tasks.endTask(name, id);
             }, 60000);

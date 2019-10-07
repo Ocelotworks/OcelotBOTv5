@@ -8,6 +8,7 @@
   "dependencies": {
     "@lavalink/discord.js": "^0.1.0",
     "@naturalatlas/paranoid-request": "^1.1.1",
+    "@sentry/node": "^5.6.2",
     "@tensorflow-models/toxicity": "^1.1.0",
     "@tensorflow/tfjs": "^1.2.2",
     "@tensorflow/tfjs-node": "^1.2.1",

@@ -8,7 +8,7 @@ let gameRequests = {
         at: 0
     }
 };
-
+const Sentry = require('@sentry/node');
 const chess = require('chess');
 
 const cols = ["A", "B", "C"];
@@ -36,7 +36,6 @@ const pieces = {
         pawn:    "♟",
     }
 };
-
 module.exports = {
     name: "Chess",
     usage: "chess start <@player>/<move>",
@@ -45,21 +44,22 @@ module.exports = {
     categories: ["games"],
     run: function run(message, args, bot){
         const subCommand = args[1];
-        bot.raven.captureBreadcrumb({
-            data: {
-                subCommand: subCommand//,
-                // runningGames: JSON.stringify(runningGames),
-                // gameRequests: JSON.stringify(gameRequests)
+        Sentry.configureScope(function run(scope){
+           scope.addBreadcrumb({
+                data: {
+                    subCommand: subCommand//,
+                    // runningGames: JSON.stringify(runningGames),
+                    // gameRequests: JSON.stringify(gameRequests)
+                }
+            });
+            if(subCommand && module.exports.subCommands[subCommand.toLowerCase()]){
+                module.exports.subCommands[subCommand.toLowerCase()](message, args, bot);
+            }else if(subCommand && runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[a-z]{1,4}[0-9]/gi)) {
+                module.exports.doGo(message, subCommand, args, bot);
+            }else{
+                message.replyLang("GAME_INVALID_USAGE", {arg: args[0]});
             }
         });
-        if(subCommand && module.exports.subCommands[subCommand.toLowerCase()]){
-            module.exports.subCommands[subCommand.toLowerCase()](message, args, bot);
-        }else if(subCommand && runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[a-z]{1,4}[0-9]/gi)) {
-            module.exports.doGo(message, subCommand, args, bot);
-        }else{
-            message.replyLang("GAME_INVALID_USAGE", {arg: args[0]});
-        }
-
     },
     renderBoard: async function(channel, bot){
         const game = runningGames[channel].game;

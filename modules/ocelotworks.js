@@ -37,7 +37,7 @@ module.exports = {
             message.channel.setTopic(topicOutput, `Topic ID: ${topic.id}`);
         };
 
-        bot.client.on("message", bot.raven.wrap(async function onMessage(message) {
+        bot.client.on("message", async function onMessage(message) {
            // noinspection EqualityComparisonWithCoercionJS
             if(message.guild && message.guild.id == "478950156654346292"){
                bot.topicCounter++;
@@ -56,7 +56,7 @@ module.exports = {
                 }
 
            }
-        }));
+        });
 
 
         bot.client.on("ready", function discordReady(){

@@ -8,7 +8,7 @@
 const   config          = require('config'),
         EventEmitter    = require('events'),
         logger          = require('ocelot-logger'),
-        Raven           = require('raven'),
+        Sentry          = require('@sentry/node'),
         os              = require('os'),
         dateFormat      = require('dateformat'),
         colors          = require('colors'),
@@ -32,12 +32,13 @@ function init(){
 
     bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225", "145193838829371393"];
 
-    Raven.config(config.get("Raven.DSN"), {
+    Sentry.init({
         environment: os.hostname() === "Jupiter" ? "production" : "development",
         captureUnhandledRejections: true,
-        autoBreadcrumbs: true
-    }).install();
-    bot.raven = Raven;
+        autoBreadcrumbs: true,
+        dsn: config.get("Raven.DSN")
+    });
+    bot.raven = Sentry; //Cheeky backwards compatability
 
     bot.logger = {};
     bot.logger.log = function log(message, caller, error){
@@ -100,10 +101,11 @@ function loadModules(){
             if(loadedModule.name && loadedModule.init){
                 //Here the module itself starts execution. In the future we might want to do this asynchronously.
                 //The app object is passed to the
-                bot.raven.context(function initModule(){
-                    bot.raven.captureBreadcrumb({
-                        message: "Start load of module.",
-                        category:  "modules",
+                Sentry.configureScope(function initModule(scope){
+                    scope.addBreadcrumb({
+                        category: 'modules',
+                        message: 'Loading module.',
+                        level: Sentry.Severity.Info,
                         data: {
                             name: loadedModule.name,
                             path: modulePath,

@@ -30,13 +30,6 @@ module.exports = {
     categories: ["games", "fun"],
     run: function run(message, args, bot){
         const subCommand = args[1];
-        bot.raven.captureBreadcrumb({
-            data: {
-                subCommand: subCommand//,
-                // runningGames: JSON.stringify(runningGames),
-                // gameRequests: JSON.stringify(gameRequests)
-            }
-        });
         if(subCommand && module.exports.subCommands[subCommand.toLowerCase()]){
             module.exports.subCommands[subCommand.toLowerCase()](message, args, bot);
         }else if(runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[abc][123]/i)) {

@@ -7,6 +7,7 @@
 
 const request = require('request');
 let Discord = require('discord.js');
+const Sentry = require('@sentry/node');
 let bot;
 
 module.exports = {
@@ -19,8 +20,7 @@ module.exports = {
     commands: ["music", "m"],
     subCommands: {},
     shuffleQueue: [],
-    listeners: {
-    },
+    listeners: {},
     init: function init(fuckdamn){
         //fuck you
         bot = fuckdamn;
@@ -288,26 +288,29 @@ module.exports = {
             channel,
             host,
             id,
-        };
-        listener.connection.on("event", function trackEvent(evt){
-            if(evt.type === "TrackEndEvent" && evt.reason !== "REPLACED"){
-                bot.logger.log("Song ended");
+            eventListener: function trackEvent(evt){
+                if(evt.type === "TrackEndEvent" && evt.reason !== "REPLACED"){
+                    bot.logger.log("Song ended");
+                    module.exports.playNextInQueue(listener.server);
+                    bot.lavaqueue.requestLeave(listener.voiceChannel, "Song has ended");
+                }else{
+                    console.log(evt);
+                }
+            },
+            playerUpdateListener: function playerUpdate(evt){
+                if(listener && listener.playing)
+                    listener.playing.position = evt.state.position;
+            },
+            errorListener: function playerError(error){
+                console.log(error);
+                listener.channel.send(":warning: "+error.error);
+                Sentry.captureException(error.error);
                 module.exports.playNextInQueue(listener.server);
-                bot.lavaqueue.requestLeave(listener.voiceChannel, "Song has ended");
-            }else{
-                console.log(evt);
             }
-        });
-        listener.connection.on("playerUpdate", function playerUpdate(evt){
-            if(listener && listener.playing)
-                listener.playing.position = evt.state.position;
-        });
-        listener.connection.on("error", function playerError(error){
-            console.log(error);
-            listener.channel.send(":warning: "+error.error);
-            bot.raven.captureException(error.error);
-            module.exports.playNextInQueue(listener.server);
-        });
+        };
+        listener.connection.on("event", listener.eventListener);
+        listener.connection.on("playerUpdate", listener.playerUpdateListener);
+        listener.connection.on("error", listener.errorListener);
 
         return listener;
     },
@@ -315,6 +318,9 @@ module.exports = {
         bot.logger.log("Deconstructing listener "+server);
         const listener = module.exports.listeners[server];
         if(!listener)return;
+        listener.connection.removeListener("event", listener.eventListener);
+        listener.connection.removeListener("playerUpdate",listener.playerUpdateListener);
+        listener.connection.removeListener("error", listener.errorListener);
         bot.lavaqueue.requestLeave(listener.voiceChannel, "Listener was deconstructed");
         if(listener.checkInterval)
             clearInterval(listener.checkInterval);
@@ -323,54 +329,57 @@ module.exports = {
         module.exports.listeners[server] = undefined;
         await bot.database.endMusicSession(listener.id);
     },
-    playSong: async function playSong(listener){
-        if(listener.playing.info.length <= 1000){
-            listener.channel.replyLang("MUSIC_PLAY_SHORT");
-            return module.exports.playNextInQueue(listener.server);
-        }
+    playSong: function playSong(listener){
+        Sentry.configureScope(async function(scope){
+            if(listener.playing.info.length <= 1000){
+                listener.channel.replyLang("MUSIC_PLAY_SHORT");
+                return module.exports.playNextInQueue(listener.server);
+            }
 
-        await bot.database.updateNowPlaying(listener.id, listener.playing.info.uri);
+            await bot.database.updateNowPlaying(listener.id, listener.playing.info.uri);
 
-        if(listener.checkInterval)
-            clearInterval(listener.checkInterval);
+            if(listener.checkInterval)
+                clearInterval(listener.checkInterval);
 
-        if(listener.playing.info.length >= 3.6e+6) { //1 hour
-            listener.checkInterval = setInterval(async function checkInterval() {
-                if(listener.voiceChannel.members.size === 1){
-                    //listener.channel.replyLang("MUSIC_PLAY_INACTIVE"); hm
-                    if(listener && listener.connection)
-                        await listener.connection.leave();
-                    module.exports.deconstructListener(listener.server);
+            if(listener.playing.info.length >= 3.6e+6) { //1 hour
+                listener.checkInterval = setInterval(async function checkInterval() {
+                    if(listener.voiceChannel.members.size === 1){
+                        //listener.channel.replyLang("MUSIC_PLAY_INACTIVE"); hm
+                        if(listener && listener.connection)
+                            await listener.connection.leave();
+                        module.exports.deconstructListener(listener.server);
+                    }
+                }, 1.8e+6);
+            }
+            scope.addBreadcrumb({
+                message: "Song Played",
+                category: "Music",
+                data: {
+                    track: listener.connection.track,
+                    server: listener.guild
                 }
-            }, 1.8e+6);
-        }
+            });
+            listener.connection.play(listener.playing.track);
 
-        bot.raven.captureBreadcrumb({
-            message: "Song played",
-            track: listener.connection.track,
-            server:listener.guild
-        });
-        listener.connection.play(listener.playing.track);
+            setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);
 
-        setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);
-
-        // bot.matomo.track({
-        //     action_name: "Stream Song",
-        //     uid:  listener.playing.requester,
-        //     url: `http://bot.ocelot.xyz/stream`,
-        //     ua: "Shard "+bot.client.shard_id,
-        //     e_c: "Song",
-        //     e_a: "Streamed",
-        //     e_n: listener.playing.info.title,
-        //     e_v: 1,
-        //     cvar: JSON.stringify({
-        //         1: ['Server ID', listener.server],
-        //         2: ['Server Name', bot.client.guilds.get(listener.server).name],
-        //         3: ['Message', ""],
-        //         4: ['Channel Name', listener.channel.name],
-        //         5: ['Channel ID', listener.channel.id]
-        //     })
-        // });
-
+            // bot.matomo.track({
+            //     action_name: "Stream Song",
+            //     uid:  listener.playing.requester,
+            //     url: `http://bot.ocelot.xyz/stream`,
+            //     ua: "Shard "+bot.client.shard_id,
+            //     e_c: "Song",
+            //     e_a: "Streamed",
+            //     e_n: listener.playing.info.title,
+            //     e_v: 1,
+            //     cvar: JSON.stringify({
+            //         1: ['Server ID', listener.server],
+            //         2: ['Server Name', bot.client.guilds.get(listener.server).name],
+            //         3: ['Message', ""],
+            //         4: ['Channel Name', listener.channel.name],
+            //         5: ['Channel ID', listener.channel.id]
+            //     })
+            // });
+        })
     }
 };
