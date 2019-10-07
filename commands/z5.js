@@ -28,9 +28,9 @@ function createGameContainer() {
 const saves = __dirname + "/../z5saves/";
 
 
-async function onWon(id) {
-    await gameContainers[id].players.forEach(function (value) {
-        gameContainers[id].bot.database.giveBadge(value, 62);
+function onWon(id) {
+    gameContainers[id].players.forEach(async function (value) {
+        await gameContainers[id].bot.database.giveBadge(value, 62);
     });
     channel.send("You won! Everyone involved in the game has received the <:zork:576842329789562930> Zork Badge on their !profile");
     gameContainers[id].dead = true;
