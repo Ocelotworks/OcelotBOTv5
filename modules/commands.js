@@ -131,7 +131,7 @@ module.exports = {
                     if(message.channel.permissionsFor){
                         const permissions = await message.channel.permissionsFor(bot.client.user);
 
-                        if(!permissions.has("SEND_MESSAGES")){
+                        if(!permissions || !permissions.has("SEND_MESSAGES")){
                             bot.logger.log("No permission to send messages in this channel.");
                             const dm = await message.author.createDM();
                             dm.send(":warning: I don't have permission to send messages in that channel.");
