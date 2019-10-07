@@ -9,6 +9,12 @@ module.exports = {
     id: "tasksClear",
     init: function init(broker){
         broker.shardTasks = [];
+
+
+        broker.manager.on("launch", function launcShard(shard){
+            broker.logger.log(`Clearing tasks for shard ${shard.id}`);
+            broker.shardTasks[shard.id] = 0;
+        })
     },
     received: function received(broker, shard, free){
         if(!free){
