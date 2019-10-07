@@ -32,7 +32,7 @@ module.exports = {
        });
 
 
-        /*bot.rabbit.rpc = async function(name, payload, timeout = 300000){
+        bot.rabbit.rpc = async function(name, payload, timeout = 300000){
             return new Promise(function(fulfill){
 
                 bot.rabbit.rpcChannel.assertQueue(name);
@@ -46,7 +46,7 @@ module.exports = {
                     fulfill({err: "timeout"});
                 }, timeout);
             });
-        };*/
+        };
 
         bot.rabbit.emit = async function emit(type, payload){
             //console.log("Emitting type "+type);
