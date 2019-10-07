@@ -15,7 +15,7 @@ module.exports = {
                 });
                 scope.setUser({
                     id: message.author.id,
-                    username: message.author.name
+                    username: message.author.username
                 });
                 if(bot.lastMessages[message.channel.id]){
                     if(bot.lastMessages[message.channel.id] === message.content.toLowerCase()){
