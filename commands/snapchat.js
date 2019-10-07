@@ -20,7 +20,7 @@ module.exports = {
 
         const url =  await bot.util.getImage(message, args);
 
-        if(!url || !url.startsWith("http"))
+        if(!url || !url.startsWith("http") || !args[1])
             return message.replyLang("GENERIC_NO_IMAGE", module.exports);
 
         console.log(url);
