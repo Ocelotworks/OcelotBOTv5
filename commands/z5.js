@@ -28,8 +28,8 @@ function createGameContainer() {
 const saves = __dirname + "/../z5saves/";
 
 
-function onWon(id) {
-    gameContainers[id].players[id].forEach(function (value) {
+async function onWon(id) {
+    await gameContainers[id].players.forEach(function (value) {
         gameContainers[id].bot.database.giveBadge(value, 62);
     });
     channel.send("You won! Everyone involved in the game has received the <:zork:576842329789562930> Zork Badge on their !profile");
@@ -68,6 +68,7 @@ function startGame(id) {
             channelMessage += "```fix\n" + location + "\n```";
             if (location.indexOf("Barrow") !== -1) {
                 onWon(id);
+                return;
             }
             if (description.replace('\n', '').length > 0) {
                 channelMessage += "```yaml\n" + description + "\n```";

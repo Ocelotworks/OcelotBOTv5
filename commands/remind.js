@@ -13,7 +13,7 @@ module.exports = {
     init: function init(bot){
         bot.client.on("ready", function () {
             bot.rabbit.channel.assertQueue("reminder-" + bot.client.shard.id, {exclusive: true});
-            bot.rabbit.channel.consume("reminder-" + bot.client.shard.id, function reminderConsumer(message) {
+           /* bot.rabbit.channel.consume("reminder-" + bot.client.shard.id, function reminderConsumer(message) {
                 try {
                     let reminder = JSON.parse(message.content);
                     if (bot.client.channels.has(reminder.channel)) {
@@ -32,7 +32,7 @@ module.exports = {
                     bot.raven.captureException(e);
                     bot.logger.error(e);
                 }
-            });
+            });*/
         });
 
 
