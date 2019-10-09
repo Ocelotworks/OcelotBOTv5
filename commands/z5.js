@@ -19,20 +19,12 @@ module.exports = {
         let text = decodeURIComponent(result.text);
         let channelMessage = "";
 
-        let headerLines = text.split("\n\n");
+        let headerLines = text.split("\n");
         channelMessage += "```css\n" + headerLines[0] + "\n```";
 
         let body = headerLines.slice(1).join("\n\n");
 
-        // split location and description, then colorize
-        let lines = body.split("\n");
-        let location = lines[0];
-        let description = lines.slice(1).join("\n");
-        channelMessage += "```fix\n" + location + "\n```";
-
-        if (description.replace('\n', '').length > 0) {
-            channelMessage += "```yaml\n" + description + "\n```";
-        }
+        channelMessage += "```yaml\n" + body + "\n```";
 
         if(result.text !== undefined) {
             message.channel.send(channelMessage);
