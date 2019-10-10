@@ -14,7 +14,7 @@ module.exports = {
             .split(" ")
             .slice(1)
             .join(" ");
-        let result = await bot.rabbit.rpc("z5", {name: "gameData", data: input, server : message.guild ? message.guild.id : message.channel.id});
+        let result = await bot.rabbit.rpc("z5", {name: "gameData", data: input, server : message.guild ? message.guild.id : message.channel.id, player : message.author.id});
 
         let text = decodeURIComponent(result.text);
         let channelMessage = "";
