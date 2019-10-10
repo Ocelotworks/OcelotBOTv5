@@ -33,5 +33,12 @@ module.exports = {
         if(result.text !== undefined) {
             message.channel.send(channelMessage);
         }
+
+        if(headerLines[0].indexOf("Barrow") !== -1){
+            result.players.forEach(async function (value) {
+               await bot.database.giveBadge(value, 62);
+            });
+            message.channel.send("You won! Everyone involved in the game has received the <:zork:576842329789562930> Zork Badge on their !profile");
+        }
     }
 };
