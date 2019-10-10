@@ -14,15 +14,19 @@ module.exports = {
             .split(" ")
             .slice(1)
             .join(" ");
-        let result = await bot.rabbit.rpc("z5", {name: "test", data: input, server : message.guild ? message.guild.id : message.channel.id});
+        let result = await bot.rabbit.rpc("z5", {name: "gameData", data: input, server : message.guild ? message.guild.id : message.channel.id});
 
         let text = decodeURIComponent(result.text);
         let channelMessage = "";
 
+        if(result.loaded){
+            channelMessage += "``` Previous save has been auto loaded \n Try '!z5 look' to see where you left off ```"
+        }
+
         let headerLines = text.split("\n");
         channelMessage += "```css\n" + headerLines[0] + "\n```";
 
-        let body = headerLines.slice(1).join("\n\n");
+        let body = headerLines.slice(1).join("\n");
 
         channelMessage += "```yaml\n" + body + "\n```";
 
