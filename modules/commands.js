@@ -161,6 +161,15 @@ module.exports = {
                     bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command ,message.content).catch(function (e) {
                         Sentry.captureException(e);
                         bot.logger.error(e);
+                    }).then(async function millionthCommandCheck(res){
+                        let id = res[0];
+                        if(id === 2000000){
+                            bot.logger.log("2 millionth command!");
+                            message.channel.send(`:tada: :tada: :tada: You just performed the **2,000,000th command on OcelotBOT!**
+I hope it was a good one!
+Have this <:2million:631547587354165248> exclusive badge for your **${message.getSetting("prefix")}profile**`);
+                            await bot.database.giveBadge(message.author.id, 67);
+                        }
                     })
                 }
             });
