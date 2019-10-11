@@ -10,7 +10,7 @@ const   config          = require('config'),
         knex            = require('knex')(config.get("Database")),
         tracer          = require('dd-trace');
 
-let shardCount = 12;
+let shardCount = 13;
 let reminders = [];
 let channel;
 function setLongTimeout(callback, timeout_ms){
