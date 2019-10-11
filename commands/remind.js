@@ -16,18 +16,13 @@ module.exports = {
             bot.rabbit.channel.consume("reminder-" + bot.client.shard.id, function reminderConsumer(message) {
                 try {
                     let reminder = JSON.parse(message.content);
-                    if (bot.client.channels.has(reminder.channel)) {
-                        if (bot.config.getBool("global", "remind.silentQueueTest")) {
-                            bot.logger.warn("Silent test: got reminder from reminder worker");
-                            bot.logger.log(reminder);
-                        } else {
-                            module.exports.sendReminder(reminder, bot);
-                        }
-                        bot.rabbit.channel.ack(message);
+                    if (bot.config.getBool("global", "remind.silentQueueTest")) {
+                        bot.logger.warn("Silent test: got reminder from reminder worker");
+                        bot.logger.log(reminder);
                     } else {
-                        bot.logger.log("Nacking reminder as it does not exist on this shard");
-                        bot.rabbit.channel.reject(message);
+                        module.exports.sendReminder(reminder, bot);
                     }
+                    bot.rabbit.channel.ack(message);
                 } catch (e) {
                     bot.raven.captureException(e);
                     bot.logger.error(e);
