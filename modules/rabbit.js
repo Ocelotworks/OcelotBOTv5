@@ -34,7 +34,6 @@ module.exports = {
 
         bot.rabbit.rpc = async function(name, payload, timeout = 300000){
             return new Promise(function(fulfill){
-
                 bot.rabbit.rpcChannel.assertQueue(name, {durable: false});
                 const correlationId = bot.client.shard.id+"-"+(replyCount++);
                 bot.tasks.startTask("ipc", correlationId);
