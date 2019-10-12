@@ -10,7 +10,7 @@ module.exports = {
     commands: ["seek"],
     run: async function (message, args, bot, music) {
         const guild = message.guild.id;
-        if (!music.listeners[guild])
+        if (!music.listeners[guild] || !music.listeners[guild].playing)
             return message.replyLang("MUSIC_NOTHING_PLAYING");
 
         const listener = music.listeners[guild];
@@ -25,6 +25,7 @@ module.exports = {
         let position = args[2];
         if(args[2].startsWith("+") || args[2].startsWith("-"))
             position = (listener.playing.position/1000)+(parseInt(args[2]));
+
 
         if(position*1000 > listener.playing.info.length)
             return message.channel.send(`:warning: That would seek past the end of the song. To skip, type ${args[0]} skip`);
