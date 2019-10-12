@@ -34,7 +34,7 @@ module.exports = {
 
         bot.rabbit.rpc = async function(name, payload, timeout = 300000){
             return new Promise(function(fulfill){
-                bot.rabbit.rpcChannel.assertQueue(name, {durable: false});
+                bot.rabbit.rpcChannel.assertQueue(name, {durable: name === "imageFilter"}); //oh nooo
                 const correlationId = bot.client.shard.id+"-"+(replyCount++);
                 bot.tasks.startTask("ipc", correlationId);
                 bot.rabbit.rpcChannel.sendToQueue(name, Buffer.from(JSON.stringify(payload)), {correlationId, replyTo: "reply-"+bot.client.shard.id});
