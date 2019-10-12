@@ -280,13 +280,14 @@ module.exports = {
                 return !message.author.bot && message.guild.members.has(message.author.id) && message.author.id !== lastSpooked;
             });
             let targetUser;
-            if(lastMessages.size === 1){
+            if(lastMessages.size < 1){
                 bot.logger.warn("No eligible users found...");
+                if(!guild.users)return;
                 targetUser = guild.users.filter((u)=>!u.bot).random(1)[0];
             }else {
                  const targetMessage = lastMessages.random(1)[0];
                  if(!targetMessage)return;
-                 targetAuthor = targetMessage.author;
+                 targetUser = targetMessage.author;
             }
 
             bot.logger.log("Spooking new user "+targetUser);
