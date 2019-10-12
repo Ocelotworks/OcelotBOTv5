@@ -271,16 +271,24 @@ module.exports = {
             const guild = bot.client.guilds.get(server);
             const lastSpooked =(await bot.database.getSpooked(server))[0].spooked;
             const left = !guild.members.has(lastSpooked);
-            const channel = await bot.spook.getSpookChannel(server);
+            let channel = await bot.spook.getSpookChannel(server);
+            if(!channel){
+                channel = await bot.util.determineMainChannel(guild);
+                if(!channel)return;
+            }
             const lastMessages = (await channel.fetchMessages({limit: 100})).filter(function(message){
                 return !message.author.bot && message.guild.members.has(message.author.id) && message.author.id !== lastSpooked;
             });
             let targetUser;
-            if(lastMessages.size === 1){
+            if(lastMessages.size < 1){
                 bot.logger.warn("No eligible users found...");
+                if(!guild.users)return;
                 targetUser = guild.users.filter((u)=>!u.bot).random(1)[0];
-            }else
-                targetUser = lastMessages.random(1)[0].author;
+            }else {
+                 const targetMessage = lastMessages.random(1)[0];
+                 if(!targetMessage)return;
+                 targetUser = targetMessage.author;
+            }
 
             bot.logger.log("Spooking new user "+targetUser);
             await bot.spook.createSpook(channel, bot.client.user, targetUser);
