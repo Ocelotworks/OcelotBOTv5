@@ -4,6 +4,8 @@
  * (ocelotbotv5) z5
  */
 
+const Discord = require('discord.js');
+
 module.exports = {
     name: "Zork",
     usage: "zork <text>",
@@ -16,7 +18,7 @@ module.exports = {
             .join(" ");
         let result = await bot.rabbit.rpc("z5", {name: "gameData", data: input, server : message.guild ? message.guild.id : message.channel.id, player : message.author.id});
 
-        let text = decodeURIComponent(result.text);
+        let text = Discord.escapeMarkdown(decodeURIComponent(result.text));
         let channelMessage = "";
 
         if(result.loaded){
