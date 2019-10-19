@@ -30,6 +30,7 @@ jobs:
         npm install @sentry/cli
         export VERSION=$(node_modules/.bin/sentry-cli releases propose-version)
         node_modules/.bin/sentry-cli releases new -p ocelotbot $VERSION
+        node_modules/.bin/sentry-cli  releases set-commits --auto $VERSION
       env:
         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
