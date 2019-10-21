@@ -4,6 +4,7 @@
  * ╚════ ║   (ocelotbotv5) queue
  *  ════╝
  */
+const Sentry = require('@sentry/node'),
 module.exports = {
     name: "Queue Song",
     usage: "queue <url/next>",
@@ -20,16 +21,25 @@ module.exports = {
            await music.constructListener(message.guild, message.member.voiceChannel, message.channel);
         }
 
-        let song = await music.addToQueue(guild, query, message.author.id);
-        if(music.listeners[guild].queue.length > 0) {
-            if (!song)
-                return message.channel.send(":warning: No results.");
-            if (song.count)
-                return message.channel.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000)})`);
-            if(song.title.indexOf("-") > -1)
-                return message.channel.send(`:white_check_mark: Added **${song.title}** to the queue.`);
+        await message.channel.startTyping();
+        try {
+            let song = await music.addToQueue(guild, query, message.author.id);
+            if (music.listeners[guild].queue.length > 0) {
+                if (!song)
+                    return message.channel.send(":warning: No results.");
+                if (song.count)
+                    return message.channel.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000)})`);
+                if (song.title.indexOf("-") > -1)
+                    return message.channel.send(`:white_check_mark: Added **${song.title}** to the queue.`);
 
-            message.channel.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
+                message.channel.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
+            }
+        }catch(e){
+            message.replyLang("GENERIC_ERROR");
+            Sentry.captureException(e);
+        }finally{
+            message.channel.stopTyping(true);
         }
+
     }
 };
