@@ -4,7 +4,7 @@
  * ╚════ ║   (ocelotbotv5) queue
  *  ════╝
  */
-const Sentry = require('@sentry/node'),
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "Queue Song",
     usage: "queue <url/next>",
