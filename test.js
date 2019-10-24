@@ -1,3 +1,9 @@
+const Sentry  = require('@sentry/node');
+
+
+Sentry.init({environment: "test"});
+
+
 const fs = require('fs');
 const EventEmitter = require('events');
 import test from 'ava';
@@ -20,7 +26,6 @@ for (let i in files) {
         }
     }
 }
-
 
 const util = require('./modules/util.js');
 let bot = {};

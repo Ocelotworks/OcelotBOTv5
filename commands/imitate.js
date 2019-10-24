@@ -14,7 +14,7 @@ module.exports = {
     categories: ["fun"],
     unwholesome: true,
     run: async function run(message, args, bot) {
-        if(!message.guild.id)
+        if(!message.guild)
             return message.replyLang("GENERIC_DM_CHANNEL");
 
         if(args.length < 3)
