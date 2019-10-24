@@ -76,7 +76,7 @@ module.exports = {
         bot.client.on("message", function spookTimeout(message){
             if(!message.guild)return;
             if(!bot.spook.spooked[message.guild.id])return;
-
+            if(!bot.spook.spooked[message.guild.id].user === message.author.id)return;
             clearTimeout(bot.spook.spooked[message.guild.id].timer);
             bot.spook.spooked[message.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, message.guild.id);
         });
