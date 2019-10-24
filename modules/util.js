@@ -968,7 +968,7 @@ module.exports = {
         };
 
 
-        bot.util.swearRegex = /fuck|sh[i!1]t|cunt|n[i!1]g*(er|a|4|3r)|f[4a]g+[o0e3]t|p[i!1]ss|d[i!1]ck|[a4]ss+h[o0]le|cum/gi
+        bot.util.swearRegex = /fuck|sh[i!1]t|cunt|n[i!1]gg+*(er|a|4|3r)|f[4a]g+[o0e3]t|p[i!1]ss|d[i!1]ck|[a4]ss+h[o0]le|cum/gi
 
         bot.util.timezoneRegex = /(UTC|GMT)([+\-][0-9]+)/i;
 
