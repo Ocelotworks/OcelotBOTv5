@@ -161,19 +161,58 @@ module.exports = {
                     bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command ,message.content).catch(function (e) {
                         Sentry.captureException(e);
                         bot.logger.error(e);
-                    }).then(async function millionthCommandCheck(res){
-                        let id = res[0];
-                        if(id === 2000000){
-                            bot.logger.log("2 millionth command!");
-                            message.channel.send(`:tada: :tada: :tada: You just performed the **2,000,000th command on OcelotBOT!**
-I hope it was a good one!
-Have this <:2million:631547587354165248> exclusive badge for your **${message.getSetting("prefix")}profile**`);
-                            await bot.database.giveBadge(message.author.id, 67);
-                        }
                     })
                 }
             });
         });
+
+
+        bot.loadCommand = function(command, reload){
+            const module = "../commands/" + command;
+            if(reload)
+                delete require.cache[require.resolve(module)];
+            let loadedCommand = require(module);
+            if (loadedCommand.init && !reload) {
+                try {
+                    loadedCommand.init(bot);
+                }catch(e){
+                    Sentry.captureException(e);
+                    bot.logger.error(e);
+                    if(bot.client && bot.client.shard){
+                        bot.client.shard.send({type: "warning", payload: {
+                                id: "badInit-"+command,
+                                message: `Couldn't initialise command ${command}:\n${e.message}`
+                            }});
+                    }
+                }
+            }
+            bot.logger.log(`Loaded command ${loadedCommand.name}`);
+
+            for (let i in loadedCommand.commands) {
+                if (loadedCommand.commands.hasOwnProperty(i)) {
+                    const commandName = loadedCommand.commands[i];
+                    if(bot.commands[commandName] && !reload){
+                        if(bot.client.shard)
+                            bot.client.shard.send({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`}})
+                    }
+                    bot.commands[commandName] = loadedCommand.run;
+                    bot.commandUsages[commandName] = {
+                        id: command,
+                        name: loadedCommand.name,
+                        usage: loadedCommand.usage,
+                        requiredPermissions: loadedCommand.requiredPermissions,
+                        detailedHelp: loadedCommand.detailedHelp,
+                        hidden: loadedCommand.hidden,
+                        categories: loadedCommand.categories,
+                        rateLimit: loadedCommand.rateLimit,
+                        premium: loadedCommand.premium,
+                        vote: loadedCommand.vote,
+                        unwholesome: loadedCommand.unwholesome,
+                        commands: loadedCommand.commands
+                    };
+                }
+            }
+        };
 
         module.exports.loadPrefixCache(bot);
         module.exports.loadCommands(bot);
@@ -196,47 +235,7 @@ Have this <:2million:631547587354165248> exclusive badge for your **${message.ge
             } else {
                 async.eachSeries(files, function loadCommands(command, callback) {
                     if (!fs.lstatSync(`${__dirname}/../commands/${command}`).isDirectory()) {
-                        let loadedCommand = require("../commands/" + command);
-                        if (loadedCommand.init) {
-                            try {
-                                loadedCommand.init(bot);
-                            }catch(e){
-                                Sentry.captureException(e);
-                                bot.logger.error(e);
-                                if(bot.client && bot.client.shard){
-                                    bot.client.shard.send({type: "warning", payload: {
-                                        id: "badInit-"+command,
-                                        message: `Couldn't initialise command ${command}:\n${e.message}`
-                                    }});
-                                }
-                            }
-                        }
-                        bot.logger.log(`Loaded command ${loadedCommand.name}`);
-
-                        for (let i in loadedCommand.commands) {
-                            if (loadedCommand.commands.hasOwnProperty(i)) {
-                                const commandName = loadedCommand.commands[i];
-                                if(bot.commands[commandName]){
-                                    if(bot.client.shard)
-                                        bot.client.shard.send({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`}})
-                                }
-                                bot.commands[commandName] = loadedCommand.run;
-                                bot.commandUsages[commandName] = {
-                                    id: command,
-                                    name: loadedCommand.name,
-                                    usage: loadedCommand.usage,
-                                    requiredPermissions: loadedCommand.requiredPermissions,
-                                    detailedHelp: loadedCommand.detailedHelp,
-                                    hidden: loadedCommand.hidden,
-                                    categories: loadedCommand.categories,
-                                    rateLimit: loadedCommand.rateLimit,
-                                    premium: loadedCommand.premium,
-                                    vote: loadedCommand.vote,
-                                    unwholesome: loadedCommand.unwholesome,
-                                    commands: loadedCommand.commands
-                                };
-                            }
-                        }
+                        bot.loadCommand(command);
                     }
                     callback();
                 }, function commandLoadFinished() {

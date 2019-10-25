@@ -12,9 +12,8 @@ module.exports = {
         if(bot.client.shard){
             bot.logger.log("Loading shard receiver for !admin loadCommand");
             process.on("message", function(msg){
-                if(msg.type === "loadCommand"){
-                    bot.loadCommand(msg.message);
-                }
+                if(msg.type === "loadCommand")
+                    bot.loadCommand(msg.message, true)
             });
         }
     },
