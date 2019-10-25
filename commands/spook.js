@@ -365,13 +365,11 @@ module.exports = {
                 embed.setColor(0xd04109);
                 embed.setTitle("The Spooking Has Ended.");
                 embed.setTimestamp(new Date());
-                embed.setFooter("Happy Halloween!", "https://cdn.discordapp.com/avatars/146293573422284800/a3ba7bf8004a9446239e0113b449a30c.png?size=128");
-                embed.setDescription(`Thank you all for participating.\n**<@${loser}> is the loser!**\nIf you enjoyed this halloween event please consider [voting for OcelotBOT](https://discordbots.org/bot/146293573422284800/vote).`);
-                embed.addField("Total Spooks", spookStats.totalSpooks, true);
+                embed.setFooter("Happy Halloween!", bot.client.user.avatarURL);
+                embed.setDescription(`<@${loser}> is the loser!**\nThank you all for participating in the 2nd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greately appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelot.xyz/premium?ref=spook)`);
+                embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${parseInt((spookStats.totalSpooks/spookStats.allSpooks)*100)}% of all spooks.)`);
                 embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
                 embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff)})`);
-                embed.addField("Spook Graph", "Below is a graph of all the spooks on this server.\nOr click [here](https://ocelot.xyz/graph.png) for a graph of all the spooks across all servers.");
-                embed.setImage("http://ocelot.xyz/graph.php?server="+id+"&end=true");
                 targetChannel.send("", embed);
 
 
