@@ -60,8 +60,7 @@ module.exports = {
         // });
     },
     run: async function run(message, args, bot) {
-        // noinspection EqualityComparisonWithCoercionJS
-        if (message.getSetting("ocelotworks")) {
+        if (message.getBool("ocelotworks")) {
             await module.exports.ocelotStats(message, args, bot);
         }else{
             const target = message.mentions.users.size > 0 ? message.mentions.users.firstKey() : message.author.id;

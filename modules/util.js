@@ -1155,6 +1155,26 @@ module.exports = {
             YAKT: "09",
             YEKT: "05"};
 
+        bot.util.drawOutlinedText = function drawOutlinedText(ctx, text, x, y, size, font = "Sans-serif", foreground= "white", background = "black", thickness = 3){
+            ctx.fillStyle = background;
+            ctx.font = `${size}px ${font}`;
+            ctx.fillText(text, x, y);
+            ctx.fillStyle = foreground;
+            ctx.font = `${size}px ${font}`;
+            ctx.fillText(text, x-thickness, y-thickness);
+        };
+
+        bot.util.drawRoundRect = function roundRect(ctx, x, y, w, h, r) {
+            if (w < 2 * r) r = w / 2;
+            if (h < 2 * r) r = h / 2;
+            ctx.beginPath();
+            ctx.moveTo(x+r, y);
+            ctx.arcTo(x+w, y,   x+w, y+h, r);
+            ctx.arcTo(x+w, y+h, x,   y+h, r);
+            ctx.arcTo(x,   y+h, x,   y,   r);
+            ctx.arcTo(x,   y,   x+w, y,   r);
+            ctx.closePath();
+        }
 
     }
 };

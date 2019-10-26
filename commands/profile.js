@@ -4,31 +4,58 @@ const dateFormat = require('dateformat');
 const wrap = require('word-wrap');
 
 const profileBase = `${__dirname}/../static/profile`;
+const newProfileBase = `${__dirname}/../static/profile/new`;
 
-const bigpCaptions = [
-    "Perverted",
-    "Perversions",
-    "Personality",
-    "Prius",
-    "Premeditated Murder",
-    "Pea",
-    "Puzzle",
-    "Programmer",
-    "Pizza",
-    "Package",
-    "Panic Attack",
-    "Perjury",
-    "Plant",
-    "Pretzel",
-    "Playa",
-    "Pimping",
-    "Pumpkin",
-    "Postmates™",
-    "Payout",
-    "Puppy",
-    "Pornstar",
-    "Princess"
-];
+//Something tells me theres better ways to do this, but I'm doing it this way
+const PROFILE_WIDTH     = 1024;
+const PROFILE_HEIGHT    = 700;
+
+const AVATAR_SIZE       = 256;
+const AVATAR_OFFSET     = 50;
+
+const USERNAME_SIZE     = 60;
+const USERNAME_OFFSET   = 15;
+const USERNAME_X        = AVATAR_OFFSET + AVATAR_SIZE + USERNAME_OFFSET;
+const USERNAME_Y        = USERNAME_SIZE + AVATAR_OFFSET;
+
+const TAGLINE_SIZE      = 40;
+const TAGLINE_X         = USERNAME_X;
+const TAGLINE_Y         = USERNAME_Y + USERNAME_SIZE / 2 + TAGLINE_SIZE / 2;
+
+const BODY_OFFSET       = 50;
+const BODY_Y            = AVATAR_OFFSET + BODY_OFFSET + AVATAR_SIZE;
+const BODY_X            = AVATAR_OFFSET;
+const BODY_WIDTH        = PROFILE_WIDTH - (AVATAR_OFFSET * 2);
+const BODY_HEIGHT       = PROFILE_HEIGHT - AVATAR_OFFSET - AVATAR_SIZE - (BODY_OFFSET * 2) + 37; //And thus the system starts to break down
+const BODY_PADDING      = 10;
+
+const TAG_WIDTH         = 170;
+const TAG_HEIGHT        = 40;
+const TAG_PADDING_X     = 10;
+const TAG_PADDING_Y     = 5;
+const TAG_RADIUS        = 10;
+const TAG_SIZE          = 20;
+const TAG_ICON_SIZE     = 32;
+
+const FEAT_BADGE_X      = BODY_X + BODY_PADDING;
+const FEAT_BADGE_Y      = BODY_Y + BODY_PADDING;
+const FEAT_BADGE_SIZE   = 64;
+const FEAT_BADGE_WIDTH  = BODY_WIDTH / 2 - (BODY_PADDING * 2);
+const FEAT_BADGE_PADDING= 5;
+const FEAT_BADGE_HEIGHT = FEAT_BADGE_SIZE + FEAT_BADGE_PADDING * 2;
+const FEAT_BADGE_TEXT   = 30;
+const FEAT_BADGE_CAPTION= 20;
+
+const REG_BADGE_X       = FEAT_BADGE_X;
+const REG_BADGE_Y       = FEAT_BADGE_Y + FEAT_BADGE_HEIGHT + FEAT_BADGE_PADDING;
+const REG_BADGE_SIZE    = FEAT_BADGE_SIZE;
+const REG_BADGE_PADDING = 11;
+const REG_BADGE_ROW_NUM = 6;
+
+const STATS_SIZE        = 32;
+const STATS_X           = BODY_X + BODY_PADDING + FEAT_BADGE_WIDTH + STATS_SIZE;
+const STATS_Y           = BODY_Y + BODY_PADDING + STATS_SIZE;
+const STATS_PADDING     = 5;
 
 module.exports = {
     name: "User Profile",
@@ -192,11 +219,136 @@ module.exports = {
             }
         };
 
+        async function drawTag(ctx, tag, x, y){
+            ctx.fillStyle = tag.background;
+            roundRect(x, y, TAG_WIDTH, TAG_HEIGHT, TAG_RADIUS);
+            ctx.fill();
+            ctx.font = `${TAG_SIZE}px ${tag.font}`;
+            ctx.fillStyle = tag.text;
+            ctx.fillText(tag.name, x + TAG_PADDING_X + TAG_PADDING_X + TAG_ICON_SIZE, y + TAG_SIZE + TAG_PADDING_Y + 2);
+            ctx.drawImage(tag.icon, x + TAG_PADDING_X, y + TAG_PADDING_Y, TAG_ICON_SIZE, TAG_ICON_SIZE);
+        }
+
+        async function generateProfileHeader(ctx, name, tagline, avatarURL, tags){
+            //Load the avatar
+            let avatar = await canvas.loadImage(avatarURL);
+
+            //Draw the avatar backdrop
+            ctx.fillStyle = "rgba(25,25,25,0.56)";
+            ctx.fillRect(AVATAR_OFFSET-1, AVATAR_OFFSET-1, AVATAR_SIZE+2, AVATAR_SIZE+2);
+            //Draw the avatar
+            ctx.drawImage(avatar, AVATAR_OFFSET, AVATAR_OFFSET, AVATAR_SIZE, AVATAR_SIZE);
+            //Draw the avatar outline
+            ctx.fillStyle = "black";
+            ctx.strokeRect(AVATAR_OFFSET-1, AVATAR_OFFSET-1, AVATAR_SIZE+2, AVATAR_SIZE+2);
+
+            bot.util.drawOutlinedText(ctx, name, USERNAME_X, USERNAME_Y, USERNAME_SIZE);
+            bot.util.drawOutlinedText(ctx, wrap(tagline, {width: 35}), TAGLINE_X, TAGLINE_Y, TAGLINE_SIZE);
+        }
+
+
+        async function drawBadges(ctx, user){
+            const badges = await bot.database.getProfileBadges(user.id);
+
+            let regularIndexOffset;
+            await Promise.all(badges.map(async function(badge, i){
+                badge.loadedImage = await canvas.loadImage(`${newProfileBase}/badges/${badge.image}`);
+                if(i === 0 || badges.length <= 4){
+                    drawFeaturedBadge(ctx, badge, i);
+                }else{
+                    if(!regularIndexOffset)
+                        regularIndexOffset = i;
+                    drawRegularBadge(ctx, badge, i-regularIndexOffset);
+                }
+            }));
+        }
+
+        async function drawRegularBadge(ctx, badge, i){
+            const x = REG_BADGE_X + 1 + ((REG_BADGE_PADDING + REG_BADGE_SIZE) * (i % REG_BADGE_ROW_NUM));
+            const y = REG_BADGE_Y + ((REG_BADGE_PADDING + REG_BADGE_SIZE) * Math.floor(i / REG_BADGE_ROW_NUM)) ;
+            ctx.drawImage(badge.loadedImage,  x , y, REG_BADGE_SIZE, REG_BADGE_SIZE);
+        }
+
+        async function drawFeaturedBadge(ctx, badge, i){
+            const y = FEAT_BADGE_Y + (FEAT_BADGE_HEIGHT * i) + (5 * i);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            ctx.fillRect(FEAT_BADGE_X, y, FEAT_BADGE_WIDTH, FEAT_BADGE_HEIGHT);
+            ctx.drawImage(badge.loadedImage,  FEAT_BADGE_X + FEAT_BADGE_PADDING , y + FEAT_BADGE_PADDING, FEAT_BADGE_SIZE, FEAT_BADGE_SIZE);
+            ctx.fillStyle = "black";
+            ctx.font = `${FEAT_BADGE_TEXT}px Sans-serif`;
+            ctx.fillText(badge.name, FEAT_BADGE_X + FEAT_BADGE_SIZE + (FEAT_BADGE_PADDING * 2), y + FEAT_BADGE_TEXT + FEAT_BADGE_PADDING);
+            ctx.font = `${FEAT_BADGE_CAPTION}px Sans-serif`;
+            ctx.fillText(badge.desc, FEAT_BADGE_X + FEAT_BADGE_SIZE + (FEAT_BADGE_PADDING * 2) + 5, y + (FEAT_BADGE_TEXT * 2));
+        }
+
+
+        function drawStat(ctx, value, name, i){
+            ctx.font = STATS_SIZE+"px Bitdust";
+            ctx.fillStyle = "black";
+            ctx.fillText(value+" "+name, STATS_X, STATS_Y + ((STATS_SIZE + STATS_PADDING) * i));
+            ctx.fillStyle = "green";
+            ctx.fillText(value, STATS_X, STATS_Y + ((STATS_SIZE + STATS_PADDING) * i));
+        }
+
+        async function drawStats(ctx, user, profileInfo){
+            const [guildCounts, userStats, voteStats, guessStats, triviaStats] = await Promise.all([
+                bot.client.shard.broadcastEval(`this.guilds.filter((guild)=>guild.members.has('${user.id}')).size`),
+                bot.database.getUserStats(user.id),
+                bot.database.getVoteCount(user.id),
+                bot.database.getTotalCorrectGuesses(user.id),
+                bot.database.getTriviaCorrectCount(user.id),
+            ]);
+
+            let i = 0;
+            drawStat(ctx, userStats[0].commandCount.toLocaleString(), "commands", i++);
+            drawStat(ctx, guildCounts.reduce((a,b)=>a+b, 0), "servers", i++);
+            drawStat(ctx, voteStats[0] && voteStats[0]['COUNT(*)'] ? voteStats[0]['COUNT(*)'] : 0, "votes", i++);
+            drawStat(ctx, guessStats[0] && guessStats[0]['COUNT(*)'] ? guessStats[0]['COUNT(*)'] : 0, "songs guessed", i++);
+            drawStat(ctx, triviaStats[0] && triviaStats[0]['count(*)'] ? triviaStats[0]['count(*)'] : 0, "trivia correct", i++);
+
+        }
+
+        function generateProfileBody(ctx, user){
+            //Draw background
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            ctx.fillRect(BODY_X, BODY_Y, BODY_WIDTH, BODY_HEIGHT);
+            //Draw separator line
+            ctx.fillStyle = "rgba(25,25,25,0.56)";
+            ctx.fillRect(BODY_X+(BODY_WIDTH/2), BODY_Y, 2, BODY_HEIGHT);
+            return Promise.all([drawBadges(ctx, user), drawStats(ctx, user)]);
+        }
+
+        bot.generateNewProfileImage = async function(user, guild){
+            let profileInfo = (await bot.database.getProfile(user.id))[0];
+
+            if (!profileInfo) {
+                bot.logger.log("Creating profile for " + user.id);
+                await bot.database.createProfile(user.id);
+                console.log("Created profile");
+                profileInfo = {
+                    caption: "I should do\n!profile help",
+                    background: 0,
+                    frames: 2,
+                    board: 3,
+                    font: 33
+                };
+            }
+
+            const cnv = canvas.createCanvas(PROFILE_WIDTH, PROFILE_HEIGHT);
+            const ctx = cnv.getContext("2d");
+            const backgroundInfo  = (await bot.database.getProfileOption(profileInfo.background))[0];
+            const background = await canvas.loadImage(`${newProfileBase}/backgrounds/${backgroundInfo.path}`);
+            ctx.drawImage(background, 0, 0, PROFILE_WIDTH, PROFILE_HEIGHT);
+
+            await Promise.all([
+                generateProfileHeader(ctx, user.tag, profileInfo.caption, user.avatarURL, []),
+                generateProfileBody(ctx, user, profileInfo)
+            ]);
+
+            return cnv.toBuffer("image/png");
+        };
 
         bot.badges = {};
-
-
-
 
         bot.badges.giveBadge = async function(user, channel, id){
             await bot.database.giveBadge(user.id, id);
@@ -254,7 +406,7 @@ module.exports = {
         if(args.length === 1 || message.mentions.users && message.mentions.users.size > 0){
             const target = message.mentions.users.size > 0 ? message.mentions.users.first() : message.author;
             message.channel.startTyping();
-            const attachment = new Discord.Attachment(await bot.generateProfileImage(target, message.guild), "profile.png");
+            const attachment = new Discord.Attachment(await (message.getBool("profile.useNewProfile") ? bot.generateNewProfileImage(target, message.guild) :  bot.generateProfileImage(target, message.guild)), "profile.png");
             message.channel.send("", attachment);
             message.channel.stopTyping();
         }else{
