@@ -99,12 +99,12 @@ module.exports = {
             if(now-bot.lastPresenceUpdate>100000) {
                 bot.lastPresenceUpdate = now;
                 const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-                bot.client.user.setPresence({
-                    game: {
-                        name: `${bot.presenceMessage ? bot.presenceMessage : bot.util.arrayRand(presenceMessages)} | ${serverCount.toLocaleString()} servers.`,
-                        type: "LISTENING"
-                    }
-                });
+               bot.client.user.setPresence({
+                  game: {
+                      name: `${bot.presenceMessage ? bot.presenceMessage : bot.util.arrayRand(presenceMessages)} | ${serverCount.toLocaleString()} servers.`,
+                      type: "LISTENING"
+                  }
+               });
             }
         };
 
@@ -161,6 +161,8 @@ module.exports = {
                 });
                 bot.updatePresence();
                 try {
+                    if(!guild.region)return;
+                    if(!guild.available)return;
                     let lang = "en-gb";
                     if(guild.region.startsWith("us"))
                         lang = "en-us";
@@ -205,8 +207,8 @@ module.exports = {
         bot.client.on("guildDelete", function leaveGuild(guild){
             Sentry.configureScope(async function leaveGuild(scope){
                 bot.logger.log(`Left server ${guild.id} (${guild.name})`);
-                if(guild.unavailable)
-                    return bot.logger.warn("Left due to discord issues");
+                if(!guild.available)
+                    return bot.logger.warn("Guild is unavailable, probably discord issues.");
                 scope.addBreadcrumb({
                     category: "discord",
                     message: "guildCreate",
@@ -244,10 +246,6 @@ module.exports = {
             });
         });
 
-        bot.client.on("webhookUpdate", function webhookUpdate(channel){
-
-        });
-
         bot.client.on("error", function websocketError(evt){
             bot.logger.log("Websocket Error");
             bot.logger.log(evt);
@@ -256,6 +254,7 @@ module.exports = {
 
         bot.client.on("guildUnavailable", function guildUnavailable(guild){
             bot.logger.warn(`Guild ${guild.id} has become unavailable.`);
+            lastWebhook = (new Date()).getTime()+120000; //Quick hack to fix webhook spam during outages
             Sentry.getCurrentHub().addBreadcrumb({
                 category: "discord",
                 message: "guildUnavailable",
