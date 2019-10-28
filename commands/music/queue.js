@@ -24,6 +24,8 @@ module.exports = {
         await message.channel.startTyping();
         try {
             let song = await music.addToQueue(guild, query, message.author.id);
+            if(!music.listeners[guild])
+                return message.channel.send(":thinking: Something went horribly wrong whilst queueing this song. Please try again.")
             if (music.listeners[guild].queue.length > 0) {
                 if (!song)
                     return message.channel.send(":warning: No results.");
