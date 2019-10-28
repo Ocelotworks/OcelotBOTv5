@@ -154,7 +154,7 @@ module.exports = {
                 required = bot.util.intBetween(5, 50);
             bot.logger.log(`${user.username} assigned role ${role.name} against ${target} with requirement ${required}`);
             await bot.database.assignSpookRole(role.id, user.id, target.id, required, guild.id, spooker.id);
-
+            if(!user)return;
             let dm = await user.createDM();
             //let dm = await bot.client.users.get("139871249567318017").createDM();
             let embed = new Discord.RichEmbed();
