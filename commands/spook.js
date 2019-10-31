@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const end = new Date("1 November 2019");
 const start = new Date("1 October 2019");
 const teaserStart = new Date("29 August 2019");
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "Spook",
     usage: "spook <user>",
@@ -314,33 +315,68 @@ module.exports = {
             bot.logger.log("Notifying Servers...");
             const servers = await bot.database.getParticipatingServers();
             for(let i = 0; i < servers.length; i++){
-                let server = servers[i].server;
-                if(bot.client.guilds.has(server)){
-                    const spooked = await bot.database.getSpooked(server);
-                    const spookChannel = await bot.spook.getSpookChannel(server, spooked);
-                    await bot.sendSpookEnd(server, spookChannel, spooked);
+                try {
+                    let server = servers[i].server;
+                    if (bot.client.guilds.has(server)) {
+                        const spooked = await bot.database.getSpooked(server);
+                        const spookChannel = await bot.spook.getSpookChannel(server, spooked);
+                        if (!spookChannel) return;
+                        Sentry.addBreadcrumb({
+                            message: "Processing spook end.",
+                            level: Sentry.Severity.Info,
+                            category:  "spook",
+                            data: {
+                                spooked,
+                                spookChannel: spookChannel.id,
+                                server
+                            }
+                        });
+                        await bot.sendSpookEnd(server, spookChannel, spooked);
 
-                    let serverObject = bot.client.guilds.get(server);
-                    let completed = await bot.database.getCompletedRoles(server);
-                    let banks = {};
-                    for(let i = 0; i < completed.length; i++){
-                        let row = completed[i];
-                        if(!serverObject.members.has(row.user))continue;
-                        if(banks[badgeMappings[row.role]])
-                            banks[badgeMappings[row.role]].push(row.user);
-                        else
-                            banks[badgeMappings[row.role]] =  [row.user];
+                        let serverObject = bot.client.guilds.get(server);
+                        let completed = await bot.database.getCompletedRoles(server);
+                        let banks = {};
+                        for (let i = 0; i < completed.length; i++) {
+                            let row = completed[i];
+                            if (!serverObject.members.has(row.user)) continue;
+                            Sentry.addBreadcrumb({
+                                message: "Checking completed role",
+                                level: Sentry.Severity.Info,
+                                category:  "spook",
+                                data: {
+                                    row,
+                                }
+                            });
+                            if (banks[badgeMappings[row.role]])
+                                banks[badgeMappings[row.role]].push(row.user);
+                            else
+                                banks[badgeMappings[row.role]] = [row.user];
+                        }
+
+                        const keys = Object.keys(banks);
+                        for (let i = 0; i < keys.length; i++) {
+                            let badge = keys[i];
+                            let users = banks[badge];
+                            Sentry.addBreadcrumb({
+                                message: "Giving badge",
+                                level: Sentry.Severity.Info,
+                                category:  "spook",
+                                data: {users, badge}
+                            });
+                            await bot.badges.giveBadgesOnce(users, spookChannel, badge);
+                        }
+
+                        let sabCompleted = await bot.database.getCompletedSabRole(server, spooked);
+                        Sentry.addBreadcrumb({
+                            message: "Checking completed sab roles",
+                            level: Sentry.Severity.Info,
+                            category:  "spook",
+                            data: {sabCompleted}
+                        });
+                        await bot.badges.giveBadgesOnce(sabCompleted.map((s) => s.user), spookChannel, 69);//Nice
                     }
-
-                    const keys = Object.keys(banks);
-                    for(let i = 0; i < keys.length; i++){
-                        let badge = keys[i];
-                        let users = banks[badge];
-                        await bot.badges.giveBadgesOnce(users, spookChannel, badge);
-                    }
-
-                    let sabCompleted = await bot.database.getCompletedSabRole(server, spooked);
-                    await bot.badges.giveBadgesOnce(sabCompleted.map((s)=>s.user), spookChannel, 69);//Nice
+                }catch(e){
+                    Sentry.captureException(e);
                 }
             }
 
