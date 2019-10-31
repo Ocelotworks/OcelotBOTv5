@@ -33,7 +33,7 @@
     "google-images": "^2.1.0",
     "influx": "^5.0.7",
     "ioredis": "latest",
-    "knex": "^0.16.5",
+    "knex": "^0.19.5",
     "lavalink": "latest",
     "lavaqueue": "^3.1.4",
     "mathjs": "^5.9.0",
