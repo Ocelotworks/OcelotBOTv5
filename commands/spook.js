@@ -70,7 +70,7 @@ module.exports = {
                 setTeaserMessage();
                 bot.util.setLongTimeout(activateSpooking, startDiff);
             }
-            if(endDiff > 0)
+            if(endDiff > 0 && endDiff < -60000)
                 bot.util.setLongTimeout(bot.spook.end, endDiff);
         });
 
