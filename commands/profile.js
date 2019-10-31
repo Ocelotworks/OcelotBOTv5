@@ -368,6 +368,26 @@ module.exports = {
             return bot.badges.giveBadge(user, channel, id);
         };
 
+
+        bot.badges.giveBadgesOnce = async function(users, channel, id){
+            const skip = await bot.database.haveBadge(users, id);
+            let output = "";
+            for(let i = 0; i < users.length; i++){
+                const user = users[i];
+                if(skip.indexOf(user) > -1)continue;
+                output += `<@${user}> `;
+                await bot.database.giveBadge(user, id);
+            }
+            if(output.length === 0)return;
+            const badge = (await bot.database.getBadge(id))[0];
+            let embed = new Discord.RichEmbed();
+            embed.setThumbnail(`https://ocelot.xyz/badge.php?id=${id}`);
+            embed.setTitle(`You just earned ${badge.name}`);
+            embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
+            embed.setColor("#3ba13b");
+            await channel.send(output, embed);
+        };
+
         bot.badges.updateBadge = async function updateBadge(user, series, value, channel){
             if(bot.config.get("global", "profile.disableBadgeUpdates") && bot.config.get("global", "profile.disableBadgeUpdates") === "1")return;
             const userID = user.id;

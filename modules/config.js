@@ -1,3 +1,4 @@
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "Configuration Manager",
     init: function(bot){
@@ -30,6 +31,9 @@ module.exports = {
                     bot.config.cache.global[row.setting] = row.value;
                 }
                 bot.logger.log(`Loaded ${Object.keys(bot.config.cache.global).length} global config keys`);
+            }).catch(function(err){
+                Sentry.captureException(err);
+                bot.config.cache.global = {};
             });
         };
 

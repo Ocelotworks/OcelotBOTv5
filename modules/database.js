@@ -593,6 +593,12 @@ module.exports = {
                     total: await knex.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({series})
                 }
             },
+            getCompletedRoles: function(server) {
+                return knex.select("user", "role").from("ocelotbot_spook_role_assignments").where("required", "=", "current").andWhereNot({role: 3}).andWhere({server});
+            },
+            getCompletedSabRole: function(server, spooked){
+                return knex.select("user").from("ocelotbot_spook_role_assignments").where({role: 4, spooked, server});
+            },
             /**
              * Gets all servers that have participated in the spooking
              * @returns {Array|*}
@@ -645,7 +651,7 @@ module.exports = {
                 return {
                     mostSpooked: (await knex.select("spooked", knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server, series}).andWhereNot({"spooker": bot.client.user.id}).groupBy("spooked").orderByRaw("COUNT(*) DESC").limit(1))[0],
                     totalSpooks: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server, series}))[0]['COUNT(*)'],
-                    allSpooks: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({series})),
+                    allSpooks: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({series}))[0]['COUNT(*)'],
                     //I'm sorry papa
                     longestSpook: (await knex.select("spooked", knex.raw("TIMESTAMPDIFF(SECOND, timestamp, (SELECT timestamp FROM ocelotbot_spooks AS spooks3 WHERE id = (SELECT min(id) FROM ocelotbot_spooks AS spooks2 WHERE spooks2.id > ocelotbot_spooks.id AND spooks2.server = ocelotbot_spooks.server))) as diff")).from("ocelotbot_spooks").where({server, series}).orderBy("diff", "DESC").limit(1))[0]
                 }
@@ -717,7 +723,10 @@ module.exports = {
                 return knex.select().from("ocelotbot_badges").where({id}).limit(1);
             },
             hasBadge: async function(user, badge){
-                return (await knex.select().from("ocelotbot_badge_assignments").where({user: user, badge: badge}).limit(1)).length > 0
+                return (await knex.select().from("ocelotbot_badge_assignments").where({user, badge}).limit(1)).length > 0
+            },
+            haveBadge: async function(users, badge){
+                return knex.select("user").where({badge}).whereIn("user", users).from("ocelotbot_badge_assignments");
             },
             removeBadge: function(user, badge){
                 return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge});

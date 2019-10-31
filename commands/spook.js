@@ -61,6 +61,7 @@ module.exports = {
             const now = new Date();
             const teaserDiff = teaserStart-now;
             const startDiff = start-now;
+            const endDiff = start-end;
             if(startDiff <= 0) {
               activateSpooking();
             } else if(teaserDiff <= 0){
@@ -68,6 +69,8 @@ module.exports = {
                 setTeaserMessage();
                 bot.util.setLongTimeout(activateSpooking, startDiff);
             }
+            if(endDiff > 0)
+                bot.util.setLongTimeout(bot.spook.end, endDiff);
         });
 
 
@@ -88,8 +91,9 @@ module.exports = {
             bot.spook.generateNew(member.guild.id);
         });
 
-        bot.spook.getSpookChannel = async function getLastSpookChannel(server){
-            let spooked = await bot.database.getSpooked(server);
+        bot.spook.getSpookChannel = async function getLastSpookChannel(server, spooked){
+            if(!spooked)
+                spooked = await bot.database.getSpooked(server);
             if(!spooked || !spooked[0])
                 return bot.util.determineMainChannel(bot.client.guilds.get(server));
 
@@ -265,6 +269,8 @@ module.exports = {
         };
 
         bot.spook.generateNew = async function generateNew(server){
+            const now = new Date();
+            if(now-end <= 0)return;
             if(!bot.client.guilds.has(server)) //No longer exists
                 return bot.logger.warn("Spooked guild no longer exists");
 
@@ -295,92 +301,110 @@ module.exports = {
             channel.sendLang(left ? "SPOOK_USER_LEFT" : "SPOOK_USER_IDLE", {old: lastSpooked, spooked: targetUser.id});
         };
 
+        const badgeMappings = {
+            2: 68,
+            1: 71,
+            4: 70,
+        };
 
-        bot.doSpookEnd = async function doSpookEnd(){
-            // const now = new Date();
+
+        //I feel like I'm doing my homework the day before it's due
+        bot.spook.end = async function doSpookEnd(){
+            bot.logger.warn("***TRIGGERING SPOOK END***");
+            bot.logger.log("Notifying Servers...");
+            const servers = await bot.database.getParticipatingServers();
+            for(let i = 0; i < servers.length; i++){
+                let server = servers[i].server;
+                if(bot.client.guilds.has(server)){
+                    const spooked = await bot.database.getSpooked(server);
+                    const spookChannel = await bot.spook.getSpookChannel(server, spooked);
+                    await bot.sendSpookEnd(server, spookChannel, spooked);
+
+                    let serverObject = bot.client.guilds.get(server);
+                    let completed = await bot.database.getCompletedRoles(server);
+                    let banks = {};
+                    for(let i = 0; i < completed.length; i++){
+                        let row = completed[i];
+                        if(!serverObject.members.has(row.user))continue;
+                        if(banks[badgeMappings[row.role]])
+                            banks[badgeMappings[row.role]].push(row.user);
+                        else
+                            banks[badgeMappings[row.role]] =  [row.user];
+                    }
+
+                    const keys = Object.keys(banks);
+                    for(let i = 0; i < keys.length; i++){
+                        let badge = keys[i];
+                        let users = banks[badge];
+                        await bot.badges.giveBadgesOnce(users, spookChannel, badge);
+                    }
+
+                    let sabCompleted = await bot.database.getCompletedSabRole(server, spooked);
+                    await bot.badges.giveBadgesOnce(sabCompleted.map((s)=>s.user), spookChannel, 69);//Nice
+                }
+            }
+
+
+            //bot.logger.log("Allocating Badges...");
+           // const users = await bot.database.getParticipatingUsers();
+            // for(let j = 0; j < users.length; j++) {
+            //     const userRow = users[j];
+            //     if (!await bot.database.hasBadge(userRow.spooker, 2)) {
+            //         bot.logger.log("Given spook participant badge to "+userRow.spooker);
+            //         await bot.database.giveBadge(userRow.spooker, 2);
+            //     }
             //
-            // bot.logger.warn("***TRIGGERING SPOOK END***");
-            //
-            // bot.logger.log("Notifying Servers...");
-            // const servers = await bot.database.getParticipatingServers();
-            // for(let i = 0; i < servers.length; i++){
-            //     const server = servers[i];
-            //     if(bot.client.guilds.has(server.server)){
-            //         bot.sendSpookEnd(server.server);
+            //     if (userRow.spooker !== userRow.spooked && !await bot.database.hasBadge(userRow.spooked, 2)) {
+            //         bot.logger.log("Given spook participant badge to "+userRow.spooked);
+            //         await bot.database.giveBadge(userRow.spooked, 2);
             //     }
             // }
 
-
-            bot.logger.log("Allocating Badges...");
-            const users = await bot.database.getParticipatingUsers();
-            for(let j = 0; j < users.length; j++) {
-                const userRow = users[j];
-                if (!await bot.database.hasBadge(userRow.spooker, 2)) {
-                    bot.logger.log("Given spook participant badge to "+userRow.spooker);
-                    await bot.database.giveBadge(userRow.spooker, 2);
-                }
-
-                if (userRow.spooker !== userRow.spooked && !await bot.database.hasBadge(userRow.spooked, 2)) {
-                    bot.logger.log("Given spook participant badge to "+userRow.spooked);
-                    await bot.database.giveBadge(userRow.spooked, 2);
-                }
-            }
-
-            // bot.logger.log("Setting the presence...");
-            // const serverCount  = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-            // bot.presenceMessage = "Thank you for playing!";
-            // bot.client.user.setPresence({
-            //     game: {
-            //         name: `Thank you for playing! | ${serverCount} servers.`,
-            //         type: "LISTENING"
-            //     }
-            // });
-            //
-            //
-
-
-        };
-
-        bot.sendSpookEnd = async function sendSpookSend(id, channel){
-            if(!bot.client.guilds.has(id))return;
-            const server = bot.client.guilds.get(id);
-            const spooked = await bot.database.getSpooked(id);
-            if(!spooked[0]){
-                bot.logger.warn(`${server.name} (${server.id}) didn't participate in the spooking.`);
-            }else {
-                const loser = spooked[0].spooked;
-                bot.logger.log(`Sending spook end for ${server.name} (${server.id})`);
-                let eligibleChannels;
-                if (!channel) {
-                    eligibleChannels = server.channels.filter(function (channel) {
-                        return channel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
+            bot.updatePresence = async function(){
+                const now = new Date();
+                if(now-bot.lastPresenceUpdate>100000) {
+                    bot.lastPresenceUpdate = now;
+                    const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+                    bot.client.user.setPresence({
+                        game: {
+                            name: `Thank you for playing! | in ${serverCount} servers.`,
+                            type: "WATCHING"
+                        }
                     });
                 }
-                const targetChannel = channel || eligibleChannels.first();
-                bot.logger.log(`Target channel for ${server.name} (${server.id}) is ${targetChannel.name} (${targetChannel.id})`);
-
-                const spookStats = await bot.database.getSpookStats(id);
-
-                let embed = new Discord.RichEmbed();
-                embed.setColor(0xd04109);
-                embed.setTitle("The Spooking Has Ended.");
-                embed.setTimestamp(new Date());
-                embed.setFooter("Happy Halloween!", bot.client.user.avatarURL);
-                embed.setDescription(`<@${loser}> is the loser!**\nThank you all for participating in the 2nd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greately appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelot.xyz/premium?ref=spook)`);
-                embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${parseInt((spookStats.totalSpooks/spookStats.allSpooks)*100)}% of all spooks.)`);
-                embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
-                embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff)})`);
-                targetChannel.send("", embed);
-
-
-                if(!await bot.database.hasBadge(loser, 1))
-                    await bot.database.giveBadge(loser, 1);
             }
         };
 
+        bot.sendSpookEnd = async function sendSpookSend(id, channel, spooked){
+            if(!bot.client.guilds.has(id))return;
+            const server = bot.client.guilds.get(id);
+            if(!spooked[0])
+                return bot.logger.warn(`${server.name} (${server.id}) didn't participate in the spooking.`);
 
+            const loser = spooked[0].spooked;
+            bot.logger.log(`Sending spook end for ${server.name} (${server.id})`);
+            let eligibleChannels;
+            if (!channel) {
+                eligibleChannels = server.channels.filter(function (channel) {
+                    return channel.permissionsFor(bot.client.user).has("SEND_MESSAGES");
+                });
+            }
+            const targetChannel = channel || eligibleChannels.first();
+            bot.logger.log(`Target channel for ${server.name} (${server.id}) is ${targetChannel.name} (${targetChannel.id})`);
 
+            const spookStats = await bot.database.getSpookStats(id);
 
+            let embed = new Discord.RichEmbed();
+            embed.setColor(0xd04109);
+            embed.setTitle("The Spooking Has Ended.");
+            embed.setTimestamp(new Date());
+            embed.setFooter("Happy Halloween!", bot.client.user.avatarURL);
+            embed.setDescription(`**<@${loser}> is the loser!**\nThank you all for participating in the 2nd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greately appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelot.xyz/premium?ref=spook)`);
+            embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${Math.floor((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)}% of all spooks.)`);
+            embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
+            embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff)})`);
+            await targetChannel.send("", embed);
+        };
     },
     run: async function(message, args, bot){
         if(!message.guild)
