@@ -16,7 +16,8 @@ const presenceMessages = [
     "is this thing on",
     "cha cha real smooth",
     "stonks",
-    "farts"
+    "farts",
+    "#TeamTree"
 ];
 
 
