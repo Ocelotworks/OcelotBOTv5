@@ -70,6 +70,7 @@
   },
   "devDependencies": {
     "ava": "^2.3.0",
-    "blessed": "latest"
+    "blessed": "latest",
+    "omegle-node": "^1.1.4"
   }
 }

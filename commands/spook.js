@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 const end = new Date("1 November 2019");
 const start = new Date("1 October 2019");
 const teaserStart = new Date("29 August 2019");
-const Sentry = require('@sentry/node');
 module.exports = {
     name: "Spook",
     usage: "spook <user>",
@@ -57,40 +56,39 @@ module.exports = {
             }
         }
 
-        bot.client.on("ready", async function ready(){
-            bot.rabbit.channel.assertQueue("spook");
-            const now = new Date();
-            const teaserDiff = teaserStart-now;
-            const startDiff = start-now;
-            const endDiff = start-end;
-            if(startDiff <= 0) {
-              activateSpooking();
-            } else if(teaserDiff <= 0){
-                bot.logger.log("Spook teaser time");
-                setTeaserMessage();
-                bot.util.setLongTimeout(activateSpooking, startDiff);
-            }
-            if(endDiff > 0 && endDiff < -60000)
-                bot.util.setLongTimeout(bot.spook.end, endDiff);
-        });
+        // bot.client.on("ready", async function ready(){
+        //     bot.rabbit.channel.assertQueue("spook");
+        //     const now = new Date();
+        //     const teaserDiff = teaserStart-now;
+        //     const startDiff = start-now;
+        //     const endDiff = start-end;
+        //     if(startDiff <= 0) {
+        //       activateSpooking();
+        //     } else if(teaserDiff <= 0){
+        //         bot.logger.log("Spook teaser time");
+        //         setTeaserMessage();
+        //         bot.util.setLongTimeout(activateSpooking, startDiff);
+        //     }
+        //     setTimeout(bot.spook.end, 20000*(bot.client.shard.id+1))
+        // });
 
 
 
 
-        bot.client.on("message", function spookTimeout(message){
-            if(!message.guild)return;
-            if(!bot.spook.spooked[message.guild.id])return;
-            if(!bot.spook.spooked[message.guild.id].user === message.author.id)return;
-            clearTimeout(bot.spook.spooked[message.guild.id].timer);
-            bot.spook.spooked[message.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, message.guild.id);
-        });
+        // bot.client.on("message", function spookTimeout(message){
+        //     if(!message.guild)return;
+        //     if(!bot.spook.spooked[message.guild.id])return;
+        //     if(!bot.spook.spooked[message.guild.id].user === message.author.id)return;
+        //     clearTimeout(bot.spook.spooked[message.guild.id].timer);
+        //     bot.spook.spooked[message.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, message.guild.id);
+        // });
 
-        bot.client.on("guildMemberRemove", function spookLeaveCheck(member){
-            if(!bot.spook.spooked[member.guild.id])return;
-            if(bot.spook.spooked[member.guild.id].user !== member.id)return;
-            bot.logger.log("Spooked user left, generating new...");
-            bot.spook.generateNew(member.guild.id);
-        });
+        // bot.client.on("guildMemberRemove", function spookLeaveCheck(member){
+        //     if(!bot.spook.spooked[member.guild.id])return;
+        //     if(bot.spook.spooked[member.guild.id].user !== member.id)return;
+        //     bot.logger.log("Spooked user left, generating new...");
+        //     bot.spook.generateNew(member.guild.id);
+        // });
 
         bot.spook.getSpookChannel = async function getLastSpookChannel(server, spooked){
             if(!spooked)
@@ -315,68 +313,36 @@ module.exports = {
             bot.logger.log("Notifying Servers...");
             const servers = await bot.database.getParticipatingServers();
             for(let i = 0; i < servers.length; i++){
-                try {
-                    let server = servers[i].server;
-                    if (bot.client.guilds.has(server)) {
-                        const spooked = await bot.database.getSpooked(server);
-                        const spookChannel = await bot.spook.getSpookChannel(server, spooked);
-                        if (!spookChannel) return;
-                        Sentry.addBreadcrumb({
-                            message: "Processing spook end.",
-                            level: Sentry.Severity.Info,
-                            category:  "spook",
-                            data: {
-                                spooked,
-                                spookChannel: spookChannel.id,
-                                server
-                            }
-                        });
-                        await bot.sendSpookEnd(server, spookChannel, spooked);
-
-                        let serverObject = bot.client.guilds.get(server);
-                        let completed = await bot.database.getCompletedRoles(server);
-                        let banks = {};
-                        for (let i = 0; i < completed.length; i++) {
-                            let row = completed[i];
-                            if (!serverObject.members.has(row.user)) continue;
-                            Sentry.addBreadcrumb({
-                                message: "Checking completed role",
-                                level: Sentry.Severity.Info,
-                                category:  "spook",
-                                data: {
-                                    row,
-                                }
-                            });
-                            if (banks[badgeMappings[row.role]])
-                                banks[badgeMappings[row.role]].push(row.user);
-                            else
-                                banks[badgeMappings[row.role]] = [row.user];
-                        }
-
-                        const keys = Object.keys(banks);
-                        for (let i = 0; i < keys.length; i++) {
-                            let badge = keys[i];
-                            let users = banks[badge];
-                            Sentry.addBreadcrumb({
-                                message: "Giving badge",
-                                level: Sentry.Severity.Info,
-                                category:  "spook",
-                                data: {users, badge}
-                            });
-                            await bot.badges.giveBadgesOnce(users, spookChannel, badge);
-                        }
-
-                        let sabCompleted = await bot.database.getCompletedSabRole(server, spooked);
-                        Sentry.addBreadcrumb({
-                            message: "Checking completed sab roles",
-                            level: Sentry.Severity.Info,
-                            category:  "spook",
-                            data: {sabCompleted}
-                        });
-                        await bot.badges.giveBadgesOnce(sabCompleted.map((s) => s.user), spookChannel, 69);//Nice
+                let server = servers[i].server;
+                if(bot.client.guilds.has(server)){
+                    const spooked = await bot.database.getSpooked(server);
+                    const spookChannel = await bot.spook.getSpookChannel(server, spooked);
+                    bot.logger.log(`Sending spook end for ${server} ${spooked} ${spookChannel}`)
+                    await bot.sendSpookEnd(server, spookChannel, spooked);
+                    continue;
+                    let serverObject = bot.client.guilds.get(server);
+                    let completed = await bot.database.getCompletedRoles(server);
+                    let banks = {};
+                    for(let i = 0; i < completed.length; i++){
+                        let row = completed[i];
+                        if(!serverObject.members.has(row.user))continue;
+                        if(banks[badgeMappings[row.role]])
+                            banks[badgeMappings[row.role]].push(row.user);
+                        else
+                            banks[badgeMappings[row.role]] =  [row.user];
                     }
-                }catch(e){
-                    Sentry.captureException(e);
+
+                    const keys = Object.keys(banks);
+                    for(let i = 0; i < keys.length; i++){
+                        let badge = keys[i];
+                        let users = banks[badge];
+                        await bot.badges.giveBadgesOnce(users, spookChannel, badge);
+                    }
+
+                    let sabCompleted = await bot.database.getCompletedSabRole(server, spooked);
+                    await bot.badges.giveBadgesOnce(sabCompleted.map((s)=>s.user), spookChannel, 69);//Nice
+                }else{
+                    bot.logger.log(`This shard does not have ${server}`)
                 }
             }
 
@@ -411,10 +377,10 @@ module.exports = {
             }
         };
 
-        bot.sendSpookEnd = async function sendSpookSend(id, channel, spooked){
-            if(!bot.client.guilds.has(id))return;
+        bot.sendSpookEnd = async function sendSpookEnd(id, channel, spooked){
+            if(!bot.client.guilds.has(id))return bot.logger.warn("Server does not exist");
             const server = bot.client.guilds.get(id);
-            if(!spooked[0])
+            if(!spooked || !spooked[0])
                 return bot.logger.warn(`${server.name} (${server.id}) didn't participate in the spooking.`);
 
             const loser = spooked[0].spooked;
@@ -451,7 +417,7 @@ module.exports = {
             return message.replyLang("SPOOK_TEASER", {time: bot.util.prettySeconds((start-now)/1000)});
 
         if(end-now <= 0)
-            return bot.sendSpookEnd(message.guild.id, message.channel);
+            return bot.sendSpookEnd(message.guild.id, message.channel, await bot.database.getSpooked(message.guild.id));
 
         if(args.length > 1){
             const canSpook = await bot.database.canSpook(message.author.id, message.guild.id);

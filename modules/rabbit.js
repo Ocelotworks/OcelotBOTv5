@@ -14,9 +14,9 @@ module.exports = {
         bot.rabbit.channel = await bot.rabbit.connection.createChannel();
         bot.rabbit.rpcChannel = await bot.rabbit.connection.createChannel();
         bot.rabbit.pubsub = {};
-        bot.rabbit.queue = function(name, payload){
+        bot.rabbit.queue = function(name, payload, properties){
             bot.rabbit.channel.assertQueue(name);
-            bot.rabbit.channel.addToQueue(name, Buffer.from(JSON.stringify(payload)));
+            bot.rabbit.channel.sendToQueue(name, Buffer.from(JSON.stringify(payload)), properties);
         };
         let replyCount = 0;
         let waitingCallbacks = {};
