@@ -13,23 +13,15 @@ module.exports = {
     rateLimit: 100,
     commands: ["overlay", "combine"],
     run: async function run(message, args, bot) {
-        if(args.length < 2)
-            return message.channel.send("You must enter 2 images to overlay. e.g !overlay @user1 @user2");
-
-
-
         let url1 = await bot.util.getImage(message,  args, 1);
         let url2 = await bot.util.getImage(message,  args, 2);
-        if(!url1)
+        if(!url1 || !url2)
             return message.channel.send("You must enter 2 images.");
 
-        if(!url2) {
-            let newImage = await bot.util.getImageFromPrevious(message);
-            if(newImage){
-                url2 = url1;
-                url1 = newImage;
-            }else
-                return message.channel.send("You must enter 2 images.");
+        if(!args[2]){
+            const tempUrl1 = url1;
+            url1 = url2;
+            url2 = tempUrl1;
         }
 
         const image1 = await canvas.loadImage(url1);

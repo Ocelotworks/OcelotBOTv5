@@ -24,6 +24,12 @@ module.exports = {
         if(!url1 || !url2)
             return message.channel.send("You must enter 2 images.");
 
+        if(!args[2]){
+            const tempUrl1 = url1;
+            url1 = url2;
+            url2 = tempUrl1;
+        }
+
         const image1 = await canvas.loadImage(url1);
         const image2 = await canvas.loadImage(url2);
 
