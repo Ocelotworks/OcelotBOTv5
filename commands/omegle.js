@@ -28,7 +28,7 @@ module.exports = {
                             bot.client.channels.get(msg.data.channel).send("> "+(msg.data.message.replace(/'/, "")));
                             break;
                         case "isOtherServer":
-                            bot.client.channels.get(msg.data.channel).send("<:ocelotbot:533369578114514945> The stranger is another OcelotBOT user.");
+                            bot.client.channels.get(msg.data.channel).send("The stranger is another OcelotBOT user!");
                             break;
                         case "disconnected":
                             bot.client.channels.get(msg.data).send("The stranger has disconnected.");
@@ -82,7 +82,7 @@ module.exports = {
                 if (message.author.bot)return;
                 if (message.content.startsWith(message.getSetting("prefix")))return;
                 if(waitingMessages[message.channel.id])return;
-                bot.rabbit.queue("omegle", {type: "message", data: {channel: message.channel.id, message: message.cleanContent}}, {replyTo: "omegle-"+bot.client.shard.id});
+                bot.rabbit.queue("omegle", {type: "message", data: {channel: message.channel.id, message: message.cleanContent.replace(/'/g, "")}}, {replyTo: "omegle-"+bot.client.shard.id});
             });
 
             messageCollectors[message.channel.id].on("end", function(){
