@@ -481,12 +481,16 @@ module.exports = {
             try {
                 if(argument){
                     const arg = args[argument];
-                    if(!arg)return null;
-                    const user = bot.util.getUserFromMention(arg);
-                    if(user) return user.avatarURL;
-                    if(arg.startsWith("http"))return arg;
-                    const emoji = bot.util.getEmojiURLFromMention(arg);
-                    if(emoji)return emoji;
+                    if(arg) {
+                        const user = bot.util.getUserFromMention(arg);
+                        if (user) return user.avatarURL;
+                        if (arg.startsWith("https://tenor.com/"))return await bot.util.getImageFromTenorURL(arg);
+                        if (arg.startsWith("http")) return arg;
+                        const emoji = bot.util.getEmojiURLFromMention(arg);
+                        if (emoji) return emoji;
+                        return null;
+                    }
+                    return bot.util.getImageFromPrevious(message, argument);
                 }else if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
                     return message.mentions.users.first().avatarURL;
                 } else if (args[2] && args[2].indexOf("http") > -1) {
@@ -544,11 +548,17 @@ module.exports = {
         /**
          * Get an image from previous messages
          * @param {Object} message
+         * @param {Number} argument
          * @returns {Promise.<*>}
          */
-        bot.util.getImageFromPrevious = async function getImageFromPrevious(message){
+        bot.util.getImageFromPrevious = async function getImageFromPrevious(message, argument){
             const previousMessages = (await message.channel.fetchMessages({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
+            let offset = 0;
             const targetMessage = previousMessages.find((previousMessage) =>{
+                if(argument && offset++ < argument){
+                    console.log(argument, offset);
+                    return false;
+                }
                 if(previousMessage.content.startsWith("http"))return true;
                 if(previousMessage.attachments && previousMessage.attachments.size > 0)return true;
                 return (previousMessage.embeds && previousMessage.embeds.length > 0 && previousMessage.embeds[0].image);
