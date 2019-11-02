@@ -17,7 +17,7 @@ async function init(){
     tracer.init({
         analytics: true
     });
-    let con = await amqplib.connect(config.get("RabbitMQ.host"));
+    let con = await amqplib.connect(config.get("RabbitMQ.productionHost"));
     let channel = await con.createChannel();
 
 
@@ -28,7 +28,7 @@ async function init(){
     }
 
     channel.assertQueue('imageFilter');
-    channel.prefetch(5);
+    channel.prefetch(5);pro
 
     channel.consume('imageFilter', function(msg){
         console.log("Processing "+msg.content.toString());
