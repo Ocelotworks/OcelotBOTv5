@@ -29,12 +29,14 @@ module.exports = {
                             bot.client.channels.get(msg.data.channel).send("> "+(msg.data.message.replace(/'/, "")));
                             break;
                         case "isOtherServer":
-                            bot.client.channels.get(msg.data.channel).send("The stranger is another OcelotBOT user!");
+                            bot.client.channels.get(msg.data).send("The stranger is another OcelotBOT user!");
                             break;
                         case "disconnected":
                             bot.client.channels.get(msg.data).send("The stranger has disconnected.");
-                            messageCollectors[msg.data].stop();
-                            delete messageCollectors[msg.data];
+                            if(messageCollectors[msg.data]) {
+                                messageCollectors[msg.data].stop();
+                                delete messageCollectors[msg.data];
+                            }
                             break;
                         case "waiting":
                             if(waitingMessages[msg.data])
