@@ -13,17 +13,14 @@ module.exports = {
     received: function received(broker){
         broker.logger.warn("Respawning all shards.");
         for(let i = 0; i < broker.manager.totalShards; i++) {
-            if(!broker.shardTasks[i]){
-                broker.logger.log(`Shard ${i} can be restarted now`);
-                setTimeout(function(){
-                    broker.manager.shards.get(i).respawn();
-                }, i*5000);
-            }else if(broker.awaitingRestart.indexOf(i) === -1){
+            if(broker.awaitingRestart.indexOf(i) === -1){
                 broker.awaitingRestart.push(i);
             }else{
                 broker.logger.warn(`Shard ${i} is already waiting to be respawned!`)
             }
         }
+        if(broker.awaitingRestart.length > 0)
+            broker.manager.shards.get(broker.awaitingRestart.pop()).respawn();
         console.log(broker.awaitingRestart);
     }
 };

@@ -122,6 +122,8 @@ module.exports = {
                     bot.logger.warn("Leaving orphaned voice "+connection.channel);
                     connection.disconnect();
                 });
+
+                bot.client.shard.send({"type": "ready"});
             });
         });
 
