@@ -38,6 +38,7 @@ module.exports = {
         bot.lang.getTranslation = function getTranslation(server, key, format = {}, author){
             return new Promise(async function(fulfill){
                 format.prefix = bot.config.get(server, "prefix", author);
+                format.botName = bot.client.user.username;
                 const langOverride = bot.config.get(server, "lang."+key, author);
 
                 if(bot.config.getBool(server, "lang.debug", author))
