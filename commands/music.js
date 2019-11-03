@@ -332,7 +332,7 @@ module.exports = {
     playSong: function playSong(listener){
         Sentry.configureScope(async function(scope){
             if(listener.playing.info.length <= 1000){
-                listener.channel.replyLang("MUSIC_PLAY_SHORT");
+                listener.channel.sendLang("MUSIC_PLAY_SHORT");
                 return module.exports.playNextInQueue(listener.server);
             }
 
@@ -344,7 +344,7 @@ module.exports = {
             if(listener.playing.info.length >= 3.6e+6) { //1 hour
                 listener.checkInterval = setInterval(async function checkInterval() {
                     if(listener.voiceChannel.members.size === 1){
-                        //listener.channel.replyLang("MUSIC_PLAY_INACTIVE"); hm
+                        listener.channel.sendLang("MUSIC_PLAY_INACTIVE");
                         if(listener && listener.connection)
                             await listener.connection.leave();
                         module.exports.deconstructListener(listener.server);
