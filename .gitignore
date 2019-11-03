@@ -1,9 +1,7 @@
 /node_modules
 /.idea
 *.iml
-/config/production.json
-/config/development.json
-/config/Earth.json
+/config
 anex.js
 npm-debug.log
 /z5saves
