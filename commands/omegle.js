@@ -22,7 +22,7 @@ module.exports = {
                     console.log(msg);
                     switch(msg.type){
                         case "error":
-                            if(msg.data.data.error.indexOf("disconnect") > -1)
+                            if(msg.data.data.error.indexOf("disconnect") === -1)
                                 bot.client.channels.get(msg.data.channel).sendLang(msg.data.lang, msg.data.data);
                             break;
                         case "message":
