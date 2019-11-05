@@ -17,7 +17,19 @@ module.exports = {
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["calc", "calculator", "math"],
-    init: function(bot){
+    init: function(bot, test = false){
+        if(test){
+            math.import({
+                'import': function () { throw new Error('Function import is disabled') },
+                'createUnit': function () { throw new Error('Function createUnit is disabled') },
+                'eval': function () { throw new Error('Function eval is disabled') },
+                'parse': function () { throw new Error('Function parse is disabled') },
+                'simplify': function () { throw new Error('Function simplify is disabled') },
+                'derivative': function () { throw new Error('Function derivative is disabled') },
+                'range': function () { throw new Error('Function range is disabled') }
+            }, {override: true});
+            return;
+        }
         request(`http://data.fixer.io/api/latest?access_key=${config.get("Commands.math.key")}`, function(err, resp, body){
             if(!err) {
 
@@ -73,7 +85,7 @@ module.exports = {
                 captureException: function(){}
             }
         };
-        module.exports.init(bot);
+        module.exports.init(bot, true);
 
         test('calc no arguments', function(t){
             const args = ["calc"];
@@ -141,7 +153,5 @@ module.exports = {
         disabledTest('simplify');
         disabledTest('derivative');
         disabledTest('range');
-
-
     }
 };

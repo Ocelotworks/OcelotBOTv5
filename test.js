@@ -34,6 +34,7 @@ util.init(bot);
 bot.logger = console;
 bot.client = new EventEmitter();
 bot.database = {};
+bot.tracer = {startSpan:function(){return {setTag: function(){}, finish: function(){}}}};
 
 bot.raven = {
     wrap: function(arg){
