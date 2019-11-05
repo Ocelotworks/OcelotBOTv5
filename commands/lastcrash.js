@@ -10,7 +10,7 @@ const request = require('request')
      categories: ["meta"],
     run: function run(message, args, bot) {
 
-        request("http://localhost:3006/lastcrash", function(err, resp, body){
+        request(`http://localhost:${process.env.PORT}/lastcrash`, function(err, resp, body){
             if(err)
                 return message.replyLang("GENERIC_ERROR");
             console.log(body);
