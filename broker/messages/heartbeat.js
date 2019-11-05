@@ -19,6 +19,7 @@ module.exports = {
     },
     received: function received(broker, process, payload){
         const shard = payload.shard;
+        if(process.env.NODE_ENV !== "production")return;
         if(payload.messagesPerMinute === 0){
             broker.logger.warn(`0 messages per minute for shard ${shard}`);
             if(broker.concerns[shard] && broker.concerns[shard].badMessageCounts){
