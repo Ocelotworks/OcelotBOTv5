@@ -274,8 +274,8 @@ module.exports = {
              * Gets all reminders
              * @returns {Promise<Array>}
              */
-            getReminders: function getReminders() {
-                return knex.select().from(REMINDERS_TABLE);
+            getReminders: function getReminders(receiver) {
+                return knex.select().from(REMINDERS_TABLE).where({receiver});
             },
             getOrphanedReminders: function getOrphanedReminders(claimedReminders){
                 return knex.select().from(REMINDERS_TABLE).whereNotIn("id", claimedReminders);
@@ -784,25 +784,25 @@ module.exports = {
                 return knex.select("server", "language").from(SERVERS_TABLE).whereIn("server", guilds);
             },
             getServerSetting: function(server, property){
-                return knex.select().from(SERVER_SETTINGS_TABLE).where({server: server, setting: property}).orWhere({"server": "global", setting: property}).orderBy("server").limit(1);
+                return knex.select().from(SERVER_SETTINGS_TABLE).where({server, setting: property, bot}).orWhere({server: "global", setting: property, bot}).orderBy("server").limit(1);
             },
-            getServerSettings: function(server){
-                return knex.select().from(SERVER_SETTINGS_TABLE).where("server", server);
+            getServerSettings: function(server, bot){
+                return knex.select().from(SERVER_SETTINGS_TABLE).where({server, bot});
             },
             getUserSettingsForShard: function(users){
                 return knex.select().from("ocelotbot_user_settings");
             },
-            getSettingsForShard: function(guilds){
-                return knex.select().from(SERVER_SETTINGS_TABLE).whereIn("server", guilds);
+            getSettingsForShard: function(guilds, bot){
+                return knex.select().from(SERVER_SETTINGS_TABLE).whereIn("server", guilds).andWhere({bot});
             },
-            getGlobalSettings: function(){
-                return knex.select().from(SERVER_SETTINGS_TABLE).where("server", "global");
+            getGlobalSettings: function(bot){
+                return knex.select().from(SERVER_SETTINGS_TABLE).where({server: "global", bot});
             },
-            setSetting: async function(server, setting, value){
-                let currentKey = await knex.select().from(SERVER_SETTINGS_TABLE).where({server, setting}).limit(1);
+            setSetting: async function(server, setting, value, bot){
+                let currentKey = await knex.select().from(SERVER_SETTINGS_TABLE).where({server, setting, bot}).limit(1);
                 if(currentKey.length > 0)
-                    return knex(SERVER_SETTINGS_TABLE).update({setting, value}).where({server, setting}).limit(1);
-                return knex.insert({server, setting, value}).into(SERVER_SETTINGS_TABLE);
+                    return knex(SERVER_SETTINGS_TABLE).update({setting, value}).where({server, setting, bot}).limit(1);
+                return knex.insert({server, setting, value, bot}).into(SERVER_SETTINGS_TABLE);
             },
             setUserSetting: async function(user, setting, value){
                 let currentKey = await knex.select().from("ocelotbot_user_settings").where({user, setting}).limit(1);
@@ -810,8 +810,8 @@ module.exports = {
                     return knex("ocelotbot_user_settings").update({setting, value}).where({user, setting}).limit(1);
                 return knex.insert({user, setting, value}).into("ocelotbot_user_settings");
             },
-            deleteSetting: async function(server, setting){
-                await knex.delete().from(SERVER_SETTINGS_TABLE).where({server,setting}).limit(1);
+            deleteSetting: async function(server, setting, bot){
+                await knex.delete().from(SERVER_SETTINGS_TABLE).where({server,setting, bot}).limit(1);
             },
             addSongGuess: async function(user, channel, server, guess, song, correct, elapsed){
                 await knex.insert({user, channel, server, guess,song, correct, elapsed}).into("ocelotbot_song_guess");
