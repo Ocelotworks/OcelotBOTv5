@@ -6,7 +6,7 @@
  */
 const fs = require('fs');
 const express = require('express');
-const port = 3006;
+const port = process.env.PORT || 3001;
 
 module.exports = {
     name: "HTTP API",
