@@ -32,7 +32,8 @@ function getShard(guild){
 function triggerReminder(reminder){
     console.log("Triggered reminder");
     console.log(reminder);
-    channel.sendToQueue("reminder-"+getShard(reminder.server), Buffer.from(JSON.stringify(reminder)));
+
+    channel.sendToQueue(`reminder-${reminder.receiver}-${getShard(reminder.server)}`, Buffer.from(JSON.stringify(reminder)));
 }
 
 function setReminder(reminder){
