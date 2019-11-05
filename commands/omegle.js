@@ -15,8 +15,8 @@ module.exports = {
     commands: ["omegle", "om"],
     init: async function(bot){
         bot.client.on("ready", function () {
-            bot.rabbit.channel.assertQueue("omegle-" + bot.client.shard.id, {exclusive: true});
-            bot.rabbit.channel.consume("omegle-" + bot.client.shard.id, function omegleConsumer(message) {
+            bot.rabbit.channel.assertQueue(`omegle-${bot.client.user.id}-${bot.client.shard.id}`, {exclusive: true});
+            bot.rabbit.channel.consume(`omegle-${bot.client.user.id}-${bot.client.shard.id}`, function omegleConsumer(message) {
                 try {
                     let msg = JSON.parse(message.content);
                     console.log(msg);
@@ -76,7 +76,7 @@ module.exports = {
 
             bot.tasks.startTask("omegle", message.channel.id);
 
-            bot.rabbit.queue("omegle", {type: "start", data: message.channel.id}, {replyTo: "omegle-"+bot.client.shard.id});
+            bot.rabbit.queue("omegle", {type: "start", data: message.channel.id}, {replyTo:`omegle-${bot.client.user.id}-${bot.client.shard.id}`});
             waitingMessages[message.channel.id] = await message.channel.send("<a:ocelotload:537722658742337557> Contacting Omegle Service....");
 
             messageCollectors[message.channel.id] = message.channel.createMessageCollector(() => true);
@@ -85,7 +85,7 @@ module.exports = {
                 if (message.author.bot)return;
                 if (message.content.startsWith(message.getSetting("prefix")))return;
                 if(waitingMessages[message.channel.id])return;
-                bot.rabbit.queue("omegle", {type: "message", data: {channel: message.channel.id, message: message.cleanContent.replace(/'/g, "")}}, {replyTo: "omegle-"+bot.client.shard.id});
+                bot.rabbit.queue("omegle", {type: "message", data: {channel: message.channel.id, message: message.cleanContent.replace(/'/g, "")}}, {replyTo:`omegle-${bot.client.user.id}-${bot.client.shard.id}`});
             });
 
             messageCollectors[message.channel.id].on("end", function(){
@@ -102,7 +102,7 @@ module.exports = {
                 delete messageCollectors[message.channel.id];
             }
 
-            bot.rabbit.queue("omegle", {type: "end", data: message.channel.id}, {replyTo: "omegle-"+bot.client.shard.id});
+            bot.rabbit.queue("omegle", {type: "end", data: message.channel.id}, {replyTo:`omegle-${bot.client.user.id}-${bot.client.shard.id}`});
             message.channel.send("Disconnected.");
         }else{
             if(messageCollectors[message.channel.id])
