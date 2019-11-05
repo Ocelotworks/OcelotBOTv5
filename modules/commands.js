@@ -17,6 +17,7 @@ module.exports = {
                     id: message.author.id
                 });
                 const prefix = message.getSetting("prefix");
+                if(!prefix)return;//Bot hasn't fully loaded
                 const prefixLength = prefix.length;
                 if(!message.content.startsWith(prefix))
                     return;
@@ -24,7 +25,10 @@ module.exports = {
                 const command = args[0].substring(prefixLength).toLowerCase();
                 if(!bot.commands[command])
                     return;
-
+                const span = bot.tracer.startSpan('command.performed');
+                span.setTag('user.name', message.author.username);
+                span.setTag('user.id', message.author.id);
+                span.setTag('command.name', command);
                 bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
 
                 let commandUsage = bot.commandUsages[command];
@@ -37,59 +41,85 @@ module.exports = {
 
                     let difference = new Date()-lastVote;
                     console.log("difference is "+difference);
-                    if(difference > bot.util.voteTimeout*2)
+                    if(difference > bot.util.voteTimeout*2) {
+                        span.setTag('command.outcome', 'Vote Required');
+                        span.finish();
                         return message.replyLang("COMMAND_VOTE_REQUIRED")
+                    }
                 }
 
-                if(commandUsage.premium && !(message.getBool("premium") || message.getBool("serverPremium")))
+                if(commandUsage.premium && !(message.getBool("premium") || message.getBool("serverPremium"))) {
+                    span.setTag('command.outcome', 'Premium Required');
+                    span.finish();
                     return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type \\${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using \\${message.getSetting("prefix")}settings disableCommand ${command}`);
+                }
 
-                if(message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1)
+                if(message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1) {
+                    span.setTag('command.outcome', 'NSFW Disabled');
+                    span.finish();
                     return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
+                }
 
-                if(message.guild && !message.channel.nsfw && commandUsage.categories.indexOf("nsfw") > -1 &&  !message.getBool("bypassNSFWCheck"))
+                if(message.guild && !message.channel.nsfw && commandUsage.categories.indexOf("nsfw") > -1 &&  !message.getBool("bypassNSFWCheck")) {
+                    span.setTag('command.outcome', 'NSFW Channel Required');
+                    span.finish();
                     return message.channel.send(`:warning: This command can only be used in NSFW channels.\nYou can bypass this check with  **${message.getSetting("prefix")}settings set bypassNSFW true**`);
+                }
 
-                if(message.getBool(`${command}.disable`))
+                if(message.getBool(`${command}.disable`)) {
+                    span.setTag('command.outcome', 'Command Disabled');
+                    span.finish();
                     return bot.logger.log(`${command} is disabled in this server: ${message}`);
+                }
 
-                if(message.getSetting(`${command}.override`))
+                if(message.getSetting(`${command}.override`)) {
+                    span.setTag('command.outcome', 'Command Overridden');
+                    span.finish();
                     return message.channel.send(message.getSetting(`${command}.override`));
+                }
 
                 if(message.getBool("wholesome")){
                     if(commandUsage.categories.indexOf("nsfw") > -1 || commandUsage.unwholesome){
+                        span.setTag('command.outcome', 'Wholesome Mode Enabled');
+                        span.finish();
                         return message.channel.send(":star:  This command is not allowed in wholesome mode!");
                     }
-                    if(bot.util.swearRegex.exec(message.content))
+                    if(bot.util.swearRegex.exec(message.content)) {
+                        span.setTag('command.outcome', 'Wholesome Mode Swearing');
+                        span.finish();
                         return message.channel.send("No swearing!");
+                    }
                 }
 
                 const channelDisable = message.getSetting(`${command}.channelDisable`);
                 if(channelDisable && channelDisable.indexOf(message.channel.id) > -1){
-                    if(message.guild && message.guild.id === "318432654880014347")
-                        message.channel.send(`${command} is disabled in this channel.\nhttps://media.discordapp.net/attachments/318432654880014347/575690927495053347/unknown.png`);
                     if(message.getBool("sendDisabledMessage")) {
                         const dm = await message.author.createDM();
                         dm.send(`${command} is disabled in that channel`);
                         //TODO: COMMAND_DISABLED_CHANNEL
                         bot.logger.log(`${command} is disabled in that channel (${message.channel.id})`);
                     }
+                    span.setTag('command.outcome', 'Channel Disabled');
+                    span.finish();
                     return;
                 }
                 const channelRestriction = message.getSetting(`${command}.channelRestriction`);
                 if(channelRestriction && channelRestriction.indexOf(message.channel.id) === -1){
-                    if(message.guild && message.guild.id === "318432654880014347")
-                        message.channel.send(`${command} is disabled in this channel.\nhttps://media.discordapp.net/attachments/318432654880014347/575690927495053347/unknown.png`);
                     if(message.getBool("sendDisabledMessage")) {
                         const dm = await message.author.createDM();
                         dm.send(`${command} is disabled in that channel`);
                         //TODO: COMMAND_DISABLED_CHANNEL
                         bot.logger.log(`${command} is disabled in that channel (${message.channel.id})`);
                     }
+                    span.setTag('command.outcome', 'Channel Restricted');
+                    span.finish();
                     return;
                 }
-                if(bot.checkBan(message))
+                if(bot.checkBan(message)) {
+                    span.setTag('command.outcome', 'User Banned');
+                    span.finish();
                     return bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
+                }
 
                 if(bot.isRateLimited(message.author.id, message.guild ? message.guild.id : "global")){
                     bot.bus.emit("commandRatelimited", command, message);
@@ -105,6 +135,8 @@ module.exports = {
                         console.log(bot.rateLimits[message.author.id]);
                         bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) was ratelimited`);
                     }
+                    span.setTag('command.outcome', 'User Ratelimited');
+                    span.finish();
                     return;
                 }
                 bot.bus.emit("commandPerformed", command, message);
@@ -136,6 +168,8 @@ module.exports = {
                             const dm = await message.author.createDM();
                             dm.send(":warning: I don't have permission to send messages in that channel.");
                             //TODO: COMMAND_NO_PERMS lang key
+                            span.setTag('command.outcome', 'No Messages Permissions');
+                            span.finish();
                             return;
                         }
 
@@ -146,21 +180,26 @@ module.exports = {
                                 if(i < bot.commandUsages[command].requiredPermissions.length-1)
                                     permission+=", ";
                             }
+                            span.setTag('command.outcome', 'Missing Permissions');
+                            span.finish();
                             return message.replyLang("ERROR_NEEDS_PERMISSION", {permission});
                         }
                     }
 
                     bot.commands[command](message, args, bot);
-
+                    span.setTag('command.outcome', 'Executed Successfully');
                 } catch (e) {
                     message.channel.stopTyping(true);
                     message.reply(e.toString());
                     console.log(e);
                     bot.raven.captureException(e);
+                    span.setTag('command.outcome', 'Uncaught Error');
                 } finally {
                     bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command ,message.content).catch(function (e) {
                         Sentry.captureException(e);
                         bot.logger.error(e);
+                    }).then(function(){
+                        span.finish();
                     })
                 }
             });
