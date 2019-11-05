@@ -15,7 +15,7 @@ module.exports = {
 
         bot.config.reloadCacheForServer = async function reloadCacheForServer(server){
             bot.config.cache[server] = {};
-            let result = await bot.database.getServerSettings(server);
+            let result = await bot.database.getServerSettings(server, bot.client.user.id);
             for(let i = 0; i < result.length; i++){
                 const row = result[i];
                 bot.config.cache[server][row.setting] = row.value;
@@ -24,7 +24,7 @@ module.exports = {
 
         bot.config.loadGlobalCache = function loadGlobalCache(){
             bot.logger.log("Populating global setting cache...");
-            bot.database.getGlobalSettings().then(function getGlobalSettings(settings){
+            bot.database.getGlobalSettings(bot.client.user.id).then(function getGlobalSettings(settings){
                 bot.config.cache.global = {};
                 for(let i = 0; i < settings.length; i++){
                     const row = settings[i];
@@ -39,7 +39,7 @@ module.exports = {
 
         bot.config.loadServerCache = async function loadServerCache(){
             bot.logger.log("Populating server setting cache...");
-            let result = await bot.database.getSettingsForShard(bot.client.guilds.keyArray());
+            let result = await bot.database.getSettingsForShard(bot.client.guilds.keyArray(), bot.client.user.id);
             for(let i = 0; i < result.length; i++){
                 const row = result[i];
                 if(bot.config.cache[row.server])
@@ -67,8 +67,8 @@ module.exports = {
             bot.logger.log(`Loading ${result.length} user config keys`);
         };
 
-        bot.config.loadGlobalCache();
         bot.client.on("ready", async function(){
+            bot.config.loadGlobalCache();
             await bot.config.loadServerCache();
             await bot.config.loadUserCache();
         });
@@ -78,7 +78,7 @@ module.exports = {
                 return bot.config.cache[user][property];
             if(bot.config.cache[server] && bot.config.cache[server][property])
                 return bot.config.cache[server][property];
-            if(bot.config.cache.global[property])
+            if(bot.config.cache.global && bot.config.cache.global[property])
                 return bot.config.cache.global[property];
             return null;
         };
@@ -89,7 +89,7 @@ module.exports = {
         };
 
         bot.config.set = async function(server, property, value){
-            await bot.database.setSetting(server, property, value);
+            await bot.database.setSetting(server, property, value, bot.client.user.id);
             await bot.config.reloadCacheForServer(server);
         };
 
