@@ -22,7 +22,7 @@ async function init(){
     async function createSub(name, callback){
         let channel = await con.createChannel();
         channel.assertExchange(name, 'fanout', {durable: false});
-        let q = await channel.assertQueue(`ps-analytics-${name}`, {exclusive: true});
+        let q = await channel.assertQueue(`ps-analytics-${name}`);
         channel.bindQueue(q.queue, name, '');
         channel.consume(q.queue, callback, {noAck: true});
     }
