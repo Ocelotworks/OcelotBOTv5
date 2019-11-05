@@ -30,8 +30,7 @@ module.exports = {
                     if(args[3].toLowerCase() === "value")
                         return message.replyLang("SETTINGS_PREFIX_IDIOT", {arg: args[0]});
 
-                    await bot.database.setSetting(message.guild.id, "prefix", args[3]);
-                    await bot.config.reloadCacheForServer(message.guild.id);
+                    await bot.config.set(message.guild.id, "prefix", args[3]);
                     message.replyLang("SETTINGS_PREFIX_SET", {prefix: args[3]});
                 }else{
                     message.replyLang("SETTINGS_PREFIX_NONE", {arg: args[0]});
@@ -49,9 +48,7 @@ module.exports = {
             onSet: async function(message, args, bot){
                 if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bools[args[3].toLowerCase()];
-                    await bot.database.setSetting(message.guild.id, "wholesome", bool);
-                    await bot.config.reloadCacheForServer(message.guild.id);
-
+                    await bot.config.set(message.guild.id, "wholesome", bool);
                     message.channel.send((bool? "Enabled" : "Disabled")+" wholesome mode.");
                    // message.replyLang(`SETTINGS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
                 }else{
@@ -71,8 +68,7 @@ module.exports = {
             onSet: async function(message, args, bot){
                 if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bools[args[3].toLowerCase()];
-                    await bot.database.setSetting(message.guild.id, "allowNSFW", bool);
-                    await bot.config.reloadCacheForServer(message.guild.id);
+                    await bot.config.set(message.guild.id, "allowNSFW", bool);
                     message.replyLang(`SETTINGS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
                 }else{
                     message.replyLang("SETTINGS_NSFW_NONE", {arg: args[0]});
@@ -90,8 +86,7 @@ module.exports = {
             onSet: async function(message, args, bot){
                 if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bools[args[3].toLowerCase()];
-                    await bot.database.setSetting(message.guild.id, "bypassNSFWCheck", bool);
-                    await bot.config.reloadCacheForServer(message.guild.id);
+                    await bot.config.set(message.guild.id, "bypassNSFWCheck", bool);
                     message.replyLang(`SETTINGS_BYPASS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
                 }else{
                     message.replyLang("SETTINGS_BYPASS_NSFW_NONE", {arg: args[0]});
@@ -109,8 +104,7 @@ module.exports = {
             onSet: async function(message, args, bot){
                 if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bools[args[3].toLowerCase()];
-                    await bot.database.setSetting(message.guild.id, "pornsuggest.serious", bool);
-                    await bot.config.reloadCacheForServer(message.guild.id);
+                    await bot.config.set(message.guild.id, "pornsuggest.serious", bool);
                     message.replyLang(`SETTINGS_SERIOUS_PORN_${bool ? "ENABLE":"DISABLE"}`);
                 }else {
                     message.replyLang("SETTINGS_SERIOUS_PORN_NONE", {arg: args[0]});
@@ -127,8 +121,7 @@ module.exports = {
             },
             onSet: async function(message, args, bot){
                 if(args[3] && bot.lang.strings[args[3].toLowerCase()]) {
-                    await bot.database.setSetting(message.guild.id, "lang", args[3].toLowerCase());
-                    await bot.config.reloadCacheForServer(message.guild.id);
+                    await bot.config.set(message.guild.id, "lang", args[3].toLowerCase());
                     message.replyLang("SETTINGS_LANGUAGE_SET", {code: args[3], name: bot.lang.strings[args[3].toLowerCase()].LANGUAGE_NAME});
                 }else{
                     message.replyLang("SETTINGS_LANGUAGE_NONE", {arg: args[0]});
@@ -150,8 +143,7 @@ module.exports = {
                 if(!roleName)
                     return message.replyLang("SETTINGS_ROLE_INVALID");
 
-                await bot.database.setSetting(message.guild.id, "settings.role", roleName.toLowerCase());
-                await bot.config.reloadCacheForServer(message.guild.id);
+                await bot.config.set(message.guild.id, "settings.role", roleName.toLowerCase());
                 message.replyLang("SETTINGS_ROLE_SET", {roleName});
             }
         },
@@ -165,8 +157,7 @@ module.exports = {
             onSet: async function(message, args, bot){
                 let timezone = args[3];
                 if(bot.util.timezones[timezone] || bot.util.timezoneRegex.exec(timezone)){
-                    await bot.database.setSetting(message.guild.id, "time.zone", timezone);
-                    await bot.config.reloadCacheForServer(message.guild.id);
+                    await bot.config.set(message.guild.id, "time.zone", timezone);
                     message.replyLang("SETTINGS_TIMEZONE_SET");
                 }else{
                     message.replyLang("SETTINGS_TIMEZONE_NONE");

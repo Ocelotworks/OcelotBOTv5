@@ -18,9 +18,6 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["stats", "statistics", "info", "about", "privacy"],
     categories: ["meta"],
-    init: function(bot){
-        bot.version = "stevie5";
-    },
     run: async function run(message, args, bot){
         const server        = message.guild ? message.guild.id : "322032568558026753";
         const title         = await bot.lang.getTranslation(server, "STATS_VERSION", {version: bot.version});

@@ -23,8 +23,7 @@ module.exports = {
             return message.replyLang("SETTINGS_ENABLE_ENABLED", {arg: args[0], command});
 
 
-        await bot.database.setSetting(message.guild.id, `${command}.disable`, false);
-        await bot.config.reloadCacheForServer(message.guild.id);
+        await bot.config.set(message.guild.id, command+".disable", false);
 
         message.replyLang("SETTINGS_ENABLE_SUCCESS", {command});
 }

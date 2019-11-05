@@ -16,7 +16,7 @@ module.exports = {
         if(!server || !key){
             message.channel.send("Invalid usage. !admin setconfig server key value");
         }else{
-            await bot.database.setSetting(server, key, value);
+            await bot.database.setSetting(server, key, value, bot.client.user.id);
             if(bot.client.shard) {
                 bot.client.shard.send({type: "reloadConfig", payload: server});
             }else {

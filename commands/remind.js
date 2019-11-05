@@ -12,8 +12,8 @@ module.exports = {
     categories: ["tools"],
     init: function init(bot){
         bot.client.on("ready", function () {
-            bot.rabbit.channel.assertQueue("reminder-" + bot.client.shard.id, {exclusive: true});
-            bot.rabbit.channel.consume("reminder-" + bot.client.shard.id, function reminderConsumer(message) {
+            bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.client.shard.id}`, {exclusive: true});
+            bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.client.shard.id}`, function reminderConsumer(message) {
                 try {
                     let reminder = JSON.parse(message.content);
                     if (bot.config.getBool("global", "remind.silentQueueTest")) {
@@ -32,13 +32,10 @@ module.exports = {
 
 
         bot.client.on("ready", async function discordReady(){
-            if(bot.client.user.username === "OcelotBOT-Test")
-                return bot.logger.warn("Not loading reminders on test bot");
-
             if(!bot.remindersLoaded) {
                 bot.remindersLoaded = true;
                 bot.logger.log("Loading reminders...");
-                const reminderResult = await bot.database.getReminders();
+                const reminderResult = await bot.database.getReminders(bot.client.user.id);
                 const now = new Date().getTime();
                 for (let i = 0; i < reminderResult.length; i++) {
                     const reminder = reminderResult[i];
@@ -174,6 +171,7 @@ module.exports = {
                     username: message.author.id,
                     server: message.guild.id,
                     channel: message.channel.id,
+                    receiver: bot.client.user.id,
                     date: now.toString(),
                     message: reminder,
                     at: at.getTime(),
@@ -184,12 +182,13 @@ module.exports = {
                     username: message.author.id,
                     server: message.guild.id,
                     channel: message.channel.id,
+                    receiver: bot.client.user.id,
                     date: now.toString(),
                     message: reminder,
                     at: at.getTime(),
                 })));
             }else {
-                const reminderResponse = await bot.database.addReminder("discord", message.author.id, message.guild.id, message.channel.id, at.getTime(), reminder);
+                const reminderResponse = await bot.database.addReminder(bot.client.user.id, message.author.id, message.guild.id, message.channel.id, at.getTime(), reminder);
                 bot.util.setLongTimeout(async function () {
                     try {
                         await message.replyLang("REMIND_REMINDER", {

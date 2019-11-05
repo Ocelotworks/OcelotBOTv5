@@ -21,9 +21,7 @@ module.exports = {
         if(message.getBool(`${command}.disable`))
             return message.replyLang("SETTINGS_DISABLE_DISABLED", {arg: args[0], command});
 
-        await bot.database.setSetting(message.guild.id, `${command}.disable`, true);
-        await bot.config.reloadCacheForServer(message.guild.id);
-
+        await bot.config.set(message.guild.id, command+".disable", true);
         message.replyLang("SETTINGS_DISABLE_SUCCESS", {command});
     }
 };

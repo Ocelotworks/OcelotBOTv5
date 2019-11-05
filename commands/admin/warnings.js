@@ -10,7 +10,7 @@ module.exports = {
     usage: "warnings",
     commands: ["warnings"],
     run: async function(message, args, bot){
-       request("http://localhost:3006/warnings", function(err, resp, body){
+       request(`http://localhost:${process.env.PORT}/warnings`, function(err, resp, body){
           if(err)
               return message.channel.send("Error: "+err);
           try{
