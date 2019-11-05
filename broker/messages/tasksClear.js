@@ -11,7 +11,7 @@ module.exports = {
         broker.shardTasks = [];
 
 
-        broker.manager.on("launch", function launcShard(shard){
+        broker.manager.on("launch", function launchShard(shard){
             broker.logger.log(`Clearing tasks for shard ${shard.id}`);
             broker.shardTasks[shard.id] = 0;
         })
