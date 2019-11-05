@@ -80,10 +80,10 @@ function init(){
     broker.logger.log(header);
 
 
-    Raven.config(config.get("Raven.DSN"), {
-        environment: os.hostname() === "Jupiter" ? "production" : "development"
-    }).install();
+    Raven.config(config.get("Sentry.DSN"), {}).install();
     broker.raven = Raven;
+
+    broker.logger.log("Loading "+process.env.environment);
 
 
     broker.warnings = {};
