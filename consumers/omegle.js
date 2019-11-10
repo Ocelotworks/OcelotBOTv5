@@ -8,17 +8,17 @@ process.env["NODE_CONFIG_DIR"] = "../config";
 const
     config          = require('config'),
     amqplib         = require('amqplib'),
-    omegle          = require('omegle-node'),
-    tracer          = require('dd-trace');
+    omegle          = require('omegle-node')//,
+   // tracer          = require('dd-trace');
 
 
 
 let sessions = {};
 
 async function init(){
-    tracer.init({
-        analytics: true
-    });
+   // tracer.init({
+   //     analytics: true
+   // });
     let con = await amqplib.connect(config.get("RabbitMQ.host"));
     let channel = await con.createChannel();
 
@@ -52,7 +52,7 @@ async function init(){
 
         om.on('commonLikes', function(likes){
             console.log("Common likes", likes);
-            reply(msg, {type: "isOtherServer", data: channel});
+           // reply(msg, {type: "isOtherServer", data: channel});
         });
 
         om.on('strangerDisconnected', function(){
@@ -70,6 +70,8 @@ async function init(){
         });
 
         om.on('gotMessage',function(message){
+            if(message.indexOf("discord.gg") > -1)
+                message = "<The Stranger attempted to post a discord invite>";
             reply(msg, {type: "message", data: {channel, message}});
         });
 
@@ -89,7 +91,7 @@ async function init(){
             console.log("Connected as "+id);
         });
 
-        om.connect(["OcelotBOT"]);
+        om.connect(['gaming','gamers']);
         timeout = setTimeout(function(){
             om.stopLookingForCommonLikes();
         }, 5000);
