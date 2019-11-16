@@ -49,12 +49,6 @@ async function init(){
     console.log("Loading reminders");
     reminders = await knex.select().from("ocelotbot_reminders");
 
-    console.log("Loaded "+reminders.length+" reminders.");
-    for(let i = 0; i < reminders.length; i++){
-        let reminder = reminders[i];
-        setReminder(reminder);
-    }
-
     let con = await amqplib.connect(config.get("RabbitMQ.host"));
     channel = await con.createChannel();
 
@@ -66,6 +60,12 @@ async function init(){
         if(!reminder.server)return console.warn("Not processing.");
         setReminder(reminder);
     });
+
+    console.log("Loaded "+reminders.length+" reminders.");
+    for(let i = 0; i < reminders.length; i++){
+        let reminder = reminders[i];
+        setReminder(reminder);
+    }
 }
 
 init();
