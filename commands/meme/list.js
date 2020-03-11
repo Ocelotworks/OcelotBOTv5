@@ -26,6 +26,9 @@ module.exports = {
         const availableGlobalMemes = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_GLOBAL_MEMES");
         const memeServer = message.guild ? await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_SERVER", {serverName: message.guild.name}) : "You should never see this.";
 
+        if(pages == null){
+            return message.channel.send("No memes yet. Add them with !meme add");
+        }
 
         bot.util.standardPagination(message.channel, pages, async function(page, index){
             //If you can't stand the heat get out of the kitchen
@@ -33,6 +36,7 @@ module.exports = {
             let serverColumns = [[],[],[],[],[]];
             let globalCounter = 0;
             let serverCounter = 0;
+
             for(let i = 0; i < page.length; i++){
                 const meme = page[i];
                 if(meme.server === "global")
