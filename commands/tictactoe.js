@@ -32,10 +32,14 @@ module.exports = {
         const subCommand = args[1];
         if(subCommand && module.exports.subCommands[subCommand.toLowerCase()]){
             module.exports.subCommands[subCommand.toLowerCase()](message, args, bot);
-        }else if(runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[abc][123]/i)) {
-            const row = cols.indexOf(subCommand[0].toUpperCase());
-            const col = subCommand[1]-1;
-            module.exports.doGo(message, col, row, bot);
+        }else if(runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id) {
+            if(subCommand && subCommand.length === 2 && subCommand.match(/[abc][123]/i)) {
+                const row = cols.indexOf(subCommand[0].toUpperCase());
+                const col = subCommand[1] - 1;
+                module.exports.doGo(message, col, row, bot);
+            }else{
+                message.channel.send(`:bangbang: You must enter a position on the board, e.g ${args[0]} B2`);
+            }
         }else{
             message.channel.send(`:bangbang: Invalid usage! To start a game type ${args[0]} start @player`);
         }
