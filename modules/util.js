@@ -5,6 +5,9 @@ const request = require('request');
 const fs = require('fs');
 const twemoji = require('twemoji-parser');
 const config = require('config');
+const deepai = require('deepai');
+const sentry = require('@sentry/node');
+deepai.setApiKey(config.get("Commands.recolor.key"));
 module.exports = {
     name: "Utilities",
     init: function(bot){
@@ -368,6 +371,28 @@ module.exports = {
                     bot.tasks.endTask("imageMeme", message.id);
                     message.channel.stopTyping();
                 });
+        };
+
+        bot.util.processDeepAi = async function(message, args, filter){
+            const url =  await bot.util.getImage(message, args);
+            if(!url || !url.startsWith("http"))
+                return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
+            message.channel.startTyping();
+
+            try {
+                let result = await deepai.callStandardApi(filter, {image: url});
+
+                if(result.output_url) {
+                    message.channel.send("", new Discord.Attachment(result.output_url));
+                }else{
+                    message.replyLang("ENHANCE_MAXIMUM_RESOLUTION");
+                }
+            }catch(e){
+                message.replyLang("GENERIC_ERROR");
+                sentry.captureException(e)
+            }finally {
+                message.channel.stopTyping(true);
+            }
         };
 
         /**
