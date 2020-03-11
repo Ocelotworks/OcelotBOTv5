@@ -402,7 +402,7 @@ module.exports = {
                     let embed = new Discord.RichEmbed();
                     embed.setThumbnail(`https://ocelot.xyz/badge.php?id=${eligibleBadge.id}`);
                     embed.setTitle(`You just earned ${eligibleBadge.name}`);
-                    embed.setDescription(`${eligibleBadge.desc}\nNow available on your **${channel.guild ? channel.guild.getSetting("prefix") : bot.config.getSetting("global", "prefix")}profile**`);
+                    embed.setDescription(`${eligibleBadge.desc}\nNow available on your **${channel.guild ? channel.guild.getSetting("prefix") : bot.config.get("global", "prefix")}profile**`);
                     embed.setColor("#3ba13b");
                     channel.send(`<@${userID}>`, embed);
                 }else{
