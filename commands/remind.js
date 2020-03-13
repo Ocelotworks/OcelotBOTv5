@@ -132,7 +132,7 @@ module.exports = {
         console.log(message.content);
         const now = new Date();
         const rargs = regex.exec(message.content);
-        const chronoParse = (chrono.parse(message.content, now))[0];
+        const chronoParse = (chrono.parse(message.content, now, {forwardDate: true}))[0];
         let at = null;
         if(chronoParse && chronoParse.start)
             at = chronoParse.start.date();
