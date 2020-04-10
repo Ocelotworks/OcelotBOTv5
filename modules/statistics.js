@@ -14,6 +14,7 @@ module.exports = {
             errors: 0,
             botRateLimits: 0,
             userRateLimits: 0,
+            reconnects: 0,
             timing: {
                 waiting: {},
                 counts: {},
@@ -109,6 +110,10 @@ module.exports = {
             bot.stats.warnings++;
         });
 
+        bot.client.on("reconnecting", function(){
+            bot.stats.reconnects++;
+        });
+
         setInterval(async function(){
             // let points = [];
             // const keys = Object.keys(bot.stats);
@@ -198,6 +203,11 @@ module.exports = {
                             measurement: "connectionStatus",
                             tags: {"shard": bot.client.shard.id},
                             fields: {connectionStatus: bot.client.status}
+                        },
+                        {
+                            measurement: "reconnects",
+                            tags: {"shard": bot.client.shard.id},
+                            fields: {reconnects: bot.stats.reconnects}
                         }
                     ]);
                 }catch(e){
@@ -221,6 +231,7 @@ module.exports = {
             bot.stats.botRateLimits = 0;
             bot.stats.warnings = 0;
             bot.stats.errors = 0;
+            bot.stats.reconnects = 0;
 
         }, 60000); //1 minute
     }
