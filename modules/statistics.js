@@ -54,7 +54,8 @@ module.exports = {
                 'botRateLimits',
                 'userRateLimits',
                 'commandCacheSize',
-                'connectionStatus'
+                'connectionStatus',
+                'reconnects'
             ];
 
             let output = [];
@@ -125,7 +126,9 @@ module.exports = {
             //             fields: {[keys[i].startsWith("commands") ? "commands" : keys[i].startsWith("messages") ? "messages" : "value"]: bot.stats[keys[i]]}
             //         });
             // }
-            if(os.hostname() === "Jupiter") {
+            if(os.hostname() === "uxadmsv0001") {
+
+
 
                 try {
                     await bot.stats.influx.writePoints([
@@ -197,7 +200,7 @@ module.exports = {
                         {
                             measurement: "voiceConnections",
                             tags: {"shard": bot.client.shard.id},
-                            fields: {voiceConnections: bot.client.voiceConnections.size}
+                            fields: {voiceConnections: bot.lavaqueue.manager.players.size}
                         },
                         {
                             measurement: "connectionStatus",

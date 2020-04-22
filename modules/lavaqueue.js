@@ -98,7 +98,8 @@ module.exports = {
                 bot.logger.error(error.error); //YEs
             });
             player.once("event", data => {
-                if (data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops
+                if (!data.reason || data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops
+                console.log(data);
                 bot.tasks.endTask("playOneSong", voiceChannel.id);
                 bot.logger.log("Song ended");
                 bot.lavaqueue.requestLeave(voiceChannel, "player playOneSong Song ended");
