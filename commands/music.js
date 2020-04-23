@@ -27,28 +27,30 @@ module.exports = {
         bot.util.standardNestedCommandInit('music');
         module.exports.populateShuffleQueue();
 
-        bot.client.on("ready", async function ready(){
-            let activeSessions = await bot.database.getActiveSessions();
-            for(let i = 0; i < activeSessions.length; i++){
-                const session = activeSessions[i];
-                if(bot.client.guilds.has(session.server)){
-                    bot.logger.log(`Resuming session ${session.id}`);
-                    const listener = await module.exports.constructListener(bot.client.guilds.get(session.server), bot.client.channels.get(session.voiceChannel), bot.client.channels.get(session.textChannel), session.id);
-                    listener.playing = await bot.lavaqueue.getSong(session.playing);
-                    listener.autodj = session.autodj;
-                    if(session.lastMessage){
-                        listener.lastMessage = await listener.channel.fetchMessage(session.lastMessage);
-                        module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
-                        if(listener.channel.guild.getBool("music.updateNowPlaying")) {
-                            listener.editInterval = setInterval(function updateNowPlaying() {
-                                if(module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false))
-                                    clearInterval(listener.editInterval);
-                            }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
+        bot.client.on("ready", function ready(){
+            bot.lavaqueue.manager.on("ready", async function(){
+                let activeSessions = await bot.database.getActiveSessions();
+                for(let i = 0; i < activeSessions.length; i++){
+                    const session = activeSessions[i];
+                    if(bot.client.guilds.has(session.server)){
+                        bot.logger.log(`Resuming session ${session.id}`);
+                        const listener = await module.exports.constructListener(bot.client.guilds.get(session.server), bot.client.channels.get(session.voiceChannel), bot.client.channels.get(session.textChannel), session.id);
+                        listener.playing = await bot.lavaqueue.getSong(session.playing, listener.connection);
+                        listener.autodj = session.autodj;
+                        if(session.lastMessage){
+                            listener.lastMessage = await listener.channel.fetchMessage(session.lastMessage);
+                            module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
+                            if(listener.channel.guild.getBool("music.updateNowPlaying")) {
+                                listener.editInterval = setInterval(function updateNowPlaying() {
+                                    if(module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false))
+                                        clearInterval(listener.editInterval);
+                                }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
+                            }
                         }
+                        module.exports.requeue(session, await bot.database.getQueueForSession(session.id));
                     }
-                    module.exports.requeue(session, await bot.database.getQueueForSession(session.id));
                 }
-            }
+            })
         });
         bot.music = module.exports;
     },
@@ -77,7 +79,7 @@ module.exports = {
         if(!search.startsWith("http"))
             search = "ytsearch:"+search;
 
-        let result = await bot.lavaqueue.getSongs(search);
+        let result = await bot.lavaqueue.getSongs(search, listener.connection);
         let obj = null;
         // noinspection FallThroughInSwitchStatementJS
         switch(result.loadType){
@@ -268,10 +270,12 @@ module.exports = {
           return false;
     },
     constructListener: async function constructListener(server, voiceChannel, channel, id){
-        const host = bot.util.arrayRand(server.getSetting("music.host").split(","));
-        bot.logger.log("Using host "+host);
-        let player = bot.lavaqueue.manager.players.get(server.id);
-        await player.join(voiceChannel.id);
+
+        let player = await bot.lavaqueue.manager.join({
+            guild: server.id,
+            channel: voiceChannel.id,
+            node: bot.lavaqueue.manager.idealNodes[0].id,
+        });
         if(!id) {
             id = await bot.database.createMusicSession(server.id, voiceChannel.id, channel.id);
            //let oldQueues = await bot.database.getPreviousQueue(server, id);
@@ -286,7 +290,7 @@ module.exports = {
             playing: null,
             voiceChannel,
             channel,
-            host,
+            host: "",
             id,
             eventListener: function trackEvent(evt){
                 if(evt.type === "TrackEndEvent" && evt.reason !== "REPLACED"){
@@ -346,7 +350,7 @@ module.exports = {
                     if(listener.voiceChannel.members.size === 1){
                         listener.channel.sendLang("MUSIC_PLAY_INACTIVE");
                         if(listener && listener.connection)
-                            await listener.connection.leave();
+                            await bot.lavaqueue.manager.leave(listener.guild);
                         module.exports.deconstructListener(listener.server);
                     }
                 }, 1.8e+6);

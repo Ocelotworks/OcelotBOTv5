@@ -104,8 +104,8 @@ module.exports = {
                 else cb();
             });
             message.channel.send(`You are **${position}** out of **${leaderboardData.length}** total players${args[2] && args[2].toLowerCase() === "monthly" ? " this month." : "."}\n\`\`\`yaml\n${columnify(data)}\n\`\`\``);
-        }else if(songList.length === 0){
-            message.channel.send("OcelotBOT is currently in a limited functionality mode, which disables this command.");
+        }else if(songList.length === 0 || !bot.lavaqueue || !bot.lavaqueue.manager.nodes.has("1") || !bot.lavaqueue.manager.nodes.get("1").connected){
+            message.channel.send("Song Guessing is currently unavailable. Please try again soon.");
         }else if(!message.guild){
             message.replyLang("GENERIC_DM_CHANNEL");
         }else if(!message.guild.available){

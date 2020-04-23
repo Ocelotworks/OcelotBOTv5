@@ -10,15 +10,15 @@ module.exports = {
     commands: ["leave", "quit", "stop"],
     run: async function (message, args, bot, music) {
         const guild = message.guild.id;
+        await bot.lavaqueue.manager.leave(guild);
+        await music.deconstructListener(guild);
+
         if (!music.listeners[guild])
             return message.replyLang("MUSIC_NOTHING_PLAYING");
 
-        const listener = music.listeners[guild];
         //if(listener.playing && listener.voiceChannel.members.size > 2)
          //   return message.channel.send(`:bangbang: You can only use this command if you're the only one listening.`);
 
         message.channel.send(":wave: Goodbye.");
-        await listener.connection.leave();
-        music.deconstructListener(guild);
     }
 };
