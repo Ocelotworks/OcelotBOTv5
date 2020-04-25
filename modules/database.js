@@ -277,8 +277,8 @@ module.exports = {
             getReminders: function getReminders(receiver) {
                 return knex.select().from(REMINDERS_TABLE).where({receiver});
             },
-            getOrphanedReminders: function getOrphanedReminders(claimedReminders){
-                return knex.select().from(REMINDERS_TABLE).whereNotIn("id", claimedReminders);
+            getOrphanedReminders: function getOrphanedReminders(claimedReminders, receiver){
+                return knex.select().from(REMINDERS_TABLE).whereNotIn("id", claimedReminders).andWhere({receiver});
             },
             /**
              * Remove a reminder

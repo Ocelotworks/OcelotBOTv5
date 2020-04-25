@@ -66,7 +66,7 @@ module.exports = {
                     if(bot.orphanedRemindersLoaded)return bot.logger.warn("Prevented duplicate orphaned reminder loading");
                     bot.orphanedRemindersLoaded = true;
                     const now = new Date().getTime();
-                    let orphanedReminders = await bot.database.getOrphanedReminders(message.payload);
+                    let orphanedReminders = await bot.database.getOrphanedReminders(message.payload, bot.client.user.id);
                     bot.logger.log(`Found ${orphanedReminders.length} orphaned reminders.`);
                     for(let i = 0; i < orphanedReminders.length; i++){
                         let reminder = orphanedReminders[i];
