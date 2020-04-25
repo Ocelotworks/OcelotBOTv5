@@ -12,21 +12,19 @@ module.exports = {
 
         const term = encodeURIComponent(args.slice(1).join(" "));
 
-        request({uri:"https://wordsapiv1.p.mashape.com/words/"+encodeURIComponent(term), headers:{"X-Mashape-Key": key}}, function(err, resp, body){
+        request({uri:`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${encodeURIComponent(term)}?key=${key}`}, function(err, resp, body){
            if(err)
                return message.replyLang("GENERIC_ERROR");
 
            try{
                const data = JSON.parse(body);
-               if(!data || !data.results || data.results.length === 0)
+               if(!data || data.length === 0)
                    return message.channel.send("No results.");
-               bot.util.standardPagination(message.channel, data.results, async function(result){
+               bot.util.standardPagination(message.channel, data, async function(result){
                    const embed = new Discord.RichEmbed();
 
-                   embed.setTitle(`Definition for "${data.word}" (${result.partOfSpeech}):`);
-                   embed.setDescription(result.definition);
-                   if(result.synonyms)
-                    embed.addField("Synonyms", result.synonyms.join(", "));
+                   embed.setTitle(`Definition for "${result.hwi ? result.hwi.hw : term}" (${result.fl}):`);
+                   embed.setDescription(result.shortdef ? result.shortdef.join("\n") : "Unknown?");
                    return embed;
                })
            }catch(e){
