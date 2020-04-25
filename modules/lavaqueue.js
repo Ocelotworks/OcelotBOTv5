@@ -85,8 +85,8 @@ module.exports = {
                 bot.logger.info("Leaving voice channel "+channel.id+" due to "+source);
                 if(channel.guild) {
                     await bot.lavaqueue.manager.leave(channel.guild.id);
-                    let player = bot.lavaqueue.manager.players.get(channel.guild.id);
-                    await player.destroy();
+                   // let player = bot.lavaqueue.manager.players.get(channel.guild.id);
+                    //await player.destroy();
 
                     if(bot.music){
                         bot.music.deconstructListener(channel.guild.id);

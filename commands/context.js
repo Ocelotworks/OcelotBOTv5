@@ -1,4 +1,5 @@
 const  dateformat = require('dateformat');
+const Discord = require('discord.js');
 module.exports = {
     name: "Topic Context",
     usage: "context",
@@ -20,13 +21,13 @@ module.exports = {
             let output = "```markdown\n";
             for(let i = 0; i < context.length; i++){
                 const msg = context[i];
-                const date = dateformat(new Date(msg.time), 'UTC:dd/mm/yy HH:MM:ss Z');
+                 const date = dateformat(new Date(msg.time), 'UTC:dd/mm/yy HH:MM:ss Z');
                 output+= `${msg.message===topicMessage ? "#":" "}[${date}] <${msg.user}> ${msg.message}\n`;
             }
             output += "\n```";
             message.channel.send(output);
         }else{
-             message.channel.send("Topic not found in database.");
+             message.channel.send("Topic not found in database.", new Discord.Attachment("https://wompampsupport.azureedge.net/fetchimage?siteId=7575&v=2&jpgQuality=100&width=700&url=https%3A%2F%2Fi.kym-cdn.com%2Fentries%2Ficons%2Ffacebook%2F000%2F023%2F967%2Fobiwan.jpg"));
         }
         message.channel.stopTyping();
 
