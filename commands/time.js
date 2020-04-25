@@ -50,11 +50,15 @@ module.exports = {
             let twelveHourTime = time.getHours() < 12 ? time.getHours() : time.getHours() - 12;
 
             let emoji = `:clock${twelveHourTime}${(time.getMinutes() >= 30) ? "30" : ""}:`;
-
-            if (twelveHourTime === 4 && time.getMinutes() === 20) emoji = "<:weed:478962396296380422>";
-            if (twelveHourTime === 9 && time.getMinutes() === 11) emoji = ":airplane: :office: :office:";
-            if (twelveHourTime === 5 && time.getMinutes() === 5) emoji = "Whether it's a 7 hour flight or a 45 minute drive - ";
-            if (twelveHourTime === 12 && time.getMinutes() === 34) emoji = "🔢";
+            if(!message.getBool("wholesome")) {
+                if (twelveHourTime === 4 && time.getMinutes() === 20) emoji = "<:weed:478962396296380422>";
+                if (twelveHourTime === 9 && time.getMinutes() === 11) emoji = ":airplane: :office: :office:";
+                if (time.getHours() === 3 && time.getMinutes() === 0) emoji = "It's 3AM I'm calling just to tell you that without you here, I'm losing sleep\n";
+                if (time.getHours() === 5 && time.getMinutes() === 0) emoji = "It's 5 o'clock in the morning, conversation got boring - ";
+                if (time.getHours() === 1 && time.getMinutes() === 15) emoji = "It's a quarter after one I'm all alone and I need you now - ";
+                if (twelveHourTime === 5 && time.getMinutes() === 5) emoji = "Whether it's a 7 hour flight or a 45 minute drive - ";
+                if (twelveHourTime === 12 && time.getMinutes() === 34) emoji = "🔢";
+            }
             message.replyLang("TIME_MESSAGE", {
                 time: timeMessage.substring(0, timeMessage.indexOf("GMT")),
                 emoji: emoji
