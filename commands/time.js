@@ -51,12 +51,15 @@ module.exports = {
 
             let emoji = `:clock${twelveHourTime}${(time.getMinutes() >= 30) ? "30" : ""}:`;
             if(!message.getBool("wholesome")) {
-                if (twelveHourTime === 4 && time.getMinutes() === 20) emoji = "<:weed:478962396296380422>";
-                if (twelveHourTime === 9 && time.getMinutes() === 11) emoji = ":airplane: :office: :office:";
-                if (time.getHours() === 3 && time.getMinutes() === 0) emoji = "It's 3AM I'm calling just to tell you that without you here, I'm losing sleep\n";
-                if (time.getHours() === 5 && time.getMinutes() === 0) emoji = "It's 5 o'clock in the morning, conversation got boring - ";
                 if (time.getHours() === 1 && time.getMinutes() === 15) emoji = "It's a quarter after one I'm all alone and I need you now - ";
-                if (twelveHourTime === 5 && time.getMinutes() === 5) emoji = "Whether it's a 7 hour flight or a 45 minute drive - ";
+                if (time.getHours() === 3 && time.getMinutes() === 0) emoji = "It's 3AM I'm calling just to tell you that without you here, I'm losing sleep\n";
+                if (twelveHourTime === 4 && time.getMinutes() === 20) emoji = "<:weed:478962396296380422>";
+                if (time.getHours()=== 4 && time.getMinutes() === 30) emoji = "At 4:30 in the morning I'm milking cows, Jedediah feeds the chickens and Jacob plows -";
+                if (time.getHours() === 5 && time.getMinutes() === 0) emoji = "It's 5 o'clock in the morning, conversation got boring - ";
+                if (time.getHours() === 7 && time.getMinutes() === 0 && time.getDay() === 5) emoji = "7AM waking up in the morning gotta be fresh gotta go downstairs -";
+                if (time.getHours() === 7 && time.getMinutes() === 45 && time.getDay() === 5) emoji = "7:45 we're driving on the highway -";
+                if (twelveHourTime === 9 && time.getMinutes() === 11) emoji = ":airplane: :office: :office:";
+                if (time.getHours() === 0 && time.getMinutes() === 15) emoji = "It's a quarter past midnight as we cut through the city -";
                 if (twelveHourTime === 12 && time.getMinutes() === 34) emoji = "🔢";
             }
             message.replyLang("TIME_MESSAGE", {
