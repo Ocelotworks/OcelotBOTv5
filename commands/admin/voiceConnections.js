@@ -13,10 +13,12 @@ module.exports = {
         let formatted = [];
         bot.lavaqueue.manager.nodes.forEach(function(node, host){
             formatted.push({
-                "host ::": host+" ::",
-                ready: node.ready ? "✔": "✖",
+                "host ::": node.host+" ::",
+                ready: node.connected ? "✔": "✖",
                 playing: node.stats.playingPlayers,
-                total: node.stats.players
+                total: node.stats.players,
+                memory: bot.util.prettyMemory(node.stats.memory.used),
+                cpu: node.stats.cpu.lavalinkLoad.toFixed(2),
             });
         });
         message.channel.send(`\`\`\`asciidoc\n${columnify(formatted)}\n\`\`\``);
