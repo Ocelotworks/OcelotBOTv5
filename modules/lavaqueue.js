@@ -116,7 +116,7 @@ module.exports = {
             player.play(songData.track);
             player.once("error", function playerError(error){
                 bot.raven.captureException(error);
-                bot.logger.error(error.error); //YEs
+                bot.logger.error("Player Error: "+error.error); //YEs
             });
             player.once("event", data => {
                 if (!data.reason || data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops
