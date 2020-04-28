@@ -127,15 +127,15 @@ module.exports = {
             });
         });
 
-        bot.client.on("reconnecting", function discordReconnecting(evt){
-            bot.logger.log("Reconnecting...");
-            Sentry.getCurrentHub().addBreadcrumb({
-                category: "discord",
-                message: "Reconnecting",
-                level: Sentry.Severity.Warning,
-                data: evt
-            });
-        });
+        // bot.client.on("reconnecting", function discordReconnecting(evt){
+        //     bot.logger.log("Reconnecting...");
+        //     Sentry.getCurrentHub().addBreadcrumb({
+        //         category: "discord",
+        //         message: "Reconnecting",
+        //         level: Sentry.Severity.Warning,
+        //         data: evt
+        //     });
+        // });
 
         bot.client.on("disconnect", function discordDisconnected(evt){
             Sentry.getCurrentHub().addBreadcrumb({
