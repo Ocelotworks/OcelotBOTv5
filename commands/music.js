@@ -124,7 +124,7 @@ module.exports = {
            }
         });
     },
-    getAutoDJSong: async function getAutoDJSong(){
+    getAutoDJSong: async function getAutoDJSong(player){
         return new Promise(async function(fulfill){
             if(module.exports.shuffleQueue.length < 5)
                 module.exports.populateShuffleQueue();
@@ -132,7 +132,7 @@ module.exports = {
 
             if(!petifySong){
                 bot.logger.warn("Shits fucked");
-                let songData = await bot.lavaqueue.getSong("https://unacceptableuse.com/petify/song/ecf0cfe1-a893-4594-b353-1dbd7063e241"); //FUCK!
+                let songData = await bot.lavaqueue.getSong("https://unacceptableuse.com/petify/song/ecf0cfe1-a893-4594-b353-1dbd7063e241", player); //FUCK!
                 songData.info.author = "Moloko";
                 songData.info.title = "Moloko - The Time Is Now";
                 fulfill(songData);
@@ -142,7 +142,7 @@ module.exports = {
                     try {
                         const data = JSON.parse(body);
                         let path = data.path;
-                        let songData = await bot.lavaqueue.getSong(path);
+                        let songData = await bot.lavaqueue.getSong(path, player);
                         songData.info.author = petifySong.artist;
                         songData.info.title = `${petifySong.artist} - ${petifySong.title}`;
                         songData.info.albumArt = "https://unacceptableuse.com/petify/album/"+data.album;
@@ -170,7 +170,7 @@ module.exports = {
 
         if(!newSong || (listener.voiceChannel && listener.voiceChannel.members.size === 1)) {
             if(listener.autodj)
-                newSong = await module.exports.getAutoDJSong();
+                newSong = await module.exports.getAutoDJSong(listener.connection);
             else {
                 listener.playing = null;
                 return bot.lavaqueue.requestLeave(listener.voiceChannel, "Queue is empty and AutoDJ is disabled.");
