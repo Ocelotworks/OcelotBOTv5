@@ -8,6 +8,13 @@ const commonWords = [
 
 const reg = /:[^:\s]+:/g;
 
+const COST_PER_CMD = 0.00014290616;
+const COST_PER_IMG = 0.0013365079365079;
+const COST_PER_REMOVEBG = 0.80;
+const COST_PER_AI = 0.00083236224;
+const COST_PER_GM = 0.0622328931572629;
+const COST_PER_FACERECOG = 0.746;
+
 module.exports = {
     name: "User Stats",
     usage: "userstats <user>",
@@ -84,12 +91,30 @@ module.exports = {
                 if(triviaResult && triviaResult['count(*)'])
                     triviaCount = triviaResult['count(*)'].toLocaleString();
 
+                let countPerCommand = await bot.database.getCommandCountByCommand(target);
+
+                let cost = 0;
+
+                cost += commandResult['commandCount']*COST_PER_CMD;
+                console.log(cost);
+                cost += getAllIn(countPerCommand, ['im', 'image', 'googleimage'])*COST_PER_IMG;
+                console.log(cost);
+                cost += countPerCommand['removebg']*COST_PER_REMOVEBG;
+                console.log(cost);
+                cost += getAllIn(countPerCommand, ['bulge', 'trim', 'swirl', 'zoom', 'deepfry', 'omegle', 'wave', 'curse', 'zork', 'z5'])*COST_PER_GM;
+                console.log(cost);
+                cost += getAllIn(countPerCommand, ['identify', 'eyes', 'age'])*COST_PER_FACERECOG;
+                console.log(cost);
+                cost += countPerCommand['ai']*COST_PER_AI;
+                console.log(cost);
+
                 message.replyLang("USERSTATS_MESSAGE", {
                     target,
                     commandCount,
                     voteCount,
                     guessCount,
-                    triviaCount
+                    triviaCount,
+                    cost: cost.toFixed(2),
                 });
 
                 message.channel.stopTyping();
@@ -209,3 +234,11 @@ module.exports = {
         }, 2000);
     }
 };
+
+function getAllIn(counts, commands){
+    let output = 0;
+    for(let i = 0; i < commands.length; i++){
+        output += counts[commands[i]] || 0
+    }
+    return output;
+}
