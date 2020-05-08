@@ -54,8 +54,6 @@ module.exports = {
         bot.lavaqueue = {};
         bot.lavaqueue.getSongs = async function getSongs(search, player) {
             return new Promise(function(fulfill, reject){
-                console.log(player);
-
                 const params = new URLSearchParams();
                 params.append("identifier", search);
                 request({url: `http://${player.node.host}:${player.node.port}/loadtracks?${params.toString()}`,  headers: { Authorization: player.node.password } }, function(err, resp, body){
@@ -120,7 +118,6 @@ module.exports = {
             });
             player.once("event", data => {
                 if (!data.reason || data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops
-                console.log(data);
                 bot.tasks.endTask("playOneSong", voiceChannel.id);
                 bot.logger.log("Song ended");
                 bot.lavaqueue.requestLeave(voiceChannel, "player playOneSong Song ended");

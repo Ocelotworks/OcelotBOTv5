@@ -182,9 +182,6 @@ module.exports = {
         listener.playing = newSong;
 
         listener.voteSkips = [];
-        console.log("Now playing");
-        console.log(listener.playing);
-
 
         console.log("Playing");
         module.exports.playSong(listener);
@@ -297,8 +294,6 @@ module.exports = {
                     bot.logger.log("Song ended");
                     module.exports.playNextInQueue(listener.server);
                     bot.lavaqueue.requestLeave(listener.voiceChannel, "Song has ended");
-                }else{
-                    console.log(evt);
                 }
             },
             playerUpdateListener: function playerUpdate(evt){

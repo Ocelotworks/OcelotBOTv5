@@ -850,6 +850,15 @@ module.exports = {
             getTotalCorrectGuesses: function(user){
                 return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").groupBy("user").where({user, correct: 1});
             },
+            getCommandCountByCommand: async function(userID){
+                let result = await knex.select(knex.raw("COUNT(*)"), "commandID").from("commandlog").groupBy("commandID").where({userID});
+                let output = {};
+                for(let i = 0; i < result.length; i ++){
+                    let row = result[i];
+                    output[row.commandID] = row['COUNT(*)'];
+                }
+                return output;
+            },
             getGuessStats: async function(){
                 return {
                     totalGuesses: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess"))[0]['COUNT(*)'],
