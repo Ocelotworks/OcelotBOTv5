@@ -8,6 +8,8 @@ const config = require('config').get("Commands.ai");
 const Cleverbot = require('cleverbot');
 
 
+let contexts = {};
+
 let clev = new Cleverbot({
     key: config.get("key")
 });
@@ -25,7 +27,8 @@ module.exports = {
         try {
             message.channel.startTyping();
             let input = encodeURIComponent(message.cleanContent.substring(args[0].length + 1));
-            let response = await clev.query(input);
+            let response = await clev.query(input, {cs: contexts[message.channel.id]});
+            contexts[message.channel.id] = response.cs;
 
             if(response.output)
                 message.channel.send(response.output);
