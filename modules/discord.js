@@ -4,19 +4,24 @@ const Reattempt = require("reattempt").default;
 const Discord = require('discord.js');
 const Sentry = require('@sentry/node');
 const presenceMessages = [
-    "!help",
-    "!profile",
-    "!guess",
-    "!premium",
-    "!premium",
-    "!vote",
-    "Minecraft Parody Songs",
-    "lord jesus help us all",
-    "ass",
-    "is this thing on",
-    "cha cha real smooth",
-    "stonks",
-    "farts"
+    {message: "!help", type: 'CUSTOM_STATUS'},
+    {message: "!profile", type: 'CUSTOM_STATUS'},
+    {message: "!guess", type: 'CUSTOM_STATUS'},
+    {message: "!premium", type: 'CUSTOM_STATUS'},
+    {message: "!premium", type: 'CUSTOM_STATUS'},
+    {message: "!vote", type: 'CUSTOM_STATUS'},
+    {message: "Minecraft Parody Songs", type: 'LISTENING'},
+    {message: "lord jesus help us all", type: 'CUSTOM_STATUS'},
+    {message: "ass", type: 'WATCHING'},
+    {message: "is this thing on", type: 'CUSTOM_STATUS'},
+    {message: "cha cha real smooth", type: 'CUSTOM_STATUS'},
+    {message: "stonks", type: 'WATCHING'},
+    {message: "farts", type: 'LISTENING'},
+    {message: "that faint ringing", type: 'LISTENING'},
+    {message: "the world burn", type: 'WATCHING'},
+    {message: "you in the shower", type: 'WATCHING'},
+    {message: "to your complaints", type: 'LISTENING'},
+    {message: "staying indoors", type: 'CUSTOM_STATUS'},
 ];
 
 
@@ -99,12 +104,13 @@ module.exports = {
             if(now-bot.lastPresenceUpdate>100000) {
                 bot.lastPresenceUpdate = now;
                 const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-               bot.client.user.setPresence({
-                  game: {
-                      name: `${bot.presenceMessage ? bot.presenceMessage : bot.util.arrayRand(presenceMessages)} | ${serverCount.toLocaleString()} servers.`,
-                      type: "LISTENING"
-                  }
-               });
+                let randPresence =  bot.util.arrayRand(presenceMessages);
+                await bot.client.user.setPresence({
+                   game: {
+                       name: `${bot.presenceMessage ? bot.presenceMessage : randPresence.message} | ${serverCount.toLocaleString()} servers.`,
+                       type: randPresence.type
+                   }
+                });
             }
         };
 
