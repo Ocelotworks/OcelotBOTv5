@@ -93,7 +93,7 @@ function init(){
     bot.tracer = tracer.init({analytics: true, service: "ocelotbot"});
     process.setMaxListeners(100);
     bot.bus = new EventEmitter();
-    bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225", "145193838829371393"];
+    bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225", "145193838829371393", "112386674155122688"];
     loadModules();
 }
 
