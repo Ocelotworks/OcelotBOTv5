@@ -4,24 +4,24 @@ const Reattempt = require("reattempt").default;
 const Discord = require('discord.js');
 const Sentry = require('@sentry/node');
 const presenceMessages = [
-    {message: "!help", type: 'CUSTOM_STATUS'},
-    {message: "!profile", type: 'CUSTOM_STATUS'},
-    {message: "!guess", type: 'CUSTOM_STATUS'},
-    {message: "!premium", type: 'CUSTOM_STATUS'},
-    {message: "!premium", type: 'CUSTOM_STATUS'},
-    {message: "!vote", type: 'CUSTOM_STATUS'},
+    {message: "!help", type: 'LISTENING'},
+    {message: "!profile", type: 'LISTENING'},
+    {message: "!guess", type: 'LISTENING'},
+    {message: "!premium", type: 'LISTENING'},
+    {message: "!premium", type: 'LISTENING'},
+    {message: "!vote", type: 'LISTENING'},
     {message: "Minecraft Parody Songs", type: 'LISTENING'},
-    {message: "lord jesus help us all", type: 'CUSTOM_STATUS'},
+    {message: "lord jesus help us all", type: 'LISTENING'},
     {message: "ass", type: 'WATCHING'},
-    {message: "is this thing on", type: 'CUSTOM_STATUS'},
-    {message: "cha cha real smooth", type: 'CUSTOM_STATUS'},
+    {message: "is this thing on", type: 'LISTENING'},
+    {message: "cha cha real smooth", type: 'LISTENING'},
     {message: "stonks", type: 'WATCHING'},
     {message: "farts", type: 'LISTENING'},
     {message: "that faint ringing", type: 'LISTENING'},
     {message: "the world burn", type: 'WATCHING'},
     {message: "you in the shower", type: 'WATCHING'},
-    {message: "to your complaints", type: 'LISTENING'},
-    {message: "staying indoors", type: 'CUSTOM_STATUS'},
+    {message: "your complaints", type: 'LISTENING'},
+    {message: "staying indoors", type: 'LISTENING'},
 ];
 
 
