@@ -75,24 +75,6 @@ module.exports = {
                 }
             }
         },
-        bypassnsfw: {
-            name: "Bypass NSFW check",
-            help: "Allow NSFW commands in any channel regardless of NSFW status",
-            setting: "bypassnsfw",
-            value: "true or false",
-            format: function(input){
-                return `\`${input}\``
-            },
-            onSet: async function(message, args, bot){
-                if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
-                    const bool = bools[args[3].toLowerCase()];
-                    await bot.config.set(message.guild.id, "bypassNSFWCheck", bool);
-                    message.replyLang(`SETTINGS_BYPASS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
-                }else{
-                    message.replyLang("SETTINGS_BYPASS_NSFW_NONE", {arg: args[0]});
-                }
-            }
-        },
         seriousporn: {
             name: "Serious Porn Suggest mode",
             help: "Give actual suggestions with !pornsuggest instead of joke ones.",

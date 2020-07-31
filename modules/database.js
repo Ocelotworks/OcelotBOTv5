@@ -476,6 +476,7 @@ module.exports = {
              * @returns {*}
              */
             getMessageID: function(user, message){
+                message = message.replace(/<@!?\d+>/g, '<@!?[0-9]+>')
                 return knex.select("id").from("Messages").where({message: message, user: user});
             },
             /**

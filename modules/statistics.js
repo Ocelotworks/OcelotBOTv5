@@ -131,88 +131,88 @@ module.exports = {
 
 
                 try {
-                    await bot.stats.influx.writePoints([
-                        {
-                            measurement: "commandsPerMinute",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {commands: bot.stats.commandsPerMinute}
-                        },
-                        {
-                            measurement: "messagesPerMinute",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {messages: bot.stats.messagesPerMinute}
-                        },
-                        {
-                            measurement: "commandsTotal",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {commands: bot.stats.commandsTotal}
-                        },
-                        {
-                            measurement: "messagesTotal",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {messages: bot.stats.messagesTotal}
-                        },
-                        {
-                            measurement: "serversTotal",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {servers: bot.client.guilds.size}
-                        },
-                        {
-                            measurement: "usersTotal",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {usersTotal: bot.client.users.size}
-                        },
-                        {
-                            measurement: "channelsTotal",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {channelsTotal: bot.client.channels.size}
-                        },
-                        {
-                            measurement: "websocketPing",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {websocketPing: bot.client.ping}
-                        },
-                        {
-                            measurement: "messagesSentPerMinute",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {messages: bot.stats.messagesSentPerMinute}
-                        },
-                        {
-                            measurement: "botRateLimits",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {botRateLimits: bot.stats.botRateLimits}
-                        },
-                        {
-                            measurement: "errors",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {errors: bot.stats.errors}
-                        },
-                        {
-                            measurement: "warnings",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {warnings: bot.stats.warnings}
-                        },
-                        {
-                            measurement: "commandCacheSize",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {commandCacheSize: Object.keys(bot.commandCache).length}
-                        },
-                        {
-                            measurement: "voiceConnections",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {voiceConnections: bot.lavaqueue.manager.players.size}
-                        },
-                        {
-                            measurement: "connectionStatus",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {connectionStatus: bot.client.status}
-                        },
-                        {
-                            measurement: "reconnects",
-                            tags: {"shard": bot.client.shard.id},
-                            fields: {reconnects: bot.stats.reconnects}
-                        }
-                    ]);
+                    // await bot.stats.influx.writePoints([
+                    //     {
+                    //         measurement: "commandsPerMinute",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {commands: bot.stats.commandsPerMinute}
+                    //     },
+                    //     {
+                    //         measurement: "messagesPerMinute",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {messages: bot.stats.messagesPerMinute}
+                    //     },
+                    //     {
+                    //         measurement: "commandsTotal",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {commands: bot.stats.commandsTotal}
+                    //     },
+                    //     {
+                    //         measurement: "messagesTotal",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {messages: bot.stats.messagesTotal}
+                    //     },
+                    //     {
+                    //         measurement: "serversTotal",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {servers: bot.client.guilds.size}
+                    //     },
+                    //     {
+                    //         measurement: "usersTotal",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {usersTotal: bot.client.users.size}
+                    //     },
+                    //     {
+                    //         measurement: "channelsTotal",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {channelsTotal: bot.client.channels.size}
+                    //     },
+                    //     {
+                    //         measurement: "websocketPing",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {websocketPing: bot.client.ping}
+                    //     },
+                    //     {
+                    //         measurement: "messagesSentPerMinute",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {messages: bot.stats.messagesSentPerMinute}
+                    //     },
+                    //     {
+                    //         measurement: "botRateLimits",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {botRateLimits: bot.stats.botRateLimits}
+                    //     },
+                    //     {
+                    //         measurement: "errors",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {errors: bot.stats.errors}
+                    //     },
+                    //     {
+                    //         measurement: "warnings",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {warnings: bot.stats.warnings}
+                    //     },
+                    //     {
+                    //         measurement: "commandCacheSize",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {commandCacheSize: Object.keys(bot.commandCache).length}
+                    //     },
+                    //     {
+                    //         measurement: "voiceConnections",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {voiceConnections: bot.lavaqueue.manager.players.size}
+                    //     },
+                    //     {
+                    //         measurement: "connectionStatus",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {connectionStatus: bot.client.status}
+                    //     },
+                    //     {
+                    //         measurement: "reconnects",
+                    //         tags: {"shard": bot.client.shard.id},
+                    //         fields: {reconnects: bot.stats.reconnects}
+                    //     }
+                    // ]);
                 }catch(e){
                     bot.logger.warn("Couldn't upload stats: "+e);
                 }

@@ -60,10 +60,12 @@ module.exports = {
                     return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
                 }
 
-                if(message.guild && !message.channel.nsfw && commandUsage.categories.indexOf("nsfw") > -1 &&  !message.getBool("bypassNSFWCheck")) {
+                if(message.guild && !message.channel.nsfw && commandUsage.categories.indexOf("nsfw") > -1) {
                     span.setTag('command.outcome', 'NSFW Channel Required');
                     span.finish();
-                    return message.channel.send(`:warning: This command can only be used in NSFW channels.\nYou can bypass this check with  **${message.getSetting("prefix")}settings set bypassNSFW true**`);
+                    if(message.getBool("bypassNSFWCheck"))
+                        return message.channel.send(`:warning: This command can only be used in NSFW channels.\nSorry, Discord Terms of Service changes mean I can no longer allow you to use NSFW commands outside of NSFW channels.`);
+                    return message.channel.send(`:warning: This command can only be used in NSFW channels.`);
                 }
 
                 if(message.getBool(`${command}.disable`)) {
