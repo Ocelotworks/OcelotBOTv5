@@ -34,16 +34,23 @@ module.exports = {
                 let commandUsage = bot.commandUsages[command];
 
                 if(commandUsage.vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))){
-                    let lastVote = await bot.database.getLastVote(message.author.id);
-                    if(lastVote[0])
-                        lastVote = lastVote[0]['MAX(timestamp)'];
+                    if(message.getSetting("restrictionType") === "vote") {
+                        let lastVote = await bot.database.getLastVote(message.author.id);
+                        if (lastVote[0])
+                            lastVote = lastVote[0]['MAX(timestamp)'];
 
-                    let difference = new Date()-lastVote;
-                    console.log("difference is "+difference);
-                    if(difference > bot.util.voteTimeout*2) {
-                        span.setTag('command.outcome', 'Vote Required');
-                        span.finish();
-                        return message.replyLang("COMMAND_VOTE_REQUIRED")
+                        let difference = new Date() - lastVote;
+                        console.log("difference is " + difference);
+                        if (difference > bot.util.voteTimeout * 2) {
+                            span.setTag('command.outcome', 'Vote Required');
+                            span.finish();
+                            return message.replyLang("COMMAND_VOTE_REQUIRED")
+                        }
+                    }else{
+                        let inSupportServer = (await bot.client.shard.broadcastEval(`this.guilds.has("322032568558026753") && this.guilds.get("322032568558026753").members.has("${message.author.id}")`)).find((x)=>x);
+                        if(!inSupportServer){
+                            return message.channel.send("You must join the support server or purchase premium to use this command. You can join the support server here: https://discord.gg/PTaXZmE")
+                        }
                     }
                 }
 
