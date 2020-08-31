@@ -59,6 +59,7 @@ module.exports = {
         });
 
         bot.client.on("messageReactionAdd", async (reaction, user)=>{
+            if(!reaction.message.guild)return;
             if(reaction.message.guild.id !== "478950156654346292")return;
             if(reaction.emoji.toString() !== "🍞")return;
             if(reaction.message.breaded)return;
