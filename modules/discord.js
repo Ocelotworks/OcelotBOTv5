@@ -235,14 +235,14 @@ module.exports = {
                     if (webhookData && webhookData.webhookID && webhookData.webhookToken) {
                         try {
                             let webhook = new Discord.WebhookClient(webhookData.webhookID, webhookData.webhookToken);
-                            await webhook.send("Thanks for trying OcelotBOT! If you have a minute, please fill in the feedback form to help us improve: https://forms.gle/KMwXQiAAQPKzmuAp7");
+                            await webhook.send("Thanks for trying OcelotBOT! If you have any feedback, please drop it in the support server: https://discord.gg/7YNHpfF");
                             bot.logger.log("Successfully sent webhook");
                             await webhook.delete("OcelotBOT was kicked");
                             webhook.destroy();
                         } catch (e) {
                             bot.logger.warn("Failed to send webhook");
                             console.log(e);
-                            Sentry.captureException(e);
+                            //Sentry.captureException(e);
                         }
                     } else {
                         bot.logger.warn("Server had no webhook...");
