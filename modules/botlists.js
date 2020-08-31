@@ -12,12 +12,15 @@ module.exports = {
     enabled: true,
     init: function init(bot) {
         bot.client.on("guildCreate", async function(){
+            if(bot.client.user.id !== "146293573422284800")return;
 
-            function handleResponse(err, resp, body){
-                if(err) return bot.raven.captureException(err);
-                if(resp.statusCode >= 400){
-                    bot.logger.warn(`Got bad response from ${resp.headers ? resp.headers.host : "fuck this"} (${resp.statusCode})`);
-                    bot.logger.warn(body);
+            function handleResponse(url){
+                return function(err, resp, body) {
+                    if (err) return bot.raven.captureException(err);
+                    if (resp.statusCode >= 400) {
+                        bot.logger.warn(`Got bad response from ${url} (${resp.statusCode})`);
+                        bot.logger.warn(body);
+                    }
                 }
             }
 
@@ -30,10 +33,10 @@ module.exports = {
                     url: url,
                     json: true,
                     body: body
-                }, handleResponse);
+                }, handleResponse(url));
             }
 
-            postCount("https://discordbots.org/api/bots/146293573422284800/stats", config.get("Discord.discordBotsOrgKey"), {
+            postCount("https://top.gg/api/bots/146293573422284800/stats", config.get("Discord.discordBotsOrgKey"), {
                 server_count: bot.client.guilds.size,
                 shard_id: bot.client.shard.id,
                 shard_count: bot.client.shard.count
@@ -47,10 +50,6 @@ module.exports = {
 
             const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
 
-            // postCount("https://discord.services/api/bots/146293573422284800", config.get("Discord.discordServicesKey"), {
-            //     server_count: serverCount
-            // });
-
             postCount("https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds", config.get("Discord.botsOnDiscordKey"), {
                 guildCount: serverCount
             });
@@ -60,7 +59,7 @@ module.exports = {
                 shard_count: bot.client.shard.count
             });
 
-            postCount("https://discordbot.world/api/bot/146293573422284800/stats",config.get("Discord.discordBoatsClubKey"), {
+            postCount("https://discord.boats/api/bot/146293573422284800",config.get("Discord.discordBoatsClubKey"), {
                 server_count: serverCount,
             });
         });
