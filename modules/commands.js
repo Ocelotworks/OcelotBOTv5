@@ -34,7 +34,6 @@ module.exports = {
                 let commandUsage = bot.commandUsages[command];
 
                 if(commandUsage.vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))){
-                    console.log("Command requires vote");
                     let lastVote = await bot.database.getLastVote(message.author.id);
                     if(lastVote[0])
                         lastVote = lastVote[0]['MAX(timestamp)'];
@@ -63,8 +62,6 @@ module.exports = {
                 if(message.guild && !message.channel.nsfw && commandUsage.categories.indexOf("nsfw") > -1) {
                     span.setTag('command.outcome', 'NSFW Channel Required');
                     span.finish();
-                    if(message.getBool("bypassNSFWCheck"))
-                        return message.channel.send(`:warning: This command can only be used in NSFW channels.\nSorry, Discord Terms of Service changes mean I can no longer allow you to use NSFW commands outside of NSFW channels.`);
                     return message.channel.send(`:warning: This command can only be used in NSFW channels.`);
                 }
 
