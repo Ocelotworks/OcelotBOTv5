@@ -949,7 +949,7 @@ module.exports = {
                 return (await knex.select("highest", "achieved").from("ocelotbot_streaks").where({user, type}).limit(1))[0];
             },
             getBirthdays: function(server){
-                return knex.select().from("ocelotbot_birthdays").where({server}).orderBy("birthday");
+                return knex.select().from("ocelotbot_birthdays").where({server}).orderByRaw("DATE(birthday), MONTH(birthday)");
             },
             addBirthday: function(user, server, birthday){
                 return knex.insert({user, server, birthday}).into("ocelotbot_birthdays");
