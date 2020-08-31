@@ -50,7 +50,7 @@ module.exports = {
                     const lang = bot.lang.getLocale(server, author);
                     let output = bot.lang.getTranslationFor(lang, key);
                     let formattedString = output.formatUnicorn(format);
-                    if(bot.lang.strings[lang]["LANGUAGE_GENERATED"])
+                    if(bot.lang.strings[lang] && bot.lang.strings[lang]["LANGUAGE_GENERATED"])
                        return fulfill(bot.lang.langGenerators[lang](formattedString));
 
                     fulfill(formattedString);
