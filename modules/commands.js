@@ -131,7 +131,7 @@ module.exports = {
                     bot.bus.emit("commandRatelimited", command, message);
                     if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
                         console.log(bot.rateLimits[message.author.id]);
-                        bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) was ratelimited`);
+                        bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM"} (${message.guild ? message.guild.id : message.channel.id}) was ratelimited`);
                         const now = new Date();
                         const timeDifference = now-bot.lastRatelimitRefresh;
                         let timeLeft = 60000-timeDifference;
@@ -139,7 +139,7 @@ module.exports = {
                         bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
                     }else{
                         console.log(bot.rateLimits[message.author.id]);
-                        bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) was ratelimited`);
+                        bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM"} (${message.guild ? message.guild.id : message.channel.id}) was ratelimited`);
                     }
                     span.setTag('command.outcome', 'User Ratelimited');
                     span.finish();
