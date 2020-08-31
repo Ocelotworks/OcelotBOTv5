@@ -65,7 +65,7 @@ module.exports = {
                 }
             }catch(e){
                 bot.logger.log(e);
-                message.replyLang("GENERIC_ERROR");
+                message.channel.send("Unable to set nickname. This could be because you are higher in the role list than OcelotBOT.");
             }
 
         }else{
