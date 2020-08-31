@@ -26,10 +26,16 @@ module.exports = {
         const totalServers  = await bot.lang.getTranslation(server, "STATS_TOTAL_SERVERS");
         const totalChannels = await bot.lang.getTranslation(server, "STATS_TOTAL_CHANNELS");
         const uptime        = await bot.lang.getTranslation(server, "STATS_UPTIME");
-
-        const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-        const userCount     = (await bot.client.shard.fetchClientValues("users.size")).reduce((prev, val) => prev + val, 0);
-        const channelCount  = (await bot.client.shard.fetchClientValues("channels.size")).reduce((prev, val) => prev + val, 0);
+        let serverCount = 0;
+        let userCount = 0;
+        let channelCount = 0;
+        try {
+            serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+            userCount = (await bot.client.shard.fetchClientValues("users.size")).reduce((prev, val) => prev + val, 0);
+            channelCount = (await bot.client.shard.fetchClientValues("channels.size")).reduce((prev, val) => prev + val, 0);
+        }catch(e){
+            bot.raven.captureException(e);
+        }
 
         let embed = new Discord.RichEmbed();
         embed.setColor(0x189F06);
