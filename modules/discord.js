@@ -65,12 +65,14 @@ module.exports = {
                 bot.stats.messagesSentPerMinute++;
             }
 
-            content = content.replace(/<@&[0-9]+>/g, input => {
-                if (this.type === 'dm' || this.type === 'group') return input;
-                const role = this.guild.roles.get(input.replace(/<|@|>|&/g, ''));
-                if (role) return `@${role.name}`;
-                return input;
-            });
+            if(content.replace) {
+                content = content.replace(/<@&[0-9]+>/g, input => {
+                    if (this.type === 'dm' || this.type === 'group') return input;
+                    const role = this.guild.roles.get(input.replace(/<|@|>|&/g, ''));
+                    if (role) return `@${role.name}`;
+                    return input;
+                });
+            }
 
             let output = "";
             if(this.guild)
