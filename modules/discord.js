@@ -64,6 +64,14 @@ module.exports = {
             if(bot.stats){
                 bot.stats.messagesSentPerMinute++;
             }
+
+            content = content.replace(/<@&[0-9]+>/g, input => {
+                if (this.type === 'dm' || this.type === 'group') return input;
+                const role = this.guild.roles.get(input.replace(/<|@|>|&/g, ''));
+                if (role) return `@${role.name}`;
+                return input;
+            });
+
             let output = "";
             if(this.guild)
                 output += `${this.guild.name} (${this.guild.id})`;
@@ -71,6 +79,7 @@ module.exports = {
                 output += "DM Channel";
             output += " -> ";
             output += content;
+
             if(options)
                 output += " (Embed)";
 

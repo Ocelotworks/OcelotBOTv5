@@ -48,6 +48,15 @@ module.exports = {
                 shardId: bot.client.shard.id,
             });
 
+            const voiceConnections = bot.lavaqueue.manager.nodes.reduce((acc, node)=>acc+node.stats.players, 0)
+
+            postCount("https://discordbotlist.com/api/v1/bots/146293573422284800/stats", config.get("Discord.discordBotListKey"), {
+                voice_connections: voiceConnections,
+                users: bot.client.users.size,
+                guilds: bot.client.guilds.size,
+                shard_id: bot.client.shard.id,
+            });
+
             const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
 
             postCount("https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds", config.get("Discord.botsOnDiscordKey"), {
@@ -59,8 +68,38 @@ module.exports = {
                 shard_count: bot.client.shard.count
             });
 
+            postCount("https://blist.xyz/api/bot/146293573422284800/stats/", config.get("Discord.blistKey"), {
+                server_count: serverCount,
+                shard_count: bot.client.shard.count
+            });
+
+            postCount("https://bots.discordlabs.org/v2/bot/146293573422284800/stats", config.get("Discord.discordBotLabsKey"), {
+                server_count: serverCount,
+                shard_count: bot.client.shard.count,
+                token: config.get("Discord.discordBotLabsKey"),
+            });
+
+            postCount("https://arcane-botcenter.xyz/api/146293573422284800/stats",config.get("Discord.arcaneBotsKey"), {
+                server_count: serverCount,
+                shard_count: bot.client.shard.count
+            });
+
             postCount("https://discord.boats/api/bot/146293573422284800",config.get("Discord.discordBoatsClubKey"), {
                 server_count: serverCount,
+            });
+
+            postCount("https://disforge.com/api/botstats/146293573422284800",config.get("Discord.disforgeKey"), {
+                servers: serverCount,
+            });
+
+            postCount("https://api.botsdatabase.com/v1/bots/146293573422284800",config.get("Discord.botsDatabaseKey"), {
+                servers: serverCount,
+            });
+
+            postCount("https://discordapps.dev/api/v2/bots/146293573422284800",config.get("Discord.discordAppsKey"), {
+                bot: {
+                    count: serverCount,
+                },
             });
         });
     }
