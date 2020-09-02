@@ -28,7 +28,6 @@ module.exports = {
                     .resize(405)
                     .rotate("black", -4.7)
                     .extent(600, 875, "-128-455")
-                    .coalesce()
                     .toBuffer(url.endsWith('gif') ? 'GIF' : 'PNG', async function avatarToBuffer(err, buffer) {
                         if (err) {
                             bot.raven.captureException(err);

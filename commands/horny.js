@@ -28,8 +28,7 @@ module.exports = {
                     .resize(226)
                     .rotate("transparent", -24.48)
                     .extent(630, 579, "-20-150")
-                    .coalesce()
-                    .toBuffer(url.endsWith('gif') ? 'GIF' : 'PNG', async function avatarToBuffer(err, buffer) {
+                    .toBuffer('PNG', async function avatarToBuffer(err, buffer) {
                         if (err) {
                             bot.raven.captureException(err);
                             message.replyLang("CRUSH_ERROR");
@@ -38,7 +37,7 @@ module.exports = {
                         } else {
                             gm(buffer)
                                 .composite(__dirname+"/../"+config.get("template"))
-                                .toBuffer(url.endsWith('gif') ? 'GIF' : 'PNG', async function crushToBuffer(err, buffer) {
+                                .toBuffer('PNG', async function crushToBuffer(err, buffer) {
                                     if (err) {
                                         bot.raven.captureException(err);
                                         message.replyLang("CRUSH_ERROR");
@@ -46,7 +45,7 @@ module.exports = {
                                         bot.logger.error(`Error during composite stage of !horny: ${err.stack}`);
                                     } else {
                                         try {
-                                            let attachment = new Discord.Attachment(buffer, `${config.get("filename")}.${url.endsWith('gif') ? 'gif' : 'png'}`);
+                                            let attachment = new Discord.Attachment(buffer, `${config.get("filename")}.png`);
                                             message.channel.send("", attachment);
                                             message.channel.stopTyping(true);
                                         } catch (e) {
