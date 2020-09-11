@@ -26,7 +26,7 @@ const config = require('config');
 const pasync = require('promise-async');
 const uuid = require('uuid/v4');
 var knex = require('knex')(config.get("Database"));
-const series = 2019; //Spook series
+const series = 2020; //Spook series
 module.exports = {
         name: "Database Module",
         enabled: true,
@@ -706,7 +706,7 @@ module.exports = {
                 return knex.insert({id: user, firstSeen: (await bot.database.getFirstSeen(user))[0]['MIN(timestamp)']}).into("ocelotbot_profile");
             },
             getProfileBadges: function(user){
-                return knex.select().from("ocelotbot_badge_assignments").where({user: user}).innerJoin(BADGES_TABLE, "ocelotbot_badges.id", "ocelotbot_badge_assignments.badge").orderBy("ocelotbot_badge_assignments.order", "ASC");
+                return knex.select().from("ocelotbot_badge_assignments").where({user: user}).innerJoin(BADGES_TABLE, "ocelotbot_badges.id", "ocelotbot_badge_assignments.badge").orderBy("ocelotbot_badge_assignments.order", "ASC").groupByRaw("`ocelotbot_badge_assignments`.`badge`, `ocelotbot_badge_assignments`.`order`");
             },
             getBadgeTypes: function(){
                 return knex.select().from(BADGES_TABLE).orderBy("order");
