@@ -9,7 +9,9 @@ module.exports = {
     requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["doot", "toot"],
     run:  async function run(message, args, bot){
-        if(!message.guild){
+        if(args[1] && args[1].toLowerCase() === "stop"){
+            message.channel.send("https://i.imgur.com/QA8anth.jpg");
+        }else if(!message.guild){
             message.replyLang("GENERIC_DM_CHANNEL");
         }else if(!message.guild.available){
             message.replyLang("GENERIC_GUILD_UNAVAILABLE");
