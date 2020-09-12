@@ -230,7 +230,7 @@ module.exports = {
                     return bot.logger.warn("Guild is unavailable, probably discord issues.");
                 scope.addBreadcrumb({
                     category: "discord",
-                    message: "guildCreate",
+                    message: "guildDelete",
                     level: Sentry.Severity.Info,
                     data: {
                         id: guild.id,
