@@ -849,7 +849,8 @@ module.exports = {
             if(!sentMessage.deleted) {
                 bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
 
-                sentMessage.clearReactions();
+                if(sentMessage.guild)
+                    sentMessage.clearReactions();
             }else{
                 bot.logger.info(`${sentMessage.id} was deleted before the reactions expired.`);
             }
