@@ -69,7 +69,7 @@ module.exports = {
                             channel.sendLang("VOTE_MESSAGE_STREAK", {user, streak});
                         else
                             channel.sendLang("VOTE_MESSAGE", {user});
-                        delete bot.waitingVoteChannels[i];
+                        bot.waitingVoteChannels.splice(i, 1);
                         voteServer = channel.guild.id;
                         break;
                     }
