@@ -845,8 +845,10 @@ module.exports = {
                     reaction.remove(user);
 
             }, {time: reactionTime});
+            if(!sentMessage)return;
             if(!sentMessage.deleted) {
                 bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
+
                 sentMessage.clearReactions();
             }else{
                 bot.logger.info(`${sentMessage.id} was deleted before the reactions expired.`);
