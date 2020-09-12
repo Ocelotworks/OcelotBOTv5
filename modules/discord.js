@@ -185,7 +185,11 @@ module.exports = {
                     let lang = "en-gb";
                     if(guild.region.startsWith("us"))
                         lang = "en-us";
-                    await bot.database.addServer(guild.id, guild.ownerID, guild.name, guild.joinedAt, lang);
+                    try {
+                        await bot.database.addServer(guild.id, guild.ownerID, guild.name, guild.joinedAt, lang);
+                    }catch(e){
+                        console.error(e);
+                    }
                     await bot.database.unleaveServer(guild.id);
                     let mainChannel = bot.util.determineMainChannel(guild);
                     if(bot.config.getBool("global", "welcome.enabled")) {
