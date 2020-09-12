@@ -11,8 +11,9 @@ module.exports = {
     name: "Bot List Management",
     enabled: true,
     init: function init(bot) {
-        bot.client.on("guildCreate", async function(){
+        bot.client.on("guildCreate", async function(guild){
             if(bot.client.user.id !== "146293573422284800")return;
+            if(guild.unavailable)return;
 
             function handleResponse(url){
                 return function(err, resp, body) {
@@ -63,10 +64,10 @@ module.exports = {
                 guildCount: serverCount
             });
 
-            postCount("https://discordbot.world/api/bot/146293573422284800/stats", config.get("Discord.discordBotWorldKey"), {
-                guild_count: serverCount,
-                shard_count: bot.client.shard.count
-            });
+            // postCount("https://discordbot.world/api/bot/146293573422284800/stats", config.get("Discord.discordBotWorldKey"), {
+            //     guild_count: serverCount,
+            //     shard_count: bot.client.shard.count
+            // });
 
             postCount("https://blist.xyz/api/bot/146293573422284800/stats/", config.get("Discord.blistKey"), {
                 server_count: serverCount,
