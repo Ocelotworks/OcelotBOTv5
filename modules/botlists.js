@@ -49,6 +49,11 @@ module.exports = {
                 shardId: bot.client.shard.id,
             });
 
+            postCount("https://api.discordextremelist.xyz/v2/bot/146293573422284800/stats",config.get("Discord.discordExtremeKey"), {
+                guildCount: bot.client.guilds.size,
+                shardCount: bot.client.shard.count,
+            });
+
             const voiceConnections = bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes[0] ? bot.lavaqueue.manager.nodes[0].stats.players : 0;
 
             postCount("https://discordbotlist.com/api/v1/bots/146293573422284800/stats", config.get("Discord.discordBotListKey"), {
@@ -105,5 +110,4 @@ module.exports = {
         });
     }
 };
-
 
