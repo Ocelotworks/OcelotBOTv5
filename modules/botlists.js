@@ -85,7 +85,7 @@ module.exports = {
                 token: config.get("Discord.discordBotLabsKey"),
             });
 
-            postCount("https://arcane-botcenter.xyz/api/146293573422284800/stats",config.get("Discord.arcaneBotsKey"), {
+            postCount("https://arcane-center.xyz/api/146293573422284800/stats",config.get("Discord.arcaneBotsKey"), {
                 server_count: serverCount,
                 shard_count: bot.client.shard.count
             });
