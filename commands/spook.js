@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-const end = new Date("1 November 2019");
-const start = new Date("1 October 2019");
-const teaserStart = new Date("29 August 2019");
+const end = new Date("1 November 2020");
+const start = new Date("1 October 2020");
+const teaserStart = new Date("1 September 2020");
 module.exports = {
     name: "Spook",
     usage: "spook <user>",
@@ -20,6 +20,7 @@ module.exports = {
         }
 
         async function activateSpooking(){
+            return;
             bot.logger.log("Spooking is activated");
             bot.updatePresence = async function(){
                 const now = new Date();
@@ -56,21 +57,22 @@ module.exports = {
             }
         }
 
-        // bot.client.on("ready", async function ready(){
-        //     bot.rabbit.channel.assertQueue("spook");
-        //     const now = new Date();
-        //     const teaserDiff = teaserStart-now;
-        //     const startDiff = start-now;
-        //     const endDiff = start-end;
-        //     if(startDiff <= 0) {
-        //       activateSpooking();
-        //     } else if(teaserDiff <= 0){
-        //         bot.logger.log("Spook teaser time");
-        //         setTeaserMessage();
-        //         bot.util.setLongTimeout(activateSpooking, startDiff);
-        //     }
-        //     setTimeout(bot.spook.end, 20000*(bot.client.shard.id+1))
-        // });
+        bot.client.on("ready", async function ready(){
+            bot.rabbit.channel.assertQueue("spook");
+            const now = new Date();
+            const teaserDiff = teaserStart-now;
+            const startDiff = start-now;
+            const endDiff = start-end;
+            if(startDiff <= 0) {
+              activateSpooking();
+            } else if(teaserDiff <= 0){
+                bot.logger.log("Spook teaser time");
+                bot.updatePresence = setTeaserMessage;
+                setTeaserMessage();
+                bot.util.setLongTimeout(activateSpooking, startDiff);
+            }
+            //setTimeout(bot.spook.end, 20000*(bot.client.shard.id+1))
+        });
 
 
 
@@ -103,6 +105,7 @@ module.exports = {
 
         bot.spook.giveSpecialRoles = async function giveSpecialRoles(channel){
             //This line is pornographic
+            // 1 year later: this line is not pornographic, it's unreadable
             const eligibleUsers = [...new Set((await bot.util.fetchMessages(channel, 100)).filter((m)=>!m.author.bot).map((m)=>m.author))];
             const specialRoles = await bot.database.getSpookRoles();
 
@@ -309,6 +312,7 @@ module.exports = {
 
         //I feel like I'm doing my homework the day before it's due
         bot.spook.end = async function doSpookEnd(){
+            return;
             bot.logger.warn("***TRIGGERING SPOOK END***");
             bot.logger.log("Notifying Servers...");
             const servers = await bot.database.getParticipatingServers();
