@@ -24,6 +24,7 @@ module.exports = {
             for(let i = 0; i < birthdays.length; i++){
                 const birthday = birthdays[i];
                 let user = await bot.util.getUserInfo(birthday.user);
+                if(!user)continue;
                 let d = birthday.birthday; //Yes
                 d.setYear(now.getFullYear());
                 if(d <= now)
@@ -35,7 +36,7 @@ module.exports = {
                 else
                     days = days + " Day"+(days !== 1 ? "s":"");
                 formatted.push({
-                    "user ::": (user ? user.username+"#"+user.discriminator : "Unknown User "+birthday.user)+" ::",
+                    "user ::": `${user.username}#${user.discriminator} ::`,
                     birthday: `${bot.util.getNumberPrefix(d.getDate())} of ${bot.util.months[d.getMonth()]}`,
                     in: days
                 });
