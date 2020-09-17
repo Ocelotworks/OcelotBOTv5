@@ -18,6 +18,16 @@ module.exports = {
 
         let header = "```asciidoc\n";
 
+        allBirthdays = allBirthdays.map((birthday)=>{
+            let d = birthday.birthday; //Yes
+            d.setYear(now.getFullYear());
+            if(d <= now)
+                d.setYear(now.getFullYear()+1);
+
+            birthday.days = Math.floor((d-now)/8.64e+7);
+            return birthday;
+        }).sort((a,b)=>a.days-b.days);
+
         let chunkedBirthdays = allBirthdays.chunk(20);
         bot.util.standardPagination(message.channel, chunkedBirthdays, async function(birthdays, index){
             let formatted = [];
@@ -26,11 +36,7 @@ module.exports = {
                 let user = await bot.util.getUserInfo(birthday.user);
                 if(!user)continue;
                 let d = birthday.birthday; //Yes
-                d.setYear(now.getFullYear());
-                if(d <= now)
-                    d.setYear(now.getFullYear()+1);
-
-                let days = Math.floor((d-now)/8.64e+7);
+                let days = birthday.days;
                 if(days === 365)
                     days = "🎉 Today!";
                 else
