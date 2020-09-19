@@ -130,6 +130,7 @@ module.exports = {
             }else{
                 if(message.mentions && message.mentions.members && message.mentions.members.size > 0){
                     const target = message.mentions.members.first();
+                    if(target.user.bot)return message.channel.send(`:bangbang: You cannot challenge a bot to tic tac toe.`);
                     const now = new Date();
                     if(!gameRequests[message.channel.id])gameRequests[message.channel.id] = {};
                     gameRequests[message.channel.id][target.id] = {
@@ -155,6 +156,14 @@ module.exports = {
                 runningGames[message.channel.id].lastMessage = await message.channel.send(`${request.from}, your request has been accepted! It is your turn.\n${module.exports.renderBoard(message.channel.id)}\nMove with ${args[0]} [position] i.e ${args[0]} B2 for the middle.`);
                 delete gameRequests[message.channel.id];
             }else{
+                if(gameRequests[message.channel.id]) {
+                    for (let request in gameRequests[message.channel.id]) {
+                        if(gameRequests[message.channel.id].hasOwnProperty(request) && gameRequests[message.channel.id][request].from.id === message.author.id){
+                            message.channel.send(`:bangbang: You are currently waiting for <@${request}> to accept your invite by typing **${args[0]} accept**. To challenge someone else, type **${args[0]} start @user**.`)
+                            return;
+                        }
+                    }
+                }
                 message.channel.send(`:bangbang: You don't currently have any game invites. Type **${args[0]} start @user** to start one yourself.`);
             }
         }
