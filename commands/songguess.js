@@ -51,14 +51,21 @@ module.exports = {
                 message.channel.send(":warning: You are not currently in a voice channel that is playing guess!");
             }
         }else if(args[1] && args[1].toLowerCase() === "stats") {
-            let stats = await bot.database.getGuessStats();
-            let output = "**Guess Stats:**\n";
-            output += `**${songList.length.toLocaleString()}** available songs.\n`;
-            output += `**${stats.totalGuesses.toLocaleString()}** total guesses by **${stats.totalUsers}** users.\n`;
-            output += `**${stats.totalCorrect.toLocaleString()}** (**${parseInt((stats.totalCorrect / stats.totalGuesses) * 100)}%**) correct guesses.\n`;
-            output += `Average of **${bot.util.prettySeconds(stats.averageTime / 1000)}** until a correct guess.\n`;
-            output += `**${bot.util.prettySeconds(stats.totalTime / 1000)}** spent guessing in total.\n`;
-            message.channel.send(output);
+            message.channel.startTyping();
+            try {
+                let stats = await bot.database.getGuessStats();
+                let output = "**Guess Stats:**\n";
+                output += `**${songList.length.toLocaleString()}** available songs.\n`;
+                output += `**${stats.totalGuesses.toLocaleString()}** total guesses by **${stats.totalUsers}** users.\n`;
+                output += `**${stats.totalCorrect.toLocaleString()}** (**${parseInt((stats.totalCorrect / stats.totalGuesses) * 100)}%**) correct guesses.\n`;
+                output += `Average of **${bot.util.prettySeconds(stats.averageTime / 1000)}** until a correct guess.\n`;
+                output += `**${bot.util.prettySeconds(stats.totalTime / 1000)}** spent guessing in total.\n`;
+                message.channel.send(output);
+            }catch(e){
+                bot.raven.captureException(e);
+            }finally{
+                message.channel.stopTyping(true);
+            }
         }else if(args[1] && args[1].toLowerCase() === "leaderboard"){
 
             let leaderboardData;
@@ -159,7 +166,7 @@ async function doGuess(voiceChannel, message, bot){
         bot.logger.log("Title is " + answer);
         message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
         console.log("Joining");
-        let {player} = await bot.lavaqueue.playOneSong(voiceChannel, file);
+        let {player} = await bot.lavaqueue.playOneSong(voiceChannel, file, message.getSetting("songguess.node"));
         let won = false;
         let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
         runningGames[voiceChannel.id] = {player, collector};

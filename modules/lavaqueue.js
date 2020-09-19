@@ -25,12 +25,21 @@ module.exports = {
                         host: "lavalink-1.ocelot.xyz",
                         port: 2333,
                         password: config.get("Lavalink.password"),
+                        reconnectInterval: 1000,
                     },
                     {
                         id: "2",
                         host: "lavalink-2.ocelot.xyz",
                         port: 80,
                         password: config.get("Lavalink.password"),
+                        reconnectInterval: 1000,
+                    },
+                    {
+                        id: "guess",
+                        host: "lavalink-3.ocelot.xyz",
+                        port: 80,
+                        password: config.get("Lavalink.password"),
+                        reconnectInterval: 1000,
                     }
                 ], {
                     user: bot.client.user.id
@@ -47,7 +56,22 @@ module.exports = {
                 }
                 bot.lavaqueue.manager.on("error", function(node, error){
                     console.error("Node Error: ",error);
-                })
+                });
+
+                setInterval(()=>{
+                    bot.lavaqueue.manager.players.forEach(function playerHarvest(player){
+                        if(!player.playing){
+                            bot.logger.log(`Cleaning up stale player ${player.id}`)
+                            player.destroy();
+                        }
+                    });
+                    bot.lavaqueue.manager.nodes.forEach(function nodeReconnect(node){
+                        if(!node.connected){
+                            bot.logger.log(`Attempting to connect node ${node.id}`);
+                            node.connect();
+                        }
+                    })
+                }, 60000);
             }
         });
 
@@ -102,14 +126,14 @@ module.exports = {
             }
         };
 
-        bot.lavaqueue.playOneSong = async function playOneSong(voiceChannel, song){
+        bot.lavaqueue.playOneSong = async function playOneSong(voiceChannel, song, node = "1"){
             bot.lavaqueue.cancelLeave(voiceChannel);
             bot.tasks.startTask("playOneSong", voiceChannel.id);
             let player = await bot.lavaqueue.manager.join({
                 guild: voiceChannel.guild.id,
                 channel: voiceChannel.id,
-                node: "1",
-            });
+                node,
+            }, {selfdeaf: true});
             let songData = await bot.lavaqueue.getSong(song, player);
             player.play(songData.track);
             player.once("error", function playerError(error){

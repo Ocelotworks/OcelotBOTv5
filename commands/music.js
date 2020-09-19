@@ -302,9 +302,17 @@ module.exports = {
             },
             errorListener: function playerError(error){
                 console.log(error);
-                listener.channel.send(":warning: "+error.error);
-                Sentry.captureException(error.error);
-                module.exports.playNextInQueue(listener.server);
+                if(error.error) {
+                    listener.channel.send(":warning: " + error.error);
+                    Sentry.captureException(error.error);
+                    module.exports.playNextInQueue(listener.server);
+                }else if(error.reason && error.reason === "Closed by client") {
+                    bot.lavaqueue.requestLeave(listener.voiceChannel, "Closed by client");
+                }else{
+                    bot.lavaqueue.requestLeave(listener.voiceChannel, "Catastrophic failure");
+                    listener.channel.send(":warning: Something has gone horribly wrong.");
+                    listener.connection.removeListener("error", listener.errorListener);
+                }
             }
         };
         listener.connection.on("event", listener.eventListener);
