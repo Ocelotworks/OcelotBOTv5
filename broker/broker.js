@@ -25,7 +25,7 @@ const header ="\n".white+
     "  `dMMh`/MMMMMMMMMMMMMMMMMMMMMMNNMMMMMMMMM-hMMh`  \n" +
     "  dMMs   sMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMo  sMMd  \n" +
     " sMMy     /NMMMMMMMMMMMMMMMMMMMmmNMMMMMm:    yMMs \n" +
-    "-MMN`     :MMMMd"+"ssss".green+"hNMMMMMMNy"+"ssssy".green+"MMMM/     `NMM-\t© Copyright 2014-2019\n" +
+    "-MMN`     :MMMMd"+"ssss".green+"hNMMMMMMNy"+"ssssy".green+"MMMM/     `NMM-\t© Copyright 2014-"+new Date().getFullYear()+"\n" +
     "yMMo      NMMMMh"+"sssss".green+"yMMMMMMd"+"sssss".green+"mMMMMN      oMMy\tOcelotworks\n" +
     "mMM:...--:MMMMMMN"+"dddd".green+"NMMMMMMM"+"mddm".green+"MMMMMMM:----.:MMm\tpetermaguire.xyz\n" +
     "MMMyysssssmMMMMMMMMMMMMMMMMMMMMMMMMMMMMmosssssyMMM\n" +
