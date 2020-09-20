@@ -840,10 +840,17 @@ module.exports = {
             },
             getSongList: function(){
                 //return knex.select("name", "title", "path").from("petify.songs").whereNotNull("mbid").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
-                return knex.select("name", "title", "path", "album").from("petify.playlist_data").where({playlist_id: "62564ae2-b77b-41ee-8708-632815b23334"}).innerJoin("petify.songs", "petify.playlist_data.song_id", "petify.songs.id").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
+                return knex.select("songs.id", "name", "title", "path", "album").from("petify.playlist_data").where({playlist_id: "62564ae2-b77b-41ee-8708-632815b23334"}).innerJoin("petify.songs", "petify.playlist_data.song_id", "petify.songs.id").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
             },
             getSongPath: async function(id){
                 return (await knex.select("path").from("petify.songs").where({id}).limit(1))[0].path;
+            },
+            updateSongRecord: async function(song, user, time){
+                  let currentRecord = (await knex.select("time").from("ocelotbot_song_guess_records").where({song}).limit(1))[0];
+                  if(!currentRecord)
+                      return knex.insert({song, user, time}).into("ocelotbot_song_guess_records");
+                  if(currentRecord.time > time)
+                    return knex("ocelotbot_song_guess_records").update({user, time, timestamp: new Date()}).where({song}).limit(1);
             },
             getFastestSongGuess: function(song){
                 return knex.select().from("ocelotbot_song_guess").where({song, correct: 1}).orderBy("elapsed", "ASC");

@@ -315,6 +315,9 @@ module.exports = {
                 }
             }
         };
+        listener.connection.removeAllListeners("event");
+        listener.connection.removeAllListeners("playerUpdate");
+        listener.connection.removeAllListeners("error");
         listener.connection.on("event", listener.eventListener);
         listener.connection.on("playerUpdate", listener.playerUpdateListener);
         listener.connection.on("error", listener.errorListener);

@@ -62,7 +62,7 @@ module.exports = {
                     bot.lavaqueue.manager.players.forEach(function playerHarvest(player){
                         if(!player.playing){
                             bot.logger.log(`Cleaning up stale player ${player.id}`)
-                            player.destroy();
+                            bot.lavaqueue.manager.leave(player.id);
                         }
                     });
                     bot.lavaqueue.manager.nodes.forEach(function nodeReconnect(node){

@@ -54,7 +54,7 @@ module.exports = {
                 shardCount: bot.client.shard.count,
             });
 
-            const voiceConnections = bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes[0] ? bot.lavaqueue.manager.nodes[0].stats.players : 0;
+            const voiceConnections = bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.has("0") ? bot.lavaqueue.manager.nodes.get("0").stats.players : 0;
 
             postCount("https://discordbotlist.com/api/v1/bots/146293573422284800/stats", config.get("Discord.discordBotListKey"), {
                 voice_connections: voiceConnections,
