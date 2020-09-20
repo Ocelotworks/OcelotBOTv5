@@ -15,6 +15,33 @@ const columnify = require('columnify');
 const pasync = require('promise-async');
 const fs = require('fs');
 
+const relations = {
+    forwards: {
+        MASHUP: "is a mashup of",
+        SAMPLES: "samples",
+        COPIES: "copies",
+        REMIX: "is a remix of",
+        ALTERNATE: "is an alternate version of",
+        REFERENCES: "references",
+        COVER: "is a cover of",
+        DUPLICATE: "is a duplicate of",
+        PARODY: "is a parody of",
+        DEMO: "is a demo version of"
+    },
+    backwards: {
+        MASHUP: "was mashed up by",
+        SAMPLES: "was sampled by",
+        COPIES: "copied by",
+        REMIX: "was remixed in",
+        ALTERNATE: "is an alternate version of",
+        REFERENCES: "was referenced by",
+        COVER: "was covered in",
+        DUPLICATE: "is a duplicate of",
+        PARODY: "was parodied in",
+        DEMO: "is the complete version of",
+    }
+};
+
 module.exports = {
     name: "Guess The Song",
     usage: "guess [stop/stats/leaderboard]",
@@ -156,7 +183,11 @@ async function doGuess(voiceChannel, message, bot){
             return;
         if(runningGames[voiceChannel.id])
             return;
-        const song = songList[count++ % songList.length];
+        let song = songList[count++ % songList.length];
+        if(message.getSetting("songguess.force")){
+            const forcedSong = message.getSetting("songguess.force");
+            song = songList.find((song)=>song.id === forcedSong);
+        }
         const file = song.path;
         const now = new Date();
         const artistName = song.name;
@@ -164,6 +195,23 @@ async function doGuess(voiceChannel, message, bot){
         const answer = song.title.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "");
         const artist = artistName.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, "");
         bot.logger.log("Title is " + answer);
+        let hints = [];
+        request({url: `https://unacceptableuse.com/petifyv3/api/v2/song/${song.id}/related`, json: true}, (err, resp, body)=>{
+            if(err)return;
+            if(!body)return;
+            for(let i = 0; i < body.length; i++){
+                let relation = body[i];
+
+                const hintTitle = relation.relatedSong.artist.name + " - "+relation.relatedSong.title;
+                if(hintTitle.toLowerCase() === title.toLowerCase())continue;
+                hints.push({
+                    hint: relation.relatedSong.title.toLowerCase().replace(/\W/g, "").replace(/[\(\[].*[\)\]]/, ""),
+                    hintText: `This song ${relations[relation.direction][relation.relation]} **${hintTitle}**`
+                });
+            }
+            bot.logger.log(`This song has ${hints.length} hints.`);
+        })
+
         message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
         console.log("Joining");
         let {player} = await bot.lavaqueue.playOneSong(voiceChannel, file, message.getSetting("songguess.node"));
@@ -205,8 +253,12 @@ async function doGuess(voiceChannel, message, bot){
                 message.channel.send(message.author, embed);
 
                 let newOffset = guessTime-now;
-                if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset)
+                if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset) {
+                    await bot.database.updateSongRecord(title, message.author.id, newOffset);
                     message.channel.send(`:tada: You beat the previous fastest time for that song!`);
+                }else{
+                    await bot.database.updateSongRecord(title, fastestTime.user, newOffset);
+                }
 
                 let totalGuesses = await bot.database.getTotalCorrectGuesses(message.author.id);
 
@@ -220,6 +272,13 @@ async function doGuess(voiceChannel, message, bot){
                 message.replyLang("SONGGUESS_ARTIST", {id: message.author.id, artist: artistName});
             }else if(strippedMessage.indexOf(title) > -1){
                 message.reply("the song title is somewhere in your message!");
+            }else{
+                for(let i = 0; i< hints.length; i++){
+                    if(strippedMessage.indexOf(hints[i].hint) > -1 || (strippedMessage.length >= (hints[i].hint.length / 3) && answer.indexOf(strippedMessage) > -1)){
+                        message.reply(`Hint: ${hints[i].hintText}`);
+                        break;
+                    }
+                }
             }
             bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
         });
