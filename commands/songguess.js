@@ -254,7 +254,7 @@ async function doGuess(voiceChannel, message, bot){
 
                 let newOffset = guessTime-now;
                 if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset) {
-                    await bot.database.updateSongRecord(title, message.author.id, newOffset);
+                    await bot.database.updateSongRecord(title, message.author.id, fastestTime.elapsed);
                     message.channel.send(`:tada: You beat the previous fastest time for that song!`);
                 }else{
                     await bot.database.updateSongRecord(title, fastestTime.user, newOffset);
