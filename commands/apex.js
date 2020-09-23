@@ -71,7 +71,7 @@ module.exports = {
             if(!body.data || !body.data.metadata)
                 return message.channel.send(":warning: No stats found for that user.");
 
-            let embed = new Discord.RichEmbed();
+            let embed = new Discord.MessageEmbed();
 
             embed.setAuthor(`Apex Statistics for ${body.data.metadata.platformUserHandle}`, "https://i.imgur.com/GdYZo08.png");
             embed.setColor("#CD3333");

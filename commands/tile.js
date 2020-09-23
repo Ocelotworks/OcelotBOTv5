@@ -40,6 +40,6 @@ module.exports = {
         ctx.drawImage(image2, image1.width, 0, image2.width, image1.height);
 
 
-        message.channel.send("", new Discord.Attachment(cnv.toBuffer("image/png"), "tile.png"));
+        message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "tile.png"));
     },
 };

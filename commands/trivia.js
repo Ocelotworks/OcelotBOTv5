@@ -72,7 +72,7 @@ module.exports = {
                         }
                         if(i <= 10)
                             try {
-                                let user = bot.client.users.get(entry.user);
+                                let user = bot.client.users.cache.get(entry.user);
                                 if(!user)
                                     user = await bot.util.getUserInfo(entry.user);
                                 data.push({
@@ -143,7 +143,7 @@ module.exports = {
                             bot.util.shuffle(answers);
                             const isBoolean = question.type === "boolean";
 
-                            let embed = new Discord.RichEmbed();
+                            let embed = new Discord.MessageEmbed();
 
                             embed.setTitle(await bot.lang.getTranslation(message.guild.id, "TRIVIA_SECONDS", {seconds: message.getSetting("trivia.seconds")}));
                             embed.setDescription(decodeURIComponent(question.question));
@@ -179,7 +179,7 @@ module.exports = {
                                     }
 
                                     if(permissions.has("MANAGE_MESSAGES"))
-                                        sentMessage.clearReactions();
+                                        sentMessage.reactions.removeAll();
 
                                     let answered = [];
                                     let cheaters = [];
@@ -188,7 +188,7 @@ module.exports = {
                                     const reactionArray = reactionResult.array();
 
                                     for (const reaction of reactionArray) {
-                                        const userArray = reaction.users.array();
+                                        const userArray = reaction.users.cache.array();
                                         for (const user of userArray) {
                                             if(user.id === bot.client.user.id)
                                                 continue;
@@ -200,7 +200,7 @@ module.exports = {
                                                 continue;
                                             }
                                             answered.push(user.id);
-                                            if(reaction._emoji.name === correctReaction)
+                                            if(reaction.emoji.name === correctReaction)
                                                 correct.push(user.id);
                                         }
                                     }
@@ -224,8 +224,8 @@ module.exports = {
 
                                             bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(async function(){
                                                 let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['count(*)'];
-                                                await bot.badges.updateBadge(bot.client.users.get(correct[i]), 'trivia', count, message.channel);
-                                                await bot.badges.updateBadge(bot.client.users.get(correct[i]), 'streak', streak, message.channel);
+                                                await bot.badges.updateBadge(bot.client.users.cache.get(correct[i]), 'trivia', count, message.channel);
+                                                await bot.badges.updateBadge(bot.client.users.cache.get(correct[i]), 'streak', streak, message.channel);
                                             });
                                         }
 

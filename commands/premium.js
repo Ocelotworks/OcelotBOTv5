@@ -13,7 +13,7 @@ module.exports = {
     categories: ["meta"],
     init: function(bot){
         bot.client.on("ready", function startPremiumListener(){
-           if(bot.client.guilds.has("322032568558026753")){
+           if(bot.client.guilds.cache.has("322032568558026753")){
                bot.logger.log("Listening for premium changes on this shard");
                bot.client.on("guildMemberUpdate", async function guildMemberUpdate(oldMember, newMember){
                     if(oldMember.guild.id !== "322032568558026753")return;
@@ -42,7 +42,7 @@ You now have access to the following features:
                         await bot.database.setUserSetting(user.id, "rateLimit", 400);
                         bot.client.shard.send({type: "reloadUserConfig"});
                         await bot.database.giveBadge(user.id, 52);
-                        bot.client.channels.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Premium**! <3`);
+                        bot.client.channels.cache.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Premium**! <3`);
                     }else if(newMember.hoistRole && newMember.hoistRole.name === "Server Premium"){
                         bot.logger.log("Found new server premium subscriber "+newMember);
                         let user = newMember.user;
@@ -67,7 +67,7 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
                         await bot.database.setUserSetting(user.id, "rateLimit", 400);
                         bot.client.shard.send({type: "reloadUserConfig"});
                         await bot.database.giveBadge(user.id, 52);
-                        bot.client.channels.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Server Premium**! <3`);
+                        bot.client.channels.cache.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Server Premium**! <3`);
                     }
                });
            }
@@ -106,7 +106,7 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
             return;
         }
 
-        let embed = new Discord.RichEmbed();
+        let embed = new Discord.MessageEmbed();
         embed.setTitle("Premium Status");
         embed.setURL("https://ocelot.xyz/premium");
         embed.setThumbnail("https://ocelot.xyz/badge.php?id=52");

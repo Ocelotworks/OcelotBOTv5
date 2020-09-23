@@ -10,7 +10,7 @@ module.exports = {
         }else{
             let output = "";
             let emojiCount = 0;
-            bot.client.emojis.forEach(function(emoji){
+            bot.client.emojis.cache.forEach(function(emoji){
                 if(emoji.requiresColons && emoji.name.toLowerCase().indexOf(args[1].toLowerCase()) > -1 && output.length <= 1900 && emojiCount < message.getSetting("emoji.count")){
                     emojiCount++;
                     output +=  emoji+" ";

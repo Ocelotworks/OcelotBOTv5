@@ -117,7 +117,7 @@ module.exports = {
                 else
                     bot.crates[message.author.id] = 1;
 
-                let embed = new Discord.RichEmbed();
+                let embed = new Discord.MessageEmbed();
                 embed.setThumbnail("https://i.imgur.com/0JkoaVs.png");
                 embed.setTitle("You got an OcelotCRATE");
                 embed.setDescription(`Open it with ${message.getSetting("prefix")}open`);
@@ -149,7 +149,7 @@ module.exports = {
 
             const crate = crateTypes[i];
 
-            let embed = new Discord.RichEmbed();
+            let embed = new Discord.MessageEmbed();
 
             embed.setTitle(`You got: ${crate.name}`);
             embed.setDescription(crate.desc);

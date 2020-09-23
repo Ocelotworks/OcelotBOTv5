@@ -11,15 +11,15 @@ module.exports = {
             cwd: "./broker/",
             env: ocelotEnv,
         },
-        {
-            name: "ob-staging",
-            script: "broker.js",
-            cwd: "./broker/",
-            env: {
-                NODE_ENV: "staging",
-                PORT: "3007"
-            },
-        },
+        // {
+        //     name: "ob-staging",
+        //     script: "broker.js",
+        //     cwd: "./broker/",
+        //     env: {
+        //         NODE_ENV: "staging",
+        //         PORT: "3007"
+        //     },
+        // },
         {
             name: "ob-analytics",
             script: "analytics.js",

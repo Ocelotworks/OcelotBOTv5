@@ -21,7 +21,7 @@ module.exports = {
                if(!data || data.length === 0)
                    return message.channel.send("No results.");
                bot.util.standardPagination(message.channel, data, async function(result){
-                   const embed = new Discord.RichEmbed();
+                   const embed = new Discord.MessageEmbed();
 
                    embed.setTitle(`Definition for "${result.hwi ? result.hwi.hw : term}" (${result.fl}):`);
                    embed.setDescription(result.shortdef ? result.shortdef.join("\n") : "Unknown?");

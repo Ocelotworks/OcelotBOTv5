@@ -70,7 +70,7 @@ module.exports = {
             }
 
 
-            let embed = new Discord.RichEmbed();
+            let embed = new Discord.MessageEmbed();
 
             embed.setAuthor(`Fortnite Statistics for ${body.epicUserHandle} on ${body.platformNameLong}`, "https://i.imgur.com/sWzW8fh.png");
             embed.setColor("#7C53B4");

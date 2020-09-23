@@ -63,7 +63,7 @@ module.exports = {
                 bot.tasks.endTask("removebg", message.id);
                 message.channel.stopTyping(true);
             }else{
-                let attachment = new Discord.Attachment(body, "removebg.png");
+                let attachment = new Discord.MessageAttachment(body, "removebg.png");
                 message.channel.send(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "REMOVEBG_ENDORSEMENT"),attachment);
                 message.channel.stopTyping(true);
                 bot.tasks.endTask("removebg", message.id);

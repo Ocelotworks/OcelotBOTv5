@@ -24,7 +24,7 @@ module.exports = {
                     categories[category] = [badge.emoji];
             }
 
-            let embed = new Discord.RichEmbed();
+            let embed = new Discord.MessageEmbed();
             embed.setTitle("Profile Badges");
             embed.setDescription(`To see more info about the categories, do **${args[0]} ${args[1]} _category_**\nTo see more info about the badges you currently have, do **${args[0]} ${args[1]} mine**`);
             for(let category in categories){

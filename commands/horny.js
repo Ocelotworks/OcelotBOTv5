@@ -45,7 +45,7 @@ module.exports = {
                                         bot.logger.error(`Error during composite stage of !horny: ${err.stack}`);
                                     } else {
                                         try {
-                                            let attachment = new Discord.Attachment(buffer, `${config.get("filename")}.png`);
+                                            let attachment = new Discord.MessageAttachment(buffer, `${config.get("filename")}.png`);
                                             message.channel.send("", attachment);
                                             message.channel.stopTyping(true);
                                         } catch (e) {

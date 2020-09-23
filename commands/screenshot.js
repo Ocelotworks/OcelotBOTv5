@@ -46,7 +46,7 @@ module.exports = {
                    }
                    message.channel.stopTyping(true);
                }else{
-                   let attachment = new Discord.Attachment(body, "website.png");
+                   let attachment = new Discord.MessageAttachment(body, "website.png");
                    message.channel.send(attachment);
                    message.channel.stopTyping(true);
                }

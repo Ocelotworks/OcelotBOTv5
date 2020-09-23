@@ -7,11 +7,9 @@
 process.env["NODE_CONFIG_DIR"] = "../config";
 const   config          = require('config'),
         amqplib         = require('amqplib'),
-        StatsD          = require('node-dogstatsd').StatsD,
         MatomoTracker   = require('matomo-tracker');
 
-const   matomo      = new MatomoTracker(config.get("Matomo.SiteID"), config.get("Matomo.URL")),
-        dogstatsd   = new StatsD();
+const   matomo      = new MatomoTracker(config.get("Matomo.SiteID"), config.get("Matomo.URL"));
 
 async function init(){
     let con = await amqplib.connect(config.get("RabbitMQ.host"));

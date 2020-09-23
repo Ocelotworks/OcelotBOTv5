@@ -25,7 +25,7 @@ module.exports = {
         };
 
         if(!args[1]){
-            const messages = await message.channel.fetchMessages({limit: 2});
+            const messages = await message.channel.messages.fetch({limit: 2});
             if(messages.size > 1){
                 const message = messages.last();
                 doSponge(message.content);

@@ -70,8 +70,8 @@ module.exports = {
 
 
         // bot.client.on("ready", function discordReady(){
-        //     if(bot.client.guilds.has("478950156654346292")) {
-        //         const notifChannel = bot.client.channels.get("478950156654346294");
+        //     if(bot.client.guilds.cache.has("478950156654346292")) {
+        //         const notifChannel = bot.client.channels.cache.get("478950156654346294");
         //         const ts = new ts3();
         //         bot.logger.log("Connecting to TeamSpeak...");
         //         ts.connect(config.get("Teamspeak.server"), 10011)

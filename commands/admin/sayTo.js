@@ -7,7 +7,7 @@ module.exports = {
             bot.logger.log("Loading shard receiver for !admin sayTo");
             process.on("message", function(msg){
                 if(msg.type === "sendMessage"){
-                    const target = bot.client.channels.get(msg.message.target);
+                    const target = bot.client.channels.cache.get(msg.message.target);
                     const message = msg.message.content;
                     if (target) {
                         target.send(message);

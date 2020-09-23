@@ -12,8 +12,8 @@ module.exports = {
     categories: ["tools"],
     init: function init(bot){
         bot.client.on("ready", function () {
-            bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.client.shard.id}`, {exclusive: true});
-            bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.client.shard.id}`, function reminderConsumer(message) {
+            bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, {exclusive: true});
+            bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, function reminderConsumer(message) {
                 try {
                     let reminder = JSON.parse(message.content);
                     if (bot.config.getBool("global", "remind.silentQueueTest")) {
@@ -39,7 +39,7 @@ module.exports = {
                 const now = new Date().getTime();
                 for (let i = 0; i < reminderResult.length; i++) {
                     const reminder = reminderResult[i];
-                    if (bot.client.guilds.has(reminder.server)) {
+                    if (bot.client.guilds.cache.has(reminder.server)) {
                         bot.logger.log(`Reminder ${reminder.id} belongs to this shard.`);
                         const remainingTime = reminder.at - now;
                         if (remainingTime <= 0) {
@@ -60,7 +60,7 @@ module.exports = {
                 bot.logger.log("Prevented duplicate reminder loading");
             }
         });
-        if(bot.client.shard && bot.client.shard.id === 0) {
+        if(bot.client.shard && bot.client.shard.ids.join(";") === 0) {
             process.on("message", async function handleClaimedReminders(message) {
                 if (message.type === "handleClaimedReminders") {
                     if(bot.orphanedRemindersLoaded)return bot.logger.warn("Prevented duplicate orphaned reminder loading");
@@ -88,8 +88,8 @@ module.exports = {
     },
     sendReminder: async function(reminder, bot){
         bot.logger.log(`Reminding ${reminder.id}: ${reminder.user}: ${reminder.message}`);
-        if(bot.client.channels.has(reminder.channel)){
-            const channel = bot.client.channels.get(reminder.channel);
+        if(bot.client.channels.cache.has(reminder.channel)){
+            const channel = bot.client.channels.cache.get(reminder.channel);
             channel.send(await bot.lang.getTranslation(channel.guild.id, "REMIND_REMINDER", {
                 username: reminder.user,
                 date: new Date(reminder.timestamp).toString(),

@@ -30,7 +30,7 @@ module.exports = {
                         message.replyLang("GENERIC_ERROR");
                         return;
                     }
-                    let attachment = new Discord.Attachment(buffer, "epic.png");
+                    let attachment = new Discord.MessageAttachment(buffer, "epic.png");
                     message.channel.send("", attachment);
                     fs.unlink(fileName, function unlink(err){
                         console.log(err);

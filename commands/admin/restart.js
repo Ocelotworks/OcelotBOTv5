@@ -10,7 +10,7 @@ module.exports = {
     usage: "restart",
     commands: ["restart", "respawn"],
     run: async function(message, args, bot){
-        let embed = new Discord.RichEmbed();
+        let embed = new Discord.MessageEmbed();
         embed.setTitle(`Respawning ${bot.client.shard.count} shards...`);
         embed.setColor(0xff0000);
         message.channel.send(embed);

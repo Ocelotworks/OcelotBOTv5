@@ -39,7 +39,7 @@ module.exports = {
 
         bot.config.loadServerCache = async function loadServerCache(){
             bot.logger.log("Populating server setting cache...");
-            let result = await bot.database.getSettingsForShard(bot.client.guilds.keyArray(), bot.client.user.id);
+            let result = await bot.database.getSettingsForShard(bot.client.guilds.cache.keyArray(), bot.client.user.id);
             for(let i = 0; i < result.length; i++){
                 const row = result[i];
                 if(bot.config.cache[row.server])
@@ -54,7 +54,7 @@ module.exports = {
 
         bot.config.loadUserCache = async function loadUserCache(){
             bot.logger.log("Populating user setting cache...");
-            let result = await bot.database.getUserSettingsForShard(bot.client.users.keyArray());
+            let result = await bot.database.getUserSettingsForShard(bot.client.users.cache.keyArray());
             for(let i = 0; i < result.length; i++){
                 const row = result[i];
                 if(bot.config.cache[row.user])
@@ -96,11 +96,11 @@ module.exports = {
         let cacheReloads = [];
 
         process.on("message", function reloadConfig(msg){
-            if(msg.type === "reloadConfig" && (msg.payload === "global" ||  msg.payload == bot.client.shard.id || bot.client.guilds.has(msg.payload))){
+            if(msg.type === "reloadConfig" && (msg.payload === "global" ||  msg.payload == bot.client.shard.ids.join(";") || bot.client.guilds.cache.has(msg.payload))){
                 if(cacheReloads[msg.payload])return;
 
                 cacheReloads[msg.payload] = setTimeout(function(){
-                    if(msg.payload === "global" || msg.payload == bot.client.shard.id){
+                    if(msg.payload === "global" || msg.payload == bot.client.shard.ids.join(";")){
                         bot.config.loadGlobalCache();
                     }else{
                         bot.config.reloadCacheForServer(msg.payload);

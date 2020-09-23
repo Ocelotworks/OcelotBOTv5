@@ -72,8 +72,8 @@ module.exports = {
     },
     run:  async function run(message, args, bot){
         if(args[1] && args[1].toLowerCase() === "stop") {
-            if (message.member.voiceChannel && runningGames[message.member.voiceChannel.id]) {
-                await runningGames[message.member.voiceChannel.id].collector.stop();
+            if (message.member.voice.channel && runningGames[message.member.voice.channel.id]) {
+                await runningGames[message.member.voice.channel.id].collector.stop();
             }else{
                 message.channel.send(":warning: You are not currently in a voice channel that is playing guess!");
             }
@@ -120,7 +120,7 @@ module.exports = {
                 }
                 if(i <= 10)
                     try {
-                        let user = bot.client.users.get(entry.user);
+                        let user = bot.client.users.cache.get(entry.user);
                         if(!user)
                             user = await bot.util.getUserInfo(entry.user);
                         data.push({
@@ -144,24 +144,24 @@ module.exports = {
             message.replyLang("GENERIC_DM_CHANNEL");
         }else if(!message.guild.available){
             message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-        }else if(!message.member.voiceChannel) {
+        }else if(!message.member.voice || !message.member.voice.channel) {
             message.replyLang("VOICE_NO_CHANNEL");
-        }else if(message.member.voiceChannel.full){
+        }else if(message.member.voice.channel.full){
             message.replyLang("VOICE_FULL_CHANNEL");
-        }else if(!message.member.voiceChannel.joinable) {
+        }else if(!message.member.voice.channel.joinable) {
             message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-        }else if(!message.member.voiceChannel.speakable){
+        }else if(!message.member.voice.channel.speakable){
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
-        }else if(runningGames[message.guild.id] && runningGames[message.guild.id].channel.id !== message.member.voiceChannel.id) {
+        }else if(runningGames[message.guild.id] && runningGames[message.guild.id].channel.id !== message.member.voice.channel.id) {
             message.channel.send(`There is already a game running in ${runningGames[message.guild.id].channel.name}!`);
-        }else if(message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voiceChannel.id] && message.getSetting("songguess.disallowReguess")) {
+        }else if(message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voice.channel.id] && message.getSetting("songguess.disallowReguess")) {
             message.channel.send("I'm already in a voice channel doing something.");
         }else if(await bot.database.hasActiveSession(message.guild.id)){
             message.channel.send("The bot is currently playing music. Please wait for the queue to end to start guessing");
         }else{
             try {
-                bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
-                doGuess(message.member.voiceChannel, message, bot);
+                bot.logger.log("Joining voice channel "+message.member.voice.channel.name);
+                doGuess(message.member.voice.channel, message, bot);
             }catch(e){
                 bot.raven.captureException(e);
                 bot.logger.log(e);
@@ -238,7 +238,7 @@ async function doGuess(voiceChannel, message, bot){
                 if (collector)
                     collector.stop();
 
-                let embed = new Discord.RichEmbed();
+                let embed = new Discord.MessageEmbed();
                 embed.setColor("#77ee77");
                 embed.setTitle(`${message.author.username} wins!`);
                 embed.setThumbnail(`https://unacceptableuse.com/petify/album/${song.album}`);

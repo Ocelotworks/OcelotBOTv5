@@ -156,7 +156,7 @@ module.exports = {
         if(!message.guild.available)
             return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
 
-        if(message.guild.ownerID === message.author.id || message.member.roles.find(function(role){
+        if(message.guild.ownerID === message.author.id || message.member.roles.cache.find(function(role){
             return role.name.toLowerCase() === "bot master" || role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
         })){
             let arg =  args[1] && args[1].toLowerCase();

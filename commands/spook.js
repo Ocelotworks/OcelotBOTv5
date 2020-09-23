@@ -40,12 +40,12 @@ module.exports = {
 
             bot.updatePresence();
             bot.logger.log("Getting currently spooked...");
-            let currentlySpooked = await bot.database.getCurrentlySpookedForShard(bot.client.guilds.keyArray());
+            let currentlySpooked = await bot.database.getCurrentlySpookedForShard(bot.client.guilds.cache.keyArray());
             bot.logger.log(`${currentlySpooked.length} currently spooked.`);
             for(let i = 0; i < currentlySpooked.length; i++) {
                 let spook = currentlySpooked[i];
-                if(!bot.client.guilds.has(spook.server))continue;
-                if(bot.client.guilds.get(spook.server).members.has(spook.spooked)) {
+                if(!bot.client.guilds.cache.has(spook.server))continue;
+                if(bot.client.guilds.cache.get(spook.server).members.has(spook.spooked)) {
                     bot.spook.spooked[spook.server] = {
                         user: spook.spooked,
                         timer: setTimeout(bot.spook.generateNew, 4.32e+7, spook.server)
@@ -71,7 +71,7 @@ module.exports = {
                 setTeaserMessage();
                 bot.util.setLongTimeout(activateSpooking, startDiff);
             }
-            //setTimeout(bot.spook.end, 20000*(bot.client.shard.id+1))
+            //setTimeout(bot.spook.end, 20000*(bot.client.shard.ids.join(";")+1))
         });
 
 
@@ -96,9 +96,9 @@ module.exports = {
             if(!spooked)
                 spooked = await bot.database.getSpooked(server);
             if(!spooked || !spooked[0])
-                return bot.util.determineMainChannel(bot.client.guilds.get(server));
+                return bot.util.determineMainChannel(bot.client.guilds.cache.get(server));
 
-            return bot.client.channels.get(spooked[0].channel)
+            return bot.client.channels.cache.get(spooked[0].channel)
         };
 
 
@@ -106,7 +106,7 @@ module.exports = {
         bot.spook.giveSpecialRoles = async function giveSpecialRoles(channel){
             //This line is pornographic
             // 1 year later: this line is not pornographic, it's unreadable
-            const eligibleUsers = [...new Set((await bot.util.fetchMessages(channel, 100)).filter((m)=>!m.author.bot).map((m)=>m.author))];
+            const eligibleUsers = [...new Set((await bot.util.messages.fetch(channel, 100)).filter((m)=>!m.author.bot).map((m)=>m.author))];
             const specialRoles = await bot.database.getSpookRoles();
 
             let giving = true;
@@ -162,9 +162,9 @@ module.exports = {
             await bot.database.assignSpookRole(role.id, user.id, target.id, required, guild.id, spooker.id);
             if(!user)return;
             let dm = await user.createDM();
-            //let dm = await bot.client.users.get("139871249567318017").createDM();
-            let embed = new Discord.RichEmbed();
-            embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL);
+            //let dm = await bot.client.users.cache.get("139871249567318017").createDM();
+            let embed = new Discord.MessageEmbed();
+            embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL({dynamic: true, format: "png"}));
             embed.setColor("#bf621a");
             embed.setTitle(`You have been assigned a special role for **'${guild.name}'**`);
             embed.setDescription("**Do NOT tell anyone about this role!**\nOther people may be out to sabotage you.\nIf you accomplish your goal, you will get a unique badge.");
@@ -183,8 +183,8 @@ module.exports = {
             let role = await bot.database.getSpookRole(channel.guild.id, spooker.id);
 
             if(!role)return;
-            let spookerUser = channel.guild.members.get(role.spooker);
-            let spookedUser = channel.guild.members.get(role.spooked);
+            let spookerUser = channel.guild.members.cache.get(role.spooker);
+            let spookedUser = channel.guild.members.cache.get(role.spooked);
 
             if(!spookerUser || !spookedUser || spookerUser.user.bot || spookedUser.user.bot){
                 bot.logger.warn(`${role.user}'s role in ${channel.guild.name} (${channel.guild.id}) is invalid.`);
@@ -200,8 +200,8 @@ module.exports = {
                 if(role.id !== 4)//bodyguard
                     required = bot.util.intBetween(5, 50);
                 let dm = await spooker.createDM();
-                let embed = new Discord.RichEmbed();
-                embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL);
+                let embed = new Discord.MessageEmbed();
+                embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL({dynamic: true, format: "png"}));
                 embed.setColor("#bf621a");
                 embed.setTitle(`You have been assigned a NEW special role for **'${channel.guild.name}'**`);
                 embed.setDescription("Sorry that your old one was a bot/has now left the server, your new goal is below.\nIf you accomplish your goal, you will get a unique badge.");
@@ -228,9 +228,9 @@ module.exports = {
 
         };
         bot.spook.getColour = function getColour(guild, user){
-            if(!guild.members.has(user.id))
+            if(!guild.members.cache.has(user.id))
                 return "#ffffff";
-            let hoistRole = guild.members.get(user.id).hoistRole;
+            let hoistRole = guild.members.cache.get(user.id).hoistRole;
             if(!hoistRole)
                 return "#ffffff";
 
@@ -247,8 +247,8 @@ module.exports = {
                 spooked.username,
                 bot.spook.getColour(channel.guild, spooker),
                 bot.spook.getColour(channel.guild, spooked),
-                spooker.avatarURL,
-                spooked.avatarURL);
+                spooker.avatar,
+                spooked.avatar);
             bot.updatePresence();
             bot.spook.checkSpecialRoles(channel, spooker, spooked);
             if (bot.spook.spooked[channel.guild.id])
@@ -265,27 +265,27 @@ module.exports = {
                 spookerUsername: spooker.username,
                 spookerColour: bot.spook.getColour(channel.guild, spooker),
                 spookedColour: bot.spook.getColour(channel.guild, spooked),
-                spookerAvatar: spooker.avatarURL,
-                spookedAvatar: spooked.avatarURL
+                spookerAvatar: spooker.avatar,
+                spookedAvatar: spooked.avatar
             })));
         };
 
         bot.spook.generateNew = async function generateNew(server){
             const now = new Date();
             if(now-end <= 0)return;
-            if(!bot.client.guilds.has(server)) //No longer exists
+            if(!bot.client.guilds.cache.has(server)) //No longer exists
                 return bot.logger.warn("Spooked guild no longer exists");
 
-            const guild = bot.client.guilds.get(server);
+            const guild = bot.client.guilds.cache.get(server);
             const lastSpooked =(await bot.database.getSpooked(server))[0].spooked;
-            const left = !guild.members.has(lastSpooked);
+            const left = !guild.members.cache.has(lastSpooked);
             let channel = await bot.spook.getSpookChannel(server);
             if(!channel){
                 channel = await bot.util.determineMainChannel(guild);
                 if(!channel)return;
             }
-            const lastMessages = (await channel.fetchMessages({limit: 100})).filter(function(message){
-                return !message.author.bot && message.guild.members.has(message.author.id) && message.author.id !== lastSpooked;
+            const lastMessages = (await channel.messages.fetch({limit: 100})).filter(function(message){
+                return !message.author.bot && message.guild.members.cache.has(message.author.id) && message.author.id !== lastSpooked;
             });
             let targetUser;
             if(lastMessages.size < 1){
@@ -318,13 +318,13 @@ module.exports = {
             const servers = await bot.database.getParticipatingServers();
             for(let i = 0; i < servers.length; i++){
                 let server = servers[i].server;
-                if(bot.client.guilds.has(server)){
+                if(bot.client.guilds.cache.has(server)){
                     const spooked = await bot.database.getSpooked(server);
                     const spookChannel = await bot.spook.getSpookChannel(server, spooked);
                     bot.logger.log(`Sending spook end for ${server} ${spooked} ${spookChannel}`)
                     await bot.sendSpookEnd(server, spookChannel, spooked);
                     continue;
-                    let serverObject = bot.client.guilds.get(server);
+                    let serverObject = bot.client.guilds.cache.get(server);
                     let completed = await bot.database.getCompletedRoles(server);
                     let banks = {};
                     for(let i = 0; i < completed.length; i++){
@@ -382,8 +382,8 @@ module.exports = {
         };
 
         bot.sendSpookEnd = async function sendSpookEnd(id, channel, spooked){
-            if(!bot.client.guilds.has(id))return bot.logger.warn("Server does not exist");
-            const server = bot.client.guilds.get(id);
+            if(!bot.client.guilds.cache.has(id))return bot.logger.warn("Server does not exist");
+            const server = bot.client.guilds.cache.get(id);
             if(!spooked || !spooked[0])
                 return bot.logger.warn(`${server.name} (${server.id}) didn't participate in the spooking.`);
 
@@ -400,11 +400,11 @@ module.exports = {
 
             const spookStats = await bot.database.getSpookStats(id);
 
-            let embed = new Discord.RichEmbed();
+            let embed = new Discord.MessageEmbed();
             embed.setColor(0xd04109);
             embed.setTitle("The Spooking Has Ended.");
             embed.setTimestamp(new Date());
-            embed.setFooter("Happy Halloween!", bot.client.user.avatarURL);
+            embed.setFooter("Happy Halloween!", bot.client.user.avatarURL({dynamic: true, format: "png"}));
             embed.setDescription(`**<@${loser}> is the loser!**\nThank you all for participating in the 2nd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greately appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelot.xyz/premium?ref=spook)`);
             embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${Math.floor((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)}% of all spooks.)`);
             embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);

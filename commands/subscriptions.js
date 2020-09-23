@@ -45,7 +45,7 @@ module.exports = {
             if(loadedSubscriptions) return;
             loadedSubscriptions = true;
             bot.logger.log("Loading active subscriptions...");
-            const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.keyArray());
+            const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.cache.keyArray());
             bot.logger.log(`Loaded ${rawSubs.length} subs`);
             for(let i = 0; i < rawSubs.length; i++){
                 const sub = rawSubs[i];
@@ -75,7 +75,7 @@ module.exports = {
                     let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
                     if(!results || results.length === 0)continue;
                     for (let i = 0; i < subList.length; i++) {
-                       let chan = bot.client.channels.get(subList[i].channel);
+                       let chan = bot.client.channels.cache.get(subList[i].channel);
                         await bot.database.updateLastCheck(subList[i].id);
                         subList[i].lastcheck = new Date();
                        if(chan) {

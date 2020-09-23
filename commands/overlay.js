@@ -34,6 +34,6 @@ module.exports = {
         ctx.drawImage(image2, 0, 0, image1.width, image1.height);
 
 
-        message.channel.send("", new Discord.Attachment(cnv.toBuffer("image/png"), "overlay.png"));
+        message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "overlay.png"));
     },
 };

@@ -68,7 +68,7 @@ module.exports = {
             if(content.replace) {
                 content = content.replace(/<@&[0-9]+>/g, input => {
                     if (this.type === 'dm' || this.type === 'group') return input;
-                    const role = this.guild.roles.get(input.replace(/<|@|>|&/g, ''));
+                    const role = this.guild.roles.cache.get(input.replace(/<|@|>|&/g, ''));
                     if (role) return `@${role.name}`;
                     return input;
                 });
@@ -135,10 +135,13 @@ module.exports = {
                 });
                 setTimeout(bot.updatePresence, 120000);
 
-                bot.client.voiceConnections.forEach(function leaveOrphanedVoiceChannels(connection){
-                    bot.logger.warn("Leaving orphaned voice "+connection.channel);
-                    connection.disconnect();
-                });
+                // bot.client.voiceConnections.cache.forEach(function leaveOrphanedVoiceChannels(connection){
+                //     bot.logger.warn("Leaving orphaned voice "+connection.channel);
+                //     connection.disconnect();
+                // });
+
+
+                process.env.SHARD_ID = bot.client.shard.ids.join("+");
 
                 bot.client.shard.send({"type": "ready"});
             });
@@ -195,7 +198,7 @@ module.exports = {
                     if(bot.config.getBool("global", "welcome.enabled")) {
                         if (mainChannel) {
                             bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
-                            let embed = new Discord.RichEmbed();
+                            let embed = new Discord.MessageEmbed();
                             embed.setColor(bot.config.get("global", "welcome.embedColour"));
                             embed.setTitle("Welcome to OcelotBOT!");
                             embed.setDescription("You can find my commands [here](https://ocelot.xyz/#commands) or by typing !help.");
@@ -210,7 +213,7 @@ module.exports = {
 
                     if(bot.config.getBool("global", "webhook.enabled")){
                         try {
-                            let webhook = await mainChannel.createWebhook("OcelotBOT", bot.client.avatarURL);
+                            let webhook = await mainChannel.createWebhook("OcelotBOT", bot.client.avatar);
                             bot.logger.log(`Created webhook for ${guild.id}: ${webhook.id}`);
                             await bot.database.addServerWebhook(guild.id, webhook.id, webhook.token);
                         }catch(e){
@@ -354,9 +357,9 @@ module.exports = {
                 if(message.type === "requestData"){
                     if(message.payload.name === "channels"){
                         let guild = message.payload.data.server;
-                        if(bot.client.guilds.has(guild)){
+                        if(bot.client.guilds.cache.has(guild)){
                             let callbackID = message.payload.callbackID;
-                            let guildObj = bot.client.guilds.get(guild);
+                            let guildObj = bot.client.guilds.cache.get(guild);
                             let channels = guildObj.channels.map(function(channel){
                                 return {name: channel.name, id: channel.id}
                             });
@@ -369,29 +372,29 @@ module.exports = {
                                 }
                             })
                         }
-                    }else if(message.payload.name === "guildCount" && message.payload.data.shard == bot.client.shard.id){
+                    }else if(message.payload.name === "guildCount" && message.payload.data.shard == bot.client.shard.ids.join(";")){
                         bot.client.shard.send({
                             type: "dataCallback",
                             payload: {
                                 callbackID:  message.payload.callbackID,
-                                data: {count: bot.client.guilds.size}
+                                data: {count: bot.client.guilds.cache.size}
                             }
                         });
-                    }else if(message.payload.name === "guilds" && message.payload.data.shard == bot.client.shard.id){
+                    }else if(message.payload.name === "guilds" && message.payload.data.shard == bot.client.shard.ids.join(";")){
                         bot.client.shard.send({
                             type: "dataCallback",
                             payload: {
                                 callbackID:  message.payload.callbackID,
-                                data: bot.client.guilds.array()
+                                data: bot.client.guilds.cache.array()
                             }
                         });
                     }
                 }else if(message.type === "cockup"){
                     for(let i = 0; i < bot.admins.length; i++) {
                         let admin = bot.admins[i];
-                        if (bot.client.users.has(admin)) {
+                        if (bot.client.users.cache.has(admin)) {
                             bot.logger.log("Sending cockup message");
-                            let adminUser = bot.client.users.get(admin);
+                            let adminUser = bot.client.users.cache.get(admin);
                             const output = `:warning: <@${admin}> **Cockup: ${message.payload}**`;
                             if (adminUser.lastMessage) {
                                 adminUser.lastMessage.channel.send(output);
@@ -405,13 +408,15 @@ module.exports = {
                     bot.updatePresence();
                 }else if(message.type === "getUserInfo"){
                     let userID = message.payload;
-                    if(bot.client.users.has(userID)){
-                        let user =  bot.client.users.get(userID);
-                        bot.client.shard.send({type: "getUserInfoResponse", payload: {
-                            id: user.id,
-                            username: user.username,
-                            discriminator: user.discriminator
-                        }});
+                    let user = await bot.client.users.fetch(userID);
+                    if(user) {
+                        bot.client.shard.send({
+                            type: "getUserInfoResponse", payload: {
+                                id: user.id,
+                                username: user.username,
+                                discriminator: user.discriminator
+                            }
+                        });
                     }
                 }
             });

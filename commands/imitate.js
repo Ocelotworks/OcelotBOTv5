@@ -24,7 +24,7 @@ module.exports = {
         if(!targetUser)
             return message.replyLang("IMITATE_NO_USER");
 
-        const target = message.guild.members.get(targetUser.id);
+        const target = message.guild.members.cache.get(targetUser.id);
 
         if(!target)
             return message.channel.send(":thinking: That user isn't in this server...");
@@ -38,7 +38,7 @@ module.exports = {
         const webhooks = await message.channel.fetchWebhooks();
         let webhook;
         if(webhooks.size < 1){
-            webhook = await message.channel.createWebhook("OcelotBOT", bot.client.user.avatarURL);
+            webhook = await message.channel.createWebhook("OcelotBOT", bot.client.user.avatarURL({dynamic: true, format: "png"}));
         }else{
             webhook = webhooks.first();
         }
@@ -50,7 +50,7 @@ module.exports = {
 
         webhook.send(content, {
             username: target.displayName,
-            avatarURL: target.user.displayAvatarURL,
+            avatar: target.user.displayavatar,
             disableEveryone: true
         });
 

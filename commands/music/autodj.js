@@ -11,9 +11,9 @@ module.exports = {
     run: async function(message, args, bot, music){
         let guild = message.guild.id;
         if(!music.listeners[guild]) {
-            if (!message.member.voiceChannel)
+            if (!message.member.voice.channel)
                 return message.channel.send(":warning: You have to be in a voice channel to use this command.");
-            await music.constructListener(message.guild, message.member.voiceChannel, message.channel);
+            await music.constructListener(message.guild, message.member.voice.channel, message.channel);
         }
 
        //if(music.listeners[guild].host !== "boywanders.us")

@@ -5,6 +5,7 @@
  *  ════╝
  */
 const fs = require('fs');
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "IPC",
     init: function init(broker) {
@@ -40,7 +41,7 @@ module.exports = {
                     broker.ipc.messages[message.id] = message;
 
                 }catch(e){
-                    broker.raven.captureException(e);
+                    Sentry.captureException(e);
                     broker.logger.error(`Failed to load ${files[i]}`);
                     console.error(e);
                 }
@@ -62,25 +63,31 @@ module.exports = {
       };
 
 
-      broker.manager.on("message", function onMessage(process, message){
-          if(message.type && broker.ipc.messages[message.type]){
-              if(broker.ipc.messages[message.type].received)
-                broker.ipc.messages[message.type].received(broker, process, message.payload);
-              if(broker.ipc.messages[message.type].rebroadcast)
-                  broker.manager.broadcast(message);
-          }else if(message["_fetchProp"]) { //discord.js shit
-              return
-          }else if(message["_eval"]) {
-              return
-          }else{
-              broker.logger.warn(`Unknown message type ${message.type ? message.type : JSON.stringify(message)}!`);
-          }
+      broker.manager.on("shardCreate", function onShardCreate(shard){
+            shard.on("message", function onMessage(message){
+                try {
+                    if (message.type && broker.ipc.messages[message.type]) {
+                        if (broker.ipc.messages[message.type].received)
+                            broker.ipc.messages[message.type].received(broker, 0, message.payload);
+                        if (broker.ipc.messages[message.type].rebroadcast)
+                            broker.manager.broadcast(message);
+                    } else if (message["_fetchProp"]) { //discord.js shit
+                        return
+                    } else if (message["_eval"]) {
+                        return
+                    } else {
+                        broker.logger.warn(`Unknown message type ${message.type ? message.type : JSON.stringify(message)}!`);
+                    }
 
-          if(message.payload && message.payload.callbackID && broker.ipc.waitingCallbacks[message.payload.callbackID]){
-              broker.ipc.waitingCallbacks[message.payload.callbackID](message.payload.data);
-              delete broker.ipc.waitingCallbacks[message.payload.callbackID];
-          }
-    });
+                    if (message.payload && message.payload.callbackID && broker.ipc.waitingCallbacks[message.payload.callbackID]) {
+                        broker.ipc.waitingCallbacks[message.payload.callbackID](message.payload.data);
+                        delete broker.ipc.waitingCallbacks[message.payload.callbackID];
+                    }
+                }catch(e){
+                    console.error(e);
+                }
+            });
+      })
 
 
 

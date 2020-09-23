@@ -41,7 +41,7 @@ module.exports = {
             if(isNaN(limit)){
                 message.channel.send("You must enter a number.");
             }else {
-                const messageFetch = await message.channel.fetchMessages({limit: limit});
+                const messageFetch = await message.channel.messages.fetch({limit: limit});
                 const target = messageFetch.last();
                 try {
                     await bot.database.addTopic(userMaps[target.author.id], target.content);

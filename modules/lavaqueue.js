@@ -14,7 +14,7 @@ module.exports = {
         bot.client.on("ready", async function(){
             if(firstReady) {
                 firstReady = false;
-                const resumeKey = bot.client.user.id + "-" + bot.client.shard.id;
+                const resumeKey = bot.client.user.id + "-" + bot.client.shard.ids.join(";");
                 let options =  {
                     resumeKey,
                     resumeTimeout: 60
@@ -71,7 +71,7 @@ module.exports = {
                             node.connect();
                         }
                     })
-                }, 60000);
+                }, 36000);
             }
         });
 

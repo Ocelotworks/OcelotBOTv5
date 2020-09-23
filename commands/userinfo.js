@@ -10,21 +10,21 @@ module.exports = {
         if(message.mentions && message.mentions.users && message.mentions.users.size > 0){
             target = message.mentions.users.first();
             targetMember = message.mentions.members.first();
-        }else if(args[1] && bot.client.users.has(args[1])){
-            target = bot.client.users.get(args[1]);
-            targetMember = message.guild.members.get(args[1]) || null;
+        }else if(args[1] && bot.client.users.cache.has(args[1])){
+            target = bot.client.users.cache.get(args[1]);
+            targetMember = message.guild.members.cache.get(args[1]) || null;
         }
         const now = new Date();
 
         let mutualGuilds;
         if(bot.client.shard){
              let guildCollection = await bot.client.shard.broadcastEval(`
-                this.guilds.filter((guild)=>guild.members.has('${target.id}')).map((guild)=>guild.name);
+                this.guilds.cache.filter((guild)=>guild.members.cache.has('${target.id}')).map((guild)=>guild.name);
             `);
 
             mutualGuilds = guildCollection.reduce((a,b)=>a.concat(b), []);
         }else{
-            mutualGuilds = bot.client.guilds.filter((guild)=>guild.members.has(target.id)).map((guild)=>guild.name);
+            mutualGuilds = bot.client.guilds.cache.filter((guild)=>guild.members.cache.has(target.id)).map((guild)=>guild.name);
         }
 
         let mutualGuildsText = mutualGuilds.slice(0, 10).join(", ");
@@ -77,11 +77,11 @@ module.exports = {
             embed: {
                 color: 2437587,
                 thumbnail: {
-                    url: target.avatarURL
+                    url: target.avatarURL({dynamic: true})
                 },
                 author: {
                     name: target.username+"#"+target.discriminator,
-                    icon_url: target.avatarURL
+                    icon_url: target.avatarURL({dynamic: true})
                 },
                 fields: fields
             }

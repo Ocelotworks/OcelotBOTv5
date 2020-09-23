@@ -101,7 +101,7 @@ module.exports = {
 
                         const buff = canv.toBuffer("image/png");
                         bot.logger.log("Got buffer");
-                        const attachment = new Discord.Attachment(buff, "b.png");
+                        const attachment = new Discord.MessageAttachment(buff, "b.png");
                         message.channel.send("", attachment);
                     }else{
                         message.replyLang("B_NO_TEXT");

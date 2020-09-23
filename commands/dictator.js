@@ -45,7 +45,7 @@ module.exports = {
                                         bot.logger.error(`Error during composite stage of !dictator: ${err.stack}`);
                                     } else {
                                         try {
-                                            let attachment = new Discord.Attachment(buffer, config.get("filename"));
+                                            let attachment = new Discord.MessageAttachment(buffer, config.get("filename"));
                                             message.channel.send("", attachment);
                                             message.channel.stopTyping(true);
                                         } catch (e) {

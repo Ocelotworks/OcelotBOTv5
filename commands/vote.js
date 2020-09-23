@@ -46,7 +46,7 @@ module.exports = {
             //     e_v: 1,
             //     cvar: JSON.stringify({
             //         1: ['Server ID', voteServer],
-            //         2: ['Server Name',bot.client.guilds.has(voteServer) ? bot.client.guilds.get(voteServer).name : "Unknown"],
+            //         2: ['Server Name',bot.client.guilds.cache.has(voteServer) ? bot.client.guilds.cache.get(voteServer).name : "Unknown"],
             //         3: ['Message', ""],
             //         4: ['Channel Name', channel ? channel.id : "0"],
             //         5: ['Channel ID', channel ? channel.name : "Unknown"]
@@ -74,8 +74,8 @@ module.exports = {
                         break;
                     }
                 }
-                if(voteServer || !bot.client.shard || bot.client.shard.id === 0){
-                    if(bot.client.shard && bot.client.shard.id === 0){
+                if(voteServer || !bot.client.shard || bot.client.shard.ids.join(";") === 0){
+                    if(bot.client.shard && bot.client.shard.ids.join(";") === 0){
                         voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel);
                     }else{
                         logVote(user, voteServer, channel);

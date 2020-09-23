@@ -30,7 +30,7 @@ module.exports = {
 
             // if(naughtyRegex.test(search)){
             //     bot.logger.warn("Blocking query");
-            //     let embed = new Discord.RichEmbed();
+            //     let embed = new Discord.MessageEmbed();
             //     embed.setTitle("Search Blocked");
             //     embed.setDescription("I'm not going to jail for your edgy joke");
             //     embed.setImage("https://i.imgur.com/iHZJOnG.jpg");
@@ -47,7 +47,7 @@ module.exports = {
                     if(images.length === 0)
                         return message.channel.send(":warning: No results.");
                     bot.util.standardPagination(message.channel, images, async function(page, index){
-                        let embed = new Discord.RichEmbed();
+                        let embed = new Discord.MessageEmbed();
                         embed.setAuthor(page.source);
                         embed.setTimestamp(new Date(page.pub_date));
                         embed.setTitle(page.title);

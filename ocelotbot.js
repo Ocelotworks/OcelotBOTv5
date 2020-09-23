@@ -13,8 +13,7 @@ const   config          = require('config'),
         dateFormat      = require('dateformat'),
         colors          = require('colors'),
         caller_id       = require('caller-id'),
-        path            = require('path'),
-        tracer          = require('dd-trace');
+        path            = require('path');
 
 
 //The app object is shared between all modules, it will contain any functions the modules expose and also the event bus.
@@ -90,7 +89,6 @@ function configureSentry(){
  * Initialise the Chat server
  */
 function init(){
-    bot.tracer = tracer.init({analytics: true, service: "ocelotbot"});
     process.setMaxListeners(100);
     bot.bus = new EventEmitter();
     bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225", "145193838829371393", "112386674155122688"];

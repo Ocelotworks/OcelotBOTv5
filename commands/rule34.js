@@ -32,9 +32,9 @@ module.exports = {
 
                 bot.util.standardPagination(message.channel, data, async function(page, index){
 
-                    let embed = new Discord.RichEmbed();
+                    let embed = new Discord.MessageEmbed();
 
-                    embed.setAuthor(message.author.username, message.author.displayAvatarURL);
+                    embed.setAuthor(message.author.username, message.author.displayavatar);
                     embed.setImage(page.file_url);
                     embed.addField("Score", page.score);
                     embed.setFooter(`Page ${index+1}/${data.length}`);

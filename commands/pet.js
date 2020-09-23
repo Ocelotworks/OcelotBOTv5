@@ -17,12 +17,12 @@ module.exports = {
     rateLimit: 100,
     commands: ["pet", "petpet"],
     run: async function run(message, args, bot) {
-        let avatarUrl = await bot.util.getImage(message, args);
-        if(!avatarUrl)
+        let avatarURL = await bot.util.getImage(message, args);
+        if(!avatarURL)
             return message.channel.send("You must enter an image URL or mention a user");
         message.channel.startTyping();
         try {
-            const avatar = await canvas.loadImage(avatarUrl);
+            const avatar = await canvas.loadImage(avatarURL);
             const sprite = await canvas.loadImage(__dirname + "/../static/petpet.png")
             const canvas1 = canvas.createCanvas(size, size);
             const ctx1 = canvas1.getContext("2d");
@@ -39,7 +39,7 @@ module.exports = {
 
             stream.on('end', () => {
                 const buffer = Buffer.concat(bufs);
-                message.channel.send("", new Discord.Attachment(buffer, "petpet.gif"));
+                message.channel.send("", new Discord.MessageAttachment(buffer, "petpet.gif"));
             })
 
             encoder.begin();

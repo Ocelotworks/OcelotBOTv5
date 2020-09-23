@@ -28,7 +28,7 @@ module.exports = {
                     if(post.created_utc*1000 > lastCheck){
                         console.log("Post time", post.created_utc*1000);
                         console.log("Last check",lastCheck);
-                        let embed = new Discord.RichEmbed();
+                        let embed = new Discord.MessageEmbed();
                         embed.setTitle(post.title.substring(0,256));
                         embed.setAuthor(post.author);
                         embed.setURL(`https://reddit.com${post.permalink}`);

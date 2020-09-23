@@ -59,7 +59,7 @@ module.exports = {
         ctx.textAlign = "center";
         ctx.fillText(text,img.width/2, barPosition-barHeight*0.4);
 
-        message.channel.send("", new Discord.Attachment(cnv.toBuffer("image/png"), "snapchat.png")).catch(function(err){
+        message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "snapchat.png")).catch(function(err){
             message.channel.send("Error: "+err);
         });
 

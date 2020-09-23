@@ -71,7 +71,7 @@ module.exports = {
                 //remove their vote and reaction
                 votes[currentVotes[user.id]]--;
                 if(voteReactions[user].emoji.name !== reaction.emoji.name)
-                    voteReactions[user].remove(user);
+                    voteReactions[user].users.remove(user);
             }
 
             //add them to the voting table, set their vote, record reaction, add vote
@@ -98,7 +98,7 @@ module.exports = {
 
         if (!sentMessage.deleted) {
             bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
-            sentMessage.clearReactions();
+            sentMessage.reactions.removeAll();
         }
 
         if(!draw) {

@@ -84,7 +84,7 @@ module.exports = {
             let before;
             let messages = [];
             for(let i = 0; i < iterations; i++){
-                let messageChunk = await channel.fetchMessages({before, limit: 100});
+                let messageChunk = await channel.messages.fetch({before, limit: 100});
                 messages = messages.concat(messageChunk.array());
                 before = messageChunk.lastKey();
             }
@@ -365,7 +365,7 @@ module.exports = {
                         bot.logger.log(err);
                         bot.raven.captureException(err);
                     }else{
-                        const attachment = new Discord.Attachment(buffer, fileName);
+                        const attachment = new Discord.MessageAttachment(buffer, fileName);
                         message.channel.send("", attachment);
                     }
                     bot.tasks.endTask("imageMeme", message.id);
@@ -383,7 +383,7 @@ module.exports = {
                 let result = await deepai.callStandardApi(filter, {image: url});
 
                 if(result.output_url) {
-                    message.channel.send("", new Discord.Attachment(result.output_url));
+                    message.channel.send("", new Discord.MessageAttachment(result.output_url));
                 }else{
                     message.replyLang("ENHANCE_MAXIMUM_RESOLUTION");
                 }
@@ -424,7 +424,7 @@ module.exports = {
                     await loadingMessage.delete();
                     return message.channel.send(response.err);
                 }
-                let attachment = new Discord.Attachment(Buffer.from(response.image, 'base64'), response.name);
+                let attachment = new Discord.MessageAttachment(Buffer.from(response.image, 'base64'), response.name);
                 await message.channel.send(attachment);
                 await loadingMessage.delete();
                 bot.tasks.endTask("imageFilter", message.id);
@@ -461,7 +461,7 @@ module.exports = {
                                 let name = filter + "." + (format.toLowerCase());
                                 if (url.indexOf("SPOILER_") > -1)
                                     name = "SPOILER_" + name;
-                                const attachment = new Discord.Attachment(buffer, name);
+                                const attachment = new Discord.MessageAttachment(buffer, name);
                                 message.channel.send("", attachment).catch(function sendMessageError(e) {
                                     console.log(e);
                                     message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
@@ -508,7 +508,7 @@ module.exports = {
                     const arg = args[argument];
                     if(arg) {
                         const user = bot.util.getUserFromMention(arg);
-                        if (user) return user.avatarURL;
+                        if (user) return user.avatarURL({dynamic: true, format: "png"});
                         if (arg.startsWith("https://tenor.com/"))return await bot.util.getImageFromTenorURL(arg);
                         if (arg.startsWith("http")) return arg;
                         const emoji = bot.util.getEmojiURLFromMention(arg);
@@ -517,7 +517,7 @@ module.exports = {
                     }
                     return bot.util.getImageFromPrevious(message, argument);
                 }else if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
-                    return message.mentions.users.first().avatarURL;
+                    return message.mentions.users.first().avatarURL({dynamic: true, format: "png"});
                 } else if (args[2] && args[2].indexOf("http") > -1) {
                     return args[2]
                 } else if (args[1] && args[1].indexOf("http") > -1) {
@@ -577,7 +577,7 @@ module.exports = {
          * @returns {Promise.<*>}
          */
         bot.util.getImageFromPrevious = async function getImageFromPrevious(message, argument){
-            const previousMessages = (await message.channel.fetchMessages({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
+            const previousMessages = (await message.channel.messages.fetch({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
             let offset = 0;
             const targetMessage = previousMessages.find((previousMessage) =>{
                 if(argument && offset++ < argument){
@@ -678,7 +678,7 @@ module.exports = {
 
         const mainChannelRegex = /main|general|discussion|home|lobby/gi;
         const secondaryChannelRegex = /bot.*|spam|off-topic/gi;
-        const requiredPermissions = ["SEND_MESSAGES", "READ_MESSAGES", "VIEW_CHANNEL"];
+        const requiredPermissions = ["SEND_MESSAGES", "READ_MESSAGE_HISTORY", "VIEW_CHANNEL"];
 
         /**
          * Attempt to find the main channel for a specified guild
@@ -686,27 +686,23 @@ module.exports = {
          * @returns {Discord.TextChannel}
          */
         bot.util.determineMainChannel = function determineMainChannel(guild){
-            if(guild.defaultChannel && guild.defaultChannel.type === "text" && guild.defaultChannel.permissionsFor(bot.client.user).has(requiredPermissions, true)){
-                return guild.defaultChannel;
-            }
-
             let channels = guild.channels;
 
-            let mainChannel = channels.find(function(channel){
+            let mainChannel = channels.cache.find(function(channel){
                 return channel.type === "text" && channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
             if(mainChannel)
                 return mainChannel;
 
-            let secondaryChannel = channels.find(function(channel){
+            let secondaryChannel = channels.cache.find(function(channel){
                 return channel.type === "text" && channel.name.match(secondaryChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
             if(secondaryChannel)
                 return secondaryChannel;
 
-            return channels.find(function(channel){
+            return channels.cache.find(function(channel){
                 return channel.type === "text" &&channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
             });
         };
@@ -724,7 +720,7 @@ module.exports = {
                     return null;
                 if (mention.startsWith('!'))
                     mention = mention.slice(1);
-                return bot.client.users.get(mention);
+                return bot.client.users.cache.get(mention);
             }
             return null;
         };
@@ -812,7 +808,7 @@ module.exports = {
                     }
                     if(pages.length === 1) {
                         if(channel.guild)
-                            reaction.remove(user);
+                            reaction.users.remove(user);
                         return;
                     }
                 }
@@ -842,7 +838,7 @@ module.exports = {
                         break;
                 }
                 if(channel.guild)
-                    reaction.remove(user);
+                    reaction.users.remove(user);
 
             }, {time: reactionTime});
             if(!sentMessage)return;
@@ -850,7 +846,7 @@ module.exports = {
                 bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
 
                 if(sentMessage.guild)
-                    sentMessage.clearReactions();
+                    sentMessage.reactions.removeAll();
             }else{
                 bot.logger.info(`${sentMessage.id} was deleted before the reactions expired.`);
             }
@@ -975,11 +971,12 @@ module.exports = {
 
         let waitingUsers = {};
         bot.util.getUserInfo = function getUserInfo(userID){
-            return new Promise(function getUserInfoPromise(fulfill){
-                bot.client.shard.send({type: "getUserInfo", payload: userID});
-                let timeout = setTimeout(fulfill, 200);
-                waitingUsers[userID] = [fulfill, timeout];
-            });
+            return bot.client.users.fetch(userID);
+            // return new Promise(function getUserInfoPromise(fulfill){
+            //     bot.client.shard.send({type: "getUserInfo", payload: userID});
+            //     let timeout = setTimeout(fulfill, 200);
+            //     waitingUsers[userID] = [fulfill, timeout];
+            // });
         };
 
         process.on("message", function (message){

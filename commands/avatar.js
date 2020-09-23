@@ -14,7 +14,7 @@ module.exports = {
             embed:{
                 title: `${target.username}'s Avatar:`,
                 image: {
-                    url: target.avatarURL
+                    url: target.avatarURL({dynamic: true, format: "png"})
                 }
             }
 
@@ -25,7 +25,7 @@ module.exports = {
             const message = {
                 author: {
                     username: "abc",
-                    avatarURL: "def"
+                    avatar: "def"
                 },
                 channel: {
                     send: function(message, embed){
@@ -46,7 +46,7 @@ module.exports = {
             const message = {
                 author: {
                     username: "abc",
-                    avatarURL: "def"
+                    avatar: "def"
                 },
                 mentions: {
                   users: {
@@ -54,7 +54,7 @@ module.exports = {
                       first: function(){
                           return {
                               username: "xyz",
-                              avatarURL: "lmn"
+                              avatar: "lmn"
                           }
                       }
                   }

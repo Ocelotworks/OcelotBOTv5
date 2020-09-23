@@ -22,8 +22,8 @@ module.exports = {
         let waitingCallbacks = {};
         let callbackTimers = {};
         bot.client.on("ready", function(){
-            bot.rabbit.rpcChannel.assertQueue(`reply-${bot.client.user.id}-${bot.client.shard.id}`, {exclusive: true});
-            bot.rabbit.rpcChannel.consume(`reply-${bot.client.user.id}-${bot.client.shard.id}`, function (msg) {
+            bot.rabbit.rpcChannel.assertQueue(`reply-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, {exclusive: true});
+            bot.rabbit.rpcChannel.consume(`reply-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, function (msg) {
                 if (waitingCallbacks[msg.properties.correlationId]) {
                     bot.tasks.endTask("ipc", msg.properties.correlationId);
                     waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
@@ -36,9 +36,9 @@ module.exports = {
         bot.rabbit.rpc = async function(name, payload, timeout = 300000){
             return new Promise(function(fulfill){
                 bot.rabbit.rpcChannel.assertQueue(name, {durable: name === "imageFilter"}); //oh nooo
-                const correlationId = bot.client.shard.id+"-"+(replyCount++);
+                const correlationId = bot.client.shard.ids.join(";")+"-"+(replyCount++);
                 bot.tasks.startTask("ipc", correlationId);
-                bot.rabbit.rpcChannel.sendToQueue(name, Buffer.from(JSON.stringify(payload)), {correlationId, replyTo: `reply-${bot.client.user.id}-${bot.client.shard.id}`});
+                bot.rabbit.rpcChannel.sendToQueue(name, Buffer.from(JSON.stringify(payload)), {correlationId, replyTo: `reply-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
                 waitingCallbacks[correlationId] = fulfill;
                 callbackTimers[correlationId] = setTimeout(function rpcTimeout(){
                     bot.tasks.endTask("ipc", correlationId);
@@ -53,7 +53,7 @@ module.exports = {
             let buf = Buffer.from(JSON.stringify(payload));
             if(!bot.rabbit.pubsub[type])
                 bot.rabbit.pubsub[type] = await bot.rabbit.createPubsub(type);
-            bot.rabbit.pubsub[type].publish(type, '', buf, {appId: `${bot.client.user.id}-${bot.client.shard.id}`});
+            bot.rabbit.pubsub[type].publish(type, '', buf, {appId: `${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
         };
 
         bot.rabbit.createPubsub = async function createPubsub(name){

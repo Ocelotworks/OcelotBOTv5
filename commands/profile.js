@@ -121,9 +121,9 @@ module.exports = {
 
                 ctx.drawImage(board, 384, 20);
 
-                if(user.avatarURL && frameInfo.path !== "transparent") {
+                if(user.avatarURL({dynamic: true, format: "png"}) && frameInfo.path !== "transparent") {
                     frames = await canvas.loadImage(`${profileBase}/frames/${frameInfo.path}`);
-                    const avatar = await canvas.loadImage(user.avatarURL);
+                    const avatar = await canvas.loadImage(user.avatarURL({dynamic: true, format: "png"}));
 
                     ctx.drawImage(avatar, 21, 14, 172, 172);
 
@@ -167,11 +167,11 @@ module.exports = {
                 let mutualGuilds;
                 if (bot.client.shard) {
                     let guildCollection = await bot.client.shard.broadcastEval(`
-                this.guilds.filter((guild)=>guild.members.has('${user.id}')).map((guild)=>guild.name);
+                this.guilds.cache.filter((guild)=>guild.members.cache.has('${user.id}')).map((guild)=>guild.name);
             `);
                     mutualGuilds = guildCollection.reduce((a, b) => a.concat(b), []);
                 } else {
-                    mutualGuilds = bot.client.guilds.filter((guild) => guild.members.has(user.id)).map((guild) => guild.name);
+                    mutualGuilds = bot.client.guilds.cache.filter((guild) => guild.members.cache.has(user.id)).map((guild) => guild.name);
                 }
                 const commandCount = (await bot.database.getUserStats(user.id))[0].commandCount;
                 ctx.fillText(commandCount.toLocaleString(), 394, 83);
@@ -229,15 +229,15 @@ module.exports = {
             ctx.drawImage(tag.icon, x + TAG_PADDING_X, y + TAG_PADDING_Y, TAG_ICON_SIZE, TAG_ICON_SIZE);
         }
 
-        async function generateProfileHeader(ctx, name, tagline, avatarURL, tags){
+        async function generateProfileHeader(ctx, name, tagline, avatar, tags){
             //Load the avatar
-            let avatar = await canvas.loadImage(avatarURL);
+            let avatarURL = await canvas.loadImage(avatar);
 
             //Draw the avatar backdrop
             ctx.fillStyle = "rgba(25,25,25,0.56)";
             ctx.fillRect(AVATAR_OFFSET-1, AVATAR_OFFSET-1, AVATAR_SIZE+2, AVATAR_SIZE+2);
             //Draw the avatar
-            ctx.drawImage(avatar, AVATAR_OFFSET, AVATAR_OFFSET, AVATAR_SIZE, AVATAR_SIZE);
+            ctx.drawImage(avatarURL, AVATAR_OFFSET, AVATAR_OFFSET, AVATAR_SIZE, AVATAR_SIZE);
             //Draw the avatar outline
             ctx.fillStyle = "black";
             ctx.strokeRect(AVATAR_OFFSET-1, AVATAR_OFFSET-1, AVATAR_SIZE+2, AVATAR_SIZE+2);
@@ -292,7 +292,7 @@ module.exports = {
 
         async function drawStats(ctx, user, profileInfo){
             const [guildCounts, userStats, voteStats, guessStats, triviaStats] = await Promise.all([
-                bot.client.shard.broadcastEval(`this.guilds.filter((guild)=>guild.members.has('${user.id}')).size`),
+                bot.client.shard.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${user.id}')).size`),
                 bot.database.getUserStats(user.id),
                 bot.database.getVoteCount(user.id),
                 bot.database.getTotalCorrectGuesses(user.id),
@@ -341,7 +341,7 @@ module.exports = {
             ctx.drawImage(background, 0, 0, PROFILE_WIDTH, PROFILE_HEIGHT);
 
             await Promise.all([
-                generateProfileHeader(ctx, user.tag, profileInfo.caption, user.avatarURL, []),
+                generateProfileHeader(ctx, user.tag, profileInfo.caption, user.avatarURL({dynamic: true, format: "png"}), []),
                 generateProfileBody(ctx, user, profileInfo)
             ]);
 
@@ -354,7 +354,7 @@ module.exports = {
             await bot.database.giveBadge(user.id, id);
             const badge = (await bot.database.getBadge(id))[0];
             if(channel) {
-                let embed = new Discord.RichEmbed();
+                let embed = new Discord.MessageEmbed();
                 embed.setThumbnail(`https://ocelot.xyz/badge.php?id=${id}`);
                 embed.setTitle(`You just earned ${badge.name}`);
                 embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
@@ -380,7 +380,7 @@ module.exports = {
             }
             if(output.length === 0)return;
             const badge = (await bot.database.getBadge(id))[0];
-            let embed = new Discord.RichEmbed();
+            let embed = new Discord.MessageEmbed();
             embed.setThumbnail(`https://ocelot.xyz/badge.php?id=${id}`);
             embed.setTitle(`You just earned ${badge.name}`);
             embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
@@ -399,7 +399,7 @@ module.exports = {
 
 
                 if(channel){
-                    let embed = new Discord.RichEmbed();
+                    let embed = new Discord.MessageEmbed();
                     embed.setThumbnail(`https://ocelot.xyz/badge.php?id=${eligibleBadge.id}`);
                     embed.setTitle(`You just earned ${eligibleBadge.name}`);
                     embed.setDescription(`${eligibleBadge.desc}\nNow available on your **${channel.guild ? channel.guild.getSetting("prefix") : bot.config.get("global", "prefix")}profile**`);
@@ -426,7 +426,7 @@ module.exports = {
         if(args.length === 1 || message.mentions.users && message.mentions.users.size > 0){
             const target = message.mentions.users.size > 0 ? message.mentions.users.first() : message.author;
             message.channel.startTyping();
-            const attachment = new Discord.Attachment(await (message.getBool("profile.useNewProfile") ? bot.generateNewProfileImage(target, message.guild) :  bot.generateProfileImage(target, message.guild)), "profile.png");
+            const attachment = new Discord.MessageAttachment(await (message.getBool("profile.useNewProfile") ? bot.generateNewProfileImage(target, message.guild) :  bot.generateProfileImage(target, message.guild)), "profile.png");
             message.channel.send("", attachment);
             message.channel.stopTyping();
         }else{

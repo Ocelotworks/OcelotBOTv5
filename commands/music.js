@@ -32,13 +32,13 @@ module.exports = {
                 let activeSessions = await bot.database.getActiveSessions();
                 for(let i = 0; i < activeSessions.length; i++){
                     const session = activeSessions[i];
-                    if(bot.client.guilds.has(session.server)){
+                    if(bot.client.guilds.cache.has(session.server)){
                         bot.logger.log(`Resuming session ${session.id}`);
-                        const listener = await module.exports.constructListener(bot.client.guilds.get(session.server), bot.client.channels.get(session.voiceChannel), bot.client.channels.get(session.textChannel), session.id);
+                        const listener = await module.exports.constructListener(bot.client.guilds.cache.get(session.server), bot.client.channels.cache.get(session.voiceChannel), bot.client.channels.cache.get(session.textChannel), session.id);
                         listener.playing = await bot.lavaqueue.getSong(session.playing, listener.connection);
                         listener.autodj = session.autodj;
                         if(session.lastMessage){
-                            listener.lastMessage = await listener.channel.fetchMessage(session.lastMessage);
+                            listener.lastMessage = await listener.channel.messages.fetch(session.lastMessage);
                             module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
                             if(listener.channel.guild.getBool("music.updateNowPlaying")) {
                                 listener.editInterval = setInterval(function updateNowPlaying() {
@@ -112,17 +112,17 @@ module.exports = {
     },
     populateShuffleQueue: function populateShuffleQueue(){
         bot.logger.log("Populating shuffle queue");
-        request("https://unacceptableuse.com/petify/templates/songs/shuffleQueue", function(err, resp, body){
-           if(!err && body){
-               try {
-                   module.exports.shuffleQueue = JSON.parse(body);
-               }catch(e){
-                   console.error(e);
-               }
-           } else{
-               bot.logger.warn("Failed to populate shuffleQueue");
-           }
-        });
+        // request("https://unacceptableuse.com/petify/templates/songs/shuffleQueue", function(err, resp, body){
+        //    if(!err && body){
+        //        try {
+        //            module.exports.shuffleQueue = JSON.parse(body);
+        //        }catch(e){
+        //            console.error(e);
+        //        }
+        //    } else{
+        //        bot.logger.warn("Failed to populate shuffleQueue");
+        //    }
+        // });
     },
     getAutoDJSong: async function getAutoDJSong(player){
         return new Promise(async function(fulfill){
@@ -197,7 +197,7 @@ module.exports = {
     createNowPlayingEmbed: function(listener) {
         if(!listener)return;
         if(!listener.playing||!listener.playing.info)return;
-        let embed = new Discord.RichEmbed();
+        let embed = new Discord.MessageEmbed();
 
         embed.setColor("#2d303d");
 
@@ -247,8 +247,8 @@ module.exports = {
         return embed;
     },
     updateOrSendMessage: async function(listener, message, resend = true){
-          if(listener.lastMessage && listener.channel.messages.has(listener.lastMessage.id) && !listener.lastMessage.deleted){
-              let keyArray = listener.channel.messages.keyArray();
+          if(listener.lastMessage && listener.channel.messages.cache.has(listener.lastMessage.id) && !listener.lastMessage.deleted){
+              let keyArray = listener.channel.messages.cache.keyArray();
               if (keyArray.length - keyArray.indexOf(listener.lastMessage.id) < 15) {
                   listener.lastMessage.edit(message);
                   return false;
@@ -384,7 +384,7 @@ module.exports = {
             //     e_v: 1,
             //     cvar: JSON.stringify({
             //         1: ['Server ID', listener.server],
-            //         2: ['Server Name', bot.client.guilds.get(listener.server).name],
+            //         2: ['Server Name', bot.client.guilds.cache.get(listener.server).name],
             //         3: ['Message', ""],
             //         4: ['Channel Name', listener.channel.name],
             //         5: ['Channel ID', listener.channel.id]

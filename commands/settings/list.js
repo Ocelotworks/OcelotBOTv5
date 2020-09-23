@@ -5,7 +5,7 @@
  *  ════╝
  */
 module.exports = {
-    name: "List Settings",
+    name: "View Settings",
     usage: "list",
     commands: ["list", "view"],
     run: async function(message, args, bot, data){

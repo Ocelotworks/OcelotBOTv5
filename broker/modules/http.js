@@ -7,7 +7,7 @@
 const fs = require('fs');
 const express = require('express');
 const port = process.env.PORT || 3001;
-
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "HTTP API",
     init: function (broker) {
@@ -32,7 +32,7 @@ module.exports = {
                     broker.logger.log(`Loading Route ${route.name} (${route.base})`);
                     broker.http.use(route.base, await route.init(broker));
                 }catch(e){
-                    broker.raven.captureException(e);
+                    Sentry.captureException(e);
                     broker.logger.error(`Failed to load ${files[i]}`);
                     console.error(e);
                 }
@@ -45,6 +45,11 @@ module.exports = {
         //     res.send('Not Found');
         // });
 
+
+        if(process.env.NODE_ENV === "staging"){
+            return
+             // fuck this shit
+        }
 
         broker.http.listen(port, "127.0.0.1", function(){
             broker.logger.log(`Running broker API server on ${port}`);

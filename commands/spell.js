@@ -10,7 +10,7 @@ module.exports = {
             message.channel.send(`Invalid usage: ${args[0]} <sentence>`);
             return;
         }
-        const messageFetch = await message.channel.fetchMessages({limit: 2});
+        const messageFetch = await message.channel.messages.fetch({limit: 2});
         let letters = {
             abcd: ["🔡","🔠"],
             abc: ["🔤"],

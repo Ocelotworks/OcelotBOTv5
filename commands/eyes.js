@@ -61,7 +61,7 @@ module.exports = {
 
 
                 let img = cnv.toBuffer("image/png");
-                let attachment = new Discord.Attachment(img, (url.indexOf("SPOILER_") > -1 ? "SPOILER_" : "")+"eyes.png");
+                let attachment = new Discord.MessageAttachment(img, (url.indexOf("SPOILER_") > -1 ? "SPOILER_" : "")+"eyes.png");
                 message.channel.send("", attachment);
 
                 message.channel.stopTyping(true);

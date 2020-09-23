@@ -18,7 +18,6 @@ module.exports = {
     requiredPermissions: [],
     commands: ["calc", "calculator", "math"],
     init: function(bot, test = false){
-        if(test){
             math.import({
                 'import': function () { throw new Error('Function import is disabled') },
                 'createUnit': function () { throw new Error('Function createUnit is disabled') },
@@ -28,42 +27,6 @@ module.exports = {
                 'derivative': function () { throw new Error('Function derivative is disabled') },
                 'range': function () { throw new Error('Function range is disabled') }
             }, {override: true});
-            return;
-        }
-        request(`http://data.fixer.io/api/latest?access_key=${config.get("Commands.math.key")}`, function(err, resp, body){
-            if(!err) {
-
-                try {
-                    const data = JSON.parse(body);
-                    if (data.base && data.rates) {
-                        math.createUnit(data.base);
-                        Object.keys(data.rates)
-                            .filter(function (currency) {
-                                return currency !== data.base
-                            })
-                            .forEach(function (currency) {
-                                math.createUnit(currency, math.unit(1 / data.rates[currency], data.base))
-                            });
-                    }
-                } catch (e) {
-                    bot.logger.warn(`Error parsing currencies: ${e}`);
-                    bot.raven.captureException(e);
-                }
-            }else{
-                bot.logger.warn(`Error getting currencies: ${err}`);
-                bot.raven.captureException(err);
-            }
-
-            math.import({
-                'import': function () { throw new Error('Function import is disabled') },
-                'createUnit': function () { throw new Error('Function createUnit is disabled') },
-                'eval': function () { throw new Error('Function eval is disabled') },
-                'parse': function () { throw new Error('Function parse is disabled') },
-                'simplify': function () { throw new Error('Function simplify is disabled') },
-                'derivative': function () { throw new Error('Function derivative is disabled') },
-                'range': function () { throw new Error('Function range is disabled') }
-            }, {override: true});
-        });
     },
     run: async function(message, args, bot){
         if(!args[1]){

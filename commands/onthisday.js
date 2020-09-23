@@ -64,10 +64,10 @@ module.exports = {
                     await buildPage();
                     break;
             }
-            reaction.remove(user);
+            reaction.users.remove(user);
 
         }, {time: 60000});
-        sentMessage.clearReactions();
+        sentMessage.reactions.removeAll();
 
 
 

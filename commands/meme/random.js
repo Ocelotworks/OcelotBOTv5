@@ -18,7 +18,7 @@ module.exports = {
         if(!meme)
             return message.replyLang("MEME_NOT_FOUND");
 
-        let embed = new Discord.RichEmbed();
+        let embed = new Discord.MessageEmbed();
 
         if(meme.meme.startsWith("http"))
             embed.setImage(meme.meme);

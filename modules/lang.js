@@ -114,7 +114,7 @@ module.exports = {
 
         // bot.client.on("ready", async function discordReady(){
         //     bot.logger.log("Populating language cache...");
-        //     const languageMap = await bot.database.getLanguagesForShard(bot.client.guilds.keyArray());
+        //     const languageMap = await bot.database.getLanguagesForShard(bot.client.guilds.cache.keyArray());
         //     bot.logger.log(`Caching ${languageMap.length} servers`);
         //     for(let i = 0; i < languageMap.length; i++){
         //         const server = languageMap[i];

@@ -39,7 +39,7 @@ module.exports = {
                         message.replyLang("GENERIC_ERROR");
                         return;
                     }
-                    let attachment = new Discord.Attachment(buffer, "society.png");
+                    let attachment = new Discord.MessageAttachment(buffer, "society.png");
                     message.channel.send("", attachment);
                     fs.unlinkSync(fileName);
                 });

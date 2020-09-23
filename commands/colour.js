@@ -24,7 +24,7 @@ module.exports = {
 
             ctx.fillRect(0,0,cnv.width, cnv.height);
 
-            message.channel.send("", new Discord.Attachment(cnv.toBuffer("image/png"), "colour.png"));
+            message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "colour.png"));
         }
     },
 };

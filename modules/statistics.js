@@ -122,7 +122,7 @@ module.exports = {
             //     points.push(
             //         {
             //             measurement: keys[i],
-            //             tags: {"shard": bot.client.shard.id},
+            //             tags: {"shard": bot.client.shard.ids.join(";")},
             //             fields: {[keys[i].startsWith("commands") ? "commands" : keys[i].startsWith("messages") ? "messages" : "value"]: bot.stats[keys[i]]}
             //         });
             // }
@@ -134,82 +134,82 @@ module.exports = {
                     // await bot.stats.influx.writePoints([
                     //     {
                     //         measurement: "commandsPerMinute",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {commands: bot.stats.commandsPerMinute}
                     //     },
                     //     {
                     //         measurement: "messagesPerMinute",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {messages: bot.stats.messagesPerMinute}
                     //     },
                     //     {
                     //         measurement: "commandsTotal",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {commands: bot.stats.commandsTotal}
                     //     },
                     //     {
                     //         measurement: "messagesTotal",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {messages: bot.stats.messagesTotal}
                     //     },
                     //     {
                     //         measurement: "serversTotal",
-                    //         tags: {"shard": bot.client.shard.id},
-                    //         fields: {servers: bot.client.guilds.size}
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
+                    //         fields: {servers: bot.client.guilds.cache.size}
                     //     },
                     //     {
                     //         measurement: "usersTotal",
-                    //         tags: {"shard": bot.client.shard.id},
-                    //         fields: {usersTotal: bot.client.users.size}
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
+                    //         fields: {usersTotal: bot.client.users.cache.size}
                     //     },
                     //     {
                     //         measurement: "channelsTotal",
-                    //         tags: {"shard": bot.client.shard.id},
-                    //         fields: {channelsTotal: bot.client.channels.size}
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
+                    //         fields: {channelsTotal: bot.client.channels.cache.size}
                     //     },
                     //     {
                     //         measurement: "websocketPing",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {websocketPing: bot.client.ping}
                     //     },
                     //     {
                     //         measurement: "messagesSentPerMinute",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {messages: bot.stats.messagesSentPerMinute}
                     //     },
                     //     {
                     //         measurement: "botRateLimits",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {botRateLimits: bot.stats.botRateLimits}
                     //     },
                     //     {
                     //         measurement: "errors",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {errors: bot.stats.errors}
                     //     },
                     //     {
                     //         measurement: "warnings",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {warnings: bot.stats.warnings}
                     //     },
                     //     {
                     //         measurement: "commandCacheSize",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {commandCacheSize: Object.keys(bot.commandCache).length}
                     //     },
                     //     {
                     //         measurement: "voiceConnections",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {voiceConnections: bot.lavaqueue.manager.players.size}
                     //     },
                     //     {
                     //         measurement: "connectionStatus",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {connectionStatus: bot.client.status}
                     //     },
                     //     {
                     //         measurement: "reconnects",
-                    //         tags: {"shard": bot.client.shard.id},
+                    //         tags: {"shard": bot.client.shard.ids.join(";")},
                     //         fields: {reconnects: bot.stats.reconnects}
                     //     }
                     // ]);
@@ -223,7 +223,7 @@ module.exports = {
                     type: "heartbeat",
                     payload: {
                         messagesPerMinute: bot.stats.messagesPerMinute,
-                        shard: bot.client.shard.id
+                        shard: bot.client.shard.ids.join(";")
                     }
                 });
             }

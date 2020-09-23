@@ -11,10 +11,10 @@ module.exports = {
     init: function(bot){
       process.on("message", function fixServers(message){
             if(message.type === "fixServers"){
-                let timeout = bot.client.shard.id * 20000;
+                let timeout = bot.client.shard.ids.join(";") * 20000;
                 bot.logger.log(`Fixing Servers in ${timeout}ms`);
                 setTimeout(async function(){
-                    const servers = bot.client.guilds;
+                    const servers = bot.client.guilds.cache;
                     servers.forEach(async function(server){
                         try {
                             let databaseEntry = (await bot.database.getServer(server.id))[0];
@@ -35,7 +35,7 @@ module.exports = {
                                 if (server.me.hasPermission("MANAGE_WEBHOOKS")) {
                                     let mainChannel = bot.util.determineMainChannel(server);
                                     if (mainChannel) {
-                                        let webhook = await mainChannel.createWebhook("OcelotBOT", bot.client.avatarURL);
+                                        let webhook = await mainChannel.createWebhook("OcelotBOT", bot.client.avatar);
                                         bot.logger.log(`Created webhook for ${server.id}: ${webhook.id}`);
                                         await bot.database.addServerWebhook(server.id, webhook.id, webhook.token);
                                     } else {
@@ -50,12 +50,12 @@ module.exports = {
                         }
                     });
 
-                    if(bot.client.shard.id === 1){
+                    if(bot.client.shard.ids.join(";") === 1){
                         let servers = await bot.database.getActiveServers();
                         for(let i = 0; i < servers.length; i++){
                             let row = servers[i];
                             if(row.server === "global" || row.server === "default")continue;
-                            let result = await bot.client.shard.broadcastEval(`this.guilds.has('${row.server}')`);
+                            let result = await bot.client.shard.broadcastEval(`this.guilds.cache.has('${row.server}')`);
                             //onsole.log(result);
                             if(result.indexOf(true) > -1)
                                 continue;

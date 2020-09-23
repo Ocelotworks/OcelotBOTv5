@@ -15,19 +15,19 @@ module.exports = {
             message.replyLang("GENERIC_DM_CHANNEL");
         }else if(!message.guild.available){
             message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-        }else if(!message.member.voiceChannel) {
+        }else if(!message.member.voice.channel) {
             message.replyLang("VOICE_NO_CHANNEL");
-        }else if(message.member.voiceChannel.full){
+        }else if(message.member.voice.channel.full){
             message.replyLang("VOICE_FULL_CHANNEL");
-        }else if(!message.member.voiceChannel.joinable) {
+        }else if(!message.member.voice.channel.joinable) {
             message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-        }else if(!message.member.voiceChannel.speakable){
+        }else if(!message.member.voice.channel.speakable){
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         }else if(await bot.database.hasActiveSession(message.guild.id)){
             message.channel.send("The bot is currently playing music. Please wait for the queue to end to start guessing");
         }else{
             try {
-                bot.logger.log("Joining voice channel "+message.member.voiceChannel.name);
+                bot.logger.log("Joining voice channel "+message.member.voice.channel.name);
 
 
                 fs.readdir(__dirname+"/../static/doot", function readDir(err, files){
@@ -42,7 +42,7 @@ module.exports = {
                         const file = "/home/peter/stevie5/static/doot/"+files[doot];
                         bot.logger.log("Playing "+file);
                         message.replyLang("DOOT", {doot, arg: args[0], fileName: files[doot]});
-                        bot.lavaqueue.playOneSong(message.member.voiceChannel, file);
+                        bot.lavaqueue.playOneSong(message.member.voice.channel, file);
 
                     }
                 })

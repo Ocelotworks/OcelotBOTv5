@@ -34,7 +34,6 @@ util.init(bot);
 bot.logger = console;
 bot.client = new EventEmitter();
 bot.database = {};
-bot.tracer = {startSpan:function(){return {setTag: function(){}, finish: function(){}}}};
 
 bot.raven = {
     wrap: function(arg){
@@ -193,7 +192,7 @@ test('getUserFromMention channel', function(t){
 });
 
 test('getUserFromMention user', function(t){
-    bot.client.users = {
+    bot.client.users.cache = {
         get: t.pass
     };
     bot.util.getUserFromMention("<@139871249567318017>");

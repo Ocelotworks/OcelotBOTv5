@@ -26,7 +26,7 @@ module.exports = {
             const query = message.cleanContent.substring(args[0].length+1);
             if(naughtyRegex.test(query)){
                 bot.logger.warn("Blocking query");
-                let embed = new Discord.RichEmbed();
+                let embed = new Discord.MessageEmbed();
                 embed.setTitle(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IMAGE_BLOCKED_QUERY_TITLE", {}, message.author.id));
                 embed.setDescription(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IMAGE_BLOCKED_QUERY_DESCRIPTION", {}, message.author.id));
                 embed.setImage("https://i.imgur.com/iHZJOnG.jpg");
@@ -47,8 +47,8 @@ module.exports = {
                     return message.replyLang(message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
 
                 bot.util.standardPagination(message.channel, images, async function(page, index){
-                    let embed = new Discord.RichEmbed();
-                    embed.setAuthor(message.author.username, message.author.avatarURL);
+                    let embed = new Discord.MessageEmbed();
+                    embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true, format: "png"}));
                     embed.setTimestamp(new Date());
                     embed.setTitle(`Image results for '${query}'`);
                     if(message.getSetting("image.useThumbnails") || !page.url)

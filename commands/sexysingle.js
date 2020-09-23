@@ -34,7 +34,7 @@ module.exports = {
                 try {
                     bot.logger.log("Using cached crush file");
 
-                    let attachment = new Discord.Attachment(outputFile, config.get("filename"));
+                    let attachment = new Discord.MessageAttachment(outputFile, config.get("filename"));
 
                     await message.channel.send("", attachment);
                     message.channel.stopTyping();
@@ -80,7 +80,7 @@ module.exports = {
                         bot.logger.error(`Error during composite stage of !crush: ${err.stack}`);
                     } else {
                         try {
-                            let attachment = new Discord.Attachment(buffer, config.get("filename"));
+                            let attachment = new Discord.MessageAttachment(buffer, config.get("filename"));
                             message.channel.send("", attachment);
                             message.channel.stopTyping();
                         } catch (e) {

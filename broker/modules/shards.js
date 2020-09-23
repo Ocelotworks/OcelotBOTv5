@@ -15,7 +15,6 @@ module.exports = {
         broker.crashes = [];
 
         broker.manager =  new ShardingManager(`${__dirname}/../../ocelotbot.js`, JSON.parse(JSON.stringify(config.get("Discord"))));
-
         broker.manager.spawn();
 
         broker.manager.on('launch', function launchShard(shard) {

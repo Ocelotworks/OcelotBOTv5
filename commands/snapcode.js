@@ -22,7 +22,7 @@ module.exports = {
 
         message.channel.startTyping();
         try {
-            let attachment = new Discord.Attachment(`https://app.snapchat.com/web/deeplink/snapcode?username=${encodeURIComponent(message.cleanContent.substring(args[0].length + 1))}&type=PNG&size=240`, "snapcode.png");
+            let attachment = new Discord.MessageAttachment(`https://app.snapchat.com/web/deeplink/snapcode?username=${encodeURIComponent(message.cleanContent.substring(args[0].length + 1))}&type=PNG&size=240`, "snapcode.png");
             message.channel.send("", attachment);
         }catch(e){
             message.channel.send("Error: "+e.message);

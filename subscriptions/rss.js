@@ -23,7 +23,7 @@ module.exports = {
         }
         for(let i = 0; i < results.length; i++) {
             const result = results[i];
-            let embed = new Discord.RichEmbed();
+            let embed = new Discord.MessageEmbed();
             embed.setTitle(result.title);
             embed.setDescription(result.description || result.contentSnippet || result.content);
             if(result.pubDate)

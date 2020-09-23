@@ -8,12 +8,9 @@ process.env["NODE_CONFIG_DIR"] = "../config";
 const   caller_id       = require('caller-id'),
         colors          = require('colors'),
         config          = require('config'),
-        Raven           = require('raven'),
-        os              = require('os'),
-        fs              = require('fs'),
+        Sentry          = require('@sentry/node'),
         path            = require('path'),
-        dateFormat      = require('dateformat'),
-        tracer          = require('dd-trace');
+        dateFormat      = require('dateformat');
 
 const header ="\n".white+
     "                `-+shdmNMMMMNmdhs+-`              \n" +
@@ -48,7 +45,7 @@ const header ="\n".white+
 let broker = {};
 
 function init(){
-    tracer.init({analytics: true});
+    //tracer.init({analytics: true});
     broker.logger = {};
     broker.logger.log = function log(message, caller, error){
         if(!caller)
@@ -79,11 +76,10 @@ function init(){
 
     broker.logger.log(header);
 
+    Sentry.init({dsn: config.get("Sentry.DSN")})
+    broker.raven = Sentry;
 
-    Raven.config(config.get("Sentry.DSN"), {}).install();
-    broker.raven = Raven;
-
-    broker.logger.log("Loading "+process.env.environment);
+    broker.logger.log("Loading "+process.env.NODE_ENV);
 
 
     broker.warnings = {};
@@ -110,8 +106,8 @@ function loadModules(){
             if(loadedModule.name && loadedModule.init){
                 //Here the module itself starts execution. In the future we might want to do this asynchronously.
                 //The app object is passed to the
-                broker.raven.context(function initModule(){
-                    broker.raven.captureBreadcrumb({
+                Sentry.configureScope((scope)=>{
+                    scope.addBreadcrumb({
                         message: "Start load of module.",
                         category:  "modules",
                         data: {
@@ -120,7 +116,7 @@ function loadModules(){
                             file: fileName,
                             moduleFiles: moduleFiles
                         }
-                    });
+                    })
                     loadedModule.init(broker);
                     broker.logger.log(`Loaded module ${loadedModule.name}`);
                 });

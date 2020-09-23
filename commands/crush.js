@@ -45,7 +45,7 @@ module.exports = {
                                         bot.logger.error(`Error during composite stage of !crush: ${err.stack}`);
                                     } else {
                                         try {
-                                            let attachment = new Discord.Attachment(buffer, `${config.get("filename")}.${url.endsWith('gif') ? 'gif' : 'png'}`);
+                                            let attachment = new Discord.MessageAttachment(buffer, `${config.get("filename")}.${url.endsWith('gif') ? 'gif' : 'png'}`);
                                             message.channel.send("", attachment);
                                             message.channel.stopTyping(true);
                                         } catch (e) {

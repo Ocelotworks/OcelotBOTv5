@@ -9,16 +9,11 @@ const   config          = require('config'),
         amqplib         = require('amqplib'),
         https           = require('https'),
         fs              = require('fs'),
-        ws              = require('ws'),
-        tracer          = require('dd-trace'),
-        StatsD          = require('node-dogstatsd').StatsD;
+        ws              = require('ws');
 
 
 async function init(){
-    const statsd = new StatsD();
-    tracer.init({
-        analytics: true
-    });
+
 
     const server = https.createServer({
         key: fs.readFileSync('/home/peter/privkey.pem'),
@@ -40,7 +35,6 @@ async function init(){
         console.log("Got "+wss.clients.size+" clients.");
         wss.clients.forEach(function(client){
             if(!client.filter || client.filter === spook.server) {
-                statsd.increment('ocelotbot.spook.messages');
                 console.log("Sending to client with filter "+client.filter);
                 client.send(str);
             }
@@ -51,7 +45,6 @@ async function init(){
 
     wss.on('connection', function(ws){
         console.log("Received Connection");
-        statsd.increment('ocelotbot.spook.connections');
         ws.on('message', function(data){
             console.log("Filter set to "+data);
             ws.filter = data;
@@ -59,7 +52,6 @@ async function init(){
 
         ws.on('close', function(){
             console.log("Connection closed");
-            statsd.decrement('ocelotbot.spook.connections');
         });
     });
 }

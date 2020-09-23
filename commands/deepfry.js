@@ -35,7 +35,7 @@ module.exports = {
                 .toBuffer("JPEG", function(err, buffer){
                     if(err)
                         return message.replyLang("GENERIC_ERROR");
-                    let attachment = new Discord.Attachment(buffer, "jpeg.jpg");
+                    let attachment = new Discord.MessageAttachment(buffer, "jpeg.jpg");
                     message.channel.send("", attachment).catch(function(e){
                         console.log(e);
                         message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});

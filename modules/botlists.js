@@ -38,19 +38,19 @@ module.exports = {
             }
 
             postCount("https://top.gg/api/bots/146293573422284800/stats", config.get("Discord.discordBotsOrgKey"), {
-                server_count: bot.client.guilds.size,
-                shard_id: bot.client.shard.id,
+                server_count: bot.client.guilds.cache.size,
+                shard_id: bot.client.shard.ids.join(";"),
                 shard_count: bot.client.shard.count
             });
 
             postCount("https://discord.bots.gg/api/v1/bots/146293573422284800/stats", config.get("Discord.discordBotsKey"), {
-                guildCount: bot.client.guilds.size,
+                guildCount: bot.client.guilds.cache.size,
                 shardCount: bot.client.shard.count,
-                shardId: bot.client.shard.id,
+                shardId: bot.client.shard.ids.join(";"),
             });
 
             postCount("https://api.discordextremelist.xyz/v2/bot/146293573422284800/stats",config.get("Discord.discordExtremeKey"), {
-                guildCount: bot.client.guilds.size,
+                guildCount: bot.client.guilds.cache.size,
                 shardCount: bot.client.shard.count,
             });
 
@@ -58,9 +58,9 @@ module.exports = {
 
             postCount("https://discordbotlist.com/api/v1/bots/146293573422284800/stats", config.get("Discord.discordBotListKey"), {
                 voice_connections: voiceConnections,
-                users: bot.client.users.size,
-                guilds: bot.client.guilds.size,
-                shard_id: bot.client.shard.id,
+                users: bot.client.users.cache.size,
+                guilds: bot.client.guilds.cache.size,
+                shard_id: bot.client.shard.ids.join(";"),
             });
 
             const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);

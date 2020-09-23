@@ -32,12 +32,12 @@ module.exports = {
         if(!user1 || !user2)
             return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
 
-        if(!user1.avatarURL || !user2.avatarURL)
+        if(!user1.avatarURL({dynamic: true, format: "png"}) || !user2.avatarURL({dynamic: true, format: "png"}))
             return message.replyLang("MAFIA_NO_AVATAR");
 
-        const endedWith = await canvas.loadImage(user1.avatarURL);
-        const bestfriend = await canvas.loadImage(user2.avatarURL);
-        const author = await canvas.loadImage(message.author.displayAvatarURL);
+        const endedWith = await canvas.loadImage(user1.avatarURL({dynamic: true, format: "png"}));
+        const bestfriend = await canvas.loadImage(user2.avatarURL({dynamic: true, format: "png"}));
+        const author = await canvas.loadImage(message.author.displayavatar);
 
         const cnv = canvas.createCanvas(680, 510);
         const ctx = cnv.getContext("2d");
@@ -73,7 +73,7 @@ module.exports = {
         ctx.strokeText(user2.username, 264,186, 146);
 
 
-        message.channel.send("", new Discord.Attachment(cnv.toBuffer("image/png"), "friendship.png"));
+        message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "friendship.png"));
 
     }
 };

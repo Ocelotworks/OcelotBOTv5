@@ -7,7 +7,7 @@ module.exports = {
     run: async function(message, args, bot){
         const now = new Date();
         const stats = await bot.database.getDatabaseStats();
-        let embed = new Discord.RichEmbed();
+        let embed = new Discord.MessageEmbed();
         embed.setColor(0x189F06);
         embed.setAuthor("OcelotBOT Admin Stats", "https://cdn.discordapp.com/avatars/146293573422284800/1f37ae7298e956cc7bf671d745ae10ff.png?size=128");
         embed.addField("Total Servers Joined", stats.servers.toLocaleString(), true);

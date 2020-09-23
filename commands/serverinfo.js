@@ -52,7 +52,7 @@ module.exports = {
                             }
                         }
 
-                        let embed = new Discord.RichEmbed();
+                        let embed = new Discord.MessageEmbed();
 
                         if(message.getSetting("serverinfo.colour")){
                             embed.setColor(message.getSetting("serverinfo.colour"));

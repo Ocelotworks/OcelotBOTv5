@@ -13,7 +13,7 @@ module.exports = {
     },
     added: function added(sub, bot){
         let message = sub.data ? sub.data : "{{user}}, welcome to {{server}}.";
-        let channel = bot.client.channels.get(sub.channel);
+        let channel = bot.client.channels.cache.get(sub.channel);
         bot.client.on("guildMemberAdd", function(guildMember) {
             if(guildMember.guild.id === sub.server){
                 channel.send(message.formatUnicorn({
