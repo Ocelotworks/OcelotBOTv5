@@ -16,24 +16,24 @@ module.exports = {
     init: async function(bot){
         bot.client.on("ready", function () {
             bot.rabbit.channel.assertQueue(`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, {exclusive: true});
-            bot.rabbit.channel.consume(`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, function omegleConsumer(message) {
+            bot.rabbit.channel.consume(`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, async function omegleConsumer(message) {
                 try {
                     let msg = JSON.parse(message.content);
                     console.log(msg);
                     switch(msg.type){
                         case "error":
                             if(msg.data.data.error.indexOf("disconnect") === -1)
-                                bot.client.channels.cache.get(msg.data.channel).sendLang(msg.data.lang, msg.data.data);
+                                (await bot.client.channels.fetch(msg.data.channel)).sendLang(msg.data.lang, msg.data.data);
                             break;
                         case "message":
                             if(msg.data.message.indexOf("code:") === -1)
-                                bot.client.channels.cache.get(msg.data.channel).send("> "+(msg.data.message.replace(/'/, "")));
+                                (await bot.client.channels.fetch(msg.data.channel)).send("> "+(msg.data.message.replace(/'/, "")));
                             break;
                         case "isOtherServer":
-                            bot.client.channels.cache.get(msg.data).send("The stranger is another OcelotBOT user!");
+                            (await bot.client.channels.fetch(msg.data)).send("The stranger is another OcelotBOT user!");
                             break;
                         case "disconnected":
-                            bot.client.channels.cache.get(msg.data).send("The stranger has disconnected.");
+                            (await bot.client.channels.fetch(msg.data)).send("The stranger has disconnected.");
                             if(messageCollectors[msg.data]) {
                                 messageCollectors[msg.data].stop();
                                 delete messageCollectors[msg.data];
@@ -48,7 +48,7 @@ module.exports = {
                                 waitingMessages[msg.data].delete();
                                 delete waitingMessages[msg.data];
                             }
-                            bot.client.channels.cache.get(msg.data).send(`You are now connected to a stranger! Say hi! Start a message with a ! to stop the stranger from seeing it.`);
+                            (await bot.client.channels.fetch(msg.data)).send(`You are now connected to a stranger! Say hi! Start a message with a ! to stop the stranger from seeing it.`);
                             break;
                         default:
                             console.warn(msg);

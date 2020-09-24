@@ -120,9 +120,7 @@ module.exports = {
                 }
                 if(i <= 10)
                     try {
-                        let user = bot.client.users.cache.get(entry.user);
-                        if(!user)
-                            user = await bot.util.getUserInfo(entry.user);
+                        let user = await bot.util.getUserInfo(entry.user);
                         data.push({
                             "#": i,
                             "user": user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,

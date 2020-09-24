@@ -72,9 +72,7 @@ module.exports = {
                         }
                         if(i <= 10)
                             try {
-                                let user = bot.client.users.cache.get(entry.user);
-                                if(!user)
-                                    user = await bot.util.getUserInfo(entry.user);
+                                let user = await bot.util.getUserInfo(entry.user);
                                 data.push({
                                     "#": i,
                                     [userKey]: user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,
@@ -224,8 +222,8 @@ module.exports = {
 
                                             bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(async function(){
                                                 let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['count(*)'];
-                                                await bot.badges.updateBadge(bot.client.users.cache.get(correct[i]), 'trivia', count, message.channel);
-                                                await bot.badges.updateBadge(bot.client.users.cache.get(correct[i]), 'streak', streak, message.channel);
+                                                await bot.badges.updateBadge(await bot.client.users.fetch(correct[i]), 'trivia', count, message.channel);
+                                                await bot.badges.updateBadge(await bot.client.users.fetch(correct[i]), 'streak', streak, message.channel);
                                             });
                                         }
 

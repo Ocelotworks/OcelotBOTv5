@@ -183,14 +183,14 @@ module.exports = {
             let role = await bot.database.getSpookRole(channel.guild.id, spooker.id);
 
             if(!role)return;
-            let spookerUser = channel.guild.members.cache.get(role.spooker);
-            let spookedUser = channel.guild.members.cache.get(role.spooked);
+            let spookerUser = await channel.guild.members.fetch(role.spooker);
+            let spookedUser = await channel.guild.members.fetch(role.spooked);
 
             if(!spookerUser || !spookedUser || spookerUser.user.bot || spookedUser.user.bot){
                 bot.logger.warn(`${role.user}'s role in ${channel.guild.name} (${channel.guild.id}) is invalid.`);
                 console.log(role);
                 await bot.database.deleteSpookRole(channel.guild.id, spooker.id);
-                let targets = channel.guild.members.filter(function(member){return !member.user.bot && member.presence.status !== "offline" && member.id !== spooker.id});
+                let targets = channel.guild.members.cache.filter(function(member){return !member.user.bot && member.presence.status !== "offline" && member.id !== spooker.id});
                 if(targets.size === 0)return;
                 let matchedTargets = targets.random(2);
                 let target = matchedTargets[0];

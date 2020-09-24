@@ -5,9 +5,9 @@ module.exports = {
     init: function init(bot){
         if(bot.client.shard){
             bot.logger.log("Loading shard receiver for !admin sayTo");
-            process.on("message", function(msg){
+            process.on("message", async function(msg){
                 if(msg.type === "sendMessage"){
-                    const target = bot.client.channels.cache.get(msg.message.target);
+                    const target = await bot.client.channels.fetch(msg.message.target);
                     const message = msg.message.content;
                     if (target) {
                         target.send(message);

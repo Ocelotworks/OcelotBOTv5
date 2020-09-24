@@ -88,14 +88,14 @@ module.exports = {
     },
     sendReminder: async function(reminder, bot){
         bot.logger.log(`Reminding ${reminder.id}: ${reminder.user}: ${reminder.message}`);
-        if(bot.client.channels.cache.has(reminder.channel)){
-            const channel = bot.client.channels.cache.get(reminder.channel);
+        try {
+            const channel = await bot.client.channels.fetch(reminder.channel);
             channel.send(await bot.lang.getTranslation(channel.guild.id, "REMIND_REMINDER", {
                 username: reminder.user,
                 date: new Date(reminder.timestamp).toString(),
                 message: reminder.message
             }));
-        }else{
+        }catch(e){
             bot.logger.log("Reminder channel no longer exists, attempting to send it to the user instead...");
             try{
                 const targetUser = await bot.client.fetchUser(reminder.user);
