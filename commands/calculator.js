@@ -1,15 +1,8 @@
-const math = require('mathjs');
-const request = require('request');
-const config = require('config');
+const mathjs = require('mathjs');
+const math = mathjs.create(mathjs.all)
 const Discord = require('discord.js');
 const limitedEval = math.eval;
 let scope = {};
-
-const aliases = {
-    USD: "$",
-    GBP: "£",
-    EUR: "€"
-};
 
 module.exports = {
     name: "Calculator",
@@ -18,15 +11,15 @@ module.exports = {
     requiredPermissions: [],
     commands: ["calc", "calculator", "math"],
     init: function(bot, test = false){
-            math.import({
-                'import': function () { throw new Error('Function import is disabled') },
-                'createUnit': function () { throw new Error('Function createUnit is disabled') },
-                'eval': function () { throw new Error('Function eval is disabled') },
-                'parse': function () { throw new Error('Function parse is disabled') },
-                'simplify': function () { throw new Error('Function simplify is disabled') },
-                'derivative': function () { throw new Error('Function derivative is disabled') },
-                'range': function () { throw new Error('Function range is disabled') }
-            }, {override: true});
+        math.import({
+            'import': function () { throw new Error('Function import is disabled') },
+            'createUnit': function () { throw new Error('Function createUnit is disabled') },
+            'eval': function () { throw new Error('Function eval is disabled') },
+            'parse': function () { throw new Error('Function parse is disabled') },
+            'simplify': function () { throw new Error('Function simplify is disabled') },
+            'derivative': function () { throw new Error('Function derivative is disabled') },
+            'range': function () { throw new Error('Function range is disabled') }
+        }, {override: true});
     },
     run: async function(message, args, bot){
         if(!args[1]){
