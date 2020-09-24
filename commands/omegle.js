@@ -48,7 +48,8 @@ module.exports = {
                                 waitingMessages[msg.data].delete();
                                 delete waitingMessages[msg.data];
                             }
-                            (await bot.client.channels.fetch(msg.data)).send(`You are now connected to a stranger! Say hi! Start a message with a ! to stop the stranger from seeing it.`);
+                            const channel = await bot.client.channels.fetch(msg.data);
+                            channel.send(`You are now connected to a stranger! Say hi! Start a message with a ${channel.getSetting("prefix")} to stop the stranger from seeing it.`);
                             break;
                         default:
                             console.warn(msg);
@@ -73,7 +74,7 @@ module.exports = {
             if(waitingMessages[message.channel.id])
                 return message.channel.send("Still looking for a match! Please wait!");
             if(messageCollectors[message.channel.id])
-                return message.channel.send("You are currently connected! Use !omegle end to end");
+                return message.channel.send(`You are currently connected! Use ${message.getSetting("prefix")}omegle end to end`);
 
             bot.tasks.startTask("omegle", message.channel.id);
 
