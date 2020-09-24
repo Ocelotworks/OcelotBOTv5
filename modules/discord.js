@@ -114,7 +114,7 @@ module.exports = {
             const now = new Date();
             if(now-bot.lastPresenceUpdate>100000) {
                 bot.lastPresenceUpdate = now;
-                const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+                const serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
                 let randPresence =  bot.util.arrayRand(presenceMessages);
                 await bot.client.user.setPresence({
                    game: {
