@@ -11,9 +11,9 @@ module.exports = {
     validate: function(input){
         return null;
     },
-    added: function added(sub, bot){
+    added: async function added(sub, bot){
         let message = sub.data ? sub.data : "{{user}}, welcome to {{server}}.";
-        let channel = bot.client.channels.cache.get(sub.channel);
+        let channel = await bot.client.channels.fetch(sub.channel);
         bot.client.on("guildMemberAdd", function(guildMember) {
             if(guildMember.guild.id === sub.server){
                 channel.send(message.formatUnicorn({

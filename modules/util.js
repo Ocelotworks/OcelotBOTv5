@@ -782,6 +782,7 @@ module.exports = {
             if(pages.length === 1 && !reactDict)
                 return;
 
+            // noinspection ES6MissingAwait
             (async function () {
                 if(pages.length > 1) {
                     if (fullReactions)
@@ -792,6 +793,7 @@ module.exports = {
                         await sentMessage.react("⏭");
                 }
                 if(reactDict) {
+                    // noinspection ES6MissingAwait
                     Object.keys(reactDict).forEach(async function (react) {
                         await sentMessage.react(react);
                     });
@@ -840,7 +842,7 @@ module.exports = {
                 if(channel.guild)
                     reaction.users.remove(user);
 
-            }, {time: reactionTime});
+            }, {idle: reactionTime});
             if(!sentMessage)return;
             if(!sentMessage.deleted) {
                 bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
