@@ -21,7 +21,7 @@ module.exports = {
     run: async function run(message, args, bot){
         const server        = message.guild ? message.guild.id : "322032568558026753";
         const title         = await bot.lang.getTranslation(server, "STATS_VERSION", {version: bot.version});
-        const tagline       = await bot.lang.getTranslation(server, "STATS_MESSAGE", {instance: `Shard ${shardNames[bot.client.shard.ids.join(";")] ? "'"+shardNames[bot.client.shard.ids.join(";")]+"'" : "Unnamed"} (${bot.client.shard.ids.join(";")+1}/${bot.client.shard.count})`});
+        const tagline       = await bot.lang.getTranslation(server, "STATS_MESSAGE", {instance: `Shard ${shardNames[bot.client.shard.ids.join(";")] ? "'"+shardNames[bot.client.shard.ids.join(";")]+"'" : "Unnamed"} (${bot.client.shard.ids.join(";")}/${bot.client.shard.count})`});
         const totalUsers    = await bot.lang.getTranslation(server, "STATS_TOTAL_USERS");
         const totalServers  = await bot.lang.getTranslation(server, "STATS_TOTAL_SERVERS");
         const totalChannels = await bot.lang.getTranslation(server, "STATS_TOTAL_CHANNELS");
@@ -30,9 +30,9 @@ module.exports = {
         let userCount = 0;
         let channelCount = 0;
         try {
-            serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-            userCount = (await bot.client.shard.fetchClientValues("users.size")).reduce((prev, val) => prev + val, 0);
-            channelCount = (await bot.client.shard.fetchClientValues("channels.size")).reduce((prev, val) => prev + val, 0);
+            serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
+            userCount = (await bot.client.shard.fetchClientValues("users.cache.size")).reduce((prev, val) => prev + val, 0);
+            channelCount = (await bot.client.shard.fetchClientValues("channels.cache.size")).reduce((prev, val) => prev + val, 0);
         }catch(e){
             bot.raven.captureException(e);
         }
