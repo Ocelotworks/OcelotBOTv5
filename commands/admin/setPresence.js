@@ -9,7 +9,7 @@ module.exports = {
         }else{
             const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
             bot.client.user.setPresence({
-                game: {
+                activity: {
                     name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,
                     type: "LISTENING"
                 }

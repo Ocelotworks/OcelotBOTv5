@@ -117,7 +117,7 @@ module.exports = {
                 const serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
                 let randPresence =  bot.util.arrayRand(presenceMessages);
                 await bot.client.user.setPresence({
-                   game: {
+                   activity: {
                        name: `${bot.presenceMessage ? bot.presenceMessage : randPresence.message} | ${serverCount.toLocaleString()} servers.`,
                        type: randPresence.type
                    }

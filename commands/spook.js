@@ -15,7 +15,7 @@ module.exports = {
         function setTeaserMessage(){
             bot.logger.log("Updating teaser message");
             const days = Math.round((start-new Date())/86400000);
-            bot.presenceMessage = `👻 ${days} DAYS`;
+            bot.presenceMessage = `👻 !spook - ${days} DAYS`;
             updateInterval = setInterval(setTeaserMessage, 86400000)
         }
 
@@ -28,7 +28,7 @@ module.exports = {
                     bot.lastPresenceUpdate = now;
                     const result = await bot.database.getSpookedServers();
                     bot.client.user.setPresence({
-                        game: {
+                        activity: {
                             name: `👻 !spook ~ ${result.total[0]['COUNT(*)'].toLocaleString()} SPOOKED.`,
                             type: "WATCHING"
                         }
@@ -372,7 +372,7 @@ module.exports = {
                     bot.lastPresenceUpdate = now;
                     const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
                     bot.client.user.setPresence({
-                        game: {
+                        activity: {
                             name: `Thank you for playing! | in ${serverCount} servers.`,
                             type: "WATCHING"
                         }

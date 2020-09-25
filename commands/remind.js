@@ -162,6 +162,8 @@ module.exports = {
 
         const offset = at - now;
 
+        if(offset < 0)
+            return message.channel.send(":stopwatch: The time you entered is in the past. Try being more specific or using exact dates.");
         if(offset < 1000)
             return message.replyLang("REMIND_SHORT_TIME");
         try {
