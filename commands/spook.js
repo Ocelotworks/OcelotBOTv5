@@ -22,7 +22,7 @@ module.exports = {
         async function activateSpooking(){
             return;
             bot.logger.log("Spooking is activated");
-            bot.updatePresence = async function(){
+            bot.updatePresence = async function(){o
                 const now = new Date();
                 if(now-bot.lastPresenceUpdate>100000) {
                     bot.lastPresenceUpdate = now;
