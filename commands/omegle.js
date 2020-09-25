@@ -49,7 +49,7 @@ module.exports = {
                                 delete waitingMessages[msg.data];
                             }
                             const channel = await bot.client.channels.fetch(msg.data);
-                            channel.send(`You are now connected to a stranger! Say hi! Start a message with a ${channel.getSetting("prefix")} to stop the stranger from seeing it.`);
+                            channel.send(`You are now connected to a stranger! Say hi! Start a message with a ${bot.config.get(channel.guild.id, "prefix")} to stop the stranger from seeing it.`);
                             break;
                         default:
                             console.warn(msg);
