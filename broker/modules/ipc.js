@@ -68,7 +68,7 @@ module.exports = {
                 try {
                     if (message.type && broker.ipc.messages[message.type]) {
                         if (broker.ipc.messages[message.type].received)
-                            broker.ipc.messages[message.type].received(broker, 0, message.payload);
+                            broker.ipc.messages[message.type].received(broker, shard, message.payload);
                         if (broker.ipc.messages[message.type].rebroadcast)
                             broker.manager.broadcast(message);
                     } else if (message["_fetchProp"]) { //discord.js shit
