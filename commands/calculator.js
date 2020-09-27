@@ -1,7 +1,7 @@
 const mathjs = require('mathjs');
 const math = mathjs.create(mathjs.all)
 const Discord = require('discord.js');
-const limitedEval = math.eval;
+const limitedEval = math.evaluate;
 let scope = {};
 
 module.exports = {
