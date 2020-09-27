@@ -8,7 +8,7 @@ const Discord = require('discord.js');
 module.exports = {
     name: "Ocelot Premium",
     usage: "premium",
-    commands: ["premium", "support", "donate", "patreon"],
+    commands: ["premium", "donate", "patreon"],
     rateLimit: 1,
     categories: ["meta"],
     init: function(bot){
