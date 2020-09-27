@@ -38,6 +38,7 @@ module.exports = {
                         listener.playing = await bot.lavaqueue.getSong(session.playing, listener.connection);
                         listener.autodj = session.autodj;
                         if(session.lastMessage){
+                            if(!listener.channel)return;
                             listener.lastMessage = await listener.channel.messages.fetch(session.lastMessage);
                             module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
                             if(listener.channel.guild.getBool("music.updateNowPlaying")) {

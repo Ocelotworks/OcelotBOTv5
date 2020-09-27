@@ -135,13 +135,16 @@ module.exports = {
                 channel: voiceChannel.id,
                 node,
             }, {selfdeaf: true});
-            span.end();
+            if(span)
+                span.end();
             span = bot.apm.startSpan("Get Song", "voice");
             let songData = await bot.lavaqueue.getSong(song, player);
-            span.end();
+            if(span)
+                span.end();
             span = bot.apm.startSpan("Play Song", "voice");
             player.play(songData.track);
-            span.end();
+            if(span)
+                span.end();
             player.once("error", function playerError(error){
                 bot.raven.captureException(error);
                 bot.logger.error("Player Error: "+error.error); //YEs
