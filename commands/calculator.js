@@ -40,7 +40,7 @@ module.exports = {
             raven: {
                 captureException: function(){}
             }
-        };
+        };c
         module.exports.init(bot, true);
 
         test('calc no arguments', function(t){
