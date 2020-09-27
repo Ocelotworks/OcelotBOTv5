@@ -305,17 +305,18 @@ module.exports = {
             drawStat(ctx, voteStats[0] && voteStats[0]['COUNT(*)'] ? voteStats[0]['COUNT(*)'] : 0, "votes", i++);
             drawStat(ctx, guessStats[0] && guessStats[0]['COUNT(*)'] ? guessStats[0]['COUNT(*)'] : 0, "songs guessed", i++);
             drawStat(ctx, triviaStats[0] && triviaStats[0]['count(*)'] ? triviaStats[0]['count(*)'] : 0, "trivia correct", i++);
+            drawStat(ctx, dateFormat(profileInfo.firstSeen, "dd/mm/yy"), "first seen", i++);
 
         }
 
-        function generateProfileBody(ctx, user){
+        function generateProfileBody(ctx, user, profileInfo){
             //Draw background
             ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
             ctx.fillRect(BODY_X, BODY_Y, BODY_WIDTH, BODY_HEIGHT);
             //Draw separator line
             ctx.fillStyle = "rgba(25,25,25,0.56)";
             ctx.fillRect(BODY_X+(BODY_WIDTH/2), BODY_Y, 2, BODY_HEIGHT);
-            return Promise.all([drawBadges(ctx, user), drawStats(ctx, user)]);
+            return Promise.all([drawBadges(ctx, user), drawStats(ctx, user, profileInfo)]);
         }
 
         bot.generateNewProfileImage = async function(user, guild){
@@ -333,6 +334,24 @@ module.exports = {
                     font: 33
                 };
             }
+
+            let now = new Date();
+            let mutualGuilds;
+            if (bot.client.shard) {
+                let guildCollection = await bot.client.shard.broadcastEval(`
+                this.guilds.cache.filter((guild)=>guild.members.cache.has('${user.id}')).map((guild)=>guild.name);
+            `);
+                mutualGuilds = guildCollection.reduce((a, b) => a.concat(b), []);
+            } else {
+                mutualGuilds = bot.client.guilds.cache.filter((guild) => guild.members.cache.has(user.id)).map((guild) => guild.name);
+            }
+
+            if(profileInfo.firstSeen)
+                await bot.badges.updateBadge(user, "year", parseInt((now-profileInfo.firstSeen) / 3.154e+10));
+            await bot.updateServersBadge(user, mutualGuilds.length);
+
+            if(guild && bot.config.get(guild.id, "profile.complimentaryBadge", user.id))
+                await bot.badges.giveBadgeOnce(user, null, bot.config.get(guild.id, "profile.complimentaryBadge", user.id));
 
             const cnv = canvas.createCanvas(PROFILE_WIDTH, PROFILE_HEIGHT);
             const ctx = cnv.getContext("2d");
