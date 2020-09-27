@@ -42,8 +42,10 @@ module.exports = {
                             return message.replyLang("COMMAND_VOTE_REQUIRED")
                         }
                     }else{
-                        let inSupportServer = (await bot.client.shard.broadcastEval(`this.guilds.cache.has("322032568558026753") && this.guilds.cache.get("322032568558026753").members.has("${message.author.id}")`)).find((x)=>x);
-                        if(!inSupportServer){
+                        // This is dumb, but I can't avoid this
+                        try {
+                            await (await bot.client.guilds.fetch("322032568558026753")).members.fetch(message.author.id)
+                        }catch(e){
                             return message.channel.send("You must join the support server or purchase premium to use this command. You can join the support server here: https://discord.gg/PTaXZmE")
                         }
                     }
