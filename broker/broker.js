@@ -10,7 +10,8 @@ const   caller_id       = require('caller-id'),
         config          = require('config'),
         Sentry          = require('@sentry/node'),
         path            = require('path'),
-        dateFormat      = require('dateformat');
+        dateFormat      = require('dateformat'),
+        apm             = require('elastic-apm-node');
 
 const header ="\n".white+
     "                `-+shdmNMMMMNmdhs+-`              \n" +
@@ -45,7 +46,14 @@ const header ="\n".white+
 let broker = {};
 
 function init(){
-    //tracer.init({analytics: true});
+    if(config.get("APM")){
+        apm.start({
+            serviceName: config.get("APM.ServiceName"),
+            secretToken: config.get("APM.Token"),
+            serverUrl: config.get("APM.Server")
+        })
+    }
+
     broker.logger = {};
     broker.logger.log = function log(message, caller, error){
         if(!caller)

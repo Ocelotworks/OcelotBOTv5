@@ -1,7 +1,9 @@
 {
   "General": {
     "ModulePath": "/modules",
-    "DefaultPrefix": "!"
+    "DefaultPrefix": "!",
+    "BrokerHost": "localhost",
+    "BrokerPort": 3006
   },
   "Database": {
     "client": "mysql",

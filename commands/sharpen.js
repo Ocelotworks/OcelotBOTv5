@@ -12,6 +12,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["sharpen", "edge"],
     run: function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "edge", [5]);
+        return bot.util.processImageFilter(module, message, args, "edge", [5]);
     }
 };

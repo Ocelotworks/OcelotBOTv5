@@ -12,6 +12,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["swirl","spiral"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "swirl", [message.getSetting("swirl.amount")]);
+        return bot.util.processImageFilter(module, message, args, "swirl", [message.getSetting("swirl.amount")]);
     }
 };

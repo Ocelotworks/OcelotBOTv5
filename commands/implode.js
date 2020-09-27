@@ -12,6 +12,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["implode"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "implode", [message.getSetting("implode.amount")]);
+        return bot.util.processImageFilter(module, message, args, "implode", [message.getSetting("implode.amount")]);
     }
 };

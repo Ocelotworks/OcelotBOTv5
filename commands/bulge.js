@@ -6,6 +6,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bulge", "explode", "buldge"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "implode", [message.getSetting("bulge.amount")]);
+        return bot.util.processImageFilter(module, message, args, "implode", [message.getSetting("bulge.amount")]);
     }
 };

@@ -12,6 +12,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["spread"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "spread", [message.getSetting("spread.amount")]);
+        return bot.util.processImageFilter(module, message, args, "spread", [message.getSetting("spread.amount")]);
     }
 };

@@ -12,6 +12,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["trim"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "trim", []);
+        return bot.util.processImageFilter(module, message, args, "trim", []);
     }
 };

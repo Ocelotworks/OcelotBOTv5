@@ -37,6 +37,7 @@
     "dateformat": "^3.0.3",
     "deepai": "^1.0.15",
     "discord.js": "^12.3.1",
+    "elastic-apm-node": "^3.7.0",
     "express": "^4.17.1",
     "gm": "^1.23.1",
     "google-images": "^2.1.0",

@@ -5,8 +5,9 @@
  *  ════╝
  */
 const fs = require('fs');
+const config = require('config');
 const express = require('express');
-const port = process.env.PORT || 3001;
+const port = config.get("General.BrokerPort");
 const Sentry = require('@sentry/node');
 module.exports = {
     name: "HTTP API",
@@ -44,12 +45,6 @@ module.exports = {
         //     broker.logger.warn(`404 on ${req.url}`);
         //     res.send('Not Found');
         // });
-
-
-        if(process.env.NODE_ENV === "staging"){
-            return
-             // fuck this shit
-        }
 
         broker.http.listen(port, "127.0.0.1", function(){
             broker.logger.log(`Running broker API server on ${port}`);

@@ -22,9 +22,14 @@ module.exports = {
             return message.channel.send("You must enter an image URL or mention a user");
         message.channel.startTyping();
         try {
+            let span = bot.apm.startSpan("Load avatar");
             const avatar = await canvas.loadImage(avatarURL);
+            span.end();
+            span = bot.apm.startSpan("Load sprite");
             const sprite = await canvas.loadImage(__dirname + "/../static/petpet.png")
+            span.end();
             const canvas1 = canvas.createCanvas(size, size);
+
             const ctx1 = canvas1.getContext("2d");
             const canvas2 = canvas.createCanvas(size, size);
             const ctx2 = canvas2.getContext("2d");
@@ -45,6 +50,7 @@ module.exports = {
             encoder.begin();
 
             for (let i = 0; i < frames.length; i++) {
+                let span = bot.apm.startSpan("Render frame");
                 const frame = frames[i];
                 ctx2.clearRect(0, 0, size, size);
                 ctx2.drawImage(avatar, frame.x, frame.y, frame.w, frame.h);
@@ -54,6 +60,7 @@ module.exports = {
                 ctx1.drawImage(canvas2, 0, 0, canvas1.width, canvas1.height);
 
                 encoder.addFrame(ctx1, 50);
+                span.end();
             }
             encoder.end();
             message.channel.stopTyping(true);

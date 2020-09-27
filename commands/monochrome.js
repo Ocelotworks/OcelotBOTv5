@@ -10,6 +10,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["monochrome", "blackandwhite"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "monochrome", []);
+        return bot.util.processImageFilter(module, message, args, "monochrome", []);
     }
 };

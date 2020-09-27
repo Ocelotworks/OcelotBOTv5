@@ -12,6 +12,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["paint", "oil", "oilpaint"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "paint", [10]);
+        return bot.util.processImageFilter(module, message, args, "paint", [10]);
     }
 };

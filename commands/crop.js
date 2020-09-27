@@ -30,7 +30,7 @@ module.exports = {
             if(err)
                 return message.replyLang("GENERIC_ERROR");
             if(body.areaOfInterest)
-                bot.util.processImageFilter(module, message, args, "crop", [body.areaOfInterest.w, body.areaOfInterest.h, body.areaOfInterest.x, body.areaOfInterest.y]);
+                return bot.util.processImageFilter(module, message, args, "crop", [body.areaOfInterest.w, body.areaOfInterest.h, body.areaOfInterest.x, body.areaOfInterest.y]);
             else
                 message.replyLang("CROP_NO_AOI");
         })

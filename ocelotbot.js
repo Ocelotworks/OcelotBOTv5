@@ -13,7 +13,8 @@ const   config          = require('config'),
         dateFormat      = require('dateformat'),
         colors          = require('colors'),
         caller_id       = require('caller-id'),
-        path            = require('path');
+        path            = require('path'),
+        apm             = require('elastic-apm-node');
 
 
 //The app object is shared between all modules, it will contain any functions the modules expose and also the event bus.
@@ -89,6 +90,15 @@ function configureSentry(){
  * Initialise the Chat server
  */
 function init(){
+
+    if(config.get("APM")){
+        bot.apm = apm.start({
+            serviceName: config.get("APM.ServiceName"),
+            secretToken: config.get("APM.Token"),
+            serverUrl: config.get("APM.Server")
+        })
+    }
+
     process.setMaxListeners(100);
     bot.bus = new EventEmitter();
     bot.admins = ["139871249567318017", "145200249005277184", "318431870666932225", "145193838829371393", "112386674155122688"];

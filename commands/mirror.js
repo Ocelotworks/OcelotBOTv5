@@ -12,6 +12,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["mirror", "flipimage"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "flop", []);
+        return bot.util.processImageFilter(module, message, args, "flop", []);
     }
 };

@@ -80,7 +80,9 @@ module.exports = {
         }else if(args[1] && args[1].toLowerCase() === "stats") {
             message.channel.startTyping();
             try {
+                let span = bot.apm.startSpan("Get guess stats");
                 let stats = await bot.database.getGuessStats();
+                span.end();
                 let output = "**Guess Stats:**\n";
                 output += `**${songList.length.toLocaleString()}** available songs.\n`;
                 output += `**${stats.totalGuesses.toLocaleString()}** total guesses by **${stats.totalUsers}** users.\n`;
@@ -95,6 +97,7 @@ module.exports = {
             }
         }else if(args[1] && args[1].toLowerCase() === "leaderboard"){
 
+            let span = bot.apm.startSpan("Get leaderboard data");
             let leaderboardData;
             if(args[2] && args[2].toLowerCase() === "monthly"){
                 leaderboardData = await bot.database.getGuessMonthlyLeaderboard();
@@ -103,12 +106,16 @@ module.exports = {
             }else{
                 leaderboardData = await bot.database.getGuessLeaderboard();
             }
+            span.end();
 
+            span = bot.apm.startSpan("Get language key");
             const unknownUserKey = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "TRIVIA_UNKNOWN_USER");
+            span.end();
             let i = 0;
             let data = [];
             let position = -1;
 
+            span = bot.apm.startSpan("Process leaderboard data");
             await pasync.eachSeries(leaderboardData, async function processLeaderboard(entry, cb){
                 i++;
                 if(entry.user === message.author.id){
@@ -135,6 +142,7 @@ module.exports = {
                     }
                 else cb();
             });
+            span.end();
             message.channel.send(`You are **${position}** out of **${leaderboardData.length}** total players${args[2] && args[2].toLowerCase() === "monthly" ? " this month." : "."}\n\`\`\`yaml\n${columnify(data)}\n\`\`\``);
         }else if(songList.length === 0 || !bot.lavaqueue || !bot.lavaqueue.manager.nodes.has("1") || !bot.lavaqueue.manager.nodes.get("1").connected){
             message.channel.send("Song Guessing is currently unavailable. Please try again soon.");
@@ -159,7 +167,7 @@ module.exports = {
         }else{
             try {
                 bot.logger.log("Joining voice channel "+message.member.voice.channel.name);
-                doGuess(message.member.voice.channel, message, bot);
+                await doGuess(message.member.voice.channel, message, bot);
             }catch(e){
                 bot.raven.captureException(e);
                 bot.logger.log(e);
@@ -212,11 +220,15 @@ async function doGuess(voiceChannel, message, bot){
 
         message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
         console.log("Joining");
+        let span = bot.apm.startSpan("Create player");
         let {player} = await bot.lavaqueue.playOneSong(voiceChannel, file, message.getSetting("songguess.node"));
+        span.end();
         let won = false;
+        span = bot.apm.startSpan("Create message colelctor");
         let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
         runningGames[voiceChannel.id] = {player, collector};
         player.seek(10);
+        span.end();
         player.once("end", function(){
             if (!won && collector) {
                 collector.stop();
@@ -227,6 +239,7 @@ async function doGuess(voiceChannel, message, bot){
             if (message.author.id === "146293573422284800") return;
             if (message.author.bot)return;
             if(bot.banCache.user.indexOf(message.author.id) > -1)return;
+            let tx = bot.apm.startTransaction("Process guess", "meta");
             const guessTime = new Date();
             const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "").replace(message.getSetting("prefix")+"guess");
             console.log(strippedMessage);
@@ -242,14 +255,16 @@ async function doGuess(voiceChannel, message, bot){
                 embed.setThumbnail(`https://unacceptableuse.com/petify/album/${song.album}`);
                 embed.setDescription(`The song was **${title}**`);
                 embed.addField(":stopwatch: Time Taken", bot.util.prettySeconds((guessTime - now) / 1000));
+                span = tx.startSpan("Get fastest guess");
                 let fastestTime = (await bot.database.getFastestSongGuess(title))[0];
+                span.end();
                 if(fastestTime && fastestTime.elapsed) {
                     let fastestUser = await bot.util.getUserInfo(fastestTime.user);
                     embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000)+(fastestUser ? ` (${fastestUser.username}#${fastestUser.discriminator})` : ""));
                 }
 
                 message.channel.send(message.author, embed);
-
+                span = tx.startSpan("Update record");
                 let newOffset = guessTime-now;
                 if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset) {
                     await bot.database.updateSongRecord(title, message.author.id, fastestTime.elapsed);
@@ -257,7 +272,9 @@ async function doGuess(voiceChannel, message, bot){
                 }else{
                     await bot.database.updateSongRecord(title, fastestTime.user, newOffset);
                 }
+                span.end();
 
+                span = tx.startSpan("Update badges");
                 let totalGuesses = await bot.database.getTotalCorrectGuesses(message.author.id);
 
                 if(totalGuesses && totalGuesses[0] && totalGuesses[0]['COUNT(*)'])
@@ -266,19 +283,25 @@ async function doGuess(voiceChannel, message, bot){
                 if(!voiceChannel.members.has(message.author.id))
                     bot.badges.giveBadgeOnce(message.author, message.channel, 5); //Psychic Badge
 
+                span.end();
             } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
                 message.replyLang("SONGGUESS_ARTIST", {id: message.author.id, artist: artistName});
             }else if(strippedMessage.indexOf(title) > -1){
                 message.reply("the song title is somewhere in your message!");
             }else{
+                span = tx.startSpan("Process hints");
                 for(let i = 0; i< hints.length; i++){
                     if(strippedMessage.indexOf(hints[i].hint) > -1 || (strippedMessage.length >= (hints[i].hint.length / 3) && answer.indexOf(strippedMessage) > -1)){
                         message.reply(`Hint: ${hints[i].hintText}`);
                         break;
                     }
                 }
+                span.end();
             }
-            bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
+            span = tx.startSpan("Log guess");
+            await bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
+            span.end();
+            tx.end();
         });
         collector.on('end', async function collectorEnd() {
             console.log("Collection Ended");

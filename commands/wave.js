@@ -5,6 +5,6 @@ module.exports = {
     commands: ["wave", "wavey", "waves"],
     categories: ["image"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "wave", [10, 50]);
+        return bot.util.processImageFilter(module, message, args, "wave", [10, 50]);
     }
 };

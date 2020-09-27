@@ -12,6 +12,6 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jpeg", "jpg"],
     run: async function(message, args, bot){
-        bot.util.processImageFilter(module, message, args, "quality", [message.getSetting("jpeg.quality")], "JPEG");
+        return bot.util.processImageFilter(module, message, args, "quality", [message.getSetting("jpeg.quality")], "JPEG");
     }
 };

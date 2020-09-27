@@ -129,13 +129,19 @@ module.exports = {
         bot.lavaqueue.playOneSong = async function playOneSong(voiceChannel, song, node = "1"){
             bot.lavaqueue.cancelLeave(voiceChannel);
             bot.tasks.startTask("playOneSong", voiceChannel.id);
+            let span = bot.apm.startSpan("Join Voice Channel", "voice");
             let player = await bot.lavaqueue.manager.join({
                 guild: voiceChannel.guild.id,
                 channel: voiceChannel.id,
                 node,
             }, {selfdeaf: true});
+            span.end();
+            span = bot.apm.startSpan("Get Song", "voice");
             let songData = await bot.lavaqueue.getSong(song, player);
+            span.end();
+            span = bot.apm.startSpan("Play Song", "voice");
             player.play(songData.track);
+            span.end();
             player.once("error", function playerError(error){
                 bot.raven.captureException(error);
                 bot.logger.error("Player Error: "+error.error); //YEs
