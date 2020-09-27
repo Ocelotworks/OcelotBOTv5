@@ -5,12 +5,13 @@
  *  ════╝
  */
 const request = require('request');
+const config = require('config');
 module.exports = {
     name: "Warnings",
     usage: "warnings",
     commands: ["warnings"],
     run: async function(message, args, bot){
-       request(`http://localhost:${process.env.PORT}/warnings`, function(err, resp, body){
+       request(`http://${config.get("General.BrokerHost")}:${config.get("General.BrokerPort")}/warnings`, function(err, resp, body){
           if(err)
               return message.channel.send("Error: "+err);
           try{

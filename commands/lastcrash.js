@@ -2,15 +2,16 @@
 /**
  * Ported by Neil - 30/08/18
  */
-const request = require('request')
+const request = require('request');
+const config = require('config');
  module.exports = {
     name: "Last Crash",
     usage: "lastcrash",
     commands: ["lastcrash","uptime"],
-     categories: ["meta"],
+    categories: ["meta"],
     run: function run(message, args, bot) {
 
-        request(`http://localhost:${process.env.PORT}/lastcrash`, function(err, resp, body){
+        request(`http://${config.get("General.BrokerHost")}:${config.get("General.BrokerPort")}/lastcrash`, function(err, resp, body){
             if(err)
                 return message.replyLang("GENERIC_ERROR");
             console.log(body);
