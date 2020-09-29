@@ -20,9 +20,8 @@ module.exports = {
         }
 
         async function activateSpooking(){
-            return;
             bot.logger.log("Spooking is activated");
-            bot.updatePresence = async function(){o
+            bot.updatePresence = async function(){
                 const now = new Date();
                 if(now-bot.lastPresenceUpdate>100000) {
                     bot.lastPresenceUpdate = now;
@@ -45,13 +44,18 @@ module.exports = {
             for(let i = 0; i < currentlySpooked.length; i++) {
                 let spook = currentlySpooked[i];
                 if(!bot.client.guilds.cache.has(spook.server))continue;
-                if(bot.client.guilds.cache.get(spook.server).members.has(spook.spooked)) {
-                    bot.spook.spooked[spook.server] = {
-                        user: spook.spooked,
-                        timer: setTimeout(bot.spook.generateNew, 4.32e+7, spook.server)
-                    };
-                }else{
-                    bot.logger.log("Spooked user has left");
+                try {
+                    if (await (await bot.client.guilds.fetch(spook.server)).members.fetch(spook.spooked)) {
+                        bot.spook.spooked[spook.server] = {
+                            user: spook.spooked,
+                            timer: setTimeout(bot.spook.generateNew, 4.32e+7, spook.server)
+                        };
+                    } else {
+                        bot.logger.log("Spooked user has left");
+                        await bot.spook.generateNew(spook.server);
+                    }
+                }catch(e){
+                    console.log(e);
                     await bot.spook.generateNew(spook.server);
                 }
             }
@@ -74,33 +78,29 @@ module.exports = {
             //setTimeout(bot.spook.end, 20000*(bot.client.shard.ids.join(";")+1))
         });
 
+        bot.client.on("message", function spookTimeout(message){
+            if(!message.guild)return;
+            if(!bot.spook.spooked[message.guild.id])return;
+            if(bot.spook.spooked[message.guild.id].user !== message.author.id)return;
+            clearTimeout(bot.spook.spooked[message.guild.id].timer);
+            bot.spook.spooked[message.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, message.guild.id);
+        });
 
-
-
-        // bot.client.on("message", function spookTimeout(message){
-        //     if(!message.guild)return;
-        //     if(!bot.spook.spooked[message.guild.id])return;
-        //     if(!bot.spook.spooked[message.guild.id].user === message.author.id)return;
-        //     clearTimeout(bot.spook.spooked[message.guild.id].timer);
-        //     bot.spook.spooked[message.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, message.guild.id);
-        // });
-
-        // bot.client.on("guildMemberRemove", function spookLeaveCheck(member){
-        //     if(!bot.spook.spooked[member.guild.id])return;
-        //     if(bot.spook.spooked[member.guild.id].user !== member.id)return;
-        //     bot.logger.log("Spooked user left, generating new...");
-        //     bot.spook.generateNew(member.guild.id);
-        // });
+        bot.client.on("guildMemberRemove", function spookLeaveCheck(member){
+            if(!bot.spook.spooked[member.guild.id])return;
+            if(bot.spook.spooked[member.guild.id].user !== member.id)return;
+            bot.logger.log("Spooked user left, generating new...");
+            bot.spook.generateNew(member.guild.id);
+        });
 
         bot.spook.getSpookChannel = async function getLastSpookChannel(server, spooked){
             if(!spooked)
                 spooked = await bot.database.getSpooked(server);
             if(!spooked || !spooked[0])
-                return bot.util.determineMainChannel(bot.client.guilds.cache.get(server));
+                return bot.util.determineMainChannel(await bot.client.guilds.fetch(server));
 
             return bot.client.channels.cache.get(spooked[0].channel)
         };
-
 
 
         bot.spook.giveSpecialRoles = async function giveSpecialRoles(channel){
@@ -151,7 +151,6 @@ module.exports = {
             }
         };
 
-        bot.spook.superSecretFunction = bot.spook.giveSpecialRoles;
 
         bot.spook.assignRole = async function assignRole(user, role, target, guild, spooker){
             if(await bot.database.hasSpookRole(guild.id, user.id))return;
@@ -230,11 +229,7 @@ module.exports = {
         bot.spook.getColour = function getColour(guild, user){
             if(!guild.members.cache.has(user.id))
                 return "#ffffff";
-            let hoistRole = guild.members.cache.get(user.id).hoistRole;
-            if(!hoistRole)
-                return "#ffffff";
-
-            return hoistRole.hexColor;
+            return guild.members.cache.get(user.id).displayHexColor;
         };
 
         bot.spook.createSpook  = async function spook(channel, spooker, spooked){
@@ -247,10 +242,9 @@ module.exports = {
                 spooked.username,
                 bot.spook.getColour(channel.guild, spooker),
                 bot.spook.getColour(channel.guild, spooked),
-                spooker.avatar,
-                spooked.avatar);
+                spooker.avatarURL({format: 'png'}),
+                spooked.avatarURL({format: 'png'}));
             bot.updatePresence();
-            bot.spook.checkSpecialRoles(channel, spooker, spooked);
             if (bot.spook.spooked[channel.guild.id])
                 clearTimeout(bot.spook.spooked[channel.guild.id].timer);
             bot.spook.spooked[channel.guild.id] = {
@@ -265,8 +259,8 @@ module.exports = {
                 spookerUsername: spooker.username,
                 spookerColour: bot.spook.getColour(channel.guild, spooker),
                 spookedColour: bot.spook.getColour(channel.guild, spooked),
-                spookerAvatar: spooker.avatar,
-                spookedAvatar: spooked.avatar
+                spookerAvatar: spooker.avatarURL({format: 'png'}),
+                spookedAvatar: spooked.avatarURL({format: 'png'})
             })));
         };
 

@@ -31,14 +31,10 @@ module.exports = {
                 if(err)
                     return message.replyLang("GENERIC_ERROR");
 
-                if(!result.posts || result.posts.length === 0)
+                if(!result.posts.post || result.posts.post.length === 0)
                     return message.channel.send(":warning: No results");
 
-                console.log(result);
-
-
                 bot.util.standardPagination(message.channel, result.posts.post, async function(page, index){
-                    console.log(page);
                     page = page["$"];
                     let embed = new Discord.MessageEmbed();
 
