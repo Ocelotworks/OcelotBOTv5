@@ -6,6 +6,7 @@
  */
 const request = require('request');
 const Discord = require('discord.js');
+const xml2js = require('xml2js');
 module.exports = {
     name: "Rule34 Search",
     usage: "rule34 <search>",
@@ -21,33 +22,35 @@ module.exports = {
 
         let tag = encodeURIComponent(message.content.substring(args[0].length+1).replace(/ /g, "_"));
 
-        request(`https://r34-json-api.herokuapp.com/posts?tags=${tag}`, function(err, resp, body){
+        request(`http://rule34.paheal.net/api/danbooru/find_posts/?tags=${tag}`, function(err, resp, body){
+
             if(err)
                 return message.replyLang("GENERIC_ERROR");
 
-            try{
-                let data = JSON.parse(body);
-                if(data.length === 0)
+            xml2js.parseString(body, (err, result)=>{
+                if(err)
+                    return message.replyLang("GENERIC_ERROR");
+
+                if(!result.posts || result.posts.length === 0)
                     return message.channel.send(":warning: No results");
 
-                bot.util.standardPagination(message.channel, data, async function(page, index){
+                console.log(result);
 
+
+                bot.util.standardPagination(message.channel, result.posts.post, async function(page, index){
+                    console.log(page);
+                    page = page["$"];
                     let embed = new Discord.MessageEmbed();
 
-                    embed.setAuthor(message.author.username, message.author.displayavatar);
+                    embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true}));
                     embed.setImage(page.file_url);
                     embed.addField("Score", page.score);
-                    embed.setFooter(`Page ${index+1}/${data.length}`);
+                    embed.setFooter(`Page ${index+1}/${result.posts.post.length}`);
 
 
                     return embed;
                 }, true);
-
-
-            }catch(e){
-                bot.raven.captureException(e);
-                message.replyLang("GENERIC_ERROR");
-            }
+            })
         });
     }
 };

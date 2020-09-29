@@ -38,23 +38,23 @@ module.exports = {
             // }
 
 
-            request(`https://www.pornmd.com/straight/${encodeURIComponent(search)}?start=1&ajax=true&limit=20&format=json`, async function getPorn(err, resp, body){
+            request(`https://www.pornmd.com/api/v1/video-search?orientation=straight&query=${encodeURIComponent(search)}&start=1&ajax=true&format=json`, async function getPorn(err, resp, body){
                 if(err)
                     return message.replyLang("GENERIC_ERROR");
                 try{
                     let data = JSON.parse(body);
-                    let images = data.videos;
+                    let images = data.itemList;
                     if(images.length === 0)
                         return message.channel.send(":warning: No results.");
                     bot.util.standardPagination(message.channel, images, async function(page, index){
                         let embed = new Discord.MessageEmbed();
                         embed.setAuthor(page.source);
-                        embed.setTimestamp(new Date(page.pub_date));
+                        embed.setTimestamp(new Date(page.createdAt));
                         embed.setTitle(page.title);
-                        embed.setImage(page.thumb);
-                        const url = "https://pornmd.com"+page.link;
+                        embed.setImage(page.thumbnailUrl);
+                        const url = "https://pornmd.com"+page.hashedUrl;
                         embed.setURL(url);
-                        embed.setDescription(`Rating: ${page.video_rating_str}\nDuration: ${page.duration}\n[Click here to watch](${url})`);
+                        embed.setDescription(`Rating: ${page.rating}\nDuration: ${page.duration}\n[Click here to watch](${url})`);
                         embed.setFooter(`Page ${index+1}/${images.length}`);
                         return embed;
                     }, true);

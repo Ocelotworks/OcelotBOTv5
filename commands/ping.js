@@ -16,7 +16,7 @@ module.exports = {
 
         const sentMessage = await message.replyLang("PING_PINGING", {address: args[1]});
 
-        const res = await ping.promise.probe(args[1].replace(/[<>|]/g, ""), {
+        const res = await ping.promise.probe(args[1].replace(/[<>|;]/g, ""), {
             timeout: args[2] ? args[2] : 1000
         });
 
