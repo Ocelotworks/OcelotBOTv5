@@ -80,8 +80,8 @@ module.exports = {
                         break;
                     }
                 }
-                if(voteServer || !bot.client.shard || bot.client.shard.ids.join(";") === 0){
-                    if(bot.client.shard && bot.client.shard.ids.join(";") === 0){
+                if(voteServer || !bot.client.shard || bot.client.shard.ids.join(";") == 0){
+                    if(bot.client.shard && bot.client.shard.ids.join(";") == 0){
                         voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel);
                     }else{
                         logVote(user, voteServer, channel);
