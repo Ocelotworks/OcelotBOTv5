@@ -16,7 +16,12 @@ module.exports = {
             .split(" ")
             .slice(1)
             .join(" ");
-        let result = await bot.rabbit.rpc("z5", {name: "gameData", data: input, server : message.guild ? message.guild.id : message.channel.id, player : message.author.id});
+        let result = await bot.rabbit.rpc("z5", {
+            name: "gameData",
+            data: input,
+            server : message.guild ? message.guild.id : message.channel.id, player : message.author.id,
+            admin: bot.admins.includes(message.author.id),
+        });
 
         let text = Discord.escapeMarkdown(decodeURIComponent(result.text));
         let channelMessage = "";
@@ -36,11 +41,11 @@ module.exports = {
             message.channel.send(channelMessage);
         }
 
-        if(headerLines[0].indexOf("Barrow") !== -1){
-            result.players.forEach(async function (value) {
-               await bot.database.giveBadge(value, 62);
-            });
-            message.channel.send("You won! Everyone involved in the game has received the <:zork:576842329789562930> Zork Badge on their !profile");
-        }
+        // if(headerLines[0].indexOf("Barrow") !== -1){
+        //     result.players.forEach(async function (value) {
+        //        await bot.database.giveBadge(value, 62);
+        //     });
+        //     message.channel.send("You won! Everyone involved in the game has received the <:zork:576842329789562930> Zork Badge on their !profile");
+        // }
     }
 };

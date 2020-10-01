@@ -22,7 +22,7 @@ module.exports = {
         async function logVote(user, voteServer, channel){
             try {
                 const userObj = await bot.client.users.fetch(user);
-                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.username}#${userObj.tag}** just voted at top.gg/bot/146293573422284800`)
+                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at https://top.gg/bot/146293573422284800`)
             }catch(e){
 
             }
