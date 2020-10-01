@@ -20,7 +20,7 @@ module.exports = {
                     const data = JSON.parse(body);
                     if(data[2].length === 0){
                         message.channel.send("No pages found.");
-                    }else if(data[2][0].indexOf("refer to") > -1 || data[2][0].length <= 1){
+                    }else if(data[2][0].indexOf("refer to") > -1){
                         message.channel.send(`**${data[1][1]}:**\n${data[2][1]}\n${data[3][1]}`);
                     }else{
                         message.channel.send(`**${data[1][0]}:**\n${data[2][0]}\n${data[3][0]}`);
