@@ -55,7 +55,7 @@ module.exports = {
                         await bot.spook.generateNew(spook.server);
                     }
                 }catch(e){
-                    console.log(e);
+                    bot.logger.log("spooked user has left?")
                     await bot.spook.generateNew(spook.server);
                 }
             }
@@ -99,7 +99,7 @@ module.exports = {
             if(!spooked || !spooked[0])
                 return bot.util.determineMainChannel(await bot.client.guilds.fetch(server));
 
-            return bot.client.channels.cache.get(spooked[0].channel)
+            return await bot.client.channels.fetch(spooked[0].channel)
         };
 
 
@@ -418,7 +418,7 @@ module.exports = {
             return bot.sendSpookEnd(message.guild.id, message.channel, await bot.database.getSpooked(message.guild.id));
 
         if(args.length > 1){
-            let span = bot.apm.startSpan("Check can spookr");
+            let span = bot.apm.startSpan("Check can spook");
             const canSpook = await bot.database.canSpook(message.author.id, message.guild.id);
             span.end();
             if (!canSpook)
