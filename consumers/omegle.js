@@ -70,7 +70,7 @@ async function init(){
         });
 
         om.on('gotMessage',function(message){
-            if(message.indexOf("discord.gg") > -1)
+            if(message.indexOf("discord.gg") > -1 || message.indexOf("invite/") > -1)
                 message = "<The Stranger attempted to post a discord invite>";
             reply(msg, {type: "message", data: {channel, message}});
         });
@@ -91,7 +91,7 @@ async function init(){
             console.log("Connected as "+id);
         });
 
-        om.connect(['gaming','gamers']);
+        om.connect(['ocelotbot']);
         timeout = setTimeout(function(){
             om.stopLookingForCommonLikes();
         }, 5000);

@@ -10,11 +10,21 @@ const   config          = require('config'),
         https           = require('https'),
         fs              = require('fs'),
         ws              = require('ws'),
-        knex            = require('knex')(config.get("Database"));
+        knex            = require('knex')(config.get("Database")),
+        elasticApm      = require('elastic-apm-node');
 
 let  count = 0;
 
 async function init(){
+    let apm;
+    if(config.get("APM")){
+        apm = elasticApm.start({
+            serviceName: "OcelotBOT-Livecount",
+            secretToken: config.get("APM.Token"),
+            serverUrl: config.get("APM.Server")
+        })
+    }
+
     const server = https.createServer({
         key: fs.readFileSync('/home/peter/privkey.pem'),
         cert: fs.readFileSync('/home/peter/cert.pem')
