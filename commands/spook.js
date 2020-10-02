@@ -78,13 +78,13 @@ module.exports = {
             //setTimeout(bot.spook.end, 20000*(bot.client.shard.ids.join(";")+1))
         });
 
-        bot.client.on("message", function spookTimeout(message){
-            if(!message.guild)return;
-            if(!bot.spook.spooked[message.guild.id])return;
-            if(bot.spook.spooked[message.guild.id].user !== message.author.id)return;
-            clearTimeout(bot.spook.spooked[message.guild.id].timer);
-            bot.spook.spooked[message.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, message.guild.id);
-        });
+        // bot.client.on("message", function spookTimeout(message){
+        //     if(!message.guild)return;
+        //     if(!bot.spook.spooked[message.guild.id])return;
+        //     if(bot.spook.spooked[message.guild.id].user !== message.author.id)return;
+        //     clearTimeout(bot.spook.spooked[message.guild.id].timer);
+        //     bot.spook.spooked[message.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, message.guild.id);
+        // });
 
         bot.client.on("guildMemberRemove", function spookLeaveCheck(member){
             if(!bot.spook.spooked[member.guild.id])return;
@@ -233,6 +233,8 @@ module.exports = {
         };
 
         bot.spook.createSpook  = async function spook(channel, spooker, spooked){
+            clearTimeout(bot.spook.spooked[channel.guild.id].timer);
+            bot.spook.spooked[channel.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, channel.guild.id);
             await bot.database.spook(
                 spooked.id,
                 spooker.id,
