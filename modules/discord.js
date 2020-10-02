@@ -360,7 +360,7 @@ module.exports = {
                         if(bot.client.guilds.cache.has(guild)){
                             let callbackID = message.payload.callbackID;
                             let guildObj = bot.client.guilds.cache.get(guild);
-                            let channels = guildObj.channels.map(function(channel){
+                            let channels = guildObj.channels.cache.map(function(channel){
                                 return {name: channel.name, id: channel.id}
                             });
                             bot.logger.log("Sending channel data for "+guildObj.name+" ("+guild+")");
