@@ -966,13 +966,9 @@ module.exports = {
                 try{
                     let data = JSON.parse(body);
                     if(data.renderLocation) {
-                        message.channel.send("", {
-                            embed: {
-                                image: {
-                                    url: data.renderLocation.replace(/ /g, "%20") //STILL eat a dick!
-                                }
-                            }
-                        });
+                        // TODO: stupid fuck lets encrypt bollocks
+                        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+                        message.channel.send("", new Discord.MessageAttachment(data.renderLocation)); // Still eating dicks 2k20
                     }else {
                         message.replyLang("GENERIC_ERROR");
                         bot.logger.warn("Invalid Response?");
