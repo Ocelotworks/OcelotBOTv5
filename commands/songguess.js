@@ -102,7 +102,7 @@ module.exports = {
             if(args[2] && args[2].toLowerCase() === "monthly"){
                 leaderboardData = await bot.database.getGuessMonthlyLeaderboard();
             }else if(args[2] && args[2].toLowerCase() === "server" && message.guild) {
-                leaderboardData = await bot.database.getGuessServerLeaderboard(message.guild.members.keyArray());
+                leaderboardData = await bot.database.getGuessServerLeaderboard(message.guild.members.cache.keyArray());
             }else{
                 leaderboardData = await bot.database.getGuessLeaderboard();
             }
