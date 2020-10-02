@@ -224,7 +224,7 @@ async function doGuess(voiceChannel, message, bot){
         let {player} = await bot.lavaqueue.playOneSong(voiceChannel, file, message.getSetting("songguess.node"));
         span.end();
         let won = false;
-        span = bot.apm.startSpan("Create message colelctor");
+        span = bot.apm.startSpan("Create message collector");
         let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
         runningGames[voiceChannel.id] = {player, collector};
         player.seek(10);
