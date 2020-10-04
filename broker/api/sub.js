@@ -16,7 +16,7 @@ module.exports = {
         });
 
         router.post('/:id/trigger', function(req, res){
-            broker.manager.broadcase({
+            broker.manager.broadcast({
                 type: "triggerSub",
                 payload: {
                     id: req.params.id,

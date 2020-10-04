@@ -46,10 +46,17 @@ module.exports = {
                 if(!bot.client.guilds.cache.has(spook.server))continue;
                 try {
                     if (await (await bot.client.guilds.fetch(spook.server)).members.fetch(spook.spooked)) {
-                        bot.spook.spooked[spook.server] = {
-                            user: spook.spooked,
-                            timer: setTimeout(bot.spook.generateNew, 4.32e+7, spook.server)
-                        };
+                        let spookTimer = 8.64e+7-((new Date().getTime())-spook.timestamp);
+                        console.log("spooky timer ", spookTimer);
+                        if(spookTimer < 0){
+                            console.log("Spook timer is out, generating new...");
+                            await bot.spook.generateNew(spook.server);
+                        }else {
+                            bot.spook.spooked[spook.server] = {
+                                user: spook.spooked,
+                                timer: setTimeout(bot.spook.generateNew, spookTimer, spook.server)
+                            };
+                        }
                     } else {
                         bot.logger.log("Spooked user has left");
                         await bot.spook.generateNew(spook.server);
@@ -233,7 +240,10 @@ module.exports = {
         };
 
         bot.spook.createSpook  = async function spook(channel, spooker, spooked){
-            clearTimeout(bot.spook.spooked[channel.guild.id].timer);
+            if(bot.spook.spooked[channel.guild.id])
+                clearTimeout(bot.spook.spooked[channel.guild.id].timer);
+            else
+                bot.spook.spooked[channel.guild.id] = {};
             bot.spook.spooked[channel.guild.id].timer = setTimeout(bot.spook.generateNew, 8.64e+7, channel.guild.id);
             await bot.database.spook(
                 spooked.id,
@@ -268,7 +278,7 @@ module.exports = {
 
         bot.spook.generateNew = async function generateNew(server){
             const now = new Date();
-            if(now-end <= 0)return;
+            if(end-now <= 0)return bot.logger.warn("Not generating new as the spook is over");
             if(!bot.client.guilds.cache.has(server)) //No longer exists
                 return bot.logger.warn("Spooked guild no longer exists");
 
@@ -278,7 +288,7 @@ module.exports = {
             let channel = await bot.spook.getSpookChannel(server);
             if(!channel){
                 channel = await bot.util.determineMainChannel(guild);
-                if(!channel)return;
+                if(!channel)return bot.logger.warn("Not generating new as the main channel could not be determined.");
             }
             const lastMessages = (await channel.messages.fetch({limit: 100})).filter(function(message){
                 return !message.author.bot && message.guild.members.cache.has(message.author.id) && message.author.id !== lastSpooked;
@@ -286,11 +296,11 @@ module.exports = {
             let targetUser;
             if(lastMessages.size < 1){
                 bot.logger.warn("No eligible users found...");
-                if(!guild.users)return;
-                targetUser = guild.users.filter((u)=>!u.bot).random(1)[0];
+                if(!guild.users)return bot.logger.warn("Not generating new as guild users could not be found");
+                targetUser = guild.users.cache.filter((u)=>!u.bot).random(1)[0];
             }else {
                  const targetMessage = lastMessages.random(1)[0];
-                 if(!targetMessage)return;
+                 if(!targetMessage)return bot.logger.warn*"Not generating new as target message failed";
                  targetUser = targetMessage.author;
             }
 
