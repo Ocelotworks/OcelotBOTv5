@@ -51,6 +51,7 @@ module.exports = {
     commands: ["guess", "guesssong", "songguess", "namethattune", "quess", "gues"],
     init: async function init(bot){
 
+        bot.util.standardNestedCommandInit("guess");
         bot.voiceLeaveTimeouts = {};
 
         bot.logger.log("Loading song list...");
@@ -71,6 +72,18 @@ module.exports = {
         });
     },
     run:  async function run(message, args, bot){
+        // if(args[1]){
+        //     bot.util.standardNestedCommand(message, args, bot,'guess', runningGames, ()=>{
+        //         if (message.member.voice.channel && runningGames[message.member.voice.channel.id]) {
+        //             message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${args[0]} stop. To see stats, type ${args[0]} help`)
+        //         }else{
+        //             message.channel.send(`To start a game, just type ${args[0]}. To see stats, type ${args[0]} help`)
+        //         }
+        //     });
+        // }
+        //
+        // // TODO
+
         if(args[1] && args[1].toLowerCase() === "stop") {
             if (message.member.voice.channel && runningGames[message.member.voice.channel.id]) {
                 await runningGames[message.member.voice.channel.id].collector.stop();
@@ -96,7 +109,6 @@ module.exports = {
                 message.channel.stopTyping(true);
             }
         }else if(args[1] && args[1].toLowerCase() === "leaderboard"){
-
             let span = bot.apm.startSpan("Get leaderboard data");
             let leaderboardData;
             if(args[2] && args[2].toLowerCase() === "monthly"){
