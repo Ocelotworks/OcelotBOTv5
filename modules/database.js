@@ -658,7 +658,7 @@ module.exports = {
                 }
             },
             getCurrentlySpookedForShard: function(servers){
-                return knex.select("server", "spooked", "timestamp").from(knex.raw("ocelotbot_spooks as a")).whereIn("server", servers).andWhere("id", knex.select(knex.raw("MAX(id)")).from(knex.raw("ocelotbot_spooks as b")).whereRaw("a.server = b.server")).andWhere("series", 2020);
+                return knex.select("server", "spooked", "spooker","timestamp").from(knex.raw("ocelotbot_spooks as a")).whereIn("server", servers).andWhere("id", knex.select(knex.raw("MAX(id)")).from(knex.raw("ocelotbot_spooks as b")).whereRaw("a.server = b.server")).andWhere("series", 2020);
             },
             incrementSpecialRole: function(server, spooker, spooked){
                 return knex("ocelotbot_spook_role_assignments").increment("current").where({spooker, spooked}).limit(1);
