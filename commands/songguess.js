@@ -71,116 +71,41 @@ module.exports = {
                 }}
         });
     },
-    run:  async function run(message, args, bot){
-        // if(args[1]){
-        //     bot.util.standardNestedCommand(message, args, bot,'guess', runningGames, ()=>{
-        //         if (message.member.voice.channel && runningGames[message.member.voice.channel.id]) {
-        //             message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${args[0]} stop. To see stats, type ${args[0]} help`)
-        //         }else{
-        //             message.channel.send(`To start a game, just type ${args[0]}. To see stats, type ${args[0]} help`)
-        //         }
-        //     });
-        // }
-        //
-        // // TODO
-
-        if(args[1] && args[1].toLowerCase() === "stop") {
-            if (message.member.voice.channel && runningGames[message.member.voice.channel.id]) {
-                await runningGames[message.member.voice.channel.id].collector.stop();
-            }else{
-                message.channel.send(":warning: You are not currently in a voice channel that is playing guess!");
-            }
-        }else if(args[1] && args[1].toLowerCase() === "stats") {
-            message.channel.startTyping();
-            try {
-                let span = bot.apm.startSpan("Get guess stats");
-                let stats = await bot.database.getGuessStats();
-                span.end();
-                let output = "**Guess Stats:**\n";
-                output += `**${songList.length.toLocaleString()}** available songs.\n`;
-                output += `**${stats.totalGuesses.toLocaleString()}** total guesses by **${stats.totalUsers}** users.\n`;
-                output += `**${stats.totalCorrect.toLocaleString()}** (**${parseInt((stats.totalCorrect / stats.totalGuesses) * 100)}%**) correct guesses.\n`;
-                output += `Average of **${bot.util.prettySeconds(stats.averageTime / 1000)}** until a correct guess.\n`;
-                output += `**${bot.util.prettySeconds(stats.totalTime / 1000)}** spent guessing in total.\n`;
-                message.channel.send(output);
-            }catch(e){
-                bot.raven.captureException(e);
-            }finally{
-                message.channel.stopTyping(true);
-            }
-        }else if(args[1] && args[1].toLowerCase() === "leaderboard"){
-            let span = bot.apm.startSpan("Get leaderboard data");
-            let leaderboardData;
-            if(args[2] && args[2].toLowerCase() === "monthly"){
-                leaderboardData = await bot.database.getGuessMonthlyLeaderboard();
-            }else if(args[2] && args[2].toLowerCase() === "server" && message.guild) {
-                leaderboardData = await bot.database.getGuessServerLeaderboard(message.guild.members.cache.keyArray());
-            }else{
-                leaderboardData = await bot.database.getGuessLeaderboard();
-            }
-            span.end();
-
-            span = bot.apm.startSpan("Get language key");
-            const unknownUserKey = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "TRIVIA_UNKNOWN_USER");
-            span.end();
-            let i = 0;
-            let data = [];
-            let position = -1;
-
-            span = bot.apm.startSpan("Process leaderboard data");
-            await pasync.eachSeries(leaderboardData, async function processLeaderboard(entry, cb){
-                i++;
-                if(entry.user === message.author.id){
-                    position = "#"+i;
-                    if(i > 10){
-                        cb();
-                        return;
-                    }
+    run:  async function run(message, args, bot) {
+        if (args[1]) {
+            bot.util.standardNestedCommand(message, args, bot, 'guess', runningGames, () => {
+                if (message.member.voice.channel && runningGames[message.member.voice.channel.id]) {
+                    message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${args[0]} stop. To see stats, type ${args[0]} help`)
+                } else {
+                    message.channel.send(`To start a game, just type ${args[0]}. To see stats, type ${args[0]} help`)
                 }
-                if(i <= 10)
-                    try {
-                        let user = await bot.util.getUserInfo(entry.user);
-                        data.push({
-                            "#": i,
-                            "user": user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,
-                            "Correct": entry.points,
-                            "Total": entry.total,
-                        });
-                    }catch(e){
-                        bot.logger.error("Error processing leaderboard entry");
-                        bot.logger.error(e);
-                    }finally{
-                        cb();
-                    }
-                else cb();
             });
-            span.end();
-            message.channel.send(`You are **${position}** out of **${leaderboardData.length}** total players${args[2] && args[2].toLowerCase() === "monthly" ? " this month." : "."}\n\`\`\`yaml\n${columnify(data)}\n\`\`\``);
-        }else if(songList.length === 0 || !bot.lavaqueue || !bot.lavaqueue.manager.nodes.has("1") || !bot.lavaqueue.manager.nodes.get("1").connected){
+        }
+        if (songList.length === 0 || !bot.lavaqueue || !bot.lavaqueue.manager.nodes.has(message.getSetting("songguess.node")) || !bot.lavaqueue.manager.nodes.get(message.getSetting("songguess.node")).connected) {
             message.channel.send("Song Guessing is currently unavailable. Please try again soon.");
-        }else if(!message.guild){
+        } else if (!message.guild) {
             message.replyLang("GENERIC_DM_CHANNEL");
-        }else if(!message.guild.available){
+        } else if (!message.guild.available) {
             message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-        }else if(!message.member.voice || !message.member.voice.channel) {
+        } else if (!message.member.voice || !message.member.voice.channel) {
             message.replyLang("VOICE_NO_CHANNEL");
-        }else if(message.member.voice.channel.full){
+        } else if (message.member.voice.channel.full) {
             message.replyLang("VOICE_FULL_CHANNEL");
-        }else if(!message.member.voice.channel.joinable) {
+        } else if (!message.member.voice.channel.joinable) {
             message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-        }else if(!message.member.voice.channel.speakable){
+        } else if (!message.member.voice.channel.speakable) {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
-        }else if(runningGames[message.guild.id] && runningGames[message.guild.id].channel.id !== message.member.voice.channel.id) {
+        } else if (runningGames[message.guild.id] && runningGames[message.guild.id].channel.id !== message.member.voice.channel.id) {
             message.channel.send(`There is already a game running in ${runningGames[message.guild.id].channel.name}!`);
-        }else if(message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voice.channel.id] && message.getSetting("songguess.disallowReguess")) {
+        } else if (message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voice.channel.id] && message.getSetting("songguess.disallowReguess")) {
             message.channel.send("I'm already in a voice channel doing something.");
-        }else if(await bot.database.hasActiveSession(message.guild.id)){
+        } else if (await bot.database.hasActiveSession(message.guild.id)) {
             message.channel.send("The bot is currently playing music. Please wait for the queue to end to start guessing");
-        }else{
+        } else {
             try {
-                bot.logger.log("Joining voice channel "+message.member.voice.channel.name);
+                bot.logger.log("Joining voice channel " + message.member.voice.channel.name);
                 await doGuess(message.member.voice.channel, message, bot);
-            }catch(e){
+            } catch (e) {
                 bot.raven.captureException(e);
                 bot.logger.log(e);
                 message.replyLang("GENERIC_ERROR");
