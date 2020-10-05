@@ -906,7 +906,7 @@ module.exports = {
             });
         };
 
-        bot.util.standardNestedCommand = function standardNestedCommand(message, args, bot, id, data, invalidUsageFunction, subCommandIndex = 1){
+        bot.util.standardNestedCommand = async function standardNestedCommand(message, args, bot, id, data, invalidUsageFunction, subCommandIndex = 1){
             const commandName = args[subCommandIndex] ? args[subCommandIndex].toLowerCase() : "help";
             const commandType = bot.util.nestedCommands[id];
             if(!commandType){
@@ -918,7 +918,7 @@ module.exports = {
             }
             const command = commandType[commandName];
             if(command){
-                command.run(message, args, bot, data);
+                await command.run(message, args, bot, data);
             }else if(commandName === "help"){
                 let output = "";
                 let usedAliases = [];

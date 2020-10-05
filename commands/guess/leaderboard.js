@@ -20,11 +20,10 @@ module.exports = {
         let server = "global";
 
         if(!args[2] || args[2].toLowerCase() === "server") {
-            args[2] = "all";
-            if(args[2].toLowerCase() === "server")
+            if(args[2] && args[2].toLowerCase() === "server")
                 args[3] = "server";
+            args[2] = "all";
         }
-
 
         if(args[3] && args[3].toLowerCase() === "server" && message.guild)
             server = message.guild.id;
@@ -69,6 +68,7 @@ module.exports = {
 
             message.channel.send(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total players${timescale === "all" ? " of all time" : ` this ${timescale}`}${server === "global" ? "." : " in this server."}\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
         }catch(e){
+            bot.logger.log(e);
             Sentry.captureException(e);
             message.replyLang("GENERIC_ERROR");
         }finally{

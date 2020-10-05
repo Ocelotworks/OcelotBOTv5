@@ -73,15 +73,14 @@ module.exports = {
     },
     run:  async function run(message, args, bot) {
         if (args[1]) {
-            bot.util.standardNestedCommand(message, args, bot, 'guess', runningGames, () => {
+            await bot.util.standardNestedCommand(message, args, bot, 'guess', runningGames, () => {
                 if (message.member.voice.channel && runningGames[message.member.voice.channel.id]) {
                     message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${args[0]} stop. To see stats, type ${args[0]} help`)
                 } else {
                     message.channel.send(`To start a game, just type ${args[0]}. To see stats, type ${args[0]} help`)
                 }
             });
-        }
-        if (songList.length === 0 || !bot.lavaqueue || !bot.lavaqueue.manager.nodes.has(message.getSetting("songguess.node")) || !bot.lavaqueue.manager.nodes.get(message.getSetting("songguess.node")).connected) {
+        }else if (songList.length === 0 || !bot.lavaqueue || !bot.lavaqueue.manager.nodes.has(message.getSetting("songguess.node")) || !bot.lavaqueue.manager.nodes.get(message.getSetting("songguess.node")).connected) {
             message.channel.send("Song Guessing is currently unavailable. Please try again soon.");
         } else if (!message.guild) {
             message.replyLang("GENERIC_DM_CHANNEL");
