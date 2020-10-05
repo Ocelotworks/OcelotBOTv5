@@ -939,6 +939,19 @@ module.exports = {
         };
 
 
+        bot.util.getJson = async function getJson(url){
+            return new Promise((resolve, reject)=>{
+                request(url, (err, resp, body)=>{
+                    if(err)return reject(err);
+                    try {
+                        resolve(JSON.parse(body))
+                    }catch(e){
+                        reject(e);
+                    }
+                })
+            })
+        }
+
         bot.util.coolTextGenerator = function(message, args, bot, options){
             if(!args[1]){
                 return message.replyLang("GENERIC_TEXT", {command: args[0]});
