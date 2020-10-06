@@ -938,6 +938,13 @@ module.exports = {
             }
         };
 
+        bot.util.startSpan = function startSpan(name){
+            if(bot.apm){
+                let span = bot.apm.startSpan(name);
+                if(span)return span;
+            }
+            return {end: ()=> {}}
+        }
 
         bot.util.getJson = async function getJson(url){
             return new Promise((resolve, reject)=>{

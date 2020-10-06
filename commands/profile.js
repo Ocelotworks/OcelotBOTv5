@@ -234,25 +234,39 @@ module.exports = {
             let avatarURL = await canvas.loadImage(avatar);
 
             //Draw the avatar backdrop
+            let span = bot.util.startSpan("Draw avatar backdrop");
             ctx.fillStyle = "rgba(25,25,25,0.56)";
             ctx.fillRect(AVATAR_OFFSET-1, AVATAR_OFFSET-1, AVATAR_SIZE+2, AVATAR_SIZE+2);
+            span.end();
+
             //Draw the avatar
+            span = bot.util.startSpan("Draw avatar");
             ctx.drawImage(avatarURL, AVATAR_OFFSET, AVATAR_OFFSET, AVATAR_SIZE, AVATAR_SIZE);
+            span.end();
+
             //Draw the avatar outline
+            span = bot.util.startSpan("Draw avatar outline");
             ctx.fillStyle = "black";
             ctx.strokeRect(AVATAR_OFFSET-1, AVATAR_OFFSET-1, AVATAR_SIZE+2, AVATAR_SIZE+2);
+            span.end();
 
+            span = bot.util.startSpan("Draw header text");
             bot.util.drawOutlinedText(ctx, name, USERNAME_X, USERNAME_Y, USERNAME_SIZE);
             bot.util.drawOutlinedText(ctx, wrap(tagline, {width: 35}), TAGLINE_X, TAGLINE_Y, TAGLINE_SIZE);
+            span.end();
         }
 
 
         async function drawBadges(ctx, user){
+            let span = bot.util.startSpan("Get badges");
             const badges = await bot.database.getProfileBadges(user.id);
-
+            span.end();
             let regularIndexOffset;
             await Promise.all(badges.map(async function(badge, i){
+                span = bot.util.startSpan("Load badge");
                 badge.loadedImage = await canvas.loadImage(`${newProfileBase}/badges/${badge.image}`);
+                span.end();
+                span = bot.util.startSpan("Draw badge");
                 if(i === 0 || badges.length <= 4){
                     drawFeaturedBadge(ctx, badge, i);
                 }else{
@@ -260,6 +274,7 @@ module.exports = {
                         regularIndexOffset = i;
                     drawRegularBadge(ctx, badge, i-regularIndexOffset);
                 }
+                span.end();
             }));
         }
 
@@ -291,6 +306,7 @@ module.exports = {
         }
 
         async function drawStats(ctx, user, profileInfo){
+            let span = bot.util.startSpan("Get stats");
             const [guildCounts, userStats, voteStats, guessStats, triviaStats] = await Promise.all([
                 bot.client.shard.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${user.id}')).size`),
                 bot.database.getUserStats(user.id),
@@ -298,7 +314,8 @@ module.exports = {
                 bot.database.getTotalCorrectGuesses(user.id),
                 bot.database.getTriviaCorrectCount(user.id),
             ]);
-
+            span.end();
+            span = bot.util.startSpan("Draw stats");
             let i = 0;
             drawStat(ctx, userStats[0].commandCount.toLocaleString(), "commands", i++);
             drawStat(ctx, guildCounts.reduce((a,b)=>a+b, 0), "servers", i++);
@@ -306,20 +323,26 @@ module.exports = {
             drawStat(ctx, guessStats[0] && guessStats[0]['COUNT(*)'] ? guessStats[0]['COUNT(*)'] : 0, "songs guessed", i++);
             drawStat(ctx, triviaStats[0] && triviaStats[0]['count(*)'] ? triviaStats[0]['count(*)'] : 0, "trivia correct", i++);
             drawStat(ctx, dateFormat(profileInfo.firstSeen, "dd/mm/yy"), "first seen", i++);
-
+            span.end();
         }
 
         function generateProfileBody(ctx, user, profileInfo){
             //Draw background
+            let span = bot.util.startSpan("Draw background");
             ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
             ctx.fillRect(BODY_X, BODY_Y, BODY_WIDTH, BODY_HEIGHT);
+            span.end();
             //Draw separator line
+
+            span = bot.util.startSpan("Draw separator");
             ctx.fillStyle = "rgba(25,25,25,0.56)";
             ctx.fillRect(BODY_X+(BODY_WIDTH/2), BODY_Y, 2, BODY_HEIGHT);
+            span.end();
             return Promise.all([drawBadges(ctx, user), drawStats(ctx, user, profileInfo)]);
         }
 
         bot.generateNewProfileImage = async function(user, guild){
+            let span = bot.util.startSpan("Fetch profile");
             let profileInfo = (await bot.database.getProfile(user.id))[0];
 
             if (!profileInfo) {
@@ -335,6 +358,8 @@ module.exports = {
                 };
             }
 
+            span.end();
+            span = bot.util.startSpan("Get mutual guilds");
             let now = new Date();
             let mutualGuilds;
             if (bot.client.shard) {
@@ -345,31 +370,37 @@ module.exports = {
             } else {
                 mutualGuilds = bot.client.guilds.cache.filter((guild) => guild.members.cache.has(user.id)).map((guild) => guild.name);
             }
-
+            span.end();
+            span = bot.util.startSpan("Give badges");
             if(profileInfo.firstSeen)
                 await bot.badges.updateBadge(user, "year", parseInt((now-profileInfo.firstSeen) / 3.154e+10));
             await bot.updateServersBadge(user, mutualGuilds.length);
 
             if(guild && bot.config.get(guild.id, "profile.complimentaryBadge", user.id))
                 await bot.badges.giveBadgeOnce(user, null, bot.config.get(guild.id, "profile.complimentaryBadge", user.id));
+            span.end();
 
+            span = bot.util.startSpan("Initialise canvas");
             const cnv = canvas.createCanvas(PROFILE_WIDTH, PROFILE_HEIGHT);
             const ctx = cnv.getContext("2d");
             const backgroundInfo  = (await bot.database.getProfileOption(profileInfo.background))[0];
             const background = await canvas.loadImage(`${newProfileBase}/backgrounds/${backgroundInfo.path}`);
+            span.end();
+            span = bot.util.startSpan("Draw profile");
             ctx.drawImage(background, 0, 0, PROFILE_WIDTH, PROFILE_HEIGHT);
 
             await Promise.all([
                 generateProfileHeader(ctx, user.tag, profileInfo.caption, user.avatarURL({dynamic: true, format: "png"}), []),
                 generateProfileBody(ctx, user, profileInfo)
             ]);
-
+            span.end();
             return cnv.toBuffer("image/png");
         };
 
         bot.badges = {};
 
         bot.badges.giveBadge = async function(user, channel, id){
+            let span = bot.util.startSpan("Give badge");
             await bot.database.giveBadge(user.id, id);
             const badge = (await bot.database.getBadge(id))[0];
             if(channel) {
@@ -380,6 +411,7 @@ module.exports = {
                 embed.setColor("#3ba13b");
                 channel.send(user, embed);
             }
+            span.end();
         };
 
         bot.badges.giveBadgeOnce = async function(user, channel, id){
@@ -449,7 +481,7 @@ module.exports = {
             message.channel.send("", attachment);
             message.channel.stopTyping();
         }else{
-            bot.util.standardNestedCommand(message,args,bot,'profile');
+            await bot.util.standardNestedCommand(message,args,bot,'profile');
         }
     }
 
