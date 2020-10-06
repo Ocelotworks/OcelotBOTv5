@@ -44,7 +44,7 @@ module.exports = {
                     cache[type][query] = images;
                 }
                 if(images.length === 0)
-                    return message.replyLang(message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
+                    return message.replyLang(!message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
 
                 bot.util.standardPagination(message.channel, images, async function(page, index){
                     let embed = new Discord.MessageEmbed();
