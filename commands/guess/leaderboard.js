@@ -60,8 +60,8 @@ module.exports = {
                 outputData.push({
                     "#": i + 1,
                     "user": user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,
-                    "Correct": entry.points,
-                    "Total": entry.total,
+                    "Correct": entry.points.toLocaleString(),
+                    "Total": entry.total.toLocaleString(),
                 });
             }
             span.end();
