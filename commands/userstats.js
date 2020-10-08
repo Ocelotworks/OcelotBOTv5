@@ -96,17 +96,13 @@ module.exports = {
                 let cost = 0;
 
                 cost += commandResult['commandCount']*COST_PER_CMD;
-                console.log(cost);
                 cost += getAllIn(countPerCommand, ['im', 'image', 'googleimage'])*COST_PER_IMG;
-                console.log(cost);
-                cost += countPerCommand['removebg']*COST_PER_REMOVEBG;
-                console.log(cost);
+                if(countPerCommand['removebg'])
+                    cost += countPerCommand['removebg']*COST_PER_REMOVEBG;
                 cost += getAllIn(countPerCommand, ['bulge', 'trim', 'swirl', 'zoom', 'deepfry', 'omegle', 'wave', 'curse', 'zork', 'z5'])*COST_PER_GM;
-                console.log(cost);
                 cost += getAllIn(countPerCommand, ['identify', 'eyes', 'age'])*COST_PER_FACERECOG;
-                console.log(cost);
-                cost += countPerCommand['ai']*COST_PER_AI;
-                console.log(cost);
+                if(countPerCommand['ai'])
+                    cost += countPerCommand['ai']*COST_PER_AI;
 
                 message.replyLang("USERSTATS_MESSAGE", {
                     target,
