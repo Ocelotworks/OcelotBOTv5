@@ -117,7 +117,7 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
                 embed.addField("User Premium", "You also have premium, so you can enjoy all the benefits!");
             } else {
                 embed.setColor("#c07012");
-                embed.addField("Use Premium", "Enjoy extra benefits from $2 a month with user premium: https://ocelot.xyz/premium")
+                embed.addField("User Premium", "Enjoy extra benefits from $2 a month with user premium: https://ocelot.xyz/premium")
             }
         }else if(message.getBool("premium")){
             embed.setColor("#378515");
