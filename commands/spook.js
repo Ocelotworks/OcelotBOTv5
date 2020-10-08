@@ -46,8 +46,9 @@ module.exports = {
                 if(!bot.client.guilds.cache.has(spook.server))continue;
                 try {
                     if (await (await bot.client.guilds.fetch(spook.server)).members.fetch(spook.spooked)) {
+                        console.log("Current spooker: ", currentlySpooked.spooker);
                         if(currentlySpooked.spooker === "146293573422284800")return bot.logger.warn("Not re-spooking as the last spook was a respook");
-                        let spookTimer = 8.64e+7-((new Date().getTime())-spook.timestamp);
+                        let spookTimer = 1.728e+8-((new Date().getTime())-spook.timestamp);
                         console.log("spooky timer ", spookTimer);
                         if(spookTimer < 0){
                             console.log("Spook timer is out, generating new...");
