@@ -12,7 +12,7 @@ module.exports = {
     run: async function(message, args, bot){
         let allBirthdays = await bot.database.getBirthdays(message.guild.id);
         if(allBirthdays.length === 0)
-            return message.channel.send(`:tada: No birthdays setup for this server! To add a birthday, type ${args[0]} add @user date`);
+            return message.replyLang("BIRTHDAY_NONE", {command: args[0]});
 
         const now = new Date();
 
@@ -38,12 +38,13 @@ module.exports = {
                 let d = birthday.birthday; //Yes
                 let days = birthday.days;
                 if(days === 365)
-                    days = "🎉 Today!";
+                    days = await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_TODAY", null, message.author.id);
                 else
-                    days = days + " Day"+(days !== 1 ? "s":"");
+                    days = await bot.lang.getTranslation(message.guild.id, days !== 1 ? "BIRTHDAY_DAYS" : "BIRTHDAY_DAY", {days}, message.author.id);
                 formatted.push({
                     "user ::": `${user.username}#${user.discriminator} ::`,
-                    birthday: `${bot.util.getNumberPrefix(d.getDate())} of ${bot.util.months[d.getMonth()]}`,
+                    // TODO: Translate months and number prefixes
+                    birthday: await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_DATE", {day: bot.util.getNumberPrefix(d.getDate()), month: bot.util.months[d.getMonth()]}, message.author.id),
                     in: days
                 });
             }

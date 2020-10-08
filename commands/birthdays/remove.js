@@ -13,6 +13,6 @@ module.exports = {
         if(message.mentions.users.size > 0)
             target = message.mentions.users.first();
         await bot.database.removeBirthday(target.id, message.guild.id);
-        message.channel.send("Birthday removed.");
+        message.replyLang("BIRTHDAY_REMOVE_SUCCESS");
     }
 };

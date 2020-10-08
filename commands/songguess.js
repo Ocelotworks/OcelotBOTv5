@@ -81,7 +81,7 @@ module.exports = {
                 }
             });
         }else if (songList.length === 0 || !bot.lavaqueue || !bot.lavaqueue.manager.nodes.has(message.getSetting("songguess.node")) || !bot.lavaqueue.manager.nodes.get(message.getSetting("songguess.node")).connected) {
-            message.channel.send("Song Guessing is currently unavailable. Please try again soon.");
+            message.replyLang("SONGGUESS_UNAVAILABLE");
         } else if (!message.guild) {
             message.replyLang("GENERIC_DM_CHANNEL");
         } else if (!message.guild.available) {
@@ -95,10 +95,11 @@ module.exports = {
         } else if (!message.member.voice.channel.speakable) {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         } else if (runningGames[message.guild.id] && runningGames[message.guild.id].channel.id !== message.member.voice.channel.id) {
-            message.channel.send(`There is already a game running in ${runningGames[message.guild.id].channel.name}!`);
+            message.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: runningGames[message.guild.id].channel.name})
         } else if (message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voice.channel.id] && message.getSetting("songguess.disallowReguess")) {
-            message.channel.send("I'm already in a voice channel doing something.");
+            message.replyLang("SONGGUESS_OCCUPIED");
         } else if (await bot.database.hasActiveSession(message.guild.id)) {
+            message.replyLang("SONGGUESS_MUSIC");
             message.channel.send("The bot is currently playing music. Please wait for the queue to end to start guessing");
         } else {
             try {
@@ -204,7 +205,7 @@ async function doGuess(voiceChannel, message, bot){
                 let newOffset = guessTime-now;
                 if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset) {
                     await bot.database.updateSongRecord(title, message.author.id, fastestTime.elapsed);
-                    message.channel.send(`:tada: You beat the previous fastest time for that song!`);
+                    message.replyLang("SONGGUESS_RECORD");
                 }else{
                     await bot.database.updateSongRecord(title, fastestTime.user, newOffset);
                 }

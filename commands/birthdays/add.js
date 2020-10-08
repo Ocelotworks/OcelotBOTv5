@@ -15,13 +15,13 @@ module.exports = {
             target = message.mentions.users.first();
         let date = chrono.parseDate(message.content);
         if(!date)
-            return message.channel.send(`You need to enter a date, e.g **${args[0]} ${args[1]} add ${bot.client.user} 19th January**`);
+            return message.replyLang("BIRTHDAY_ADD_DATE", {command: args[0], arg: args[1], user: bot.client.user});
         try{
             try {
                 await bot.database.addBirthday(target.id, message.guild.id, date);
-                message.channel.send(":tada: Birthday added!");
+                message.replyLang("BIRTHDAY_ADD_SUCCESS");
             }catch(e){
-                message.channel.send(`:warning: Birthday already exists. To change it, remove it first with ${args[0]} remove ${target}`);
+                message.replyLang("BIRTHDAY_ADD_EXISTS", {command: args[0], target});
             }
 
         }catch(e){
