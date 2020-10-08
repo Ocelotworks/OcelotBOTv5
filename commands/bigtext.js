@@ -13,6 +13,11 @@ module.exports = {
 
         message.channel.startTyping();
         request(`http://api.img4me.com/?font=arial&fcolor=${message.getSetting("bigtext.colour")}&size=35&type=png&text=${encodeURIComponent(message.cleanContent.substring(args[0].length+1))}`, (err, response, body)=>{
+            if(err){
+                bot.raven.captureException(err);
+                message.channel.stopTyping();
+                return message.replyLang("GENERIC_ERROR");
+            }
             message.channel.send("", {
                 embed: {
                     image: {
