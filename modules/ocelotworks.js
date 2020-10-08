@@ -54,7 +54,6 @@ module.exports = {
                 }else if(thatsTrue.test(message.content)){
                     message.channel.send("thAts trUE");
                 }
-
            }
         });
 

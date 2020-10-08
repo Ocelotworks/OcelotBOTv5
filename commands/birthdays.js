@@ -13,10 +13,10 @@ module.exports = {
     init: function init(bot){
         bot.util.standardNestedCommandInit("birthdays");
     },
-    run: function(message, args, bot) {
+    run: async function(message, args, bot) {
         if (!message.guild) return message.replyLang("GENERIC_DM_CHANNEL");
 
-        bot.util.standardNestedCommand(message, args, bot, "birthdays", null, async function () {
+        await bot.util.standardNestedCommand(message, args, bot, "birthdays", null, async function () {
             if (message.mentions.users.size === 0)
                 return message.channel.send(`To find a users birthday, you must @mention them. For more usage, type ${args[0]} help`);
             let target = message.mentions.users.first();
