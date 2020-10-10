@@ -406,7 +406,7 @@ module.exports = {
          * @returns {Promise<*|void|Promise<*>>}
          */
         bot.util.processImageFilter = async function processImageFilter(module, message, args, filter, input, format = "PNG"){
-            let span = bot.apm.startSpan("Get Image");
+            let span = bot.util.startSpan("Get Image");
             const url =  await bot.util.getImage(message, args);
             span.end();
             if(!url || !url.startsWith("http"))
@@ -414,28 +414,28 @@ module.exports = {
 
             bot.tasks.startTask("imageFilter", message.id);
 
-            span = bot.apm.startSpan("Send processing message");
+            span = bot.util.startSpan("Send processing message");
             let loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
             span.end();
 
             bot.logger.log(url);
             if(message.getBool("imageFilter.useExternal")) {
-                span = bot.apm.startSpan("Receive from RPC");
+                span = bot.util.startSpan("Receive from RPC");
                 let response = await bot.rabbit.rpc("imageFilter", {url, filter, input, format});
                 span.end();
                 if(loadingMessage) {
-                    span = bot.apm.startSpan("Edit loading message");
+                    span = bot.util.startSpan("Edit loading message");
                     await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
                     span.end();
                 }
                 if (response.err) {
                     console.log(response);
-                    span = bot.apm.startSpan("Delete processing message");
+                    span = bot.util.startSpan("Delete processing message");
                     await loadingMessage.delete();
                     span.end();
                     return message.channel.send(response.err);
                 }
-                span = bot.apm.startSpan("Upload image");
+                span = bot.util.startSpan("Upload image");
                 let attachment = new Discord.MessageAttachment(Buffer.from(response.image, 'base64'), response.name);
                 try {
                     await message.channel.send(attachment);
@@ -443,7 +443,7 @@ module.exports = {
                     bot.raven.captureException(e);
                 }
                 span.end();
-                span = bot.apm.startSpan("Delete processing message");
+                span = bot.util.startSpan("Delete processing message");
                 await loadingMessage.delete();
                 span.end();
                 bot.tasks.endTask("imageFilter", message.id);
