@@ -49,7 +49,7 @@ module.exports = {
                                 delete waitingMessages[msg.data];
                             }
                             const channel = await bot.client.channels.fetch(msg.data);
-                            channel.send(`You are now connected to a stranger! Say hi! Start a message with a ${bot.config.get(channel.guild.id, "prefix")} to stop the stranger from seeing it.`);
+                            channel.send(`You are now connected to a stranger! Say hi! Start a message with a ${bot.config.get(channel.guild.id, "prefix")} to stop the stranger from seeing it.\n_Please abide by Discord and Omegle ToS. Conversations may be monitored._`);
                             break;
                         default:
                             console.warn(msg);
@@ -94,7 +94,7 @@ module.exports = {
                 bot.tasks.endTask("omegle", message.channel.id);
             });
 
-        }else if(args[1].toLowerCase() === "end"){
+        }else if(args[1].toLowerCase() === "end" || args[1].toLowerCase() === "stop"){
             if(waitingMessages[message.channel.id]) {
                 waitingMessages[message.channel.id].delete();
                 delete waitingMessages[message.channel.id]

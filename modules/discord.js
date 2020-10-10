@@ -63,6 +63,29 @@ module.exports = {
            return bot.config.getBool(this.guild ? this.guild.id : "global", setting, this.author.id);
         };
 
+
+        const oldedit = Discord.Message.prototype.edit;
+        Discord.Message.prototype.edit = async function edit(content, options){
+            if(bot.stats){
+                bot.stats.messagesSentPerMinute++;
+            }
+
+            let output = "";
+            if(this.guild)
+                output += `${this.guild.name} (${this.guild.id})`;
+            else
+                output += "DM Channel";
+            output += `${this.id} Edited -> `;
+            output += content;
+
+            if(options)
+                output += " (Embed)";
+
+            bot.logger.log(output);
+
+            oldedit.apply(this, [content, options]);
+        };
+
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = async function send(content, options){
             if(bot.stats){
