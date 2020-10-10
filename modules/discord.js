@@ -31,16 +31,20 @@ module.exports = {
     name: "Discord.js Integration",
     init: function(bot){
 
+        Discord.Message.prototype.getLang = async function(message, values){
+            return bot.lang.getForMessage(this, message, values);
+        }
+
         Discord.Message.prototype.replyLang = async function(message, values){
-            return this.channel.send(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, this.author.id));
+            return this.channel.send(await bot.lang.getForMessage(this, message, values));
         };
 
         Discord.TextChannel.prototype.sendLang = async function(message, values){
-            return this.send(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values));
+            return this.send(bot.lang.getForMessage(this, message, values));
         };
 
         Discord.Message.prototype.editLang = async function(message, values){
-            return this.edit(await bot.lang.getTranslation(this.guild ? this.guild.id : "322032568558026753", message, values, this.author.id));
+            return this.edit(bot.lang.getForMessage(this, message, values));
         };
 
         Discord.Guild.prototype.getSetting = function(setting, user){

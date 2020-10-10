@@ -35,6 +35,11 @@ module.exports = {
 
         };
 
+
+        bot.lang.getForMessage = async function (message, key, format = {}){
+            return bot.lang.getTranslation(message.guild ? message.guild.id : "global", key, format, message.author.id);
+        }
+
         bot.lang.getTranslation = function getTranslation(server, key, format = {}, author){
             return new Promise(async function(fulfill){
                 format.prefix = bot.config.get(server, "prefix", author);

@@ -52,7 +52,8 @@ async function init(){
 
         om.on('commonLikes', function(likes){
             console.log("Common likes", likes);
-           // reply(msg, {type: "isOtherServer", data: channel});
+            if(likes.includes("ocelotbot"))
+                reply(msg, {type: "isOtherServer", data: channel});
         });
 
         om.on('strangerDisconnected', function(){
@@ -70,7 +71,7 @@ async function init(){
         });
 
         om.on('gotMessage',function(message){
-            if(message.indexOf("discord.gg") > -1 || message.indexOf("invite/") > -1)
+            if(message.indexOf("discord.gg") > -1 || message.indexOf("invite/") > -1 || message.indexOf("discord.com") > -1)
                 message = "<The Stranger attempted to post a discord invite>";
             reply(msg, {type: "message", data: {channel, message}});
         });
