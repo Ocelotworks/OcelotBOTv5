@@ -164,6 +164,7 @@ function loadModules(){
 
 process.on('unhandledRejection', error => {
     console.error(error);
+    Sentry.captureException(error);
 });
 
 //Start the app.
