@@ -19,13 +19,12 @@ module.exports = {
     commands: ["stats", "statistics", "info", "about", "privacy"],
     categories: ["meta"],
     run: async function run(message, args, bot){
-        const server        = message.guild ? message.guild.id : "322032568558026753";
-        const title         = await bot.lang.getTranslation(server, "STATS_VERSION", {version: bot.version});
-        const tagline       = await bot.lang.getTranslation(server, "STATS_MESSAGE", {instance: `Shard ${shardNames[bot.client.shard.ids.join(";")] ? "'"+shardNames[bot.client.shard.ids.join(";")]+"'" : "Unnamed"} (${bot.client.shard.ids.join(";")}/${bot.client.shard.count})`});
-        const totalUsers    = await bot.lang.getTranslation(server, "STATS_TOTAL_USERS");
-        const totalServers  = await bot.lang.getTranslation(server, "STATS_TOTAL_SERVERS");
-        const totalChannels = await bot.lang.getTranslation(server, "STATS_TOTAL_CHANNELS");
-        const uptime        = await bot.lang.getTranslation(server, "STATS_UPTIME");
+        const title         = await message.getLang("STATS_VERSION", {version: bot.version});
+        const tagline       = await message.getLang("STATS_MESSAGE", {instance: `Shard ${shardNames[bot.client.shard.ids.join(";")] ? "'"+shardNames[bot.client.shard.ids.join(";")]+"'" : "Unnamed"} (${bot.client.shard.ids.join(";")}/${bot.client.shard.count})`});
+        const totalUsers    = await message.getLang("STATS_TOTAL_USERS");
+        const totalServers  = await message.getLang("STATS_TOTAL_SERVERS");
+        const totalChannels = await message.getLang("STATS_TOTAL_CHANNELS");
+        const uptime        = await message.getLang("STATS_UPTIME");
         let serverCount = 0;
         let userCount = 0;
         let channelCount = 0;

@@ -7,9 +7,9 @@ module.exports = {
     run: function run(message, args, bot) {
        const diff = (christmas-(new Date()))/1000;
        if(diff <= 0){
-           message.channel.send(":santa: Merry Christmas!");
+           message.replyLang("CHRISTMAS_TODAY");
        }else {
-           message.channel.send(`:santa: **${bot.util.prettySeconds(diff)}** until christmas!`);
+           message.replyLang("CHRISTMAS_COUNTDOWN", {time: bot.util.prettySeconds(diff)})
        }
     }
 };

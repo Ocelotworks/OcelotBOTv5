@@ -12,7 +12,7 @@ module.exports = {
         if(!message.guild)
             return message.replyLang("GENERIC_DM_CHANNEL");
         if(!args[2])
-            return message.channel.send("You must enter a meme to delete.");
+            return message.replyLang("MEME_REMOVE_HELP");
 
 
         let meme = await bot.database.getMemeInfo(args[2].toLowerCase(), message.guild.id);

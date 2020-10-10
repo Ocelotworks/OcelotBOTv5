@@ -12,15 +12,15 @@ module.exports = {
         if(!message.guild.id)
             return message.replyLang("GENERIC_DM_CHANNEL");
         if(message.getSetting("meme.disallowAdding"))
-           return message.channel.send("Adding memes is disabled.");
+            return message.replyLang("MEME_DISABLED");
         if(message.getSetting("meme.disallowUserAdding") && message.getSetting("meme.disallowUserAdding").indexOf(message.author.id) > -1)
-            return message.channel.send("You are not allowed to add memes.");
+            return message.replyLang("MEME_BANNED");
 
         try {
             if (!args[3])
                 return message.replyLang("MEME_ENTER_URL");
             if(message.mentions.users.size > 0 || message.mentions.roles.size > 0 || message.content.indexOf("@everyone") > -1 && message.getSetting("meme.disallowTags"))
-                return message.channel.send("You're not allowed to tag people or roles in memes.");
+                return message.replyLang("MEME_ROLE");
 
             const newMemeName = args[2].toLowerCase();
             if (newMemeName.startsWith("http"))

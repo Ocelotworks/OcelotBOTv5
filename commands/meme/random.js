@@ -23,11 +23,10 @@ module.exports = {
         if(meme.meme.startsWith("http"))
             embed.setImage(meme.meme);
 
-        embed.setTitle(`Meme info for '${meme.name}'`);
-        embed.addField("Content", meme.meme);
-        embed.addField("Added on ", meme.addedon);
-        embed.addField("Added By", `<@${meme.addedby}>`);
-
+        embed.setTitle(await message.getLang("MEME_INFO_HEADER", {name: meme.name}));
+        embed.addField(await message.getLang("MEME_INFO_CONTENT"), meme.meme);
+        embed.addField(await message.getLang("MEME_INFO_ADDED_ON"), meme.addedon);
+        embed.addField(await message.getLang("MEME_INFO_ADDED_BY"), `<@${meme.addedby}>`);
 
         message.channel.send(embed);
 

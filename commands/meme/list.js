@@ -27,6 +27,7 @@ module.exports = {
         const memeServer = message.guild ? await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_SERVER", {serverName: message.guild.name}) : "You should never see this.";
 
         if(pages == null || pages.length === 0){
+            return message.replyLang("")
             return message.channel.send("No memes yet. Add them with !meme add");
         }
 

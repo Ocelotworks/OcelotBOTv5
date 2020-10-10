@@ -11,6 +11,6 @@ module.exports = {
     commands: ["commandcount"],
     run: async function run(message, args, bot) {
         let count = await bot.database.getCommandCount();
-        message.channel.send(`**${count[0]['MAX(id)'].toLocaleString()}** total commands.`);
+        message.replyLang("COMMANDCOUNT", {count: count[0]['MAX(id)'].toLocaleString()})
     }
 };

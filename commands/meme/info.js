@@ -13,8 +13,7 @@ module.exports = {
         if(!message.guild)
             return message.replyLang("GENERIC_DM_CHANNEL");
         if(!args[2])
-            return message.channel.send("You must enter a meme to get info on.");
-
+            return message.replyLang("MEME_INFO_HELP");
 
         let meme = (await bot.database.getMemeInfo(args[2].toLowerCase(), message.guild.id))[0];
 
@@ -26,13 +25,12 @@ module.exports = {
         if(meme.meme.startsWith("http"))
             embed.setThumbnail(meme.meme);
 
-        embed.setTitle(`Meme info for '${meme.name}'`);
-        embed.addField("Content", meme.meme);
-        embed.addField("Added on ", meme.addedon);
-        embed.addField("Added By", `<@${meme.addedby}>`);
+        embed.setTitle(await message.getLang("MEME_INFO_HEADER", {name: meme.name}));
+        embed.addField(await message.getLang("MEME_INFO_CONTENT"), meme.meme);
+        embed.addField(await message.getLang("MEME_INFO_ADDED_ON"), meme.addedon);
+        embed.addField(await message.getLang("MEME_INFO_ADDED_BY"), `<@${meme.addedby}>`);
 
 
         message.channel.send(embed);
-
     }
 };

@@ -6,7 +6,7 @@ module.exports = {
         if (message.member.voice.channel && runningGames[message.member.voice.channel.id]) {
             await runningGames[message.member.voice.channel.id].collector.stop();
         }else{
-            message.channel.send(":warning: You are not currently in a voice channel that is playing guess!");
+            message.replyLang("SONGGUESS_NOT_PLAYING");
         }
     }
 }
