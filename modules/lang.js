@@ -37,7 +37,7 @@ module.exports = {
 
 
         bot.lang.getForMessage = async function (message, key, format = {}){
-            return bot.lang.getTranslation(message.guild ? message.guild.id : "global", key, format, message.author.id);
+            return bot.lang.getTranslation(message.guild ? message.guild.id : "global", key, format, message.author ? message.author.id : null);
         }
 
         bot.lang.getTranslation = function getTranslation(server, key, format = {}, author){
