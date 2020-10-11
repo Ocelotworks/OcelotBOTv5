@@ -72,14 +72,14 @@ module.exports = {
 
         if(args[1].toLowerCase() === "start"){
             if(waitingMessages[message.channel.id])
-                return message.channel.send("Still looking for a match! Please wait!");
+                return message.replyLang("OMEGLE_LOOKING");
             if(messageCollectors[message.channel.id])
-                return message.channel.send(`You are currently connected! Use ${message.getSetting("prefix")}omegle end to end`);
+                return message.replyLang("OMEGLE_CONNECTED")
 
             bot.tasks.startTask("omegle", message.channel.id);
 
             bot.rabbit.queue("omegle", {type: "start", data: message.channel.id}, {replyTo:`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
-            waitingMessages[message.channel.id] = await message.channel.send("<a:ocelotload:537722658742337557> Contacting Omegle Service....");
+            waitingMessages[message.channel.id] = await message.replyLang("OMEGLE_START");
 
             messageCollectors[message.channel.id] = message.channel.createMessageCollector(() => true);
 
@@ -105,11 +105,11 @@ module.exports = {
             }
 
             bot.rabbit.queue("omegle", {type: "end", data: message.channel.id}, {replyTo:`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
-            message.channel.send("Disconnected.");
+            message.replyLang("OMEGLE_END");
         }else{
             if(messageCollectors[message.channel.id])
-                return message.channel.send(`Invalid Usage. To send a message to omegle, just type it in the channel. To end, type **${message.getSetting("prefix")}omegle end**. Commands won't be sent to the stranger. `);
-            message.channel.send(`Invalid usage. To start a session, type ${message.getSetting("prefix")}omegle start`);
+                return message.replyLang("OMEGLE_USAGE_CONNECTED");
+            return message.replyLang("OMEGLE_USAGE");
         }
     }
 };
