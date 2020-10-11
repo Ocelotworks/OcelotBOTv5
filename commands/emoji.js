@@ -11,9 +11,9 @@ module.exports = {
             let output = "";
             let emojiCount = 0;
             bot.client.emojis.cache.forEach(function(emoji){
-                if(emoji.requiresColons && emoji.name.toLowerCase().indexOf(args[1].toLowerCase()) > -1 && output.length <= 1900 && emojiCount < message.getSetting("emoji.count")){
+                if(emoji.name.toLowerCase().indexOf(args[1].toLowerCase()) > -1 && output.length <= 1900 && emojiCount < message.getSetting("emoji.count")){
                     emojiCount++;
-                    output +=  emoji+" ";
+                    output +=  emoji.toString()+" ";
                 }
             });
             if(output)
