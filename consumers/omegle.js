@@ -71,6 +71,7 @@ async function init(){
         });
 
         om.on('gotMessage',function(message){
+            if(message === "Use Omegle over Discord with OcelotBOT: https://ocelot.xyz/")return;
             if(message.indexOf("discord.gg") > -1 || message.indexOf("invite/") > -1 || message.indexOf("discord.com") > -1)
                 message = "<The Stranger attempted to post a discord invite>";
             reply(msg, {type: "message", data: {channel, message}});
@@ -101,8 +102,10 @@ async function init(){
     function endSession(msg, channel){
         if(!sessions[channel])
             return reply(msg, {type: "error", data: {channel, lang: "OMEGLE_NOT_STARTED"}});
-        if(sessions[channel].connected)
+        if(sessions[channel].connected) {
+            sessions[channel].send("Use Omegle over Discord with OcelotBOT: https://ocelot.xyz/");
             sessions[channel].disconnect();
+        }
         delete sessions[channel];
     }
 
