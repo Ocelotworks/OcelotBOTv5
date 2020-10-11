@@ -350,6 +350,7 @@ module.exports = {
                 message.replyLang("IMAGE_NO_TEXT");
                 return;
             }
+            let span = bot.util.startSpan("Process Image Meme");
 
             bot.tasks.startTask("imageMeme", message.id);
 
@@ -360,6 +361,7 @@ module.exports = {
                 .font(__dirname+"/../static/arial.ttf", textSize)
                 .drawText(x, y, wrap(message.cleanContent.substring(args[0].length).substring(0,1010), {width: textWidth, indent: ''}))
                 .toBuffer('PNG', function convertToPNG(err, buffer){
+                    span.end();
                     if(err){
                         message.replyLang("GENERIC_ERROR");
                         bot.logger.log(err);
@@ -596,8 +598,11 @@ module.exports = {
          * @returns {Promise.<*>}
          */
         bot.util.getImageFromPrevious = async function getImageFromPrevious(message, argument){
+            let span = bot.util.startSpan("Fetch Messages");
             const previousMessages = (await message.channel.messages.fetch({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
+            span.end();
             let offset = 0;
+            span = bot.util.startSpan("Find Message");
             const targetMessage = previousMessages.find((previousMessage) =>{
                 if(argument && offset++ < argument){
                     console.log(argument, offset);
@@ -607,6 +612,7 @@ module.exports = {
                 if(previousMessage.attachments && previousMessage.attachments.size > 0)return true;
                 return (previousMessage.embeds && previousMessage.embeds.length > 0 && previousMessage.embeds[0].image);
             });
+            span.end();
             if(targetMessage){
                 if(targetMessage.content.startsWith("http")) {
                     let url = targetMessage.content.split(" ")[0];
@@ -787,11 +793,13 @@ module.exports = {
 
 
             let buildPage = async function () {
-               let output = await formatMessage(pages[index], index);
+                let span = bot.util.startSpan("Build page");
+                let output = await formatMessage(pages[index], index);
                 if(sentMessage)
                     await sentMessage.edit(output);
                 else
                     sentMessage = await channel.send(output);
+                span.end();
             };
 
             await buildPage();

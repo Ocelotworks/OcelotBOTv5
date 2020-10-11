@@ -42,22 +42,28 @@ module.exports = {
 
         bot.lang.getTranslation = function getTranslation(server, key, format = {}, author){
             return new Promise(async function(fulfill){
+                let span = bot.util.startSpan("Get Translation "+key);
                 format.prefix = bot.config.get(server, "prefix", author);
                 format.botName = bot.client.user.username;
                 const langOverride = bot.config.get(server, "lang."+key, author);
 
-                if(bot.config.getBool(server, "lang.debug", author))
-                    return fulfill(`${key}: \`${JSON.stringify(format)}\` ${langOverride ? "OVERRIDDEN '"+langOverride+"'":""}`);
+                if(bot.config.getBool(server, "lang.debug", author)) {
+                    span.end();
+                    return fulfill(`${key}: \`${JSON.stringify(format)}\` ${langOverride ? "OVERRIDDEN '" + langOverride + "'" : ""}`);
+                }
 
                 if(langOverride){
+                    span.end();
                     fulfill(langOverride.formatUnicorn(format));
                 }else{
                     const lang = bot.lang.getLocale(server, author);
                     let output = bot.lang.getTranslationFor(lang, key);
                     let formattedString = output.formatUnicorn(format);
-                    if(bot.lang.strings[lang] && bot.lang.strings[lang]["LANGUAGE_GENERATED"])
-                       return fulfill(bot.lang.langGenerators[lang](formattedString));
-
+                    if(bot.lang.strings[lang] && bot.lang.strings[lang]["LANGUAGE_GENERATED"]) {
+                        span.end();
+                        return fulfill(bot.lang.langGenerators[lang](formattedString));
+                    }
+                    span.end();
                     fulfill(formattedString);
                 }
             });
