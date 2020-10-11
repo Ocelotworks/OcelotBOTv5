@@ -14,7 +14,6 @@ module.exports = {
         try {
             let result = await bot.database.knex.raw(sql);
 
-            console.log(result);
             if(result[0] && result[0][0] && result[0][0].user){
                 for(let i = 0; i < result[0].length; i++){
                     result[0][i].user = (await bot.util.getUserInfo(result[0][i].user)).tag;
