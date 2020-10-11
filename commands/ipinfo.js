@@ -3,6 +3,7 @@
  */
 const config = require('config');
 const Sentry = require('@sentry/node');
+const Discord = require('discord.js');
 const reportCategories = {
     "3": "Fraud Orders",
     "4": "DDoS Attack",
@@ -36,35 +37,45 @@ module.exports = {
         if(args.length < 2){
             message.channel.send(`:bangbang: Invalid usage. ${args[0]} ip`);
         }else{
-            if(args[1].indexOf(".") === -1)
+            if(args[1].indexOf(".") === -1 && args[1].indexOf(":") === -1)
                 return message.channel.send(":bangbang: Invalid IP Address.");
 
             try {
-                let ipInfo = await bot.util.getJson(`http://ipinfo.io/${args[1]}/json`);
-                message.channel.send(`*Country:* ${ipInfo.city ? ipInfo.city : "Unknown"}, ${ipInfo.region ? ipInfo.region : "Unknown"}, ${ipInfo.country ? ipInfo.country : "Unknown"} (${ipInfo.loc ? ipInfo.loc : "Unknown"})\n*Hostname:* ${ipInfo.hostname ? ipInfo.hostname : "Unknown"}\n*Organisation:* ${ipInfo.org ? ipInfo.org : "Unknown"}`);
+                let abuseIp = await bot.util.getJson(`https://api.abuseipdb.com/api/v2/check?ipAddress=${args[1]}&days=${config.get("Commands.ipinfo.days")}}`, null, {
+                    Key: config.get("Commands.ipinfo.key"),
+                    Accept: 'application/json'
+                });
+                if (abuseIp && abuseIp.data) {
+                    const data = abuseIp.data;
+                    if(!data.isPublic)
+                        return message.replyLang("IPINFO_PRIVATE");
+
+                    let embed = new Discord.MessageEmbed();
+                    embed.setTitle(data.ipAddress);
+                    embed.setDescription(data.isp);
+                    if(data.domain)
+                        embed.addField("Domain", data.domain, true);
+                    embed.addField("Country", data.countryName || data.countryCode, true);
+                    embed.addField("Abuse Score", data.abuseConfidenceScore+"%", true);
+                    embed.addField("Reports", `${data.totalReports} from ${data.numDistinctUsers} users.`, true)
+                    console.log(data);
+                    if(data.abuseConfidenceScore > 80)
+                        embed.setColor("#ff0000");
+                    else if(data.abuseConfidenceScore > 50)
+                        embed.setColor("#d0cb00");
+                    else
+                        embed.setColor("#00ff00");
+
+                    if(data.hostnames && data.hostnames.length > 0){
+                        embed.addField("Hostnames", data.hostnames.join("\n"));
+                    }
+                    console.log("Fucking sending");
+                    message.channel.send("", embed);
+                }else{
+                    return message.replyLang("IPINFO_INVALID_IP");
+                }
             }catch(e){
                 Sentry.captureException(e);
-                message.replyLang("IPINFO_FAILED");
-            }
-
-            if(!message.getSetting("ipinfo.disableAbuseipdb")) {
-                try {
-                    let abuseIp = await bot.util.getJson(`https://api.abuseipdb.com/api/v2/check?ipAddress=${args[1]}&days=${config.get("Commands.ipinfo.days")}}`, null, {
-                        Key: config.get("Commands.ipinfo.key"),
-                        Accept: 'application/json'
-                    });
-                    if (abuseIp.length > 0) {
-                        const lastReportData = abuseIp[0];
-                        if (!lastReportData.created) return;
-                        let lastReport = lastReportData.created + " ";
-                        for (let i in lastReportData.category) {
-                            lastReport += reportCategories[lastReportData.category[i]];
-                        }
-                        message.channel.send((await message.getLang("IPINFO_REPORT", {num: abuseIp.length})) + "\n" + (await message.getLang("IPINFO_LAST_REPORT")) + lastReport);
-                    }
-                }catch(e){
-                    Sentry.captureException(e);
-                }
             }
             if(!message.getSetting("ipinfo.disableTorrents")) {
                 let torrentData = await bot.util.getJson(`https://api.antitor.com/history/peer?ip=${args[1]}&key=${config.get("Commands.ipinfo.torrentKey")}&days=30`);
