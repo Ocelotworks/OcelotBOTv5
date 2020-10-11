@@ -27,8 +27,13 @@ module.exports = {
             output += "\n```";
             message.channel.send(output);
         }else{
-             message.channel.send("Topic not found in database.", new Discord.MessageAttachment("https://wompampsupport.azureedge.net/fetchimage?siteId=7575&v=2&jpgQuality=100&width=700&url=https%3A%2F%2Fi.kym-cdn.com%2Fentries%2Ficons%2Ffacebook%2F000%2F023%2F967%2Fobiwan.jpg"));
-        }
+            message.channel.send("Topic not found in database.", {
+                embed: {
+                    image: {
+                        url: "https://wompampsupport.azureedge.net/fetchimage?siteId=7575&v=2&jpgQuality=100&width=700&url=https%3A%2F%2Fi.kym-cdn.com%2Fentries%2Ficons%2Ffacebook%2F000%2F023%2F967%2Fobiwan.jpg"
+                    }
+                }
+            })}
         message.channel.stopTyping();
 
     }
