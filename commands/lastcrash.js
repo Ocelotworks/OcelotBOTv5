@@ -15,9 +15,7 @@ const config = require('config');
             if(err)
                 return message.replyLang("GENERIC_ERROR");
             console.log(body);
-            message.replyLang("LASTCRASH", {time: bot.util.prettySeconds((new Date().getTime()-parseInt(body))/1000)});
+            message.replyLang("LASTCRASH", {time: bot.util.prettySeconds((new Date().getTime()-parseInt(body))/1000, message.guild && message.guild.id, message.author.id)});
         });
-
-
     }
 };

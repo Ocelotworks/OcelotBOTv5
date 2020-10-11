@@ -4,35 +4,22 @@
  * ╚════ ║   (ocelotbotv5) warnings
  *  ════╝
  */
-const request = require('request');
 const config = require('config');
 module.exports = {
     name: "Warnings",
     usage: "warnings",
     commands: ["warnings"],
     run: async function(message, args, bot){
-       request(`http://${config.get("General.BrokerHost")}:${config.get("General.BrokerPort")}/warnings`, function(err, resp, body){
-          if(err)
-              return message.channel.send("Error: "+err);
-          try{
+        let warnings = await bot.util.getJson(`http://${config.get("General.BrokerHost")}:${config.get("General.BrokerPort")}/warnings`);
+        if(Object.keys(warnings).length === 0)
+            return message.channel.send(":white_check_mark: No Warnings!");
 
-              let warnings = JSON.parse(body);
-              if(Object.keys(warnings).length === 0)
-                  return message.channel.send(":white_check_mark: No Warnings!");
+        let output = ":warning: **Warnings:**\n";
+        for(let warningID in warnings){
+            if(!warnings.hasOwnProperty(warningID))continue;
+            output += `(${warningID}) ${warnings[warningID]}\n`;
+        }
 
-              let output = ":warning: **Warnings:**\n";
-              for(let warningID in warnings){
-                  if(!warnings.hasOwnProperty(warningID))continue;
-                  output += `(${warningID}) ${warnings[warningID]}\n`;
-              }
-
-              message.channel.send(output);
-
-
-          }catch(e){
-              bot.raven.captureException(e);
-              message.channel.send("Error parsing broker response: "+e);
-          }
-       });
+        message.channel.send(output);
     }
 };

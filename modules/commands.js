@@ -145,7 +145,7 @@ module.exports = {
                         const now = new Date();
                         const timeDifference = now-bot.lastRatelimitRefresh;
                         let timeLeft = 60000-timeDifference;
-                        message.replyLang("COMMAND_RATELIMIT", {timeLeft: bot.util.prettySeconds(timeLeft/1000)});
+                        message.replyLang("COMMAND_RATELIMIT", {timeLeft: bot.util.prettySeconds(timeLeft/1000, message.guild && message.guild.id, message.author.id)});
                         bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
                     }else{
                         console.log(bot.rateLimits[message.author.id]);

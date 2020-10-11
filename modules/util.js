@@ -137,45 +137,49 @@ module.exports = {
          * @param {Array} data
          * @param {String} unit
          * @param {Number} value
+         * @param {String} server
+         * @param {String} user
          * @returns {Array}
          */
-        bot.util.quantify = function quantify(data, unit, value) {
+        bot.util.quantify = function quantify(data, unit, value, server, user) {
             if (value && value >= 1) {
                 if (value > 1 || value < -1)
-                    unit += 's';
+                    unit += 'S';
 
-                data.push(value + ' ' + unit);
+                data.push(bot.lang.getTranslation(server, unit, value, user))
             }
 
             return data;
         };
 
+
+
         /**
          * Parses a number of seconds as a proper time
          * @param {Number} seconds
+         * @param {String} server
+         * @param {String} user
          * @returns {String}
          */
-        bot.util.prettySeconds = function prettySeconds(seconds) {
-            seconds = parseInt(seconds);
-            if(seconds < 1) return "less than a second";
+        bot.util.prettySeconds = function prettySeconds(seconds, server = "global", user) {
+            seconds = Math.round(seconds);
+            if(seconds < 1) return bot.lang.getTranslation(server, "TIME_FRACTION", {}, user);
 
-            var prettyString = '',
-                data = [];
+            let prettyString = '', data = [];
 
             if (typeof seconds === 'number') {
-                data = bot.util.quantify(data, 'day',    parseInt((seconds) / 86400));
-                data = bot.util.quantify(data, 'hour',   parseInt((seconds % 86400) / 3600));
-                data = bot.util.quantify(data, 'minute', parseInt((seconds % 3600) / 60));
-                data = bot.util.quantify(data, 'second', Math.floor(seconds % 60));
+                data = bot.util.quantify(data, 'TIME_DAY',    Math.floor((seconds) / 86400), server, user);
+                data = bot.util.quantify(data, 'TIME_HOUR',   Math.floor((seconds % 86400) / 3600), server, user);
+                data = bot.util.quantify(data, 'TIME_MINUTE', Math.floor((seconds % 3600) / 60), server, user);
+                data = bot.util.quantify(data, 'TIME_SECOND', Math.floor(seconds % 60), server, user);
 
-                var length = data.length,
-                    i;
+                let length = data.length, i;
 
                 for (i = 0; i < length; i++) {
 
                     if (prettyString.length > 0)
-                        if (i == length - 1)
-                            prettyString += ' and ';
+                        if (i === length - 1)
+                            prettyString += ` ${bot.lang.getTranslation(server, "TIME_AND", {}, user)} `;
                         else
                             prettyString += ', ';
 
@@ -520,7 +524,7 @@ module.exports = {
          * Get an image for use in meme templates
          * @param {Object} message The message object
          * @param {Array<String>} args
-         * @param {Number} argument
+         * @param {Number?} argument
          * @returns {Promise.<*>}
          */
         bot.util.getImage = async function getImage(message, args, argument){
@@ -559,36 +563,27 @@ module.exports = {
             }
         };
 
-        bot.util.getImageFromTenorURL = function(url){
-            return new Promise(function(fulfill){
-                 const urlSplit = url.split("-");
-                 const id = urlSplit[urlSplit.length-1];
-                 if(isNaN(id)) {
-                     bot.logger.warn("Invalid tenor URL: "+url);
-                     return fulfill(null);
-                 }
+        bot.util.getImageFromTenorURL = async function(url){
+            try {
+                const urlSplit = url.split("-");
+                const id = urlSplit[urlSplit.length - 1];
+                if (isNaN(id)) {
+                    bot.logger.warn("Invalid tenor URL: " + url);
+                    return null;
+                }
 
-                 request(`https://api.tenor.com/v1/gifs?ids=${id}&key=${config.get("Tenor.key")}`, function tenorResponse(err, resp, body){
-                     if(err){
-                         bot.raven.captureException(err);
-                         return fulfill(null);
-                     }
-                     try {
-                         let data = JSON.parse(body);
-                         if(data.error || !data.results || data.results.length === 0 || !data.results[0].media){
-                             bot.logger.warn("Malformed tenor URL "+url);
-                             bot.logger.warn(body);
-                             return fulfill(null);
-                         }
-                         fulfill(data.results[0].media[0].gif.url);
-                     }catch(e){
-                         bot.raven.captureException(e);
-                         fulfill(null);
-                     }
-
-
-                 })
-            });
+                let data = await bot.util.getJson(`https://api.tenor.com/v1/gifs?ids=${id}&key=${config.get("Tenor.key")}`)
+                if (data.error || !data.results || data.results.length === 0 || !data.results[0].media) {
+                    bot.logger.warn("Malformed tenor URL " + url);
+                    sentry.setExtra("response", data)
+                    sentry.captureMessage("Malformed tenor URL")
+                    return null;
+                }
+                return data.results[0].media[0].gif.url;
+            }catch(e){
+                sentry.captureException(e);
+                return null;
+            }
         };
 
         /**
@@ -954,9 +949,9 @@ module.exports = {
             return {end: ()=> {}}
         }
 
-        bot.util.getJson = async function getJson(url){
+        bot.util.getJson = async function getJson(url, extraData, headers){
             return new Promise((resolve, reject)=>{
-                request(url, (err, resp, body)=>{
+                request({url, headers:{'User-Agent': 'OcelotBOT stevie5 https://ocelot.xyz/', ...headers}, ...extraData}, (err, resp, body)=>{
                     if(err)return reject(err);
                     try {
                         resolve(JSON.parse(body))

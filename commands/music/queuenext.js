@@ -24,7 +24,7 @@ module.exports = {
                 if (!song)
                     return message.replyLang("MUSIC_NO_RESULTS");
                 if (song.count)
-                    return message.replyLang("MUSIC_ADD_PLAYLIST", {count: song.count, playlist: song.name, length: bot.util.prettySeconds(song.duration / 1000)});
+                    return message.replyLang("MUSIC_ADD_PLAYLIST", {count: song.count, playlist: song.name, length:bot.util.prettySeconds(song.duration / 1000, message.guild && message.guild.id, message.author.id)});
                 if(song.title.indexOf("-") > -1)
                     return message.replyLang("MUSIC_ADD_SONG", {title: song.title});
 

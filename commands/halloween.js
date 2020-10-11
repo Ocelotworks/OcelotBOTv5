@@ -12,7 +12,7 @@ module.exports = {
     commands: ["halloween"],
     run: function run(message, args, bot) {
         const diff = (halloween-(new Date()))/1000;
-        message.replyLang("HALLOWEEN", {time: bot.util.prettySeconds(diff)});
+        message.replyLang("HALLOWEEN", {time: bot.util.prettySeconds(diff, message.guild && message.guild.id, message.author.id)});
     }
 
 };

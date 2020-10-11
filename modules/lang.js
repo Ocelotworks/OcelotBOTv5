@@ -1,6 +1,3 @@
-const fs = require('fs');
-const config = require('config');
-const request = require('request');
 module.exports = {
     name: "Internationalisation",
     init: async function(bot){
@@ -36,49 +33,43 @@ module.exports = {
         };
 
 
-        bot.lang.getForMessage = async function (message, key, format = {}){
+        bot.lang.getForMessage = function (message, key, format = {}){
             return bot.lang.getTranslation(message.guild ? message.guild.id : "global", key, format, message.author ? message.author.id : null);
         }
 
         bot.lang.getTranslation = function getTranslation(server, key, format = {}, author){
-            return new Promise(async function(fulfill){
-                let span = bot.util.startSpan("Get Translation "+key);
-                format.prefix = bot.config.get(server, "prefix", author);
-                format.botName = bot.client.user.username;
-                const langOverride = bot.config.get(server, "lang."+key, author);
+            let span = bot.util.startSpan("Get Translation "+key);
+            format.prefix = bot.config.get(server, "prefix", author);
+            format.botName = bot.client.user.username;
+            const langOverride = bot.config.get(server, "lang."+key, author);
 
-                if(bot.config.getBool(server, "lang.debug", author)) {
-                    span.end();
-                    return fulfill(`${key}: \`${JSON.stringify(format)}\` ${langOverride ? "OVERRIDDEN '" + langOverride + "'" : ""}`);
-                }
+            if(bot.config.getBool(server, "lang.debug", author)) {
+                span.end();
+                return `${key}: \`${JSON.stringify(format)}\` ${langOverride ? "OVERRIDDEN '" + langOverride + "'" : ""}`;
+            }
 
-                if(langOverride){
+            if(langOverride){
+                span.end();
+                return langOverride.formatUnicorn(format);
+            }else{
+                const lang = bot.lang.getLocale(server, author);
+                let output = bot.lang.getTranslationFor(lang, key);
+                let formattedString = output.formatUnicorn(format);
+                if(bot.lang.strings[lang] && bot.lang.strings[lang]["LANGUAGE_GENERATED"]) {
                     span.end();
-                    fulfill(langOverride.formatUnicorn(format));
-                }else{
-                    const lang = bot.lang.getLocale(server, author);
-                    let output = bot.lang.getTranslationFor(lang, key);
-                    let formattedString = output.formatUnicorn(format);
-                    if(bot.lang.strings[lang] && bot.lang.strings[lang]["LANGUAGE_GENERATED"]) {
-                        span.end();
-                        return fulfill(bot.lang.langGenerators[lang](formattedString));
-                    }
-                    span.end();
-                    fulfill(formattedString);
+                    return bot.lang.langGenerators[lang](formattedString);
                 }
-            });
+                span.end();
+                return formattedString;
+            }
         };
 
-        bot.lang.getLocalNumber = function getLocalNumber(server, number){
-            return new Promise(async function(fulfill){
-                fulfill(number.toLocaleString(bot.lang.getLocale(server)))
-            });
+        bot.lang.getLocalNumber = function getLocalNumber(server, number, user){
+            return number.toLocaleString(bot.lang.getLocale(server, user));
         };
 
-        bot.lang.getLocalDate = function getLocalDate(server, date){
-            return new Promise(async function(fulfill){
-                fulfill(date.toLocaleString(bot.lang.getLocale(server)))
-            });
+        bot.lang.getLocalDate = function getLocalDate(server, date, user){
+            date.toLocaleString(bot.lang.getLocale(server, user))
         };
 
         bot.lang.getLocale = function getLocale(server, user){

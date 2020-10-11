@@ -113,17 +113,17 @@ module.exports = {
     },
     populateShuffleQueue: function populateShuffleQueue(){
         bot.logger.log("Populating shuffle queue");
-        // request("https://unacceptableuse.com/petify/templates/songs/shuffleQueue", function(err, resp, body){
-        //    if(!err && body){
-        //        try {
-        //            module.exports.shuffleQueue = JSON.parse(body);
-        //        }catch(e){
-        //            console.error(e);
-        //        }
-        //    } else{
-        //        bot.logger.warn("Failed to populate shuffleQueue");
-        //    }
-        // });
+        request("https://unacceptableuse.com/petify/templates/songs/shuffleQueue", function(err, resp, body){
+           if(!err && body){
+               try {
+                   module.exports.shuffleQueue = JSON.parse(body);
+               }catch(e){
+                   console.error(e);
+               }
+           } else{
+               bot.logger.warn("Failed to populate shuffleQueue");
+           }
+        });
     },
     getAutoDJSong: async function getAutoDJSong(player){
         return new Promise(async function(fulfill){
@@ -242,7 +242,7 @@ module.exports = {
             length += "`" + bot.util.shortSeconds(elapsed / 1000) + "`/";
             length += "`" + bot.util.shortSeconds(listener.playing.info.length / 1000) + "`";
         }else{
-            length = bot.util.prettySeconds(elapsed/1000) + " elapsed.";
+            length = bot.util.prettySeconds(elapsed/1000, message.guild && message.guild.id, message.author.id) + " elapsed.";
         }
         embed.addField("Length", length);
         return embed;

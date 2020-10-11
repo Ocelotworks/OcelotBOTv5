@@ -9,7 +9,7 @@ module.exports = {
        if(diff <= 0){
            message.replyLang("CHRISTMAS_TODAY");
        }else {
-           message.replyLang("CHRISTMAS_COUNTDOWN", {time: bot.util.prettySeconds(diff)})
+           message.replyLang("CHRISTMAS_COUNTDOWN", {time: bot.util.prettySeconds(diff, message.guild && message.guild.id, message.author.id)})
        }
     }
 };

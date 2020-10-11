@@ -191,13 +191,13 @@ async function doGuess(voiceChannel, message, bot){
                 embed.setTitle(`${message.author.username} wins!`);
                 embed.setThumbnail(`https://unacceptableuse.com/petify/album/${song.album}`);
                 embed.setDescription(`The song was **${title}**`);
-                embed.addField(":stopwatch: Time Taken", bot.util.prettySeconds((guessTime - now) / 1000));
+                embed.addField(":stopwatch: Time Taken", bot.util.prettySeconds((guessTime - now) / 1000, message.guild && message.guild.id, message.author.id));
                 span = tx.startSpan("Get fastest guess");
                 let fastestTime = (await bot.database.getFastestSongGuess(title))[0];
                 span.end();
                 if(fastestTime && fastestTime.elapsed) {
                     let fastestUser = await bot.util.getUserInfo(fastestTime.user);
-                    embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000)+(fastestUser ? ` (${fastestUser.username}#${fastestUser.discriminator})` : ""));
+                    embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000, message.guild && message.guild.id, message.author.id)+(fastestUser ? ` (${fastestUser.username}#${fastestUser.discriminator})` : ""));
                 }
 
                 message.channel.send(message.author, embed);

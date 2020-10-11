@@ -6,35 +6,21 @@ module.exports = {
     usage: "define <word>",
     categories: ["tools", "fun"],
     commands: ["define", "def", "dictionary", "dict"],
-    run: function run(message, args, bot) {
+    run: async function run(message, args, bot) {
         if(!args[1])
             return message.channel.send(`Usage: ${args[0]} <term>`);
 
         const term = encodeURIComponent(args.slice(1).join(" "));
 
-        request({uri:`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${encodeURIComponent(term)}?key=${key}`}, function(err, resp, body){
-           if(err)
-               return message.replyLang("GENERIC_ERROR");
+        let data = await bot.util.getJson(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${encodeURIComponent(term)}?key=${key}`);
+        if(!data || data.length === 0)
+            return message.channel.send("No results.");
+        await bot.util.standardPagination(message.channel, data, async function(result){
+            const embed = new Discord.MessageEmbed();
 
-           try{
-               const data = JSON.parse(body);
-               if(!data || data.length === 0)
-                   return message.channel.send("No results.");
-               bot.util.standardPagination(message.channel, data, async function(result){
-                   const embed = new Discord.MessageEmbed();
-
-                   embed.setTitle(`Definition for "${result.hwi ? result.hwi.hw : term}" (${result.fl}):`);
-                   embed.setDescription(result.shortdef ? result.shortdef.join("\n") : "Unknown?");
-                   return embed;
-               })
-           }catch(e){
-               bot.raven.captureException(e);
-               message.channel.send("Definition not found.");
-           }
-
-
-        });
-
-
+            embed.setTitle(`Definition for "${result.hwi ? result.hwi.hw : term}" (${result.fl}):`);
+            embed.setDescription(result.shortdef ? result.shortdef.join("\n") : "Unknown?");
+            return embed;
+        })
     }
 };

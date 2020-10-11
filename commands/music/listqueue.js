@@ -18,7 +18,7 @@ module.exports = {
         if(listener.queue.length === 0)
             return message.replyLang("MUSIC_QUEUE_EMPTY");
 
-        let header = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000)})\n============\n`;
+        let header = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000, message.guild && message.guild.id, message.author.id)})\n============\n`;
 
         let chunkedQueue = listener.queue.chunk(20);
         bot.util.standardPagination(message.channel, chunkedQueue, async function(page, index){

@@ -30,7 +30,7 @@ module.exports = {
                 if (!song)
                     return message.channel.send(":warning: No results.");
                 if (song.count)
-                    return message.channel.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000)})`);
+                    return message.channel.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000, message.guild && message.guild.id, message.author.id)})`);
                 if (song.title.indexOf("-") > -1)
                     return message.channel.send(`:white_check_mark: Added **${song.title}** to the queue.`);
 

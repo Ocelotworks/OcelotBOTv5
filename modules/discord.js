@@ -36,7 +36,7 @@ module.exports = {
         }
 
         Discord.Message.prototype.replyLang = async function(message, values){
-            return this.channel.send(await bot.lang.getForMessage(this, message, values));
+            return this.channel.send(bot.lang.getForMessage(this, message, values));
         };
 
         Discord.TextChannel.prototype.sendLang = async function(message, values){
@@ -65,7 +65,7 @@ module.exports = {
 
 
         const oldedit = Discord.Message.prototype.edit;
-        Discord.Message.prototype.edit = async function edit(content, options){
+        Discord.Message.prototype.edit = function edit(content, options){
             if(bot.stats){
                 bot.stats.messagesSentPerMinute++;
             }
@@ -83,7 +83,7 @@ module.exports = {
 
             bot.logger.log(output);
 
-            oldedit.apply(this, [content, options]);
+            return oldedit.apply(this, [content, options]);
         };
 
         const oldsend = Discord.TextChannel.prototype.send;
@@ -131,8 +131,7 @@ module.exports = {
 
 
         bot.client = new Discord.Client({
-            disabledEvents: ["TYPING_START", "CHANNEL_PINS_UPDATE", "GUILD_BAD_ADD", "GUILD_BAN_REMOVE"],
-            disableEveryone: true
+            disableMentions: "everyone"
         });
 
         bot.client.setMaxListeners(100);

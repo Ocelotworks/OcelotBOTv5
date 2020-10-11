@@ -167,7 +167,7 @@ module.exports = {
         if(offset < 1000)
             return message.replyLang("REMIND_SHORT_TIME");
         try {
-            message.replyLang("REMIND_SUCCESS", {time: bot.util.prettySeconds((offset / 1000)+1), date: at.toString()});
+            message.replyLang("REMIND_SUCCESS", {time: bot.util.prettySeconds((offset / 1000)+1, message.guild && message.guild.id, message.author.id), date: at.toString()});
             if(message.getBool("remind.silentQueueTest")) {
                 bot.rabbit.channel.sendToQueue("newReminder", Buffer.from(JSON.stringify({
                     username: message.author.id,

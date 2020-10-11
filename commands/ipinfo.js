@@ -2,7 +2,7 @@
  * Created by Peter on 01/07/2017.
  */
 const config = require('config');
-const request = require('request');
+const Sentry = require('@sentry/node');
 const reportCategories = {
     "3": "Fraud Orders",
     "4": "DDoS Attack",
@@ -39,59 +39,49 @@ module.exports = {
             if(args[1].indexOf(".") === -1)
                 return message.channel.send(":bangbang: Invalid IP Address.");
 
-            request(`http://ipinfo.io/${args[1]}/json`, async function(err, response, body){
-                try{
-                    const data = JSON.parse(body);
-                    message.channel.send(`*Country:* ${data.city ? data.city : "Unknown"}, ${data.region ? data.region : "Unknown"}, ${data.country ? data.country : "Unknown"} (${data.loc ? data.loc : "Unknown"})\n*Hostname:* ${data.hostname ? data.hostname : "Unknown"}\n*Organisation:* ${data.org ? data.org : "Unknown"}`);
-                }catch(e){
-                    message.replyLang("GENERIC_ERROR");
-                    bot.raven.captureException(e);
-                    bot.logger.error(`${e.stack}, ${body}`);
-                }
-            });
-            if(!message.getSetting("ipinfo.disableAbuseipdb")) {
-                request(`https://www.abuseipdb.com/check/${args[1]}/json?key=${config.get("Commands.ipinfo.key")}&days=${config.get("Commands.ipinfo.days")}`, async function (err, resp, body) {
-                    try {
-                        let data = JSON.parse(body);
-                        if (data.length > 0) {
-                            const lastReportData = data[0];
-                            if(!data[0].created)return;
-                            let lastReport = lastReportData.created + " ";
-                            for (let i in lastReportData.category) {
-                                lastReport += reportCategories[lastReportData.category[i]];
-                            }
-                            message.channel.send(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IPINFO_REPORT", {num: data.length}) + "\n" + await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IPINFO_LAST_REPORT") + lastReport);
-                        }
+            try {
+                let ipInfo = await bot.util.getJson(`http://ipinfo.io/${args[1]}/json`);
+                message.channel.send(`*Country:* ${ipInfo.city ? ipInfo.city : "Unknown"}, ${ipInfo.region ? ipInfo.region : "Unknown"}, ${ipInfo.country ? ipInfo.country : "Unknown"} (${ipInfo.loc ? ipInfo.loc : "Unknown"})\n*Hostname:* ${ipInfo.hostname ? ipInfo.hostname : "Unknown"}\n*Organisation:* ${ipInfo.org ? ipInfo.org : "Unknown"}`);
+            }catch(e){
+                Sentry.captureException(e);
+                message.replyLang("IPINFO_FAILED");
+            }
 
-                    } catch (e) {
-                        bot.raven.captureException(e);
-                        bot.logger.log(`${e.stack}, ${body}`);
+            if(!message.getSetting("ipinfo.disableAbuseipdb")) {
+                try {
+                    let abuseIp = await bot.util.getJson(`https://api.abuseipdb.com/api/v2/check?ipAddress=${args[1]}&days=${config.get("Commands.ipinfo.days")}}`, null, {
+                        Key: config.get("Commands.ipinfo.key"),
+                        Accept: 'application/json'
+                    });
+                    if (abuseIp.length > 0) {
+                        const lastReportData = abuseIp[0];
+                        if (!lastReportData.created) return;
+                        let lastReport = lastReportData.created + " ";
+                        for (let i in lastReportData.category) {
+                            lastReport += reportCategories[lastReportData.category[i]];
+                        }
+                        message.channel.send((await message.getLang("IPINFO_REPORT", {num: abuseIp.length})) + "\n" + (await message.getLang("IPINFO_LAST_REPORT")) + lastReport);
                     }
-                });
+                }catch(e){
+                    Sentry.captureException(e);
+                }
             }
             if(!message.getSetting("ipinfo.disableTorrents")) {
-                request(`https://api.antitor.com/history/peer?ip=${args[1]}&key=${config.get("Commands.ipinfo.torrentKey")}&days=30`, function (err, resp, body) {
-                    try {
-                        let data = JSON.parse(body);
-                        let output = "";
-                        if (data.hasPorno) {
-                            output += ":warning: **This IP Address has downloaded Pornography in the last 30 days**\n";
-                        }
-                        if (data.hasChildPorno) {
-                            output += ":bangbang: **This IP Address has downloaded CP in the last 30 days!!!!**\n";
-                        }
-                        if (data.contents && data.contents.length > 0) {
-                            for (let i = 0; i < data.contents.length; i++) {
-                                const torrent = data.contents[i];
-                                output += `IP Torrented ${torrent.name} on ${torrent.startDate}\n`;
-                            }
-                            message.channel.send(output);
-                        }
-                    } catch (e) {
-                        bot.raven.captureException(e);
-                        bot.logger.log(`${e.stack}, ${body}`);
+                let torrentData = await bot.util.getJson(`https://api.antitor.com/history/peer?ip=${args[1]}&key=${config.get("Commands.ipinfo.torrentKey")}&days=30`);
+                let output = "";
+                if (torrentData.hasPorno) {
+                    output += (await message.getLang("IPINFO_PORN"))+"\n";
+                }
+                if (torrentData.hasChildPorno) {
+                    output += (await message.getLang("IPINFO_CP"))+"\n";
+                }
+                if (torrentData.contents && torrentData.contents.length > 0) {
+                    for (let i = 0; i < torrentData.contents.length; i++) {
+                        const torrent = torrentData.contents[i];
+                        output += (await message.getLang("IPINFO_TORRENT", torrent))+"\n";
                     }
-                });
+                    message.channel.send(output);
+                }
             }
         }
 

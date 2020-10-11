@@ -416,7 +416,7 @@ module.exports = {
             embed.setDescription(`**<@${loser}> is the loser!**\nThank you all for participating in the 2nd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greately appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelot.xyz/premium?ref=spook)`);
             embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${Math.floor((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)}% of all spooks.)`);
             embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
-            embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff)})`);
+            embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff, message.guild && message.guild.id, message.author.id)})`);
             await targetChannel.send("", embed);
         };
     },
@@ -426,7 +426,7 @@ module.exports = {
 
         const now = new Date();
         if(start-now > 0)
-            return message.replyLang("SPOOK_TEASER", {time: bot.util.prettySeconds((start-now)/1000)});
+            return message.replyLang("SPOOK_TEASER", {time: bot.util.prettySeconds((start-now)/1000, message.guild && message.guild.id, message.author.id)});
 
         if(end-now <= 0)
             return bot.sendSpookEnd(message.guild.id, message.channel, await bot.database.getSpooked(message.guild.id));
@@ -478,7 +478,7 @@ module.exports = {
             const result = await bot.database.getSpooked(message.guild.id);
             span.end();
             if(result[0])
-                return message.replyLang("SPOOK_CURRENT", {spooked: result[0].spooked, time: bot.util.prettySeconds((end-now)/1000), server: message.guild.id});
+                return message.replyLang("SPOOK_CURRENT", {spooked: result[0].spooked, time: bot.util.prettySeconds((end-now)/1000, message.guild && message.guild.id, message.author.id), server: message.guild.id});
             message.replyLang("SPOOK_NOBODY");
         }
     }

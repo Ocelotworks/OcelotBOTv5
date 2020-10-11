@@ -49,10 +49,10 @@ module.exports = {
                         leaderboardData = await bot.database.getTriviaLeaderboard();
                     }
 
-                    const userKey = await bot.lang.getTranslation(message.guild.id, "TRIVIA_USER");
-                    const scoreKey = await bot.lang.getTranslation(message.guild.id, "TRIVIA_SCORE");
-                    const correctKey = await bot.lang.getTranslation(message.guild.id, "TRIVIA_CORRECT");
-                    const unknownUserKey = await bot.lang.getTranslation(message.guild.id, "TRIVIA_UNKNOWN_USER");
+                    const userKey = bot.lang.getTranslation(message.guild.id, "TRIVIA_USER");
+                    const scoreKey = bot.lang.getTranslation(message.guild.id, "TRIVIA_SCORE");
+                    const correctKey = bot.lang.getTranslation(message.guild.id, "TRIVIA_CORRECT");
+                    const unknownUserKey = bot.lang.getTranslation(message.guild.id, "TRIVIA_UNKNOWN_USER");
 
                     let i = 0;
                     let data = [];
@@ -105,7 +105,7 @@ module.exports = {
                 }
             }else{
                 if(!message.guild){
-                    message.channel.send(":warning: This command can't be used in a DM channel.");
+                    message.replyLang("GENERIC_DM_CHANNEL");
                     return;
                 }
                 if(message.getSetting("trivia.singleOnly") && runningGames.indexOf(message.channel.id) > -1){

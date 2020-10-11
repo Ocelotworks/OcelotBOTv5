@@ -106,7 +106,7 @@ module.exports = {
         let difference = new Date()-lastVote;
 
         if(difference < bot.util.voteTimeout){
-            message.replyLang("VOTE_TIMEOUT", {time: bot.util.prettySeconds((bot.util.voteTimeout-difference)/1000)});
+            message.replyLang("VOTE_TIMEOUT", {time: bot.util.prettySeconds((bot.util.voteTimeout-difference)/1000, message.guild && message.guild.id, message.author.id)});
         }else {
             message.replyLang("VOTE");
         }
