@@ -4,7 +4,7 @@ module.exports = {
     name: "Stats",
     usage: "stats",
     commands: ["stats"],
-    run: async function(message, args, bot){
+    run: async function(message, args, bot) {
         const now = new Date();
         const stats = await bot.database.getDatabaseStats();
         let embed = new Discord.MessageEmbed();
@@ -15,19 +15,13 @@ module.exports = {
         embed.addField("Total Memes", stats.memes.toLocaleString(), true);
         embed.addField("Total Active Reminders", stats.reminders.toLocaleString(), true);
         embed.addField("Total Commands Run", stats.commands.toLocaleString(), true);
-        embed.addField("Total Messages (This Shard & Session)", bot.stats.messagesTotal, true);
-        embed.addField("Total Commands (This Shard & Session)", bot.stats.commandsTotal, true);
+        if (bot.stats) {
+            embed.addField("Total Messages (This Shard & Session)", bot.stats.messagesTotal, true);
+            embed.addField("Total Commands (This Shard & Session)", bot.stats.commandsTotal, true);
+        }
         embed.addField("Shard WS Ping", bot.client.ping+" ms", true);
         embed.addField("Shard Command Ping", (now-message.createdAt)+" ms", true);
-        embed.addField("Voice Connections/Broadcasts", bot.client.voiceConnections.size+"/"+bot.client.broadcasts.size, true);
 
-        console.log(now);
-        console.log(message.createdAt);
         message.channel.send("", embed);
-
-
-
-
-
     }
 };
