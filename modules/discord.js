@@ -76,7 +76,10 @@ module.exports = {
             else
                 output += "DM Channel";
             output += `${this.id} Edited -> `;
-            output += content;
+            if(typeof content !== "string")
+                output += JSON.stringify(content);
+            else
+                output += content;
 
             if(options)
                 output += " (Embed)";
@@ -107,8 +110,12 @@ module.exports = {
             else
                 output += "DM Channel";
             output += " -> ";
-            output += content;
 
+            if(typeof content !== "string")
+                output += JSON.stringify(content);
+            else
+                output += content;
+            
             if(options)
                 output += " (Embed)";
 
