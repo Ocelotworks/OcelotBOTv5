@@ -65,9 +65,9 @@ module.exports = {
 
             const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
 
-            postCount("https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds", config.get("Discord.botsOnDiscordKey"), {
-                guildCount: serverCount
-            });
+            // postCount("https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds", config.get("Discord.botsOnDiscordKey"), {
+            //     guildCount: serverCount
+            // });
 
             // postCount("https://discordbot.world/api/bot/146293573422284800/stats", config.get("Discord.discordBotWorldKey"), {
             //     guild_count: serverCount,
@@ -79,16 +79,16 @@ module.exports = {
                 shard_count: bot.client.shard.count
             });
 
-            postCount("https://bots.discordlabs.org/v2/bot/146293573422284800/stats", config.get("Discord.discordBotLabsKey"), {
-                server_count: serverCount,
-                shard_count: bot.client.shard.count,
-                token: config.get("Discord.discordBotLabsKey"),
-            });
+            // postCount("https://bots.discordlabs.org/v2/bot/146293573422284800/stats", config.get("Discord.discordBotLabsKey"), {
+            //     server_count: serverCount,
+            //     shard_count: bot.client.shard.count,
+            //     token: config.get("Discord.discordBotLabsKey"),
+            // });
 
-            postCount("https://arcane-center.xyz/api/146293573422284800/stats",config.get("Discord.arcaneBotsKey"), {
-                server_count: serverCount,
-                shard_count: bot.client.shard.count
-            });
+            // postCount("https://arcane-center.xyz/api/146293573422284800/stats",config.get("Discord.arcaneBotsKey"), {
+            //     server_count: serverCount,
+            //     shard_count: bot.client.shard.count
+            // });
 
             postCount("https://discord.boats/api/bot/146293573422284800",config.get("Discord.discordBoatsClubKey"), {
                 server_count: serverCount,
@@ -98,15 +98,15 @@ module.exports = {
                 servers: serverCount,
             });
 
-            postCount("https://api.botsdatabase.com/v1/bots/146293573422284800",config.get("Discord.botsDatabaseKey"), {
-                servers: serverCount,
-            });
+            // postCount("https://api.botsdatabase.com/v1/bots/146293573422284800",config.get("Discord.botsDatabaseKey"), {
+            //     servers: serverCount,
+            // });
 
-            postCount("https://discordapps.dev/api/v2/bots/146293573422284800",config.get("Discord.discordAppsKey"), {
-                bot: {
-                    count: serverCount,
-                },
-            });
+            // postCount("https://discordapps.dev/api/v2/bots/146293573422284800",config.get("Discord.discordAppsKey"), {
+            //     bot: {
+            //         count: serverCount,
+            //     },
+            // });
         });
     }
 };
