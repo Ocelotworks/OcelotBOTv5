@@ -142,9 +142,10 @@ async function doGuess(voiceChannel, message, bot){
         request({url: `https://unacceptableuse.com/petifyv3/api/v2/song/${song.id}/related`, json: true}, (err, resp, body)=>{
             if(err)return;
             if(!body)return;
+            if(body.err)return;
             for(let i = 0; i < body.length; i++){
                 let relation = body[i];
-
+                if(!relation.relatedSong)continue;
                 const hintTitle = relation.relatedSong.artist.name + " - "+relation.relatedSong.title;
                 if(hintTitle.toLowerCase() === title.toLowerCase())continue;
                 hints.push({
