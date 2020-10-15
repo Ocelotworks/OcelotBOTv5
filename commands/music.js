@@ -41,7 +41,7 @@ module.exports = {
                             if (session.lastMessage) {
                                 if (!listener.channel) return await bot.database.endMusicSession(session.id);
                                 listener.lastMessage = await listener.channel.messages.fetch(session.lastMessage);
-                                module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
+                                await module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
                                 if (listener.channel.guild.getBool("music.updateNowPlaying")) {
                                     listener.editInterval = setInterval(function updateNowPlaying() {
                                         if (module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false))
@@ -49,7 +49,7 @@ module.exports = {
                                     }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
                                 }
                             }
-                            module.exports.requeue(session, await bot.database.getQueueForSession(session.id));
+                            await module.exports.requeue(session, await bot.database.getQueueForSession(session.id));
                         }
                     }catch(e){
                         Sentry.captureException(e);

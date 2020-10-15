@@ -115,7 +115,7 @@ module.exports = {
                 output += JSON.stringify(content);
             else
                 output += content;
-            
+
             if(options)
                 output += " (Embed)";
 
