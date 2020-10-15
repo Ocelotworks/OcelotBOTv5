@@ -32,23 +32,28 @@ module.exports = {
                 let activeSessions = await bot.database.getActiveSessions();
                 for(let i = 0; i < activeSessions.length; i++){
                     const session = activeSessions[i];
-                    if(bot.client.guilds.cache.has(session.server)){
-                        bot.logger.log(`Resuming session ${session.id}`);
-                        const listener = await module.exports.constructListener(bot.client.guilds.cache.get(session.server), bot.client.channels.cache.get(session.voiceChannel), bot.client.channels.cache.get(session.textChannel), session.id);
-                        listener.playing = await bot.lavaqueue.getSong(session.playing, listener.connection);
-                        listener.autodj = session.autodj;
-                        if(session.lastMessage){
-                            if(!listener.channel)return;
-                            listener.lastMessage = await listener.channel.messages.fetch(session.lastMessage);
-                            module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
-                            if(listener.channel.guild.getBool("music.updateNowPlaying")) {
-                                listener.editInterval = setInterval(function updateNowPlaying() {
-                                    if(module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false))
-                                        clearInterval(listener.editInterval);
-                                }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
+                    try {
+                        if (bot.client.guilds.cache.has(session.server)) {
+                            bot.logger.log(`Resuming session ${session.id}`);
+                            const listener = await module.exports.constructListener(bot.client.guilds.cache.get(session.server), bot.client.channels.cache.get(session.voiceChannel), bot.client.channels.cache.get(session.textChannel), session.id);
+                            listener.playing = await bot.lavaqueue.getSong(session.playing, listener.connection);
+                            listener.autodj = session.autodj;
+                            if (session.lastMessage) {
+                                if (!listener.channel) return await bot.database.endMusicSession(session.id);
+                                listener.lastMessage = await listener.channel.messages.fetch(session.lastMessage);
+                                module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
+                                if (listener.channel.guild.getBool("music.updateNowPlaying")) {
+                                    listener.editInterval = setInterval(function updateNowPlaying() {
+                                        if (module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false))
+                                            clearInterval(listener.editInterval);
+                                    }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
+                                }
                             }
+                            module.exports.requeue(session, await bot.database.getQueueForSession(session.id));
                         }
-                        module.exports.requeue(session, await bot.database.getQueueForSession(session.id));
+                    }catch(e){
+                        Sentry.captureException(e);
+                        await bot.database.endMusicSession(session.id);
                     }
                 }
             })

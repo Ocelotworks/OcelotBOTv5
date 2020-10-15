@@ -1017,6 +1017,9 @@ module.exports = {
 
                 return q;
             },
+            logOmegleMessage: async function(serverID, channelID, userID, message){
+                return knex.insert({serverID, channelID, message, userID}).into("ocelotbot_omegle");
+            }
         };
     }
 };
