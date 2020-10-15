@@ -98,7 +98,7 @@ module.exports = {
         }catch(e){
             bot.logger.log("Reminder channel no longer exists, attempting to send it to the user instead...");
             try{
-                const targetUser = await bot.client.fetchUser(reminder.user);
+                const targetUser = await bot.client.users.fetch(reminder.user);
                 if(targetUser){
                     const dm = await targetUser.createDM();
                     await dm.send(await bot.lang.getTranslation(reminder.channel, "REMIND_REMINDER", {
