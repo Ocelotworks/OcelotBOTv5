@@ -168,10 +168,10 @@ module.exports = {
             let prettyString = '', data = [];
 
             if (typeof seconds === 'number') {
-                data = bot.util.quantify(data, 'TIME_DAY',    Math.floor((seconds) / 86400), server, user);
-                data = bot.util.quantify(data, 'TIME_HOUR',   Math.floor((seconds % 86400) / 3600), server, user);
-                data = bot.util.quantify(data, 'TIME_MINUTE', Math.floor((seconds % 3600) / 60), server, user);
-                data = bot.util.quantify(data, 'TIME_SECOND', Math.floor(seconds % 60), server, user);
+                data = bot.util.quantify(data, 'TIME_DAY',    Math.round((seconds) / 86400), server, user);
+                data = bot.util.quantify(data, 'TIME_HOUR',   Math.round((seconds % 86400) / 3600), server, user);
+                data = bot.util.quantify(data, 'TIME_MINUTE', Math.round((seconds % 3600) / 60), server, user);
+                data = bot.util.quantify(data, 'TIME_SECOND', Math.round(seconds % 60), server, user);
 
                 let length = data.length, i;
 
