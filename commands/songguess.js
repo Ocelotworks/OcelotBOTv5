@@ -207,7 +207,7 @@ async function doGuess(voiceChannel, message, bot){
                 if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset) {
                     await bot.database.updateSongRecord(title, message.author.id, fastestTime.elapsed);
                     message.replyLang("SONGGUESS_RECORD");
-                }else{
+                }else if(fastestTime){
                     await bot.database.updateSongRecord(title, fastestTime.user, newOffset);
                 }
                 span.end();
