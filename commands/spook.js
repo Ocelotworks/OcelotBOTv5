@@ -45,7 +45,8 @@ module.exports = {
                 let spook = currentlySpooked[i];
                 if(!bot.client.guilds.cache.has(spook.server))continue;
                 try {
-                    if (await (await bot.client.guilds.fetch(spook.server)).members.fetch(spook.spooked)) {
+                    const guild = await bot.client.guilds.fetch(spook.server);
+                    if (await guild.members.fetch(spook.spooked)) {
                         console.log("Current spooker: ", currentlySpooked[i].spooker);
                         if(currentlySpooked[i].spooker === "146293573422284800")return bot.logger.warn("Not re-spooking as the last spook was a respook");
                         let spookTimer = 1.296e+8-((new Date().getTime())-spook.timestamp);
@@ -64,6 +65,7 @@ module.exports = {
                         await bot.spook.generateNew(spook.server);
                     }
                 }catch(e){
+                    console.log(e);
                     bot.logger.log("spooked user has left?")
                     await bot.spook.generateNew(spook.server);
                 }
