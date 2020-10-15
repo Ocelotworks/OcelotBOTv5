@@ -77,6 +77,14 @@ module.exports = {
     },
     addToQueue: async function(server, search, requester, next = false, id){
         let listener = module.exports.listeners[server];
+        if(!listener) { // Not sure how we got here
+            bot.logger.error("The bad things happened");
+            console.log(module.exports.listeners);
+            Sentry.setExtra("listeners", module.exports.listeners);
+            Sentry.captureMessage("Invalid state: addToQueue successfully called with no listener");
+            return null;
+        }
+
         if(!search.startsWith("http"))
             search = "ytsearch:"+search;
 
