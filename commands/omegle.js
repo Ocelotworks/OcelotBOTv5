@@ -26,8 +26,11 @@ module.exports = {
                                 (await bot.client.channels.fetch(msg.data.channel)).sendLang(msg.data.lang, msg.data.data);
                             break;
                         case "message":
-                            if(msg.data.message.indexOf("code:") === -1)
-                                (await bot.client.channels.fetch(msg.data.channel)).send("> "+(msg.data.message.replace(/'/, "")));
+                            if(msg.data.message.indexOf("code:") === -1) {
+                                let channel = await bot.client.channels.fetch(msg.data.channel);
+                                channel.send("> " + (msg.data.message.replace(/'/, "")));
+                                bot.database.logOmegleMessage(channel.guild ? channel.guild.id : "dm", channel.id, null, msg.data.message);
+                            }
                             break;
                         case "isOtherServer":
                             (await bot.client.channels.fetch(msg.data)).send("The stranger is another OcelotBOT user!");
@@ -87,6 +90,7 @@ module.exports = {
                 if (message.author.bot)return;
                 if (message.content.startsWith(message.getSetting("prefix")))return;
                 if(waitingMessages[message.channel.id])return;
+                bot.database.logOmegleMessage(message.guild ? message.guild.id : "dm", message.channel.id, message.author.id, message.cleanContent);
                 bot.rabbit.queue("omegle", {type: "message", data: {channel: message.channel.id, message: message.cleanContent.replace(/'/g, "")}}, {replyTo:`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
             });
 
