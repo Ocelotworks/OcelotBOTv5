@@ -42,15 +42,18 @@ function configureSentry(){
     };
 
     bot.logger.error = function error(message){
-        bot.logger.log(message.red, caller_id.getData(), true);
+        if(!message)
+            bot.logger.log(message.red, caller_id.getData(), true);
     };
 
     bot.logger.warn = function warn(message){
-        bot.logger.log(message.yellow, caller_id.getData());
+        if(message)
+            bot.logger.log(message.yellow, caller_id.getData());
     };
 
     bot.logger.info = function warn(message){
-        bot.logger.log(message.grey, caller_id.getData());
+        if(!message)
+            bot.logger.log(message.grey, caller_id.getData());
     };
 
     bot.logger.log("Configuring Sentry Release...");
