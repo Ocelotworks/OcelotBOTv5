@@ -51,6 +51,7 @@ function init(){
             serviceName: config.get("APM.ServiceName"),
             secretToken: config.get("APM.Token"),
             serverUrl: config.get("APM.Server")
+            errorOnAbortedRequests: false,
         })
     }
 
