@@ -88,6 +88,7 @@ module.exports = {
 
             messageCollectors[message.channel.id].on("collect", function(message){
                 if (message.author.bot)return;
+                if (!message.content)return;
                 if (message.content.startsWith(message.getSetting("prefix")))return;
                 if(waitingMessages[message.channel.id])return;
                 bot.database.logOmegleMessage(message.guild ? message.guild.id : "dm", message.channel.id, message.author.id, message.cleanContent);
