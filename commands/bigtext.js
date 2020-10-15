@@ -11,6 +11,14 @@ module.exports = {
             return;
         }
 
+        if(args.length === 2 && args[1].startsWith("<:") && args[1].endsWith(">")){
+            let id = args[1].substring(2).split(":")[1];
+            if(id){
+                id = id.substring(0,id.length-1);
+                return message.channel.send(`https://cdn.discordapp.com/emojis/${id}.png?v=1`);
+            }
+        }
+
         message.channel.startTyping();
         request(`http://api.img4me.com/?font=arial&fcolor=${message.getSetting("bigtext.colour")}&size=35&type=png&text=${encodeURIComponent(message.cleanContent.substring(args[0].length+1))}`, (err, response, body)=>{
             if(err){
