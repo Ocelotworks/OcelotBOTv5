@@ -13,7 +13,7 @@ module.exports = {
             bot.client.emojis.cache.forEach(function(emoji){
                 if(emoji.name.toLowerCase().indexOf(args[1].toLowerCase()) > -1 && output.length <= 1900 && emojiCount < message.getSetting("emoji.count")){
                     emojiCount++;
-                    output +=  emoji.toString()+" ";
+                    output +=  emoji.toString();
                 }
             });
             if(output)
