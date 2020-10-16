@@ -50,7 +50,7 @@ function init(){
         apm.start({
             serviceName: config.get("APM.ServiceName"),
             secretToken: config.get("APM.Token"),
-            serverUrl: config.get("APM.Server")
+            serverUrl: config.get("APM.Server"),
             errorOnAbortedRequests: false,
         })
     }
