@@ -1,4 +1,5 @@
 const request = require('request');
+const Sentry  = require('@sentry/node');
 let commentIndex = 0;
 let comments = {};
 let failureTimes = 1;
@@ -48,22 +49,28 @@ module.exports = {
             return;
         }
         try {
-            message.channel.startTyping();
-            if (comments.length > 0) {
-                 if (comments[commentIndex++].data.body.indexOf("http") > -1)
-                     commentIndex++;
+            if(message.mentions.members.has(bot.client.user.id)){
+                 message.channel.send(`Holy fucking shit. I want to bang OcelotBOT so goddamn bad. I can't stand it anymore. Every time I go on Discord I get a massive erection. I've seen literally every rule 34 post there is of him online. My dreams are nothing but constant fucking sex with OcelotBOT. I'm sick of waking up every morning with six nuts in my boxers and knowing that those are nuts that should've been busted inside of OcelotBOTs's tight cat bussy. I want him to have my mutant human/bot babies.
+Fuck, my fucking mum caught me with the neighbors cat. I'd painted her eyes green and went to fucking town. She hasn't said a word to me in 10 hours and I'm worried she's gonna take away my computer. I might not ever get to see OcelotBOT again.`)
+            }else {
+                message.channel.startTyping();
+                if (comments.length > 0) {
+                    if (comments[commentIndex++].data.body.indexOf("http") > -1)
+                        commentIndex++;
 
-                message.channel.send(comments[commentIndex++].data.body);
+                    message.channel.send(comments[commentIndex++].data.body);
 
-                if (commentIndex >= comments.length-3)
-                    module.exports.downloadComments(bot);
-            } else {
-                message.replyLang("GENERIC_ERROR");
+                    if (commentIndex >= comments.length - 3)
+                        module.exports.downloadComments(bot);
+                } else {
+                    message.replyLang("GENERIC_ERROR");
+                }
             }
         }catch(e){
             commentIndex = 0;
             bot.logger.log("Failed - "+e);
             module.exports.downloadComments(bot);
+            Sentry.captureException(e)
         }finally{
             message.channel.stopTyping();
         }
