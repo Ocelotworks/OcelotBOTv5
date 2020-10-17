@@ -142,4 +142,14 @@ function loadModules(){
 }
 
 
+process.on('unhandledRejection', error => {
+    console.error(error);
+    Sentry.captureException(error);
+});
+
+process.on('uncaughtException', error =>{
+    console.error(error);
+    Sentry.captureException(error);
+})
+
 init();
