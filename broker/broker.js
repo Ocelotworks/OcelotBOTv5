@@ -12,36 +12,34 @@ const   caller_id       = require('caller-id'),
         path            = require('path'),
         dateFormat      = require('dateformat'),
         apm             = require('elastic-apm-node');
-
-const header ="\n".white+
-    "                `-+shdmNMMMMNmdhs+-`              \n" +
-    "            :smMMMMmdyssoossydmMMMMms:            \n" +
-    "         :yNMMmy+-              -+ymMMNy:         \n" +
-    "       /mMMMm/                      -omMMm/       \n" +
-    "     -mMMMMMMMNy:                 .odNMMMMMm-     \n" +
-    "    sMMNdMMMMMMMMh``-:/++++/:-` .yMMMMMMMMMMMs    \n" +
-    "  `dMMh`/MMMMMMMMMMMMMMMMMMMMMMNNMMMMMMMMM-hMMh`  \n" +
-    "  dMMs   sMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMo  sMMd  \n" +
-    " sMMy     /NMMMMMMMMMMMMMMMMMMMmmNMMMMMm:    yMMs \n" +
-    "-MMN`     :MMMMd"+"ssss".green+"hNMMMMMMNy"+"ssssy".green+"MMMM/     `NMM-\t© Copyright 2014-"+new Date().getFullYear()+"\n" +
-    "yMMo      NMMMMh"+"sssss".green+"yMMMMMMd"+"sssss".green+"mMMMMN      oMMy\tOcelotworks\n" +
-    "mMM:...--:MMMMMMN"+"dddd".green+"NMMMMMMM"+"mddm".green+"MMMMMMM:----.:MMm\tpetermaguire.xyz\n" +
-    "MMMyysssssmMMMMMMMMMMMMMMMMMMMMMMMMMMMMmosssssyMMM\n" +
-    "NMM.      .mMMMMMMMMMMMMMMMMMMMMMMMMMMm.      .MMN\n" +
-    "hMM/       `sMMMMMMMMMMMMMMMMMMMMMMMMs`       /MMh\n" +
-    "/MMd         `odMMMMMMMMMMMMMMMMMMmo`         dMM/\n" +
-    " mMM/           .sMMMMMMMMMMMMMN+.           /MMm \n" +
-    " -NMN-         /mMMMMMMMMMMMMMMMMy.         -NMN- \n" +
-    "  :NMN:       yMMMMMMMMMMMMMMMMMMMMo       :NMN:  \n" +
-    "   -mMMs`    sMMMMMMMMMMMMMMMMMMMMMMs    `sMMm-   \n" +
-    "    `yMMm/  `MMMMMMMMMMMMMMMMMMMMMMMM-  /mMMy`    \n" +
-    "      -dMMmo-MMMMMMMMMMMMMMMMMMMMMMMMsomMMd-      \n" +
-    "        -yMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMy-        \n" +
-    "          `/hNMMMMMMMMMMMMMMMMMMMMMMNh/`          \n" +
-    "              -+ydNMMMMMMMMMMMMNdy+-              \n" +
-    "                   `-://++//:-`      ";
-
-
+const header = "\n".white+
+    "                   k,.';o                                                  o:,';k                   \n"+
+    "                   d,;;,,;cdk                                           dc;;;;;,o                   \n"+
+    "                   o';;;;;;,,;lk                                    kl;,,,,,,;,'l                   \n"+
+    "                   o.,,,,,,,,,'';o0                              0o;'''','',,''.l                   \n"+
+    "                   d.'''''''''','.,o   kdolc:;;;;::::::cclox    o,.''.''''''''..d                   \n"+
+    "                   k'........'......'::,,;::::::::::::::::;;,::,...............'k                   \n"+
+    "                   0,..............',;::::::::::::::::::::::::;,'..............:                    \n"+
+    "                    l...........',;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,'...........o                    \n"+
+    "                    k.........',;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,'........'0                    \n"+
+    "                     c.......,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.......l                     \n"+
+    "                      '....',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'....'0                     \n"+
+    "                      x...'','',''''''''''''''''''''''''''''''''''''''''''...x                      \n"+
+    "                       :..''''''"+",:clc:,".green+"'''''''''''''''''''''''"+":lll:,".green+"''''''..:                       \n"+
+    "                      k,.'.''."+"':oxxxxxo;'.".green+"''''''''''''''''.."+";oxxxxxd:'".green+"...''.'x                      \n"+
+    "                      :......."+",dxxxxxxxdc".green+".................."+":dxxxxxxxd;".green+".......:                     ©️ 2014-"+new Date().getFullYear()+" Ocelotworks\n"+
+    "   000                '......."+":dxxxxxxxxd:".green+"................"+";dxxxxxxxxd:".green+".......'k               000       ocelotworks.com\n"+
+    "      0              k'......."+";dxxxxxxxxxo,".green+".............."+",oxxxxxxxxxd;".green+"........x         000000      \n"+
+    "           0 kkk     0,........"+";oxxxxxxxxxc".green+".............."+"cxxxxxxxxxo;".green+"........'     00000            \n"+
+    "                 xxx 0c.........."+",:lddxxxxo'".green+"............"+"'oxxxxdol:,".green+"..........: 0kk 0                \n"+
+    "                   0kxc.............."+"',;;:;".green+".............."+",;;,,'".green+"..............ck                     \n"+
+    "                      xl,..................................................'ok                      \n"+
+    "                        d,................................................,d                        \n"+
+    "                          o,............................................'o                          \n"+
+    "                  000000000 dc,......................................,cd 000000000                  \n"+
+    "               00               o,................................;o              00 0              \n"+
+    "                                   xl;.......................':ok                     0             \n"+
+    "                                       ko:,..............;cx0                                       \n";
 
 let broker = {};
 
