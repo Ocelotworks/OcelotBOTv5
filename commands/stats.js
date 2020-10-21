@@ -34,6 +34,9 @@ module.exports = {
             channelCount = (await bot.client.shard.fetchClientValues("channels.cache.size")).reduce((prev, val) => prev + val, 0);
         }catch(e){
             bot.raven.captureException(e);
+            if(e.message && e.message.includes("Channel closed")){
+                process.exit(1)
+            }
         }
 
         let embed = new Discord.MessageEmbed();

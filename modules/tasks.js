@@ -21,8 +21,14 @@ module.exports = {
                 bot.tasks.endTask(name, id);
             }, 150000);
             bot.logger.info(`Started task ${name} (${id})`);
-
-            bot.client.shard.send({type: "tasksClear", payload: false});
+            try {
+                bot.client.shard.send({type: "tasksClear", payload: false});
+            }catch(e){
+                bot.raven.captureException(e);
+                if(e.message && e.message.includes("Channel closed")){
+                    process.exit(1)
+                }
+            }
         };
 
 
@@ -42,7 +48,14 @@ module.exports = {
                 clearTimeout(bot.tasks.taskTimers[name + id]);
             bot.logger.info(`Ended task ${name} (${id})`);
             bot.tasks.running.splice(index, 1);
-            bot.client.shard.send({type: "tasksClear", payload: true});
+            try {
+                bot.client.shard.send({type: "tasksClear", payload: true});
+            }catch(e){
+                bot.raven.captureException(e);
+                if(e.message && e.message.includes("Channel closed")){
+                    process.exit(1);
+                }
+            }
         };
     }
 };
