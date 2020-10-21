@@ -355,43 +355,49 @@ module.exports = {
     },
     playSong: function playSong(listener){
         Sentry.configureScope(async function(scope){
-            if(listener.playing.info.length <= 1000){
-                listener.channel.sendLang("MUSIC_PLAY_SHORT");
-                return module.exports.playNextInQueue(listener.server);
-            }
-
-            await bot.database.updateNowPlaying(listener.id, listener.playing.info.uri);
-
-            if(listener.checkInterval)
-                clearInterval(listener.checkInterval);
-
-            if(listener.playing.info.length >= 3.6e+6) { //1 hour
-                listener.checkInterval = setInterval(async function checkInterval() {
-                    if(listener.voiceChannel.members.size === 1){
-                        listener.channel.sendLang("MUSIC_PLAY_INACTIVE");
-                        if(listener && listener.connection)
-                            await bot.lavaqueue.manager.leave(listener.guild);
-                        module.exports.deconstructListener(listener.server);
-                    }
-                }, 1.8e+6);
-            }
-            scope.addBreadcrumb({
-                message: "Song Played",
-                category: "Music",
-                data: {
-                    track: listener.connection.track,
-                    server: listener.server
+            try {
+                if (listener.playing.info.length <= 1000) {
+                    listener.channel.sendLang("MUSIC_PLAY_SHORT");
+                    return module.exports.playNextInQueue(listener.server);
                 }
-            });
-            if(listener.server === "622757587489914880"){
-                console.log("russian propaganda");
-                listener.connection.play("https://cdn.discordapp.com/attachments/626353784888754177/767805301260025896/websdr_recording_start_2020-10-19T17_41_42Z_7055.0kHz.wav");
-            }else {
-                listener.connection.play(listener.playing.track);
+
+                await bot.database.updateNowPlaying(listener.id, listener.playing.info.uri);
+
+                if (listener.checkInterval)
+                    clearInterval(listener.checkInterval);
+
+                if (listener.playing.info.length >= 3.6e+6) { //1 hour
+                    listener.checkInterval = setInterval(async function checkInterval() {
+                        if (listener.voiceChannel.members.size === 1) {
+                            listener.channel.sendLang("MUSIC_PLAY_INACTIVE");
+                            if (listener && listener.connection)
+                                await bot.lavaqueue.manager.leave(listener.guild);
+                            module.exports.deconstructListener(listener.server);
+                        }
+                    }, 1.8e+6);
+                }
+                scope.addBreadcrumb({
+                    message: "Song Played",
+                    category: "Music",
+                    data: {
+                        track: listener.connection.track,
+                        server: listener.servert
+                    }
+                });
+                if (listener.server === "622757587489914880") {
+                    let song = await bot.lavaqueue.getSong("https://cdn.discordapp.com/attachments/626353784888754177/767805301260025896/websdr_recording_start_2020-10-19T17_41_42Z_7055.0kHz.wav", listener.connection);
+                    console.log(song);
+                    listener.connection.play(song.track);
+                } else {
+                    listener.connection.play(listener.playing.track);
+                }
+
+                setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);
+
+            }catch(e){
+                console.log(e);
+                await module.exports.playNextInQueue(listener.server)
             }
-
-            setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);
-
             // bot.matomo.track({
             //     action_name: "Stream Song",
             //     uid:  listener.playing.requester,

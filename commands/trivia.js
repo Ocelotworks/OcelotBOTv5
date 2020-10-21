@@ -44,7 +44,7 @@ module.exports = {
                     if(args[2] && args[2].toLowerCase() === "monthly"){
                         leaderboardData = await bot.database.getMonthlyTriviaLeaderboard();
                     }else if(args[2] && args[2].toLowerCase() === "server" && message.guild) {
-                        leaderboardData = await bot.database.getServerTriviaLeaderboard(message.guild.members.keyArray());
+                        leaderboardData = await bot.database.getServerTriviaLeaderboard(message.guild.members.cache.keyArray());
                     }else{
                         leaderboardData = await bot.database.getTriviaLeaderboard();
                     }
