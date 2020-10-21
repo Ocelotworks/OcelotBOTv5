@@ -2,7 +2,6 @@
  * Created by Peter on 01/07/2017.
  */
 
-const request = require('request');
 module.exports = {
     name: "Urban Dictionary",
     usage: "defineud <word>",
@@ -27,7 +26,7 @@ module.exports = {
                 await bot.util.standardPagination(message.channel, data.list, async function (page) {
                     page.definition = page.definition.substring(0, 800);
                     page.example = page.example.substring(0, 800);
-                    return await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "UD_DEFINITION", page);
+                    return bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "UD_DEFINITION", page);
                 }, true);
             } else {
                 bot.logger.log(`Channel ${message.channel.id} (${message.channel.name} in ${message.channel.guild.name}) doesn't allow MANAGE_MESSAGES or ADD_REACTIONS`);
