@@ -44,9 +44,9 @@ module.exports = {
                 try{
                     let data = JSON.parse(body);
                     let images = data.itemList;
-                    if(images.length === 0)
+                    if(!images || images.length === 0)
                         return message.channel.send(":warning: No results.");
-                    bot.util.standardPagination(message.channel, images, async function(page, index){
+                    await bot.util.standardPagination(message.channel, images, async function(page, index){
                         let embed = new Discord.MessageEmbed();
                         embed.setAuthor(page.source);
                         embed.setTimestamp(new Date(page.createdAt));
