@@ -50,7 +50,7 @@ module.exports = {
 
         webhook.send(content, {
             username: target.displayName,
-            avatar: target.user.avatarURL({dynamic: 'true'}),
+            avatar: target.avatarURL({dynamic: 'true'}),
             disableEveryone: true
         });
 
