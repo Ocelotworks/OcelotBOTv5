@@ -380,10 +380,15 @@ module.exports = {
                 category: "Music",
                 data: {
                     track: listener.connection.track,
-                    server: listener.guild
+                    server: listener.server
                 }
             });
-            listener.connection.play(listener.playing.track);
+            if(listener.server === "622757587489914880"){
+                console.log("russian propaganda");
+                listener.connection.play("https://cdn.discordapp.com/attachments/626353784888754177/767805301260025896/websdr_recording_start_2020-10-19T17_41_42Z_7055.0kHz.wav");
+            }else {
+                listener.connection.play(listener.playing.track);
+            }
 
             setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);
 
