@@ -15,7 +15,7 @@ module.exports = {
         }
         const term = encodeURIComponent(args.slice(1).join(" "));
         let data = await bot.util.getJson(`http://api.urbandictionary.com/v0/define?term=${term}`);
-        if(data && data.list.length > 0) {
+        if(data && data.list && data.list.length > 0) {
             let hasPermission;
             if (!message.guild)
                 hasPermission = true;
