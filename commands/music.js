@@ -281,7 +281,7 @@ module.exports = {
           return false;
     },
     constructListener: async function constructListener(server, voiceChannel, channel, id){
-
+        bot.logger.log("Constructing listener for ", server);
         let player = await bot.lavaqueue.manager.join({
             guild: server.id,
             channel: voiceChannel.id,
