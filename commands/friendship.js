@@ -21,10 +21,10 @@ module.exports = {
         overlay = await canvas.loadImage(__dirname+"/../static/friendship_overlay.png");
     },
     run: async function run(message, args, bot) {
-
-
         if(message.mentions.users.size < 2)
             return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
+
+        console.log("Loading users");
 
         const user1 = bot.util.getUserFromMention(args[1]);
         const user2 = bot.util.getUserFromMention(args[2]);
@@ -32,12 +32,13 @@ module.exports = {
         if(!user1 || !user2)
             return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
 
+        console.log("Loading Avatars");
         if(!user1.avatarURL({dynamic: true, format: "png"}) || !user2.avatarURL({dynamic: true, format: "png"}))
             return message.replyLang("MAFIA_NO_AVATAR");
 
         const endedWith = await canvas.loadImage(user1.avatarURL({dynamic: true, format: "png"}));
         const bestfriend = await canvas.loadImage(user2.avatarURL({dynamic: true, format: "png"}));
-        const author = await canvas.loadImage(message.author.displayavatar);
+        const author = await canvas.loadImage(message.author.avatarURL({dynamic: true, format: "png"}));
 
         const cnv = canvas.createCanvas(680, 510);
         const ctx = cnv.getContext("2d");

@@ -65,11 +65,11 @@ module.exports = {
                             bot.lavaqueue.manager.leave(player.id);
                         }
                     });
-                    bot.lavaqueue.manager.nodes.forEach(function nodeReconnect(node){
+                    bot.lavaqueue.manager.nodes.forEach(async function nodeReconnect(node){
                         if(!node.connected){
                             bot.logger.log(`Attempting to connect node ${node.id}`);
                             try {
-                                node.connect();
+                                await node.connect();
                             }catch(e){
                                 bot.logger.error(`Error connecting to node ${node.id}: ${e}`)
                             }
