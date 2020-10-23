@@ -46,16 +46,16 @@ module.exports = {
                 });
 
                 try {
-                    console.log("Connecting...");
+                    bot.logger.log("Connecting...");
                     await bot.lavaqueue.manager.connect();
-                    console.log("Connected!");
+                    bot.logger.log("Connected!");
 
                 }catch(e){
-                    console.log("Connect error!!!!");
-                    console.log(e);
+                    bot.logger.log("Connect error!!!!");
+                    bot.logger.log(e);
                 }
                 bot.lavaqueue.manager.on("error", function(node, error){
-                    console.error("Node Error: ",error);
+                    bot.logger.error("Node Error: ",error);
                 });
 
                 setInterval(()=>{
@@ -68,7 +68,11 @@ module.exports = {
                     bot.lavaqueue.manager.nodes.forEach(function nodeReconnect(node){
                         if(!node.connected){
                             bot.logger.log(`Attempting to connect node ${node.id}`);
-                            node.connect();
+                            try {
+                                node.connect();
+                            }catch(e){
+                                bot.logger.error(`Error connecting to node ${node.id}: ${e}`)
+                            }
                         }
                     })
                 }, 36000);
