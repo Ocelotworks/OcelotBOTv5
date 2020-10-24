@@ -31,10 +31,11 @@ async function init(){
     channel.prefetch(5);
 
     channel.consume('imageFilter', function(msg){
-        console.log("Processing "+msg.content.toString());
-        let {url, format, filter, input} = JSON.parse(msg.content.toString());
-        let fileName = `${__dirname}/../temp/${Math.random()}.png`;
-        let shouldProcess = true;
+        try {
+            console.log("Processing " + msg.content.toString());
+            let {url, format, filter, input} = JSON.parse(msg.content.toString());
+            let fileName = `${__dirname}/../temp/${Math.random()}.png`;
+            let shouldProcess = true;
             request({uri: url, timeout: 10000})
                 .on("response", function requestResponse(resp) {
                     console.log("Downloading Image");
@@ -74,11 +75,15 @@ async function init(){
                                         console.warn(err);
                                 });
                             });
-                    }catch(e){
+                    } catch (e) {
                         console.error(e);
                         reply(msg, {err: e});
                     }
                 }).pipe(fs.createWriteStream(fileName));
+        }catch(e){
+            console.error(e);
+            reply(msg, {err: e});
+        }
     });
 
 }
