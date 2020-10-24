@@ -11,7 +11,18 @@ const
     omegle          = require('omegle-node')//,
    // tracer          = require('dd-trace');
 
-
+const bannedWords = [
+    "@giggle.planet",
+    "𝙈𝙞𝙙𝙣𝙞𝙜𝙝𝙩",
+    "vidchan.net",
+    "mystigan211",
+    "yuji",
+    "playsx",
+    "discord(gg)",
+    "discord.gg",
+    "★Hey!★",
+    "mmmm u like that baby?",
+];
 
 let sessions = {};
 
@@ -72,8 +83,12 @@ async function init(){
 
         om.on('gotMessage',function(message){
             if(message === "Use Omegle over Discord with OcelotBOT: https://ocelot.xyz/")return;
-            if(message.indexOf("discord.gg") > -1 || message.indexOf("invite/") > -1 || message.indexOf("discord.com") > -1)
-                message = "<The Stranger attempted to post a discord invite>";
+            for(let i = 0; i < bannedWords.length; i++){
+                if(message.toLowerCase().indexOf(bannedWords[i]) > -1){
+                    message = "<Spam Filtered>";
+                    break;
+                }
+            }
             reply(msg, {type: "message", data: {channel, message}});
         });
 
