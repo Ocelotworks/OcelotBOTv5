@@ -97,7 +97,7 @@ module.exports = {
                 commandUsages = bot.commandCategories[arg];
             }
             for(let i in commandUsages){
-                if(commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden && !message.getBool(`${i}.disable`))
+                if(commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden && !message.getBool(`${i}.disable`) && !(commandUsages[i].unwholesome && message.getBool("wholesome")) && !(commandUsages[i].nsfw && !message.getBool("allowNSFW")))
                     if(unique.indexOf(commandUsages[i].name) === -1) {
                         unique.push(commandUsages[i].name);
                         output += `${commandUsages[i].name}:: ${message.getSetting("prefix")}${commandUsages[i].usage}\n`
