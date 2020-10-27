@@ -22,6 +22,7 @@ const bannedWords = [
     "discord.gg",
     "★Hey!★",
     "mmmm u like that baby?",
+    "mistressadrian"
 ];
 
 let sessions = {};
