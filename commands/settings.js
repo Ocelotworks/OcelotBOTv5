@@ -57,10 +57,10 @@ module.exports = {
                 }
             }
         },
-        allownsfw: {
-            name: "Allow NSFW",
-            help: "Allow NSFW commands such as !pornsuggest",
-            setting: "allownsfw",
+        disablensfw: {
+            name: "Disable NSFW",
+            help: "Disable NSFW commands such as !pornsuggest",
+            setting: "disablensfw",
             value: "true or false",
             format: function(input){
                 return `\`${input}\``
@@ -69,7 +69,7 @@ module.exports = {
                 if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bools[args[3].toLowerCase()];
                     await bot.config.set(message.guild.id, "allowNSFW", bool);
-                    message.replyLang(`SETTINGS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
+                    message.replyLang(`SETTINGS_NSFW_${bool ? "DISABLE":"ENABLE"}`);
                 }else{
                     message.replyLang("SETTINGS_NSFW_NONE", {arg: args[0]});
                 }

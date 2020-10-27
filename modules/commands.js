@@ -79,7 +79,7 @@ module.exports = {
                     return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type \\${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using \\${message.getSetting("prefix")}settings disableCommand ${command}`);
                 }
 
-                if(!message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1) {
+                if(message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1) {
                     tx.end("NSFW Disabled");
                     return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
                 }
