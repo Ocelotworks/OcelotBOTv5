@@ -300,8 +300,10 @@ module.exports = {
             let targetUser;
             if(lastMessages.size < 1){
                 bot.logger.warn("No eligible users found...");
-                if(!guild.users)return bot.logger.warn("Not generating new as guild users could not be found");
-                targetUser = guild.users.cache.filter((u)=>!u.bot).random(1)[0];
+                if(!guild.members)return bot.logger.warn("Not generating new as guild users could not be found");
+                let result = guild.members.cache.filter((u)=>!u.bot).random(1)
+                if(!result || !result[0])return bot.logger.warn("Not generating new as guild member cache is empty!");
+                targetUser = result[0].user;
             }else {
                  const targetMessage = lastMessages.random(1)[0];
                  if(!targetMessage)return bot.logger.warn*"Not generating new as target message failed";
@@ -310,7 +312,7 @@ module.exports = {
 
             bot.logger.log("Spooking new user "+targetUser);
             await bot.spook.createSpook(channel, bot.client.user, targetUser);
-            channel.sendLang(left ? "SPOOK_USER_LEFT" : "SPOOK_USER_IDLE", {old: lastSpooked, spooked: targetUser.id});
+            await channel.sendLang(left ? "SPOOK_USER_LEFT" : "SPOOK_USER_IDLE", {old: lastSpooked, spooked: targetUser.id});
         };
 
         const badgeMappings = {
