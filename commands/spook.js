@@ -211,7 +211,7 @@ module.exports = {
                     required = bot.util.intBetween(5, 50);
                 let dm = await spooker.createDM();
                 let embed = new Discord.MessageEmbed();
-                embed.setAuthor("The Spooking 2019", bot.client.user.avatarURL({dynamic: true, format: "png"}));
+                embed.setAuthor("The Spooking 2020", bot.client.user.avatarURL({dynamic: true, format: "png"}));
                 embed.setColor("#bf621a");
                 embed.setTitle(`You have been assigned a NEW special role for **'${channel.guild.name}'**`);
                 embed.setDescription("Sorry that your old one was a bot/has now left the server, your new goal is below.\nIf you accomplish your goal, you will get a unique badge.");
@@ -321,12 +321,11 @@ module.exports = {
             4: 70,
         };
 
-
         //I feel like I'm doing my homework the day before it's due
         bot.spook.end = async function doSpookEnd(){
-            return;
             bot.logger.warn("***TRIGGERING SPOOK END***");
             bot.logger.log("Notifying Servers...");
+            let ignoredUsers = [];
             const servers = await bot.database.getParticipatingServers();
             for(let i = 0; i < servers.length; i++){
                 let server = servers[i].server;
@@ -335,55 +334,27 @@ module.exports = {
                     const spookChannel = await bot.spook.getSpookChannel(server, spooked);
                     bot.logger.log(`Sending spook end for ${server} ${spooked} ${spookChannel}`)
                     await bot.sendSpookEnd(server, spookChannel, spooked);
-                    continue;
-                    let serverObject = bot.client.guilds.cache.get(server);
-                    let completed = await bot.database.getCompletedRoles(server);
-                    let banks = {};
-                    for(let i = 0; i < completed.length; i++){
-                        let row = completed[i];
-                        if(!serverObject.members.has(row.user))continue;
-                        if(banks[badgeMappings[row.role]])
-                            banks[badgeMappings[row.role]].push(row.user);
-                        else
-                            banks[badgeMappings[row.role]] =  [row.user];
-                    }
-
-                    const keys = Object.keys(banks);
-                    for(let i = 0; i < keys.length; i++){
-                        let badge = keys[i];
-                        let users = banks[badge];
-                        await bot.badges.giveBadgesOnce(users, spookChannel, badge);
-                    }
-
-                    let sabCompleted = await bot.database.getCompletedSabRole(server, spooked);
-                    await bot.badges.giveBadgesOnce(sabCompleted.map((s)=>s.user), spookChannel, 69);//Nice
+                    await bot.badges.giveBadgeOnce(spooked, spookChannel, 76); //Spook Participant
+                    ignoredUsers.push(spooked);
                 }else{
                     bot.logger.log(`This shard does not have ${server}`)
                 }
             }
 
-
-            //bot.logger.log("Allocating Badges...");
-           // const users = await bot.database.getParticipatingUsers();
-            // for(let j = 0; j < users.length; j++) {
-            //     const userRow = users[j];
-            //     if (!await bot.database.hasBadge(userRow.spooker, 2)) {
-            //         bot.logger.log("Given spook participant badge to "+userRow.spooker);
-            //         await bot.database.giveBadge(userRow.spooker, 2);
-            //     }
-            //
-            //     if (userRow.spooker !== userRow.spooked && !await bot.database.hasBadge(userRow.spooked, 2)) {
-            //         bot.logger.log("Given spook participant badge to "+userRow.spooked);
-            //         await bot.database.giveBadge(userRow.spooked, 2);
-            //     }
-            // }
+            bot.logger.log("Allocating Badges...");
+            const users = await bot.database.getParticipatingUsers();
+            for(let j = 0; j < users.length; j++) {
+                const userRow = users[j];
+                if(ignoredUsers.includes(userRow.spooker))continue;
+                await bot.badges.giveBadgeOnce(userRow.spooker, null, 77); //Spook Loser
+            }
 
             bot.updatePresence = async function(){
                 const now = new Date();
                 if(now-bot.lastPresenceUpdate>100000) {
                     bot.lastPresenceUpdate = now;
                     const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
-                    bot.client.user.setPresence({
+                    await bot.client.user.setPresence({
                         activity: {
                             name: `Thank you for playing! | in ${serverCount} servers.`,
                             type: "WATCHING"
@@ -417,7 +388,7 @@ module.exports = {
             embed.setTitle("The Spooking Has Ended.");
             embed.setTimestamp(new Date());
             embed.setFooter("Happy Halloween!", bot.client.user.avatarURL({dynamic: true, format: "png"}));
-            embed.setDescription(`**<@${loser}> is the loser!**\nThank you all for participating in the 2nd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greately appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelot.xyz/premium?ref=spook)`);
+            embed.setDescription(`**<@${loser}> is the loser!**\nThank you all for participating in the 3rd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greatly appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelot.xyz/premium?ref=spook)`);
             embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${Math.floor((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)}% of all spooks.)`);
             embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
             embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff, message.guild && message.guild.id, message.author.id)})`);
