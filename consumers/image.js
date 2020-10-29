@@ -46,35 +46,44 @@ async function init(){
                 })
                 .on("error", function requestError() {
                     shouldProcess = false;
+                    reply(msg, {err: "Error loading file"});
                 })
+                .on("")
                 .on("end", function requestEnd() {
                     if (!shouldProcess) {
                         fs.unlink(fileName, function unlinkInvalidFile(err) {
                             if (err)
-                                reply(msg, {err: "Error unlinking invalid file"});
-                            else
-                                reply(msg, {err: "Not a valid image type"});
+                                console.log(err);
                         });
                         return;
                     }
                     try {
                         const initialProcess = gm(fileName).autoOrient();
-                        initialProcess[filter].apply(initialProcess, input)
-                            .toBuffer(format, function toBuffer(err, buffer) {
-                                if (err) {
-                                    console.log(err);
-                                    return reply(msg, {err: "Error creating buffer"});
-                                }
-                                let name = filter + "." + (format.toLowerCase());
-                                if (url.indexOf("SPOILER_") > -1)
-                                    name = "SPOILER_" + name;
-                                console.log("Done");
-                                reply(msg, {image: buffer.toString('base64'), name});
-                                fs.unlink(fileName, function unlinkCompletedFile(err) {
-                                    if (err)
-                                        console.warn(err);
-                                });
+                        let filteredImage = initialProcess[filter].apply(initialProcess, input);
+
+                        filteredImage.filesize((err, value)=>{
+                            if(!err && value && value.endsWith("Mi") && parseInt(value) > 4){
+                                console.log("Resizing image");
+                                filteredImage = filteredImage.resize("50%");
+                            }
+                            console.log(err, value);
+                        });
+
+                        filteredImage.toBuffer(format, function toBuffer(err, buffer) {
+                            if (err) {
+                                console.log(err);
+                                return reply(msg, {err: "Error creating buffer"});
+                            }
+                            let name = filter + "." + (format.toLowerCase());
+                            if (url.indexOf("SPOILER_") > -1)
+                                name = "SPOILER_" + name;
+                            console.log("Done");
+                            reply(msg, {image: buffer.toString('base64'), name});
+                            fs.unlink(fileName, function unlinkCompletedFile(err) {
+                                if (err)
+                                    console.warn(err);
                             });
+                        });
                     } catch (e) {
                         console.error(e);
                         reply(msg, {err: e});

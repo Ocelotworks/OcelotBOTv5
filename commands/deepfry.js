@@ -27,21 +27,28 @@ module.exports = {
         const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
         request(url).on("end", ()=>{
-            gm(fileName)
+            let output = gm(fileName)
                 .modulate(message.getSetting("deepfry.brightness"), message.getSetting("deepfry.saturation"))
                 .noise(message.getSetting("deepfry.noise"))
                 .sharpen(message.getSetting("deepfry.sharpness"))
                 .quality(message.getSetting("deepfry.quality"))
-                .toBuffer("JPEG", function(err, buffer){
-                    if(err)
-                        return message.replyLang("GENERIC_ERROR");
-                    let attachment = new Discord.MessageAttachment(buffer, "jpeg.jpg");
-                    message.channel.send("", attachment).catch(function(e){
-                        console.log(e);
-                        message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
-                    });
-                    fs.unlink(fileName, function(){});
+                .filesize((err, value)=>{
+                    if(!err && value && value.endsWith("Mi") && parseInt(value) > 4){
+                        console.log("Resizing image");
+                        output = output.resize("50%");
+                    }
+                    console.log(err, value);
+                })
+            output.toBuffer("JPEG", function(err, buffer){
+                if(err)
+                    return message.replyLang("GENERIC_ERROR");
+                let attachment = new Discord.MessageAttachment(buffer, "jpeg.jpg");
+                message.channel.send("", attachment).catch(function(e){
+                    console.log(e);
+                    message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                 });
+                fs.unlink(fileName, function(){});
+            });
         }).pipe(fs.createWriteStream(fileName));
 
     }
