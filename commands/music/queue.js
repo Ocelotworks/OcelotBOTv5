@@ -18,29 +18,32 @@ module.exports = {
         if(!music.listeners[guild]){
             if(!message.member.voice || !message.member.voice.channel)
                 return message.channel.send(":warning: You have to be in a voice channel to use this command.");
+            bot.logger.log("Constructing listener");
            await music.constructListener(message.guild, message.member.voice.channel, message.channel);
         }
 
-        await message.channel.startTyping();
+       // await message.channel.startTyping();
         try {
+            bot.logger.log("Adding song to queue");
             let song = await music.addToQueue(guild, query, message.author.id);
+            bot.logger.log("Added song to queue successfully");
             if(!music.listeners[guild])
                 return message.channel.send(":thinking: Something went horribly wrong whilst queueing this song. Please try again.");
+            if (!song)
+                return message.channel.send(":warning: No results.");
+            if (song.count)
+                return message.channel.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000, message.guild && message.guild.id, message.author.id)})`);
+            if (song.title.indexOf("-") > -1)
+                return message.channel.send(`:white_check_mark: Added **${song.title}** to the queue.`);
             if (music.listeners[guild].queue.length > 0) {
-                if (!song)
-                    return message.channel.send(":warning: No results.");
-                if (song.count)
-                    return message.channel.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000, message.guild && message.guild.id, message.author.id)})`);
-                if (song.title.indexOf("-") > -1)
-                    return message.channel.send(`:white_check_mark: Added **${song.title}** to the queue.`);
-
-                message.channel.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
+                return message.channel.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
             }
+            message.channel.send(`:white_check_mark: Playing **${song.author} - ${song.title}**.`);
         }catch(e){
             message.replyLang("GENERIC_ERROR");
             Sentry.captureException(e);
         }finally{
-            message.channel.stopTyping(true);
+            //message.channel.stopTyping(true);
         }
 
     }
