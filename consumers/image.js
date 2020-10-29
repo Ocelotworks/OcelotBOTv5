@@ -48,7 +48,6 @@ async function init(){
                     shouldProcess = false;
                     reply(msg, {err: "Error loading file"});
                 })
-                .on("")
                 .on("end", function requestEnd() {
                     if (!shouldProcess) {
                         fs.unlink(fileName, function unlinkInvalidFile(err) {
