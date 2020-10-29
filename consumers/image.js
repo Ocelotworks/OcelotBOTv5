@@ -44,8 +44,9 @@ async function init(){
                         format = "GIF";
 
                 })
-                .on("error", function requestError() {
+                .on("error", function requestError(err) {
                     shouldProcess = false;
+                    console.log(err);
                     reply(msg, {err: "Error loading file"});
                 })
                 .on("end", function requestEnd() {

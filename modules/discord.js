@@ -122,12 +122,12 @@ module.exports = {
 
             bot.logger.log(output);
 
-            return Reattempt.run({times: 3, onError: function(error, done, abort){
+            return Reattempt.run({times: 3, onError: (error, done, abort)=>{
                 if(error.code !== "ECONNRESET"){
                     Sentry.captureException(error);
                     bot.logger.warn("Send Error: "+error);
-                    abort(error);
-                    throw error;
+                    oldsend.apply(this, ["Send Error: " + error]);
+                    abort();
                 }else{
                     bot.logger.warn("Connection reset, retrying send...");
                 }
