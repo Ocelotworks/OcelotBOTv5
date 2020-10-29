@@ -77,16 +77,19 @@ module.exports = {
             const now = new Date();
             const teaserDiff = teaserStart-now;
             const startDiff = start-now;
-            const endDiff = start-end;
-            if(startDiff <= 0) {
-              activateSpooking();
+            const endDiff = end-now;
+            if(endDiff <= 0) {
+                setTimeout(bot.spook.end, 20000*(bot.client.shard.ids[0]+1))
+            }else if(startDiff <= 0) {
+                bot.logger.log("End is in "+endDiff);
+                bot.util.setLongTimeout(bot.spook.end, endDiff+(20000*(bot.client.shard.ids[0]+1)));
+                await activateSpooking();
             } else if(teaserDiff <= 0){
                 bot.logger.log("Spook teaser time");
                 bot.updatePresence = setTeaserMessage;
                 setTeaserMessage();
                 bot.util.setLongTimeout(activateSpooking, startDiff);
             }
-            //setTimeout(bot.spook.end, 20000*(bot.client.shard.ids.join(";")+1))
         });
 
         // bot.client.on("message", function spookTimeout(message){
@@ -334,7 +337,7 @@ module.exports = {
                     const spookChannel = await bot.spook.getSpookChannel(server, spooked);
                     bot.logger.log(`Sending spook end for ${server} ${spooked} ${spookChannel}`)
                     await bot.sendSpookEnd(server, spookChannel, spooked);
-                    await bot.badges.giveBadgeOnce(spooked, spookChannel, 76); //Spook Participant
+                    await bot.badges.giveBadgeOnce({id: spooked[0].spooked}, null, 76); //Spook Participant
                     ignoredUsers.push(spooked);
                 }else{
                     bot.logger.log(`This shard does not have ${server}`)
@@ -342,11 +345,11 @@ module.exports = {
             }
 
             bot.logger.log("Allocating Badges...");
-            const users = await bot.database.getParticipatingUsers();
+            const users = await bot.database.getParticipatingUsers(bot.client.guilds.cache.keyArray());
             for(let j = 0; j < users.length; j++) {
                 const userRow = users[j];
                 if(ignoredUsers.includes(userRow.spooker))continue;
-                await bot.badges.giveBadgeOnce(userRow.spooker, null, 77); //Spook Loser
+                await bot.badges.giveBadgeOnce({id: userRow.spooker}, null, 77); //Spook Loser
             }
 
             bot.updatePresence = async function(){
@@ -391,8 +394,8 @@ module.exports = {
             embed.setDescription(`**<@${loser}> is the loser!**\nThank you all for participating in the 3rd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greatly appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelot.xyz/premium?ref=spook)`);
             embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${Math.floor((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)}% of all spooks.)`);
             embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
-            embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff, message.guild && message.guild.id, message.author.id)})`);
-            await targetChannel.send("", embed);
+            embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff, targetChannel.guild && targetChannel.guild.id, spookStats.longestSpook.spooked)})`);
+           // await targetChannel.send("", embed);
         };
     },
     run: async function(message, args, bot){
