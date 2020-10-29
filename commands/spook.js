@@ -395,7 +395,7 @@ module.exports = {
             embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${Math.floor((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)}% of all spooks.)`);
             embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
             embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff, targetChannel.guild && targetChannel.guild.id, spookStats.longestSpook.spooked)})`);
-           // await targetChannel.send("", embed);
+            await targetChannel.send("", embed);
         };
     },
     run: async function(message, args, bot){

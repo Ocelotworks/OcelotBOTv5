@@ -611,8 +611,8 @@ module.exports = {
              * Gets all users that have participated in the spooking
              * @returns {Array|*}
              */
-            getParticipatingUsers: function(){
-                return knex.select().distinct("spooker", "spooked").from(SPOOK_TABLE).where({series});
+            getParticipatingUsers: function(servers){
+                return knex.select().distinct("spooker", "spooked").from(SPOOK_TABLE).where({series}).whereIn("server", servers);
             },
             /**
              * Gets all spooks where there is a username missing
