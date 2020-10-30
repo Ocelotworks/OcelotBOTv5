@@ -13,7 +13,7 @@ module.exports = {
                if(msg.type === "feedback") {
                    bot.lastFeedbackChannel = msg.message.channelID;
                    if(bot.client.channels.cache.has("344931831151329302"))
-                       bot.client.channels.cache.get("344931831151329302").send(`Feedback from ${msg.message.userID} (${msg.message.username}) in ${msg.message.guildID} (${msg.message.guild}):\n\`\`\`\n${msg.message.message}\n\`\`\``);
+                       bot.client.channels.cache.get("344931831151329302").send(`Feedback from ${msg.message.userID} (${msg.message.username}) in ${msg.message.guildID} (${msg.message.guild}):\n\`\`\`\n${msg.message.message.replace(/discord\.gg/gi, "discordxgg")}\n\`\`\``);
                }else if(msg.type === "feedbackResponse"){
                     if(bot.client.channels.cache.has(msg.message.channel)){
                         bot.client.channels.cache.get(bot.lastFeedbackChannel).sendLang("FEEDBACK_RESPONSE", {
@@ -56,7 +56,7 @@ module.exports = {
            bot.lastFeedbackChannel = message.channel.id;
            message.replyLang("FEEDBACK_SUCCESS");
             if(!bot.client.shard || bot.client.channels.cache.has("344931831151329302")){
-                bot.client.channels.cache.get("344931831151329302").send(`Feedback from ${message.author.id} (${message.author.username}#${message.author.discriminator}) in ${message.guild ? message.guild.id :"DM Channel"} (${message.guild ? message.guild.name : "DM Channel"}):\n\`\`\`\n${ Discord.escapeMarkdown(message.content)}\n\`\`\``);
+                bot.client.channels.cache.get("344931831151329302").send(`Feedback from ${message.author.id} (${message.author.username}#${message.author.discriminator}) in ${message.guild ? message.guild.id :"DM Channel"} (${message.guild ? message.guild.name : "DM Channel"}):\n\`\`\`\n${ Discord.escapeMarkdown(message.content.replace(/discord\.gg/gi, "discordxgg"))}\n\`\`\``);
              }else{
                 bot.client.shard.send({type: "feedback", message: {
                         userID: message.author.id,
