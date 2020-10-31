@@ -57,12 +57,15 @@ module.exports = {
                     });
                 }
                 span.end();
-                message.reply(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total players${timescale === "all" ? " of all time" : ` this ${timescale}`}.\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
+                message.reply(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total record holders${timescale === "all" ? " of all time" : ` this ${timescale}`}.\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
             }else{
                 let targetUser = message.author.id;
                 let span = bot.apm.startSpan("Get Records");
                 let records = await bot.util.getJson(`https://api.ocelot.xyz/leaderboard/guess/records/${targetUser}/list?items=500`);
                 span.end();
+                if(records.data.length === 0){
+                    return message.channel.send(":stopwatch: You have no records!");
+                }
                 const pages = records.data.chunk(20);
                 await bot.util.standardPagination(message.channel, pages, async function(records, index){
                     let output = "```autohotkey\n";
