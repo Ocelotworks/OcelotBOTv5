@@ -7,13 +7,8 @@
 
 let songList = [];
 let count = 0;
-const path = "/home/peter/nsp";
-const config = require('config');
 const request = require('request');
 const Discord = require('discord.js');
-const columnify = require('columnify');
-const pasync = require('promise-async');
-const fs = require('fs');
 
 const relations = {
     forwards: {
