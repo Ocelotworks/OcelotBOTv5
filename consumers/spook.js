@@ -60,8 +60,8 @@ async function init(){
         tx.end();
     });
 
-    wss.on('connection', function(ws){
-        console.log("Received Connection");
+    wss.on('connection', function(ws, req){
+        console.log(`Received Connection (${ req.socket.remoteAddress}) (${req.headers['user-agent']})`);
         ws.on('message', function(data){
             console.log("Filter set to "+data);
             ws.filter = data;
