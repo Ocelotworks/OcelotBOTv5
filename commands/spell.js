@@ -112,7 +112,7 @@ module.exports = {
 
         const targetMessage = messageFetch.last();
 
-        if(!targetMessage.react)
+        if(!targetMessage || !targetMessage.react)
             return message.channel.send(":bangbang: Could not find a message to react to...");
 
         for(let i = 0; i < output.length; i++){
