@@ -36,6 +36,9 @@ function getContent(content){
         if(content.title)
             return `[Embed: ${content.title}]`;
 
+        if(content.reply)
+            return `[Reply to: @${content.reply.tag} (${content.reply.id})] ${content.content}`;
+
         return JSON.stringify(content);
     }
     return content;
