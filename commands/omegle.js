@@ -30,11 +30,9 @@ module.exports = {
                             }
                             break;
                         case "message":
-                            if(msg.data.message.indexOf("code:") === -1) {
-                                let channel = await bot.client.channels.fetch(msg.data.channel);
-                                channel.send("> " + (msg.data.message.replace(/'/, "")));
-                                bot.database.logOmegleMessage(channel.guild ? channel.guild.id : "dm", channel.id, null, msg.data.message);
-                            }
+                            let targetChannel = await bot.client.channels.fetch(msg.data.channel);
+                            targetChannel.send("> " + (msg.data.message.replace(/'/, "")));
+                            await bot.database.logOmegleMessage(targetChannel.guild ? targetChannel.guild.id : "dm", targetChannel.id, null, msg.data.message);
                             break;
                         case "isOtherServer":
                             (await bot.client.channels.fetch(msg.data)).send("The stranger is another OcelotBOT user!");
