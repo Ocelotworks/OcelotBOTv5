@@ -218,7 +218,7 @@ module.exports = {
                     tx.end("Success");
                 } catch (e) {
                     message.channel.stopTyping(true);
-                    message.reply(e.toString());
+                    message.channel.send("Something went horribly wrong. Try again later.");
                     console.log(e);
                     bot.raven.captureException(e);
                     tx.end("Exception");
