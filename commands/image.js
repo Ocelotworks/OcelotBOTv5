@@ -35,7 +35,7 @@ module.exports = {
             message.channel.startTyping();
             try {
                 let images;
-                let type = message.channel.nsfw ? "nsfw" : "sfw";
+                let type = (!message.guild || message.channel.nsfw) ? "nsfw" : "sfw";
                 if(cache[type][query]) {
                     bot.logger.log("Using cached copy for "+query);
                     images = cache[type][query];
