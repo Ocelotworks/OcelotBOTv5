@@ -22,8 +22,12 @@ module.exports = {
                     console.log(msg);
                     switch(msg.type){
                         case "error":
-                            if(msg.data.data && msg.data.data.error && msg.data.data.error.indexOf("disconnect") === -1)
-                                (await bot.client.channels.fetch(msg.data.channel)).sendLang(msg.data.lang, msg.data.data);
+                            if(msg.data.data && msg.data.data.error && msg.data.data.error.indexOf("disconnect") === -1) {
+                                let channel = await bot.client.channels.fetch(msg.data.channel);
+                                if(channel) {
+                                    await channel.sendLang(msg.data.lang, msg.data.data);
+                                }
+                            }
                             break;
                         case "message":
                             if(msg.data.message.indexOf("code:") === -1) {
