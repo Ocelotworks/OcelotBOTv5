@@ -4,7 +4,7 @@
  * ╚════ ║   (ocelotbotv5) halloween
  *  ════╝
  */
-const halloween = new Date("31 October 2020");
+const halloween = new Date("31 October 2021");
 module.exports = {
     name: "Halloween Countdown",
     usage: "halloween",
