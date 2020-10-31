@@ -27,6 +27,20 @@ const presenceMessages = [
 
 let lastWebhook = 0;
 
+
+function getContent(content){
+    if(typeof content !== "string") {
+        if(content.username)
+            return `[Mention: @${content.tag} (${content.id})]`;
+
+        if(content.title)
+            return `[Embed: ${content.title}]`;
+
+        return JSON.stringify(content);
+    }
+    return content;
+}
+
 module.exports = {
     name: "Discord.js Integration",
     init: function(bot){
@@ -63,7 +77,6 @@ module.exports = {
            return bot.config.getBool(this.guild ? this.guild.id : "global", setting, this.author.id);
         };
 
-
         const oldedit = Discord.Message.prototype.edit;
         Discord.Message.prototype.edit = function edit(content, options){
             if(bot.stats){
@@ -76,10 +89,8 @@ module.exports = {
             else
                 output += "DM Channel";
             output += `${this.id} Edited -> `;
-            if(typeof content !== "string")
-                output += JSON.stringify(content);
-            else
-                output += content;
+
+            output += getContent(content);
 
             if(options)
                 output += " (Embed)";
@@ -111,10 +122,7 @@ module.exports = {
                 output += "DM Channel";
             output += " -> ";
 
-            if(typeof content !== "string")
-                output += JSON.stringify(content);
-            else
-                output += content;
+            output += getContent(content);
 
             if(options)
                 output += " (Embed)";

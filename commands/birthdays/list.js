@@ -43,7 +43,6 @@ module.exports = {
                     days = await bot.lang.getTranslation(message.guild.id, days !== 1 ? "BIRTHDAY_DAYS" : "BIRTHDAY_DAY", {days}, message.author.id);
                 formatted.push({
                     "user ::": `${user.username}#${user.discriminator} ::`,
-                    // TODO: Translate months and number prefixes
                     birthday: await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_DATE", {day: bot.util.getNumberPrefix(d.getDate()), month: bot.util.months[d.getMonth()]}, message.author.id),
                     in: days
                 });
