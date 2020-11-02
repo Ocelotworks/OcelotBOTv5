@@ -123,7 +123,7 @@ async function init(){
 
     function endSession(msg, channel){
         if(!sessions[channel])
-            return reply(msg, {type: "error", data: {channel, lang: "OMEGLE_NOT_STARTED"}});
+            return;
         if(sessions[channel].connected) {
             sessions[channel].send("Use Omegle over Discord with OcelotBOT: https://ocelot.xyz/");
             setTimeout(()=>{
