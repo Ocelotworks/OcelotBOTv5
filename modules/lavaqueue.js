@@ -131,8 +131,8 @@ module.exports = {
         };
 
         bot.lavaqueue.playOneSong = async function playOneSong(voiceChannel, song, node = "1"){
-            if(voiceChannel.guild && voiceChannel.guild.id === "622757587489914880")
-                song = "https://cdn.discordapp.com/attachments/626353784888754177/767805301260025896/websdr_recording_start_2020-10-19T17_41_42Z_7055.0kHz.wav";
+           // if(voiceChannel.guild && voiceChannel.guild.id === "622757587489914880")
+            //    song = "https://cdn.discordapp.com/attachments/626353784888754177/767805301260025896/websdr_recording_start_2020-10-19T17_41_42Z_7055.0kHz.wav";
             bot.lavaqueue.cancelLeave(voiceChannel);
             bot.tasks.startTask("playOneSong", voiceChannel.id);
             let span = bot.apm.startSpan("Join Voice Channel", "voice");
