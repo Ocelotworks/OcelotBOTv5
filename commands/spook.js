@@ -73,23 +73,23 @@ module.exports = {
         }
 
         bot.client.on("ready", async function ready(){
-            bot.rabbit.channel.assertQueue("spook");
-            const now = new Date();
-            const teaserDiff = teaserStart-now;
-            const startDiff = start-now;
-            const endDiff = end-now;
-            if(endDiff <= 0) {
-                setTimeout(bot.spook.end, 20000*(bot.client.shard.ids[0]+1))
-            }else if(startDiff <= 0) {
-                bot.logger.log("End is in "+endDiff);
-                bot.util.setLongTimeout(bot.spook.end, endDiff+(20000*(bot.client.shard.ids[0]+1)));
-                await activateSpooking();
-            } else if(teaserDiff <= 0){
-                bot.logger.log("Spook teaser time");
-                bot.updatePresence = setTeaserMessage;
-                setTeaserMessage();
-                bot.util.setLongTimeout(activateSpooking, startDiff);
-            }
+            // bot.rabbit.channel.assertQueue("spook");
+            // const now = new Date();
+            // const teaserDiff = teaserStart-now;
+            // const startDiff = start-now;
+            // const endDiff = end-now;
+            // if(endDiff <= 0) {
+            //     setTimeout(bot.spook.end, 20000*(bot.client.shard.ids[0]+1))
+            // }else if(startDiff <= 0) {
+            //     bot.logger.log("End is in "+endDiff);
+            //     bot.util.setLongTimeout(bot.spook.end, endDiff+(20000*(bot.client.shard.ids[0]+1)));
+            //     await activateSpooking();
+            // } else if(teaserDiff <= 0){
+            //     bot.logger.log("Spook teaser time");
+            //     bot.updatePresence = setTeaserMessage;
+            //     setTeaserMessage();
+            //     bot.util.setLongTimeout(activateSpooking, startDiff);
+            // }
         });
 
         // bot.client.on("message", function spookTimeout(message){
