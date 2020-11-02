@@ -82,6 +82,13 @@ async function init(){
             delete sessions[channel];
         });
 
+        om.on('omegleError', function(){
+            reply(msg, {type: "error", data: {channel, lang: "OMEGLE_BANNED"}});
+            if(om.connected)
+                om.disconnect();
+            delete sessions[channel];
+        })
+
         om.on('gotMessage',function(message){
             if(message === "Use Omegle over Discord with OcelotBOT: https://ocelot.xyz/")return;
             for(let i = 0; i < bannedWords.length; i++){
@@ -92,7 +99,6 @@ async function init(){
             }
             reply(msg, {type: "message", data: {channel, message}});
         });
-
 
         om.on('antinudeBanned', function(){
             reply(msg, {type: "error", data: {channel, lang: "OMEGLE_BANNED"}});
@@ -120,7 +126,9 @@ async function init(){
             return reply(msg, {type: "error", data: {channel, lang: "OMEGLE_NOT_STARTED"}});
         if(sessions[channel].connected) {
             sessions[channel].send("Use Omegle over Discord with OcelotBOT: https://ocelot.xyz/");
-            sessions[channel].disconnect();
+            setTimeout(()=>{
+                sessions[channel].disconnect();
+            }, 1000)
         }
         delete sessions[channel];
     }
