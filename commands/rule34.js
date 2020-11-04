@@ -22,7 +22,7 @@ module.exports = {
 
         let tag = encodeURIComponent(message.content.substring(args[0].length+1).replace(/ /g, "_"));
 
-        request(`http://rule34.paheal.net/api/danbooru/find_posts/?tags=${tag}`, function(err, resp, body){
+        request(`https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=${tag}`, function(err, resp, body){
 
             if(err)
                 return message.replyLang("GENERIC_ERROR");
