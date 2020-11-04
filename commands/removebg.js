@@ -30,7 +30,7 @@ module.exports = {
             method: 'POST',
             url: "https://api.remove.bg/v1.0/removebg",
             headers: {
-                "X-Api-Key": config.get("Commands.removebg.key")
+                "X-Api-Key": Math.random() < 0.5 ? config.get("Commands.removebg.key") : config.get("Commands.removebg.key2")
             },
             form: {
                 image_url: url
