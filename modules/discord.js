@@ -109,15 +109,6 @@ module.exports = {
                 bot.stats.messagesSentPerMinute++;
             }
 
-            if(content.replace) {
-                content = content.replace(/<@&[0-9]+>/g, input => {
-                    if (this.type === 'dm' || this.type === 'group') return input;
-                    const role = this.guild.roles.cache.get(input.replace(/<|@|>|&/g, ''));
-                    if (role) return `@${role.name}`;
-                    return input;
-                });
-            }
-
             let output = "";
             if(this.guild)
                 output += `${this.guild.name} (${this.guild.id})`;
@@ -149,7 +140,7 @@ module.exports = {
 
 
         bot.client = new Discord.Client({
-            disableMentions: "everyone"
+            allowedMentions: {parse: ["users"]}
         });
 
         bot.client.setMaxListeners(100);
