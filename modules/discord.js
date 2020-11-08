@@ -30,6 +30,9 @@ let lastWebhook = 0;
 
 function getContent(content){
     if(typeof content !== "string") {
+        if(!content)
+            return "[null]"
+
         if(content.username)
             return `[Mention: @${content.tag} (${content.id})]`;
 
