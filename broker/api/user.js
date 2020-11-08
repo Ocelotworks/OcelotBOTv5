@@ -13,7 +13,7 @@ module.exports = {
         let router = express.Router();
 
         router.get('/:id/registerVote', function registerVote(req, res){
-            broker.logger.log("Got vote from "+req.params.id);
+            broker.logger.log(`Got vote from ${req.params.id} - ${JSON.stringify(req.query)}`);
             broker.manager.broadcast({type: "registerVote", payload: {
                 user: req.params.id,
                 ...req.query

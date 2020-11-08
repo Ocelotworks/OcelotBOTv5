@@ -5,6 +5,11 @@
  *  ════╝
  */
 
+const sources = {
+    "discordbots.org": "https://top.gg/bot/146293573422284800",
+    "discordbothub.com": "https://discordbothub.com/bot?id=146293573422284800",
+}
+
 module.exports = {
     name: "Vote For OcelotBOT",
     usage: "vote",
@@ -19,10 +24,11 @@ module.exports = {
         let voteTimeouts = {};
 
 
-        async function logVote(user, voteServer, channel){
+        async function logVote(user, voteServer, channel, source){
             try {
                 const userObj = await bot.client.users.fetch(user);
-                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at https://top.gg/bot/146293573422284800`)
+                if(!sources[source])bot.logger.log(`Unknown source: ${source}`);
+                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${sources[source] || sources["discordbots.org"]}`)
             }catch(e){
 
             }
@@ -36,7 +42,7 @@ module.exports = {
             else
                 await bot.database.resetStreak(user, "vote");
 
-            await bot.database.addVote(user, voteServer);
+            await bot.database.addVote(user, voteServer, source);
             bot.logger.log("Logging vote from "+user);
             let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
             bot.badges.updateBadge({id: user}, 'votes', count, channel);
@@ -63,7 +69,9 @@ module.exports = {
 
         process.on("message", async function vote(message){
            if(message.type === "registerVote"){
+               console.log(message.payload);
                 let user = message.payload.user;
+                let source = message.payload.source;
                 let voteServer = null;
                 let channel = null;
                 for(let i = 0; i < bot.waitingVoteChannels.length; i++){
@@ -82,9 +90,9 @@ module.exports = {
                 }
                 if(voteServer || !bot.client.shard || bot.client.shard.ids.join(";") == 0){
                     if(bot.client.shard && bot.client.shard.ids.join(";") == 0){
-                        voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel);
+                        voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel, source);
                     }else{
-                        logVote(user, voteServer, channel);
+                        logVote(user, voteServer, channel, source);
                         if(bot.client.shard)
                             bot.client.shard.send({type: "clearVoteTimeout", payload: user});
                     }
