@@ -8,6 +8,8 @@
 const sources = {
     "discordbots.org": "https://top.gg/bot/146293573422284800",
     "discordbothub.com": "https://discordbothub.com/bot?id=146293573422284800",
+    "discordlabs.org": "https://bots.discordlabs.org/bot/146293573422284800",
+    "blist.xyz": "https://blist.xyz/bot/146293573422284800",
 }
 
 module.exports = {
@@ -27,10 +29,14 @@ module.exports = {
         async function logVote(user, voteServer, channel, source){
             try {
                 const userObj = await bot.client.users.fetch(user);
-                if(!sources[source])bot.logger.log(`Unknown source: ${source}`);
-                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${sources[source] || sources["discordbots.org"]}`)
+                let sourceUrl = sources[source];
+                if(!sourceUrl){
+                    bot.logger.log(`Unknown source: ${source}`);
+                    sourceUrl = sources["discordbots.org"];
+                }
+                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${sourceUrl}`)
             }catch(e){
-
+                console.log(e);
             }
 
             let lastVote = await bot.database.getLastVote(user);
