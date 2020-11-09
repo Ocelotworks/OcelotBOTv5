@@ -166,6 +166,10 @@ module.exports = {
             return message.channel.send(":stopwatch: The time you entered is in the past. Try being more specific or using exact dates.");
         if(offset < 1000)
             return message.replyLang("REMIND_SHORT_TIME");
+
+        if(reminder.length > 256)
+            return message.channel.send("Your reminder message cannot be longer than 256 characters. Yours is "+reminder.length+" characters.");
+
         try {
             message.replyLang("REMIND_SUCCESS", {time: bot.util.prettySeconds((offset / 1000)+1, message.guild && message.guild.id, message.author.id), date: at.toString()});
             if(message.getBool("remind.silentQueueTest")) {
