@@ -263,7 +263,7 @@ module.exports = {
                         console.log(e);
                         console.log(body);
                         bot.logger.error(e);
-                        Sentry.captureException(err);
+                        Sentry.captureException(e);
                     }finally{
                         if(runningGames.indexOf(message.channel.id) > -1)
                             runningGames.splice(runningGames.indexOf(message.channel.id), 1);
