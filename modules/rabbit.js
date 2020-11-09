@@ -110,5 +110,12 @@ module.exports = {
                 available: guild.available
             });
         });
+
+        bot.client.on("guildUnavailable", (guild)=>{
+            bot.rabbit.emit("guildUnavailable", {
+                id: guild.id,
+                name: guild.name,
+            });
+        });
     }
 };
