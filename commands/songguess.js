@@ -61,7 +61,7 @@ module.exports = {
                     bot.logger.log("Shutting down running guess game "+keys[i]);
                     let {player} = runningGames[keys[i]];
                     await player.seek(100000);
-                    await player.leave();
+                   // await player.leave();
                     await player.destroy();
                 }}
         });
