@@ -63,7 +63,7 @@ module.exports = {
                 shard_id: bot.client.shard.ids.join(";"),
             });
 
-            const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+            const serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
 
             // postCount("https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds", config.get("Discord.botsOnDiscordKey"), {
             //     guildCount: serverCount
