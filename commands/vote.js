@@ -10,6 +10,12 @@ const sources = {
     "discordbothub.com": "https://discordbothub.com/bot?id=146293573422284800",
     "discordlabs.org": "https://bots.discordlabs.org/bot/146293573422284800",
     "blist.xyz": "https://blist.xyz/bot/146293573422284800",
+    "botsdatabase.com": "https://botsdatabase.com/bot/146293573422284800",
+    "botsfordiscord.com": "https://botsfordiscord.com/bot/146293573422284800",
+    "discord.boats": "https://discord.boats/bot/146293573422284800",
+    "botlist.space": "https://botlist.space/bot/146293573422284800",
+    "discordbotlist.com": "https://discordbotlist.com/bots/ocelotbot",
+    "arcane-center.xyz": "https://arcane-center.xyz/bot/146293573422284800"
 }
 
 module.exports = {

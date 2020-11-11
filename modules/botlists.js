@@ -49,11 +49,6 @@ module.exports = {
                 shardId: bot.client.shard.ids.join(";"),
             });
 
-            postCount("https://api.discordextremelist.xyz/v2/bot/146293573422284800/stats",config.get("Discord.discordExtremeKey"), {
-                guildCount: bot.client.guilds.cache.size,
-                shardCount: bot.client.shard.count,
-            });
-
             const voiceConnections = bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.has("0") ? bot.lavaqueue.manager.nodes.get("0").stats.players : 0;
 
             postCount("https://discordbotlist.com/api/v1/bots/146293573422284800/stats", config.get("Discord.discordBotListKey"), {
@@ -74,6 +69,11 @@ module.exports = {
             //     shard_count: bot.client.shard.count
             // });
 
+            postCount("https://api.discordextremelist.xyz/v2/bot/146293573422284800/stats",config.get("Discord.discordExtremeKey"), {
+                guildCount: serverCount,
+                shardCount: bot.client.shard.count,
+            });
+
             postCount("https://blist.xyz/api/bot/146293573422284800/stats/", config.get("Discord.blistKey"), {
                 server_count: serverCount,
                 shard_count: bot.client.shard.count
@@ -85,10 +85,10 @@ module.exports = {
             //     token: config.get("Discord.discordBotLabsKey"),
             // });
 
-            // postCount("https://arcane-center.xyz/api/146293573422284800/stats",config.get("Discord.arcaneBotsKey"), {
-            //     server_count: serverCount,
-            //     shard_count: bot.client.shard.count
-            // });
+            postCount("https://arcane-center.xyz/api/146293573422284800/stats",config.get("Discord.arcaneBotsKey"), {
+                server_count: serverCount,
+                shard_count: bot.client.shard.count
+            });
 
             postCount("https://discord.boats/api/bot/146293573422284800",config.get("Discord.discordBoatsClubKey"), {
                 server_count: serverCount,
