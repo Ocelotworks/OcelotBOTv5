@@ -1019,6 +1019,19 @@ module.exports = {
             },
             logOmegleMessage: async function(serverID, channelID, userID, message){
                 return knex.insert({serverID, channelID, message, userID}).into("ocelotbot_omegle");
+            },
+            addRoleMessage: function(channel, message){
+                return knex.insert({channel, message}).into("ocelotbot_role_messages");
+            },
+            addRoleButton: function(message, emoji, role){
+                console.log("We got: ",message, emoji, role);
+                return knex.insert({message, role, emoji}).into("ocelotbot_role_buttons");
+            },
+            loadRoleMessagesForShard: function(channels){
+                return knex.select().from("ocelotbot_role_messages").whereIn("channel", channels);
+            },
+            getButtonsForRoleMessage: function(message){
+                return knex.select().from("ocelotbot_role_buttons").where({message});
             }
         };
     }

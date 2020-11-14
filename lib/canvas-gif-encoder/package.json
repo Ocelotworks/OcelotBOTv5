@@ -1,0 +1,27 @@
+{
+  "name": "canvas-gif-encoder",
+  "version": "1.0.0",
+  "description": "Encodes an animated GIF by reading frames from a canvas.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/gifTest.js"
+  },
+  "keywords": [
+    "canvas",
+    "gif",
+    "encoder",
+    "encoding",
+    "animated",
+    "animation"
+  ],
+  "author": "Borna Cafuk",
+  "license": "Zlib",
+  "dependencies": {
+    "canvas": "2.5.0"
+  },
+  "homepage": "https://github.com/bcafuk/canvas-gif-encoder",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bcafuk/canvas-gif-encoder.git"
+  }
+}

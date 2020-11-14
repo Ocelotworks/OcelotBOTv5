@@ -3,155 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        body {
+            background: #202225;
+        }
+    </style>
 </head>
 <body>
 <canvas id="canv" width="1024" height="700"></canvas>
 <script>
-    let canv = document.getElementById("canv");
-    let ctx = canv.getContext("2d");
+    let cnv = document.getElementById("canv");
+    let ctx = cnv.getContext("2d");
 
-    async function drawImage(src, x, y, sx, sy){
+    async function loadImage(src){
         return new Promise(function(fulfill) {
             const img = new Image();
             img.src = src;
             img.onload = ()=>{
-                ctx.drawImage(img, x, y, sx, sy);
-                fulfill()
+                fulfill(img);
             };
         })
 
     }
+    ctx.font = "32px sans-serif";
+    ctx.strokeStyle = "#202225";
+    ctx.fillStyle = "#dcddde";
+    ctx.antialias = "none";
+    ctx.textDrawingMode = "path";
+    const term = "test 😔 ☺️😥 test test test 😩 meep <a:petpeter:758641422575599618> meep <:Peter:764531965776232448> dude this is getting <:Peter:764531965776232448> pretty long <:Peter:764531965776232448> bro <:Peter:764531965776232448> thats wow <:Peter:764531965776232448> <:Peter:764531965776232448>";
+    async function draw(){
+        const regularEmojis = [
+            {
+                url: 'https://twemoji.maxcdn.com/v/latest/72x72/1f614.png',
+                indices: [ 5, 7 ],
+                text: '😔',
+                type: 'emoji'
+            },
+            {
+                url: 'https://twemoji.maxcdn.com/v/latest/72x72/263a.png',
+                indices: [ 8, 10 ],
+                text: '☺️',
+                type: 'emoji'
+            },
+            {
+                url: 'https://twemoji.maxcdn.com/v/latest/72x72/1f625.png',
+                indices: [ 10, 12 ],
+                text: '😥',
+                type: 'emoji'
+            },
+            {
+                url: 'https://twemoji.maxcdn.com/v/latest/72x72/1f629.png',
+                indices: [ 28, 30 ],
+                text: '😩',
+                type: 'emoji'
+            }
+        ];
+        const emojiMap = {};
 
-    const PROFILE_WIDTH     = 1024;
-    const PROFILE_HEIGHT    = 700;
-    const AVATAR_SIZE       = 256;
-    const AVATAR_OFFSET     = 50;
-    const USERNAME_SIZE     = 60;
-    const USERNAME_OFFSET   = 15;
-    const USERNAME_X        = AVATAR_OFFSET + AVATAR_SIZE + USERNAME_OFFSET;
-    const USERNAME_Y        = USERNAME_SIZE + AVATAR_OFFSET;
-    const TAGLINE_SIZE      = 40;
-    const TAGLINE_X         = USERNAME_X;
-    const TAGLINE_Y         = USERNAME_Y + USERNAME_SIZE / 2 + TAGLINE_SIZE / 2;
-    const BODY_OFFSET       = 50;
-    const BODY_Y            = AVATAR_OFFSET + BODY_OFFSET + AVATAR_SIZE;
-    const BODY_X            = AVATAR_OFFSET;
-    const BODY_WIDTH        = PROFILE_WIDTH - (AVATAR_OFFSET * 2);
-    const BODY_HEIGHT       = PROFILE_HEIGHT - AVATAR_OFFSET - AVATAR_SIZE - (BODY_OFFSET * 2);
-    const BODY_PADDING      = 10;
-    const tags = [
-        {
-            name: "PREMIUM",
-            background: "#CF3100",
-            text: "white",
-            icon: "new_premium.png",
-            font: "BitDust One"
-        },
-        {   name: "1,000,000th",
-            background: "#fb4166",
-            text: "black",
-            icon: "static/ocelotbot_normal.png",
-            font: "Sans-serif"
-        },
-        {   name: "Ocelotworks",
-            background: "#c9bd1c",
-            text: "black",
-            icon: "static/ocelotbot_normal.png",
-            font: "Sans-serif"
-        }
-    ];
-
-    const badges = [
-        {
-            icon: "badges128/bigpgang.png",
-            name: "Big P Gang",
-            desc: "Friends of Big P"
-        }
-    ];
-
-
-    async function draw() {
-        await drawImage("https://placekitten.com/1024/1024", 0, 0, PROFILE_WIDTH, PROFILE_HEIGHT);
-        //Avatar
-        ctx.fillStyle = "rgba(25,25,25,0.56)";
-        ctx.fillRect(AVATAR_OFFSET-1, AVATAR_OFFSET-1, AVATAR_SIZE+2, AVATAR_SIZE+2);
-        await drawImage("https://cdn.discordapp.com/avatars/139871249567318017/cfe6c6ecc22a8c8fd2b7c88212c138aa.png?size=2048", AVATAR_OFFSET, AVATAR_OFFSET, AVATAR_SIZE, AVATAR_SIZE);
-        ctx.fillStyle = "black";
-        ctx.strokeRect(AVATAR_OFFSET-1, AVATAR_OFFSET-1, AVATAR_SIZE+2, AVATAR_SIZE+2);
-
-        drawOutlinedText("Big P#1843", USERNAME_X, USERNAME_Y, USERNAME_SIZE);
-        drawOutlinedText("I sure wish line breaks worked.\r\nFuck", TAGLINE_X, TAGLINE_Y, TAGLINE_SIZE);
-
-
-        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-        ctx.fillRect(BODY_X, BODY_Y, BODY_WIDTH, BODY_HEIGHT);
-        ctx.fillStyle = "rgba(25,25,25,0.56)";
-        ctx.fillRect(BODY_X+(BODY_WIDTH/2), BODY_Y, 2, BODY_HEIGHT);
-
-        for(let i = 0; i < tags.length; i++){
-            drawTag(tags[i], AVATAR_OFFSET + AVATAR_SIZE + USERNAME_OFFSET + (i * (TAG_WIDTH + 10)), AVATAR_OFFSET + AVATAR_SIZE - 50)
+        for(let i = 0; i < regularEmojis.length; i++){
+            const emoji = regularEmojis[i];
+            emojiMap[emoji.indices[0]] = emoji;
         }
 
-        drawFeaturedBadge(badges[0]);
+        let actualWidth = 0;
+        let actualHeight = 32;
 
-    }
+        let currentWidth = 0;
 
-    function drawOutlinedText(text, x, y, size, font = "Sans-serif", foreground = "white", background = "black", thickness = 3){
-        ctx.fillStyle = background;
-        ctx.font = `${size}px ${font}`;
-        ctx.fillText(text, x, y);
-        ctx.fillStyle = foreground;
-        ctx.font = `${size}px ${font}`;
-        ctx.fillText(text, x-thickness, y-thickness);
-    }
 
-   function roundRect(x, y, w, h, r) {
-        if (w < 2 * r) r = w / 2;
-        if (h < 2 * r) r = h / 2;
-        ctx.beginPath();
-        ctx.moveTo(x+r, y);
-        ctx.arcTo(x+w, y,   x+w, y+h, r);
-        ctx.arcTo(x+w, y+h, x,   y+h, r);
-        ctx.arcTo(x,   y+h, x,   y,   r);
-        ctx.arcTo(x,   y,   x+w, y,   r);
-        ctx.closePath();
-    }
+        for(let i = 0; i < term.length; i++){
+            const char = term[i];
+            const emojiHere = emojiMap[i];
+            if(emojiHere){
+                const emojiImage = await loadImage(emojiHere.url);
+                ctx.drawImage(emojiImage, currentWidth, actualHeight-30, 32, 32);
+                currentWidth += 32;
+                i = emojiHere.indices[1]-1;
 
-    const TAG_WIDTH         = 170;
-    const TAG_HEIGHT        = 40;
-    const TAG_PADDING_X     = 10;
-    const TAG_PADDING_Y     = 5;
-    const TAG_RADIUS        = 10;
-    const TAG_SIZE          = 20;
-    const TAG_ICON_SIZE     = 32;
-    async function drawTag(tag, x, y){
-        ctx.fillStyle = tag.background;
-        roundRect(x, y, TAG_WIDTH, TAG_HEIGHT, TAG_RADIUS);
-        ctx.fill();
-        ctx.font = `${TAG_SIZE}px ${tag.font}`;
-        ctx.fillStyle = tag.text;
-        ctx.fillText(tag.name, x + TAG_PADDING_X + TAG_PADDING_X + TAG_ICON_SIZE, y + TAG_SIZE + TAG_PADDING_Y + 2);
-        await drawImage(tag.icon, x + TAG_PADDING_X, y + TAG_PADDING_Y, TAG_ICON_SIZE, TAG_ICON_SIZE);
-    }
+            }else if(char === "<" && i<term.length-1 && (term[i+1] === ":" || (i<term.length-2 && term[i+1] === "a"))){
+                const isStatic = term[i+1] === ":";
+                const emojiStartIndex = isStatic ? i+2 : i+3;
+                const emojiStart = term.substring(emojiStartIndex);
+                const emojiEndIndex = emojiStart.indexOf(">");
+                console.log("emojiStart: ",emojiStart);
+                const idStart = emojiStart.substring(emojiStart.indexOf(":")+1, emojiEndIndex);
+                console.log("idStart: ", idStart);
+                const emojiImage = await loadImage(`https://cdn.discordapp.com/emojis/${idStart}.png?v=1`);
+                ctx.drawImage(emojiImage, currentWidth, actualHeight-30, 32, 32);
+                currentWidth += 32;
+                i = emojiStartIndex+emojiEndIndex;
 
-    const BADGE_ROOT        = "static/profile/";
-    const FEAT_BADGE_X      = BODY_X + BODY_PADDING;
-    const FEAT_BADGE_Y      = BODY_Y + BODY_PADDING;
-    const FEAT_BADGE_SIZE   = 64;
-    const FEAT_BADGE_WIDTH  = BODY_WIDTH / 2 - (BODY_PADDING * 2);
-    const FEAT_BADGE_PADDING= 5;
-    const FEAT_BADGE_HEIGHT = FEAT_BADGE_SIZE + FEAT_BADGE_PADDING * 2;
-    const FEAT_BADGE_TEXT   = 30;
-    const FEAT_BADGE_CAPTION= 20;
-    async function drawFeaturedBadge(badge){
-        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-        ctx.fillRect(FEAT_BADGE_X, FEAT_BADGE_Y, FEAT_BADGE_WIDTH, FEAT_BADGE_HEIGHT);
-        await drawImage(BADGE_ROOT + badge.icon, FEAT_BADGE_X + FEAT_BADGE_PADDING, FEAT_BADGE_Y + FEAT_BADGE_PADDING, FEAT_BADGE_SIZE, FEAT_BADGE_SIZE);
-        ctx.fillStyle = "black";
-        ctx.font = `${FEAT_BADGE_TEXT}px Sans-serif`;
-        ctx.fillText(badge.name, FEAT_BADGE_X + FEAT_BADGE_SIZE + (FEAT_BADGE_PADDING * 2), FEAT_BADGE_Y + FEAT_BADGE_TEXT + FEAT_BADGE_PADDING);
-        ctx.font = `${FEAT_BADGE_CAPTION}px Sans-serif`;
-        ctx.fillText(badge.desc, FEAT_BADGE_X + FEAT_BADGE_SIZE + (FEAT_BADGE_PADDING * 2) + 5, FEAT_BADGE_Y + (FEAT_BADGE_TEXT * 2));
+            }else {
+                ctx.fillText(char, currentWidth, actualHeight);
+                ctx.strokeText(char, currentWidth, actualHeight);
+                currentWidth += ctx.measureText(char).width;
+            }
+            if(currentWidth >= (1024-32)){
+                actualWidth = currentWidth;
+                currentWidth = 0;
+                actualHeight += 32;
+            }else if(actualWidth < currentWidth){
+                actualWidth = currentWidth;
+            }
+        }
+        actualWidth += 10;
+        actualHeight += 10;
+        ctx.strokeStyle = "red";
+        ctx.strokeRect(0,0,actualWidth,actualHeight);
     }
 
 
