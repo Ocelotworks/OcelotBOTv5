@@ -97,15 +97,18 @@ module.exports = {
                 const encoder = new CanvasGifEncoder(actualWidth, actualHeight);
 
                 let frameCount = 0;
+                let delayTotal = 0;
                 for (let i = 0; i < animElements.length; i++) {
+                    delayTotal++;
                     if (animElements[i].frames.length > frameCount) {
                         frameCount = animElements[i].frames.length;
                         if(frameCount > 100){
                             frameCount = 100;
-                            break;
                         }
                     }
                 }
+
+                let delay = delayTotal/animElements.length;
 
                 console.log("Frame count is ", frameCount);
 
@@ -127,7 +130,7 @@ module.exports = {
                         imageCtx.putImageData(frameData, frame.dims.left, frame.dims.top);
                         newCtx.drawImage(imageCanvas, element.x, element.y, textSize, textSize);
                     }
-                    encoder.addFrame(newCtx, 50, f).then(()=>{
+                    encoder.addFrame(newCtx, delay, f).then(()=>{
                         finishedFrames++;
                         console.log(`Finished frame ${f}, ${finishedFrames} total finished.`);
                         if(finishedFrames >= frameCount){
