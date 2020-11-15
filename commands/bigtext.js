@@ -97,21 +97,19 @@ module.exports = {
                 const encoder = new CanvasGifEncoder(actualWidth, actualHeight);
 
                 let frameCount = 0;
-                let delayTotal = 0;
                 for (let i = 0; i < animElements.length; i++) {
-                    delayTotal++;
                     if (animElements[i].frames.length > frameCount) {
                         frameCount = animElements[i].frames.length;
                         if(frameCount > 100){
                             frameCount = 100;
+                            break;
                         }
                     }
                 }
 
-                let delay = delayTotal/animElements.length;
-
                 console.log("Frame count is ", frameCount);
 
+                let frameTimeTotal = 0;
                 encoder.begin();
                 const newCanvas = canvas.createCanvas(actualWidth, actualHeight);
                 const newCtx = newCanvas.getContext("2d");
@@ -120,9 +118,11 @@ module.exports = {
                     console.log("Drawing frame ", f);
                     newCtx.clearRect(0, 0, actualWidth, actualHeight);
                     newCtx.drawImage(cnv, 0, 0);
+                    let delayTotal = 0;
                     for (let i = 0; i < animElements.length; i++) {
                         let element = animElements[i];
                         const frame = element.frames[f % element.frames.length];
+                        delayTotal += frame.delay;
                         const imageCanvas = canvas.createCanvas(frame.dims.width, frame.dims.height);
                         const imageCtx = imageCanvas.getContext("2d");
                         let frameData = imageCtx.createImageData(frame.dims.width, frame.dims.height);
@@ -130,12 +130,16 @@ module.exports = {
                         imageCtx.putImageData(frameData, frame.dims.left, frame.dims.top);
                         newCtx.drawImage(imageCanvas, element.x, element.y, textSize, textSize);
                     }
-                    encoder.addFrame(newCtx, delay, f).then(()=>{
+                    let frameStart = new Date().getTime();
+                    encoder.addFrame(newCtx, Math.round(delayTotal/animElements.length), f).then(()=>{
                         finishedFrames++;
+                        frameTimeTotal = (new Date().getTime()-frameStart);
                         console.log(`Finished frame ${f}, ${finishedFrames} total finished.`);
                         if(finishedFrames >= frameCount){
                             console.log("All frames done");
-                            message.channel.send("", new Discord.MessageAttachment(encoder.end(), "bigtext.gif"));
+                            message.channel.send(message.author.id === "139871249567318017" ?
+                                `Frames: ${frameCount}. Total Frame Time: ${frameTimeTotal}ms. Per Frame: ${(frameTimeTotal/frameCount).toFixed(2)}ms/frame` : "",
+                                new Discord.MessageAttachment(encoder.end(), "bigtext.gif"));
                         }
                     })
                 }
