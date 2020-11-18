@@ -24,7 +24,7 @@ module.exports = {
             if(d <= now)
                 d.setYear(now.getFullYear()+1);
 
-            birthday.days = Math.floor((d-now)/8.64e+7);
+            birthday.days = Math.ceil((d-now)/8.64e+7);
             return birthday;
         }).sort((a,b)=>a.days-b.days);
 
