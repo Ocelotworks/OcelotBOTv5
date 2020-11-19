@@ -10,6 +10,8 @@ const canvas = require('canvas');
 const size = 112;
 const frames = [{"x":18,"y":18,"w":98,"h":98},{"x":14,"y":30,"w":102,"h":86},{"x":6,"y":36,"w":110,"h":80},{"x":6,"y":30,"w":102,"h":86},{"x":14,"y":18,"w":98,"h":98}];
 
+const ignoredArgs = ["play", "explore", "stats", "walk", "feed", "🍆", "clean"];
+
 module.exports = {
     name: "Pet Pet",
     usage: "pet [url or @user]",
@@ -17,6 +19,7 @@ module.exports = {
     rateLimit: 100,
     commands: ["pet", "petpet"],
     run: async function run(message, args, bot) {
+        if(args[1] && ignoredArgs.includes(args[1].toLowerCase()))return;
         let avatarURL = await bot.util.getImage(message, args);
         if(!avatarURL)
             return message.channel.send("You must enter an image URL or mention a user");
