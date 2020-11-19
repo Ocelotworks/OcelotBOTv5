@@ -74,8 +74,13 @@ module.exports = {
                     output += ":eyes: This command is **hidden**. How did you find it?\n";
                 if(command.premium)
                     output += "<:ocelotbot:533369578114514945> This command requires **OcelotBOT Premium**\n";
-                if(command.vote)
-                    output += "<:supporter_1:529308223954616322> This command requires you to **vote for OcelotBOT** every 24 hours.\n";
+                if(command.vote) {
+                    if(message.getSetting("restrictionType") === "vote") {
+                        output += "<:supporter_1:529308223954616322> This command requires you to **vote for OcelotBOT** every 24 hours.\n";
+                    }else{
+                        output += "<:supporter_1:529308223954616322> This command requires you to **join the Support Server**.\n";
+                    }
+                }
                 if(command.categories.indexOf("nsfw") > -1)
                     output += "🔞 This command is **Not Safe For Work**\n";
                 if(command.unwholesome)
