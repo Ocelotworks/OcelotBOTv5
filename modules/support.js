@@ -4,7 +4,7 @@
  * ╚════ ║   (ocelotbotv5) support
  *  ════╝
  */
-
+const Discord = require('discord.js');
 const changePrefix = /.*(change|custom).*prefix.*/gi;
 module.exports = {
     name: "Support Server Specific Functions",
@@ -14,8 +14,9 @@ module.exports = {
                 if (message.content.indexOf("discord.gg") > -1)
                     return message.delete();
 
-                if (changePrefix.exec(message.content))
-                    message.reply("To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
+                if (changePrefix.exec(message.content)) {
+                    bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
+                }
             }
         });
 

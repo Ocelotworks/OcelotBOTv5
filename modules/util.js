@@ -660,7 +660,18 @@ module.exports = {
             return i + "th";
         };
 
-
+        bot.util.replyTo = function replyTo(message, content){
+            let api = new Discord.APIMessage(message.channel, {});
+            api.data = {
+                content: content,
+                message_reference: {
+                    message_id: message.id,
+                    channel_id: message.channel.id,
+                    guild_id: message.guild.id,
+                }
+            }
+            message.channel.send(api);
+        }
 
         bot.util.permissionsMap = {
             ADMINISTRATOR: "Administrator",

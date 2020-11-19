@@ -46,11 +46,11 @@ module.exports = {
                    bot.changeTopic(message);
                 }
                 if(message.content.toLowerCase() === "too hot"){
-                    message.channel.send("_hot damn_");
+                    bot.util.replyTo(message, "_hot damn_");
                 }else if(message.content.toLowerCase() === "shitpost"){
                     message.channel.send("A days power in half an hour");
                 }else if(message.content.toLowerCase() === "test"){
-                    message.channel.send("icles");
+                    bot.util.replyTo(message, "icles");
                 }else if(thatsTrue.test(message.content)){
                     message.channel.send("thAts trUE");
                 }
