@@ -1032,6 +1032,9 @@ module.exports = {
             },
             getButtonsForRoleMessage: function(message){
                 return knex.select().from("ocelotbot_role_buttons").where({message});
+            },
+            getBirthdaysTodayForShard: function(servers){
+                return knex.select().from("ocelotbot_birthdays").whereIn("server", servers).andWhereRaw("DAY(birthday) = DAY(CURRENT_TIMESTAMP) AND MONTH(birthday) = MONTH(current_timestamp)");
             }
         };
     }
