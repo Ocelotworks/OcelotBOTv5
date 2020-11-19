@@ -29,7 +29,7 @@ module.exports = {
         }).sort((a,b)=>a.days-b.days);
 
         let chunkedBirthdays = allBirthdays.chunk(20);
-        bot.util.standardPagination(message.channel, chunkedBirthdays, async function(birthdays, index){
+        return bot.util.standardPagination(message.channel, chunkedBirthdays, async function(birthdays, index){
             let formatted = [];
             for(let i = 0; i < birthdays.length; i++){
                 const birthday = birthdays[i];
@@ -38,7 +38,7 @@ module.exports = {
                 let d = birthday.birthday; //Yes
                 let days = birthday.days;
                 if(days === 365)
-                    days = await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_TODAY", null, message.author.id);
+                    days = await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_TODAY", {}, message.author.id);
                 else
                     days = await bot.lang.getTranslation(message.guild.id, days !== 1 ? "BIRTHDAY_DAYS" : "BIRTHDAY_DAY", {days}, message.author.id);
                 formatted.push({
