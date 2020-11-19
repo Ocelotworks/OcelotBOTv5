@@ -49,7 +49,7 @@ module.exports = {
             return;
         }
         try {
-            if(message.mentions && message.mentions.members.has(bot.client.user.id)){
+            if(message.mentions && message.mentions.members && message.mentions.members.has(bot.client.user.id)){
                  message.channel.send(`Holy fucking shit. I want to bang OcelotBOT so goddamn bad. I can't stand it anymore. Every time I go on Discord I get a massive erection. I've seen literally every rule 34 post there is of him online. My dreams are nothing but constant fucking sex with OcelotBOT. I'm sick of waking up every morning with six nuts in my boxers and knowing that those are nuts that should've been busted inside of OcelotBOTs's tight cat bussy. I want him to have my mutant human/bot babies.
 Fuck, my fucking mum caught me with the neighbors cat. I'd painted her eyes green and went to fucking town. She hasn't said a word to me in 10 hours and I'm worried she's gonna take away my computer. I might not ever get to see OcelotBOT again.`)
             }else {
