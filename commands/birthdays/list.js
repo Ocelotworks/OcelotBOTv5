@@ -25,6 +25,7 @@ module.exports = {
                 d.setYear(now.getFullYear()+1);
 
             birthday.days = Math.ceil((d-now)/8.64e+7);
+            if(birthday.days === 365)birthday.days = 0;
             return birthday;
         }).sort((a,b)=>a.days-b.days);
 
@@ -37,7 +38,7 @@ module.exports = {
                 if(!user)continue;
                 let d = birthday.birthday; //Yes
                 let days = birthday.days;
-                if(days === 365)
+                if(days === 0)
                     days = await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_TODAY", {}, message.author.id);
                 else
                     days = await bot.lang.getTranslation(message.guild.id, days !== 1 ? "BIRTHDAY_DAYS" : "BIRTHDAY_DAY", {days}, message.author.id);
