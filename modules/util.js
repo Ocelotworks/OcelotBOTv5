@@ -529,6 +529,11 @@ module.exports = {
          */
         bot.util.getImage = async function getImage(message, args, argument){
             try {
+                if(message.reference) {
+                    let referencedMessage = await message.channel.messages.fetch(message.reference.messageID);
+                    let result = bot.util.getImageFromMessage(referencedMessage);
+                    if(result)return result;
+                }
                 if(argument){
                     const arg = args[argument];
                     if(arg) {
@@ -608,28 +613,30 @@ module.exports = {
                 return (previousMessage.embeds && previousMessage.embeds.length > 0 && previousMessage.embeds[0].image);
             });
             span.end();
-            if(targetMessage){
-                if(targetMessage.content.startsWith("http")) {
-                    let url = targetMessage.content.split(" ")[0];
-                    if(url.startsWith("https://tenor.com/"))
-                        return await bot.util.getImageFromTenorURL(url);
-                    return url;
-                }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
-                    const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
-                    if(!targetAttachment)return null;
-                    return targetAttachment.url || targetAttachment.proxyURL;
-                }else if(targetMessage.embeds && targetMessage.embeds.length > 0){
-                     const targetEmbed = targetMessage.embeds.find(function (embed) {
-                         return embed.image && (embed.image.url || embed.image.proxyURL)
-                    });
-                     if(!targetEmbed)return null;
-                     return targetEmbed.image.url || targetEmbed.image.proxyURL;
-                }
-                return null;
-            }else{
-                return null;
-            }
+            if(targetMessage)
+                return bot.util.getImageFromMessage(targetMessage);
+            return null;
         };
+
+        bot.util.getImageFromMessage = async function getImageFromMessage(targetMessage){
+            if(targetMessage.content.startsWith("http")) {
+                let url = targetMessage.content.split(" ")[0];
+                if(url.startsWith("https://tenor.com/"))
+                    return await bot.util.getImageFromTenorURL(url);
+                return url;
+            }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
+                const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
+                if(!targetAttachment)return null;
+                return targetAttachment.url || targetAttachment.proxyURL;
+            }else if(targetMessage.embeds && targetMessage.embeds.length > 0){
+                const targetEmbed = targetMessage.embeds.find(function (embed) {
+                    return embed.image && (embed.image.url || embed.image.proxyURL)
+                });
+                if(!targetEmbed)return null;
+                return targetEmbed.image.url || targetEmbed.image.proxyURL;
+            }
+            return null;
+        }
 
         Object.defineProperty(Array.prototype, 'chunk', {
             value: function(chunkSize) {
