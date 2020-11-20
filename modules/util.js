@@ -904,12 +904,12 @@ module.exports = {
                         try{
                             const command = require(`../commands/${directory}/${files[i]}`);
                             bot.logger.log(`Loaded ${id} command ${command.name}`);
+                            if(command.init){
+                                bot.logger.log(`Performing init for ${id} command ${command.name}`);
+                                command.init(bot);
+                            }
                             for(let c = 0; c < command.commands.length; c++){
                                 bot.util.nestedCommands[id][command.commands[c]] = command;
-                                if(command.init){
-                                    bot.logger.log(`Performing init for ${id} command ${command.name}`);
-                                    command.init(bot);
-                                }
                             }
                         }catch(e){
                             bot.raven.captureException(e);
