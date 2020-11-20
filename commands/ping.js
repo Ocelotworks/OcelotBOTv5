@@ -2,9 +2,11 @@
  * Created by Peter on 01/07/2017.
  */
 const ping = require('ping');
+const domainRegex = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]/gi;
+const ipRegex = /(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/gi;
 module.exports = {
     name: "Ping Address",
-    usage: "ping <address> [timeout]",
+    usage: "ping <address>",
     commands: ["ping"],
     rateLimit: 30,
     categories: ["tools"],
@@ -13,17 +15,24 @@ module.exports = {
             message.replyLang("PING_NO_ADDRESS");
             return;
         }
+        let output = ipRegex.exec(args[1]);
+        if(!output)
+            output = domainRegex.exec(args[1]);
+        if(!output)
+            return message.channel.send("Invalid address, enter a domain name or IP address.");
 
-        const sentMessage = await message.replyLang("PING_PINGING", {address: args[1]});
+        output = output[0];
 
-        const res = await ping.promise.probe(args[1].replace(/[<>|;]/g, ""), {
-            timeout: args[2] ? args[2] : 1000
+        const sentMessage = await message.replyLang("PING_PINGING", {address: output});
+
+        const res = await ping.promise.probe(output, {
+            timeout: 1000
         });
 
         if(res.alive){
-            sentMessage.editLang("PING_RESPONSE", {response: res.output});
+            return sentMessage.editLang("PING_RESPONSE", {response: res.output});
         }else{
-            sentMessage.editLang("PING_NO_RESPONSE");
+            return sentMessage.editLang("PING_NO_RESPONSE");
         }
     }
 };
