@@ -3,16 +3,17 @@ module.exports = {
     usage: "channel #name/clear" ,
     commands: ["setchannel", "channel"],
     init: async function init(bot){
-        const now = new Date();
-        let date = new Date();
-        if(date.getHours() >= 10) {
-            date.setDate(date.getDate()+1);
+        bot.client.once("ready", ()=>{
+            const now = new Date();
+            let date = new Date();
+            if(date.getHours() >= 10) {
+                date.setDate(date.getDate()+1);
+            }
             date.setHours(10, 0, 0, 0);
-        }
-        let initialTimer = date-now;
-        bot.logger.log(`Sending birthday messages in ${initialTimer}ms`);
-        setTimeout(processChannels, initialTimer, bot);
-
+            let initialTimer = date-now;
+            bot.logger.log(`Sending birthday messages in ${initialTimer}ms`);
+            setTimeout(processChannels, initialTimer, bot);
+        });
     },
     run: async function(message, args, bot){
         if(!message.member.hasPermission("MANAGE_CHANNELS"))return message.channel.send("You must have the Manage Channels permission to use this command.");
@@ -34,6 +35,7 @@ module.exports = {
 async function processChannels(bot){
     setTimeout(processChannels,8.64e7, bot);
     let birthdays = await bot.database.getBirthdaysTodayForShard(bot.client.guilds.cache.keyArray());
+    console.log(birthdays);
     bot.logger.log(`Got ${birthdays.length} birthdays today.`);
     const nowYear = new Date().getFullYear();
     for(let i = 0; i < birthdays.length; i++){
@@ -41,7 +43,7 @@ async function processChannels(bot){
             const birthday = birthdays[i];
             let birthdayChannelId = bot.config.get(birthday.server, "birthday.channel", birthday.user);
             if (!birthdayChannelId) continue;
-            let birthdayChannel = bot.client.channels.fetch(birthdayChannelId);
+            let birthdayChannel = await bot.client.channels.fetch(birthdayChannelId);
             const age = nowYear - new Date(birthday.birthday).getFullYear();
             if (age > 13) {
                 birthdayChannel.send(`:tada: Today is <@${birthday.user}>'s ${bot.util.getNumberPrefix(age)} birthday!`);
