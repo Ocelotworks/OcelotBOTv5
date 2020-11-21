@@ -117,7 +117,10 @@ async function doBigText(msg, term){
 
     const animElements = [];
 
-    const textSize = 64;
+    let textSize = 64;
+    if(term.length <= 32){
+        textSize = 128;
+    }
 
     const cnv = canvas.createCanvas(1024, 1024);
     const ctx = cnv.getContext("2d");
