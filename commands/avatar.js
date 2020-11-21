@@ -14,65 +14,10 @@ module.exports = {
             embed:{
                 title: `${target.username}'s Avatar:`,
                 image: {
-                    url: target.avatarURL({dynamic: true, format: "png"})
+                    url: target.avatarURL({dynamic: true, format: "png", size: 4096})
                 }
             }
 
         })
     },
-    test: function(test){
-        test('avatar author', function(t){
-            const message = {
-                author: {
-                    username: "abc",
-                    avatar: "def"
-                },
-                channel: {
-                    send: function(message, embed){
-                        t.deepEqual(embed, {
-                            embed: {
-                                title: "abc's Avatar:",
-                                image: {
-                                    url: "def"
-                                }
-                            }
-                        })
-                    }
-                }
-            };
-            module.exports.run(message);
-        });
-        test('avatar mention', function(t){
-            const message = {
-                author: {
-                    username: "abc",
-                    avatar: "def"
-                },
-                mentions: {
-                  users: {
-                      size: 1,
-                      first: function(){
-                          return {
-                              username: "xyz",
-                              avatar: "lmn"
-                          }
-                      }
-                  }
-                },
-                channel: {
-                    send: function(message, embed){
-                        t.deepEqual(embed, {
-                            embed: {
-                                title: "xyz's Avatar:",
-                                image: {
-                                    url: "lmn"
-                                }
-                            }
-                        })
-                    }
-                }
-            };
-            module.exports.run(message);
-        });
-    }
 };
