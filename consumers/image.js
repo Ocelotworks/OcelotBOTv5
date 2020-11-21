@@ -177,7 +177,7 @@ async function doBigText(msg, term){
         }
     }
     actualWidth += 5;
-    actualHeight += 5;
+    actualHeight += 10;
 
 
     if (animElements.length > 0) {
