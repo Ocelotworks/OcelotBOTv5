@@ -222,7 +222,8 @@ async function doBigText(msg, term){
                 let frameData = imageCtx.createImageData(frame.dims.width, frame.dims.height);
                 frameData.data.set(frame.patch);
                 imageCtx.putImageData(frameData, frame.dims.left, frame.dims.top);
-                newCtx.drawImage(imageCanvas, element.x, element.y, textSize, textSize);
+                const scaleRatio = textSize/imageCanvas.width;
+                newCtx.drawImage(imageCanvas, element.x, element.y, textSize, imageCanvas.height*scaleRatio);
             }
             let frameStart = new Date().getTime();
             encoder.addFrame(newCtx, Math.round(delayTotal/animElements.length), f).then(()=>{
