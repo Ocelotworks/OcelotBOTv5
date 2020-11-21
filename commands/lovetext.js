@@ -14,9 +14,9 @@ module.exports = {
         bot.util.coolTextGenerator(message,args,bot, {
             "LogoID": 819721038,
             "FontSize": 70,
-            "Color1_color": "#FF1491",
+            "Color1_color": "#c31870",
             "Color2_color": "#FFFFFF",
-            "Color3_color": "#FF1491",
+            "Color3_color": "#b71268",
             "Integer9": 0,
             "Integer13": "on",
             "Integer12": "on",
