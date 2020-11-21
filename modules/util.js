@@ -558,7 +558,7 @@ module.exports = {
                     return bot.util.getEmojiURLFromMention(args[2]);
                 }else {
                     message.channel.startTyping();
-                    const result = bot.util.getImageFromPrevious(message);
+                    const result = bot.util.getImageFromPrevious(message, argument);
                     message.channel.stopTyping();
                     return result;
                 }
