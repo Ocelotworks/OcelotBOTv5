@@ -118,11 +118,11 @@ async function doBigText(msg, term){
     const animElements = [];
 
     let textSize = 64;
-    if(term.length <= 32){
+    if(term.length <= 64){
         textSize = 128;
     }
 
-    const cnv = canvas.createCanvas(1024, 1024);
+    const cnv = canvas.createCanvas(2048, 1024);
     const ctx = cnv.getContext("2d");
     ctx.font = textSize + "px Arial";
     ctx.strokeStyle = "#202225";
