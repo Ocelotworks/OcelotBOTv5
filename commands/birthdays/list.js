@@ -17,6 +17,9 @@ module.exports = {
         const now = new Date();
 
         let header = "```asciidoc\n";
+        if(!message.getSetting("birthdays.channel") && message.member.hasPermission("MANAGE_CHANNELS")){
+            header = `:information_source: You can get a message every time it's someones birthday with ${args[0]} setchannel\n${header}`
+        }
 
         allBirthdays = allBirthdays.map((birthday)=>{
             let d = birthday.birthday; //Yes

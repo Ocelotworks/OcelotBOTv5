@@ -34,6 +34,7 @@
     "cleverbot": "^1.0.1",
     "colors": "^1.4.0",
     "columnify": "^1.5.4",
+    "concept-network": "^2.0.0",
     "config": "^3.3.1",
     "country-list": "^2.2.0",
     "dateformat": "^3.0.3",
@@ -58,6 +59,7 @@
     "rss-parser": "^3.9.0",
     "sourcequery": "0.0.2",
     "twemoji-parser": "^13.0.0",
-    "word-wrap": "^1.2.3"
+    "word-wrap": "^1.2.3",
+    "ws": "^7.3.1"
   }
 }
