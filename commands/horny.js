@@ -6,6 +6,7 @@ module.exports = {
     name: "Horny License",
     usage: "horny <user or url>",
     rateLimit: 10,
+    detailedHelp: "License to be Horny",
     categories: ["image", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["horny"],

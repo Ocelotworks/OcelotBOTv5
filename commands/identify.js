@@ -26,6 +26,7 @@ module.exports = {
     name: "Identify Image",
     usage: "identify [URL]",
     rateLimit: 50,
+    detailedHelp: "Tries to identify an image",
     commands: ["identify", "ident"],
     categories: ["image"],
     run: async function run(message, args, bot) {

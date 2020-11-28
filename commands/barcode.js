@@ -3,6 +3,7 @@ module.exports = {
     name: "Barcode Generator",
     usage: "barcode <text>",
     rateLimit: 10,
+    detailedHelp: "Generates a barcode. C128B, to be precise.",
     categories: ["barcodes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["barcode"],

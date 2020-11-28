@@ -10,6 +10,7 @@ module.exports = {
     name: "Crop Image",
     usage: "crop [URL]",
     rateLimit: 50,
+    detailedHelp: "Attempts to crop an image into a square in the best way possible",
     commands: ["crop"],
     categories: ["image"],
     run: async function run(message, args, bot) {

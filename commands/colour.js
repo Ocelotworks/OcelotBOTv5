@@ -9,7 +9,8 @@ const canvas = require('canvas');
 module.exports = {
     name: "Colour Code",
     usage: "colour <code>",
-    detailedUsage: "Accepts HTML Colour codes e.g #FF0000",
+    detailedHelp: "Accepts HTML Colour codes e.g #FF0000",
+    usageExample: "colour #FF0000",
     categories: ["tools"],
     rateLimit: 40,
     commands: ["colour", "color"],

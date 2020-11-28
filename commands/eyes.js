@@ -14,6 +14,7 @@ module.exports = {
     usage: "eyes [url or @user]",
     accessLevel: 0,
     rateLimit: 20,
+    detailedHelp: "Adds red eyes to faces in the image",
     categories: ["image"],
     commands: ["eyes", "eye"],
     init: async function(){

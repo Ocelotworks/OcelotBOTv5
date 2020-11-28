@@ -6,6 +6,7 @@ module.exports = {
     usage: "expand <word>",
     commands: ["expand"],
     categories: ["fun"],
+    detailedHelp: "Makes the text look like t h i s ",
     run: function run(message, args) {
         if(args.length < 2)
             return  message.replyLang("EXPAND_NO_TEXT");

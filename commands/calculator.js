@@ -7,6 +7,8 @@ let scope = {};
 module.exports = {
     name: "Calculator",
     usage: "calc [sum]",
+    detailedHelp: "Calculate something",
+    usageExample: "calc 8.30662386292^2",
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["calc", "calculator", "math"],

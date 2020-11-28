@@ -3,6 +3,7 @@ module.exports = {
     usage: "bulge [url]",
     categories: ["image"],
     rateLimit: 10,
+    detailedHelp: "Make an image bulge in the middle.",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bulge", "explode", "buldge"],
     run: async function(message, args, bot){

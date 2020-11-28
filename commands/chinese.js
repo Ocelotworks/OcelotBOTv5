@@ -32,6 +32,7 @@ module.exports = {
     usage: "chinese <text>",
     accessLevel: 0,
     rateLimit: 10,
+    detailedHelp: "This command does NOT translate things into chinese. It transforms the input text into chinese characters that kinda look like their english counterpart.\nDon't use these for your Chinese exam.",
     categories: ["text"],
     commands: ["chinese", "chin"],
     run: function run(message, args, bot) {

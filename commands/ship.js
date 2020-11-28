@@ -25,6 +25,8 @@ module.exports = {
     name: "Ship Generator",
     usage: "ship <@user1> <@user2> ...",
     rateLimit: 10,
+    detailedHelp: "Ship two users together to test their compatibility.",
+    usageExample: "ship @OcelotBOT @Big P",
     categories: ["fun", "memes"],
     requiredPermissions: [],
     commands: ["ship", "shipname", "relationship", "shipgenerator"],

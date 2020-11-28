@@ -5,6 +5,7 @@ module.exports = {
     usage: "face [url] or embed",
     accessLevel: 0,
     rateLimit: 10,
+    detailedHelp: "Find faces in an image and guess their age.",
     categories: ["tools", "image"],
     commands: ["face", "age"],
     run: async function run(message, args, bot) {

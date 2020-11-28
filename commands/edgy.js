@@ -8,6 +8,7 @@ module.exports = {
     name: "Edgy Text",
     usage: "edgy <text>",
     commands: ["edgy"],
+    detailedHelp: "Makes the text look all edgy like",
     categories: ["text"],
     run: async function(message, args, bot){
         if(!args[1])

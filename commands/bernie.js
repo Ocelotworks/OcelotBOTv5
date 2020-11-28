@@ -2,6 +2,7 @@ module.exports = {
     name: "Bernie Meme",
     usage: "bernie <text>",
     rateLimit: 10,
+
     categories: ["image", "fun", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bernie", "sanders"],

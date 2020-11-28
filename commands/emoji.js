@@ -3,6 +3,7 @@ module.exports = {
     usage: "emoji <term>",
     categories: ["fun","tools"],
     requiredPermissions: [],
+    detailedHelp: "Find emojis in other servers",
     commands: ["emoji", "emojisearch", "emojis", "emote"],
     run: async function(message, args, bot){
         if(!args[1]){

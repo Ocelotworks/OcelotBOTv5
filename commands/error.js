@@ -8,6 +8,7 @@ const Discord = require('discord.js');
 module.exports = {
     name: "Error Message Generator",
     usage: "error <message>",
+    detailedHelp: "Make a windows 98 error message",
     commands: ["error", "errormessage"],
     categories: ["image"],
     requiredPermissions: ["ATTACH_FILES"],

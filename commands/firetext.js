@@ -8,6 +8,7 @@ module.exports = {
     name: "Fire Text Generator",
     usage: "firetext <text>",
     categories: ["text"],
+    detailedHelp: "Makes some super cool fire text",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["firetext", "fire"],
     run: function(message, args, bot){

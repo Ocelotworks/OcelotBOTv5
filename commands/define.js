@@ -5,6 +5,7 @@ module.exports = {
     name:  "Dictionary Lookup",
     usage: "define <word>",
     categories: ["tools", "fun"],
+    detailedHelp: "Find the definition of a word",
     commands: ["define", "def", "dictionary", "dict"],
     run: async function run(message, args, bot) {
         if(!args[1])

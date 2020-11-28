@@ -9,6 +9,7 @@ module.exports = {
     usage: "clap <text>",
     categories: ["fun", "memes"],
     rateLimit: 10,
+    detailedHelp: "Puts clap emojis in between the text you input.",
     commands: ["clap", "claptext"],
     run: function run(message, args, bot) {
        if(!args[1]){

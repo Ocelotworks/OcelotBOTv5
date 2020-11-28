@@ -6,6 +6,7 @@ module.exports = {
     name: "Urban Dictionary",
     usage: "defineud <word>",
     categories: ["tools", "fun"],
+    detailedHelp: "Find the urban definition of a word",
     commands: ["defineud", "ud", "urban", "urbandictionary"],
     run: async function run(message, args, bot) {
         if(!args[1]){

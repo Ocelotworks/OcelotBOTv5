@@ -3,6 +3,7 @@ module.exports = {
     name: "Big Text Generator",
     usage: "bigtext <text>",
     categories: ["text"],
+    detailedHelp: "Bernie Sanders has an important message for the nation.",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["bigtext", "big"],
     run:  async function(message, args, bot) {

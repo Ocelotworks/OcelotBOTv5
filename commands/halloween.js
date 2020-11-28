@@ -8,6 +8,7 @@ const halloween = new Date("31 October 2021");
 module.exports = {
     name: "Halloween Countdown",
     usage: "halloween",
+    detailedHelp: "Countdown to halloween",
     categories: ["tools", "fun"],
     commands: ["halloween"],
     run: function run(message, args, bot) {

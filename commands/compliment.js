@@ -3,6 +3,7 @@ module.exports = {
     usage: "compliment <person>",
     categories: ["nsfw", "fun"],
     rateLimit: 10,
+    detailedHelp: "Give someone a nice, if not occasionally creepy compliment.",
     commands: ["compliment", "complement", "complament"],
     init: function(bot){
       bot.usedTopicalCompliments = [];
