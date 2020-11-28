@@ -9,7 +9,7 @@ const alphaRegex = /[a-z]/g;
 module.exports = {
     name: "Help Command",
     usage: "help [command]",
-    detailedHelp: "If you need help with the help command I can't help you.",
+    detailedHelp: "Get a list of commands here.",
     commands: ["help", "commands"],
     categories: ["meta"],
     init: function init(bot){
