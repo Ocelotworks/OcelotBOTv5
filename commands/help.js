@@ -5,6 +5,7 @@ const Discord = require('discord.js');
 const numbers = [
     "1⃣", "2⃣", "3⃣", "4⃣","5⃣", "6⃣","7⃣", "8⃣", "9⃣"
 ];
+const alphaRegex = /[a-z]/g;
 module.exports = {
     name: "Help Command",
     usage: "help [command]",
@@ -97,6 +98,7 @@ module.exports = {
         }else{
             let unique = []; //ahhh..
             let output = "";
+            const prefix = message.getSetting("prefix");
             let commandUsages = bot.commandUsages;
             if(args[1] && Object.keys(bot.commandCategories).indexOf(arg) > -1){
                 commandUsages = bot.commandCategories[arg];
@@ -105,7 +107,10 @@ module.exports = {
                 if(commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden && !message.getBool(`${i}.disable`) && !(commandUsages[i].unwholesome && message.getBool("wholesome")) && !(commandUsages[i].nsfw && !message.getBool("allowNSFW")))
                     if(unique.indexOf(commandUsages[i].name) === -1) {
                         unique.push(commandUsages[i].name);
-                        output += `${commandUsages[i].name}:: ${message.getSetting("prefix")}${commandUsages[i].usage}\n`
+                        let usage = commandUsages[i].usage;
+                        if(prefix[prefix.length-1].match(alphaRegex))
+                            usage[0] = usage[0].toUpperCase();
+                        output += `${commandUsages[i].name}:: ${prefix}${commandUsages[i].usage}\n`
                     }
             }
             message.replyLang("COMMANDS", {commands: output});
