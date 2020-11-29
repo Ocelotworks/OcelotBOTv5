@@ -33,7 +33,7 @@ ${args[0]} set font <font> **(<:ocelotbot:533369578114514945> Premium Only)**`;
         }else if (args[2].toLowerCase() === "tagline" && args[3]){
             const tagline = message.cleanContent.substring(args[0].length+args[1].length+args[2].length+3);
             if(tagline.length > 140){
-                message.channel.send(":warning: Tagline must be 45 characters or less.");
+                message.channel.send(`:warning: Tagline must be 140 characters or less. Yours is ${tagline.length} characters.`);
             }else{
                 await bot.database.setProfileTagline(message.author.id, tagline);
                 message.channel.send(`Tagline set to \`${tagline}\``);
