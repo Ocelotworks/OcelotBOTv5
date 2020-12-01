@@ -401,6 +401,42 @@ module.exports = {
             }
         };
 
+        bot.util.imageProcessor = async function imageProcessor(message, request, name){
+            request.metadata = {
+                s: message.guild ? message.guild.id : null,
+                u: message.author.id,
+                c: message.channel.id,
+                m: message.id,
+            };
+            let loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
+            let span = bot.util.startSpan("Receive from RPC");
+            let response = await bot.rabbit.rpc("imageProcessor", request, 60000, {arguments: {"x-message-ttl": 60000}, durable: false});
+            span.end();
+            if(loadingMessage) {
+                span = bot.util.startSpan("Edit loading message");
+                await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
+                span.end();
+            }
+            if (response.err) {
+                console.log(response);
+                span = bot.util.startSpan("Delete processing message");
+                await loadingMessage.delete();
+                span.end();
+                return message.channel.send(response.err);
+            }
+            span = bot.util.startSpan("Upload image");
+            let attachment = new Discord.MessageAttachment(Buffer.from(response.data, 'base64'), name);
+            try {
+                await message.channel.send(attachment);
+            }catch(e){
+                bot.raven.captureException(e);
+            }
+            span.end();
+            span = bot.util.startSpan("Delete processing message");
+            await loadingMessage.delete();
+            span.end();
+        }
+
         /**
          *
          * @param module The command module
@@ -427,7 +463,7 @@ module.exports = {
             bot.logger.log(url);
             if(message.getBool("imageFilter.useExternal")) {
                 span = bot.util.startSpan("Receive from RPC");
-                let response = await bot.rabbit.rpc("imageFilter", {url, filter, input, format});
+                let response = await bot.rabbit.rpc("imageFilter", {url, filter, input, format}, 60000, {durable: true});
                 span.end();
                 if(loadingMessage) {
                     span = bot.util.startSpan("Edit loading message");

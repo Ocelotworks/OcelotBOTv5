@@ -24,18 +24,21 @@ module.exports = {
         bot.client.on("ready", function(){
             bot.rabbit.rpcChannel.assertQueue(`reply-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, {exclusive: true});
             bot.rabbit.rpcChannel.consume(`reply-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, function (msg) {
+                bot.logger.log("Received reply ", msg.properties.correlationId);
                 if (waitingCallbacks[msg.properties.correlationId]) {
                     bot.tasks.endTask("ipc", msg.properties.correlationId);
                     waitingCallbacks[msg.properties.correlationId](JSON.parse(msg.content.toString()));
                     clearTimeout(callbackTimers[msg.properties.correlationId]);
+                }else{
+                    bot.logger.warn("Unknown correlation ID ", msg.properties.correlationId);
                 }
                 bot.rabbit.rpcChannel.ack(msg);
             });
         });
 
-        bot.rabbit.rpc = async function(name, payload, timeout = 300000){
+        bot.rabbit.rpc = async function(name, payload, timeout = 300000, config){
             return new Promise(function(fulfill){
-                bot.rabbit.rpcChannel.assertQueue(name, {durable: name === "imageFilter"}); //oh nooo
+                bot.rabbit.rpcChannel.assertQueue(name, config);
                 const correlationId = bot.client.shard.ids.join(";")+"-"+(replyCount++);
                 bot.tasks.startTask("ipc", correlationId);
                 bot.rabbit.rpcChannel.sendToQueue(name, Buffer.from(JSON.stringify(payload)), {correlationId, replyTo: `reply-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
