@@ -425,7 +425,7 @@ module.exports = {
                 return message.channel.send(response.err);
             }
             span = bot.util.startSpan("Upload image");
-            let attachment = new Discord.MessageAttachment(Buffer.from(response.data, 'base64'), name);
+            let attachment = new Discord.MessageAttachment(Buffer.from(response.data, 'base64'), `${name}.${response.extension}`);
             try {
                 await message.channel.send(attachment);
             }catch(e){

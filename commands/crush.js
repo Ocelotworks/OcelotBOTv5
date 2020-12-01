@@ -30,7 +30,7 @@ module.exports = {
             ],
             "width": 600,
             "height": 875
-        }, 'crush.png')
+        }, 'crush')
     }
 };
 
