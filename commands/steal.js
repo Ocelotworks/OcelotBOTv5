@@ -9,7 +9,6 @@ module.exports = {
         if(!message.member.hasPermission("MANAGE_EMOJIS"))return message.channel.send("You must have the Manage Emojis permission to use this command.");
         let url, name;
         if(args[1] && (args[1].startsWith("<a:") || args[1].startsWith("<:"))) {
-            //<:shaqpog:782250681776078888>  <a:petpeter:758641422575599618>
             const colonSplit = args[1].split(":");
             name = colonSplit[1];
             const ext = args[1].startsWith("<a:") ? "gif" : "png";
@@ -26,7 +25,7 @@ module.exports = {
             message.channel.send(`Successfully created emoji ${name}: ${result}.`);
         }catch(e){
             console.log(e);
-            message.channel.send("Failed to create emoji. Make sure that you have enough slots available, and that the image isn't too big.");
+            message.channel.send(`Failed to create emoji. Make sure that you have enough slots available, and that the image isn't too big. (${e.message})`);
         }
 
     }
