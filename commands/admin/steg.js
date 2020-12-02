@@ -13,20 +13,35 @@ module.exports = {
             responseType: 'arraybuffer'
         });
         fs.writeFileSync("../temp/out.png", Buffer.from(imageData.data));
-        child_process.execFile("../lib/stego", ["-r", "-imgi", "../temp/out.png"], (err, out)=>{
+        child_process.execFile("../lib/stego", ["-r", "-imgi", "../temp/out.png"], async (err, out)=>{
             try{
-                if(out === "OCELOTBOT"){
-                    message.channel.send("Valid OcelotBOT Image");
-                }else{
+                let output = "**Valid OcelotBOT Image**"
+                if (out !== "OCELOTBOT") {
                     let data = JSON.parse(out);
-                    message.channel.send(`**Valid OcelotBOT Image.**\nUser: ${data.u}\nServer: ${data.s}\nChannel: ${data.c}\nMessage: ${data.m}\nTimestamp: ${Discord.SnowflakeUtil.deconstruct(data.m).date}`);
+                    output += "\nServer:";
+                    let server = await cacheGet(bot.client.guilds, data.s);
+                    if (server) output += ` **${server.name}**`;
+                    output += ` (${data.s})\nChannel:`;
+                    let channel = await cacheGet(bot.client.channels, data.c);
+                    if (channel) output += ` **#${channel.name}**`;
+                    output += ` (${data.c})\nUser:`;
+                    let user = await cacheGet(bot.client.users, data.u);
+                    if (user) output += ` **${user.tag}**`;
+                    output += ` (${data.u})\nMessage: ${data.m}\nTimestamp: **${Discord.SnowflakeUtil.deconstruct(data.m).date.toLocaleString()}**`;
                 }
+                message.channel.send(output);
             }catch(e){
                 console.log(e);
                 message.channel.send(`Unknown input: \`${out}\``);
             }
+        });
+    }
+}
 
-        })
-
+async function cacheGet(cache, get){
+    try {
+        return await cache.fetch(get)
+    }catch(e){
+        return null
     }
 }
