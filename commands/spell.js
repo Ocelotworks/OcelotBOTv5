@@ -10,7 +10,7 @@ module.exports = {
             message.channel.send(`Invalid usage: ${args[0]} <sentence>`);
             return;
         }
-        const messageFetch = await message.channel.messages.fetch({limit: 2});
+
         let letters = {
             abcd: ["🔡","🔠"],
             abc: ["🔤"],
@@ -85,6 +85,15 @@ module.exports = {
             z: ["🇿", "💤"]
         };
 
+        let targetMessage;
+        if(message.reference && message.reference.messageID){
+            targetMessage = await message.channel.messages.fetch(message.reference.messageID);
+        }else {
+            const messageFetch = await message.channel.messages.fetch({limit: 2});
+            targetMessage = messageFetch.last();
+        }
+        if(!targetMessage || !targetMessage.react)
+            return message.channel.send(":bangbang: Could not find a message to react to...");
 
         let target = message.cleanContent.substring(args[0].length).trim().toLowerCase();
 
@@ -109,11 +118,6 @@ module.exports = {
         }
 
         const output = target.replace(/[A-z%$+\-:/\\"'@£^~.,\[\]><()]/g, "").split(" ");
-
-        const targetMessage = messageFetch.last();
-
-        if(!targetMessage || !targetMessage.react)
-            return message.channel.send(":bangbang: Could not find a message to react to...");
 
         for(let i = 0; i < output.length; i++){
             try {
