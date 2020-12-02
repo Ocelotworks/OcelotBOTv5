@@ -32,7 +32,7 @@ module.exports = {
                 message.channel.send(output);
             }catch(e){
                 console.log(e);
-                message.channel.send(`Unknown input: \`${out}\``);
+                message.channel.send(`Unable to decode.`);
             }
         });
     }
