@@ -11,7 +11,7 @@ module.exports = {
         bot.util.standardNestedCommandInit("admin");
     },
     run: function(message, args, bot){
-        if(bot.admins.indexOf(message.author.id) === -1)return;
+        if(!message.getBool("admin"))return;
         bot.util.standardNestedCommand(message, args, bot, "admin");
     },
     test: function(test){
