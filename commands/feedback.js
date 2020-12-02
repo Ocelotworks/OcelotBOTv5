@@ -54,19 +54,21 @@ module.exports = {
                 }
                 return;
             }
-           bot.lastFeedbackChannel = message.channel.id;
-           message.replyLang("FEEDBACK_SUCCESS");
-            if(!bot.client.shard || bot.client.channels.cache.has("344931831151329302")){
-                bot.client.channels.cache.get("344931831151329302").send(`Feedback from ${message.author.id} (${message.author.username}#${message.author.discriminator}) in ${message.guild ? message.guild.id :"DM Channel"} (${message.guild ? message.guild.name : "DM Channel"}):\n\`\`\`\n${ Discord.escapeMarkdown(message.content.replace(/discord\.gg/gi, "discordxgg"))}\n\`\`\``);
-             }else{
-                bot.client.shard.send({type: "feedback", message: {
+            if(message.getBool("feedback.banned"))
+                return message.channel.send("You are unable to send feedback messages.");
+            bot.lastFeedbackChannel = message.channel.id;
+            message.replyLang("FEEDBACK_SUCCESS");
+            if(!message.getBool("feedback.shadowbanned")) {
+                bot.client.shard.send({
+                    type: "feedback", message: {
                         userID: message.author.id,
                         message: Discord.escapeMarkdown(message.content),
                         username: `${message.author.username}#${message.author.discriminator}`,
                         guildID: message.guild ? message.guild.id : "DM Channel",
                         guild: message.guild ? message.guild.name : "DM Channel",
                         channelID: message.channel.id
-                }});
+                    }
+                });
             }
         }else{
             message.replyLang("FEEDBACK_ERROR");
