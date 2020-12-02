@@ -74,10 +74,20 @@ module.exports = {
                 shardCount: bot.client.shard.count,
             });
 
-            postCount("https://blist.xyz/api/bot/146293573422284800/stats/", config.get("Discord.blistKey"), {
-                server_count: serverCount,
-                shard_count: bot.client.shard.count
-            });
+            // fuck you blist
+            request.patch({
+                headers: {
+                    "Authorization": config.get("Discord.blistKey"),
+                    "Content-Type": "application/json"
+                },
+                url: "https://blist.xyz/api/v2/bot/146293573422284800/stats/",
+                json: true,
+                body: {
+                    server_count: serverCount,
+                    shard_count: bot.client.shard.count
+                }
+            }, handleResponse( "https://blist.xyz/api/v2/bot/146293573422284800/stats/"));
+
 
             // postCount("https://bots.discordlabs.org/v2/bot/146293573422284800/stats", config.get("Discord.discordBotLabsKey"), {
             //     server_count: serverCount,
