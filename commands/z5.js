@@ -20,7 +20,7 @@ module.exports = {
             name: "gameData",
             data: input,
             server : message.guild ? message.guild.id : message.channel.id, player : message.author.id,
-            admin: bot.admins.includes(message.author.id),
+            admin: message.getBool("admin")
         });
 
         let text = Discord.escapeMarkdown(decodeURIComponent(result.text));

@@ -37,7 +37,7 @@ module.exports = {
             if(args.length <= 2)return;
         }
         if(args.length > 1){
-            if(args[1].toLowerCase() === "respond" && bot.admins.indexOf(message.author.id) > -1){
+            if(args[1].toLowerCase() === "respond" && message.getBool("admin")){
                 if(bot.lastFeedbackChannel){
                     const response = message.content.substring(message.content.indexOf(args[2]));
                     if(bot.client.channels.cache.has(bot.lastFeedbackChannel)){

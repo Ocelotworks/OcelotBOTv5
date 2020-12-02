@@ -10,7 +10,7 @@ module.exports = {
     commands: ["eval"],
     hidden: true,
     run: async function (message, args, bot, music) {
-       if(bot.admins.indexOf(message.author.id) === -1)return;
+       if(message.getBool("admin"))return;
 
        let term = message.cleanContent.substring(args[0].length+args[1].length+2).trim();
        try {
