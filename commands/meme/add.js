@@ -17,10 +17,16 @@ module.exports = {
             return message.replyLang("MEME_BANNED");
 
         try {
-            if (!args[3])
-                return message.replyLang("MEME_ENTER_URL");
-            if(message.mentions.users.size > 0 || message.mentions.roles.size > 0 || message.content.indexOf("@everyone") > -1 && message.getSetting("meme.disallowTags"))
-                return message.replyLang("MEME_ROLE");
+            let meme;
+            if (!args[3]) {
+                meme = await bot.util.getImage(message, args);
+                if(!meme)
+                    return message.replyLang("MEME_ENTER_URL");
+            }else{
+                if(message.mentions.users.size > 0 || message.mentions.roles.size > 0 || message.content.indexOf("@everyone") > -1 && message.getSetting("meme.disallowTags"))
+                    return message.replyLang("MEME_ROLE");
+                meme = message.content.substring(args[0].length + args[1].length + args[2].length + 3)
+            }
 
             const newMemeName = args[2].toLowerCase();
             if (newMemeName.startsWith("http"))
@@ -30,7 +36,7 @@ module.exports = {
             if (memeCheckResult[0] && memeCheckResult[0].server !== "global")
                 return message.replyLang("MEME_ADD_EXISTS");
 
-            await bot.database.addMeme(message.author.id, message.guild.id, newMemeName, message.content.substring(args[0].length + args[1].length + args[2].length + 3));
+            await bot.database.addMeme(message.author.id, message.guild.id, newMemeName, meme);
             message.replyLang("MEME_ADD_SUCCESS");
         } catch (e) {
             message.replyLang("MEME_ADD_ERROR");
