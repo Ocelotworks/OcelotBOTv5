@@ -1035,6 +1035,15 @@ module.exports = {
             },
             getBirthdaysTodayForShard: function(servers){
                 return knex.select().from("ocelotbot_birthdays").whereIn("server", servers).andWhereRaw("DAY(birthday) = DAY(CURRENT_TIMESTAMP) AND MONTH(birthday) = MONTH(current_timestamp)");
+            },
+            generateReferralCode: async function(messageID, server, user){
+                let charCodes = [];
+                for(let i = 0; i < messageID.length; i+=3){
+                    charCodes.push(messageID[i]+messageID[i+1]+messageID[i+3]);
+                }
+                let id = Buffer.from(charCodes).toString("base64");
+                await knex.insert({id, server, user}).into("ocelotbot_referral_codes");
+                return id;
             }
         };
     }
