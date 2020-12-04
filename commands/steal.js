@@ -1,3 +1,4 @@
+const validName = /[a-z_]{2,32}/gi
 module.exports = {
     name: "Steal Emoji",
     usage: "esteal <URL or emoji>",
@@ -19,6 +20,7 @@ module.exports = {
             if(!url)return message.channel.send("Unable to find an image. Try including an emoji in the command or attaching an image.");
             const urlSplit = url.split("/");
             name = urlSplit[urlSplit.length-1].split(".")[0];
+            if(!validName.test(name))name = message.id;
         }
         try {
             let result = await message.guild.emojis.create(url, name, {reason: "Steal emoji command"});
