@@ -21,6 +21,15 @@ module.exports = {
             res.json({});
         });
 
+        router.get('/:id/registerReferral', function registerReferral(req, res){
+            broker.logger.log(`Got referral from ${req.params.id} - ${JSON.stringify(req.query)}`);
+            broker.manager.broadcast({type: "registerReferral", payload: {
+                    user: req.params.id,
+                    ...req.query
+                }});
+            res.json({});
+        });
+
         router.get('/:id', async function getUser(req, res){
             const userID = req.params.id.replace(/[^0-9]/g, '');
             let user;

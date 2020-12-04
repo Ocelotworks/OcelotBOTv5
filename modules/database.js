@@ -1044,6 +1044,10 @@ module.exports = {
                 let id = Buffer.from(charCodes).toString("base64");
                 await knex.insert({id, server, user}).into("ocelotbot_referral_codes");
                 return id;
+            },
+            getReferralCount: async function(user){
+                let result = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_referrals").where({user});
+                return result[0]['COUNT(*)'];
             }
         };
     }

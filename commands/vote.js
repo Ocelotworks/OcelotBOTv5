@@ -81,7 +81,6 @@ module.exports = {
 
         process.on("message", async function vote(message){
            if(message.type === "registerVote"){
-               console.log(message.payload);
                 let user = message.payload.user;
                 let source = message.payload.source;
                 let voteServer = null;

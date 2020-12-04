@@ -15,11 +15,11 @@ const   matomo      = new MatomoTracker(config.get("Matomo.SiteID"), config.get(
 async function init(){
     let apm;
     if(config.get("APM")){
-        apm = elasticApm.start({
-            serviceName: "OcelotBOT-Analytics",
-            secretToken: config.get("APM.Token"),
-            serverUrl: config.get("APM.Server")
-        })
+        // apm = elasticApm.start({
+        //     serviceName: "OcelotBOT-Analytics",
+        //     secretToken: config.get("APM.Token"),
+        //     serverUrl: config.get("APM.Server")
+        // })
     }
 
     let con = await amqplib.connect(config.get("RabbitMQ.host"));
@@ -36,12 +36,12 @@ async function init(){
     }
 
     createSub("commandPerformed", function(msg){
-        let tx = apm.startTransaction("Track Command Performed");
-        let span = tx.startSpan("Parse Message");
+        //let tx = apm.startTransaction("Track Command Performed");
+        //let span = tx.startSpan("Parse Message");
         const shard = msg.properties.appId.split("-")[1];
         const {message, command} = JSON.parse(msg.content.toString());
-        span.end();
-        span = tx.startSpan("Matomo Track");
+       // span.end();
+       // span = tx.startSpan("Matomo Track");
         matomo.track({
             action_name: "Command Performed",
             uid: message.author.id,
@@ -60,20 +60,20 @@ async function init(){
                 5: ['Channel ID', message.channel.id]
             })
         });
-        span.end();
-        span = tx.startSpan("Cache User ID");
+        //span.end();
+        //span = tx.startSpan("Cache User ID");
         userCache.push(message.author.id);
-        span.end();
-        tx.end();
+       // span.end();
+        //tx.end();
     });
 
     createSub("commandRatelimited", function(msg){
-        let tx = apm.startTransaction("Track Command Performed");
-        let span = tx.startSpan("Parse Message");
+       // let tx = apm.startTransaction("Track Command Performed");
+      // let span = tx.startSpan("Parse Message");
         const shard = msg.properties.appId.split("-")[1];
         const {message, command} = JSON.parse(msg.content.toString());
-        span.end();
-        span = tx.startSpan("Matomo Track");
+       // span.end();
+       // span = tx.startSpan("Matomo Track");
         matomo.track({
             action_name: "Command Rate Limited",
             uid: message.author.id,
@@ -91,8 +91,8 @@ async function init(){
                 5: ['Channel ID', message.channel.id]
             })
         });
-        span.end();
-        tx.end();
+       // span.end();
+        //tx.end();
     });
 
     setInterval(function(){
