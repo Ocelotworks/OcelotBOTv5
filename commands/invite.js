@@ -17,8 +17,8 @@ module.exports = {
                         let user = await bot.client.users.fetch(userId);
                         let server = await bot.client.guilds.fetch(serverId);
                         let dmChannel = await user.createDM();
-                        let referrals = await bot.database.getReferralCount(userId);
-                        dmChannel.send(`:tada: Someone just used your invite code (${code}) to invite OcelotBOT to **${server.name}**!\nYou've now referred **${referrals}** servers.`);
+                        let referrals = await bot.database.getReferralCount(code);
+                        dmChannel.send(`:tada: Someone just used your invite code (${code}) to invite OcelotBOT to **${server.name}**!\nYou've now referred **${referrals}** servers with this code.`);
                     }catch(e){
                         console.log(e);
                         bot.logger.warn(`Failed to send referral message: ${e.message}`);

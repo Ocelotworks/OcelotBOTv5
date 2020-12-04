@@ -1045,8 +1045,8 @@ module.exports = {
                 await knex.insert({id, server, user}).into("ocelotbot_referral_codes");
                 return id;
             },
-            getReferralCount: async function(user){
-                let result = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_referrals").where({user});
+            getReferralCount: async function(id){
+                let result = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_referrals").where({id});
                 return result[0]['COUNT(*)'];
             }
         };
