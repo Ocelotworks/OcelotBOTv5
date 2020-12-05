@@ -426,6 +426,14 @@ module.exports = {
                                 data: bot.client.guilds.cache.array()
                             }
                         });
+                    }else if(message.payload.name === "unavailableGuilds" && message.payload.data.shard == bot.client.shard.ids.join(";")){
+                        bot.client.shard.send({
+                            type: "dataCallback",
+                            payload: {
+                                callbackID:  message.payload.callbackID,
+                                data: bot.client.guilds.cache.filter((g)=>!g.available).array()
+                            }
+                        });
                     }
                 }else if(message.type === "cockup"){
                     for(let i = 0; i < bot.admins.length; i++) {
