@@ -277,6 +277,9 @@ module.exports = {
             getReminders: function getReminders(receiver) {
                 return knex.select().from(REMINDERS_TABLE).where({receiver});
             },
+            getRemindersForUser: function(receiver, user, server){
+                return knex.select().from(REMINDERS_TABLE).where({receiver, user, server}).orderBy("timestamp", "desc");
+            },
             getOrphanedReminders: function getOrphanedReminders(claimedReminders, receiver){
                 return knex.select().from(REMINDERS_TABLE).whereNotIn("id", claimedReminders).andWhere({receiver});
             },
@@ -287,6 +290,12 @@ module.exports = {
              */
             removeReminder: function removeReminder(id) {
                 return knex.delete().from(REMINDERS_TABLE).where({id: id});
+            },
+            removeReminderByUser: function removeReminderByUser(id, user) {
+                return knex.delete().from(REMINDERS_TABLE).where({id, user}).limit(1);
+            },
+            getReminderById: function getReminderById(id){
+                return knex.select().from(REMINDERS_TABLE).where({id});
             },
             /**
              * Gets the all time trivia leaderboard

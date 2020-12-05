@@ -1073,6 +1073,14 @@ module.exports = {
             // });
         };
 
+        bot.util.getChannelInfo = function getChannelInfo(channelID){
+            try{
+                return bot.client.channels.fetch(channelID)
+            }catch(e){
+                return null;
+            }
+        }
+
         process.on("message", function (message){
             if(message.type === "getUserInfoResponse"){
                 const waitingUser = waitingUsers[message.payload.id];
