@@ -1,5 +1,4 @@
 const  dateformat = require('dateformat');
-const Discord = require('discord.js');
 module.exports = {
     name: "Topic Context",
     usage: "context",
@@ -16,6 +15,7 @@ module.exports = {
         const topicMessage = format[1];
 
         const messageID = await bot.database.getMessageID(user, topicMessage);
+        console.log(user, topicMessage);
         if(messageID[0]){
             const context = await bot.database.getMessageContext(messageID[0].id);
             let output = "```markdown\n";

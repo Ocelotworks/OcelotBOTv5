@@ -33,8 +33,8 @@ module.exports = {
             const topicResult = await bot.database.getRandomTopic();
             const topic = topicResult[0];
             const topicOutput = `<${topic.username}> ${topic.topic}`;
-            message.channel.send(`${emojiMaps[topic.username] || ""} _Set topic: ${topicOutput}_`);
-            message.channel.setTopic(topicOutput, `Topic ID: ${topic.id}`);
+            await message.channel.setTopic(topicOutput, `Topic ID: ${topic.id}`);
+            await message.channel.send(`${emojiMaps[topic.username] || ""} _Set topic: ${topicOutput}_`);
         };
 
         bot.client.on("message", async function onMessage(message) {
