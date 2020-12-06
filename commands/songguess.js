@@ -196,7 +196,7 @@ async function doGuess(voiceChannel, message, bot){
                     embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000, message.guild && message.guild.id, message.author.id)+(fastestUser ? ` (${fastestUser.username}#${fastestUser.discriminator})` : ""));
                 }
 
-                message.channel.send(message.author, embed);
+                bot.util.replyTo(message, embed)
                 span = tx.startSpan("Update record");
                 let newOffset = guessTime-now;
                 if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset) {
