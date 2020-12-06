@@ -23,6 +23,7 @@ module.exports = {
                 const msg = context[i];
                  const date = dateformat(new Date(msg.time), 'UTC:dd/mm/yy HH:MM:ss Z');
                 output+= `${msg.message===topicMessage ? "#":" "}[${date}] <${msg.user}> ${msg.message}\n`;
+                if(output.length >= 1998)break;
             }
             output += "\n```";
             message.channel.send(output);
