@@ -384,6 +384,16 @@ module.exports = {
             });
         });
 
+        bot.client.once("ready", function orphanCheck(){
+            if(!bot.client.shard)return;
+            setInterval(()=>{
+                if(!process.connected) {
+                    bot.logger.warn("Shard was orphaned, killing...");
+                    process.exit(-1);
+                }
+            }, 1000);
+        })
+
         process.on("message", function onMessage(message){
             Sentry.configureScope(async function onMessage(scope){
                 scope.addBreadcrumb({
