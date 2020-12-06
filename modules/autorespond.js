@@ -48,9 +48,12 @@ module.exports = {
                 if(message.mentions && message.mentions.users.has(bot.client.user.id) && !message.author.bot){
                     bot.logger.warn(`Mentioned by ${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}): ${message.cleanContent}`);
                     if(message.content.toLowerCase().indexOf("prefix") > -1 )
-                        message.channel.send(`My prefix is **${message.getSetting("prefix")}**\nTo change the prefix, do ${message.getSetting("prefix")}settings set prefix %\nWhere % is the prefix you want.`);
-                    else if(message.content.toLowerCase().indexOf("help") > -1)
-                        message.channel.send(`You can see my commands with ${message.getSetting("prefix")}help`);
+                        bot.util.replyTo(message, `My prefix is **${message.getSetting("prefix")}**\nTo change the prefix, do ${message.getSetting("prefix")}settings set prefix %\nWhere % is the prefix you want.`);
+                    else if(message.content.toLowerCase().indexOf("help") > -1 || message.content.toLowerCase().indexOf("commands") > -1)
+                        bot.util.replyTo(message, `You can see my commands with ${message.getSetting("prefix")}help`);
+                    else if(message.content.toLowerCase().indexOf("shut up") > -1){
+                        bot.util.replyTo(message, `:pensive: If I'm interrupting, you can always change my prefix with **${message.getSetting("prefix")}settings set prefix** or disable conflicting commands with ${message.getSetting("prefix")}settings disableCommand`)
+                    }
 
                     // bot.mixpanel.track("Bot mentioned", {
                     //     distinct_id: message.author.id,
