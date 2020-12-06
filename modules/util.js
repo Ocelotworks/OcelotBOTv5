@@ -706,13 +706,19 @@ module.exports = {
         bot.util.replyTo = function replyTo(message, content){
             let api = new Discord.APIMessage(message.channel, {});
             api.data = {
-                content: content,
+                content: "",
                 message_reference: {
                     message_id: message.id,
                     channel_id: message.channel.id,
                     guild_id: message.guild.id,
                 }
             }
+            if(typeof content === "string"){
+                api.data.content = content;
+            }else{
+                api.data.embed = content;
+            }
+
             message.channel.send(api);
         }
 
