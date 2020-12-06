@@ -11,6 +11,9 @@ const shardNames = [
     "blessed_shard",
     "King Viking",
     "S1othy",
+    "Omz",
+    "sunny",
+    "smirkstudios"
 ];
 module.exports = {
     name: "Stats",
@@ -19,12 +22,14 @@ module.exports = {
     commands: ["stats", "statistics", "info", "about", "privacy"],
     categories: ["meta"],
     run: async function run(message, args, bot){
+        console.log("lang");
         const title         = await message.getLang("STATS_VERSION", {version: bot.version});
         const tagline       = await message.getLang("STATS_MESSAGE", {instance: `Shard ${shardNames[bot.client.shard.ids.join(";")] ? "'"+shardNames[bot.client.shard.ids.join(";")]+"'" : "Unnamed"} (${bot.client.shard.ids.join(";")}/${bot.client.shard.count})`});
         const totalUsers    = await message.getLang("STATS_TOTAL_USERS");
         const totalServers  = await message.getLang("STATS_TOTAL_SERVERS");
         const totalChannels = await message.getLang("STATS_TOTAL_CHANNELS");
         const uptime        = await message.getLang("STATS_UPTIME");
+        console.log("counts");
         let serverCount = 0;
         let userCount = 0;
         let channelCount = 0;
@@ -38,6 +43,7 @@ module.exports = {
                 process.exit(1)
             }
         }
+        console.log("create embed");
 
         let embed = new Discord.MessageEmbed();
         embed.setColor(0x189F06);
@@ -48,7 +54,7 @@ module.exports = {
         embed.addField(totalUsers, userCount.toLocaleString(), true);
         embed.addField(totalServers, serverCount.toLocaleString(), true);
         embed.addField(totalChannels, channelCount.toLocaleString(), true);
-
-        message.channel.send("", embed);
+        console.log("send");
+        return message.channel.send("", embed);
     }
 };
