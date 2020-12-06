@@ -6,6 +6,7 @@
  */
 const Discord = require('discord.js');
 const canvas = require('canvas');
+const blacks = ["black", "#000000", "rgb(0,0,0)", "rgba(0,0,0)"]
 module.exports = {
     name: "Colour Code",
     usage: "colour <code>",
@@ -21,7 +22,11 @@ module.exports = {
             const size = parseInt(message.getSetting("colour.size"));
             const cnv = canvas.createCanvas(size, size);
             const ctx = cnv.getContext("2d");
-            ctx.fillStyle = message.cleanContent.substring(args[0].length+1);
+            let input = message.cleanContent.substring(args[0].length+1);
+            ctx.fillStyle = input;
+
+            if(ctx.fillStyle === "#000000" && !blacks.includes(input.replace(/ /g, "")))
+                return message.channel.send("Invalid colour, try a hex colour code or one from this list: https://www.w3schools.com/colors/colors_names.asp");
 
             ctx.fillRect(0,0,cnv.width, cnv.height);
 
