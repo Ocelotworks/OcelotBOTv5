@@ -2,23 +2,12 @@ module.exports = {
     name: "Say To",
     usage: "say channel <message>",
     commands: ["sayto"],
-    init: function init(bot){
-        if(bot.client.shard){
-            bot.logger.log("Loading shard receiver for !admin sayTo");
-            process.on("message", async function(msg){
-                if(msg.type === "sendMessage"){
-                    const target = await bot.client.channels.fetch(msg.message.target);
-                    const message = msg.message.content;
-                    if (target) {
-                        target.send(message);
-                    }
-                }
-            });
-        }
-    },
-    run:  function(message, args, bot){
+    run: async function(message, args, bot){
         const content = message.content.substring(args[0].length+args[1].length+args[2].length+3);
-        bot.client.shard.send({type: "sendMessage", message: {content: content, target: args[2]}});
+        const target = await bot.client.channels.fetch(args[2]);
+        if (target) {
+            await target.send(content);
+        }
         message.channel.send("Sent");
     }
 };
