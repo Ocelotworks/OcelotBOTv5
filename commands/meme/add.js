@@ -28,6 +28,9 @@ module.exports = {
                 meme = message.content.substring(args[0].length + args[1].length + args[2].length + 3)
             }
 
+            if(!args[2]){
+                return message.channel.send(`You need to enter a name. e.g ${args[0]} add ocelotbot`);
+            }
             const newMemeName = args[2].toLowerCase();
             if (newMemeName.startsWith("http"))
                 return message.replyLang("MEME_ENTER_URL");
