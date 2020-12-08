@@ -121,6 +121,11 @@ module.exports = {
                 servers: serverCount,
             });
 
+            postCount("https://api.discordbots.co/v1/public/bot/:id/stats", config.get("Discord.discordBotsCoKey"), {
+                serverCount: serverCount,
+                shardCount: bot.client.shard.count,
+            });
+
             // postCount("https://api.botsdatabase.com/v1/bots/146293573422284800",config.get("Discord.botsDatabaseKey"), {
             //     servers: serverCount,
             // });
