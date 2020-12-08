@@ -29,22 +29,32 @@ let lastWebhook = 0;
 
 
 function getContent(content){
-    if(typeof content !== "string") {
-        if(!content)
-            return "[null]"
+    try {
+        if (typeof content !== "string") {
+            if (!content)
+                return "[null]"
 
-        if(content.username)
-            return `[Mention: @${content.tag} (${content.id})]`;
+            if (content.username)
+                return `[Mention: @${content.tag} (${content.id})]`;
 
-        if(content.title)
-            return `[Embed: ${content.title}]`;
+            if (content.title)
+                return `[Embed: ${content.title} - ${content.description}]`;
 
-        if(content.reply)
-            return `[Reply to: @${content.reply.tag} (${content.reply.id})] ${content.content}`;
+            if (content.reply)
+                return `[Mention: @${content.reply.tag} (${content.reply.id})] ${getContent(content.content)}`;
 
-        return JSON.stringify(content);
+            if (content.target)
+                return `[Reply to: ${content.data.message_reference.message_id}] ${getContent(content.data)}`;
+
+            if (content.content)
+                return content.content;
+
+            return JSON.stringify(content);
+        }
+        return content;
+    }catch(e){
+        return `[Error parsing ${e.message}]`;
     }
-    return content;
 }
 
 module.exports = {
