@@ -15,7 +15,12 @@ const sources = {
     "discord.boats": "https://discord.boats/bot/146293573422284800",
     "botlist.space": "https://botlist.space/bot/146293573422284800",
     "discordbotlist.com": "https://discordbotlist.com/bots/ocelotbot",
-    "arcane-center.xyz": "https://arcane-center.xyz/bot/146293573422284800"
+    "arcane-center.xyz": "https://arcane-center.xyz/bot/146293573422284800",
+    "voidbots.net": "https://voidbots.net/bot/146293573422284800/",
+    "botlists.com": "https://botlists.com/bot/146293573422284800",
+    "idledev.org": "https://bots.idledev.org/bot/146293573422284800",
+    "discordbots.co": "https://discordbots.co/bot/146293573422284800",
+    "infinitybotlist.com": "https://infinitybotlist.com/bots/146293573422284800/"
 }
 
 module.exports = {
