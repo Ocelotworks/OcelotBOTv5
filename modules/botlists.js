@@ -60,9 +60,9 @@ module.exports = {
 
             const serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
 
-            // postCount("https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds", config.get("Discord.botsOnDiscordKey"), {
-            //     guildCount: serverCount
-            // });
+            postCount("https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds", config.get("Discord.botsOnDiscordKey"), {
+                guildCount: serverCount
+            });
 
             // postCount("https://discordbot.world/api/bot/146293573422284800/stats", config.get("Discord.discordBotWorldKey"), {
             //     guild_count: serverCount,
@@ -95,16 +95,29 @@ module.exports = {
             //     token: config.get("Discord.discordBotLabsKey"),
             // });
 
-            postCount("https://arcane-center.xyz/api/146293573422284800/stats",config.get("Discord.arcaneBotsKey"), {
+            postCount("https://arcane-center.xyz/api/146293573422284800/stats", config.get("Discord.arcaneBotsKey"), {
                 server_count: serverCount,
                 shard_count: bot.client.shard.count
             });
 
-            postCount("https://discord.boats/api/bot/146293573422284800",config.get("Discord.discordBoatsClubKey"), {
+            postCount("https://botsfordiscord.com/api/bot/146293573422284800", config.get("Discord.botsForDiscordKey"), {
                 server_count: serverCount,
             });
 
-            postCount("https://disforge.com/api/botstats/146293573422284800",config.get("Discord.disforgeKey"), {
+            postCount("https://infinitybotlist.com/api/bots/146293573422284800", config.get("Discord.infinityBotsKey"), {
+                servers: serverCount,
+                shards: bot.client.shard.count
+            });
+
+            postCount("https://discord.boats/api/bot/146293573422284800", config.get("Discord.discordBoatsClubKey"), {
+                server_count: serverCount,
+            });
+
+            postCount("https://voidbots.net/api/auth/stats/146293573422284800", config.get("Discord.voidBotsKey"), {
+                server_count: serverCount,
+            });
+
+            postCount("https://disforge.com/api/botstats/146293573422284800", config.get("Discord.disforgeKey"), {
                 servers: serverCount,
             });
 
