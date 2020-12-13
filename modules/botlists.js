@@ -37,35 +37,36 @@ module.exports = {
         bot.client.on("guildCreate", async function(guild){
             if(bot.client.user.id !== "146293573422284800")return;
             if(!guild.available)return;
-
-
-            let botLists = await bot.database.getBotlistsWithStats();
-            const voiceConnections = bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.has("0") ? bot.lavaqueue.manager.nodes.get("0").stats.players : 0;
-            const serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
-            for(let i = 0; i < botLists.length; i++){
-                const botList = botLists[i];
-                let body = {};
-                conditionallyAssign(body, botList, "shardCountField", bot.client.shard.count);
-                conditionallyAssign(body, botList, "serverCountField", bot.client.guilds.cache.size);
-                conditionallyAssign(body, botList, "shardIdField", bot.client.shard.ids[0]);
-                conditionallyAssign(body, botList, "totalServerCountField", serverCount);
-                conditionallyAssign(body, botList, "usersCountField", bot.client.users.cache.size);
-                conditionallyAssign(body, botList, "voiceConnectionsCountField", voiceConnections);
-                conditionallyAssign(body, botList, "tokenField", botList.statsKey);
-                try {
-                    await axios[botList.statsMethod](botList.statsUrl, body, {
-                        headers: {
-                            "Authorization": botList.statsKey,
-                        }
-                    })
-                    bot.logger.log(`Posted stats to ${botList.id}`)
-                }catch(e){
-                    bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
-                    if(e.response)
-                        console.log(e.response.data);
-                }
-            }
+            return module.exports.updateBotLists(bot)
         });
+    },
+    updateBotLists: async function updateBotLists(bot){
+        let botLists = await bot.database.getBotlistsWithStats();
+        const voiceConnections = bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.has("0") ? bot.lavaqueue.manager.nodes.get("0").stats.players : 0;
+        const serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
+        for(let i = 0; i < botLists.length; i++){
+            const botList = botLists[i];
+            let body = {};
+            conditionallyAssign(body, botList, "shardCountField", bot.client.shard.count);
+            conditionallyAssign(body, botList, "serverCountField", bot.client.guilds.cache.size);
+            conditionallyAssign(body, botList, "shardIdField", bot.client.shard.ids[0]);
+            conditionallyAssign(body, botList, "totalServerCountField", serverCount);
+            conditionallyAssign(body, botList, "usersCountField", bot.client.users.cache.size);
+            conditionallyAssign(body, botList, "voiceConnectionsCountField", voiceConnections);
+            conditionallyAssign(body, botList, "tokenField", botList.statsKey);
+            try {
+                await axios[botList.statsMethod](botList.statsUrl, body, {
+                    headers: {
+                        "Authorization": botList.statsKey,
+                    }
+                })
+                bot.logger.log(`Posted stats to ${botList.id}`)
+            }catch(e){
+                bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
+                if(e.response)
+                    console.log(e.response.data);
+            }
+        }
     }
 };
 
