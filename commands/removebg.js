@@ -8,6 +8,7 @@
 const config = require('config');
 const request = require('request');
 const Discord = require('discord.js');
+let deadKeys = [];
 
 module.exports = {
     name: "Remove Background",
@@ -17,20 +18,31 @@ module.exports = {
     commands: ["removebg", "rbg", "removebackground"],
     categories: ["image", "tools"],
     run: async function run(message, args, bot) {
+        let keys;
+        try {
+            keys = JSON.parse(message.getSetting("removebg.keys"))
+        }catch(e){
+            console.log(e);
+            return message.channel.send("removebg is temporarily unavailable (could not parse keys).");
+        }
+        if(!keys)
+            return message.channel.send("removebg is temporarily unavailable (no keys available).");
+        let key = keys.find((key)=>!deadKeys.includes(key));
+        if(!key)
+            return message.channel.send("removebg is temporarily unavailable (all keys are exhausted).");
         message.channel.startTyping();
         const url =  await bot.util.getImage(message, args);
         if(!url) {
             message.channel.stopTyping(true);
             return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
         }
-        console.log(url);
         bot.tasks.startTask("removebg", message.id);
         request({
             encoding: null,
             method: 'POST',
             url: "https://api.remove.bg/v1.0/removebg",
             headers: {
-                "X-Api-Key": config.get("Commands.removebg.key2")
+                "X-Api-Key": key,
             },
             form: {
                 image_url: url
@@ -46,9 +58,12 @@ module.exports = {
                         let output = "";
                         for(let i = 0; i < data.errors.length; i++){
                             if(data.errors[i].title === "Insufficient credits"){
+                                deadKeys.push(key);
+                                console.log(`Key ${key} is dead.`);
                                 bot.tasks.endTask("removebg", message.id);
                                 message.channel.stopTyping(true);
-                                return message.replyLang("REMOVEBG_QUOTA");
+                                return message.replyLang("GENERIC_ERROR");
+                                //return message.replyLang("REMOVEBG_QUOTA");
                             }
                             output += data.errors[i].title+"\n"
                         }
