@@ -10,7 +10,7 @@ module.exports = {
     commands: ["ping"],
     rateLimit: 30,
     categories: ["tools"],
-    run: async function run(message, args){
+    run: async function run(message, args, bot){
         if(args.length < 2){
             message.replyLang("PING_NO_ADDRESS");
             return;
@@ -28,6 +28,9 @@ module.exports = {
         const res = await ping.promise.probe(output, {
             timeout: 1000
         });
+
+        if(sentMessage.deleted)
+            return bot.logger.log("Message was deleted before the ping completed.");
 
         if(res.alive){
             return sentMessage.editLang("PING_RESPONSE", {response: res.output});
