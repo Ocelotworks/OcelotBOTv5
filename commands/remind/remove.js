@@ -2,7 +2,7 @@ module.exports = {
     name: "List Reminders",
     usage: "list",
     commands: ["remove", "delete", "del"],
-    run: async function(message, args, bot){
+    run: async function(message, args, bot, reminderObject){
       if(!args[2] || isNaN(args[2]))
           return message.channel.send(`To remove a reminder, find it's ID from **${args[0]} list** and enter it here, e.g ${args[0]} remove 420`);
 
@@ -25,6 +25,7 @@ module.exports = {
           return message.channel.send("Something terrible happened.");
 
       await bot.database.removeReminderByUser(args[2], message.author.id);
+      reminderObject.deletedReminders.push(args[2]);
       message.channel.send("Successfully removed reminder "+args[2]);
     }
 };
