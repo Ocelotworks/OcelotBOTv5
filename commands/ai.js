@@ -10,13 +10,15 @@ const Cleverbot = require('cleverbot');
 
 let contexts = {};
 
+let contextIDs = {};
+
 let clev = new Cleverbot({
     key: config.get("key")
 });
 module.exports = {
-    name: "Artifical Intelligence",
+    name: "Artificial Intelligence",
     usage: "ai <message>",
-    detailedHelp: "Ask a question to the Artifical Intelligence",
+    detailedHelp: "Ask a question to the Artificial Intelligence",
     usageExample: "ai what is the meaning of life?",
     categories: ["fun"],
     rateLimit: 20,
@@ -30,9 +32,11 @@ module.exports = {
             let response = await clev.query(input, {cs: contexts[message.channel.id]});
             contexts[message.channel.id] = response.cs;
 
-            if(response.output)
+            if(response.output) {
                 message.channel.send(response.output);
-            else
+                let messageID = await bot.database.logAiConversation(message.author.id, message.guild?message.guild.id:"dm", contextIDs[message.channel.id], message.cleanContent.substring(args[0].length + 1), response.output);
+                contextIDs[message.channel.id] = messageID[0];
+            }else
                 message.replyLang("GENERIC_ERROR");
 
             message.channel.stopTyping();

@@ -1061,6 +1061,9 @@ module.exports = {
             },
             getBotlistsWithStats: function(){
                 return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl");
+            },
+            logAiConversation: function(userID, serverID, lastMessageID, message, response){
+                return knex.insert({userID, serverID, lastMessageID, message, response}).into("ocelotbot_ai_conversations");
             }
         };
     }
