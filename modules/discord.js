@@ -409,8 +409,6 @@ module.exports = {
             }, 1000);
         })
 
-        bot.client.on("")
-
         process.on("message", function onMessage(message){
             Sentry.configureScope(async function onMessage(scope){
                 scope.addBreadcrumb({

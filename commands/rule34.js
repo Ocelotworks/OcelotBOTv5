@@ -38,6 +38,7 @@ module.exports = {
                     page = page["$"];
                     let embed = new Discord.MessageEmbed();
 
+                    embed.setTitle(`Results for '${tag}'`);
                     embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true}));
                     embed.setImage(page.file_url);
                     embed.addField("Score", page.score);
