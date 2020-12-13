@@ -48,9 +48,11 @@ function getContent(content){
             if (content.target)
                 return `[Reply to: ${content.data.message_reference.message_id}] ${getContent(content.data)}`;
 
-
             if (content.content)
                 return content.content;
+
+            if(content.embed)
+                return getContent(content.embed);
 
             return JSON.stringify(content);
         }
