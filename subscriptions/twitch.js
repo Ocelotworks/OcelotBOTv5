@@ -40,7 +40,7 @@ module.exports = {
                     "hub.mode": "subscribe",
                     "hub.topic": `https://api.twitch.tv/helix/streams/?user_id=${id}`,
                     "hub.lease_seconds": "86400000",
-                    "hub.callback": "https://ocelot.xyz/dash/twitchCallback.php",
+                    "hub.callback": "https://ocelotbot.xyz/dash/twitchCallback.php",
                     "hub.secret": `SUBID:${sub.id}`
                 },
                 json: true

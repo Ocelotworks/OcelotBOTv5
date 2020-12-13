@@ -11,6 +11,7 @@ const presenceMessages = [
     {message: "!premium", type: 'LISTENING'},
     {message: "!vote", type: 'LISTENING'},
     {message: "Minecraft Parody Songs", type: 'LISTENING'},
+    {message: "ASMR", type: 'LISTENING'},
     {message: "lord jesus help us all", type: 'LISTENING'},
     {message: "ass", type: 'WATCHING'},
     {message: "is this thing on", type: 'LISTENING'},
@@ -22,6 +23,7 @@ const presenceMessages = [
     {message: "you in the shower", type: 'WATCHING'},
     {message: "your complaints", type: 'LISTENING'},
     {message: "staying indoors", type: 'LISTENING'},
+    {message: "Toilet Jake isn't real, he can't hurt you", type: "WATCHING"}
 ];
 
 
@@ -37,7 +39,7 @@ function getContent(content){
             if (content.username)
                 return `[Mention: @${content.tag} (${content.id})]`;
 
-            if (content.title)
+            if (content.title || content.type && content.type === "rich")
                 return `[Embed: ${content.title} - ${content.description}]`;
 
             if (content.reply)
@@ -45,6 +47,7 @@ function getContent(content){
 
             if (content.target)
                 return `[Reply to: ${content.data.message_reference.message_id}] ${getContent(content.data)}`;
+
 
             if (content.content)
                 return content.content;
@@ -170,6 +173,8 @@ module.exports = {
                        type: randPresence.type
                    }
                 });
+            }else{
+                bot.logger.log("Not updating presence as last update was too recent.");
             }
         };
 
@@ -181,7 +186,7 @@ module.exports = {
                     level: Sentry.Severity.Info,
                     category:  "discord",
                 });
-                setTimeout(bot.updatePresence, 120000);
+                setTimeout(bot.updatePresence, 150000);
 
                 // bot.client.voiceConnections.cache.forEach(function leaveOrphanedVoiceChannels(connection){
                 //     bot.logger.warn("Leaving orphaned voice "+connection.channel);
@@ -249,7 +254,7 @@ module.exports = {
                             let embed = new Discord.MessageEmbed();
                             embed.setColor(bot.config.get("global", "welcome.embedColour"));
                             embed.setTitle("Welcome to OcelotBOT!");
-                            embed.setDescription("You can find my commands [here](https://ocelot.xyz/#commands) or by typing !help.");
+                            embed.setDescription("You can find my commands [here](https://ocelotbot.xyz/#commands) or by typing !help.");
                             embed.addField("Prefix", "The default prefix is !, if you want to change it type **!settings set prefix %**");
                             embed.addField("Wholesome?", "Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **!settings set wholesome true**");
                             embed.addField("Administrators", "You can change the bot's settings by typing **!settings help**");
@@ -404,6 +409,8 @@ module.exports = {
             }, 1000);
         })
 
+        bot.client.on("")
+
         process.on("message", function onMessage(message){
             Sentry.configureScope(async function onMessage(scope){
                 scope.addBreadcrumb({
@@ -470,13 +477,14 @@ module.exports = {
                         }
                     }
                 }else if(message.type === "presence"){
+                    bot.logger.log("Updating presence: "+message.payload);
                     bot.presenceMessage = message.payload === "clear" ? null : message.payload;
-                    bot.updatePresence();
+                    await bot.updatePresence();
                 }else if(message.type === "getUserInfo"){
                     let userID = message.payload;
                     let user = await bot.client.users.fetch(userID);
                     if(user) {
-                        bot.client.shard.send({
+                        await bot.client.shard.send({
                             type: "getUserInfoResponse", payload: {
                                 id: user.id,
                                 username: user.username,
@@ -487,6 +495,8 @@ module.exports = {
                 }
             });
         });
+
+
         bot.logger.log("Logging in to Discord...");
         bot.client.login();
     }
