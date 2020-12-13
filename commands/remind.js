@@ -10,6 +10,8 @@ module.exports = {
     accessLevel: 0,
     commands: ["remind", "remindme", "reminder", "setreminder", "reminders"],
     categories: ["tools"],
+    // This doesn't feel right
+    deletedReminders: [],
     init: function init(bot){
         bot.util.standardNestedCommandInit('remind');
         bot.client.on("ready", function () {
@@ -88,32 +90,36 @@ module.exports = {
         }
     },
     sendReminder: async function(reminder, bot){
-        bot.logger.log(`Reminding ${reminder.id}: ${reminder.user}: ${reminder.message}`);
-        try {
-            const channel = await bot.client.channels.fetch(reminder.channel);
-            await channel.send(await bot.lang.getTranslation(channel.guild.id, "REMIND_REMINDER", {
-                username: reminder.user,
-                date: new Date(reminder.timestamp).toString(),
-                message: reminder.message
-            }));
-        }catch(e){
-            bot.logger.log("Reminder channel no longer exists, attempting to send it to the user instead...");
-            try{
-                const targetUser = await bot.client.users.fetch(reminder.user);
-                if(targetUser){
-                    const dm = await targetUser.createDM();
-                    await dm.send(await bot.lang.getTranslation(reminder.channel, "REMIND_REMINDER", {
-                        username: reminder.user,
-                        date: new Date(reminder.timestamp).toString(),
-                        message: reminder.message
-                    }));
-                }else{
-                    bot.logger.log("Couldn't retrieve the user.");
+        if(!deletedReminders.includes(reminder.id)) {
+            bot.logger.log(`Reminding ${reminder.id}: ${reminder.user}: ${reminder.message}`);
+            try {
+                const channel = await bot.client.channels.fetch(reminder.channel);
+                await channel.send(await bot.lang.getTranslation(channel.guild.id, "REMIND_REMINDER", {
+                    username: reminder.user,
+                    date: new Date(reminder.timestamp).toString(),
+                    message: reminder.message
+                }));
+            } catch (e) {
+                bot.logger.log("Reminder channel no longer exists, attempting to send it to the user instead...");
+                try {
+                    const targetUser = await bot.client.users.fetch(reminder.user);
+                    if (targetUser) {
+                        const dm = await targetUser.createDM();
+                        await dm.send(await bot.lang.getTranslation(reminder.channel, "REMIND_REMINDER", {
+                            username: reminder.user,
+                            date: new Date(reminder.timestamp).toString(),
+                            message: reminder.message
+                        }));
+                    } else {
+                        bot.logger.log("Couldn't retrieve the user.");
+                    }
+                } catch (e) {
+                    bot.logger.error("Error whilst sending to user");
+                    bot.raven.captureException(e);
                 }
-            }catch(e){
-                bot.logger.error("Error whilst sending to user");
-                bot.raven.captureException(e);
             }
+        }else{
+            bot.logger.log(`Reminder ${reminder.id} was deleted.`);
         }
         try{
             await bot.database.removeReminder(reminder.id);
@@ -128,7 +134,7 @@ module.exports = {
             message.channel.send(":warning: You cannot use this command in a DM channel.");
             return;
         }
-        await bot.util.standardNestedCommand(message, args, bot, "remind", null, async function setReminder() {
+        await bot.util.standardNestedCommand(message, args, bot, "remind", module.exports, async function setReminder() {
             //Hacky hack hack
             message.content = message.content.replace(args[0], "in");
             console.log(message.content);

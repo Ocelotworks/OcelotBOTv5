@@ -21,7 +21,7 @@ module.exports = {
             data: input,
             server : message.guild ? message.guild.id : message.channel.id, player : message.author.id,
             admin: message.getBool("admin")
-        });
+        }, 300000, {durable: false});
 
         let text = Discord.escapeMarkdown(decodeURIComponent(result.text));
         let channelMessage = "";
