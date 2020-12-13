@@ -1058,6 +1058,9 @@ module.exports = {
             getReferralCount: async function(id){
                 let result = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_referrals").where({id});
                 return result[0]['COUNT(*)'];
+            },
+            getBotlistsWithStats: function(){
+                return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl");
             }
         };
     }

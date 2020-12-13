@@ -49,7 +49,7 @@ module.exports = {
         embed.setColor(0x189F06);
         embed.setAuthor(title, bot.client.user.avatarURL({dynamic: true, format: "png"}));
         embed.setDescription(tagline);
-        embed.addField("Sponsor a Shard","Give this shard a name with [OcelotBOT Premium](https://ocelot.xyz/premium)");
+        embed.addField("Sponsor a Shard","Give this shard a name with [OcelotBOT Premium](https://ocelotbot.xyz/premium)");
         embed.addField(uptime, bot.util.prettySeconds(process.uptime(), message.guild && message.guild.id, message.author.id));
         embed.addField(totalUsers, userCount.toLocaleString(), true);
         embed.addField(totalServers, serverCount.toLocaleString(), true);

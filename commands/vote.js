@@ -67,7 +67,7 @@ module.exports = {
             // bot.matomo.track({
             //     action_name: "Vote",
             //     uid:  user,
-            //     url: `http://bot.ocelot.xyz/vote/done`,
+            //     url: `http://bot.ocelotbot.xyz/vote/done`,
             //     ua: "Shard "+bot.client.shard_id,
             //     e_c: "Vote",
             //     e_a: "Voted",

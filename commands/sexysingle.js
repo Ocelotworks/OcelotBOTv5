@@ -89,7 +89,6 @@ module.exports = {
                             message.channel.stopTyping();
                             message.replyLang("GENERIC_ERROR");
                             console.log(e);
-                        } finally {
                         }
                     }
                 });

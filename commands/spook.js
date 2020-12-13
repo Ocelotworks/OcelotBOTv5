@@ -391,7 +391,7 @@ module.exports = {
             embed.setTitle("The Spooking Has Ended.");
             embed.setTimestamp(new Date());
             embed.setFooter("Happy Halloween!", bot.client.user.avatarURL({dynamic: true, format: "png"}));
-            embed.setDescription(`**<@${loser}> is the loser!**\nThank you all for participating in the 3rd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greatly appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelot.xyz/premium?ref=spook)`);
+            embed.setDescription(`**<@${loser}> is the loser!**\nThank you all for participating in the 3rd ever OcelotBOT spooking!\nI made a conscious decision not to create pay/vote to win features for this event, if you enjoyed this I would greatly appreciate it if you [voted](https://top.gg/bot/146293573422284800/vote) or purchased [premium](https://ocelotbot.xyz/premium?ref=spook)`);
             embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${Math.floor((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)}% of all spooks.)`);
             embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
             embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff, targetChannel.guild && targetChannel.guild.id, spookStats.longestSpook.spooked)})`);

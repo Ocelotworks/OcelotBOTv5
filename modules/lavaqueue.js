@@ -22,21 +22,21 @@ module.exports = {
                 bot.lavaqueue.manager = new Manager(bot.client, [
                     {
                         id: "1",
-                        host: "lavalink-1.ocelot.xyz",
+                        host: "lavalink-1.ocelotbot.xyz",
                         port: 2333,
                         password: config.get("Lavalink.password"),
                         reconnectInterval: 1000,
                     },
                     {
                         id: "2",
-                        host: "lavalink-2.ocelot.xyz",
+                        host: "lavalink-2.ocelotbot.xyz",
                         port: 80,
                         password: config.get("Lavalink.password"),
                         reconnectInterval: 1000,
                     },
                     {
                         id: "guess",
-                        host: "lavalink-3.ocelot.xyz",
+                        host: "lavalink-3.ocelotbot.xyz",
                         port: 80,
                         password: config.get("Lavalink.password"),
                         reconnectInterval: 1000,
@@ -154,6 +154,7 @@ module.exports = {
             player.once("error", function playerError(error){
                 bot.raven.captureException(error);
                 bot.logger.error("Player Error: "+error.error); //YEs
+
             });
             player.once("event", data => {
                 if (!data.reason || data.reason === "REPLACED") return; // Ignore REPLACED reason to prevent skip loops

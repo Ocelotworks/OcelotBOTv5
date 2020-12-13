@@ -6,6 +6,29 @@
  */
 const config = require('config');
 const request = require('request');
+const axios = require('axios');
+
+
+function setDeep(obj, path, value, setRecursively = false) {
+    path.reduce((a, b, level) => {
+        if (setRecursively && typeof a[b] === "undefined" && level !== path.length-1){
+            a[b] = {};
+            return a[b];
+        }
+
+        if (level === path.length-1){
+            a[b] = value;
+            return value;
+        }
+        return a[b];
+    }, obj);
+}
+
+function conditionallyAssign(body, botList, fieldName, value){
+    if(botList[fieldName])
+        body = setDeep(body, botList[fieldName].split("."), value, true);
+    return body;
+}
 
 module.exports = {
     name: "Bot List Management",
@@ -13,128 +36,35 @@ module.exports = {
     init: function init(bot) {
         bot.client.on("guildCreate", async function(guild){
             if(bot.client.user.id !== "146293573422284800")return;
-            if(guild.unavailable)return;
+            if(!guild.available)return;
 
-            function handleResponse(url){
-                return function(err, resp, body) {
-                    if (err) return bot.raven.captureException(err);
-                    if (resp.statusCode >= 400) {
-                        bot.logger.warn(`Got bad response from ${url} (${resp.statusCode})`);
-                        bot.logger.warn(body);
-                    }
-                }
-            }
 
-            function postCount(url, key, body){
-                request.post({
-                    headers: {
-                        "Authorization": key,
-                        "Content-Type": "application/json"
-                    },
-                    url: url,
-                    json: true,
-                    body: body
-                }, handleResponse(url));
-            }
-
-            postCount("https://top.gg/api/bots/146293573422284800/stats", config.get("Discord.discordBotsOrgKey"), {
-                server_count: bot.client.guilds.cache.size,
-                shard_id: bot.client.shard.ids.join(";"),
-                shard_count: bot.client.shard.count
-            });
-
-            postCount("https://discord.bots.gg/api/v1/bots/146293573422284800/stats", config.get("Discord.discordBotsKey"), {
-                guildCount: bot.client.guilds.cache.size,
-                shardCount: bot.client.shard.count,
-                shardId: bot.client.shard.ids.join(";"),
-            });
-
+            let botLists = await bot.database.getBotlistsWithStats();
             const voiceConnections = bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.has("0") ? bot.lavaqueue.manager.nodes.get("0").stats.players : 0;
-
-            postCount("https://discordbotlist.com/api/v1/bots/146293573422284800/stats", config.get("Discord.discordBotListKey"), {
-                voice_connections: voiceConnections,
-                users: bot.client.users.cache.size,
-                guilds: bot.client.guilds.cache.size,
-                shard_id: bot.client.shard.ids.join(";"),
-            });
-
             const serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
-
-            postCount("https://bots.ondiscord.xyz/bot-api/bots/146293573422284800/guilds", config.get("Discord.botsOnDiscordKey"), {
-                guildCount: serverCount
-            });
-
-            // postCount("https://discordbot.world/api/bot/146293573422284800/stats", config.get("Discord.discordBotWorldKey"), {
-            //     guild_count: serverCount,
-            //     shard_count: bot.client.shard.count
-            // });
-
-            postCount("https://api.discordextremelist.xyz/v2/bot/146293573422284800/stats",config.get("Discord.discordExtremeKey"), {
-                guildCount: serverCount,
-                shardCount: bot.client.shard.count,
-            });
-
-            // fuck you blist
-            request.patch({
-                headers: {
-                    "Authorization": config.get("Discord.blistKey"),
-                    "Content-Type": "application/json"
-                },
-                url: "https://blist.xyz/api/v2/bot/146293573422284800/stats/",
-                json: true,
-                body: {
-                    server_count: serverCount,
-                    shard_count: bot.client.shard.count
+            for(let i = 0; i < botLists.length; i++){
+                const botList = botLists[i];
+                let body = {};
+                conditionallyAssign(body, botList, "shardCountField", bot.client.shard.count);
+                conditionallyAssign(body, botList, "serverCountField", bot.client.guilds.cache.size);
+                conditionallyAssign(body, botList, "shardIdField", bot.client.shard.ids[0]);
+                conditionallyAssign(body, botList, "totalServerCountField", serverCount);
+                conditionallyAssign(body, botList, "usersCountField", bot.client.users.cache.size);
+                conditionallyAssign(body, botList, "voiceConnectionsCountField", voiceConnections);
+                conditionallyAssign(body, botList, "tokenField", botList.statsKey);
+                try {
+                    await axios[botList.statsMethod](botList.statsUrl, body, {
+                        headers: {
+                            "Authorization": botList.statsKey,
+                        }
+                    })
+                    bot.logger.log(`Posted stats to ${botList.id}`)
+                }catch(e){
+                    bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
+                    if(e.response)
+                        console.log(e.response.data);
                 }
-            }, handleResponse( "https://blist.xyz/api/v2/bot/146293573422284800/stats/"));
-
-
-            // postCount("https://bots.discordlabs.org/v2/bot/146293573422284800/stats", config.get("Discord.discordBotLabsKey"), {
-            //     server_count: serverCount,
-            //     shard_count: bot.client.shard.count,
-            //     token: config.get("Discord.discordBotLabsKey"),
-            // });
-
-            postCount("https://arcane-center.xyz/api/146293573422284800/stats", config.get("Discord.arcaneBotsKey"), {
-                server_count: serverCount,
-                shard_count: bot.client.shard.count
-            });
-
-            postCount("https://botsfordiscord.com/api/bot/146293573422284800", config.get("Discord.botsForDiscordKey"), {
-                server_count: serverCount,
-            });
-
-            postCount("https://infinitybotlist.com/api/bots/146293573422284800", config.get("Discord.infinityBotsKey"), {
-                servers: serverCount,
-                shards: bot.client.shard.count
-            });
-
-            postCount("https://discord.boats/api/bot/146293573422284800", config.get("Discord.discordBoatsClubKey"), {
-                server_count: serverCount,
-            });
-
-            postCount("https://voidbots.net/api/auth/stats/146293573422284800", config.get("Discord.voidBotsKey"), {
-                server_count: serverCount,
-            });
-
-            postCount("https://disforge.com/api/botstats/146293573422284800", config.get("Discord.disforgeKey"), {
-                servers: serverCount,
-            });
-
-            postCount("https://api.discordbots.co/v1/public/bot/:id/stats", config.get("Discord.discordBotsCoKey"), {
-                serverCount: serverCount,
-                shardCount: bot.client.shard.count,
-            });
-
-            // postCount("https://api.botsdatabase.com/v1/bots/146293573422284800",config.get("Discord.botsDatabaseKey"), {
-            //     servers: serverCount,
-            // });
-
-            // postCount("https://discordapps.dev/api/v2/bots/146293573422284800",config.get("Discord.discordAppsKey"), {
-            //     bot: {
-            //         count: serverCount,
-            //     },
-            // });
+            }
         });
     }
 };

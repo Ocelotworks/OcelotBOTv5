@@ -1011,7 +1011,7 @@ module.exports = {
 
         bot.util.getJson = async function getJson(url, extraData, headers){
             return new Promise((resolve, reject)=>{
-                request({url, headers:{'User-Agent': 'OcelotBOT stevie5 https://ocelot.xyz/', ...headers}, ...extraData}, (err, resp, body)=>{
+                request({url, headers:{'User-Agent': 'OcelotBOT stevie5 https://ocelotbot.xyz/', ...headers}, ...extraData}, (err, resp, body)=>{
                     if(err)return reject(err);
                     try {
                         resolve(JSON.parse(body))

@@ -90,7 +90,7 @@ async function init(){
         })
 
         om.on('gotMessage',function(message){
-            if(message === "Use Omegle over Discord with OcelotBOT: https://ocelot.xyz/")return;
+            if(message === "Use Omegle over Discord with OcelotBOT: https://ocelotbot.xyz/")return;
             for(let i = 0; i < bannedWords.length; i++){
                 if(message.toLowerCase().indexOf(bannedWords[i]) > -1){
                     message = "<Spam Filtered>";
@@ -125,7 +125,7 @@ async function init(){
         if(!sessions[channel])
             return;
         if(sessions[channel].connected) {
-            sessions[channel].send("Use Omegle over Discord with OcelotBOT: https://ocelot.xyz/");
+            sessions[channel].send("Use Omegle over Discord with OcelotBOT: https://ocelotbot.xyz/");
             setTimeout(()=>{
                 sessions[channel].disconnect();
             }, 1000)

@@ -19,7 +19,7 @@ module.exports = {
             bot.matomo.track({
                 action_name: "Command Performed",
                 uid: message.author.id,
-                url: `http://bot.ocelot.xyz/${command}`,
+                url: `http://bot.ocelotbot.xyz/${command}`,
                 ua: message.guild ? message.guild.name : "DM Channel",
                 new_visit: newVisit,
                 e_c: "Command",
@@ -40,7 +40,7 @@ module.exports = {
             bot.matomo.track({
                 action_name: "Command Rate Limited",
                 uid: message.author.id,
-                url: `http://bot.ocelot.xyz/${command}`,
+                url: `http://bot.ocelotbot.xyz/${command}`,
                 ua:  message.guild ? message.guild.name : "DM Channel",
                 e_c: "Command",
                 e_a: "Rate Limited",
