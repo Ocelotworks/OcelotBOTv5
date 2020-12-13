@@ -19,7 +19,7 @@ module.exports = {
             bot.tasks.taskTimers[name + id] = setTimeout(function taskTimeout() {
                 bot.logger.warn(`Task ${name}-${id} did not end!`);
                 bot.tasks.endTask(name, id);
-            }, 150000);
+            }, 1500000);
             bot.logger.info(`Started task ${name} (${id})`);
             try {
                 bot.client.shard.send({type: "tasksClear", payload: false});
