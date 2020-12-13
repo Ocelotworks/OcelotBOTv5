@@ -32,13 +32,13 @@ module.exports = {
                 const unknownUserKey = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "TRIVIA_UNKNOWN_USER");
                 span.end();
                 span = bot.apm.startSpan("Get Leaderboard");
-                let leaderboard = await bot.util.getJson(`https://api.ocelot.xyz/leaderboard/guess/records/${timescale}`);
+                let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${timescale}`);
                 span.end();
                 if (!leaderboard.data || leaderboard.data.length === 0) {
                     return message.channel.send(`There is no data for that timeframe. Try **${args[0]} records all** to see the all time scores.`);
                 }
                 span = bot.apm.startSpan("Get Position");
-                let positionData = await bot.util.getJson(`https://api.ocelot.xyz/leaderboard/guess/records/${timescale}/${message.author.id}`);
+                let positionData = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${timescale}/${message.author.id}`);
                 span.end();
                 let outputData = [];
 
@@ -61,7 +61,7 @@ module.exports = {
             }else{
                 let targetUser = message.author.id;
                 let span = bot.apm.startSpan("Get Records");
-                let records = await bot.util.getJson(`https://api.ocelot.xyz/leaderboard/guess/records/${targetUser}/list?items=500`);
+                let records = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${targetUser}/list?items=500`);
                 span.end();
                 if(records.data.length === 0){
                     return message.channel.send(":stopwatch: You have no records!");

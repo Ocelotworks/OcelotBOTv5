@@ -108,25 +108,25 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
 
         let embed = new Discord.MessageEmbed();
         embed.setTitle("Premium Status");
-        embed.setURL("https://ocelot.xyz/premium");
-        embed.setThumbnail("https://ocelot.xyz/badge.php?id=52");
+        embed.setURL("https://ocelotbot.xyz/premium");
+        embed.setThumbnail("https://ocelotbot.xyz/badge.php?id=52");
         if(message.getBool("serverPremium")) {
-            embed.setDescription("**[Server Premium](https://ocelot.xyz/premium)** - You can enjoy premium commands in this server.");
+            embed.setDescription("**[Server Premium](https://ocelotbot.xyz/premium)** - You can enjoy premium commands in this server.");
             if(message.getBool("premium")) {
                 embed.setColor("#378515");
                 embed.addField("User Premium", "You also have premium, so you can enjoy all the benefits!");
             } else {
                 embed.setColor("#c07012");
-                embed.addField("User Premium", "Enjoy extra benefits from $2 a month with user premium: https://ocelot.xyz/premium")
+                embed.addField("User Premium", "Enjoy extra benefits from $2 a month with user premium: https://ocelotbot.xyz/premium")
             }
         }else if(message.getBool("premium")){
             embed.setColor("#378515");
-            embed.setDescription("**[User Premium](https://ocelot.xyz/premium)** - You have user premium, so you can enjoy the benefits anywhere!");
-            embed.addField("Server Premium", "Upgrade the whole server to premium for just $5 a month at https://ocelot.xyz/premium");
+            embed.setDescription("**[User Premium](https://ocelotbot.xyz/premium)** - You have user premium, so you can enjoy the benefits anywhere!");
+            embed.addField("Server Premium", "Upgrade the whole server to premium for just $5 a month at https://ocelotbot.xyz/premium");
             embed.addField("Got a Key?", `Redeem it with ${args[0]} \`key\``);
         }else{
             embed.setColor("#707070");
-            embed.setDescription("No premium benefits. Premium starts at $2 a month: https://ocelot.xyz/premium");
+            embed.setDescription("No premium benefits. Premium starts at $2 a month: https://ocelotbot.xyz/premium");
             embed.addField("Got a Key?", `Redeem it with ${args[0]} \`key\``);
         }
 

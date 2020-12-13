@@ -244,7 +244,7 @@ module.exports = {
         }
         if (listener.playing.info.uri.startsWith("/home/")) {
             footer = "AutoDJ";
-            footerIcon = "https://ocelot.xyz/res/highres.png";
+            footerIcon = "https://ocelotbot.xyz/res/highres.png";
             embed.setColor("#00d800");
         }
 
@@ -437,7 +437,7 @@ module.exports = {
             // bot.matomo.track({
             //     action_name: "Stream Song",
             //     uid:  listener.playing.requester,
-            //     url: `http://bot.ocelot.xyz/stream`,
+            //     url: `http://bot.ocelotbot.xyz/stream`,
             //     ua: "Shard "+bot.client.shard_id,
             //     e_c: "Song",
             //     e_a: "Streamed",

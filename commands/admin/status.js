@@ -21,7 +21,7 @@ const statuses = {
 
 const pings = {
     "Telemetry Server": "unacceptableuse.ddns.net",
-    "Dashboard": "ocelot.xyz",
+    "Dashboard": "ocelotbot.xyz",
     "Trivia API": "opentdb.com",
     "AI API": "cleverbot.io",
     "Image Manipulation Server 1": "deepai.org"
