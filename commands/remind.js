@@ -37,6 +37,7 @@ module.exports = {
 
         bot.client.on("ready", async function discordReady(){
             if(!bot.remindersLoaded) {
+                bot.client.shard.send({type: "claimReminder", payload: 0});
                 bot.remindersLoaded = true;
                 bot.logger.log("Loading reminders...");
                 const reminderResult = await bot.database.getReminders(bot.client.user.id);
