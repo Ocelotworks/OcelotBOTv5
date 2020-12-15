@@ -20,7 +20,7 @@ module.exports = {
                         scheduledReminder.clear();
                     }
                 }, JSON.parse(reminder.recurrence));
-                reminderData.recurringReminders[result[0]] = scheduledReminder;
+                reminderData.recurringReminders[reminder.id] = scheduledReminder;
             }
 
         })
