@@ -44,7 +44,6 @@ module.exports = {
                 const now = new Date().getTime();
                 for (let i = 0; i < reminderResult.length; i++) {
                     const reminder = reminderResult[i];
-                    console.log(reminder);
                     if (reminder.server && bot.client.guilds.cache.has(reminder.server)) {
                         bot.logger.log(`Reminder ${reminder.id} belongs to this shard.`);
                         const remainingTime = reminder.at - now;
@@ -60,8 +59,6 @@ module.exports = {
                         if(bot.client.shard){
                             bot.client.shard.send({type: "claimReminder", payload: reminder.id});
                         }
-                    }else{
-                        console.log("Not claiming reminder");
                     }
                 }
             }else{
@@ -71,7 +68,6 @@ module.exports = {
         if(bot.client.shard && bot.client.shard.ids.join(";") == 0) {
             process.on("message", async function handleClaimedReminders(message) {
                 if (message.type === "handleClaimedReminders") {
-                    console.log("processing unclaimed reminders");
                     if(bot.orphanedRemindersLoaded)return bot.logger.warn("Prevented duplicate orphaned reminder loading");
                     bot.orphanedRemindersLoaded = true;
                     const now = new Date().getTime();
