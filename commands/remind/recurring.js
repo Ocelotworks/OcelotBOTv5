@@ -56,6 +56,26 @@ module.exports = {
         console.log("parsed time: ", parse.schedules);
         console.log("Exclusion", parse.exceptions);
 
+
+        let occurrences = later.schedule(parse).nextRange(10);
+        let tooShort = 0;
+
+        if(occurrences.length === 1){
+            tooShort = 10;
+        }else {
+            for (let i = 0; i < occurrences.length - 1; i++) {
+                let first = occurrences[i][0];
+                let second = occurrences[i + 1][0];
+
+                if (!second || second - first < 10000) {
+                    tooShort++;
+                }
+            }
+        }
+
+        if(tooShort > occurrences.length/2)
+            return message.channel.send(":warning: Your message is too frequent. You must have at least 10 seconds between messages.");
+
         let schedule = parse.schedules[0];
         let output = ""
 
