@@ -20,7 +20,7 @@ module.exports = {
                     channel: channel ? channel.name : "unknown",
                     set: reminder.timestamp.toLocaleString(),
                     message: reminder.message,
-                    due: reminder.at.toLocaleString(),
+                    due: reminder.recurrence ? "recurring" : reminder.at.toLocaleString(),
                 });
             }
             return header+columnify(formatted)+"\n```";

@@ -9,6 +9,6 @@ module.exports = {
   categories: ["tools", "fun"],
   commands: ["8ball", "magic8ball"],
   run: function run(message, args) {
-    return message.replyLang(args.length < 2 ? "8BALL_NO_QUESTION" : `8BALL_RESPONSE_${message.getSetting("8ball.rig") || (questions.indexOf(args[1])+message.content.length)%14}`);
+    return message.replyLang(args.length < 2 ? "8BALL_NO_QUESTION" : `8BALL_RESPONSE_${message.getSetting("8ball.rig") || (questions.indexOf(args[1])+message.content.length+message.author.id[message.author.id.length-1])%14}`);
   },
 };

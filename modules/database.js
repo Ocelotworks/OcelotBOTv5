@@ -275,13 +275,13 @@ module.exports = {
              * @returns {Promise<Array>}
              */
             getReminders: function getReminders(receiver) {
-                return knex.select().from(REMINDERS_TABLE).where({receiver});
+                return knex.select().from(REMINDERS_TABLE).whereNull("recurrence").andWhere({receiver});
             },
             getRemindersForUser: function(receiver, user, server){
                 return knex.select().from(REMINDERS_TABLE).where({receiver, user, server}).orderBy("at", "asc");
             },
             getOrphanedReminders: function getOrphanedReminders(claimedReminders, receiver){
-                return knex.select().from(REMINDERS_TABLE).whereNotIn("id", claimedReminders).andWhere({receiver});
+                return knex.select().from(REMINDERS_TABLE).whereNotIn("id", claimedReminders).whereNull("recurrence").andWhere({receiver});
             },
             /**
              * Remove a reminder
@@ -1064,6 +1064,12 @@ module.exports = {
             },
             logAiConversation: function(userID, serverID, lastMessageID, message, response){
                 return knex.insert({userID, serverID, lastMessageID, message, response}).into("ocelotbot_ai_conversations");
+            },
+            addRecurringReminder: function(receiver, user, server, channel, message, recurrence){
+                return knex(REMINDERS_TABLE).insert({receiver, user, server, channel, message, recurrence: JSON.stringify(recurrence), at: new Date()})
+            },
+            getRecurringRemindersForShard(receiver, servers){
+                return knex.select().from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({receiver}).whereIn("server", servers);
             }
         };
     }

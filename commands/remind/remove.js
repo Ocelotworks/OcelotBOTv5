@@ -26,6 +26,9 @@ module.exports = {
 
       await bot.database.removeReminderByUser(args[2], message.author.id);
       reminderObject.deletedReminders.push(args[2]);
+      if(reminderObject.recurringReminders[args[2]]){
+          reminderObject.recurringReminders[args[2]].clear();
+      }
       message.channel.send("Successfully removed reminder "+args[2]);
     }
 };

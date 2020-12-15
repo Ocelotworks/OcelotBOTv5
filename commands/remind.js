@@ -12,8 +12,9 @@ module.exports = {
     categories: ["tools"],
     // This doesn't feel right
     deletedReminders: [],
+    recurringReminders: {},
     init: function init(bot){
-        bot.util.standardNestedCommandInit('remind');
+        bot.util.standardNestedCommandInit('remind', 'remind', module.exports);
         bot.client.on("ready", function () {
             bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, {exclusive: true});
             bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, function reminderConsumer(message) {
@@ -90,7 +91,7 @@ module.exports = {
         }
     },
     sendReminder: async function(reminder, bot){
-        if(!deletedReminders.includes(reminder.id)) {
+        if(!module.exports.deletedReminders.includes(reminder.id)) {
             bot.logger.log(`Reminding ${reminder.id}: ${reminder.user}: ${reminder.message}`);
             try {
                 const channel = await bot.client.channels.fetch(reminder.channel);
