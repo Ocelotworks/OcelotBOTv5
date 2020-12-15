@@ -4,7 +4,7 @@ module.exports = {
     usage: "list",
     commands: ["list", "view", "mine"],
     run: async function(message, args, bot){
-        let reminders = await bot.database.getRemindersForUser(bot.client.user.id, message.author.id, message.guild.id);
+        let reminders = await bot.database.getRemindersForUser(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null);
         if(reminders.length === 0)
             return message.channel.send(`You have not got any currently active reminders! To see how to set a reminder, type ${args[0]} help`);
 

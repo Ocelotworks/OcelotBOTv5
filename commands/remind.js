@@ -44,7 +44,8 @@ module.exports = {
                 const now = new Date().getTime();
                 for (let i = 0; i < reminderResult.length; i++) {
                     const reminder = reminderResult[i];
-                    if (bot.client.guilds.cache.has(reminder.server)) {
+                    console.log(reminder);
+                    if (reminder.server && bot.client.guilds.cache.has(reminder.server)) {
                         bot.logger.log(`Reminder ${reminder.id} belongs to this shard.`);
                         const remainingTime = reminder.at - now;
                         if (remainingTime <= 0) {
@@ -59,6 +60,8 @@ module.exports = {
                         if(bot.client.shard){
                             bot.client.shard.send({type: "claimReminder", payload: reminder.id});
                         }
+                    }else{
+                        console.log("Not claiming reminder");
                     }
                 }
             }else{
@@ -68,6 +71,7 @@ module.exports = {
         if(bot.client.shard && bot.client.shard.ids.join(";") == 0) {
             process.on("message", async function handleClaimedReminders(message) {
                 if (message.type === "handleClaimedReminders") {
+                    console.log("processing unclaimed reminders");
                     if(bot.orphanedRemindersLoaded)return bot.logger.warn("Prevented duplicate orphaned reminder loading");
                     bot.orphanedRemindersLoaded = true;
                     const now = new Date().getTime();
@@ -95,6 +99,7 @@ module.exports = {
         if(!module.exports.deletedReminders.includes(reminder.id)) {
             bot.logger.log(`Reminding ${reminder.id}: ${reminder.user}: ${reminder.message}`);
             try {
+                if(!reminder.server)throw new Error("DM reminder");
                 const channel = await bot.client.channels.fetch(reminder.channel);
                 await channel.send(await bot.lang.getTranslation(channel.guild.id, "REMIND_REMINDER", {
                     username: reminder.user,
@@ -102,7 +107,11 @@ module.exports = {
                     message: reminder.message
                 }));
             } catch (e) {
-                bot.logger.log("Reminder channel no longer exists, attempting to send it to the user instead...");
+                if(reminder.server) {
+                    bot.logger.log("Reminder channel no longer exists, attempting to send it to the user instead...");
+                }else{
+                    bot.logger.log("DM Reminder, finding user...");
+                }
                 try {
                     const targetUser = await bot.client.users.fetch(reminder.user);
                     if (targetUser) {
@@ -132,10 +141,6 @@ module.exports = {
         }
     },
     run: async function(message, args, bot){
-        if(!message.guild){
-            message.channel.send(":warning: You cannot use this command in a DM channel.");
-            return;
-        }
         await bot.util.standardNestedCommand(message, args, bot, "remind", module.exports, async function setReminder() {
             //Hacky hack hack
             message.content = message.content.replace(args[0], "in");
@@ -188,7 +193,7 @@ module.exports = {
                 if (message.getBool("remind.silentQueueTest")) {
                     bot.rabbit.channel.sendToQueue("newReminder", Buffer.from(JSON.stringify({
                         username: message.author.id,
-                        server: message.guild.id,
+                        server: message.guild ? message.guild.id : null,
                         channel: message.channel.id,
                         receiver: bot.client.user.id,
                         date: now.toString(),
@@ -199,7 +204,7 @@ module.exports = {
                 if (message.getBool("remind.useQueue")) {
                     bot.rabbit.channel.sendToQueue("newReminder", Buffer.from(JSON.stringify({
                         username: message.author.id,
-                        server: message.guild.id,
+                        server: message.guild ? message.guild.id : null,
                         channel: message.channel.id,
                         receiver: bot.client.user.id,
                         date: now.toString(),
@@ -207,12 +212,12 @@ module.exports = {
                         at: at.getTime(),
                     })));
                 } else {
-                    const reminderResponse = await bot.database.addReminder(bot.client.user.id, message.author.id, message.guild.id, message.channel.id, at.getTime(), reminder);
+                    const reminderResponse = await bot.database.addReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, at.getTime(), reminder);
                     bot.util.setLongTimeout(async function () {
                         try {
                             await message.replyLang("REMIND_REMINDER", {
                                 username: message.author.id,
-                                server: message.guild.id,
+                                server: message.guild ? message.guild.id : null,
                                 date: now.toString(),
                                 message: reminder
                             });
@@ -223,6 +228,7 @@ module.exports = {
                     }, offset);
                 }
             } catch (e) {
+                console.log(e);
                 message.replyLang("REMIND_ERROR");
                 bot.raven.captureException(e);
             }
