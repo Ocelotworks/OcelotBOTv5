@@ -64,7 +64,7 @@ module.exports = {
                 bot.logger.log("Prevented duplicate reminder loading");
             }
         });
-        if(bot.client.shard && bot.client.shard.ids.join(";") === 0) {
+        if(bot.client.shard && bot.client.shard.ids.join(";") == 0) {
             process.on("message", async function handleClaimedReminders(message) {
                 if (message.type === "handleClaimedReminders") {
                     if(bot.orphanedRemindersLoaded)return bot.logger.warn("Prevented duplicate orphaned reminder loading");
