@@ -940,7 +940,7 @@ module.exports = {
 
         bot.util.nestedCommands = {};
 
-        bot.util.standardNestedCommandInit = function standardNestedCommandInit(id, directory = id){
+        bot.util.standardNestedCommandInit = function standardNestedCommandInit(id, directory = id, initData){
             bot.logger.log(`Initialising nested commands for ${id}`);
             fs.readdir(`${__dirname}/../commands/${directory}`, function loadNestedCommands(err, files){
                 if(err){
@@ -955,7 +955,7 @@ module.exports = {
                             bot.logger.log(`Loaded ${id} command ${command.name}`);
                             if(command.init){
                                 bot.logger.log(`Performing init for ${id} command ${command.name}`);
-                                command.init(bot);
+                                command.init(bot, initData);
                             }
                             for(let c = 0; c < command.commands.length; c++){
                                 bot.util.nestedCommands[id][command.commands[c]] = command;
@@ -980,7 +980,7 @@ module.exports = {
                 return message.channel.send("No nested command init detected - Big P Screwed this up.");
             }
             const command = commandType[commandName];
-            if(command){
+            if(command && command.run){
                 await command.run(message, args, bot, data);
             }else if(commandName === "help"){
                 let output = "";
