@@ -23,13 +23,16 @@ module.exports = {
             keys = JSON.parse(message.getSetting("removebg.keys"))
         }catch(e){
             console.log(e);
-            return message.channel.send("removebg is temporarily unavailable (could not parse keys).");
+            return withRembg(message,args,bot);
         }
-        if(!keys)
-            return message.channel.send("removebg is temporarily unavailable (no keys available).");
+        if(!keys){
+            return withRembg(message,args,bot);
+        }
         let key = keys.find((key)=>!deadKeys.includes(key));
-        if(!key)
-            return message.channel.send("removebg is temporarily unavailable (all keys are exhausted).");
+        if(!key){
+            return withRembg(message,args,bot);
+        }
+
         message.channel.startTyping();
         const url =  await bot.util.getImage(message, args);
         if(!url) {
@@ -62,7 +65,7 @@ module.exports = {
                                 console.log(`Key ${key} is dead.`);
                                 bot.tasks.endTask("removebg", message.id);
                                 message.channel.stopTyping(true);
-                                return message.replyLang("GENERIC_ERROR");
+                                return withRembg(message,args,bot);
                                 //return message.replyLang("REMOVEBG_QUOTA");
                             }
                             output += data.errors[i].title+"\n"
@@ -84,7 +87,31 @@ module.exports = {
                 bot.tasks.endTask("removebg", message.id);
             }
         })
-
-
     }
 };
+
+async function withRembg(message, args, bot){
+    message.channel.startTyping();
+    const url =  await bot.util.getImage(message, args);
+    if(!url) {
+        message.channel.stopTyping(true);
+        return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
+    }
+    bot.tasks.startTask("removebg", message.id);
+    request({
+        encoding: null,
+        method: 'GET',
+        url: `https://rbg1.bint.cc/?url=${encodeURIComponent(url)}`,
+    }, async function APIResponse(err, resp, body){
+        if(body.toString().startsWith("<") || body.toString().startsWith("{")) {
+            console.log(body.toString());
+            message.channel.stopTyping(true);
+            return message.replyLang("GENERIC_ERROR");
+        }
+        let attachment = new Discord.MessageAttachment(body, "removebg.png");
+        message.channel.send(attachment);
+        message.channel.stopTyping(true);
+        bot.tasks.endTask("removebg", message.id);
+    })
+
+}
