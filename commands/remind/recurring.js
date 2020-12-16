@@ -6,7 +6,10 @@ module.exports = {
     commands: ["every", "everyday"],
     init: async function init(bot, reminderData){
         bot.client.once("ready", async ()=>{
-            let reminders = await bot.database.getRecurringRemindersForShard(bot.client.user.id, bot.client.guilds.cache.keyArray());
+            let servers = bot.client.guilds.cache.keyArray();
+            let reminders = await bot.database.getRecurringRemindersForShard(bot.client.user.id, servers);
+            if(bot.client.shard.ids[0] == "0")
+                reminders.push(...(await bot.database.getRecurringRemindersForDMs(bot.client.user.id)));
             bot.logger.log(`Got ${reminders.length} recurring reminders.`);
             for(let i = 0; i < reminders.length; i++){
                 let reminder = reminders[i];
@@ -27,7 +30,7 @@ module.exports = {
 
     },
     run: async function (message, args, bot, reminderData) {
-        if(!message.member.hasPermission("MANAGE_CHANNELS"))return message.channel.send("You must have the Manage Channels permission to use this command.");
+        if(message.guild && !message.member.hasPermission("MANAGE_CHANNELS"))return message.channel.send("You must have the Manage Channels permission to use this command.");
         const input = args.slice(1).join(" ");
         let parse = later.parse.text(input);
         const rargs = regex.exec(message.content);
@@ -115,7 +118,7 @@ module.exports = {
             output += parseScheduleArea(exceptions.Y, 481, "year", bot);
         }
 
-        let result = await bot.database.addRecurringReminder(bot.client.user.id, message.author.id, message.guild.id, message.channel.id, reminder, {schedules: parse.schedules, exceptions: parse.exceptions});
+        let result = await bot.database.addRecurringReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, reminder, {schedules: parse.schedules, exceptions: parse.exceptions});
 
         // Making a lot of questionable decisions today
         if(output.endsWith("of "))
