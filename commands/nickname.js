@@ -28,6 +28,7 @@ const nicknames = [
     "vore my ass",
     "daddy",
     "OcelotBOT",
+    "not ocelotbot",
     "better than ocelotbot",
     "spook",
     "gods mistake",
@@ -42,7 +43,15 @@ const nicknames = [
     "ocelotbot number 1 fan",
     "spooky",
     "big chungus",
-    "Something went wrong, try again later."
+    "[Object object]",
+    "Pussy Poppin Pirate",
+    "Peter Griffin",
+    "Stooey",
+    "Post-nut Clarity",
+    "Engorged",
+    "Asshole First Class",
+    "Cyberspunk 2069",
+    "Something Went Wrong."
 ];
 module.exports = {
     name: "New Nickname Generator",
