@@ -17,7 +17,7 @@ module.exports = {
       if(reminder[0].receiver !== bot.client.user.id)
           return message.channel.send(`That reminder doesn't belong to this bot. To prevent mistakes, please use the bot that created the reminder to remove it.`);
 
-        if(reminder[0].server !== message.guild.id)
+        if(reminder[0].server !== (message.guild ? message.guild.id : null))
             return message.channel.send(`That reminder doesn't belong to this server. To prevent mistakes, please use the server that created the reminder to remove it.`);
 
         // Trying to prevent another birthdays situation

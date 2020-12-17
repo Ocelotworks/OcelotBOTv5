@@ -576,6 +576,7 @@ module.exports = {
                         const user = bot.util.getUserFromMention(arg);
                         if (user) return user.avatarURL({dynamic: true, format: "png"});
                         if (arg.startsWith("https://tenor.com/"))return await bot.util.getImageFromTenorURL(arg);
+                        if (arg.startsWith("https://gfycat.com/"))return await bot.util.getImageFromGfycatURL(arg);
                         if (arg.startsWith("http")) return arg;
                         const emoji = bot.util.getEmojiURLFromMention(arg);
                         if (emoji) return emoji;
@@ -627,6 +628,25 @@ module.exports = {
             }
         };
 
+        bot.util.getImageFromGfycatURL = async function(url){
+            try{
+                const urlSplit = url.split("/");
+                const id = urlSplit[urlSplit.length-1];
+                let data = await bot.util.getJson(`https://api.gfycat.com/v1/gfycats/${id}`);
+                if(data.gfyItem && data.gfyItem.content_urls){
+                    if(data.gfyItem.content_urls.max5mbGif)
+                        return data.gfyItem.content_urls.max5mbGif.url;
+                    if(data.gfyItem.content_urls.max1mbGif)
+                        return data.gfyItem.content_urls.max1mbGif.url;
+                    if(data.gfyItem.content_urls.largeGif)
+                        return data.gfyItem.content_urls.largeGif.url;
+                }
+            }catch(e){
+                sentry.captureException(e);
+                return null;
+            }
+        }
+
         /**
          * Get an image from previous messages
          * @param {Object} message
@@ -659,6 +679,8 @@ module.exports = {
                 let url = targetMessage.content.split(" ")[0];
                 if(url.startsWith("https://tenor.com/"))
                     return await bot.util.getImageFromTenorURL(url);
+                if(url.startsWith("https://gfycat.com"))
+                    return await bot.util.getImageFromGfycatURL(url);
                 return url;
             }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
                 const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));

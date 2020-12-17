@@ -1070,6 +1070,9 @@ module.exports = {
             },
             getRecurringRemindersForShard(receiver, servers){
                 return knex.select().from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({receiver}).whereIn("server", servers);
+            },
+            getRecurringRemindersForDMs(receiver){
+                return knex.select().from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({receiver}).whereNull("server");
             }
         };
     }
