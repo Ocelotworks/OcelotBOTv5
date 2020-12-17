@@ -1062,6 +1062,10 @@ module.exports = {
             getBotlistsWithStats: function(){
                 return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl");
             },
+            getBotlistUrl: async function(id){
+                let url = await knex.select("botUrl").from("ocelotbot_botlists").where({id}).orWhere({id: 'topgg'}).limit(1);
+                return url[0].botUrl;
+            },
             logAiConversation: function(userID, serverID, lastMessageID, message, response){
                 return knex.insert({userID, serverID, lastMessageID, message, response}).into("ocelotbot_ai_conversations");
             },

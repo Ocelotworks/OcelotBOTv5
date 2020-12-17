@@ -19,6 +19,7 @@ module.exports = {
 
 
         async function logVote(user, voteServer, channel, source){
+            bot.logger.log(`Vote Source: ${source}`);
             try {
                 const userObj = await bot.client.users.fetch(user);
                 (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${await bot.database.getBotlistUrl(source)}`)
@@ -80,13 +81,13 @@ module.exports = {
                         break;
                     }
                 }
-                if(voteServer || !bot.client.shard || bot.client.shard.ids.join(";") == 0){
-                    if(bot.client.shard && bot.client.shard.ids.join(";") == 0){
+                if(voteServer || !bot.client.shard || bot.client.shard.ids[0] == 0){
+                    if(bot.client.shard && bot.client.shard.ids[0] == 0){
                         voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel, source);
                     }else{
-                        logVote(user, voteServer, channel, source);
+                        await logVote(user, voteServer, channel, source);
                         if(bot.client.shard)
-                            bot.client.shard.send({type: "clearVoteTimeout", payload: user});
+                            await bot.client.shard.send({type: "clearVoteTimeout", payload: user});
                     }
                 }
 
