@@ -4,8 +4,6 @@
  * ╚════ ║   (ocelotbotv5) botlists
  *  ════╝
  */
-const config = require('config');
-const request = require('request');
 const axios = require('axios');
 
 
