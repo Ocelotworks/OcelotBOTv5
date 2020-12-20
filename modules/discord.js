@@ -114,7 +114,7 @@ module.exports = {
             output += getContent(content);
 
             if(options)
-                output += " (Embed)";
+                output += " "+getContent(options);
 
             bot.logger.log(output);
 
@@ -137,8 +137,7 @@ module.exports = {
             output += getContent(content);
 
             if(options)
-                output += " (Embed)";
-
+                output += " "+getContent(options);
 
             bot.logger.log(output);
 
