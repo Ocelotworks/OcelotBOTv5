@@ -4,7 +4,7 @@
  * ╚════ ║   (ocelotbotv5) pet
  *  ════╝
  */
-const CanvasGifEncoder = require('canvas-gif-encoder');
+const CanvasGifEncoder = require('../lib/canvas-gif-encoder');
 const Discord = require('discord.js');
 const canvas = require('canvas');
 const size = 112;
