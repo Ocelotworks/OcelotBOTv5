@@ -11,7 +11,9 @@ module.exports = {
     run: async function(message, args, bot){
         const target = message.mentions.users.first() ? message.mentions.users.first().id : args[2];
         await bot.database.ban(target, "user", "Admin ban");
+        await bot.client.shard.send({type: "updateBans"});
         bot.banCache.user.push(target);
         message.channel.send(`<@${target}> has been banned!`);
+
     }
 };
