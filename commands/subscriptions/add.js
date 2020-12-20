@@ -10,7 +10,7 @@ module.exports = {
     commands: ["add", "types", "new"],
     run:  async function(message, args, bot, data){
         if(args[2] && bot.subscriptions[args[2]] && args[3]){
-            let content = message.content.substring(args[0].length+args[1].length+args[2].length+2);
+            let content = message.content.substring(args[0].length+args[1].length+args[2].length+3);
             let validation = bot.subscriptions[args[2]].validate(content);
             if(validation)
                 return message.channel.send(validation);

@@ -775,6 +775,9 @@ module.exports = {
                     id: id
                 }).limit(1);
             },
+            removeSubscriptionsForChannel: function(server, channel){
+                return knex("ocelotbot_subscriptions").delete().where({server, channel});
+            },
             addLangKey: function(lang, key, message){
                 return knex.insert({
                     lang: lang,
