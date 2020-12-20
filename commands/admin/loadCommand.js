@@ -12,8 +12,14 @@ module.exports = {
         if(bot.client.shard){
             bot.logger.log("Loading shard receiver for !admin loadCommand");
             process.on("message", function(msg){
-                if(msg.type === "loadCommand")
-                    bot.loadCommand(msg.message, true)
+                if(msg.type === "loadCommand") {
+                    try {
+                        bot.loadCommand(msg.message, true)
+                    }catch(e){
+                        bot.raven.captureException(e);
+                        console.error(e);
+                    }
+                }
             });
         }
     },
@@ -22,5 +28,6 @@ module.exports = {
             return message.channel.send("You must enter a command file to load.");
         bot.client.shard.send({type: "loadCommand", message: args[2]});
         bot.logger.log("Loading Command");
+        message.channel.send("Loading command "+args[2]);
     }
 };

@@ -245,9 +245,9 @@ module.exports = {
                     bot.logger.error(e);
                     if(bot.client && bot.client.shard){
                         bot.client.shard.send({type: "warning", payload: {
-                                id: "badInit-"+command,
-                                message: `Couldn't initialise command ${command}:\n${e.message}`
-                            }});
+                            id: "badInit-"+command,
+                            message: `Couldn't initialise command ${command}:\n${e.message}`
+                        }});
                     }
                 }
             }
