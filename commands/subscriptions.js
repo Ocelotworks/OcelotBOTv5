@@ -63,6 +63,22 @@ module.exports = {
             checkTimer = setInterval(module.exports.check, 60000, bot);
         });
 
+        bot.client.on("channelDelete", async function channelDeleted(channel){
+            if(!channel.guild)return;
+            bot.logger.warn(`Deleting subscriptions for deleted channel ${channel.id}`);
+            await bot.database.removeSubscriptionsForChannel(channel.guild.id, channel.id);
+            for(let subType in bot.subscriptions){
+                if(bot.subscriptions.hasOwnProperty(subType)) {
+                    for (let i = 0; i < bot.subscriptions[subType].length; i++) {
+                        if(bot.subscriptions[subType][i].channel === channel.id){
+                            bot.subscriptions[subType].splice(i,1);
+                            bot.logger.log(`Deleted ${subType} sub #${i} from deleted channel ${channel.id}`);
+                        }
+                    }
+                }
+            }
+        })
+
         bot.util.standardNestedCommandInit("subscriptions");
     },
     check: async function check(bot){
