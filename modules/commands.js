@@ -1,6 +1,8 @@
 const fs = require('fs');
-const async = require('async');
 const Sentry = require('@sentry/node');
+
+const { crc32 } = require('crc');
+
 module.exports = {
     name: "Commands",
     init: function (bot) {
@@ -234,8 +236,10 @@ module.exports = {
 
         bot.loadCommand = function loadCommand(command, reload){
             const module = "../commands/" + command;
-            if(reload)
+            if(reload) {
                 delete require.cache[require.resolve(module)];
+            }
+            let crc = crc32(fs.readFileSync(module, 'utf8')).toString(16);
             let loadedCommand = require(module);
             if (loadedCommand.init && !reload) {
                 try {
@@ -250,8 +254,18 @@ module.exports = {
                         }});
                     }
                 }
+            }else if(loadedCommand.init){
+                bot.logger.warn(`Command ${command} was reloaded, but init was not run.`);
             }
-            bot.logger.log(`Loaded command ${loadedCommand.name}`);
+            bot.logger.log(`Loaded command ${loadedCommand.name} ${`(${crc})`.gray}`);
+
+            if(reload){
+                let oldCrc = bot.commandUsages[loadedCommand.commands[0]].crc;
+                if(oldCrc !== crc)
+                    bot.logger.log(`Command ${command} version has changed from ${oldCrc} to ${crc}.`);
+                else
+                    bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
+            }
 
             for (let i in loadedCommand.commands) {
                 if (loadedCommand.commands.hasOwnProperty(i)) {
@@ -263,17 +277,8 @@ module.exports = {
                     bot.commands[commandName] = loadedCommand.run;
                     bot.commandUsages[commandName] = {
                         id: command,
-                        name: loadedCommand.name,
-                        usage: loadedCommand.usage,
-                        requiredPermissions: loadedCommand.requiredPermissions,
-                        detailedHelp: loadedCommand.detailedHelp,
-                        hidden: loadedCommand.hidden,
-                        categories: loadedCommand.categories,
-                        rateLimit: loadedCommand.rateLimit,
-                        premium: loadedCommand.premium,
-                        vote: loadedCommand.vote,
-                        unwholesome: loadedCommand.unwholesome,
-                        commands: loadedCommand.commands
+                        crc,
+                        ...loadedCommand,
                     };
                 }
             }
@@ -283,7 +288,6 @@ module.exports = {
         module.exports.loadCommands(bot);
     },
     loadPrefixCache: async function(bot){
-
         const prefixes = await bot.database.getPrefixes();
         for(let i = 0; i < prefixes.length; i++){
             const prefix = prefixes[i];
@@ -298,20 +302,18 @@ module.exports = {
                 console.error(err);
                 Sentry.captureException(err);
             } else {
-                async.eachSeries(files, function loadCommands(command, callback) {
+                for (const command of files) {
                     if (!fs.lstatSync(`${__dirname}/../commands/${command}`).isDirectory()) {
                         bot.loadCommand(command);
                     }
-                    callback();
-                }, function commandLoadFinished() {
-                    bot.bus.emit("commandLoadFinished");
-                    bot.logger.log("Finished loading commands.");
+                }
+                bot.bus.emit("commandLoadFinished");
+                bot.logger.log("Finished loading commands.");
 
-                    bot.client.shard.send({
-                        type: "commandList",
-                        payload: bot.commandUsages
-                    })
-                });
+                bot.client.shard.send({
+                    type: "commandList",
+                    payload: bot.commandUsages
+                })
             }
         });
     }

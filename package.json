@@ -37,6 +37,7 @@
     "concept-network": "^2.0.0",
     "config": "^3.3.1",
     "country-list": "^2.2.0",
+    "crc": "^3.8.0",
     "dateformat": "^3.0.3",
     "deepai": "^1.0.15",
     "discord.js": "^12.3.1",

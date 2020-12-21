@@ -418,6 +418,7 @@ module.exports = {
                     level: Sentry.Severity.Info,
                     data: message
                 });
+                let data;
                 if(message.type === "requestData"){
                     if(message.payload.name === "channels"){
                         let guild = message.payload.data.server;
@@ -428,38 +429,33 @@ module.exports = {
                                 return {name: channel.name, id: channel.id}
                             });
                             bot.logger.log("Sending channel data for "+guildObj.name+" ("+guild+")");
-                            bot.client.shard.send({
-                                type: "dataCallback",
-                                payload: {
-                                    callbackID: callbackID,
-                                    data: channels
-                                }
-                            })
+                            data = channels;
                         }
-                    }else if(message.payload.name === "guildCount" && message.payload.data.shard == bot.client.shard.ids.join(";")){
-                        bot.client.shard.send({
+                    }else if(message.payload.data.shard == bot.client.shard.ids.join(";")){
+                        if(message.payload.name === "guildCount"){
+                            data = {count: bot.client.guilds.cache.size};
+                        }else if(message.payload.name === "guilds"){
+                            data = bot.client.guilds.cache.array();
+                        }else if(message.payload.name === "unavailableGuilds"){
+                            data = bot.client.guilds.cache.filter((g)=>!g.available).array();
+                        }else if(message.payload.name === "commandVersions"){
+                            data = {};
+                            for(let command in bot.commandUsages){
+                                if(bot.commandUsages.hasOwnProperty(command))
+                                    data[command] = bot.commandUsages[command].crc;
+                            }
+                        }
+                    }
+                    if(data) {
+                        await bot.client.shard.send({
                             type: "dataCallback",
                             payload: {
-                                callbackID:  message.payload.callbackID,
-                                data: {count: bot.client.guilds.cache.size}
+                                callbackID: message.payload.callbackID,
+                                data,
                             }
                         });
-                    }else if(message.payload.name === "guilds" && message.payload.data.shard == bot.client.shard.ids.join(";")){
-                        bot.client.shard.send({
-                            type: "dataCallback",
-                            payload: {
-                                callbackID:  message.payload.callbackID,
-                                data: bot.client.guilds.cache.array()
-                            }
-                        });
-                    }else if(message.payload.name === "unavailableGuilds" && message.payload.data.shard == bot.client.shard.ids.join(";")){
-                        bot.client.shard.send({
-                            type: "dataCallback",
-                            payload: {
-                                callbackID:  message.payload.callbackID,
-                                data: bot.client.guilds.cache.filter((g)=>!g.available).array()
-                            }
-                        });
+                    }else{
+                        bot.logger.warn("Unknown requestData type "+message.payload.name)
                     }
                 }else if(message.type === "cockup"){
                     for(let i = 0; i < bot.admins.length; i++) {

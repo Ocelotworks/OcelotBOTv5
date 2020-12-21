@@ -7,7 +7,7 @@
 module.exports = {
     name: "Load Command",
     usage: "loadCommand <command>",
-    commands: ["loadcommand", "lc"],
+    commands: ["loadcommand", "lc", "load", "reload", "reloadcommand", "rc"],
     init: function init(bot){
         if(bot.client.shard){
             bot.logger.log("Loading shard receiver for !admin loadCommand");
@@ -26,7 +26,7 @@ module.exports = {
     run: async function(message, args, bot){
         if(!args[2])
             return message.channel.send("You must enter a command file to load.");
-        bot.client.shard.send({type: "loadCommand", message: args[2]});
+        await bot.client.shard.send({type: "loadCommand", message: args[2]});
         bot.logger.log("Loading Command");
         message.channel.send("Loading command "+args[2]);
     }
