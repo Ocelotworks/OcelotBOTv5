@@ -38,20 +38,10 @@ module.exports = {
             const ctx2 = canvas2.getContext("2d");
 
             const encoder = new CanvasGifEncoder(size, size);
-            const stream = encoder.createReadStream();
-            let bufs = [];
-
-            stream.on('data', (buffer) => {
-                bufs.push(buffer);
-            })
-
-            stream.on('end', () => {
-                const buffer = Buffer.concat(bufs);
-                message.channel.send("", new Discord.MessageAttachment(buffer, "petpet.gif"));
-            })
 
             encoder.begin();
 
+            let promises = [];
             for (let i = 0; i < frames.length; i++) {
                 let span = bot.apm.startSpan("Render frame");
                 const frame = frames[i];
@@ -62,10 +52,13 @@ module.exports = {
                 ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
                 ctx1.drawImage(canvas2, 0, 0, canvas1.width, canvas1.height);
 
-                encoder.addFrame(ctx1, 50);
+                promises.push(encoder.addFrame(ctx1, 50, i));
                 span.end();
             }
-            encoder.end();
+            bot.logger.log(`Rendering ${promises.length} frames...`);
+            await Promise.all(promises);
+            bot.logger.log("Uploading...");
+            message.channel.send("", new Discord.MessageAttachment(encoder.end(), "petpet.gif"));
             message.channel.stopTyping(true);
 
         }catch(e){
