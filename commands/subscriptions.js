@@ -65,7 +65,6 @@ module.exports = {
 
         bot.client.on("channelDelete", async function channelDeleted(channel){
             if(!channel.guild)return;
-            bot.logger.warn(`Deleting subscriptions for deleted channel ${channel.id}`);
             await bot.database.removeSubscriptionsForChannel(channel.guild.id, channel.id);
             for(let subType in bot.subscriptions){
                 if(bot.subscriptions.hasOwnProperty(subType)) {
