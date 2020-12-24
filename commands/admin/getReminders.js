@@ -13,7 +13,7 @@ module.exports = {
             await sentMessage.react("⏭");
         })();
 
-        const reminders = await bot.database.getReminders();
+        const reminders = await bot.database.getReminders(bot.client.user.id);
         let pages = reminders.chunk(5);
 
         let index = 0;
