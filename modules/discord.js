@@ -42,6 +42,9 @@ function getContent(content){
             if (content.title || content.type && content.type === "rich")
                 return `[Embed: ${content.title} - ${content.description}]`;
 
+            if (content.fields)
+                return `[Embed: ${content.fields.map((f)=>`${f.name}: ${f.value} `)}]`;
+
             if (content.reply)
                 return `[Mention: @${content.reply.tag} (${content.reply.id})] ${getContent(content.content)}`;
 
@@ -50,6 +53,9 @@ function getContent(content){
 
             if (content.content)
                 return content.content;
+
+            if(content.attachment || content.name)
+                return `[Attachment: ${content.name || content.attachment}]`
 
             if(content.embed)
                 return getContent(content.embed);

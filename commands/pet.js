@@ -38,7 +38,6 @@ module.exports = {
             const ctx2 = canvas2.getContext("2d");
 
             const encoder = new CanvasGifEncoder(size, size);
-
             encoder.begin();
 
             let promises = [];
