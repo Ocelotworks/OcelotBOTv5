@@ -93,7 +93,7 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
             await bot.database.redeemPremiumKey(args[1], message.guild.id);
             await bot.config.set(message.guild.id, "serverPremium", true);
             if(key.owner !== message.author.id){
-                let owner = await bot.client.fetchUser(key.owner);
+                let owner = await bot.client.users.fetch(key.owner);
                 bot.logger.warn("Key was redeemed by someone other than the owner.");
                 if(owner){
                     let dm = await owner.createDM();

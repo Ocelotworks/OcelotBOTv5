@@ -1033,7 +1033,10 @@ module.exports = {
             logOmegleMessage: async function(serverID, channelID, userID, message){
                 return knex.insert({serverID, channelID, message, userID}).into("ocelotbot_omegle");
             },
-            addRoleMessage: function(channel, message){
+            addRoleMessage: async function(channel, message){
+                let existingRole = await knex.select("id").from("ocelotbot_role_messages").where({channel, message}).limit(1);
+                if(existingRole[0])
+                    return [existingRole[0].id];
                 return knex.insert({channel, message}).into("ocelotbot_role_messages");
             },
             addRoleButton: function(message, emoji, role){
