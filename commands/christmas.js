@@ -1,4 +1,4 @@
-const christmas = new Date("25 December 2020");
+const christmas = new Date("25 December 2021");
 module.exports = {
     name: "Christmas Countdown",
     usage: "christmas",
