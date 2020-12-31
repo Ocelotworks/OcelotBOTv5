@@ -20,7 +20,7 @@ module.exports = {
     received: function received(broker, process, payload){
         const shard = payload.shard;
         if(payload.messagesPerMinute === 0){
-            broker.logger.warn(`0 messages per minute for shard ${shard}`);
+            broker.logger.warn(`0 messages per minute for shard ${shard} (${broker.concerns[shard].badMessageCounts} times)`);
             if(broker.concerns[shard] && broker.concerns[shard].badMessageCounts){
                 broker.concerns[shard].badMessageCounts++;
             }else{
@@ -33,7 +33,8 @@ module.exports = {
                 try {
                     broker.concerns[shard].badMessageCounts = 0;
                     broker.concerns[shard].restarts++;
-                    process.respawn();
+                    if(!process.env.DISABLE_WATCHDOG)
+                        process.respawn();
                 }catch(e)
                 {
                     broker.logger.error("no... thats not right");
