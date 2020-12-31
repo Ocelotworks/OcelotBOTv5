@@ -260,11 +260,13 @@ module.exports = {
             bot.logger.log(`Loaded command ${loadedCommand.name} ${`(${crc})`.gray}`);
 
             if(reload){
-                let oldCrc = bot.commandUsages[loadedCommand.commands[0]].crc;
-                if(oldCrc !== crc)
-                    bot.logger.log(`Command ${command} version has changed from ${oldCrc} to ${crc}.`);
-                else
-                    bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
+                if(bot.commandUsages[loadedCommand.commands[0]]) {
+                    let oldCrc = bot.commandUsages[loadedCommand.commands[0]].crc;
+                    if (oldCrc !== crc)
+                        bot.logger.log(`Command ${command} version has changed from ${oldCrc} to ${crc}.`);
+                    else
+                        bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
+                }
             }
 
             for (let i in loadedCommand.commands) {
