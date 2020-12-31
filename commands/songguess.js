@@ -176,7 +176,7 @@ async function doGuess(voiceChannel, message, bot){
             const guessTime = new Date();
             const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "").replace(message.getSetting("prefix")+"guess");
             console.log(strippedMessage);
-            if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
+            if (strippedMessage.indexOf(answer) > -1 || (strippedMessage.length >= (answer.length / 3) && answer.indexOf(strippedMessage) > -1)) {
 
                 won = true;
                 if (collector)
@@ -217,7 +217,7 @@ async function doGuess(voiceChannel, message, bot){
                     bot.badges.giveBadgeOnce(message.author, message.channel, 5); //Psychic Badge
 
                 span.end();
-            } else if (strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
+            } else if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
                 message.replyLang("SONGGUESS_ARTIST", {id: message.author.id, artist: artistName});
             }else if(strippedMessage.indexOf(title) > -1){
                 message.reply("the song title is somewhere in your message!");
