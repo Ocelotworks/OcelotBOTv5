@@ -12,7 +12,7 @@ module.exports = {
       embed.setTitle("Would You Rather...");
       embed.setColor("#6dccf2");
       embed.addField(question.option_1, "OR");
-      embed.addField(question.option_2, question.moreinfo ? `_${question.moreinfo}_` : "　　 　　");
+      embed.addField(question.option_2, question.moreinfo ? `_${question.moreinfo}_` : "(No description)");
       message.channel.send(embed);
     }
 };
