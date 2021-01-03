@@ -7,6 +7,44 @@ module.exports = {
     categories: ["image", "fun", "memes"],
     unwholesome: true,
     run:  function(message, args, bot){
-        bot.util.processImageMeme(message, args, 207, 77, 15, 15, "ronaldsays.png", "static/ronald.png");
+        if(!args[1]){
+            message.replyLang("IMAGE_NO_TEXT");
+            return;
+        }
+        let content = message.cleanContent.substring(args[0].length);
+        return bot.util.imageProcessor(message, {
+            "components": [
+                {
+                    "pos": {"x": 199, "y": 47, "w": 111, "h": 146},
+                    "rot": 0.02548181,
+                    "background": "#ffffff",
+                    "filter": [{
+                        name: "text",
+                        args: {
+                            font: "arial.ttf",
+                            fontSize: content.length < 100 ? 40 : 25 ,
+                            colour: "#000000",
+                            content: content,
+                            x: 20,
+                            y: 20,
+                            ax: 0,
+                            ay: 0,
+                            w: 292,
+                            spacing: 1.1,
+                            align: 0,
+                        }
+                    }]
+                },
+                {
+                    "url": "ronald.png",
+                    "local": true,
+                    "pos": {"x": 0, "y": 0},
+                    "rot": 0,
+                    "filter": []
+                }
+            ],
+            "width": 326,
+            "height": 231
+        }, "ronald")
     }
 };
