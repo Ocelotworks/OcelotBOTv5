@@ -8,8 +8,8 @@ module.exports = {
     name: "Server Joins",
     id: "joins",
     alias: ["serverjoins"],
-    validate: function(input){
-        return null;
+    validate: function(data){
+        return {data};
     },
     added: async function added(sub, bot){
         let message = sub.data ? sub.data : "{{user}}, welcome to {{server}}.";

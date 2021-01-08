@@ -9,8 +9,8 @@ module.exports = {
     alias: ["subreddit"],
     validate: function(input){
         if(input.startsWith("r/"))
-            return null;
-        return ":warning: Subreddits should be in the following format: r/name e.g: **r/discord_irl** or **r/aww/new**";
+            return {data: input};
+        return {error: ":warning: Subreddits should be in the following format: r/name e.g: **r/discord_irl** or **r/aww/new**"};
     },
     check: async function check(sub, lastCheck){
         let {err, resp, body} = await request(`https://json.reddit.com/${sub}`);

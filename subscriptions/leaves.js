@@ -8,8 +8,8 @@ module.exports = {
     name: "Server Leaves",
     id: "leaves",
     alias: ["serverleaves"],
-    validate: function(input){
-        return null;
+    validate: function(data){
+        return {data};
     },
     added: function added(sub, bot){
         let message = sub.data ? sub.data : "{{username}} has left.";
