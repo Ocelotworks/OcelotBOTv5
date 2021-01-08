@@ -181,6 +181,7 @@ async function doGuess(voiceChannel, message, bot){
                 won = true;
                 if (collector)
                     collector.stop();
+                message.channel.startTyping();
 
                 let embed = new Discord.MessageEmbed();
                 embed.setColor("#77ee77");
@@ -200,10 +201,10 @@ async function doGuess(voiceChannel, message, bot){
                 span = tx.startSpan("Update record");
                 let newOffset = guessTime-now;
                 if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset) {
-                    await bot.database.updateSongRecord(title, message.author.id, fastestTime.elapsed);
+                    await bot.database.updateSongRecord(title, message.author.id, newOffset);
                     message.replyLang("SONGGUESS_RECORD");
                 }else if(fastestTime){
-                    await bot.database.updateSongRecord(title, fastestTime.user, newOffset);
+                    await bot.database.updateSongRecord(title, fastestTime.user, fastestTime.elapsed);
                 }
                 span.end();
 
@@ -217,6 +218,7 @@ async function doGuess(voiceChannel, message, bot){
                     bot.badges.giveBadgeOnce(message.author, message.channel, 5); //Psychic Badge
 
                 span.end();
+                message.channel.stopTyping(true);
             } else if (message.getSetting("songguess.showArtistName") === "true" && strippedMessage.indexOf(artist) > -1 || (strippedMessage.length >= (artist.length / 3) && artist.indexOf(strippedMessage) > -1)) {
                 message.replyLang("SONGGUESS_ARTIST", {id: message.author.id, artist: artistName});
             }else if(strippedMessage.indexOf(title) > -1){
