@@ -1,0 +1,9 @@
+FROM node:lts-alpine3.12
+
+RUN apk add --no-cache graphicsmagick
+# We don't need everything for this one
+RUN npm install --registry=http://npm.int.unacc.eu/ config amqplib gm @natualatlas/paranoid-request twemoji-parser axios gifuct-js canvas
+
+WORKDIR consumers
+
+ENTRYPOINT node image.js
