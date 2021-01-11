@@ -410,7 +410,7 @@ module.exports = {
             };
             let loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
             let span = bot.util.startSpan("Receive from RPC");
-            let response = await bot.rabbit.rpc("imageProcessor", request, 60000, {arguments: {"x-message-ttl": 60000}, durable: false});
+            let response = await bot.rabbit.rpc("imageProcessor", request, 120000, {arguments: {"x-message-ttl": 60000}, durable: false});
             span.end();
             if(loadingMessage) {
                 span = bot.util.startSpan("Edit loading message");
