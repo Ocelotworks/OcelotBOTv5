@@ -418,11 +418,10 @@ module.exports = {
                 span.end();
             }
             if (response.err) {
-                console.log(response);
                 span = bot.util.startSpan("Delete processing message");
                 await loadingMessage.delete();
                 span.end();
-                return message.channel.send(response.err);
+                return message.replyLang("IMAGE_PROCESSOR_ERROR_"+response.err.toUpperCase());
             }
             span = bot.util.startSpan("Upload image");
             let attachment = new Discord.MessageAttachment(Buffer.from(response.data, 'base64'), `${name}.${response.extension}`);
