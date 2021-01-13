@@ -7,7 +7,7 @@ module.exports = {
     rateLimit: 50,
     categories: ["memes", "voice"],
     detailedHelp: "Doot Doot",
-    requiredPermissions: ["CONNECT", "SPEAK"],
+    //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["doot", "toot"],
     run:  async function run(message, args, bot){
         if(args[1] && args[1].toLowerCase() === "stop"){

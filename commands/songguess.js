@@ -42,7 +42,7 @@ module.exports = {
     usage: "guess [stop/stats/leaderboard]",
     rateLimit: 25,
     categories: ["games", "voice"],
-    requiredPermissions: ["CONNECT", "SPEAK"],
+    //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["guess", "guesssong", "songguess", "namethattune", "quess", "gues"],
     init: async function init(bot){
 

@@ -15,7 +15,7 @@ module.exports = {
     usage: "music help/play/skip",
     rateLimit: 10,
     categories: ["voice"],
-    requiredPermissions: ["CONNECT", "SPEAK"],
+    //requiredPermissions: ["CONNECT", "SPEAK"],
     premium: false,
     commands: ["music", "m"],
     subCommands: {},
