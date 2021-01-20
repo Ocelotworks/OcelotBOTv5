@@ -52,7 +52,7 @@ module.exports = {
         };
 
         bot.rabbit.emit = async function emit(type, payload){
-            //console.log("Emitting type "+type);
+            console.log("Emitting type "+type);
             let buf = Buffer.from(JSON.stringify(payload));
             if(!bot.rabbit.pubsub[type])
                 bot.rabbit.pubsub[type] = await bot.rabbit.createPubsub(type);
