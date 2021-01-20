@@ -24,16 +24,13 @@ module.exports = {
             url2 = tempUrl1;
         }
 
-        const image1 = await canvas.loadImage(url1);
-        const image2 = await canvas.loadImage(url2);
-
-        const cnv = canvas.createCanvas(image1.width, image1.height);
-        const ctx = cnv.getContext("2d");
-
-        ctx.drawImage(image1, 0,0);
-        ctx.drawImage(image2, 0, 0, image1.width, image1.height);
-
-
-        message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "overlay.png"));
+        return bot.util.imageProcessor(message, {
+            "components": [{
+                "url": url1,
+            }, {
+                "url": url2,
+                "pos": {"w": "100%", "h": "100%"},
+            }],
+        }, 'overlay')
     },
 };
