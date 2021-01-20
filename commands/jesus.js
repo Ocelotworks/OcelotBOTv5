@@ -20,7 +20,7 @@ module.exports = {
                     "filter": []
                 },
                 {
-                    "pos": {"x": 109, "y": 111, "w": 119, "h": 82},
+                    "pos": {"x": 109, "y": 90, "w": 119, "h": 119},
                     "rot": 0,
                     "filter": [{
                         name: "text",
