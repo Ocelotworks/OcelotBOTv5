@@ -11,7 +11,7 @@ module.exports = {
         if(!args[1])
             return message.channel.send(`Usage: ${args[0]} <term>`);
 
-        const term = encodeURIComponent(args.slice(1).join(" "));
+        const term = args.slice(1).join(" ");
 
         let data = await bot.util.getJson(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${encodeURIComponent(term)}?key=${key}`);
         if(!data || data.length === 0)
