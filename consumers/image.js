@@ -20,7 +20,6 @@ const   config          = require('config'),
 let channel
 
 function reply(msg, payload){
-    channel.ack(msg);
     console.log("Replying "+msg.properties.replyTo);
     channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(payload)), {correlationId: msg.properties.correlationId});
 }
@@ -34,6 +33,7 @@ async function init(){
 
     channel.consume('imageFilter', function(msg){
         try {
+            channel.ack(msg);
             console.log("Processing " + msg.content.toString());
             let {url, format, filter, input} = JSON.parse(msg.content.toString());
             if(filter === "bigtext"){
