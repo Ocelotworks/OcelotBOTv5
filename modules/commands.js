@@ -70,7 +70,7 @@ module.exports = {
                         }catch(e){
                             span.end();
                             tx.end("Not in support server");
-                            return message.channel.send("You must join the support server or purchase premium to use this command. You can join the support server here: https://discord.gg/PTaXZmE")
+                            return message.channel.send("You must join the support server or purchase premium to enable this command. You can join the support server here: https://discord.gg/PTaXZmE")
                         }
                         span.end();
                     }
