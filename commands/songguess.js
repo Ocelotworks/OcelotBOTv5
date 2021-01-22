@@ -113,7 +113,7 @@ let timeouts = [];
 
 let runningGames = [];
 
-async function doGuess(voiceChannel, message, bot){
+async function doGuess(voiceChannel, message, bot, hasFailed = false){
     try {
         if (voiceChannel.members.size === 1 && voiceChannel.members.first().id === bot.client.user.id)
             return bot.lavaqueue.requestLeave(voiceChannel, "Channel was empty");
@@ -154,7 +154,16 @@ async function doGuess(voiceChannel, message, bot){
         message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
         console.log("Joining");
         let span = bot.apm.startSpan("Create player");
-        let {player} = await bot.lavaqueue.playOneSong(voiceChannel, file, message.getSetting("songguess.node"));
+        let player;
+        try {
+            player = await bot.lavaqueue.playOneSong(voiceChannel, file, message.getSetting("songguess.node")).player;
+        }catch(e){
+            if(hasFailed && message){
+                return message.replyLang("GENERIC_ERROR");
+            }
+            span.end();
+            return doGuess(voiceChannel, message, bot, true)
+        }
         span.end();
         let won = false;
         span = bot.apm.startSpan("Create message collector");
