@@ -32,6 +32,10 @@ module.exports = {
     run: async function run(message, args, bot) {
         const url =  await bot.util.getImage(message, args);
 
+        if(url === "https://cdn.discordapp.com/emojis/726576223081463939.png?v=1"){
+            return  message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: "the man who touched me as a child"});
+        }
+
         request({
             method: 'POST',
             json: true,
@@ -49,9 +53,9 @@ module.exports = {
                 message.replyLang("GENERIC_ERROR");
             }else if(body && body.description && body.description.captions && body.description.captions.length > 0) {
                 if(url.indexOf("SPOILER_") > -1){
-                    message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: "||"+body.description.captions[0].text.replace("Xi Jinping", "Winnie The Pooh")+"||"});
+                    message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: `||${body.description.captions[0].text}||`});
                 }else{
-                    message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: body.description.captions[0].text.replace("Xi Jinping", "Winnie The Pooh")});
+                    message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: body.description.captions[0].text});
                 }
             }else{
                 message.replyLang("IDENTIFY_UNKNOWN");

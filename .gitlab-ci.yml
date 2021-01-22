@@ -1,0 +1,30 @@
+stages:
+  - build
+
+build-consumer-image:
+  stage: build
+  except:
+    refs:
+      - tags
+  only:
+    - master
+  tags:
+    - shell
+  retry:
+    max: 2
+    when: runner_system_failure
+  before_script:
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
+  script:
+    - mkdir -p .go
+    - docker pull $REGISTRY/ocelotbotv5/image-consumer:latest || true
+    - docker build . --cache-from $REGISTRY/ocelotbotv5/image-consumer:latest
+      -t $REGISTRY/ocelotbotv5/image-consumer-image:$CI_PIPELINE_ID
+      -t $REGISTRY/ocelotbotv5/image-consumer:latest
+      --build-arg GITLAB_TOKEN=$GITLAB_TOKEN
+      --build-arg GITLAB_DOMAIN=$GITLAB_DOMAIN
+    - docker push $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
+    - docker push $REGISTRY/ocelotbotv5/image-consumer:latest
+    - docker image rm $REGISTRY/ocelotbotv5/image-consumer:latest
+    - docker image rm $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
+#    - curl -X POST $DEPLOY_WEBHOOK
