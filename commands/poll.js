@@ -49,7 +49,7 @@ module.exports = {
 
         //write line for each entry
         options.forEach(function (item) {
-            output += `${emojis[count]} - ${item}\n`;
+            output += `${emojis[count]} - ${item.trim()}\n`;
             votes[count] = 0;
             count++
         });
