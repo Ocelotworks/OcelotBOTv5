@@ -25,7 +25,7 @@ module.exports = {
         if(meme.meme.startsWith("http"))
             embed.setThumbnail(meme.meme);
 
-        embed.setTitle(await message.getLang("MEME_INFO_HEADER", {name: meme.name}));
+        embed.setTitle(await message.getLang("MEME_INFO_HEADER", {meme: meme.name}));
         embed.addField(await message.getLang("MEME_INFO_CONTENT"), meme.meme);
         embed.addField(await message.getLang("MEME_INFO_ADDED_ON"), meme.addedon);
         embed.addField(await message.getLang("MEME_INFO_ADDED_BY"), `<@${meme.addedby}>`);
