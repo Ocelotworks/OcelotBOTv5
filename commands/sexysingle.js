@@ -101,7 +101,7 @@ module.exports = {
             message.channel.stopTyping();
             return;
         }
-        downloadOrGet(url, `${__dirname}/../${config.get("dir")}icon-${encodeURIComponent(url)}.png`)
+        downloadOrGet(url, `${__dirname}/../${config.get("dir")}icon-${encodeURIComponent(url).substring(0, 512)}.png`)
 
     }
 };
