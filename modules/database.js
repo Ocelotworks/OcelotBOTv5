@@ -866,7 +866,7 @@ module.exports = {
                     return knex("ocelotbot_song_guess_records").update({user, time, timestamp: new Date()}).where({song}).limit(1);
             },
             getFastestSongGuess: function(song){
-                return knex.select().from("ocelotbot_song_guess").where({song, correct: 1}).orderBy("elapsed", "ASC");
+                return knex.select().from("ocelotbot_song_guess_records").where({song});
             },
             getTotalCorrectGuesses: function(user){
                 return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").groupBy("user").where({user, correct: 1});
