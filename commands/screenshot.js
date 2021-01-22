@@ -12,7 +12,7 @@ module.exports = {
     unwholesome: true,
     run:  function(message, args, bot){
         if(!args[1]){
-            message.channel.send(`Usage: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}screenshot <URL> e.g ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}screenshot http://google.com`);
+            message.channel.send(`Usage: ${message.getSetting("prefix")}screenshot <URL> e.g ${message.getSetting("prefix")}screenshot http://google.com`);
         }else{
             message.channel.startTyping();
             request({
@@ -28,7 +28,11 @@ module.exports = {
                        if(!data.success){
                            if(data.error){
                                if(data.error.info){
-                                   message.channel.send(data.error.info);
+                                   if(data.error.info.indexOf("subscription") > -1){
+                                        message.channel.send(`Screenshot quota has been reached for this month. If you would like to help me raise this quota, consider ${message.getSetting("prefix")}premium`)
+                                   }else {
+                                       message.channel.send(data.error.info);
+                                   }
                                }else{
                                    message.channel.send("Error "+data.error.code);
                                }
