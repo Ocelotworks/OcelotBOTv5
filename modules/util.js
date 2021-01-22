@@ -906,6 +906,7 @@ module.exports = {
             await sentMessage.awaitReactions(async function (reaction, user) {
                 if (user.id === bot.client.user.id) return false;
                 if(reactDict) {
+                    bot.tasks.renewTask("standardPagination", sentMessage.id);
                     if (reactDict[reaction.emoji.name] !== undefined) {
                         await reactDict[reaction.emoji.name]();
                         await buildPage();

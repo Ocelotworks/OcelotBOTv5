@@ -40,6 +40,18 @@ module.exports = {
             return bot.tasks.running.indexOf(name + id);
         };
 
+        bot.tasks.renewTask = function renewTask(name, id){
+            const index = bot.tasks.getTaskIndex(name, id);
+            if (index === -1)
+                return bot.logger.warn(`Task ${name} ${id} doesn't exist!`);
+            if (bot.tasks.taskTimers[name + id])
+                clearTimeout(bot.tasks.taskTimers[name + id]);
+            bot.tasks.taskTimers[name + id] = setTimeout(function taskTimeout() {
+                bot.logger.warn(`Task ${name}-${id} did not end!`);
+                bot.tasks.endTask(name, id);
+            }, 1500000);
+        }
+
         bot.tasks.endTask = function endTask(name, id) {
             const index = bot.tasks.getTaskIndex(name, id);
             if (index === -1)
