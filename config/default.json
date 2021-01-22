@@ -71,7 +71,8 @@
     "seasonal",
     "autorespond",
     "botlists",
-    "tasks"
+    "tasks",
+    "featureToggle"
   ],
   "Seasonal": [
     {
