@@ -70,7 +70,7 @@ module.exports = {
         if (args[1]) {
             await bot.util.standardNestedCommand(message, args, bot, 'guess', runningGames, () => {
                 if (message.member && message.member.voice.channel && runningGames[message.member.voice.channel.id]) {
-                    message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${args[0]} stop. To see stats, type ${args[0]} help`)
+                    message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${args[0]} stop. To see other commands, type ${args[0]} help`)
                 } else {
                     message.channel.send(`To start a game, just type ${args[0]}. To see stats, type ${args[0]} help`)
                 }
