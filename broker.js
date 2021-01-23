@@ -70,6 +70,8 @@ manager.on('message', function onMessage(process, message){
             if(message.payload.callbackID && waitingCallbacks[message.payload.callbackID]){
                 waitingCallbacks[message.payload.callbackID](message.payload.data);
                 delete waitingCallbacks[message.payload.callbackID];
+            }else{
+                logger.warn("No waiting callback ", message.payload.callbackID);
             }
             return;
         }

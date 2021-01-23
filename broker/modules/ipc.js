@@ -12,7 +12,7 @@ module.exports = {
 
       broker.ipc = {};
 
-      broker.ipc.callbackID = 0;
+      broker.ipc.callbackID = 1;
       broker.ipc.waitingCallbacks = {};
 
 
