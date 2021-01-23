@@ -9,7 +9,7 @@ module.exports = {
     name: "Halloween Countdown",
     usage: "halloween",
     detailedHelp: "Countdown to halloween",
-    categories: ["tools", "fun"],
+    categories: ["tools"],
     commands: ["halloween"],
     run: function run(message, args, bot) {
         const diff = (halloween-(new Date()))/1000;

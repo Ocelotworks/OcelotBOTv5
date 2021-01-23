@@ -4,7 +4,7 @@ module.exports = {
     usage: "wiki <term>",
     commands: ["wiki", "wikipedia", "wp"],
     rateLimit: 30,
-    categories: ["tools"],
+    categories: ["search", "tools"],
     run: async function run(message, args, bot){
         if(!args[1]){
             message.channel.send("Usage: !wiki <term>");

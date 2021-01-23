@@ -2,7 +2,7 @@ module.exports = {
     name: "Rainbow Image",
     usage: "rainbow <user or url>",
     rateLimit: 10,
-    categories: ["image", "memes"],
+    categories: ["image", "filter"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["rainbow", "rainbowimage"],
     run: async function run(message, args, bot){

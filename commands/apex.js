@@ -41,7 +41,7 @@ module.exports = {
     detailedHelp: "Apex Legends Stats",
     usageExample: "apex pc unacceptableuse",
     commands: [game.toLowerCase()],
-    categories: ["tools", "games"],
+    categories: ["stats"],
     run: function run(message, args, bot) {
         if(!args[1])
             return message.channel.send(`:bangbang: Invalid usage. You must enter a ${game} username. For example: ${args[0]} mr. Pink 1880`);

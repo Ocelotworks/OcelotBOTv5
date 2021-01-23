@@ -27,7 +27,7 @@ module.exports = {
     rateLimit: 10,
     detailedHelp: "Ship two users together to test their compatibility.",
     usageExample: "ship @OcelotBOT @Big P",
-    categories: ["fun", "memes"],
+    categories: ["fun"],
     requiredPermissions: [],
     commands: ["ship", "shipname", "relationship", "shipgenerator"],
     run: async function run(message, args, bot) {

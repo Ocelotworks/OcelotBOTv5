@@ -29,7 +29,7 @@ module.exports = {
     usage: "trivia leaderboard monthly",
     rateLimit: 2,
     commands: ["trivia"],
-    categories: ["tools", "fun", "games"],
+    categories: ["fun", "games"],
     requiredPermissions: ["EMBED_LINKS", "ADD_REACTIONS"],
     init: function(bot){
        //TODO destruct!

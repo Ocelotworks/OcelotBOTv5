@@ -10,7 +10,7 @@ module.exports = {
     usage: "b <url>",
     rateLimit: 10,
     detailedHelp: "Adds a 🅱 into the image wherever appropriate",
-    categories: ["image", "fun", "memes"],
+    categories: ["image", "filter", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["b", "bify"],
     init: async function(){

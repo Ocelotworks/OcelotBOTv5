@@ -12,6 +12,7 @@ module.exports = {
     categories: ["fun"],
     requiredPermissions: [],
     unwholesome: true,
+    hidden: true,
     commands: ["omegle", "om"],
     init: async function(bot){
         bot.client.on("ready", function () {

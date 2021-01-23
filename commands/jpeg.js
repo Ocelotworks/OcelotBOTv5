@@ -7,7 +7,7 @@
 module.exports = {
     name: "JPEG-ify",
     usage: "jpeg [url]",
-    categories: ["image"],
+    categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jpeg", "jpg"],

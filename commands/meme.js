@@ -2,10 +2,10 @@
  * Created by Peter on 01/07/2017.
  */
 module.exports = {
-    name: "Meme",
+    name: "Meme Storage",
     usage: "meme help",
     commands: ["meme"],
-    categories: ["fun", "memes"],
+    categories: ["tools"],
     init: function init(bot){
         bot.util.standardNestedCommandInit('meme');
     },

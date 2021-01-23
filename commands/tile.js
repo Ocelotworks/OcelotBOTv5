@@ -15,7 +15,7 @@ const canvas = require('canvas');
 module.exports = {
     name: "Tile Images",
     usage: "tile <image1> <image2>",
-    categories: ["fun", "image", "tools"],
+    categories: ["image", "tools"],
     rateLimit: 100,
     commands: ["tile"],
     run: async function run(message, args, bot) {

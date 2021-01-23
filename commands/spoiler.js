@@ -7,7 +7,7 @@
 module.exports = {
     name: "Spoilerise Text",
     usage: "spoiler <text>",
-    categories: ["fun"],
+    categories: ["text"],
     rateLimit: 10,
     commands: ["spoiler", "spoilerise", "spoilerize"],
     run: function run(message, args) {

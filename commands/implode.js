@@ -7,7 +7,7 @@
 module.exports = {
     name: "Implode Image",
     usage: "implode [url]",
-    categories: ["image", "fun"],
+    categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["implode"],

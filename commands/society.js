@@ -5,7 +5,7 @@ const fs = require('fs');
 module.exports = {
     name: "We live in a society meme",
     usage: "society [url]",
-    categories: ["image", "fun", "memes"],
+    categories: ["image", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     rateLimit: 10,
     commands: ["society", "weliveinasociety", "wlias"],

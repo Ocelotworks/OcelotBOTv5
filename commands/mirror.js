@@ -7,7 +7,7 @@
 module.exports = {
     name: "Mirror Image",
     usage: "mirror [url]",
-    categories: ["image"],
+    categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["mirror", "flipimage"],

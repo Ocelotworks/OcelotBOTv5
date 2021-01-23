@@ -6,7 +6,7 @@ module.exports = {
     name: "Monochrome Image",
     usage: "monochrome [url]",
     rateLimit: 10,
-    categories: ["image"],
+    categories: ["image", "filter"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["monochrome", "blackandwhite"],
     run: async function(message, args, bot){

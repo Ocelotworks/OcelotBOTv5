@@ -7,7 +7,7 @@ module.exports = {
     usage: "serverinfo <ip:port>",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["serverinfo", "si"],
-    categories: ["tools"],
+    categories: ["stats"],
     run:  function(message, args, bot){
         if(args.length < 2){
             message.channel.send(`:bangbang: Invalid usage: \`${message.getSetting("prefix")}serverinfo ip:port\``);

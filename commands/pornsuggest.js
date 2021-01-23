@@ -19,7 +19,7 @@ module.exports = {
     nsfw: true,
     vote: true,
     requiredPermissions: ["ADD_REACTIONS", "MANAGE_MESSAGES"],
-    categories: ["nsfw", "fun"],
+    categories: ["nsfw", "search"],
     run: function run(message, args, bot) {
         if(message.getSetting("pornsuggest.serious") && message.getSetting("pornsuggest.serious") === "1"){
             if(!args[1])

@@ -16,7 +16,7 @@ module.exports = {
     rateLimit: 100,
     premium: true,
     commands: ["removebg", "rbg", "removebackground"],
-    categories: ["image", "tools"],
+    categories: ["image", "tools", "filter"],
     run: async function run(message, args, bot) {
         let keys;
         try {

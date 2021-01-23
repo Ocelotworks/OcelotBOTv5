@@ -19,7 +19,7 @@ module.exports = {
     name: "User Stats",
     usage: "userstats <user>",
     commands: ["userstats"],
-    categories: ["meta"],
+    categories: ["stats", "meta"],
     init: function init(bot){
 
         bot.logger.log("Init milestones");

@@ -7,7 +7,7 @@
 module.exports = {
     name: "Clap Text",
     usage: "clap <text>",
-    categories: ["fun", "memes"],
+    categories: ["memes"],
     rateLimit: 10,
     detailedHelp: "Puts clap emojis in between the text you input.",
     commands: ["clap", "claptext"],

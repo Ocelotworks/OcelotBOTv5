@@ -29,7 +29,7 @@ module.exports = {
     usage: "advice",
     rateLimit: 10,
     detailedHelp: "Get some great advice from the wise elders.",
-    categories: ["tools", "fun"],
+    categories: ["fun"],
     requiredPermissions: [],
     commands: ["advice", "advise", "wise"],
     run:  function(message, args, bot){

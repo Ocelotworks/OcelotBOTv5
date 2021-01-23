@@ -15,7 +15,7 @@ module.exports = {
     accessLevel: 0,
     rateLimit: 20,
     detailedHelp: "Adds red eyes to faces in the image",
-    categories: ["image"],
+    categories: ["image", "filter"],
     commands: ["eyes", "eye"],
     init: async function(){
         red = await canvas.loadImage(__dirname+"/../static/eyes/red.png");

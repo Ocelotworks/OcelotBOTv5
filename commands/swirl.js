@@ -8,7 +8,7 @@ module.exports = {
     name: "Swirl Image",
     usage: "swirl [url]",
     rateLimit: 10,
-    categories: ["image"],
+    categories: ["image", "filter"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["swirl","spiral"],
     run: async function(message, args, bot){

@@ -148,7 +148,7 @@ module.exports = {
     usage: "bandname",
     rateLimit: 10,
     detailedHelp: "Creates a brand new band name",
-    categories: ["memes", "fun"],
+    categories: ["fun"],
     requiredPermissions: [],
     commands: ["bandname", "bandnames", "bn", "bands"],
     run: async function(message, args, bot){

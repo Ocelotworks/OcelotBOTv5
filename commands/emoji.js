@@ -1,7 +1,7 @@
 module.exports = {
     name: "Emoji Search",
     usage: "emoji <term>",
-    categories: ["fun","tools"],
+    categories: ["tools"],
     requiredPermissions: [],
     detailedHelp: "Find emojis in other servers",
     commands: ["emoji", "emojisearch", "emojis", "emote"],

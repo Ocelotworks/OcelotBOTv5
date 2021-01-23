@@ -3,7 +3,7 @@ module.exports = {
     name: "Would You Rather?",
     usage: "wouldyourather",
     detailedHelp: "Gives you a 'would you rather' question.",
-    categories: ["games"],
+    categories: ["games", "fun"],
     commands: ["wouldyourather", "wyr"],
     run: async function run(message, args, bot) {
       let questionResult = await bot.util.getJson("http://either.io/questions/next/1");

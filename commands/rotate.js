@@ -7,7 +7,7 @@
 module.exports = {
     name: "Rotate Image",
     usage: "rotate [url] [deg]",
-    categories: ["image"],
+    categories: ["image", "filter"],
     rateLimit: 20,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["rotate", "rot"],

@@ -5,7 +5,7 @@ module.exports = {
     name: "Expand",
     usage: "expand <word>",
     commands: ["expand"],
-    categories: ["fun"],
+    categories: ["text", "fun"],
     detailedHelp: "Makes the text look like t h i s ",
     run: function run(message, args) {
         if(args.length < 2)

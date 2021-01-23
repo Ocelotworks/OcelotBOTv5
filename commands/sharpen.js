@@ -7,7 +7,7 @@
 module.exports = {
     name: "Sharpen Image",
     usage: "sharpen [url]",
-    categories: ["image"],
+    categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["sharpen", "edge"],

@@ -5,7 +5,7 @@ const request = require('request');
 module.exports = {
     name: "Number Fact",
     usage: "numberfact <number>",
-    categories: ["fun"],
+    categories: ["search"],
     rateLimit: 2,
     commands: ["numberfact"],
     run: function run(message, args, bot) {

@@ -15,7 +15,7 @@ const ignoredArgs = ["play", "explore", "stats", "walk", "feed", "🍆", "clean"
 module.exports = {
     name: "Pet Pet",
     usage: "pet [url or @user]",
-    categories: ["fun", "image"],
+    categories: ["image", "filter"],
     rateLimit: 100,
     commands: ["pet", "petpet"],
     run: async function run(message, args, bot) {

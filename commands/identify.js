@@ -2,25 +2,9 @@
  * Created by Peter on 13/07/2017.
  */
 
-
 const config = require('config');
 const request = require('request');
 
-
-
-const messages = [
-    "That looks like ",
-    "That appears to be ",
-    "Seems like ",
-    "Might be ",
-    "Could be ",
-    "Probably ",
-    "Possibly ",
-    "I see ",
-    "Looks like "
-];
-
-const vowels = "aeiou";
 
 module.exports = {
     name: "Identify Image",
@@ -28,7 +12,7 @@ module.exports = {
     rateLimit: 50,
     detailedHelp: "Tries to identify an image",
     commands: ["identify", "ident"],
-    categories: ["image"],
+    categories: ["tools", "image"],
     run: async function run(message, args, bot) {
         const url =  await bot.util.getImage(message, args);
 

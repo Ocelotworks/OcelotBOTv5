@@ -10,7 +10,7 @@ const xml2js = require('xml2js');
 module.exports = {
     name: "Rule34 Search",
     usage: "rule34 <search>",
-    categories: ["nsfw"],
+    categories: ["nsfw", "search"],
     rateLimit: 50,
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
     commands: ["rule34", "r34"],

@@ -8,7 +8,7 @@ module.exports = {
     name: "Command Count",
     usage: "commandcount",
     detailedHelp: "How many commands have been run on OcelotBOT so far?",
-    categories: ["tools", "fun"],
+    categories: ["meta"],
     commands: ["commandcount"],
     run: async function run(message, args, bot) {
         let count = await bot.database.getCommandCount();

@@ -9,7 +9,7 @@ const canvas = require('canvas');
 module.exports = {
     name: "Snapchat Text",
     usage: "snapchat [url] [text]",
-    categories: ["image"],
+    categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["snapchat", "snap"],

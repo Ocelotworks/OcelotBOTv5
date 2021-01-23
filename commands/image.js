@@ -21,7 +21,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
     commands: ["image", "images", "im", "googleimage"],
     vote: true,
-    categories: ["image"],
+    categories: ["image", "search"],
     run:  async function(message, args, bot){
         if(args.length > 1){
             const query = message.cleanContent.substring(args[0].length+1);

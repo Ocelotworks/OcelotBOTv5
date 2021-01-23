@@ -26,7 +26,7 @@ module.exports = {
     name: "Poll",
     usage: "poll <option 1, option 2, option 3...>",
     detailedHelp: "Separate each option in the poll with a comma",
-    categories: ["fun"],
+    categories: ["tools"],
     commands: ["poll"],
     run: async function (message, args, bot) {
         let fullArgs = Discord.escapeMarkdown(args.slice(1).join(" "));

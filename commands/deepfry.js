@@ -11,7 +11,7 @@ const fs = require('fs');
 module.exports = {
     name: "Deepfry",
     usage: "deepfry [url]",
-    categories: ["image", "fun"],
+    categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["deepfry"],

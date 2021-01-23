@@ -3,7 +3,7 @@ module.exports = {
     usage: "bernie <text>",
     rateLimit: 10,
 
-    categories: ["image", "fun", "memes"],
+    categories: ["image", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bernie", "sanders"],
     run: function(message, args, bot){

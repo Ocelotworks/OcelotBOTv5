@@ -1,7 +1,7 @@
 module.exports = {
     name: "Bulge Image",
     usage: "bulge [url]",
-    categories: ["image"],
+    categories: ["image", "filter"],
     rateLimit: 10,
     detailedHelp: "Make an image bulge in the middle.",
     requiredPermissions: ["ATTACH_FILES"],

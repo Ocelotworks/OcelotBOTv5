@@ -5,7 +5,7 @@ module.exports = {
     name: "Doot Doot",
     usage: "doot",
     rateLimit: 50,
-    categories: ["memes", "voice"],
+    categories: ["voice", "memes"],
     detailedHelp: "Doot Doot",
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["doot", "toot"],
