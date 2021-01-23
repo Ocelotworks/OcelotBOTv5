@@ -286,7 +286,7 @@ module.exports = {
             }
         };
 
-        module.exports.loadPrefixCache(bot);
+       // module.exports.loadPrefixCache(bot);
         module.exports.loadCommands(bot);
     },
     loadPrefixCache: async function(bot){

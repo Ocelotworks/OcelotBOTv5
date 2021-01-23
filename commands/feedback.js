@@ -21,7 +21,6 @@ module.exports = {
                             response: msg.message.response,
                             admin: msg.message.admin
                         });
-                       // bot.client.channels.cache.get(bot.lastFeedbackChannel).send(`:grey_exclamation: An admin has responded to your feedback.\n\`\`\`\n${msg.message.response}\n\`\`\`\nUse **${(bot.prefixCache[msg.message.guildID]) || "!"}feedback** to reply back.`)
                     }
                }
             });

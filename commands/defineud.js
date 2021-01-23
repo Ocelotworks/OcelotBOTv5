@@ -10,7 +10,7 @@ module.exports = {
     commands: ["defineud", "ud", "urban", "urbandictionary"],
     run: async function run(message, args, bot) {
         if(!args[1]){
-            message.channel.send(`Usage: ${(message.guild && bot.prefixCache[message.guild.id]) || "!"}defineud <term>`);
+            message.channel.send(`Usage: ${message.getSetting("prefix")}defineud <term>`);
             return;
         }
         const term = encodeURIComponent(args.slice(1).join(" "));

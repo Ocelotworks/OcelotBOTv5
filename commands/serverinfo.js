@@ -10,7 +10,7 @@ module.exports = {
     categories: ["tools"],
     run:  function(message, args, bot){
         if(args.length < 2){
-            message.channel.send(`:bangbang: Invalid usage: \`${(message.guild && bot.prefixCache[message.guild.id]) || "!"}serverinfo ip:port\``);
+            message.channel.send(`:bangbang: Invalid usage: \`${message.getSetting("prefix")}serverinfo ip:port\``);
         }else{
             const preset = config.get("presets")[args[1].toLowerCase()];
             const gameColours = config.get("gameColours");
