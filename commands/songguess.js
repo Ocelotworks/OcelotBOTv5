@@ -53,6 +53,8 @@ module.exports = {
 
         songList = await bot.database.getSongList();
 
+        bot.logger.log(`Loaded ${songList.length} songs`);
+
         process.on('message', async function(message){
             if(message.type === "destruct"){
                 bot.logger.log("Shutting down running guess games");
@@ -151,19 +153,26 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
             bot.logger.log(`This song has ${hints.length} hints.`);
         })
 
-        message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
+        if(!hasFailed)
+            message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
         console.log("Joining");
         let span = bot.apm.startSpan("Create player");
         let player;
+        let errored = false;
         try {
-            player = await bot.lavaqueue.playOneSong(voiceChannel, file, message.getSetting("songguess.node")).player;
+            player = (await bot.lavaqueue.playOneSong(voiceChannel, file, message.getSetting("songguess.node"))).player;
         }catch(e){
-            if(hasFailed && message){
+           errored = true;
+        }
+
+        if(!player || errored) {
+            if (hasFailed && message) {
                 return message.replyLang("GENERIC_ERROR");
             }
             span.end();
             return doGuess(voiceChannel, message, bot, true)
         }
+        console.log(player);
         span.end();
         let won = false;
         span = bot.apm.startSpan("Create message collector");
@@ -203,13 +212,13 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                 span.end();
                 if(fastestTime && fastestTime.time) {
                     let fastestUser = await bot.util.getUserInfo(fastestTime.user);
-                    embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.elapsed / 1000, message.guild && message.guild.id, message.author.id)+(fastestUser ? ` (${fastestUser.username}#${fastestUser.discriminator})` : ""));
+                    embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.time / 1000, message.guild && message.guild.id, message.author.id)+(fastestUser ? ` (${fastestUser.username}#${fastestUser.discriminator})` : ""));
                 }
 
                 bot.util.replyTo(message, embed)
                 span = tx.startSpan("Update record");
                 let newOffset = guessTime-now;
-                if(fastestTime && fastestTime.elapsed && fastestTime.elapsed > newOffset) {
+                if(fastestTime && fastestTime.time && fastestTime.time > newOffset) {
                     await bot.database.updateSongRecord(title, message.author.id, newOffset);
                     message.replyLang("SONGGUESS_RECORD");
                 }
