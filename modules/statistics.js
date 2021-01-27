@@ -1,6 +1,5 @@
-const Influx = require("influx");
 const config = require('config');
-const os = require('os');
+// const client = require('prom-client');
 module.exports = {
     name: "Statistics Aggregator",
     init: async function(bot){
@@ -15,26 +14,6 @@ module.exports = {
             botRateLimits: 0,
             userRateLimits: 0,
             reconnects: 0,
-            timing: {
-                waiting: {},
-                counts: {},
-                totals: {}
-            },
-            time: function time(name){
-                const now = new Date().getTime();
-                if(bot.stats.timing.waiting[name]){
-                    if(bot.stats.timing.totals[name]){
-                        bot.stats.timing.totals[name] += now-bot.stats.timing.waiting[name];
-                        bot.stats.timing.counts[name]++;
-                    }else{
-                        bot.stats.timing.totals[name] = now-bot.stats.timing.waiting[name];
-                        bot.stats.timing.counts[name] = 1;
-                     }
-                    delete bot.stats.timing.waiting[name];
-                }else{
-                    bot.stats.timing.waiting[name] = now;
-                }
-            }
        };
 
         function buildSchema(){
@@ -80,16 +59,7 @@ module.exports = {
 
         }
 
-        bot.stats.influx = new Influx.InfluxDB({
-            host: config.get("InfluxDB.host"),
-            database: config.get("InfluxDB.database"),
-            username: config.get("InfluxDB.username"),
-            password: config.get("InfluxDB.password"),
-            schema: buildSchema()
-        });
 
-        let lastMessageCount = {};
-        let messageCount = {};
 
         bot.client.on("message", function(){
             bot.stats.messagesPerMinute++;
@@ -116,107 +86,12 @@ module.exports = {
         });
 
         setInterval(async function(){
-            // let points = [];
-            // const keys = Object.keys(bot.stats);
-            // for(let i = 0; i < keys.length; i++){
-            //     points.push(
-            //         {
-            //             measurement: keys[i],
-            //             tags: {"shard": bot.client.shard.ids.join(";")},
-            //             fields: {[keys[i].startsWith("commands") ? "commands" : keys[i].startsWith("messages") ? "messages" : "value"]: bot.stats[keys[i]]}
-            //         });
-            // }
-            if(os.hostname() === "uxadmsv0001") {
 
+            // client.collectDefaultMetrics({labels: {
+            //         env: process.env.NODE_ENV,
+            //         shard: bot.client.shard.ids[0],
+            // }})
 
-
-                try {
-                    // await bot.stats.influx.writePoints([
-                    //     {
-                    //         measurement: "commandsPerMinute",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {commands: bot.stats.commandsPerMinute}
-                    //     },
-                    //     {
-                    //         measurement: "messagesPerMinute",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {messages: bot.stats.messagesPerMinute}
-                    //     },
-                    //     {
-                    //         measurement: "commandsTotal",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {commands: bot.stats.commandsTotal}
-                    //     },
-                    //     {
-                    //         measurement: "messagesTotal",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {messages: bot.stats.messagesTotal}
-                    //     },
-                    //     {
-                    //         measurement: "serversTotal",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {servers: bot.client.guilds.cache.size}
-                    //     },
-                    //     {
-                    //         measurement: "usersTotal",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {usersTotal: bot.client.users.cache.size}
-                    //     },
-                    //     {
-                    //         measurement: "channelsTotal",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {channelsTotal: bot.client.channels.cache.size}
-                    //     },
-                    //     {
-                    //         measurement: "websocketPing",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {websocketPing: bot.client.ping}
-                    //     },
-                    //     {
-                    //         measurement: "messagesSentPerMinute",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {messages: bot.stats.messagesSentPerMinute}
-                    //     },
-                    //     {
-                    //         measurement: "botRateLimits",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {botRateLimits: bot.stats.botRateLimits}
-                    //     },
-                    //     {
-                    //         measurement: "errors",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {errors: bot.stats.errors}
-                    //     },
-                    //     {
-                    //         measurement: "warnings",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {warnings: bot.stats.warnings}
-                    //     },
-                    //     {
-                    //         measurement: "commandCacheSize",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {commandCacheSize: Object.keys(bot.commandCache).length}
-                    //     },
-                    //     {
-                    //         measurement: "voiceConnections",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {voiceConnections: bot.lavaqueue.manager.players.size}
-                    //     },
-                    //     {
-                    //         measurement: "connectionStatus",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {connectionStatus: bot.client.status}
-                    //     },
-                    //     {
-                    //         measurement: "reconnects",
-                    //         tags: {"shard": bot.client.shard.ids.join(";")},
-                    //         fields: {reconnects: bot.stats.reconnects}
-                    //     }
-                    // ]);
-                }catch(e){
-                    bot.logger.warn("Couldn't upload stats: "+e);
-                }
-            }
 
             if(bot.client.shard){
                 bot.client.shard.send({

@@ -52,18 +52,17 @@ module.exports = {
             conditionallyAssign(body, botList, "usersCountField", bot.client.users.cache.size);
             conditionallyAssign(body, botList, "voiceConnectionsCountField", voiceConnections);
             conditionallyAssign(body, botList, "tokenField", botList.statsKey);
-            try {
-                await axios[botList.statsMethod](botList.statsUrl, body, {
-                    headers: {
-                        "Authorization": botList.statsKey,
-                    }
-                })
+            axios[botList.statsMethod](botList.statsUrl, body, {
+                headers: {
+                    "Authorization": botList.statsKey,
+                }
+            }).then(()=>{
                 bot.logger.log(`Posted stats to ${botList.id}`)
-            }catch(e){
+            }).catch((e)=>{
                 bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
                 if(e.response)
-                    console.log(e.response.data);
-            }
+                    console.log(e.response.data.substring(0,500));
+            })
         }
     }
 };
