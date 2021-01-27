@@ -28,6 +28,7 @@ module.exports = {
         module.exports.populateShuffleQueue();
 
         bot.client.on("ready", function ready(){
+            return;
             bot.lavaqueue.manager.on("ready", async function(){
                 let activeSessions = await bot.database.getActiveSessions();
                 for(let i = 0; i < activeSessions.length; i++){
