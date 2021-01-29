@@ -55,6 +55,7 @@
     "omegle-node": "^1.1.4",
     "ping": "^0.2.3",
     "pm2": "^4.4.1",
+    "prom-client": "^13.0.0",
     "promise-async": "^0.2.0",
     "reattempt": "^0.1.1",
     "request": "^2.88.2",

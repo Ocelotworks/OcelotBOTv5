@@ -357,7 +357,7 @@ module.exports = {
                     messageID,
                     commandID,
                     command,
-                    server: bot.client.shard ? bot.client.shard.ids.join(";") : 0
+                    server: bot.client.shard ? bot.util.shard : 0
                 }).into(COMMANDLOG_TABLE);
             },
             /**

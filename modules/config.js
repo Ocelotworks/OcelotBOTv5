@@ -96,11 +96,11 @@ module.exports = {
         let cacheReloads = [];
 
         process.on("message", function reloadConfig(msg){
-            if(msg.type === "reloadConfig" && (msg.payload === "global" ||  msg.payload == bot.client.shard.ids.join(";") || bot.client.guilds.cache.has(msg.payload))){
+            if(msg.type === "reloadConfig" && (msg.payload === "global" ||  msg.payload == bot.util.shard || bot.client.guilds.cache.has(msg.payload))){
                 if(cacheReloads[msg.payload])return;
 
                 cacheReloads[msg.payload] = setTimeout(function(){
-                    if(msg.payload === "global" || msg.payload == bot.client.shard.ids.join(";")){
+                    if(msg.payload === "global" || msg.payload == bot.util.shard){
                         bot.config.loadGlobalCache();
                     }else{
                         bot.config.reloadCacheForServer(msg.payload);

@@ -14,7 +14,7 @@ module.exports = {
         bot.client.on("ready", async function(){
             if(firstReady) {
                 firstReady = false;
-                const resumeKey = bot.client.user.id + "-" + bot.client.shard.ids.join(";");
+                const resumeKey = bot.client.user.id + "-" + bot.util.shard;
                 let options =  {
                     resumeKey,
                     resumeTimeout: 60

@@ -81,13 +81,13 @@ module.exports = {
                         break;
                     }
                 }
-                if(voteServer || !bot.client.shard || bot.client.shard.ids[0] == 0){
-                    if(bot.client.shard && bot.client.shard.ids[0] == 0){
+                if(voteServer || !bot.client.shard || bot.util.shard == 0){
+                    if(bot.client.shard && bot.util.shard == 0){
                         voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel, source);
                     }else{
                         await logVote(user, voteServer, channel, source);
                         if(bot.client.shard)
-                            await bot.client.shard.send({type: "clearVoteTimeout", payload: user});
+                            await bot.rabbit.event({type: "clearVoteTimeout", payload: user});
                     }
                 }
 

@@ -17,7 +17,7 @@ module.exports = {
         }
     },
     run: async function(message, args, bot){
-        bot.client.shard.send({type: "leaveServer", message: args[2]});
+        bot.rabbit.event({type: "leaveServer", message: args[2]});
         bot.logger.log("Left Server.");
     }
 };

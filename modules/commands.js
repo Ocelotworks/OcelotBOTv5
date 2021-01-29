@@ -235,7 +235,7 @@ module.exports = {
 
 
         bot.loadCommand = function loadCommand(command, reload){
-            const module = "../commands/" + command;
+            const module = `${__dirname}/../commands/${command}`;
             if(reload) {
                 delete require.cache[require.resolve(module)];
             }
@@ -248,7 +248,7 @@ module.exports = {
                     Sentry.captureException(e);
                     bot.logger.error(e);
                     if(bot.client && bot.client.shard){
-                        bot.client.shard.send({type: "warning", payload: {
+                        bot.rabbit.event({type: "warning", payload: {
                             id: "badInit-"+command,
                             message: `Couldn't initialise command ${command}:\n${e.message}`
                         }});
@@ -274,7 +274,7 @@ module.exports = {
                     const commandName = loadedCommand.commands[i];
                     if(bot.commands[commandName] && !reload){
                         if(bot.client.shard)
-                            bot.client.shard.send({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`}})
+                            bot.rabbit.event({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`}})
                     }
                     bot.commands[commandName] = loadedCommand.run;
                     bot.commandUsages[commandName] = {
@@ -311,10 +311,11 @@ module.exports = {
                 }
                 bot.bus.emit("commandLoadFinished");
                 bot.logger.log("Finished loading commands.");
-
-                bot.client.shard.send({
-                    type: "commandList",
-                    payload: bot.commandUsages
+                bot.client.once("ready", ()=>{
+                    bot.rabbit.event({
+                        type: "commandList",
+                        payload: bot.commandUsages
+                    })
                 })
             }
         });

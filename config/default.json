@@ -56,10 +56,10 @@
     "shards": "auto"
   },
   "Modules": [
+    "rabbit",
     "util",
     "database",
     "discord",
-    "rabbit",
     "config",
     "lang",
     "statistics",

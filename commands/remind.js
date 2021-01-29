@@ -16,8 +16,8 @@ module.exports = {
     init: function init(bot){
         bot.util.standardNestedCommandInit('remind', 'remind', module.exports);
         bot.client.on("ready", function () {
-            bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, {exclusive: true});
-            bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, function reminderConsumer(message) {
+            bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.util.shard}`, {exclusive: true});
+            bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.util.shard}`, function reminderConsumer(message) {
                 try {
                     let reminder = JSON.parse(message.content);
                     if (bot.config.getBool("global", "remind.silentQueueTest")) {
@@ -37,7 +37,7 @@ module.exports = {
 
         bot.client.on("ready", async function discordReady(){
             if(!bot.remindersLoaded) {
-                bot.client.shard.send({type: "claimReminder", payload: 0});
+                bot.rabbit.event({type: "claimReminder", payload: 0});
                 bot.remindersLoaded = true;
                 bot.logger.log("Loading reminders...");
                 const reminderResult = await bot.database.getReminders(bot.client.user.id);
@@ -57,7 +57,7 @@ module.exports = {
                             }, remainingTime);
                         }
                         if(bot.client.shard){
-                            bot.client.shard.send({type: "claimReminder", payload: reminder.id});
+                            bot.rabbit.event({type: "claimReminder", payload: reminder.id});
                         }
                     }
                 }
@@ -65,7 +65,7 @@ module.exports = {
                 bot.logger.log("Prevented duplicate reminder loading");
             }
         });
-        if(bot.client.shard && bot.client.shard.ids.join(";") == 0) {
+        if(bot.client.shard && bot.util.shard == 0) {
             process.on("message", async function handleClaimedReminders(message) {
                 if (message.type === "handleClaimedReminders") {
                     if(bot.orphanedRemindersLoaded)return bot.logger.warn("Prevented duplicate orphaned reminder loading");

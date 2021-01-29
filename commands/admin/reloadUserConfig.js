@@ -11,7 +11,7 @@ module.exports = {
     run: async function(message, args, bot){
         message.channel.send("Reloading...");
         if(bot.client.shard) {
-            bot.client.shard.send({type: "reloadUserConfig"});
+            bot.rabbit.event({type: "reloadUserConfig"});
         }else {
             await bot.config.loadUserCache();
         }

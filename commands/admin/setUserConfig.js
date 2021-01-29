@@ -17,7 +17,7 @@ module.exports = {
         }else{
             await bot.database.setUserSetting(user, key, value);
             if(bot.client.shard) {
-                bot.client.shard.send({type: "reloadUserConfig"});
+                bot.rabbit.event({type: "reloadUserConfig"});
             }else {
                 await bot.config.loadUserCache();
             }

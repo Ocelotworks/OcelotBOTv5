@@ -155,7 +155,7 @@ function loadModules(){
             bot.logger.error(`Error loading ${fileName}:`);
             console.error(e);
             if(bot.client && bot.client.shard) {
-                bot.client.shard.send({
+                bot.rabbit.event({
                     type: "warning", payload: {
                         id: "badModule-" + fileName,
                         message: `Couldn't load module ${module}:\n${e.message}`

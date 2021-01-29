@@ -25,7 +25,7 @@ module.exports = {
         if(!args[2])return message.channel.send("You must enter a node to switch to. Refer to !admin vcs");
         if(!bot.lavaqueue.manager.nodes.has(args[2]))return message.channel.send(`Node ${args[2]} does not exist. Refer to !admin vcs`);
         if(!bot.lavaqueue.manager.nodes.get(args[2]).connected)return message.channel.send("That node is not connected. Refer to !admin vcs");
-        bot.client.shard.send({type: "switchNode", message: {node: args[2]}});
+        bot.rabbit.event({type: "switchNode", message: {node: args[2]}});
 
     }
 };

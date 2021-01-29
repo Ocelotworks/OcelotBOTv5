@@ -26,7 +26,7 @@ module.exports = {
     run: async function(message, args, bot){
         if(!args[2])
             return message.channel.send("You must enter a command file to load.");
-        await bot.client.shard.send({type: "loadCommand", message: args[2]});
+        await bot.rabbit.event({type: "loadCommand", message: args[2]});
         bot.logger.log("Loading Command");
         message.channel.send("Loading command "+args[2]);
     }

@@ -45,9 +45,9 @@ module.exports = {
             if(milestones.indexOf(bot.commandCache[user]) > -1){
                 bot.logger.log(`Sending congrats to ${user} for ${bot.commandCache[user]} commands`);
                 message.channel.send(`:tada: **Congratulations! You just performed your __${bot.commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting. **Type: ${message.getSetting("prefix")}vote**\n**Voting also gets you a special <:supporter_1:529308223954616322> supporter badge on your ${message.getSetting("prefix")}profile**`);
-                bot.client.shard.send({type: "clearCommandCache"});
+                bot.rabbit.event({type: "clearCommandCache"});
             }else if(eligbleBadge && bot.client.shard) {
-                bot.client.shard.send({type: "clearCommandCache"});
+                bot.rabbit.event({type: "clearCommandCache"});
             }
         });
 

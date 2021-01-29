@@ -11,7 +11,7 @@ module.exports = {
         });
     },
     run:  async function(message, args, bot){
-        await bot.client.shard.send({type: "reloadLang"});
+        await bot.rabbit.event({type: "reloadLang"});
         message.channel.send(`Loaded ${bot.lang.strings['en-gb'].length} unique keys and ${Object.keys(bot.lang.strings).length} languages.`);
     }
 };

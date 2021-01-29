@@ -4,7 +4,7 @@ module.exports = {
     commands: ["invite", "joinserver", "addbot"],
     categories: ["meta"],
     init: async function init(bot){
-        if(bot.client.shard.ids[0] === 0){
+        if(bot.util.shard === 0){
             bot.logger.log("This shard will process invite referrals.");
             process.on("message", async function registerReferral(message) {
                 if (message.type === "registerReferral") {

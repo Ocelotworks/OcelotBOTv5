@@ -11,7 +11,7 @@ module.exports = {
     init: function(bot){
       process.on("message", function fixServers(message){
             if(message.type === "fixServers"){
-                let timeout = bot.client.shard.ids.join(";") * 20000;
+                let timeout = bot.util.shard * 20000;
                 bot.logger.log(`Fixing Servers in ${timeout}ms`);
                 setTimeout(async function(){
                     const servers = bot.client.guilds.cache;
@@ -50,7 +50,7 @@ module.exports = {
                         }
                     });
 
-                    if(bot.client.shard.ids.join(";") === 1){
+                    if(bot.util.shard === 1){
                         let servers = await bot.database.getActiveServers();
                         for(let i = 0; i < servers.length; i++){
                             let row = servers[i];
@@ -69,6 +69,6 @@ module.exports = {
       });
     },
     run: function(message, args, bot){
-       bot.client.shard.send({type: "fixServers"});
+       bot.rabbit.event({type: "fixServers"});
     }
 };

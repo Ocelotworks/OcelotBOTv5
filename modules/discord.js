@@ -172,7 +172,7 @@ module.exports = {
             const now = new Date();
             if(now-bot.lastPresenceUpdate>100000) {
                 bot.lastPresenceUpdate = now;
-                const serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
+                const serverCount = (await bot.rabbit.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
                 let randPresence =  bot.util.arrayRand(presenceMessages);
                 await bot.client.user.setPresence({
                    activity: {
@@ -200,10 +200,7 @@ module.exports = {
                 //     connection.disconnect();
                 // });
 
-
-                process.env.SHARD_ID = bot.client.shard.ids.join("+");
-
-                bot.client.shard.send({"type": "ready"});
+                bot.rabbit.event({"type": "ready"});
             });
         });
 
@@ -436,7 +433,7 @@ module.exports = {
                             bot.logger.log("Sending channel data for "+guildObj.name+" ("+guild+")");
                             data = channels;
                         }
-                    }else if(message.payload.data.shard == bot.client.shard.ids.join(";")){
+                    }else if(message.payload.data.shard == bot.util.shard){
                         if(message.payload.name === "guildCount"){
                             data = {count: bot.client.guilds.cache.size};
                         }else if(message.payload.name === "guilds"){
@@ -452,7 +449,7 @@ module.exports = {
                         }
                     }
                     if(data) {
-                        await bot.client.shard.send({
+                        await bot.rabbit.event({
                             type: "dataCallback",
                             payload: {
                                 callbackID: message.payload.callbackID,
@@ -484,7 +481,7 @@ module.exports = {
                     let userID = message.payload;
                     let user = await bot.client.users.fetch(userID);
                     if(user) {
-                        await bot.client.shard.send({
+                        await bot.rabbit.event({
                             type: "getUserInfoResponse", payload: {
                                 id: user.id,
                                 username: user.username,

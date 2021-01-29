@@ -6,19 +6,22 @@
  */
 const fs = require('fs');
 const Sentry = require('@sentry/node');
+// const amqplib = require('amqplib');
+// const config = require('config');
 module.exports = {
     name: "IPC",
-    init: function init(broker) {
+    init: async function init(broker) {
 
       broker.ipc = {};
 
       broker.ipc.callbackID = 1;
       broker.ipc.waitingCallbacks = {};
 
-
+      // broker.ipc.connection = await amqplib.connect(config.get("RabbitMQ.host"));
+      // broker.ipc.channel = await broker.ipc.connection.createChannel();
+      // broker.ipc.rpcChannel = await broker.ipc.connection.createChannel();
 
       broker.ipc.messages = {};
-
 
       broker.logger.log("Loading IPC messages...");
         fs.readdir("messages", async function readMessagesDir(err, files) {
@@ -61,6 +64,24 @@ module.exports = {
               }
           })
       };
+
+      // const ipcChannelName = `broker_ipc_${process.env.BOT_ID}`;
+      // broker.ipc.rpcChannel.assertQueue(ipcChannelName, {
+      //     durable: false,
+      //     exclusive: true,
+      //     "x-message-ttl": 60000
+      // });
+      //
+      // broker.ipc.rpcChannel.consume(ipcChannelName, (msg)=>{
+      //     try {
+      //         let data = JSON.parse(msg.content.toString());
+      //
+      //     }catch(e){
+      //         broker.logger.warn(`Malformed message ${msg.content.toString()}: ${e}`);
+      //     }finally{
+      //         broker.ipc.rpcChannel.ack(msg);
+      //     }
+      // })
 
 
       broker.manager.on("shardCreate", function onShardCreate(shard){

@@ -89,16 +89,16 @@ module.exports = {
 
             // client.collectDefaultMetrics({labels: {
             //         env: process.env.NODE_ENV,
-            //         shard: bot.client.shard.ids[0],
+            //         shard: bot.util.shard,
             // }})
 
 
             if(bot.client.shard){
-                bot.client.shard.send({
+                bot.rabbit.event({
                     type: "heartbeat",
                     payload: {
                         messagesPerMinute: bot.stats.messagesPerMinute,
-                        shard: bot.client.shard.ids.join(";")
+                        shard: bot.util.shard
                     }
                 });
             }

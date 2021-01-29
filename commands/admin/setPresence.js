@@ -5,9 +5,9 @@ module.exports = {
     run:  async function(message, args, bot){
         bot.presenceMessage = args[3] === "clear" ? null : message.content.substring(message.content.indexOf(args[2]));
         if(bot.client.shard){
-            return bot.client.shard.send({type: "presence", payload: bot.presenceMessage})
+            return bot.rabbit.event({type: "presence", payload: bot.presenceMessage})
         }else{
-            const serverCount   = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+            const serverCount   = (await bot.rabbit.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
             return bot.client.user.setPresence({
                 activity: {
                     name: `${bot.presenceMessage && bot.presenceMessage + " | "} ${serverCount} servers.`,

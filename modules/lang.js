@@ -83,7 +83,7 @@ module.exports = {
                 return bot.lang.strings.default[key];
             }else{
                 bot.logger.warn("Tried to translate unknown key: "+key);
-                bot.client.shard.send({type: "warning", payload: {
+                bot.rabbit.event({type: "warning", payload: {
                         id: "langKey-"+key,
                         message: `Tried to translate unknown lang key ${key}`
                 }});

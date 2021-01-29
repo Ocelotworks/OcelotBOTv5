@@ -8,7 +8,7 @@ module.exports = {
         bot.client.once("ready", async ()=>{
             let servers = bot.client.guilds.cache.keyArray();
             let reminders = await bot.database.getRecurringRemindersForShard(bot.client.user.id, servers);
-            if(bot.client.shard.ids[0] == "0")
+            if(bot.util.shard == "0")
                 reminders.push(...(await bot.database.getRecurringRemindersForDMs(bot.client.user.id)));
             bot.logger.log(`Got ${reminders.length} recurring reminders.`);
             for(let i = 0; i < reminders.length; i++){
