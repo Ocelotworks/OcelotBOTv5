@@ -5,6 +5,9 @@ RUN apk add --update --no-cache python3 make g++ pkgconfig && ln -sf python3 /us
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
 
+COPY package.json package.json
+COPY package-lock.json package-lock.json
+
 RUN npm install --registry=http://192.168.1.145/ install
 
 FROM node:lts-alpine3.12 as app
