@@ -161,7 +161,6 @@ module.exports = {
 
         //bot.presenceMessage = null;
 
-
         bot.client = new Discord.Client({
             allowedMentions: {parse: ["users"]}
         });
