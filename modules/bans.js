@@ -22,10 +22,9 @@ module.exports = {
         };
 
         bot.banCache.update();
-        process.on("message", function updateBans(msg){
-            if(msg.type === "updateBans")
-                bot.banCache.update();
-        });
+        bot.bus.on("updateBans", (msg)=>{
+            bot.banCache.update();
+        })
 
         setInterval(function(){
             bot.rateLimits = {};

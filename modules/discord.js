@@ -413,86 +413,82 @@ module.exports = {
             }, 1000);
         })
 
-        process.on("message", function onMessage(message){
-            Sentry.configureScope(async function onMessage(scope){
-                scope.addBreadcrumb({
-                    category: "broker",
-                    message: "Message",
-                    level: Sentry.Severity.Info,
-                    data: message
-                });
-                let data;
-                if(message.type === "requestData"){
-                    if(message.payload.name === "channels"){
-                        let guild = message.payload.data.server;
-                        if(bot.client.guilds.cache.has(guild)){
-                            let guildObj = bot.client.guilds.cache.get(guild);
-                            let channels = guildObj.channels.cache.map(function(channel){
-                                return {name: channel.name, id: channel.id, type: channel.type}
-                            });
-                            bot.logger.log("Sending channel data for "+guildObj.name+" ("+guild+")");
-                            data = channels;
-                        }
-                    }else if(message.payload.data.shard == bot.util.shard){
-                        if(message.payload.name === "guildCount"){
-                            data = {count: bot.client.guilds.cache.size};
-                        }else if(message.payload.name === "guilds"){
-                            data = bot.client.guilds.cache.array();
-                        }else if(message.payload.name === "unavailableGuilds"){
-                            data = bot.client.guilds.cache.filter((g)=>!g.available).array();
-                        }else if(message.payload.name === "commandVersions"){
-                            data = {};
-                            for(let command in bot.commandUsages){
-                                if(bot.commandUsages.hasOwnProperty(command))
-                                    data[command] = bot.commandUsages[command].crc;
-                            }
-                        }
-                    }
-                    if(data) {
-                        await bot.rabbit.event({
-                            type: "dataCallback",
-                            payload: {
-                                callbackID: message.payload.callbackID,
-                                data,
-                            }
-                        });
-                    }else{
-                        bot.logger.warn("Unknown requestData type "+message.payload.name)
-                    }
-                }else if(message.type === "cockup"){
-                    for(let i = 0; i < bot.admins.length; i++) {
-                        let admin = bot.admins[i];
-                        if (bot.client.users.cache.has(admin)) {
-                            bot.logger.log("Sending cockup message");
-                            let adminUser = bot.client.users.cache.get(admin);
-                            const output = `:warning: <@${admin}> **Cockup: ${message.payload}**`;
-                            if (adminUser.lastMessage) {
-                                adminUser.lastMessage.channel.send(output);
-                            }
-                            let dm = await adminUser.createDM();
-                            dm.send(output);
-                        }
-                    }
-                }else if(message.type === "presence"){
-                    bot.logger.log("Updating presence: "+message.payload);
-                    bot.presenceMessage = message.payload === "clear" ? null : message.payload;
-                    await bot.updatePresence();
-                }else if(message.type === "getUserInfo"){
-                    let userID = message.payload;
-                    let user = await bot.client.users.fetch(userID);
-                    if(user) {
-                        await bot.rabbit.event({
-                            type: "getUserInfoResponse", payload: {
-                                id: user.id,
-                                username: user.username,
-                                discriminator: user.discriminator
-                            }
-                        });
+
+        bot.bus.on("requestData", async (message)=>{
+            let data;
+            if(message.payload.name === "channels"){
+                let guild = message.payload.data.server;
+                if(bot.client.guilds.cache.has(guild)){
+                    let guildObj = bot.client.guilds.cache.get(guild);
+                    let channels = guildObj.channels.cache.map(function(channel){
+                        return {name: channel.name, id: channel.id, type: channel.type}
+                    });
+                    bot.logger.log("Sending channel data for "+guildObj.name+" ("+guild+")");
+                    data = channels;
+                }
+            }else if(message.payload.data.shard == bot.util.shard){
+                if(message.payload.name === "guildCount"){
+                    data = {count: bot.client.guilds.cache.size};
+                }else if(message.payload.name === "guilds"){
+                    data = bot.client.guilds.cache.array();
+                }else if(message.payload.name === "unavailableGuilds"){
+                    data = bot.client.guilds.cache.filter((g)=>!g.available).array();
+                }else if(message.payload.name === "commandVersions"){
+                    data = {};
+                    for(let command in bot.commandUsages){
+                        if(bot.commandUsages.hasOwnProperty(command))
+                            data[command] = bot.commandUsages[command].crc;
                     }
                 }
-            });
+            }
+            if(data) {
+                await bot.rabbit.event({
+                    type: "dataCallback",
+                    payload: {
+                        callbackID: message.payload.callbackID,
+                        data,
+                    }
+                });
+            }else{
+                bot.logger.warn("Unknown requestData type "+message.payload.name)
+            }
         });
 
+        bot.bus.on("cockup", async (message)=>{
+            for(let i = 0; i < bot.admins.length; i++) {
+                let admin = bot.admins[i];
+                if (bot.client.users.cache.has(admin)) {
+                    bot.logger.log("Sending cockup message");
+                    let adminUser = bot.client.users.cache.get(admin);
+                    const output = `:warning: <@${admin}> **Cockup: ${message.payload}**`;
+                    if (adminUser.lastMessage) {
+                        adminUser.lastMessage.channel.send(output);
+                    }
+                    let dm = await adminUser.createDM();
+                    dm.send(output);
+                }
+            }
+        });
+
+        bot.bus.on("presence", async (message)=>{
+            bot.logger.log("Updating presence: "+message.payload);
+            bot.presenceMessage = message.payload === "clear" ? null : message.payload;
+            await bot.updatePresence();
+        })
+
+        bot.bus.on("getUserInfo", async(message)=>{
+            let userID = message.payload;
+            let user = await bot.client.users.fetch(userID);
+            if(user) {
+                await bot.rabbit.event({
+                    type: "getUserInfoResponse", payload: {
+                        id: user.id,
+                        username: user.username,
+                        discriminator: user.discriminator
+                    }
+                });
+            }
+        })
 
         bot.logger.log("Logging in to Discord...");
         bot.client.login();

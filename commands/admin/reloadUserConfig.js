@@ -10,11 +10,6 @@ module.exports = {
     commands: ["reloaduserconfig", "ruc"],
     run: async function(message, args, bot){
         message.channel.send("Reloading...");
-        if(bot.client.shard) {
-            bot.rabbit.event({type: "reloadUserConfig"});
-        }else {
-            await bot.config.loadUserCache();
-        }
-
+        bot.rabbit.event({type: "reloadUserConfig"});
     }
 };

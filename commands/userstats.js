@@ -52,12 +52,10 @@ module.exports = {
         });
 
 
-        process.on("message", function clearCommandCache(message){
-            if(message.type === "clearCommandCache"){
-                bot.logger.log("Clearing Command Cache");
-                bot.commandCache = {};
-            }
-        });
+        bot.bus.on("clearCommandCache", ()=>{
+            bot.logger.log("Clearing Command Cache");
+            bot.commandCache = {};
+        })
 
         // bot.client.on("presenceUpdate", function(oldMember, newMember){
         //     if(newMember.user.bot)return;

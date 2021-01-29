@@ -1109,16 +1109,13 @@ module.exports = {
             }
         }
 
-        process.on("message", function (message){
-            if(message.type === "getUserInfoResponse"){
-                const waitingUser = waitingUsers[message.payload.id];
-                if(waitingUser){
-                    clearTimeout(waitingUser[1]);
-                    waitingUser[0](message.payload);
-                }
+        bot.bus.on("getUserInfoResponse", (message)=>{
+            const waitingUser = waitingUsers[message.payload.id];
+            if(waitingUser){
+                clearTimeout(waitingUser[1]);
+                waitingUser[0](message.payload);
             }
-        });
-
+        })
 
         bot.util.bots = {
             music: {

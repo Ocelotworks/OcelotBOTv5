@@ -28,7 +28,6 @@ module.exports = {
             let data = JSON.parse(msg.content);
             data.meta = msg.properties;
             bot.rabbit.eventsChannel.ack(msg);
-            console.log("emitting ", data.type)
             bot.bus.emit(data.type, data);
         }
 
@@ -71,7 +70,6 @@ module.exports = {
         };
 
         bot.rabbit.emit = async function emit(type, payload){
-            console.log("Emitting type "+type);
             let buf = Buffer.from(JSON.stringify(payload));
             if(!bot.rabbit.pubsub[type])
                 bot.rabbit.pubsub[type] = await bot.rabbit.createPubsub(type);
@@ -88,13 +86,14 @@ module.exports = {
 
         bot.rabbit.fetchClientValues = async function fetchClientValues(prop){
             return new Promise((fulfill)=>{
-                console.log("Fetching", prop);
                 const id = `${bot.util.shard}-${bot.rabbit.fetchId++}`;
                 bot.rabbit.event({type: "fetchClientValues", id, prop});
 
                 const timeout = setTimeout(()=>{
-
+                    fulfill(bot.rabbit.waitingFetches[id].buffer);
+                    bot.rabbit.waitingFetches[id] = null;
                 }, 5000);
+
                 bot.rabbit.waitingFetches[id] = {fulfill: (value)=>{
                         bot.rabbit.waitingFetches[id].buffer.push(value);
                         if(bot.rabbit.waitingFetches[id].buffer.length >= process.env.SHARD_COUNT) {
@@ -107,7 +106,6 @@ module.exports = {
         }
 
         bot.bus.on("fetchClientValues", (msg)=>{
-            console.log("fetching ", msg.prop);
             let value = getValue(bot.client, msg.prop)
             bot.rabbit.event({type: "clientValueCallback", id: msg.id, value})
         });
@@ -184,7 +182,6 @@ module.exports = {
 
 
 function getValue(object, value){
-    console.log("GetValue: ", value)
     let ind = value.indexOf(".");
     if(ind > -1){
         return getValue(object[value.substring(0, ind)], value.substring(ind+1))

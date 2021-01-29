@@ -95,8 +95,8 @@ module.exports = {
 
         let cacheReloads = [];
 
-        process.on("message", function reloadConfig(msg){
-            if(msg.type === "reloadConfig" && (msg.payload === "global" ||  msg.payload == bot.util.shard || bot.client.guilds.cache.has(msg.payload))){
+        bot.bus.on("reloadConfig", (msg)=>{
+            if(msg.payload === "global" ||  msg.payload == bot.util.shard || bot.client.guilds.cache.has(msg.payload)){
                 if(cacheReloads[msg.payload])return;
 
                 cacheReloads[msg.payload] = setTimeout(function(){
@@ -105,7 +105,6 @@ module.exports = {
                     }else{
                         bot.config.reloadCacheForServer(msg.payload);
                     }
-
                     delete cacheReloads[msg.payload];
                 }, 5000);
                 bot.logger.log("Broker requested config reload for "+msg.payload);
@@ -114,5 +113,6 @@ module.exports = {
                 bot.config.loadUserCache();
             }
         })
+
     }
 };

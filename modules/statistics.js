@@ -93,15 +93,13 @@ module.exports = {
             // }})
 
 
-            if(bot.client.shard){
-                bot.rabbit.event({
-                    type: "heartbeat",
-                    payload: {
-                        messagesPerMinute: bot.stats.messagesPerMinute,
-                        shard: bot.util.shard
-                    }
-                });
-            }
+            bot.rabbit.event({
+                type: "heartbeat",
+                payload: {
+                    messagesPerMinute: bot.stats.messagesPerMinute,
+                    shard: bot.util.shard
+                }
+            });
 
             bot.stats.messagesPerMinute = 0;
             bot.stats.commandsPerMinute = 0;

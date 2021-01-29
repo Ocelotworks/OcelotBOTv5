@@ -273,8 +273,7 @@ module.exports = {
                 if (loadedCommand.commands.hasOwnProperty(i)) {
                     const commandName = loadedCommand.commands[i];
                     if(bot.commands[commandName] && !reload){
-                        if(bot.client.shard)
-                            bot.rabbit.event({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`}})
+                        bot.rabbit.event({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`}})
                     }
                     bot.commands[commandName] = loadedCommand.run;
                     bot.commandUsages[commandName] = {

@@ -50,45 +50,39 @@ module.exports = {
                         if (remainingTime <= 0) {
                             bot.logger.log(`Reminder ${reminder.id} has expired.`);
 
-                            module.exports.sendReminder(reminder, bot);
+                            await module.exports.sendReminder(reminder, bot);
                         } else {
                             bot.util.setLongTimeout(function () {
                                 module.exports.sendReminder(reminder, bot);
                             }, remainingTime);
                         }
-                        if(bot.client.shard){
-                            bot.rabbit.event({type: "claimReminder", payload: reminder.id});
-                        }
+                        bot.rabbit.event({type: "claimReminder", payload: reminder.id});
                     }
                 }
             }else{
                 bot.logger.log("Prevented duplicate reminder loading");
             }
         });
-        if(bot.client.shard && bot.util.shard == 0) {
-            process.on("message", async function handleClaimedReminders(message) {
-                if (message.type === "handleClaimedReminders") {
-                    if(bot.orphanedRemindersLoaded)return bot.logger.warn("Prevented duplicate orphaned reminder loading");
-                    bot.orphanedRemindersLoaded = true;
-                    const now = new Date().getTime();
-                    let orphanedReminders = await bot.database.getOrphanedReminders(message.payload, bot.client.user.id);
-                    bot.logger.log(`Found ${orphanedReminders.length} orphaned reminders.`);
-                    for(let i = 0; i < orphanedReminders.length; i++){
-                        let reminder = orphanedReminders[i];
-                        bot.logger.log(`Reminder ${orphanedReminders[i].id} is orphaned.`);
-                        const remainingTime = reminder.at - now;
-                        if (remainingTime <= 0) {
-                            bot.logger.log(`Reminder ${reminder.id} has expired.`);
+        if(bot.util.shard == 0) {
+            bot.bus.once("handleClaimedReminders", async (msg)=>{
+                const now = new Date().getTime();
+                let orphanedReminders = await bot.database.getOrphanedReminders(message.payload, bot.client.user.id);
+                bot.logger.log(`Found ${orphanedReminders.length} orphaned reminders.`);
+                for(let i = 0; i < orphanedReminders.length; i++){
+                    let reminder = orphanedReminders[i];
+                    bot.logger.log(`Reminder ${orphanedReminders[i].id} is orphaned.`);
+                    const remainingTime = reminder.at - now;
+                    if (remainingTime <= 0) {
+                        bot.logger.log(`Reminder ${reminder.id} has expired.`);
 
+                        await module.exports.sendReminder(reminder, bot);
+                    } else {
+                        bot.util.setLongTimeout(function () {
                             module.exports.sendReminder(reminder, bot);
-                        } else {
-                            bot.util.setLongTimeout(function () {
-                                module.exports.sendReminder(reminder, bot);
-                            }, remainingTime);
-                        }
+                        }, remainingTime);
                     }
                 }
-            });
+            })
         }
     },
     sendReminder: async function(reminder, bot){

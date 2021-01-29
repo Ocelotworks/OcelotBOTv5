@@ -4,27 +4,25 @@ module.exports = {
     commands: ["invite", "joinserver", "addbot"],
     categories: ["meta"],
     init: async function init(bot){
-        if(bot.util.shard === 0){
+        if(bot.util.shard == 0){
             bot.logger.log("This shard will process invite referrals.");
-            process.on("message", async function registerReferral(message) {
-                if (message.type === "registerReferral") {
-                    const userId = message.payload.user;
-                    const code = message.payload.code;
-                    const serverId = message.payload.server;
-                    bot.logger.log(`Registering referral from ${userId} for ${serverId}`);
-                    if(!bot.config.getBool("global", "invite.notifications", userId))return bot.logger.log("Referral notifications are disabled.");
-                    try {
-                        let user = await bot.client.users.fetch(userId);
-                        let server = await bot.client.guilds.fetch(serverId);
-                        let dmChannel = await user.createDM();
-                        let referrals = await bot.database.getReferralCount(code);
-                        dmChannel.send(`:tada: Someone just used your invite code (${code}) to invite OcelotBOT to **${server.name}**!\nYou've now referred **${referrals}** servers with this code.`);
-                    }catch(e){
-                        console.log(e);
-                        bot.logger.warn(`Failed to send referral message: ${e.message}`);
-                    }
+            bot.bus.on("registerReferral", async (message)=>{
+                const userId = message.payload.user;
+                const code = message.payload.code;
+                const serverId = message.payload.server;
+                bot.logger.log(`Registering referral from ${userId} for ${serverId}`);
+                if(!bot.config.getBool("global", "invite.notifications", userId))return bot.logger.log("Referral notifications are disabled.");
+                try {
+                    let user = await bot.client.users.fetch(userId);
+                    let server = await bot.client.guilds.fetch(serverId);
+                    let dmChannel = await user.createDM();
+                    let referrals = await bot.database.getReferralCount(code);
+                    dmChannel.send(`:tada: Someone just used your invite code (${code}) to invite OcelotBOT to **${server.name}**!\nYou've now referred **${referrals}** servers with this code.`);
+                }catch(e){
+                    console.log(e);
+                    bot.logger.warn(`Failed to send referral message: ${e.message}`);
                 }
-            });
+            })
         }
     },
     run: async function run(message, args, bot) {
