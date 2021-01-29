@@ -17,7 +17,7 @@ FROM node:lts-alpine3.12 as app
 RUN apk add --no-cache graphicsmagick
 
 COPY . .
-COPY --from=builder node_modules .
+COPY --from=builder node_modules node_modules
 
 EXPOSE 8006/tcp
 ENTRYPOINT node ocelotbot.js
