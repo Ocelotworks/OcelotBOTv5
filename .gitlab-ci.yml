@@ -45,7 +45,7 @@ build-shard:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
-    - mkdir -p .go
+    - mv $CONFIG config/local.json
     - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
     - docker build . --cache-from $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
