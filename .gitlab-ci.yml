@@ -36,6 +36,7 @@ build-shard:
       - tags
   only:
     - master
+    - staging
   tags:
     - shell
   retry:
@@ -45,13 +46,13 @@ build-shard:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
     - mkdir -p .go
-    - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest || true
-    - docker build . --cache-from $REGISTRY/ocelotbotv5/ocelotbot:latest
+    - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
+    - docker build . --cache-from $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
-      -t $REGISTRY/ocelotbotv5/ocelotbot:latest
+      -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       --build-arg GITLAB_TOKEN=$GITLAB_TOKEN
       --build-arg GITLAB_DOMAIN=$GITLAB_DOMAIN
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
-    - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest
-    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:latest
+    - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
