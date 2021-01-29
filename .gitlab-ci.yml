@@ -29,14 +29,27 @@ build-consumer-image:
     - docker image rm $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
 #    - curl -X POST $DEPLOY_WEBHOOK
 
-build-shard:
+
+build-shard-staging:
+  environment:
+    name: staging
+  only:
+    - staging
+  extends: .build-shard
+
+build-shard-master:
+  environment:
+    name: production
+  only:
+    - master
+  extends: .build-shard
+
+.build-shard:
   stage: build
+  environment: staging
   except:
     refs:
       - tags
-  only:
-    - master
-    - staging
   tags:
     - shell
   retry:
