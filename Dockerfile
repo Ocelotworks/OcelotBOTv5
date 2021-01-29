@@ -1,6 +1,6 @@
 FROM node:lts-alpine3.12
 
-RUN apk add --no-cache graphicsmagick sudo curl build-base g++ libpng libpng-dev jpeg-dev pango-dev cairo-dev giflib-dev python3
+RUN apk add --no-cache graphicsmagick sudo curl build-base g++ libpng libpng-dev jpeg-dev pango-dev cairo cairo-dev giflib-dev python3
 
 RUN apk --no-cache add ca-certificates wget  && \
     wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
