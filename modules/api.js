@@ -18,11 +18,15 @@ module.exports = {
             const labels = `{shard=${bot.util.shard},hostname=${os.hostname()}}`
             for(let key in bot.stats){
                 if(bot.stats.hasOwnProperty(key)){
+                    output += `# TYPE ${key} counter\n`
                     output += `${key}${labels} ${bot.stats[key]}\n`
                 }
             }
+            output += "# TYPE wsPing counter\n"
             output += `wsPing${labels} ${bot.client.ws.shards.first().ping}\n`;
+            output += "# TYPE wsStatus counter\n"
             output += `wsStatus${labels} ${bot.client.ws.shards.first().status}\n`
+            res.header('Content-Type', 'text/plain')
             res.send(output);
         })
 
