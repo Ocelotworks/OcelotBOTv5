@@ -35,42 +35,15 @@ module.exports = {
         });
 
 
-        bot.client.on("ready", async function discordReady(){
-            if(!bot.remindersLoaded) {
-                bot.rabbit.event({type: "claimReminder", payload: 0});
-                bot.remindersLoaded = true;
-                bot.logger.log("Loading reminders...");
-                const reminderResult = await bot.database.getReminders(bot.client.user.id);
-                const now = new Date().getTime();
-                for (let i = 0; i < reminderResult.length; i++) {
-                    const reminder = reminderResult[i];
-                    if (reminder.server && bot.client.guilds.cache.has(reminder.server)) {
-                        bot.logger.log(`Reminder ${reminder.id} belongs to this shard.`);
-                        const remainingTime = reminder.at - now;
-                        if (remainingTime <= 0) {
-                            bot.logger.log(`Reminder ${reminder.id} has expired.`);
-
-                            await module.exports.sendReminder(reminder, bot);
-                        } else {
-                            bot.util.setLongTimeout(function () {
-                                module.exports.sendReminder(reminder, bot);
-                            }, remainingTime);
-                        }
-                        bot.rabbit.event({type: "claimReminder", payload: reminder.id});
-                    }
-                }
-            }else{
-                bot.logger.log("Prevented duplicate reminder loading");
-            }
-        });
-        if(bot.util.shard == 0) {
-            bot.bus.once("handleClaimedReminders", async (msg)=>{
-                const now = new Date().getTime();
-                let orphanedReminders = await bot.database.getOrphanedReminders(message.payload, bot.client.user.id);
-                bot.logger.log(`Found ${orphanedReminders.length} orphaned reminders.`);
-                for(let i = 0; i < orphanedReminders.length; i++){
-                    let reminder = orphanedReminders[i];
-                    bot.logger.log(`Reminder ${orphanedReminders[i].id} is orphaned.`);
+        bot.client.once("ready", async function discordReady(){
+            bot.logger.log("Loading reminders...");
+            const reminderResult = await bot.database.getReminders(bot.client.user.id);
+            const now = new Date().getTime();
+            let claimed = [];
+            for (let i = 0; i < reminderResult.length; i++) {
+                const reminder = reminderResult[i];
+                if (reminder.server && bot.client.guilds.cache.has(reminder.server)) {
+                    bot.logger.log(`Reminder ${reminder.id} belongs to this shard.`);
                     const remainingTime = reminder.at - now;
                     if (remainingTime <= 0) {
                         bot.logger.log(`Reminder ${reminder.id} has expired.`);
@@ -81,8 +54,41 @@ module.exports = {
                             module.exports.sendReminder(reminder, bot);
                         }, remainingTime);
                     }
+                    claimed.push(reminder.id);
+                }
+            }
+            bot.rabbit.event({type: "claimReminder", payload: claimed});
+        });
+        if(bot.util.shard == 0) {
+
+            let totalClaims = 0;
+            let claimedReminders = [];
+            bot.bus.on('claimReminder', async (msg)=>{
+                totalClaims++;
+                claimedReminders.push(...msg.payload)
+                if(totalClaims == process.env.SHARD_COUNT){
+                    const now = new Date().getTime();
+                    let orphanedReminders = await bot.database.getOrphanedReminders(claimedReminders, bot.client.user.id);
+                    bot.logger.log(`Found ${orphanedReminders.length} orphaned reminders.`);
+                    for(let i = 0; i < orphanedReminders.length; i++){
+                        let reminder = orphanedReminders[i];
+                        bot.logger.log(`Reminder ${orphanedReminders[i].id} is orphaned.`);
+                        const remainingTime = reminder.at - now;
+                        if (remainingTime <= 0) {
+                            bot.logger.log(`Reminder ${reminder.id} has expired.`);
+
+                            await module.exports.sendReminder(reminder, bot);
+                        } else {
+                            bot.util.setLongTimeout(function () {
+                                module.exports.sendReminder(reminder, bot);
+                            }, remainingTime);
+                        }
+                    }
+                }else if(totalClaims > process.env.SHARD_COUNT){
+                    bot.logger.warn(`Warning! Extra claims, ${totalClaims} claims sent but only ${process.env.SHARD_COUNT} shards should exist!`);
                 }
             })
+
         }
     },
     sendReminder: async function(reminder, bot){
