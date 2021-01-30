@@ -56,37 +56,15 @@ function configureSentry(){
             bot.logger.log(message.grey, caller_id.getData());
     };
 
-    bot.logger.log("Configuring Sentry Release...");
-    request({
-        uri:`https://sentry.io/api/0/organizations/${config.get("Sentry.org")}/releases/`,
-        headers: {
-            'Authorization': `Bearer ${config.get("Sentry.key")}`
-        }
-    }, function sentryResponse(err, resp, body){
-        let release;
-        if(!err){
-            try {
-                let data = JSON.parse(body);
-                if (data[0]) {
-                    release = data[0].version;
-                    bot.version = `stevie5-${release}`;
-                    bot.logger.log("Found release " + release);
-                }
-            }catch(e){
-                bot.logger.error(err);
-            }
-        }else{
-            bot.logger.error(err);
-        }
-        Sentry.init({
-            captureUnhandledRejections: true,
-            autoBreadcrumbs: true,
-            dsn: config.get("Sentry.DSN"),
-            release,
-        });
-        bot.raven = Sentry; //Cheeky backwards compatability
-        init();
+    bot.version = `stevie5-${os.hostname()}`;
+
+    Sentry.init({
+        captureUnhandledRejections: true,
+        autoBreadcrumbs: true,
+        dsn: config.get("Sentry.DSN"),
     });
+    bot.raven = Sentry; //Cheeky backwards compatibility
+    init();
 }
 
 /**
