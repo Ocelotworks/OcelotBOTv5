@@ -32,12 +32,9 @@ function configureSentry(){
 
         let origin = `[${file[file.length-1]}${caller.functionName ? "/"+caller.functionName : ""}] `.bold;
 
-        let shard = "??";
-        if(process.env.SHARD_ID){
-            shard = process.env.SHARD_ID;
-            if(shard < 10)
-                shard = "0"+shard;
-        }
+        let shard = bot.util ? bot.util.shard : "??";
+        if(shard < 10)
+            shard = "0"+shard;
         console[error?"error":"log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, message);
     };
 

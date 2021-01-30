@@ -489,6 +489,24 @@ module.exports = {
             }
         })
 
+
+        bot.api.get('/discord', (req, res)=>{
+            const shard = bot.client.ws.shards.first();
+            res.json({
+                readyAt: bot.client.readyAt,
+                uptime: bot.client.uptime,
+                ws: {
+                    shard: {
+                        ping: shard.ping,
+                        status: shard.status,
+                    },
+                    sessionStartLimit: bot.client.ws.sessionStartLimit,
+                    reconnecting: bot.client.ws.reconnecting,
+                    destroyed: bot.client.ws.destroyed,
+                },
+            })
+        })
+
         bot.logger.log("Logging in to Discord...");
         bot.client.login();
     }

@@ -1,5 +1,4 @@
-const config = require('config');
-// const client = require('prom-client');
+const express = require('express');
 module.exports = {
     name: "Statistics Aggregator",
     init: async function(bot){
@@ -16,50 +15,11 @@ module.exports = {
             reconnects: 0,
        };
 
-        function buildSchema(){
-            const fields = [
-                'messagesPerMinute',
-                'messagesSentPerMinute',
-                'commandsPerMinute',
-                'messagesTotal',
-                'commandsTotal',
-                'servers',
-                'usersTotal',
-                'channelsTotal',
-                'voiceConnections',
-                'websocketPing',
-                'warnings',
-                'errors',
-                'botRateLimits',
-                'userRateLimits',
-                'commandCacheSize',
-                'connectionStatus',
-                'reconnects'
-            ];
-
-            let output = [];
-            for(let i = 0; i < fields.length; i++){
-                let field = fields[i];
-                let outputField = {
-                    measurement: field,
-                    fields: {},
-                    tags: ["shard"]
-                };
-                if(field.startsWith('messages')){
-                    outputField.fields.messages = Influx.FieldType.INTEGER
-                }else if(field.startsWith('commands')){
-                    outputField.fields.commands = Influx.FieldType.INTEGER
-                }else{
-                    outputField.fields[field] = Influx.FieldType.INTEGER;
-                }
-                output.push(outputField);
-            }
-
-            return output;
-
-        }
 
 
+        bot.api.get('/stats', (req, res)=>{
+            res.json(bot.stats)
+        })
 
         bot.client.on("message", function(){
             bot.stats.messagesPerMinute++;
@@ -86,21 +46,6 @@ module.exports = {
         });
 
         setInterval(async function(){
-
-            // client.collectDefaultMetrics({labels: {
-            //         env: process.env.NODE_ENV,
-            //         shard: bot.util.shard,
-            // }})
-
-
-            bot.rabbit.event({
-                type: "heartbeat",
-                payload: {
-                    messagesPerMinute: bot.stats.messagesPerMinute,
-                    shard: bot.util.shard
-                }
-            });
-
             bot.stats.messagesPerMinute = 0;
             bot.stats.commandsPerMinute = 0;
             bot.stats.messagesSentPerMinute = 0;
