@@ -15,7 +15,7 @@ module.exports = {
 
         bot.api.get("/metrics", (req, res)=>{
             let output = "";
-            const labels = `{shard=${bot.util.shard},hostname=${os.hostname()}}`
+            const labels = `{shard="${bot.util.shard}",hostname="${os.hostname()}"}`
             for(let key in bot.stats){
                 if(bot.stats.hasOwnProperty(key)){
                     output += `# TYPE ${key} counter\n`
