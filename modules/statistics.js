@@ -13,23 +13,33 @@ module.exports = {
             botRateLimits: 0,
             userRateLimits: 0,
             reconnects: 0,
+            lastUpdate: 0,
        };
-
+        let currentStats = {
+            messagesPerMinute: 0,
+            messagesSentPerMinute: 0,
+            commandsPerMinute: 0,
+        };
 
 
         bot.api.get('/stats', (req, res)=>{
             res.json(bot.stats)
         })
 
+
         bot.client.on("message", function(){
-            bot.stats.messagesPerMinute++;
+            currentStats.messagesPerMinute++;
             bot.stats.messagesTotal++;
         });
 
         bot.bus.on("commandPerformed", function(){
-            bot.stats.commandsPerMinute++;
+            currentStats.commandsPerMinute++;
             bot.stats.commandsTotal++;
         });
+
+        bot.bus.on("messageSent", function(){
+            currentStats.messagesSentPerMinute++;
+        })
 
         bot.client.on("rateLimit", function(){
             bot.stats.botRateLimits++;
@@ -46,14 +56,17 @@ module.exports = {
         });
 
         setInterval(async function(){
-            bot.stats.messagesPerMinute = 0;
-            bot.stats.commandsPerMinute = 0;
-            bot.stats.messagesSentPerMinute = 0;
+            bot.stats.messagesPerMinute = currentStats.messagesPerMinute;
+            bot.stats.commandsPerMinute = currentStats.commandsPerMinute;
+            bot.stats.messagesSentPerMinute = currentStats.messagesSentPerMinute;
             bot.stats.botRateLimits = 0;
             bot.stats.warnings = 0;
             bot.stats.errors = 0;
             bot.stats.reconnects = 0;
-
+            bot.stats.lastUpdate = new Date();
+            currentStats.messagesPerMinute = 0;
+            currentStats.commandsPerMinute = 0;
+            currentStats.messagesSentPerMinute = 0;
         }, 60000); //1 minute
     }
 };

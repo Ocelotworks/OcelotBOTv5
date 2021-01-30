@@ -7,7 +7,7 @@ axios.get("http://localhost:8006/stats").then((res)=>{
         process.exit(1);
     }
 
-    if(res.data.messagesPerMinute < 10){
+    if(res.data.messagesPerMinute < 5){
         console.error("Messages per minute: ", res.data.messagesPerMinute)
         process.exit(1);
     }

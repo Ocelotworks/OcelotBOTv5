@@ -7,7 +7,6 @@ const config = require('config');
 module.exports = {
     name: "Feature Toggles",
     init: function init(bot) {
-        console.log("enabling feature toggles")
         bot.feature = {};
 
         bot.feature.unleash = initialize({

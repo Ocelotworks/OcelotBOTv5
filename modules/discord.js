@@ -106,9 +106,7 @@ module.exports = {
 
         const oldedit = Discord.Message.prototype.edit;
         Discord.Message.prototype.edit = function edit(content, options){
-            if(bot.stats){
-                bot.stats.messagesSentPerMinute++;
-            }
+            bot.bus.emit("messageSent", content);
 
             let output = "";
             if(this.guild)
@@ -129,9 +127,7 @@ module.exports = {
 
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = async function send(content, options){
-            if(bot.stats){
-                bot.stats.messagesSentPerMinute++;
-            }
+            bot.bus.emit("messageSent", content);
 
             let output = "";
             if(this.guild)
