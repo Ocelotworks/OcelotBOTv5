@@ -1340,7 +1340,7 @@ module.exports = {
 
 
 
-        bot.util.shard = parseInt(process.env.SHARD)
+        bot.util.shard = parseInt(process.env.SHARD)-1
 
     }
 };
