@@ -69,3 +69,4 @@ build-shard-master:
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
+    - curl -X POST $BOT_DEPLOY_WEBHOOK
