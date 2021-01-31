@@ -491,6 +491,9 @@ module.exports = {
             res.json({
                 readyAt: bot.client.readyAt,
                 uptime: bot.client.uptime,
+                guilds: bot.client.guilds.cache.size,
+                users: bot.client.users.cache.size,
+                channels: bot.client.channels.cache.size,
                 ws: {
                     shard: {
                         ping: shard.ping,
