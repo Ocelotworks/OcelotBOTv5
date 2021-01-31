@@ -11,6 +11,19 @@ module.exports = {
     init: async function(bot){
         bot.rabbit = {};
         bot.rabbit.connection = await amqplib.connect(config.get("RabbitMQ.host"));
+
+        bot.rabbit.connection.on("close", ()=>{
+            bot.logger.warn("RabbitMQ connection closed!");
+        })
+
+        bot.rabbit.connection.on("blocked", (reason)=>{
+            bot.logger.warn("RabbitMQ connection blocked! "+reason);
+        })
+
+        bot.rabbit.connection.on("error", (err)=>{
+            bot.logger.error("RabbitMQ connection error: "+err);
+        })
+
         bot.rabbit.channel = await bot.rabbit.connection.createChannel();
         bot.rabbit.rpcChannel = await bot.rabbit.connection.createChannel();
         bot.rabbit.eventsChannel = await bot.rabbit.connection.createChannel();
