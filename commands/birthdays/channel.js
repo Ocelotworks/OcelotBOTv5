@@ -1,5 +1,5 @@
 module.exports = {
-    name: "Reminder Channel",
+    name: "Set Birthday Channel",
     usage: "channel #name/clear" ,
     commands: ["setchannel", "channel"],
     init: async function init(bot){
