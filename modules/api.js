@@ -3,6 +3,13 @@ const os = require("os");
 module.exports = {
     name: "HTTP API",
     init: async function (bot) {
+
+
+        function writeOpenMetric(name, value){
+            return `# TYPE ${name} counter\n${name}{shard="${bot.util.shard}",hostname="${os.hostname()}"} ${value}\n`
+        }
+
+
         bot.api = express();
 
         bot.api.get("/", (req, res)=>{
@@ -15,17 +22,20 @@ module.exports = {
 
         bot.api.get("/metrics", (req, res)=>{
             let output = "";
-            const labels = `{shard="${bot.util.shard}",hostname="${os.hostname()}"}`
             for(let key in bot.stats){
                 if(bot.stats.hasOwnProperty(key)){
-                    output += `# TYPE ${key} counter\n`
-                    output += `${key}${labels} ${bot.stats[key]}\n`
+                    output += writeOpenMetric(key, bot.stats[key]);
                 }
             }
-            output += "# TYPE wsPing counter\n"
-            output += `wsPing${labels} ${bot.client.ws.shards.first().ping}\n`;
-            output += "# TYPE wsStatus counter\n"
-            output += `wsStatus${labels} ${bot.client.ws.shards.first().status}\n`
+
+            output += writeOpenMetric("wsPing", bot.client.ws.shards.first().ping);
+            output += writeOpenMetric("wsStatus", bot.client.ws.shards.first().status);
+            output += writeOpenMetric("guilds", bot.client.guilds.cache.size);
+            output += writeOpenMetric("channels", bot.client.channels.cache.size);
+            output += writeOpenMetric("users", bot.client.users.cache.size);
+            output += writeOpenMetric("uptime", bot.client.uptime);
+            output += writeOpenMetric("guildsUnavailable", bot.client.guilds.cache.filter((g)=>!g.available).size);
+
             res.header('Content-Type', 'text/plain')
             res.send(output);
         })
@@ -35,3 +45,5 @@ module.exports = {
         });
     }
 }
+
+
