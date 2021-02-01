@@ -23,8 +23,8 @@ build-consumer-image:
       -t $REGISTRY/ocelotbotv5/image-consumer:latest
       --build-arg GITLAB_TOKEN=$GITLAB_TOKEN
       --build-arg GITLAB_DOMAIN=$GITLAB_DOMAIN
-    - docker push $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
     - docker push $REGISTRY/ocelotbotv5/image-consumer:latest
+    - docker push $REGISTRY_MIRROR/ocelotbotv5/image-consumer:latest
     - docker image rm $REGISTRY/ocelotbotv5/image-consumer:latest
     - docker image rm $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
 #    - curl -X POST $DEPLOY_WEBHOOK
@@ -67,6 +67,6 @@ build-shard-master:
       --build-arg GITLAB_DOMAIN=$GITLAB_DOMAIN
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+    - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
-    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
     - curl -X POST $BOT_DEPLOY_WEBHOOK
