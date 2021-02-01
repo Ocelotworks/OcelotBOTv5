@@ -57,6 +57,7 @@ build-shard-master:
     when: runner_system_failure
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY_MIRROR
   script:
     - mv $CONFIG config/local.json
     - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
@@ -65,8 +66,8 @@ build-shard-master:
       -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       --build-arg GITLAB_TOKEN=$GITLAB_TOKEN
       --build-arg GITLAB_DOMAIN=$GITLAB_DOMAIN
-    - docker push $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+    - docker tag $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
-    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+    - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - curl -X POST $BOT_DEPLOY_WEBHOOK
