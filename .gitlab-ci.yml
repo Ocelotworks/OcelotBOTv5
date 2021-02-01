@@ -60,7 +60,7 @@ build-shard-master:
 #    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY_MIRROR
   script:
     - mv $CONFIG config/local.json
-    - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true`
+    - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
     - docker build . --cache-from $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
       -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
