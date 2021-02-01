@@ -8,20 +8,21 @@ const presenceMessages = [
     {message: "!profile", type: 'LISTENING'},
     {message: "!guess", type: 'LISTENING'},
     {message: "!premium", type: 'LISTENING'},
-    {message: "!premium", type: 'LISTENING'},
     {message: "!vote", type: 'LISTENING'},
+    {message: "!guess", type: 'LISTENING'},
     {message: "Minecraft Parody Songs", type: 'LISTENING'},
     {message: "ASMR", type: 'LISTENING'},
     {message: "lord jesus help us all", type: 'LISTENING'},
-    {message: "ass", type: 'WATCHING'},
     {message: "is this thing on", type: 'LISTENING'},
     {message: "cha cha real smooth", type: 'LISTENING'},
     {message: "stonks", type: 'WATCHING'},
     {message: "farts", type: 'LISTENING'},
     {message: "that faint ringing", type: 'LISTENING'},
     {message: "the world burn", type: 'WATCHING'},
+    {message: "!noviews", type: 'WATCHING'},
     {message: "you in the shower", type: 'WATCHING'},
     {message: "your complaints", type: 'LISTENING'},
+    {message: "your !feedback", type: 'LISTENING'},
     {message: "staying indoors", type: 'LISTENING'},
     {message: "Toilet Jake isn't real, he can't hurt you", type: "WATCHING"}
 ];
@@ -106,9 +107,7 @@ module.exports = {
 
         const oldedit = Discord.Message.prototype.edit;
         Discord.Message.prototype.edit = function edit(content, options){
-            if(bot.stats){
-                bot.stats.messagesSentPerMinute++;
-            }
+            bot.bus.emit("messageSent", content);
 
             let output = "";
             if(this.guild)
@@ -129,9 +128,7 @@ module.exports = {
 
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = async function send(content, options){
-            if(bot.stats){
-                bot.stats.messagesSentPerMinute++;
-            }
+            bot.bus.emit("messageSent", content);
 
             let output = "";
             if(this.guild)
@@ -161,7 +158,6 @@ module.exports = {
 
         //bot.presenceMessage = null;
 
-
         bot.client = new Discord.Client({
             allowedMentions: {parse: ["users"]}
         });
@@ -172,7 +168,7 @@ module.exports = {
             const now = new Date();
             if(now-bot.lastPresenceUpdate>100000) {
                 bot.lastPresenceUpdate = now;
-                const serverCount = (await bot.client.shard.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
+                const serverCount = (await bot.rabbit.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
                 let randPresence =  bot.util.arrayRand(presenceMessages);
                 await bot.client.user.setPresence({
                    activity: {
@@ -200,10 +196,7 @@ module.exports = {
                 //     connection.disconnect();
                 // });
 
-
-                process.env.SHARD_ID = bot.client.shard.ids.join("+");
-
-                bot.client.shard.send({"type": "ready"});
+                bot.rabbit.event({"type": "ready"});
             });
         });
 
@@ -416,86 +409,103 @@ module.exports = {
             }, 1000);
         })
 
-        process.on("message", function onMessage(message){
-            Sentry.configureScope(async function onMessage(scope){
-                scope.addBreadcrumb({
-                    category: "broker",
-                    message: "Message",
-                    level: Sentry.Severity.Info,
-                    data: message
-                });
-                let data;
-                if(message.type === "requestData"){
-                    if(message.payload.name === "channels"){
-                        let guild = message.payload.data.server;
-                        if(bot.client.guilds.cache.has(guild)){
-                            let guildObj = bot.client.guilds.cache.get(guild);
-                            let channels = guildObj.channels.cache.map(function(channel){
-                                return {name: channel.name, id: channel.id, type: channel.type}
-                            });
-                            bot.logger.log("Sending channel data for "+guildObj.name+" ("+guild+")");
-                            data = channels;
-                        }
-                    }else if(message.payload.data.shard == bot.client.shard.ids.join(";")){
-                        if(message.payload.name === "guildCount"){
-                            data = {count: bot.client.guilds.cache.size};
-                        }else if(message.payload.name === "guilds"){
-                            data = bot.client.guilds.cache.array();
-                        }else if(message.payload.name === "unavailableGuilds"){
-                            data = bot.client.guilds.cache.filter((g)=>!g.available).array();
-                        }else if(message.payload.name === "commandVersions"){
-                            data = {};
-                            for(let command in bot.commandUsages){
-                                if(bot.commandUsages.hasOwnProperty(command))
-                                    data[command] = bot.commandUsages[command].crc;
-                            }
-                        }
-                    }
-                    if(data) {
-                        await bot.client.shard.send({
-                            type: "dataCallback",
-                            payload: {
-                                callbackID: message.payload.callbackID,
-                                data,
-                            }
-                        });
-                    }else{
-                        bot.logger.warn("Unknown requestData type "+message.payload.name)
-                    }
-                }else if(message.type === "cockup"){
-                    for(let i = 0; i < bot.admins.length; i++) {
-                        let admin = bot.admins[i];
-                        if (bot.client.users.cache.has(admin)) {
-                            bot.logger.log("Sending cockup message");
-                            let adminUser = bot.client.users.cache.get(admin);
-                            const output = `:warning: <@${admin}> **Cockup: ${message.payload}**`;
-                            if (adminUser.lastMessage) {
-                                adminUser.lastMessage.channel.send(output);
-                            }
-                            let dm = await adminUser.createDM();
-                            dm.send(output);
-                        }
-                    }
-                }else if(message.type === "presence"){
-                    bot.logger.log("Updating presence: "+message.payload);
-                    bot.presenceMessage = message.payload === "clear" ? null : message.payload;
-                    await bot.updatePresence();
-                }else if(message.type === "getUserInfo"){
-                    let userID = message.payload;
-                    let user = await bot.client.users.fetch(userID);
-                    if(user) {
-                        await bot.client.shard.send({
-                            type: "getUserInfoResponse", payload: {
-                                id: user.id,
-                                username: user.username,
-                                discriminator: user.discriminator
-                            }
-                        });
+
+        bot.bus.on("requestData", async (message)=>{
+            let data;
+            if(message.payload.name === "channels"){
+                let guild = message.payload.data.server;
+                if(bot.client.guilds.cache.has(guild)){
+                    let guildObj = bot.client.guilds.cache.get(guild);
+                    let channels = guildObj.channels.cache.map(function(channel){
+                        return {name: channel.name, id: channel.id, type: channel.type}
+                    });
+                    bot.logger.log("Sending channel data for "+guildObj.name+" ("+guild+")");
+                    data = channels;
+                }
+            }else if(message.payload.data.shard == bot.util.shard){
+                if(message.payload.name === "guildCount"){
+                    data = {count: bot.client.guilds.cache.size};
+                }else if(message.payload.name === "guilds"){
+                    data = bot.client.guilds.cache.array();
+                }else if(message.payload.name === "unavailableGuilds"){
+                    data = bot.client.guilds.cache.filter((g)=>!g.available).array();
+                }else if(message.payload.name === "commandVersions"){
+                    data = {};
+                    for(let command in bot.commandUsages){
+                        if(bot.commandUsages.hasOwnProperty(command))
+                            data[command] = bot.commandUsages[command].crc;
                     }
                 }
-            });
+            }
+            if(data) {
+                await bot.rabbit.event({
+                    type: "dataCallback",
+                    payload: {
+                        callbackID: message.payload.callbackID,
+                        data,
+                    }
+                });
+            }else{
+                bot.logger.warn("Unknown requestData type "+message.payload.name)
+            }
         });
 
+        bot.bus.on("cockup", async (message)=>{
+            for(let i = 0; i < bot.admins.length; i++) {
+                let admin = bot.admins[i];
+                if (bot.client.users.cache.has(admin)) {
+                    bot.logger.log("Sending cockup message");
+                    let adminUser = bot.client.users.cache.get(admin);
+                    const output = `:warning: <@${admin}> **Cockup: ${message.payload}**`;
+                    if (adminUser.lastMessage) {
+                        adminUser.lastMessage.channel.send(output);
+                    }
+                    let dm = await adminUser.createDM();
+                    dm.send(output);
+                }
+            }
+        });
+
+        bot.bus.on("presence", async (message)=>{
+            bot.logger.log("Updating presence: "+message.payload);
+            bot.presenceMessage = message.payload === "clear" ? null : message.payload;
+            await bot.updatePresence();
+        })
+
+        bot.bus.on("getUserInfo", async(message)=>{
+            let userID = message.payload;
+            let user = await bot.client.users.fetch(userID);
+            if(user) {
+                await bot.rabbit.event({
+                    type: "getUserInfoResponse", payload: {
+                        id: user.id,
+                        username: user.username,
+                        discriminator: user.discriminator
+                    }
+                });
+            }
+        })
+
+
+        bot.api.get('/discord', (req, res)=>{
+            const shard = bot.client.ws.shards.first();
+            res.json({
+                readyAt: bot.client.readyAt,
+                uptime: bot.client.uptime,
+                guilds: bot.client.guilds.cache.size,
+                users: bot.client.users.cache.size,
+                channels: bot.client.channels.cache.size,
+                ws: {
+                    shard: {
+                        ping: shard.ping,
+                        status: shard.status,
+                    },
+                    sessionStartLimit: bot.client.ws.sessionStartLimit,
+                    reconnecting: bot.client.ws.reconnecting,
+                    destroyed: bot.client.ws.destroyed,
+                },
+            })
+        })
 
         bot.logger.log("Logging in to Discord...");
         bot.client.login();

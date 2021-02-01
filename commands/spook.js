@@ -79,10 +79,10 @@ module.exports = {
             // const startDiff = start-now;
             // const endDiff = end-now;
             // if(endDiff <= 0) {
-            //     setTimeout(bot.spook.end, 20000*(bot.client.shard.ids[0]+1))
+            //     setTimeout(bot.spook.end, 20000*(bot.util.shard+1))
             // }else if(startDiff <= 0) {
             //     bot.logger.log("End is in "+endDiff);
-            //     bot.util.setLongTimeout(bot.spook.end, endDiff+(20000*(bot.client.shard.ids[0]+1)));
+            //     bot.util.setLongTimeout(bot.spook.end, endDiff+(20000*(bot.util.shard+1)));
             //     await activateSpooking();
             // } else if(teaserDiff <= 0){
             //     bot.logger.log("Spook teaser time");
@@ -356,7 +356,7 @@ module.exports = {
                 const now = new Date();
                 if(now-bot.lastPresenceUpdate>100000) {
                     bot.lastPresenceUpdate = now;
-                    const serverCount = (await bot.client.shard.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
+                    const serverCount = (await bot.rabbit.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
                     await bot.client.user.setPresence({
                         activity: {
                             name: `Thank you for playing! | in ${serverCount} servers.`,

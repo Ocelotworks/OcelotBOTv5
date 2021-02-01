@@ -61,43 +61,39 @@ module.exports = {
 
         }
 
-        process.on("message", async function vote(message){
-           if(message.type === "registerVote"){
-                let user = message.payload.user;
-                let source = message.payload.source;
-                let voteServer = null;
-                let channel = null;
-                for(let i = 0; i < bot.waitingVoteChannels.length; i++){
-                    if(bot.waitingVoteChannels[i].members && bot.waitingVoteChannels[i].members.has(user)){
-                        channel = bot.waitingVoteChannels[i];
-                        bot.logger.log("Matched waiting vote channel for "+user);
-                        const streak = await bot.database.getStreak(user, "vote");
-                        if(streak > 1)
-                            channel.sendLang("VOTE_MESSAGE_STREAK", {user, streak});
-                        else
-                            channel.sendLang("VOTE_MESSAGE", {user});
-                        bot.waitingVoteChannels.splice(i, 1);
-                        voteServer = channel.guild.id;
-                        break;
-                    }
+        bot.bus.on("registerVote", async (message)=>{
+            let user = message.payload.user;
+            let source = message.payload.source;
+            let voteServer = null;
+            let channel = null;
+            for(let i = 0; i < bot.waitingVoteChannels.length; i++){
+                if(bot.waitingVoteChannels[i].members && bot.waitingVoteChannels[i].members.has(user)){
+                    channel = bot.waitingVoteChannels[i];
+                    bot.logger.log("Matched waiting vote channel for "+user);
+                    const streak = await bot.database.getStreak(user, "vote");
+                    if(streak > 1)
+                        channel.sendLang("VOTE_MESSAGE_STREAK", {user, streak});
+                    else
+                        channel.sendLang("VOTE_MESSAGE", {user});
+                    bot.waitingVoteChannels.splice(i, 1);
+                    voteServer = channel.guild.id;
+                    break;
                 }
-                if(voteServer || !bot.client.shard || bot.client.shard.ids[0] == 0){
-                    if(bot.client.shard && bot.client.shard.ids[0] == 0){
-                        voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel, source);
-                    }else{
-                        await logVote(user, voteServer, channel, source);
-                        if(bot.client.shard)
-                            await bot.client.shard.send({type: "clearVoteTimeout", payload: user});
-                    }
+            }
+            if(voteServer || bot.util.shard == 0){
+                if(bot.util.shard == 0){
+                    voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel, source);
+                }else{
+                    await logVote(user, voteServer, channel, source);
+                    await bot.rabbit.event({type: "clearVoteTimeout", payload: user});
                 }
+            }
 
-           }else if(message.type === "clearVoteTimeout"){
-               clearTimeout(voteTimeouts[message.payload]);
-           }
+        })
+
+        bot.bus.on("clearVoteTimeout", async (message)=>{
+            clearTimeout(voteTimeouts[message.payload]);
         });
-
-
-
     },
     run: async function(message, args, bot){
         if(args[1])return;

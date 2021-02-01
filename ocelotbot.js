@@ -32,12 +32,9 @@ function configureSentry(){
 
         let origin = `[${file[file.length-1]}${caller.functionName ? "/"+caller.functionName : ""}] `.bold;
 
-        let shard = "??";
-        if(process.env.SHARD_ID){
-            shard = process.env.SHARD_ID;
-            if(shard < 10)
-                shard = "0"+shard;
-        }
+        let shard = bot.util ? bot.util.shard : "??";
+        if(shard < 10)
+            shard = "0"+shard;
         console[error?"error":"log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, message);
     };
 
@@ -56,37 +53,15 @@ function configureSentry(){
             bot.logger.log(message.grey, caller_id.getData());
     };
 
-    bot.logger.log("Configuring Sentry Release...");
-    request({
-        uri:`https://sentry.io/api/0/organizations/${config.get("Sentry.org")}/releases/`,
-        headers: {
-            'Authorization': `Bearer ${config.get("Sentry.key")}`
-        }
-    }, function sentryResponse(err, resp, body){
-        let release;
-        if(!err){
-            try {
-                let data = JSON.parse(body);
-                if (data[0]) {
-                    release = data[0].version;
-                    bot.version = `stevie5-${release}`;
-                    bot.logger.log("Found release " + release);
-                }
-            }catch(e){
-                bot.logger.error(err);
-            }
-        }else{
-            bot.logger.error(err);
-        }
-        Sentry.init({
-            captureUnhandledRejections: true,
-            autoBreadcrumbs: true,
-            dsn: config.get("Sentry.DSN"),
-            release,
-        });
-        bot.raven = Sentry; //Cheeky backwards compatability
-        init();
+    bot.version = `stevie5-${os.hostname()}`;
+
+    Sentry.init({
+        captureUnhandledRejections: true,
+        autoBreadcrumbs: true,
+        dsn: config.get("Sentry.DSN"),
     });
+    bot.raven = Sentry; //Cheeky backwards compatibility
+    init();
 }
 
 /**
@@ -102,6 +77,10 @@ function init(){
             serverUrl: config.get("APM.Server")
         })
     }
+
+    process.env.SHARDS = `[${process.env.SHARD-1}]` // Yes
+
+    console.log(process.env)
 
     process.setMaxListeners(100);
     bot.bus = new EventEmitter();
@@ -155,7 +134,7 @@ function loadModules(){
             bot.logger.error(`Error loading ${fileName}:`);
             console.error(e);
             if(bot.client && bot.client.shard) {
-                bot.client.shard.send({
+                bot.rabbit.event({
                     type: "warning", payload: {
                         id: "badModule-" + fileName,
                         message: `Couldn't load module ${module}:\n${e.message}`

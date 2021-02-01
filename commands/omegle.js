@@ -16,8 +16,8 @@ module.exports = {
     commands: ["omegle", "om"],
     init: async function(bot){
         bot.client.on("ready", function () {
-            bot.rabbit.channel.assertQueue(`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, {exclusive: true});
-            bot.rabbit.channel.consume(`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, async function omegleConsumer(message) {
+            bot.rabbit.channel.assertQueue(`omegle-${bot.client.user.id}-${bot.util.shard}`, {exclusive: true});
+            bot.rabbit.channel.consume(`omegle-${bot.client.user.id}-${bot.util.shard}`, async function omegleConsumer(message) {
                 try {
                     let msg = JSON.parse(message.content);
                     console.log(msg);
@@ -84,7 +84,7 @@ module.exports = {
 
             bot.tasks.startTask("omegle", message.channel.id);
 
-            bot.rabbit.queue("omegle", {type: "start", data: message.channel.id}, {replyTo:`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
+            bot.rabbit.queue("omegle", {type: "start", data: message.channel.id}, {replyTo:`omegle-${bot.client.user.id}-${bot.util.shard}`});
             waitingMessages[message.channel.id] = await message.replyLang("OMEGLE_START");
 
             messageCollectors[message.channel.id] = message.channel.createMessageCollector(() => true);
@@ -95,7 +95,7 @@ module.exports = {
                 if (message.content.startsWith(message.getSetting("prefix")))return;
                 if(waitingMessages[message.channel.id])return;
                 bot.database.logOmegleMessage(message.guild ? message.guild.id : "dm", message.channel.id, message.author.id, message.cleanContent);
-                bot.rabbit.queue("omegle", {type: "message", data: {channel: message.channel.id, message: message.cleanContent.replace(/'/g, "")}}, {replyTo:`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
+                bot.rabbit.queue("omegle", {type: "message", data: {channel: message.channel.id, message: message.cleanContent.replace(/'/g, "")}}, {replyTo:`omegle-${bot.client.user.id}-${bot.util.shard}`});
             });
 
             messageCollectors[message.channel.id].on("end", function(){
@@ -112,7 +112,7 @@ module.exports = {
                 delete messageCollectors[message.channel.id];
             }
 
-            bot.rabbit.queue("omegle", {type: "end", data: message.channel.id}, {replyTo:`omegle-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
+            bot.rabbit.queue("omegle", {type: "end", data: message.channel.id}, {replyTo:`omegle-${bot.client.user.id}-${bot.util.shard}`});
             message.replyLang("OMEGLE_END");
         }else{
             if(messageCollectors[message.channel.id])

@@ -17,11 +17,7 @@ module.exports = {
             message.channel.send("Invalid usage. !admin setconfig server key value");
         }else{
             await bot.database.setSetting(server, key, value, bot.client.user.id);
-            if(bot.client.shard) {
-                bot.client.shard.send({type: "reloadConfig", payload: server});
-            }else {
-                await bot.config.reloadCacheForServer(server);
-            }
+            bot.rabbit.event({type: "reloadConfig", payload: server});
             message.channel.send("Set setting and reloaded cache.");
         }
     }

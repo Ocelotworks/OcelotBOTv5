@@ -40,7 +40,7 @@ You now have access to the following features:
 
                         await bot.database.setUserSetting(user.id, "premium", 1);
                         await bot.database.setUserSetting(user.id, "rateLimit", 400);
-                        bot.client.shard.send({type: "reloadUserConfig"});
+                        bot.rabbit.event({type: "reloadUserConfig"});
                         await bot.database.giveBadge(user.id, 52);
                         bot.client.channels.cache.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Premium**! <3`);
                     }else if(newMember.hoistRole && newMember.hoistRole.name === "Server Premium"){
@@ -65,7 +65,7 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
 
                         await bot.database.setUserSetting(user.id, "premium", 1);
                         await bot.database.setUserSetting(user.id, "rateLimit", 400);
-                        bot.client.shard.send({type: "reloadUserConfig"});
+                        bot.rabbit.event({type: "reloadUserConfig"});
                         await bot.database.giveBadge(user.id, 52);
                         bot.client.channels.cache.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Server Premium**! <3`);
                     }

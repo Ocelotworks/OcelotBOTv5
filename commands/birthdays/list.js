@@ -39,6 +39,7 @@ module.exports = {
                 const birthday = birthdays[i];
                 let user = await bot.util.getUserInfo(birthday.user);
                 if(!user)continue;
+                if(user.username.startsWith("Deleted User "))continue; //Fuck you discord
                 let d = birthday.birthday; //Yes
                 let days = birthday.days;
                 if(days === 0)

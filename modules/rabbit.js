@@ -11,8 +11,22 @@ module.exports = {
     init: async function(bot){
         bot.rabbit = {};
         bot.rabbit.connection = await amqplib.connect(config.get("RabbitMQ.host"));
+
+        bot.rabbit.connection.on("close", ()=>{
+            bot.logger.warn("RabbitMQ connection closed!");
+        })
+
+        bot.rabbit.connection.on("blocked", (reason)=>{
+            bot.logger.warn("RabbitMQ connection blocked! "+reason);
+        })
+
+        bot.rabbit.connection.on("error", (err)=>{
+            bot.logger.error("RabbitMQ connection error: "+err);
+        })
+
         bot.rabbit.channel = await bot.rabbit.connection.createChannel();
         bot.rabbit.rpcChannel = await bot.rabbit.connection.createChannel();
+        bot.rabbit.eventsChannel = await bot.rabbit.connection.createChannel();
         bot.rabbit.pubsub = {};
         bot.rabbit.queue = function(name, payload, properties){
             bot.rabbit.channel.assertQueue(name);
@@ -21,9 +35,26 @@ module.exports = {
         let replyCount = 0;
         let waitingCallbacks = {};
         let callbackTimers = {};
+
+
+        function handleEvent(msg){
+            let data = JSON.parse(msg.content);
+            data.meta = msg.properties;
+            bot.rabbit.eventsChannel.ack(msg);
+            bot.bus.emit(data.type, data);
+        }
+
+        const eventsQueue = `events-${process.env.BOT_ID}-${bot.util.shard}`;
+        const eventsExchange = `events-${process.env.BOT_ID}`;
+        bot.rabbit.eventsChannel.assertQueue(eventsQueue, {exclusive: true, durable: false});
+        bot.rabbit.eventsChannel.assertExchange(eventsExchange, 'fanout', {durable: false});
+        bot.rabbit.eventsChannel.bindQueue(eventsQueue, eventsExchange, '');
+        bot.rabbit.eventsChannel.consume(eventsQueue, handleEvent);
+
+
         bot.client.on("ready", function(){
-            bot.rabbit.rpcChannel.assertQueue(`reply-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, {exclusive: true});
-            bot.rabbit.rpcChannel.consume(`reply-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`, function (msg) {
+            bot.rabbit.rpcChannel.assertQueue(`reply-${bot.client.user.id}-${bot.util.shard}`, {exclusive: true});
+            bot.rabbit.rpcChannel.consume(`reply-${bot.client.user.id}-${bot.util.shard}`, function (msg) {
                 bot.logger.log("Received reply ", msg.properties.correlationId);
                 if (waitingCallbacks[msg.properties.correlationId]) {
                     bot.tasks.endTask("ipc", msg.properties.correlationId);
@@ -39,9 +70,9 @@ module.exports = {
         bot.rabbit.rpc = async function(name, payload, timeout = 300000, config){
             return new Promise(function(fulfill){
                 bot.rabbit.rpcChannel.assertQueue(name, config);
-                const correlationId = bot.client.shard.ids.join(";")+"-"+(replyCount++);
+                const correlationId = bot.util.shard+"-"+(replyCount++);
                 bot.tasks.startTask("ipc", correlationId);
-                bot.rabbit.rpcChannel.sendToQueue(name, Buffer.from(JSON.stringify(payload)), {correlationId, replyTo: `reply-${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
+                bot.rabbit.rpcChannel.sendToQueue(name, Buffer.from(JSON.stringify(payload)), {correlationId, replyTo: `reply-${bot.client.user.id}-${bot.util.shard}`});
                 waitingCallbacks[correlationId] = fulfill;
                 callbackTimers[correlationId] = setTimeout(function rpcTimeout(){
                     bot.tasks.endTask("ipc", correlationId);
@@ -52,12 +83,51 @@ module.exports = {
         };
 
         bot.rabbit.emit = async function emit(type, payload){
-            console.log("Emitting type "+type);
             let buf = Buffer.from(JSON.stringify(payload));
             if(!bot.rabbit.pubsub[type])
                 bot.rabbit.pubsub[type] = await bot.rabbit.createPubsub(type);
-            bot.rabbit.pubsub[type].publish(type, '', buf, {appId: `${bot.client.user.id}-${bot.client.shard.ids.join(";")}`});
+            bot.rabbit.pubsub[type].publish(type, '', buf, {appId: `${bot.client.user.id}-${bot.util.shard}`});
         };
+
+        bot.rabbit.event = function event(data){
+            return bot.rabbit.eventsChannel.publish(`events-${bot.client.user.id}`,'', Buffer.from(JSON.stringify(data)), {appId: `${bot.client.user.id}-${bot.util.shard}`});
+        }
+
+
+        bot.rabbit.fetchId = 0;
+        bot.rabbit.waitingFetches = {};
+
+        bot.rabbit.fetchClientValues = async function fetchClientValues(prop){
+            return new Promise((fulfill)=>{
+                const id = `${bot.util.shard}-${bot.rabbit.fetchId++}`;
+                bot.rabbit.event({type: "fetchClientValues", id, prop});
+
+                const timeout = setTimeout(()=>{
+                    fulfill(bot.rabbit.waitingFetches[id].buffer);
+                    bot.rabbit.waitingFetches[id] = null;
+                }, 5000);
+
+                bot.rabbit.waitingFetches[id] = {fulfill: (value)=>{
+                        bot.rabbit.waitingFetches[id].buffer.push(value);
+                        if(bot.rabbit.waitingFetches[id].buffer.length >= process.env.SHARD_COUNT) {
+                            fulfill(bot.rabbit.waitingFetches[id].buffer)
+                            clearTimeout(bot.rabbit.waitingFetches[id].timeout)
+                            bot.rabbit.waitingFetches[id] = null;
+                        }
+                }, buffer: [], timeout};
+            })
+        }
+
+        bot.bus.on("fetchClientValues", (msg)=>{
+            let value = getValue(bot.client, msg.prop)
+            bot.rabbit.event({type: "clientValueCallback", id: msg.id, value})
+        });
+
+        bot.bus.on("clientValueCallback", (msg)=>{
+            if(bot.rabbit.waitingFetches[msg.id]){
+                bot.rabbit.waitingFetches[msg.id].fulfill(msg.value)
+            }
+        })
 
         bot.rabbit.createPubsub = async function createPubsub(name){
             bot.logger.log("Creating queue");
@@ -122,3 +192,12 @@ module.exports = {
         });
     }
 };
+
+
+function getValue(object, value){
+    let ind = value.indexOf(".");
+    if(ind > -1){
+        return getValue(object[value.substring(0, ind)], value.substring(ind+1))
+    }
+    return object[value];
+}

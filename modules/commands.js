@@ -235,54 +235,64 @@ module.exports = {
 
 
         bot.loadCommand = function loadCommand(command, reload){
-            const module = "../commands/" + command;
-            if(reload) {
-                delete require.cache[require.resolve(module)];
-            }
-            let crc = crc32(fs.readFileSync(module, 'utf8')).toString(16);
-            let loadedCommand = require(module);
-            if (loadedCommand.init && !reload) {
-                try {
-                    loadedCommand.init(bot);
-                }catch(e){
-                    Sentry.captureException(e);
-                    bot.logger.error(e);
-                    if(bot.client && bot.client.shard){
-                        bot.client.shard.send({type: "warning", payload: {
-                            id: "badInit-"+command,
-                            message: `Couldn't initialise command ${command}:\n${e.message}`
-                        }});
+            try {
+                const module = `${__dirname}/../commands/${command}`;
+                if (reload) {
+                    delete require.cache[require.resolve(module)];
+                }
+                let crc = crc32(fs.readFileSync(module, 'utf8')).toString(16);
+                let loadedCommand = require(module);
+                if (loadedCommand.init && !reload) {
+                    try {
+                        loadedCommand.init(bot);
+                    } catch (e) {
+                        Sentry.captureException(e);
+                        bot.logger.error(e);
+                        if (bot.client && bot.client.shard) {
+                            bot.rabbit.event({
+                                type: "warning", payload: {
+                                    id: "badInit-" + command,
+                                    message: `Couldn't initialise command ${command}:\n${e.message}`
+                                }
+                            });
+                        }
+                    }
+                } else if (loadedCommand.init) {
+                    bot.logger.warn(`Command ${command} was reloaded, but init was not run.`);
+                }
+                bot.logger.log(`Loaded command ${loadedCommand.name} ${`(${crc})`.gray}`);
+
+                if (reload) {
+                    if (bot.commandUsages[loadedCommand.commands[0]]) {
+                        let oldCrc = bot.commandUsages[loadedCommand.commands[0]].crc;
+                        if (oldCrc !== crc)
+                            bot.logger.log(`Command ${command} version has changed from ${oldCrc} to ${crc}.`);
+                        else
+                            bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
                     }
                 }
-            }else if(loadedCommand.init){
-                bot.logger.warn(`Command ${command} was reloaded, but init was not run.`);
-            }
-            bot.logger.log(`Loaded command ${loadedCommand.name} ${`(${crc})`.gray}`);
 
-            if(reload){
-                if(bot.commandUsages[loadedCommand.commands[0]]) {
-                    let oldCrc = bot.commandUsages[loadedCommand.commands[0]].crc;
-                    if (oldCrc !== crc)
-                        bot.logger.log(`Command ${command} version has changed from ${oldCrc} to ${crc}.`);
-                    else
-                        bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
-                }
-            }
-
-            for (let i in loadedCommand.commands) {
-                if (loadedCommand.commands.hasOwnProperty(i)) {
-                    const commandName = loadedCommand.commands[i];
-                    if(bot.commands[commandName] && !reload){
-                        if(bot.client.shard)
-                            bot.client.shard.send({type: "warning", payload: {id: "commandOverwritten-"+commandName, message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`}})
+                for (let i in loadedCommand.commands) {
+                    if (loadedCommand.commands.hasOwnProperty(i)) {
+                        const commandName = loadedCommand.commands[i];
+                        if (bot.commands[commandName] && !reload) {
+                            bot.rabbit.event({type: "warning",
+                                payload: {
+                                    id: "commandOverwritten-" + commandName,
+                                    message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`
+                                }
+                            })
+                        }
+                        bot.commands[commandName] = loadedCommand.run;
+                        bot.commandUsages[commandName] = {
+                            id: command,
+                            crc,
+                            ...loadedCommand,
+                        };
                     }
-                    bot.commands[commandName] = loadedCommand.run;
-                    bot.commandUsages[commandName] = {
-                        id: command,
-                        crc,
-                        ...loadedCommand,
-                    };
                 }
+            }catch(e){
+                bot.logger.error("failed to load command", e);
             }
         };
 
@@ -311,10 +321,11 @@ module.exports = {
                 }
                 bot.bus.emit("commandLoadFinished");
                 bot.logger.log("Finished loading commands.");
-
-                bot.client.shard.send({
-                    type: "commandList",
-                    payload: bot.commandUsages
+                bot.client.once("ready", ()=>{
+                    bot.rabbit.event({
+                        type: "commandList",
+                        payload: bot.commandUsages
+                    })
                 })
             }
         });

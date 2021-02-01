@@ -14,6 +14,6 @@ module.exports = {
         embed.setTitle(`Respawning ${bot.client.shard.count} shards...`);
         embed.setColor(0xff0000);
         message.channel.send(embed);
-        bot.client.shard.send({type: "respawn"});
+        bot.rabbit.event({type: "respawn"});
     }
 };

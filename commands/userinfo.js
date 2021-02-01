@@ -17,15 +17,13 @@ module.exports = {
         const now = new Date();
 
         let mutualGuilds;
-        if(bot.client.shard){
-             let guildCollection = await bot.client.shard.broadcastEval(`
-                this.guilds.cache.filter((guild)=>guild.members.cache.has('${target.id}')).map((guild)=>guild.name);
-            `);
 
-            mutualGuilds = guildCollection.reduce((a,b)=>a.concat(b), []);
-        }else{
-            mutualGuilds = bot.client.guilds.cache.filter((guild)=>guild.members.cache.has(target.id)).map((guild)=>guild.name);
-        }
+         let guildCollection = await bot.client.shard.broadcastEval(`
+            this.guilds.cache.filter((guild)=>guild.members.cache.has('${target.id}')).map((guild)=>guild.name);
+        `);
+
+        mutualGuilds = guildCollection.reduce((a,b)=>a.concat(b), []);
+
 
         let mutualGuildsText = mutualGuilds.slice(0, 10).join(", ");
         if(mutualGuilds.length > 10)mutualGuildsText += ` and ${mutualGuilds.length-10} more`;

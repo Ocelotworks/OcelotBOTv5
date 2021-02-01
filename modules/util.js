@@ -996,7 +996,7 @@ module.exports = {
             const commandType = bot.util.nestedCommands[id];
             if(!commandType){
                 bot.logger.warn(`No nested command init detected for ${id}!`);
-                bot.client.shard.send({type: "warning", payload: {
+                bot.rabbit.event({type: "warning", payload: {
                     id: "noNestedInit-"+id, message: `No nested command init for ${id}`
                 }});
                 return message.channel.send("No nested command init detected - Big P Screwed this up.");
@@ -1095,7 +1095,7 @@ module.exports = {
         bot.util.getUserInfo = function getUserInfo(userID){
             return bot.client.users.fetch(userID);
             // return new Promise(function getUserInfoPromise(fulfill){
-            //     bot.client.shard.send({type: "getUserInfo", payload: userID});
+            //     bot.rabbit.event({type: "getUserInfo", payload: userID});
             //     let timeout = setTimeout(fulfill, 200);
             //     waitingUsers[userID] = [fulfill, timeout];
             // });
@@ -1109,16 +1109,13 @@ module.exports = {
             }
         }
 
-        process.on("message", function (message){
-            if(message.type === "getUserInfoResponse"){
-                const waitingUser = waitingUsers[message.payload.id];
-                if(waitingUser){
-                    clearTimeout(waitingUser[1]);
-                    waitingUser[0](message.payload);
-                }
+        bot.bus.on("getUserInfoResponse", (message)=>{
+            const waitingUser = waitingUsers[message.payload.id];
+            if(waitingUser){
+                clearTimeout(waitingUser[1]);
+                waitingUser[0](message.payload);
             }
-        });
-
+        })
 
         bot.util.bots = {
             music: {
@@ -1340,6 +1337,10 @@ module.exports = {
             ctx.arcTo(x,   y,   x+w, y,   r);
             ctx.closePath();
         }
+
+
+
+        bot.util.shard = parseInt(process.env.SHARD)-1
 
     }
 };

@@ -11,7 +11,7 @@ module.exports = {
                 scope.setTags({
                     "channel": message.channel.id,
                     "guild": message.guild ? message.guild.id : "DM",
-                    "shard": bot.client.shard.ids.join(";")
+                    "shard": bot.util.shard
                 });
                 scope.setUser({
                     id: message.author.id,

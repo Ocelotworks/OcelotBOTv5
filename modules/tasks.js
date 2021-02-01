@@ -22,7 +22,7 @@ module.exports = {
             }, 1500000);
             bot.logger.info(`Started task ${name} (${id})`);
             try {
-                bot.client.shard.send({type: "tasksClear", payload: false});
+                bot.rabbit.event({type: "tasksClear", payload: false});
             }catch(e){
                 bot.raven.captureException(e);
                 if(e.message && e.message.includes("Channel closed")){
@@ -61,7 +61,7 @@ module.exports = {
             bot.logger.info(`Ended task ${name} (${id})`);
             bot.tasks.running.splice(index, 1);
             try {
-                bot.client.shard.send({type: "tasksClear", payload: true});
+                bot.rabbit.event({type: "tasksClear", payload: true});
             }catch(e){
                 bot.raven.captureException(e);
                 if(e.message && e.message.includes("Channel closed")){

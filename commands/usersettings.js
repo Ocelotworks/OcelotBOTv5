@@ -35,7 +35,7 @@ module.exports = {
             onSet: async function(message, args, bot){
                 if(args[3] && bot.lang.strings[args[3].toLowerCase()]) {
                     await bot.database.setUserSetting(message.author.id, "lang", args[3]);
-                    bot.client.shard.send({type: "reloadUserConfig"});
+                    bot.rabbit.event({type: "reloadUserConfig"});
                     message.channel.send(`:white_check_mark: Successfully set your language to ${args[3]} (${bot.lang.strings[args[3].toLowerCase()].LANGUAGE_NAME})`);
                 }else{
                     message.channel.send(`:bangbang: Invalid language. Do ${message.getSetting("prefix")}languages to see the available languages.`);
@@ -53,7 +53,7 @@ module.exports = {
                 let timezone = args[3];
                 if(bot.util.timezones[timezone] || bot.util.timezoneRegex.exec(timezone)){
                     await bot.database.setUserSetting(message.author.id, "time.zone", timezone);
-                    bot.client.shard.send({type: "reloadUserConfig"});
+                    bot.rabbit.event({type: "reloadUserConfig"});
                     message.channel.send(`:white_check_mark: Successfully set your timezone to '${timezone}'.`);
                 }else{
                     message.channel.send(":bangbang: Invalid Timezone. Try something like CST or GMT+2");
@@ -72,7 +72,7 @@ module.exports = {
                 if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bools[args[3].toLowerCase()];
                     await bot.database.setUserSetting(message.author.id, "sendDisabledMessage", bool);
-                    bot.client.shard.send({type: "reloadUserConfig"});
+                    bot.rabbit.event({type: "reloadUserConfig"});
                     message.channel.send(`${bool ? "Enabled" : "Disabled"} Disabled Command Messages.`);
                 }else{
                     message.channel.send(`Try **${args[0]} set disabledmessage false** to turn Disabled Command Messages off.`);
@@ -100,7 +100,7 @@ module.exports = {
                     return message.channel.send("The number can't be bigger than 10");
 
                 await bot.database.setUserSetting(message.author.id, "bulge.amount", parseInt(args[3]));
-                bot.client.shard.send({type: "reloadUserConfig"});
+                bot.rabbit.event({type: "reloadUserConfig"});
                 message.channel.send(`Set the bulge amount to ${args[3]}`);
             }
         },
@@ -125,7 +125,7 @@ module.exports = {
                     return message.channel.send("The number can't be bigger than 10");
 
                 await bot.database.setUserSetting(message.author.id, "8ball.rig", parseInt(args[3]));
-                bot.client.shard.send({type: "reloadUserConfig"});
+                bot.rabbit.event({type: "reloadUserConfig"});
                 message.channel.send(`Rigged 8ball to say ${await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "8BALL_RESPONSE_"+parseInt(args[3]), {}, message.author.id)}`);
             }
         },

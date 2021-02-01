@@ -57,9 +57,10 @@
   },
   "Modules": [
     "util",
+    "rabbit",
+    "api",
     "database",
     "discord",
-    "rabbit",
     "config",
     "lang",
     "statistics",
