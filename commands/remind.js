@@ -64,6 +64,7 @@ module.exports = {
             let totalClaims = 0;
             let claimedReminders = [];
             bot.bus.on('claimReminder', async (msg)=>{
+                return;
                 totalClaims++;
                 claimedReminders.push(...msg.payload)
                 if(totalClaims == process.env.SHARD_COUNT){

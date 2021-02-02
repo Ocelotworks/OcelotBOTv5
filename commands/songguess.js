@@ -172,7 +172,6 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
             span.end();
             return doGuess(voiceChannel, message, bot, true)
         }
-        console.log(player);
         span.end();
         let won = false;
         span = bot.apm.startSpan("Create message collector");

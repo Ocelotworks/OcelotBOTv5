@@ -16,6 +16,6 @@ COPY . .
 RUN npm install --registry=http://192.168.1.145/
 
 EXPOSE 8006/tcp
-HEALTHCHECK --interval=30s \
+HEALTHCHECK --interval=30s --start-period=1m --retries=5 \
     CMD node healthcheck.js
 ENTRYPOINT node ocelotbot.js
