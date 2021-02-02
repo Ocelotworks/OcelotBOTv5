@@ -205,6 +205,7 @@ module.exports = {
             }else {
                 bot.logger.log("Requesting leave")
                 listener.playing = null;
+                listener.connection.pause(true);
                 return bot.lavaqueue.requestLeave(listener.voiceChannel, "Queue is empty and AutoDJ is disabled.");
             }
         }
