@@ -103,9 +103,10 @@ module.exports = {
                 bot.rabbit.event({type: "fetchClientValues", id, prop});
 
                 const timeout = setTimeout(()=>{
+                    bot.logger.warn(`Waited for ${process.env.SHARD_COUNT} responses but only got ${bot.rabbit.waitingFetches[id].buffer.length}.`);
                     fulfill(bot.rabbit.waitingFetches[id].buffer);
                     bot.rabbit.waitingFetches[id] = null;
-                }, 5000);
+                }, 1000);
 
                 bot.rabbit.waitingFetches[id] = {fulfill: (value)=>{
                         bot.rabbit.waitingFetches[id].buffer.push(value);
