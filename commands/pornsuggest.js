@@ -59,6 +59,7 @@ module.exports = {
                         return embed;
                     }, true);
                 }catch(e){
+                    console.log(body);
                     bot.raven.captureException(e);
                     console.log(e);
                     message.replyLang("GENERIC_ERROR");
