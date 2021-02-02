@@ -97,10 +97,11 @@ module.exports = {
         bot.rabbit.fetchId = 0;
         bot.rabbit.waitingFetches = {};
 
-        bot.rabbit.fetchClientValues = async function fetchClientValues(prop){
+        bot.rabbit.shardRpc = function(message){
             return new Promise((fulfill)=>{
                 const id = `${bot.util.shard}-${bot.rabbit.fetchId++}`;
-                bot.rabbit.event({type: "fetchClientValues", id, prop});
+                message.id = id;
+                bot.rabbit.event(message);
 
                 const timeout = setTimeout(()=>{
                     bot.logger.warn(`Waited for ${process.env.SHARD_COUNT} responses but only got ${bot.rabbit.waitingFetches[id].buffer.length}.`);
@@ -115,14 +116,28 @@ module.exports = {
                             clearTimeout(bot.rabbit.waitingFetches[id].timeout)
                             bot.rabbit.waitingFetches[id] = null;
                         }
-                }, buffer: [], timeout};
+                    }, buffer: [], timeout};
             })
+        }
+
+        bot.rabbit.fetchClientValues = async function fetchClientValues(prop){
+            return bot.rabbit.shardRpc({type: "fetchClientValues", prop});
         }
 
         bot.bus.on("fetchClientValues", (msg)=>{
             let value = getValue(bot.client, msg.prop)
             bot.rabbit.event({type: "clientValueCallback", id: msg.id, value})
         });
+
+        bot.rabbit.broadcastEval = function(script){
+            return bot.rabbit.shardRpc({type: "broadcastEval", script});
+        }
+
+        bot.bus.on("broadcastEval", (msg)=>{
+            bot.rabbit.event({type: "clientValueCallback", id: msg.id, value: (function(){
+                return eval(msg.script)
+            }).call(bot.client)})
+        })
 
         bot.bus.on("clientValueCallback", (msg)=>{
             if(bot.rabbit.waitingFetches[msg.id]){
