@@ -7,7 +7,10 @@ build-consumer-image:
     refs:
       - tags
   only:
-    - master
+    changes:
+      - consumers/image.js
+    refs:
+      - master
   tags:
     - shell
   retry:
@@ -60,8 +63,8 @@ build-shard-master:
 #    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY_MIRROR
   script:
     - mv $CONFIG config/local.json
-    - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
-    - docker build . --cache-from $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+    - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest-staging || true
+    - docker build . --cache-from $REGISTRY/ocelotbotv5/ocelotbot:latest-staging
       -t $REGISTRY/ocelotbotv5/ocelotbot:$CI_PIPELINE_ID
       -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       --build-arg GITLAB_TOKEN=$GITLAB_TOKEN
