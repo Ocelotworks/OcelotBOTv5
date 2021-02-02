@@ -11,6 +11,8 @@ RUN rm glibc-2.32-r0.apk
 RUN mkdir app
 WORKDIR app
 
+RUN mkdir temp
+
 COPY . .
 
 RUN npm install --registry=http://192.168.1.145/
