@@ -60,7 +60,7 @@ build-shard-master:
     when: runner_system_failure
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
-    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY_MIRROR
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR
   script:
     - mv $CONFIG config/local.json
     - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest-staging || true
