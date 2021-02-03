@@ -202,7 +202,7 @@ module.exports = {
                     }
                 });
             }catch(e){
-                if(e.code !== "ENOTEFOUND")
+                if(e.code !== "ENOTFOUND")
                     console.error(e);
             }
         }
