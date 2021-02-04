@@ -54,7 +54,7 @@ module.exports = {
                     for(let i = 0; i < servers.length; i++){
                         let row = servers[i];
                         if(row.server === "global" || row.server === "default")continue;
-                        let result = await bot.client.shard.broadcastEval(`this.guilds.cache.has('${row.server}')`);
+                        let result = await bot.rabbit.broadcastEval(`this.guilds.cache.has('${row.server}')`);
                         //onsole.log(result);
                         if(result.indexOf(true) > -1)
                             continue;

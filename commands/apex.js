@@ -66,8 +66,10 @@ module.exports = {
             message.channel.stopTyping(true);
             if(err)
                 return message.replyLang("GENERIC_ERROR");
-            if(body.errors)
+            if(body.errors) {
+                console.log(body.errors);
                 return message.channel.send(`${body.errors[0].message}\nIf you're looking for an xbox or playstation player, try entering the platform. For example for xbox:, ${args[0]} xbl ${username}`);
+            }
             if(!body.data || !body.data.metadata)
                 return message.channel.send(":warning: No stats found for that user.");
 

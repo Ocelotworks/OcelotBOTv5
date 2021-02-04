@@ -18,7 +18,7 @@ module.exports = {
 
         let mutualGuilds;
 
-         let guildCollection = await bot.client.shard.broadcastEval(`
+         let guildCollection = await bot.rabbit.broadcastEval(`
             this.guilds.cache.filter((guild)=>guild.members.cache.has('${target.id}')).map((guild)=>guild.name);
         `);
 

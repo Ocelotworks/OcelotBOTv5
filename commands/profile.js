@@ -166,7 +166,7 @@ module.exports = {
 
                 let mutualGuilds;
                 if (bot.client.shard) {
-                    let guildCollection = await bot.client.shard.broadcastEval(`
+                    let guildCollection = await bot.rabbit.broadcastEval(`
                 this.guilds.cache.filter((guild)=>guild.members.cache.has('${user.id}')).map((guild)=>guild.name);
             `);
                     mutualGuilds = guildCollection.reduce((a, b) => a.concat(b), []);
@@ -308,7 +308,7 @@ module.exports = {
         async function drawStats(ctx, user, profileInfo){
             let span = bot.util.startSpan("Get stats");
             const [guildCounts, userStats, voteStats, guessStats, triviaStats] = await Promise.all([
-                bot.client.shard.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${user.id}')).size`),
+                bot.rabbit.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${user.id}')).size`),
                 bot.database.getUserStats(user.id),
                 bot.database.getVoteCount(user.id),
                 bot.database.getTotalCorrectGuesses(user.id),
@@ -363,7 +363,7 @@ module.exports = {
             let now = new Date();
             let mutualGuilds;
             if (bot.client.shard) {
-                let guildCollection = await bot.client.shard.broadcastEval(`
+                let guildCollection = await bot.rabbit.broadcastEval(`
                 this.guilds.cache.filter((guild)=>guild.members.cache.has('${user.id}')).map((guild)=>guild.name);
             `);
                 mutualGuilds = guildCollection.reduce((a, b) => a.concat(b), []);
