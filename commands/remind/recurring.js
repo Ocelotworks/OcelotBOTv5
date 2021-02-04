@@ -51,6 +51,8 @@ module.exports = {
             reminder = rargs[2];
         }
 
+        if(reminder.length > 1000)
+            return message.channel.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
 
         if(parse.schedules.length === 0){
             return message.channel.send("Unable to parse time: Try something like 'every 5 minutes' or 'every day at 10:15pm'");
