@@ -60,7 +60,7 @@ module.exports = {
                 bot.logger.log(`Posted stats to ${botList.id}`)
             }).catch((e)=>{
                 bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
-                if(e.response)
+                if(e.response && e.response.data)
                     console.log(e.response.data.substring(0,500));
             })
         }
