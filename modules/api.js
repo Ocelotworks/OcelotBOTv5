@@ -6,7 +6,7 @@ module.exports = {
 
 
         function writeOpenMetric(name, value){
-            return `# TYPE ${name} counter\n${name}{shard="${bot.util.shard}"}"} ${value}\n`
+            return `# TYPE ${name} counter\n${name}{shard="${bot.util.shard}"} ${value}\n`
         }
 
 
