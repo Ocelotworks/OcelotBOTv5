@@ -16,10 +16,14 @@ module.exports = {
 
         const now = new Date();
 
-        let header = "```asciidoc\n";
-        if(!message.getSetting("birthdays.channel")){
-            header = `:information_source: You can get a message every time it's someones birthday with **${args[0]} setchannel**\n${header}`
+        let header;
+        if(message.getSetting("birthday.channel")){
+            header = `:information_source: Birthday reminders will be sent in <#${message.getSetting("birthday.channel")}>`
+        }else{
+            header = `:information_source: You can get a message every time it's someones birthday with **${args[0]} setchannel**\n`
         }
+
+        header += "```asciidoc\n";
 
         allBirthdays = allBirthdays.map((birthday)=>{
             let d = birthday.birthday; //Yes
