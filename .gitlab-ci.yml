@@ -1,4 +1,5 @@
 stages:
+  - build-base
   - build
 
 build-consumer-image:
@@ -56,7 +57,7 @@ build-base-image-staging:
   extends: .build-base-image
 
 .build-base-image:
-  stage: build
+  stage: build-base
   except:
     refs:
       - tags
