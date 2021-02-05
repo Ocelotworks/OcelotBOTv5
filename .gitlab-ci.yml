@@ -73,6 +73,7 @@ build-base-image-staging:
     - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest
       -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest
       --build-arg REGISTRY=$REGISTRY
+      --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
     - docker push $REGISTRY/ocelotbotv5/ocelotbot-base:latest
     - docker image rm $REGISTRY/ocelotbotv5/ocelotbot-base:latest
 
