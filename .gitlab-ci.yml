@@ -47,7 +47,7 @@ build-base-image-master:
 
 build-base-image-staging:
   environment:
-    name: production
+    name: staging
   only:
     changes:
       - package.json
