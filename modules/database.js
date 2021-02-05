@@ -395,7 +395,7 @@ module.exports = {
             },
             /**
              * Get the count of commands by a particular user
-             * @param {UserID} user
+             * @param {Snowflake} user
              * @returns {*}
              */
             getUserStats: function (user) {

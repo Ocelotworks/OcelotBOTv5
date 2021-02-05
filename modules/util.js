@@ -408,9 +408,15 @@ module.exports = {
                 c: message.channel.id,
                 m: message.id,
             };
-            let loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
             let span = bot.util.startSpan("Receive from RPC");
+            let loadingMessage;
+            let loadingMessageDelay = setTimeout(async ()=>{
+                message.channel.stopTyping(true);
+                loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
+            }, 3000)
+            message.channel.startTyping();
             let response = await bot.rabbit.rpc("imageProcessor", request, 120000, {arguments: {"x-message-ttl": 60000}, durable: false});
+            clearTimeout(loadingMessageDelay)
             span.end();
             if(loadingMessage) {
                 span = bot.util.startSpan("Edit loading message");
@@ -419,7 +425,9 @@ module.exports = {
             }
             if (response.err) {
                 span = bot.util.startSpan("Delete processing message");
-                await loadingMessage.delete();
+                message.channel.stopTyping(true);
+                if(loadingMessage)
+                    await loadingMessage.delete();
                 span.end();
                 return message.replyLang("IMAGE_PROCESSOR_ERROR_"+response.err.toUpperCase());
             }
@@ -430,12 +438,53 @@ module.exports = {
             }catch(e){
                 bot.raven.captureException(e);
             }
+            message.channel.stopTyping(true);
             span.end();
             span = bot.util.startSpan("Delete processing message");
-            await loadingMessage.delete();
+            if(loadingMessage)
+                await loadingMessage.delete();
             span.end();
         }
 
+        bot.util.imageProcessorOutlinedText = function imageProcessorOutlinedText(content, x, y, w, h, fontSize, foregroundColour = "#ffffff", backgroundColour = "#000000", font = "arial.ttf"){
+            return {
+                pos: {x, y, w, h},
+                filter: [
+                    {
+                        name: "text",
+                        args: {
+                            x: 2,
+                            y: 2,
+                            ax: 0,
+                            ay: 0,
+                            w,
+                            spacing: 1.2,
+                            align: 0,
+                            font,
+                            fontSize,
+                            content,
+                            colour: backgroundColour
+                        }
+                    },
+                    {
+                        name: "text",
+                        args: {
+                            x: 0,
+                            y: 0,
+                            ax: 0,
+                            ay: 0,
+                            w,
+                            spacing: 1.2,
+                            align: 0,
+                            font,
+                            fontSize,
+                            content,
+                            colour: foregroundColour
+                        }
+                    },
+                ]
+            }
+        }
         /**
          *
          * @param module The command module
