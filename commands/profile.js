@@ -445,7 +445,7 @@ module.exports = {
                 {
                     name: "text",
                     args: {
-                        x: BODY_WIDTH/2,
+                        x: BODY_WIDTH/2 + BODY_PADDING,
                         y: BODY_PADDING,
                         w: BODY_WIDTH/2,
                         ax: 0,
@@ -461,7 +461,7 @@ module.exports = {
                 {
                     name: "text",
                     args: {
-                        x: BODY_WIDTH/2,
+                        x: BODY_WIDTH/2 + BODY_PADDING,
                         y: BODY_PADDING,
                         w: BODY_WIDTH/2,
                         ax: 0,
@@ -477,8 +477,8 @@ module.exports = {
             })
 
             const badges = await bot.database.getProfileBadges(target.id);
-
-            for(let i = 0; i < badges; i++){
+            for(let i = 0; i < badges.length; i++){
+                const badge = badges[i];
                 if(i === 0 || badges.length <= 4){
                     const y = FEAT_BADGE_Y + (FEAT_BADGE_HEIGHT * i) + (5 * i);
                     imageRequest.components.push({
@@ -491,11 +491,45 @@ module.exports = {
                         filter: [{
                             name: "rectangle",
                             args: {
-                                colour: "#ffffff11"
+                                x: 0,
+                                y: 0,
+                                w: FEAT_BADGE_WIDTH,
+                                h: FEAT_BADGE_HEIGHT,
+                                colour: "#ffffff55"
+                            }
+                        },{
+                            name: "text",
+                            args: {
+                                x: FEAT_BADGE_SIZE+FEAT_BADGE_PADDING*2,
+                                y: FEAT_BADGE_PADDING,
+                                w: FEAT_BADGE_WIDTH,
+                                ax: 0,
+                                ay: 0,
+                                spacing: 1.5,
+                                align: 0,
+                                font: "arial.ttf",
+                                content: badge.name,
+                                fontSize: FEAT_BADGE_TEXT,
+                                colour: "#000000"
+                            }
+                        },{
+                            name: "text",
+                            args: {
+                                x: FEAT_BADGE_SIZE+(FEAT_BADGE_PADDING*2) + 5,
+                                y: FEAT_BADGE_TEXT + FEAT_BADGE_PADDING + 5 ,
+                                w: FEAT_BADGE_WIDTH,
+                                ax: 0,
+                                ay: 0,
+                                spacing: 1.5,
+                                align: 0,
+                                font: "arial.ttf",
+                                content: badge.desc,
+                                fontSize: FEAT_BADGE_CAPTION,
+                                colour: "#000000"
                             }
                         }]
                     }, {
-                        url: ``,
+                        url: `profile/new/badges/${badge.image}`,
                         local: true,
                         pos: {
                             x:  FEAT_BADGE_X + FEAT_BADGE_PADDING,
@@ -505,7 +539,16 @@ module.exports = {
                         }
                     })
                 }else{
-
+                    imageRequest.components.push({
+                        url: `profile/new/badges/${badge.image}`,
+                        local: true,
+                        pos: {
+                            x: REG_BADGE_X + 1 + ((REG_BADGE_PADDING + REG_BADGE_SIZE) * ((i-1) % REG_BADGE_ROW_NUM)),
+                            y: REG_BADGE_Y + ((REG_BADGE_PADDING + REG_BADGE_SIZE) * Math.floor((i-1) / REG_BADGE_ROW_NUM)),
+                            w: REG_BADGE_SIZE,
+                            h: REG_BADGE_SIZE,
+                        }
+                    })
                 }
             }
 
