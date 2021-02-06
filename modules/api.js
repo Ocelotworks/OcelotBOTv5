@@ -40,7 +40,7 @@ module.exports = {
             output += writeOpenMetric("users", bot.client.users.cache.size);
             output += writeOpenMetric("uptime", bot.client.uptime);
             output += writeOpenMetric("guildsUnavailable", bot.client.guilds.cache.filter((g)=>!g.available).size);
-            output += writeOpenMetric("drain", bot.drain);
+            output += writeOpenMetric("drain", +bot.drain);
 
             res.header('Content-Type', 'text/plain')
             res.send(output);
