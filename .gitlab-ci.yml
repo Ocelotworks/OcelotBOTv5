@@ -112,6 +112,7 @@ build-shard-master:
     - docker build . --cache-from $REGISTRY/ocelotbotv5/ocelotbot:latest-staging
       -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+      --build-arg REGISTRY=$REGISTRY
       --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH

@@ -1,6 +1,6 @@
 ARG REGISTRY
 ARG CI_COMMIT_BRANCH
-FROM ${REGISTRY}/ocelotbotv5/ocelotbot-base:latest-${CI_COMMIT_BRANCH}
+FROM $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
 
 COPY . .
 
