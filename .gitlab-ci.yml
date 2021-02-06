@@ -1,4 +1,5 @@
 stages:
+  - build-base
   - build
 
 build-consumer-image:
@@ -20,7 +21,7 @@ build-consumer-image:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
     - docker pull $REGISTRY/ocelotbotv5/image-consumer:latest || true
-    - docker build . --cache-from $REGISTRY/ocelotbotv5/image-consumer:latest
+    - docker build -f ImageProcessor.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/image-consumer:latest
       -t $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
       -t $REGISTRY/ocelotbotv5/image-consumer:latest
       --build-arg GITLAB_TOKEN=$GITLAB_TOKEN
@@ -31,6 +32,50 @@ build-consumer-image:
     - docker image rm $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
 #    - curl -X POST $DEPLOY_WEBHOOK
 
+
+build-base-image-master:
+  environment:
+    name: production
+  only:
+    changes:
+      - package.json
+      - package-lock.json
+    refs:
+      - master
+  extends: .build-base-image
+
+
+build-base-image-staging:
+  environment:
+    name: staging
+  only:
+    changes:
+      - package.json
+      - package-lock.json
+    refs:
+      - staging
+  extends: .build-base-image
+
+.build-base-image:
+  stage: build-base
+  except:
+    refs:
+      - tags
+  tags:
+    - shell
+  retry:
+    max: 2
+    when: runner_system_failure
+  before_script:
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
+  script:
+    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH || true
+    - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest
+      -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest
+      --build-arg REGISTRY=$REGISTRY
+      --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
+    - docker push $REGISTRY/ocelotbotv5/ocelotbot-base:latest
+    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot-base:latest
 
 build-shard-staging:
   environment:
@@ -67,8 +112,8 @@ build-shard-master:
     - docker build . --cache-from $REGISTRY/ocelotbotv5/ocelotbot:latest-staging
       -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
-      --build-arg GITLAB_TOKEN=$GITLAB_TOKEN
-      --build-arg GITLAB_DOMAIN=$GITLAB_DOMAIN
+      --build-arg REGISTRY=$REGISTRY
+      --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH

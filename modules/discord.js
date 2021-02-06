@@ -450,22 +450,6 @@ module.exports = {
             }
         });
 
-        bot.bus.on("cockup", async (message)=>{
-            for(let i = 0; i < bot.admins.length; i++) {
-                let admin = bot.admins[i];
-                if (bot.client.users.cache.has(admin)) {
-                    bot.logger.log("Sending cockup message");
-                    let adminUser = bot.client.users.cache.get(admin);
-                    const output = `:warning: <@${admin}> **Cockup: ${message.payload}**`;
-                    if (adminUser.lastMessage) {
-                        adminUser.lastMessage.channel.send(output);
-                    }
-                    let dm = await adminUser.createDM();
-                    dm.send(output);
-                }
-            }
-        });
-
         bot.bus.on("presence", async (message)=>{
             bot.logger.log("Updating presence: "+message.payload);
             bot.presenceMessage = message.payload === "clear" ? null : message.payload;

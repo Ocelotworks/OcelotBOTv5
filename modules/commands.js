@@ -6,10 +6,23 @@ const { crc32 } = require('crc');
 module.exports = {
     name: "Commands",
     init: function (bot) {
+
+        bot.commandObjects = {};
         bot.commandUsages = {};
         bot.commands = {};
 
         bot.prefixCache = {};
+
+
+        process.on('exit', async (code)=>{
+            bot.logger.log("Process close requested", code);
+            for(let command in bot.commandObjects){
+                if(bot.commandObjects.hasOwnProperty(command) && bot.commandObjects[command].shutdown){
+                    bot.logger.log("Shutting down ", command);
+                    await bot.commandObjects[command].shutdown(bot);
+                }
+            }
+        })
 
         bot.client.on("message",function onMessage(message) {
             if(message.author.bot)return;
@@ -272,6 +285,7 @@ module.exports = {
                     }
                 }
 
+                bot.commandObjects[command] = loadedCommand;
                 for (let i in loadedCommand.commands) {
                     if (loadedCommand.commands.hasOwnProperty(i)) {
                         const commandName = loadedCommand.commands[i];
@@ -283,7 +297,7 @@ module.exports = {
                                 }
                             })
                         }
-                        bot.commands[commandName] = loadedCommand.run;
+                        bot.commands[commandName] = bot.commandObjects[command].run;
                         bot.commandUsages[commandName] = {
                             id: command,
                             crc,
