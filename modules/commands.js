@@ -25,7 +25,7 @@ module.exports = {
         })
 
         bot.client.on("message",function onMessage(message) {
-            if(message.author.bot)return;
+            if(bot.drain || message.author.bot)return;
             Sentry.configureScope(async function onMessage(scope){
                 scope.setUser({
                     username: message.author.username,

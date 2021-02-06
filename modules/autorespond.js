@@ -7,6 +7,7 @@ module.exports = {
         bot.lastMessageCounts = {};
 
         bot.client.on("message", async function onMessage(message) {
+            if(bot.drain)return;
             Sentry.configureScope(function onMessage(scope){
                 scope.setTags({
                     "channel": message.channel.id,

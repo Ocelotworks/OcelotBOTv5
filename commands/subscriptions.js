@@ -81,7 +81,8 @@ module.exports = {
         bot.util.standardNestedCommandInit("subscriptions");
     },
     check: async function check(bot){
-       for(let data in subs)
+        if(bot.drain)return;
+        for(let data in subs)
            if(subs.hasOwnProperty(data)){
                const subList = subs[data];
                const sub = subList[0];

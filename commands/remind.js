@@ -93,6 +93,7 @@ module.exports = {
         }
     },
     sendReminder: async function(reminder, bot){
+        if(bot.drain)return;
         if(!module.exports.deletedReminders.includes(reminder.id)) {
             bot.logger.log(`Reminding ${reminder.id}: ${reminder.user}: ${reminder.message}`);
             try {
