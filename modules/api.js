@@ -12,6 +12,11 @@ module.exports = {
 
         bot.api = express();
 
+        bot.api.use((req, res, next)=>{
+            res.setHeader("X-Shard", bot.util.shard);
+            next();
+        });
+
         bot.api.get("/", (req, res)=>{
             res.json({
                 shard: bot.util.shard,
