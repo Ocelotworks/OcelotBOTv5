@@ -15,24 +15,24 @@ module.exports = {
     recurringReminders: {},
     init: function init(bot){
         bot.util.standardNestedCommandInit('remind', 'remind', module.exports);
-        bot.client.on("ready", function () {
-            bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.util.shard}`, {exclusive: true});
-            bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.util.shard}`, function reminderConsumer(message) {
-                try {
-                    let reminder = JSON.parse(message.content);
-                    if (bot.config.getBool("global", "remind.silentQueueTest")) {
-                        bot.logger.warn("Silent test: got reminder from reminder worker");
-                        bot.logger.log(reminder);
-                    } else {
-                        module.exports.sendReminder(reminder, bot);
-                    }
-                    bot.rabbit.channel.ack(message);
-                } catch (e) {
-                    bot.raven.captureException(e);
-                    bot.logger.error(e);
-                }
-            });
-        });
+        // bot.client.on("ready", function () {
+        //     bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.util.shard}`, {exclusive: true});
+        //     bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.util.shard}`, function reminderConsumer(message) {
+        //         try {
+        //             let reminder = JSON.parse(message.content);
+        //             if (bot.config.getBool("global", "remind.silentQueueTest")) {
+        //                 bot.logger.warn("Silent test: got reminder from reminder worker");
+        //                 bot.logger.log(reminder);
+        //             } else {
+        //                 module.exports.sendReminder(reminder, bot);
+        //             }
+        //             bot.rabbit.channel.ack(message);
+        //         } catch (e) {
+        //             bot.raven.captureException(e);
+        //             bot.logger.error(e);
+        //         }
+        //     });
+        // });
 
 
         bot.client.once("ready", async function discordReady(){

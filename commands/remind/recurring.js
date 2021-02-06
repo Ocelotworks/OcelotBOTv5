@@ -14,6 +14,7 @@ module.exports = {
             for(let i = 0; i < reminders.length; i++){
                 let reminder = reminders[i];
                 let scheduledReminder = later.setInterval(async ()=>{
+                    if(bot.drain)return;
                     try {
                         let channel = await bot.client.channels.fetch(reminder.channel);
                         await channel.send(reminder.message);
