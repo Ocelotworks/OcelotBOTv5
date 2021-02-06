@@ -69,8 +69,12 @@ module.exports = {
                 }
                 bot.rabbit.rpcChannel.ack(msg);
             });
-            bot.logger.log("Emitting spawned event");
-            bot.rabbit.event({type: "spawned", id: bot.util.shard, version: process.env.VERSION})
+            if(!bot.drain) {
+                bot.logger.log("Emitting spawned event");
+                bot.rabbit.event({type: "spawned", id: bot.util.shard, version: process.env.VERSION})
+            }else{
+                bot.logger.log("Not emitting spawned event, already draining");
+            }
         });
 
         bot.client.on("guildCreate", function (guild) {
