@@ -70,7 +70,7 @@ module.exports = {
                     bot.rabbit.rpcChannel.ack(msg);
                 });
 
-                bot.rabbit.emit("spawned", {id: bot.util.shard, version: process.env.VERSION})
+                bot.rabbit.event({type: "spawned", id: bot.util.shard, version: process.env.VERSION})
             });
 
             bot.client.on("guildCreate", function (guild) {
