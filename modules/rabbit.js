@@ -14,7 +14,8 @@ module.exports = {
         bot.rabbit = {};
         bot.rabbit.connection = await amqplib.connect(config.get("RabbitMQ.host"));
 
-        bot.rabbit.connection.on("close", () => {
+        bot.rabbit.connection.on("close", function (err) {
+            console.log(err);
             bot.logger.warn("RabbitMQ connection closed!");
             process.exit(1);
         })
