@@ -61,7 +61,7 @@ module.exports = {
             }).catch((e)=>{
                 bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
                 if(e.response && e.response.data)
-                    console.log(e.response.data.substring(0,500));
+                    console.log(JSON.stringify(e.response.data).substring(0,500));
             })
         }
     }
