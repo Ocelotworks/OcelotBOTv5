@@ -13,7 +13,7 @@ module.exports = {
 
         bot.prefixCache = {};
 
-1        process.on('exit', async (code)=>{
+        process.on('exit', async (code)=>{
             bot.logger.log("Process close requested", code);
             bot.drain = true;
             for(let command in bot.commandObjects){
