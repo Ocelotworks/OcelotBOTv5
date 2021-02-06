@@ -53,7 +53,7 @@ function configureSentry(){
             bot.logger.log(message.grey, caller_id.getData());
     };
 
-    bot.version = `stevie5-${os.hostname()}`;
+    bot.version = `stevie5-${process.env.VERSION}`;
 
     Sentry.init({
         captureUnhandledRejections: true,
@@ -82,7 +82,10 @@ function init(){
 
     process.setMaxListeners(100);
     bot.bus = new EventEmitter();
-    loadModules();
+    loadModules().then(()=>{
+        bot.logger.log("All modules loaded!");
+        bot.bus.emit("modulesLoaded");
+    })
 }
 
 
@@ -90,7 +93,7 @@ function init(){
  * Loads the module files from the specified directory in config `General.ModulePath`
  * The modules are loaded in the order they are in config `Modules`
  */
-function loadModules(){
+async function loadModules(){
     bot.logger.log("Loading modules...");
     const moduleFiles = config.get("Modules");
     const modulePath = config.get("General.ModulePath");
@@ -117,9 +120,12 @@ function loadModules(){
                             moduleFiles: moduleFiles
                         }
                     });
-                    loadedModule.init(bot);
-                    bot.logger.log(`Loaded module ${loadedModule.name}`);
                 });
+                if(loadedModule.async)
+                    await loadedModule.init(bot);
+                else
+                    loadedModule.init(bot);
+                bot.logger.log(`Loaded module ${loadedModule.name}`);
             }else{
                 //If the app has not got these. It's not setup properly.
                 //Throw out a warning and skip attempting to load it.

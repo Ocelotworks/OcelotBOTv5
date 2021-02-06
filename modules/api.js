@@ -21,6 +21,7 @@ module.exports = {
             res.json({
                 shard: bot.util.shard,
                 totalShards: process.env.SHARD_COUNT,
+                drain: bot.drain,
             });
         });
 
@@ -44,12 +45,13 @@ module.exports = {
             output += writeOpenMetric("users", bot.client.users.cache.size);
             output += writeOpenMetric("uptime", bot.client.uptime);
             output += writeOpenMetric("guildsUnavailable", bot.client.guilds.cache.filter((g)=>!g.available).size);
+            output += writeOpenMetric("drain", bot.drain);
 
             res.header('Content-Type', 'text/plain')
             res.send(output);
         })
 
-        bot.api.listen(8006, function listen(){
+        bot.api.listen(process.env.PORT || 8006, function listen(){
             bot.logger.log("Listening on port 8006");
         });
     }

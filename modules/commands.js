@@ -13,9 +13,9 @@ module.exports = {
 
         bot.prefixCache = {};
 
-
         process.on('exit', async (code)=>{
             bot.logger.log("Process close requested", code);
+            bot.drain = true;
             for(let command in bot.commandObjects){
                 if(bot.commandObjects.hasOwnProperty(command) && bot.commandObjects[command].shutdown){
                     bot.logger.log("Shutting down ", command);
@@ -25,7 +25,7 @@ module.exports = {
         })
 
         bot.client.on("message",function onMessage(message) {
-            if(message.author.bot)return;
+            if(bot.drain || message.author.bot)return;
             Sentry.configureScope(async function onMessage(scope){
                 scope.setUser({
                     username: message.author.username,

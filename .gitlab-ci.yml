@@ -24,8 +24,7 @@ build-consumer-image:
     - docker build -f ImageProcessor.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/image-consumer:latest
       -t $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
       -t $REGISTRY/ocelotbotv5/image-consumer:latest
-      --build-arg GITLAB_TOKEN=$GITLAB_TOKEN
-      --build-arg GITLAB_DOMAIN=$GITLAB_DOMAIN
+      --build-arg VERSION=$CI_PIPELINE_IID
     - docker push $REGISTRY/ocelotbotv5/image-consumer:latest
 #    - docker push $REGISTRY_MIRROR/ocelotbotv5/image-consumer:latest
     - docker image rm $REGISTRY/ocelotbotv5/image-consumer:latest
@@ -114,6 +113,7 @@ build-shard-master:
       -t $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       --build-arg REGISTRY=$REGISTRY
       --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
+      --build-arg VERSION=$CI_PIPELINE_IID
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
