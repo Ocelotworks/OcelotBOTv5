@@ -6,6 +6,7 @@
  */
 const config = require('config');
 const request = require('request');
+const dns = require('dns');
 const {Manager} = require('@lavacord/discord.js');
 module.exports = {
     name: "LavaQueue",
@@ -19,7 +20,8 @@ module.exports = {
                     resumeKey,
                     resumeTimeout: 60
                 }
-                bot.lavaqueue.manager = new Manager(bot.client, [
+
+                const clients = [
                     {
                         id: "1",
                         host: "lavalink-1.ocelotbot.xyz",
@@ -41,9 +43,15 @@ module.exports = {
                         password: config.get("Lavalink.password"),
                         reconnectInterval: 1000,
                     }
-                ], {
+                ];
+
+
+
+                bot.lavaqueue.manager = new Manager(bot.client, clients, {
                     user: bot.client.user.id
                 });
+
+                await bot.lavaqueue.updateDockerContainers();
 
                 try {
                     bot.logger.log("Connecting...");
@@ -61,8 +69,10 @@ module.exports = {
                 setInterval(()=>{
                     bot.lavaqueue.manager.players.forEach(function playerHarvest(player){
                         if(!player.playing){
-                            bot.logger.log(`Cleaning up stale player ${player.id}`)
+                            bot.logger.log(`Cleaning up stale player ${player.id} (${player.timestamp})`)
                             bot.lavaqueue.manager.leave(player.id);
+                            player.removeAllListeners();
+                            player.destroy();
                         }
                     });
                     bot.lavaqueue.manager.nodes.forEach(async function nodeReconnect(node){
@@ -75,6 +85,8 @@ module.exports = {
                             }
                         }
                     })
+
+                    bot.lavaqueue.updateDockerContainers();
                 }, 36000);
             }
         });
@@ -164,5 +176,35 @@ module.exports = {
             });
             return {songData, player};
         };
+
+        bot.lavaqueue.updateDockerContainers = async function(){
+            try{
+                let dockerHosts = await dns.promises.resolve("tasks.ocelotbot-sat_lavalink", "A")
+
+                bot.lavaqueue.manager.nodes.forEach((connectedNode)=>{
+                    if(connectedNode.id.startsWith("docker-") && !dockerHosts.includes(connectedNode.id.split("-")[1])){
+                        bot.logger.log(`Node ${connectedNode.id} doesn't exist anymore.`);
+                        bot.lavaqueue.manager.removeNode(connectecdNode.id);
+                    }
+                })
+
+
+                dockerHosts.forEach((host)=>{
+                    if(!bot.lavaqueue.manager.nodes.has(`docker-${host}`)){
+                        bot.logger.log(`Discovered new node docker-${host}`);
+                        bot.lavaqueue.manager.createNode({
+                            id: `docker-${host}`,
+                            host,
+                            port: 2333,
+                            password: config.get("Lavalink.password"),
+                            reconnectInterval: 1000,
+                        })
+                    }
+                });
+            }catch(e){
+                if(e.code !== "ENOTFOUND")
+                    console.error(e);
+            }
+        }
     }
 };

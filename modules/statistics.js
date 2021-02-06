@@ -6,6 +6,7 @@ module.exports = {
             messagesPerMinute: 0,
             messagesTotal: 0,
             messagesSentPerMinute: 0,
+            messagesSentTotal: 0,
             commandsPerMinute: 0,
             commandsTotal: 0,
             warnings: 0,
@@ -39,6 +40,7 @@ module.exports = {
 
         bot.bus.on("messageSent", function(){
             currentStats.messagesSentPerMinute++;
+            bot.stats.messagesSentTotal++;
         })
 
         bot.client.on("rateLimit", function(){
@@ -47,11 +49,16 @@ module.exports = {
         bot.client.on("error", function(){
             bot.stats.errors++;
         });
+
+        bot.client.on("shardError", function(){
+            bot.stats.errors++;
+        });
+
         bot.client.on("warn", function(){
             bot.stats.warnings++;
         });
 
-        bot.client.on("reconnecting", function(){
+        bot.client.on("shardReconnecting", function(){
             bot.stats.reconnects++;
         });
 

@@ -12,6 +12,22 @@ module.exports = {
         bot.tasks.running = [];
         bot.tasks.taskTimers = {};
 
+
+        bot.api.get("/tasks", (req, res)=>{
+            res.json(bot.tasks.running);
+        });
+
+
+        process.on('exit', async (code)=>{
+            bot.logger.log("Waiting for tasks to end to quit");
+            setInterval(()=>{
+                if(bot.tasks.running.length === 0)
+                    process.exit(0);
+                else
+                    bot.logger.warn(`Cannot quit - there are still ${bot.tasks.running.length} tasks!`);
+            }, 1000)
+        })
+
         bot.tasks.startTask = function startTask(name, id) {
             if (bot.tasks.hasTask(name, id))
                 return bot.logger.warn(`Task ${name} ${id} already exists!`);

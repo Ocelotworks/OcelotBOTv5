@@ -54,19 +54,17 @@ module.exports = {
         songList = await bot.database.getSongList();
 
         bot.logger.log(`Loaded ${songList.length} songs`);
-
-        process.on('message', async function(message){
-            if(message.type === "destruct"){
-                bot.logger.log("Shutting down running guess games");
-                let keys = Object.keys(runningGames);
-                for(let i = 0; i < keys.length; i++){
-                    bot.logger.log("Shutting down running guess game "+keys[i]);
-                    let {player} = runningGames[keys[i]];
-                    await player.seek(100000);
-                   // await player.leave();
-                    await player.destroy();
-                }}
-        });
+    },
+    shutdown: async function(bot){
+        bot.logger.log("Shutting down running guess games");
+        let keys = Object.keys(runningGames);
+        for(let i = 0; i < keys.length; i++){
+            bot.logger.log("Shutting down running guess game "+keys[i]);
+            let {player} = runningGames[keys[i]];
+            await player.seek(100000);
+            // await player.leave();
+            await player.destroy();
+        }
     },
     run:  async function run(message, args, bot) {
         if (args[1]) {
@@ -172,7 +170,6 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
             span.end();
             return doGuess(voiceChannel, message, bot, true)
         }
-        console.log(player);
         span.end();
         let won = false;
         span = bot.apm.startSpan("Create message collector");
@@ -259,6 +256,8 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
             if(!won)
                 message.replyLang("SONGGUESS_OVER", {title});
             await player.stop();
+            player.removeAllListeners();
+            player.destroy();
             bot.lavaqueue.requestLeave(voiceChannel, "Song is over");
             if(message.getSetting("guess.repeat")) {
                 timeouts[voiceChannel.id] = setTimeout(function () {

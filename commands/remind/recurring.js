@@ -51,6 +51,8 @@ module.exports = {
             reminder = rargs[2];
         }
 
+        if(reminder.length > 1000)
+            return message.channel.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
 
         if(parse.schedules.length === 0){
             return message.channel.send("Unable to parse time: Try something like 'every 5 minutes' or 'every day at 10:15pm'");
@@ -60,15 +62,13 @@ module.exports = {
         console.log("Exclusion", parse.exceptions);
 
 
-        let occurrences = later.schedule(parse).nextRange(10);
+        let occurrences = later.schedule(parse).next(10);
         let tooShort = 0;
 
-        if(occurrences.length === 1){
-            tooShort = 10;
-        }else {
+        if(occurrences.length > 1){
             for (let i = 0; i < occurrences.length - 1; i++) {
-                let first = occurrences[i][0];
-                let second = occurrences[i + 1][0];
+                let first = occurrences[i];
+                let second = occurrences[i + 1];
 
                 if (!second || second - first < 10000) {
                     tooShort++;

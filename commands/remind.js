@@ -64,6 +64,7 @@ module.exports = {
             let totalClaims = 0;
             let claimedReminders = [];
             bot.bus.on('claimReminder', async (msg)=>{
+                return;
                 totalClaims++;
                 claimedReminders.push(...msg.payload)
                 if(totalClaims == process.env.SHARD_COUNT){
@@ -178,8 +179,8 @@ module.exports = {
             if (offset < 1000)
                 return message.replyLang("REMIND_SHORT_TIME");
 
-            if (reminder.length > 256)
-                return message.channel.send("Your reminder message cannot be longer than 256 characters. Yours is " + reminder.length + " characters.");
+            if (reminder.length > 1000)
+                return message.channel.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
 
             try {
                 message.replyLang("REMIND_SUCCESS", {

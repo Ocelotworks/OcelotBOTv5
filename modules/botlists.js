@@ -45,7 +45,7 @@ module.exports = {
         for(let i = 0; i < botLists.length; i++){
             const botList = botLists[i];
             let body = {};
-            conditionallyAssign(body, botList, "shardCountField", bot.client.shard.count);
+            conditionallyAssign(body, botList, "shardCountField", process.env.SHARD_COUNT);
             conditionallyAssign(body, botList, "serverCountField", bot.client.guilds.cache.size);
             conditionallyAssign(body, botList, "shardIdField", bot.util.shard);
             conditionallyAssign(body, botList, "totalServerCountField", serverCount);
@@ -60,8 +60,8 @@ module.exports = {
                 bot.logger.log(`Posted stats to ${botList.id}`)
             }).catch((e)=>{
                 bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
-                if(e.response)
-                    console.log(e.response.data.substring(0,500));
+                if(e.response && e.response.data)
+                    console.log(JSON.stringify(e.response.data).substring(0,500));
             })
         }
     }
