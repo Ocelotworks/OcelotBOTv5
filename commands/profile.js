@@ -346,6 +346,19 @@ module.exports = {
             };
 
             let profileInfo = (await bot.database.getProfile(target.id))[0];
+            if (!profileInfo) {
+                bot.logger.log("Creating profile for " + target.id);
+                bot.database.createProfile(target.id).then(()=>bot.logger.log("Created profile"));
+                console.log("Created profile");
+                profileInfo = {
+                    caption: "I should do\n!profile help",
+                    background: 0,
+                    frames: 2,
+                    board: 3,
+                    font: 33
+                };
+            }
+
             const backgroundInfo  = (await bot.database.getProfileOption(profileInfo.background))[0];
 
             // Profile Background
@@ -399,6 +412,16 @@ module.exports = {
                 bot.database.getTriviaCorrectCount(target.id),
             ]);
 
+
+            const mutualGuilds = guildCounts.reduce((a,b)=>a+b, 0);
+
+            if(profileInfo.firstSeen)
+                await bot.badges.updateBadge(target, "year", parseInt((new Date()-profileInfo.firstSeen) / 3.154e+10));
+            await bot.updateServersBadge(target, mutualGuilds);
+
+            if(message.guild && bot.config.get(message.guild.id, "profile.complimentaryBadge", target.id))
+                await bot.badges.giveBadgeOnce(target, null, bot.config.get(target.id, "profile.complimentaryBadge", target.id));
+
             let valuesContent = "";
             let labelsContent = "";
 
@@ -409,7 +432,9 @@ module.exports = {
                 labelsContent += `${stat} ${label.toUpperCase()}\n`;
             }
 
-            drawStat(guildCounts.reduce((a,b)=>a+b, 0), "servers");
+
+            drawStat(mutualGuilds, "servers");
+            drawStat(userStats[0].commandCount.toLocaleString(), "commands");
             drawStat(voteStats[0] && voteStats[0]['COUNT(*)'] ? voteStats[0]['COUNT(*)'] : 0, "votes");
             drawStat(guessStats[0] && guessStats[0]['COUNT(*)'] ? guessStats[0]['COUNT(*)'] : 0, "songs guessed");
             drawStat(triviaStats[0] && triviaStats[0]['count(*)'] ? triviaStats[0]['count(*)'] : 0, "trivia correct");
