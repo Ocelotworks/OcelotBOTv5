@@ -45,7 +45,7 @@ module.exports = {
         for(let i = 0; i < botLists.length; i++){
             const botList = botLists[i];
             let body = {};
-            conditionallyAssign(body, botList, "shardCountField", process.env.SHARD_COUNT);
+            conditionallyAssign(body, botList, "shardCountField", parseInt(process.env.SHARD_COUNT));
             conditionallyAssign(body, botList, "serverCountField", bot.client.guilds.cache.size);
             conditionallyAssign(body, botList, "shardIdField", bot.util.shard);
             conditionallyAssign(body, botList, "totalServerCountField", serverCount);

@@ -257,7 +257,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                 message.replyLang("SONGGUESS_OVER", {title});
             await player.stop();
             player.removeAllListeners();
-            player.destroy();
+            //playedestrr.oy();
             bot.lavaqueue.requestLeave(voiceChannel, "Song is over");
             if(message.getSetting("guess.repeat")) {
                 timeouts[voiceChannel.id] = setTimeout(function () {

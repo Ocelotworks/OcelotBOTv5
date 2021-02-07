@@ -7,6 +7,7 @@ const twemoji = require('twemoji-parser');
 const config = require('config');
 const deepai = require('deepai');
 const sentry = require('@sentry/node');
+const zlib = require('zlib');
 deepai.setApiKey(config.get("Commands.recolor.key"));
 module.exports = {
     name: "Utilities",
@@ -408,6 +409,7 @@ module.exports = {
                 c: message.channel.id,
                 m: message.id,
             };
+            request.compression = true;
             let span = bot.util.startSpan("Receive from RPC");
             let loadingMessage;
             let loadingMessageDelay = setTimeout(async ()=>{
@@ -432,7 +434,17 @@ module.exports = {
                 return message.replyLang("IMAGE_PROCESSOR_ERROR_"+response.err.toUpperCase());
             }
             span = bot.util.startSpan("Upload image");
-            let attachment = new Discord.MessageAttachment(Buffer.from(response.data, 'base64'), `${name}.${response.extension}`);
+            let output;
+            if(response.extension.startsWith("gzip/")){
+                response.extension = response.extension.split("/")[1];
+                const compressedData = Buffer.from(response.data, 'base64');
+                fs.writeFileSync("profile.png.gz", compressedData);
+                output = zlib.gunzipSync(compressedData);
+            }else{
+                output = Buffer.from(response.data, 'base64')
+            }
+
+            let attachment = new Discord.MessageAttachment(output, `${name}.${response.extension}`);
             try {
                 await message.channel.send(attachment);
             }catch(e){
