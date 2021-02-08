@@ -154,7 +154,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
         if(!hasFailed)
             message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
         console.log("Joining");
-        let span = bot.apm.startSpan("Create player");
+        let span = bot.util.startSpan("Create player");
         let player;
         let errored = false;
         try {
@@ -172,7 +172,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
         }
         span.end();
         let won = false;
-        span = bot.apm.startSpan("Create message collector");
+        span = bot.util.startSpan("Create message collector");
         let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
         runningGames[voiceChannel.id] = {player, collector};
         player.seek(10);
