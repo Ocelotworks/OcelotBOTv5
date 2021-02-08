@@ -1,6 +1,7 @@
 stages:
   - build-base
   - build
+  - sentry
 
 build-consumer-image:
   stage: build
@@ -93,7 +94,6 @@ build-shard-master:
 
 .build-shard:
   stage: build
-  environment: staging
   except:
     refs:
       - tags
@@ -120,3 +120,35 @@ build-shard-master:
     - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - curl -X POST $BOT_DEPLOY_WEBHOOK
+
+sentry-staging:
+  only:
+    - staging
+  environment:
+    name: staging
+  extends: .sentry
+
+sentry-master:
+  only:
+    - master
+  environment:
+    name: master
+  extends: .sentry
+
+.sentry:
+  stage: sentry
+  image: getsentry/sentry-cli
+  only:
+    refs:
+      - master
+      - development
+  except:
+    variables:
+      - $STAGE_SENTRY_DEPLOY == "false"
+      - $STAGE_DEPLOY == "false"
+  script:
+    - export VERSION = 5.$CI_PIPELINE_IID
+    - sentry-cli releases new "$VERSION"
+    - sentry-cli releases set-commits "$VERSION" --auto || true
+    - sentry-cli releases finalize "$VERSION"
+    - sentry-cli releases deploys "$VERSION" new -e $ENVIRONMENT
