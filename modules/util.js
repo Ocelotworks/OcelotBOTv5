@@ -1085,10 +1085,11 @@ module.exports = {
         };
 
         bot.util.startSpan = function startSpan(name){
-            if(bot.apm){
-                let span = bot.apm.startSpan(name);
-                if(span)return span;
-            }
+            const tx = sentry.startTransaction({
+                op: name.toLowerCase().replace(/ /g, "_"), name,
+            });
+            if(tx)return {end: tx.finish};
+
             return {end: ()=> {}}
         }
 
