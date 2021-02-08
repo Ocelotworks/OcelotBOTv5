@@ -23,6 +23,8 @@ module.exports = {
             message.channel.send(`:warning: It looks like you're trying to use ${args[0]} with a different bot, I will now temporarily disable the ${args[0]} command on OcelotBOT for you so as not to spam.
 To prevent this in the future, consider changing OcelotBOT's prefix with **${message.getSetting("prefix")}settings set prefix** or disabling the pet command with **${message.getSetting("prefix")}settings disableCommand pet**.
 You can still access this command with ${message.getSetting("prefix")}petpet`);
+            if(!bot.config.cache[message.guild.id])
+                bot.config.cache[message.guild.id] = {};
             bot.config.cache[message.guild.id]["pet.disable"] = "1";
             return
         }
