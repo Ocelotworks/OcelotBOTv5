@@ -151,4 +151,4 @@ sentry-master:
     - sentry-cli releases new "$VERSION"
     - sentry-cli releases set-commits "$VERSION" --auto || true
     - sentry-cli releases finalize "$VERSION"
-    - sentry-cli releases deploys "$VERSION" new -e $ENVIRONMENT
+    - sentry-cli releases deploys "$VERSION" new -e $CI_ENVIRONMENT_NAME
