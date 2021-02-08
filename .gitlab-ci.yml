@@ -147,7 +147,7 @@ sentry-master:
       - $STAGE_SENTRY_DEPLOY == "false"
       - $STAGE_DEPLOY == "false"
   script:
-    - export VERSION = 5.$CI_PIPELINE_IID
+    - export VERSION=$CI_PIPELINE_IID
     - sentry-cli releases new "$VERSION"
     - sentry-cli releases set-commits "$VERSION" --auto || true
     - sentry-cli releases finalize "$VERSION"
