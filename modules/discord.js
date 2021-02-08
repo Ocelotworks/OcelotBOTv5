@@ -491,6 +491,14 @@ module.exports = {
             })
         })
 
+        bot.api.get('/user/:id', async (req, res)=>{
+            try {
+                return res.json(await bot.client.users.fetch(req.params.id))
+            }catch(err){
+                return res.json({err})
+            }
+        })
+
         bot.logger.log("Logging in to Discord...");
         bot.client.login();
     }
