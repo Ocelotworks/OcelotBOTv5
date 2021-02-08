@@ -53,7 +53,7 @@ function configureSentry(){
             bot.logger.log(message.grey, caller_id.getData());
     };
 
-    bot.version = `stevie5-${process.env.VERSION}`;
+    bot.version = `stevie5 Build ${process.env.VERSION}`;
 
     Sentry.init({
         captureUnhandledRejections: true,
