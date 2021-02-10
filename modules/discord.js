@@ -158,9 +158,18 @@ module.exports = {
 
         //bot.presenceMessage = null;
 
-        bot.client = new Discord.Client({
+        const clientOpts = {
             allowedMentions: {parse: ["users"]}
-        });
+        };
+
+        if(process.env.GATEWAY){
+            console.log("Using gateway", process.env.GATEWAY);
+            clientOpts.http = {
+                api: process.env.GATEWAY
+            }
+        }
+
+        bot.client = new Discord.Client(clientOpts);
 
         bot.client.setMaxListeners(100);
         bot.lastPresenceUpdate = 0;
