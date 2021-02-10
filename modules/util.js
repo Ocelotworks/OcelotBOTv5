@@ -409,6 +409,8 @@ module.exports = {
                 c: message.channel.id,
                 m: message.id,
             };
+            if(message.content.indexOf("-debug") > -1)
+                request.debug = true;
             request.compression = true;
             let span = bot.util.startSpan("Receive from RPC");
             let loadingMessage;
