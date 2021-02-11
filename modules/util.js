@@ -794,7 +794,7 @@ module.exports = {
                 message_reference: {
                     message_id: message.id,
                     channel_id: message.channel.id,
-                    guild_id: message.guild.id,
+                    guild_id: message.guild ? message.guild.id : null,
                 }
             }
             if(typeof content === "string"){
