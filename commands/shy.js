@@ -35,9 +35,7 @@ module.exports = {
                         }
                     }]
                 },
-            ],
-            "width": 720,
-            "height": 686
+            ]
         }, "shy")
     }
 };
