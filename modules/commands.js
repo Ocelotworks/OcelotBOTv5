@@ -235,6 +235,7 @@ module.exports = {
                     message.channel.stopTyping(true);
                     message.channel.send("Something went horribly wrong. Try again later.");
                     console.log(e);
+                    bot.bus.emit("commandFailed", e);
                     bot.raven.captureException(e);
                     tx.end("Exception");
                 } finally {
