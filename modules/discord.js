@@ -10,6 +10,7 @@ const presenceMessages = [
     {message: "!premium", type: 'LISTENING'},
     {message: "!vote", type: 'LISTENING'},
     {message: "!guess", type: 'LISTENING'},
+    {message: "!suggest", type: 'LISTENING'},
     {message: "Minecraft Parody Songs", type: 'LISTENING'},
     {message: "ASMR", type: 'LISTENING'},
     {message: "lord jesus help us all", type: 'LISTENING'},

@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 const fs = require('fs');
 let dootCount = 0;
 module.exports = {
