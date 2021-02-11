@@ -2,8 +2,8 @@
  * Created by Peter on 01/07/2017.
  */
 const ping = require('ping');
-const domainRegex = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]/gi;
-const ipRegex = /(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/gi;
+const domainRegex = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]/i;
+const ipRegex = /(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/i;
 module.exports = {
     name: "Ping Address",
     usage: "ping <address>",
@@ -15,17 +15,14 @@ module.exports = {
             message.replyLang("PING_NO_ADDRESS");
             return;
         }
-        let output = ipRegex.exec(args[1]);
-        if(!output)
-            output = domainRegex.exec(args[1]);
-        if(!output)
+
+        if(!ipRegex.test(args[1]) && !domainRegex.test(args[1])){
             return message.channel.send("Invalid address, enter a domain name or IP address.");
+        }
 
-        output = output[0];
+        const sentMessage = await message.replyLang("PING_PINGING", {address: args[1]});
 
-        const sentMessage = await message.replyLang("PING_PINGING", {address: output});
-
-        const res = await ping.promise.probe(output, {
+        const res = await ping.promise.probe(args[1], {
             timeout: 1000
         });
 
