@@ -17,7 +17,7 @@ module.exports = {
         bot.rabbit.connection.on("close", function (err) {
             console.log(err);
             bot.logger.warn("RabbitMQ connection closed!");
-            process.exit(1);
+            process.exit(62);
         })
 
         bot.rabbit.connection.on("blocked", (reason) => {
