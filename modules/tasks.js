@@ -76,6 +76,10 @@ module.exports = {
                 clearTimeout(bot.tasks.taskTimers[name + id]);
             bot.logger.info(`Ended task ${name} (${id})`);
             bot.tasks.running.splice(index, 1);
+            if(bot.drain && bot.tasks.length === 0) {
+                console.log("all tasks are finished")
+                process.exit(1);
+            }
             try {
                 bot.rabbit.event({type: "tasksClear", payload: true});
             }catch(e){
