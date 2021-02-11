@@ -23,7 +23,6 @@
  */
 
 const config = require('config');
-const pasync = require('promise-async');
 const uuid = require('uuid/v4');
 var knex = require('knex')(config.get("Database"));
 const series = 2020; //Spook series
@@ -48,6 +47,8 @@ module.exports = {
         const BADGES_TABLE = "ocelotbot_badges";
 
 
+
+        knex
  
         bot.database = {
             knex,
