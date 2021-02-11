@@ -17,28 +17,23 @@ module.exports = {
                     "local": true,
                     "pos": {"x": 0, "y": 0},
                     "rot": 0,
-                    "filter": []
-                },
-                {
-                    "pos": {"x": 109, "y": 90, "w": 119, "h": 119},
-                    "rot": 0,
                     "filter": [{
                         name: "text",
                         args: {
                             font: "arial.ttf",
-                            fontSize: 90,
+                            fontSize: 25,
                             colour: "#000000",
                             content: message.cleanContent.substring(args[0].length),
-                            x: 259,
-                            y: 261,
+                            x: 171,
+                            y: 146,
                             ax: 0.5,
                             ay: 0.5,
-                            w: 318,
+                            w: 150,
                             spacing: 1.1,
                             align: 1,
                         }
                     }]
-                }
+                },
             ],
             "width": 500,
             "height": 566

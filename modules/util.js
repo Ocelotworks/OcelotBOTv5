@@ -409,6 +409,8 @@ module.exports = {
                 c: message.channel.id,
                 m: message.id,
             };
+            if(message.content.indexOf("-debug") > -1)
+                request.debug = true;
             request.compression = true;
             let span = bot.util.startSpan("Receive from RPC");
             let loadingMessage;
@@ -1085,10 +1087,11 @@ module.exports = {
         };
 
         bot.util.startSpan = function startSpan(name){
-            if(bot.apm){
-                let span = bot.apm.startSpan(name);
-                if(span)return span;
-            }
+            const tx = sentry.startTransaction({
+                op: name.toLowerCase().replace(/ /g, "_"), name,
+            });
+            if(tx)return {end: tx.finish};
+
             return {end: ()=> {}}
         }
 

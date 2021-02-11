@@ -53,12 +53,14 @@ function configureSentry(){
             bot.logger.log(message.grey, caller_id.getData());
     };
 
-    bot.version = `stevie5-${process.env.VERSION}`;
+    bot.version = `stevie5 Build ${process.env.VERSION}`;
 
     Sentry.init({
         captureUnhandledRejections: true,
         autoBreadcrumbs: true,
         dsn: config.get("Sentry.DSN"),
+        serverName: `${os.hostname()}-${process.env.BOT_ID}-${process.env.SHARD}`,
+        release: process.env.VERSION,
     });
     bot.raven = Sentry; //Cheeky backwards compatibility
     init();

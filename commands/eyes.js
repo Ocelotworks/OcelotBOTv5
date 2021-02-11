@@ -38,34 +38,42 @@ module.exports = {
             if(err){
                 bot.raven.captureException(err);
             }else if(body.length > 0) {
+                let payload = {
+                    "components": [
+                        {"url": url}
+                    ]
+                }
 
-                let image = await canvas.loadImage(url);
-                const cnv = canvas.createCanvas(image.width, image.height);
-                const ctx = cnv.getContext("2d");
-                ctx.drawImage(image, 0,0);
-                for(let i = 0; i < body.length; i++){
+                for(let i = 0; i < body.length; i++) {
                     let face = body[i];
-                    if(face.faceLandmarks){
+                    if (face.faceLandmarks) {
                         let leftEye = face.faceLandmarks.pupilLeft;
                         let rightEye = face.faceLandmarks.pupilRight;
 
 
-                        if(rightEye)
-                            ctx.drawImage(red, rightEye.x-(red.width/2), rightEye.y-(red.height/2));
+                        if (rightEye)
+                            payload.components.push({
+                                url: "eyes/red.png",
+                                local: true,
+                                pos: {
+                                    x: rightEye.x - 300,
+                                    y: rightEye.y - 168,
+                                }
+                            })
 
-                        if(leftEye)
-                           ctx.drawImage(red, leftEye.x-(red.width/2), leftEye.y-(red.height/2));
-
-
+                        if (leftEye)
+                            payload.components.push({
+                                url: "eyes/red.png",
+                                local: true,
+                                pos: {
+                                    x: leftEye.x - 300,
+                                    y: leftEye.y - 168,
+                                }
+                            })
                     }
                 }
 
-
-                let img = cnv.toBuffer("image/png");
-                let attachment = new Discord.MessageAttachment(img, (url.indexOf("SPOILER_") > -1 ? "SPOILER_" : "")+"eyes.png");
-                message.channel.send("", attachment);
-
-                message.channel.stopTyping(true);
+                return bot.util.imageProcessor(message, payload, "eyes");
 
             }else{
                 message.replyLang("FACE_NO_FACES");

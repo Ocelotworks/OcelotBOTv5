@@ -147,7 +147,7 @@ module.exports = {
             //    song = "https://cdn.discordapp.com/attachments/626353784888754177/767805301260025896/websdr_recording_start_2020-10-19T17_41_42Z_7055.0kHz.wav";
             bot.lavaqueue.cancelLeave(voiceChannel);
             bot.tasks.startTask("playOneSong", voiceChannel.id);
-            let span = bot.apm.startSpan("Join Voice Channel", "voice");
+            let span = bot.util.startSpan("Join Voice Channel", "voice");
             let player = await bot.lavaqueue.manager.join({
                 guild: voiceChannel.guild.id,
                 channel: voiceChannel.id,
@@ -155,11 +155,11 @@ module.exports = {
             }, {selfdeaf: true});
             if(span)
                 span.end();
-            span = bot.apm.startSpan("Get Song", "voice");
+            span = bot.util.startSpan("Get Song", "voice");
             let songData = await bot.lavaqueue.getSong(song, player);
             if(span)
                 span.end();
-            span = bot.apm.startSpan("Play Song", "voice");
+            span = bot.util.startSpan("Play Song", "voice");
             player.play(songData.track);
             if(span)
                 span.end();

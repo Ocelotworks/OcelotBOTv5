@@ -6,6 +6,37 @@ module.exports = {
     rateLimit: 10,
     categories: ["image", "memes"],
     run:  function(message, args, bot){
-        bot.util.processImageMeme(message, args, 30, 545, 23, 25, "shy.png", "static/shy.png");
+        if(!args[1]){
+            message.replyLang("IMAGE_NO_TEXT");
+            return;
+        }
+        return bot.util.imageProcessor(message, {
+            "components": [
+                {
+                    "url": "shy.png",
+                    "local": true,
+                    "pos": {"x": 0, "y": 0},
+                    "rot": 0,
+                    "filter": [{
+                        name: "text",
+                        args: {
+                            font: "arial.ttf",
+                            fontSize: 25,
+                            colour: "#000000",
+                            content: message.cleanContent.substring(args[0].length),
+                            x: 105,
+                            y: 569,
+                            ax: 0.5,
+                            ay: 0.5,
+                            w: 205,
+                            spacing: 1.1,
+                            align: 1,
+                        }
+                    }]
+                },
+            ],
+            "width": 720,
+            "height": 686
+        }, "shy")
     }
 };

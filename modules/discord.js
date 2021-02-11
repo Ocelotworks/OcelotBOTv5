@@ -158,9 +158,18 @@ module.exports = {
 
         //bot.presenceMessage = null;
 
-        bot.client = new Discord.Client({
+        const clientOpts = {
             allowedMentions: {parse: ["users"]}
-        });
+        };
+
+        if(process.env.GATEWAY){
+            console.log("Using gateway", process.env.GATEWAY);
+            clientOpts.http = {
+                api: process.env.GATEWAY
+            }
+        }
+
+        bot.client = new Discord.Client(clientOpts);
 
         bot.client.setMaxListeners(100);
         bot.lastPresenceUpdate = 0;
@@ -254,12 +263,12 @@ module.exports = {
                             let embed = new Discord.MessageEmbed();
                             embed.setColor(bot.config.get("global", "welcome.embedColour"));
                             embed.setTitle("Welcome to OcelotBOT!");
-                            embed.setDescription("You can find my commands [here](https://ocelotbot.xyz/#commands) or by typing !help.");
-                            embed.addField("Prefix", "The default prefix is !, if you want to change it type **!settings set prefix %**");
-                            embed.addField("Wholesome?", "Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **!settings set wholesome true**");
-                            embed.addField("Administrators", "You can change the bot's settings by typing **!settings help**");
+                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/#commands) or by typing ${message.getSetting("prefix")}help.`);
+                            embed.addField("Prefix", `The default prefix is !, if you want to change it type **${message.getSetting("prefix")}settings set prefix %**`);
+                            embed.addField("Wholesome?", `Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **${message.getSetting("prefix")}settings set wholesome true**`);
+                            embed.addField("Administrators", `You can change the bot's settings by typing **${message.getSetting("prefix")}settings help**`);
                             embed.addField("Stuck?", "If you have issues or suggestions, type **!feedback** or join our [support server](https://discord.gg/7YNHpfF).");
-                            embed.addField("Support", "You can support the bot by [voting](https://discordbots.org/bot/146293573422284800/vote) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
+                            embed.addField("Support", "You can support the bot by [voting](https://top.gg/bot/146293573422284800) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
                             mainChannel.send("", embed);
                         }
                     }
@@ -489,6 +498,14 @@ module.exports = {
                     destroyed: bot.client.ws.destroyed,
                 },
             })
+        })
+
+        bot.api.get('/user/:id', async (req, res)=>{
+            try {
+                return res.json(await bot.client.users.fetch(req.params.id))
+            }catch(err){
+                return res.json({err})
+            }
         })
 
         bot.logger.log("Logging in to Discord...");
