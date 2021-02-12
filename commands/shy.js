@@ -10,6 +10,7 @@ module.exports = {
             message.replyLang("IMAGE_NO_TEXT");
             return;
         }
+
         return bot.util.imageProcessor(message, {
             "components": [
                 {
@@ -34,9 +35,7 @@ module.exports = {
                         }
                     }]
                 },
-            ],
-            "width": 720,
-            "height": 686
+            ]
         }, "shy")
     }
 };

@@ -8,13 +8,13 @@
 const   config          = require('config'),
         EventEmitter    = require('events'),
         Sentry          = require('@sentry/node'),
+        Tracing        = require("@sentry/tracing"),
         request         = require('request'),
         os              = require('os'),
         dateFormat      = require('dateformat'),
         colors          = require('colors'),
         caller_id       = require('caller-id'),
-        path            = require('path'),
-        apm             = require('elastic-apm-node');
+        path            = require('path')
 
 
 //The app object is shared between all modules, it will contain any functions the modules expose and also the event bus.
@@ -70,15 +70,6 @@ function configureSentry(){
  * Initialise the Chat server
  */
 function init(){
-
-    if(config.get("APM")){
-        bot.apm = apm.start({
-            active: false,
-            serviceName: config.get("APM.ServiceName"),
-            secretToken: config.get("APM.Token"),
-            serverUrl: config.get("APM.Server")
-        })
-    }
 
     process.env.SHARDS = `[${process.env.SHARD-1}]` // Yes
 

@@ -14,18 +14,11 @@ module.exports = {
     init: function(bot){
         bot.waitingVoteChannels = [];
 
-
         let voteTimeouts = {};
-
 
         async function logVote(user, voteServer, channel, source){
             bot.logger.log(`Vote Source: ${source}`);
-            try {
-                const userObj = await bot.client.users.fetch(user);
-                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${await bot.database.getBotlistUrl(source)}`)
-            }catch(e){
-                console.log(e);
-            }
+
 
             let lastVote = await bot.database.getLastVote(user);
             if(lastVote[0])
@@ -66,6 +59,12 @@ module.exports = {
             let source = message.payload.source;
             let voteServer = null;
             let channel = null;
+            try {
+                const userObj = await bot.client.users.fetch(user);
+                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${await bot.database.getBotlistUrl(source)}`)
+            }catch(e){
+                console.log(e);
+            }
             for(let i = 0; i < bot.waitingVoteChannels.length; i++){
                 if(bot.waitingVoteChannels[i].members && bot.waitingVoteChannels[i].members.has(user)){
                     channel = bot.waitingVoteChannels[i];
