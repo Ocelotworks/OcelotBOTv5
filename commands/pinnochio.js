@@ -1,11 +1,10 @@
 module.exports = {
-    name: "Strong Opinions Meme",
-    usage: "opinions <text>",
+    name: "Pinocchio Meme",
+    usage: "pinocchio <text>",
     requiredPermissions: ["ATTACH_FILES"],
+    commands: ["pinocchio", "pinnochio", "pinochio"],
     rateLimit: 10,
-    commands: ["opinions", "strongopinions"],
     categories: ["image", "memes"],
-    unwholesome: true,
     run:  function(message, args, bot){
         if(!args[1]){
             message.replyLang("IMAGE_NO_TEXT");
@@ -15,26 +14,26 @@ module.exports = {
         return bot.util.imageProcessor(message, {
             "components": [
                 {
-                    "url": "opinions.png",
+                    "url": "pinnochio.png",
                     "local": true,
                     "filter": [{
                         name: "text",
                         args: {
                             font: "arial.ttf",
-                            fontSize: 15,
+                            fontSize: 25,
                             colour: "#000000",
                             content: message.cleanContent.substring(args[0].length),
-                            x: 244,
-                            y: 66,
+                            x: 114,
+                            y: 431,
                             ax: 0.5,
                             ay: 0.5,
-                            w: 67,
+                            w: 178,
                             spacing: 1.1,
                             align: 1,
                         }
                     }]
                 },
             ]
-        }, "opinions")
+        }, "pinocchio")
     }
 };
