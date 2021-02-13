@@ -402,7 +402,7 @@ module.exports = {
             }
         };
 
-        bot.util.imageProcessor = async function imageProcessor(message, request, name){
+        bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage){
             request.metadata = {
                 s: message.guild ? message.guild.id : null,
                 u: message.author.id,
@@ -446,9 +446,13 @@ module.exports = {
                 output = Buffer.from(response.data, 'base64')
             }
 
+            let messageResult;
             let attachment = new Discord.MessageAttachment(output, `${name}.${response.extension}`);
             try {
-                await message.channel.send(attachment);
+                if(sentMessage)
+                    messageResult = await message.channel.send(sentMessage, attachment);
+                else
+                    messageResult = await message.channel.send(attachment);
             }catch(e){
                 bot.raven.captureException(e);
             }
@@ -458,6 +462,7 @@ module.exports = {
             if(loadingMessage)
                 await loadingMessage.delete();
             span.end();
+            return messageResult;
         }
 
         bot.util.imageProcessorOutlinedText = function imageProcessorOutlinedText(content, x, y, w, h, fontSize, foregroundColour = "#ffffff", backgroundColour = "#000000", font = "arial.ttf"){
