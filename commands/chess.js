@@ -60,7 +60,7 @@ module.exports = {
             })
         }
 
-        let output = `Turn: <@${runningGames[message.channel.id].players[+!runningGames[message.channel.id].turn]}>`;
+        let output = `Turn: ${runningGames[message.channel.id].players[+!runningGames[message.channel.id].turn]}`;
         if(gameStatus.board.isCheck)
             output += await bot.lang.getTranslation(message.channel.guild.id, "CHESS_CHECK");
 
