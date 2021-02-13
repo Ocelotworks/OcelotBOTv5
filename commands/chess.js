@@ -11,31 +11,8 @@ let gameRequests = {
 const Sentry = require('@sentry/node');
 const chess = require('chess');
 
-const cols = ["A", "B", "C"];
-//const pieces = ["X", "O", " "];
+const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-const tileWhite = "▯";
-const tileBlack = "▮";
-
-
-const pieces = {
-    white: {
-        king:    "♔",
-        queen:   "♕",
-        rook:    "♖",
-        bishop:  "♗",
-        knight:  "♘",
-        pawn:    "♙",
-    },
-    black: {
-        king:    "♚",
-        queen:   "♛",
-        rook:    "♜",
-        bishop:  "♝",
-        knight:  "♞",
-        pawn:    "♟",
-    }
-};
 module.exports = {
     name: "Chess",
     usage: "chess start <@player>/<move>",
@@ -62,45 +39,43 @@ module.exports = {
             }
         });
     },
-    renderBoard: async function(channel, bot){
-        const game = runningGames[channel].game;
-        let output = "```\n";
+    renderBoard: async function(message, bot){
+        const game = runningGames[message.channel.id].game;
+        let payload = {
+            "components": [{"url": "chess/chessboard.png", "local": true}]
+        }
 
         const gameStatus = game.getStatus();
         const board = gameStatus.board.squares;
-        let black = false;
         for(let i = 0; i < board.length; i++){
             let tile = board[i];
-            const pieceData = tile.piece;
-            if(tile.file === "a")
-                output += tile.rank;
-            if(pieceData)
-                output += pieces[pieceData.side.name][pieceData.type];
-            else
-                output += black ? tileBlack : tileWhite;
-            if(tile.file === "h")
-                output += "\n";
-            else
-                black = !black;
+            if(!tile.piece)continue;
+            payload.components.push({
+                url: `chess/${tile.piece.side.name}/${tile.piece.type}.png`,
+                local: true,
+                pos: {
+                    x: 15 + ((tile.rank-1) * 40),
+                    y: 15 + (files.indexOf(tile.file) * 40)
+                }
+            })
         }
-        output += " 🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭\n```\n";
 
-
+        let output = `Turn: ${runningGames[message.channel.id].players[+!runningGames[message.channel.id].turn]}`;
         if(gameStatus.board.isCheck)
-            output += await bot.lang.getTranslation(channel.guild.id, "CHESS_CHECK");
+            output += await bot.lang.getTranslation(message.channel.guild.id, "CHESS_CHECK");
 
         if(gameStatus.board.isCheckmate) {
-            output += await bot.lang.getTranslation(channel.guild.id, "CHESS_CHECKMATE", {winner: runningGames[channel].players[+!runningGames[channel].turn].id});
-            delete runningGames[channel];
+            output += await bot.lang.getTranslation(message.channel.guild.id, "CHESS_CHECKMATE", {winner: runningGames[message.channel.id].players[+!runningGames[message.channel.id].turn].id});
+            delete runningGames[message.channel.id];
         }
         if(gameStatus.board.isStalemate) {
-            output += await bot.lang.getTranslation(channel.guild.id, "CHESS_STALEMATE");
-            delete runningGames[channel];
+            output += await bot.lang.getTranslation(message.channel.guild.id, "CHESS_STALEMATE");
+            delete runningGames[message.channel.id];
         }
         if(gameStatus.board.isRepetition)
-            output += await bot.lang.getTranslation(channel.guild.id, "CHESS_REPETITION");
+            output += await bot.lang.getTranslation(message.channel.guild.id, "CHESS_REPETITION");
 
-        return output;
+        return await bot.util.imageProcessor(message, payload, "board", output);
     },
     doGo: async function(message, command, args, bot){
         const channel = message.channel.id;
@@ -108,7 +83,7 @@ module.exports = {
         if(runningGame){
             try {
                 runningGame.game.move(command);
-                let newMessage = await message.channel.send(await module.exports.renderBoard(channel, bot));
+                let newMessage = await module.exports.renderBoard(message, bot);
                 if(runningGame.lastMessage) {
                     await runningGame.lastMessage.delete();
                     runningGame.lastMessage = newMessage;
@@ -173,7 +148,7 @@ module.exports = {
                 };
                 runningGames[message.channel.id].lastMessage = await message.replyLang("CHESS_ACCEPTED", {
                     user: request.from.id,
-                    board: await module.exports.renderBoard(message.channel.id, bot),
+                    board: await module.exports.renderBoard(message, bot),
                     arg: args[0]
 
                 });
