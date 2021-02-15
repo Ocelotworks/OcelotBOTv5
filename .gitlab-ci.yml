@@ -69,7 +69,7 @@ build-base-image-staging:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
-    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH || true
+    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest || true
     - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest
       -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest
       --build-arg REGISTRY=$REGISTRY
