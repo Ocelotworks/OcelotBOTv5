@@ -1,7 +1,6 @@
 const request = require('request');
 const config = require('config');
 const Discord = require('discord.js');
-const fs = require('fs');
 module.exports = {
     name: "Screenshot Website",
     usage: "screenshot <URL>",

@@ -16,6 +16,8 @@ module.exports = {
             reconnects: 0,
             lastUpdate: 0,
             commandsFailed: 0,
+            cacheHits: 0,
+            cacheMisses: 0,
        };
         let currentStats = {
             messagesPerMinute: 0,

@@ -59,6 +59,7 @@
     "prom-client": "^13.1.0",
     "promise-async": "^0.2.0",
     "reattempt": "^0.1.1",
+    "redis": "^3.0.2",
     "request": "^2.88.2",
     "rss-parser": "^3.11.0",
     "sourcequery": "0.0.2",

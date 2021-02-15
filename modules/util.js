@@ -8,6 +8,7 @@ const config = require('config');
 const deepai = require('deepai');
 const sentry = require('@sentry/node');
 const zlib = require('zlib');
+const { crc32 } = require('crc');
 deepai.setApiKey(config.get("Commands.recolor.key"));
 module.exports = {
     name: "Utilities",
@@ -412,6 +413,7 @@ module.exports = {
             if(message.content.indexOf("-debug") > -1)
                 request.debug = true;
             request.compression = true;
+
             let span = bot.util.startSpan("Receive from RPC");
             let loadingMessage;
             let loadingMessageDelay = setTimeout(async ()=>{
@@ -419,7 +421,8 @@ module.exports = {
                 loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
             }, 3000)
             message.channel.startTyping();
-            let response = await bot.rabbit.rpc("imageProcessor", request, 120000, {arguments: {"x-message-ttl": 60000}, durable: false});
+            let key = crc32(JSON.stringify(request)).toString(32);
+            let response = await bot.redis.cache("imageProcessor/"+key, async ()=>await bot.rabbit.rpc("imageProcessor", request, 120000, {arguments: {"x-message-ttl": 60000}, durable: false}), 600);
             clearTimeout(loadingMessageDelay)
             span.end();
             if(loadingMessage) {
