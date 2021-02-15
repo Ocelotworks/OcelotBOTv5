@@ -530,6 +530,7 @@ module.exports = {
             let loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
             span.end();
 
+            
             bot.logger.log(url);
             if(message.getBool("imageFilter.useExternal")) {
                 span = bot.util.startSpan("Receive from RPC");
