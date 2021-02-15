@@ -99,7 +99,7 @@ module.exports = {
         try {
             message.channel.startTyping();
             let input = encodeURIComponent(message.cleanContent.substring(args[0].length + 1));
-            let response = await clev.query(input, {cs: contexts[message.channel.id]});
+            let response = bot.redis.cache(`ai/${input}`, async ()=>await clev.query(input, {cs: contexts[message.channel.id]}), 3600);
             contexts[message.channel.id] = response.cs;
 
             if(response.output) {
