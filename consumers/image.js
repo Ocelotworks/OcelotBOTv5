@@ -4,8 +4,7 @@
  * ╚════ ║   (ocelotbotv5) image
  *  ════╝
  */
-process.env["NODE_CONFIG_DIR"] = "../config";
-const   config          = require('config'),
+const
         amqplib         = require('amqplib'),
         gm              = require('gm'),
         request         = require('@naturalatlas/paranoid-request'),
@@ -25,7 +24,7 @@ function reply(msg, payload){
 }
 
 async function init(){
-    let con = await amqplib.connect(config.get("RabbitMQ.host"));
+    let con = await amqplib.connect(process.env.RABBIT_URL);
     channel = await con.createChannel();
 
     channel.assertQueue('imageFilter');
