@@ -8,7 +8,7 @@ module.exports = {
     run:  async function (message, args, bot, runningGames) {
         message.channel.startTyping();
         try {
-            let span = bot.apm.startSpan("Get guess stats");
+            let span = bot.util.startSpan("Get guess stats");
             let stats = await bot.database.getGuessStats();
             span.end();
 

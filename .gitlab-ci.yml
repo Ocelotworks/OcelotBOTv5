@@ -1,6 +1,7 @@
 stages:
   - build-base
   - build
+  - sentry
 
 build-consumer-image:
   stage: build
@@ -68,13 +69,14 @@ build-base-image-staging:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
-    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest-staging || true
-    - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest-staging
-      -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest || true
+    - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest
+      -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest
       --build-arg REGISTRY=$REGISTRY
       --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
-    - docker push $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
-    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+      --build-arg VERSION=$CI_PIPELINE_IID
+    - docker push $REGISTRY/ocelotbotv5/ocelotbot-base:latest
+    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot-base:latest
 
 build-shard-staging:
   environment:
@@ -92,7 +94,6 @@ build-shard-master:
 
 .build-shard:
   stage: build
-  environment: staging
   except:
     refs:
       - tags
@@ -119,3 +120,35 @@ build-shard-master:
     - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - curl -X POST $BOT_DEPLOY_WEBHOOK
+
+sentry-staging:
+  only:
+    - staging
+  environment:
+    name: staging
+  extends: .sentry
+
+sentry-master:
+  only:
+    - master
+  environment:
+    name: master
+  extends: .sentry
+
+.sentry:
+  stage: sentry
+  image: getsentry/sentry-cli
+  only:
+    refs:
+      - master
+      - development
+  except:
+    variables:
+      - $STAGE_SENTRY_DEPLOY == "false"
+      - $STAGE_DEPLOY == "false"
+  script:
+    - export VERSION=$CI_PIPELINE_IID
+    - sentry-cli releases new "$VERSION"
+    - sentry-cli releases set-commits "$VERSION" --auto || true
+    - sentry-cli releases finalize "$VERSION"
+    - sentry-cli releases deploys "$VERSION" new -e $CI_ENVIRONMENT_NAME

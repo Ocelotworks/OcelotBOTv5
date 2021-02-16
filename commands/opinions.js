@@ -7,6 +7,34 @@ module.exports = {
     categories: ["image", "memes"],
     unwholesome: true,
     run:  function(message, args, bot){
-        bot.util.processImageMeme(message, args, 862, 159, 60, 5, "opinions.png", "static/opinions.png");
+        if(!args[1]){
+            message.replyLang("IMAGE_NO_TEXT");
+            return;
+        }
+
+        return bot.util.imageProcessor(message, {
+            "components": [
+                {
+                    "url": "opinions.png",
+                    "local": true,
+                    "filter": [{
+                        name: "text",
+                        args: {
+                            font: "arial.ttf",
+                            fontSize: 15,
+                            colour: "#000000",
+                            content: message.cleanContent.substring(args[0].length),
+                            x: 244,
+                            y: 66,
+                            ax: 0.5,
+                            ay: 0.5,
+                            w: 67,
+                            spacing: 1.1,
+                            align: 1,
+                        }
+                    }]
+                },
+            ]
+        }, "opinions")
     }
 };

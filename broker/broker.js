@@ -11,6 +11,7 @@ const   caller_id       = require('caller-id'),
         Sentry          = require('@sentry/node'),
         path            = require('path'),
         dateFormat      = require('dateformat');
+const os = require("os");
         //apm             = require('elastic-apm-node');
 const header = "\n".white+
     "                   k,.';o                                                  o:,';k                   \n"+
@@ -83,7 +84,9 @@ function init(){
 
     broker.logger.log(header);
 
-    Sentry.init({dsn: config.get("Sentry.DSN")})
+    Sentry.init({
+        dsn: config.get("Sentry.DSN"),
+    })
     broker.raven = Sentry;
 
     broker.logger.log("Loading "+process.env.NODE_ENV);

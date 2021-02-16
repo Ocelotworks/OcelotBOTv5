@@ -38,14 +38,14 @@ async function init(){
 
     channel.consume('spook', function(msg){
         let tx = apm.startTransaction("Update Spook Clients")
-        let span = tx.startSpan("Parse Message");
+        let span = bot.util.startSpan("Parse Message");
         const str = msg.content.toString();
         console.log("Processing new spook.");
         let spook = JSON.parse(msg.content);
         span.end();
         console.log(spook.spookerUsername+" -> "+spook.spookedUsername);
         console.log("Got "+wss.clients.size+" clients.");
-        span = tx.startSpan("Send to clients");
+        span = bot.util.startSpan("Send to clients");
         wss.clients.forEach(function(client){
             if(!client.filter || client.filter === spook.server) {
                 console.log("Sending to client with filter "+client.filter);
@@ -54,10 +54,10 @@ async function init(){
         });
         span.end();
 
-        span = tx.startSpan("Ack message");
+        span = bot.util.startSpan("Ack message");
         channel.ack(msg);
         span.end();
-        tx.end();
+        span.end();
     });
 
     wss.on('connection', function(ws, req){

@@ -37,11 +37,11 @@ async function init(){
 
     createSub("commandPerformed", function(msg){
         //let tx = apm.startTransaction("Track Command Performed");
-        //let span = tx.startSpan("Parse Message");
+        //let span = bot.util.startSpan("Parse Message");
         const shard = msg.properties.appId.split("-")[1];
         const {message, command} = JSON.parse(msg.content.toString());
        // span.end();
-       // span = tx.startSpan("Matomo Track");
+       // span = bot.util.startSpan("Matomo Track");
         matomo.track({
             action_name: "Command Performed",
             uid: message.author.id,
@@ -61,19 +61,19 @@ async function init(){
             })
         });
         //span.end();
-        //span = tx.startSpan("Cache User ID");
+        //span = bot.util.startSpan("Cache User ID");
         userCache.push(message.author.id);
        // span.end();
-        //tx.end();
+        //span.end();
     });
 
     createSub("commandRatelimited", function(msg){
        // let tx = apm.startTransaction("Track Command Performed");
-      // let span = tx.startSpan("Parse Message");
+      // let span = bot.util.startSpan("Parse Message");
         const shard = msg.properties.appId.split("-")[1];
         const {message, command} = JSON.parse(msg.content.toString());
        // span.end();
-       // span = tx.startSpan("Matomo Track");
+       // span = bot.util.startSpan("Matomo Track");
         matomo.track({
             action_name: "Command Rate Limited",
             uid: message.author.id,
@@ -92,7 +92,7 @@ async function init(){
             })
         });
        // span.end();
-        //tx.end();
+        //span.end();
     });
 
     setInterval(function(){

@@ -18,32 +18,33 @@ module.exports = {
                     id: message.author.id,
                     username: message.author.username
                 });
-                if(bot.lastMessages[message.channel.id]){
-                    if(bot.lastMessages[message.channel.id] === message.content.toLowerCase()){
-                        if(bot.lastMessageCounts[message.channel.id])
-                            bot.lastMessageCounts[message.channel.id]++;
-                        else
-                            bot.lastMessageCounts[message.channel.id] = 1;
-                        if(message.getSetting("autorespond.threshold") <= 1)return;
-                        if(bot.lastMessageCounts[message.channel.id] >= message.getSetting("autorespond.threshold")){
-                            if(!message.author.bot && !message.content.match(/@everyone|pls|spam|@here|raid|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
-                                bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
-                                let matchableContent = message.content.toLowerCase();
-                                if(matchableContent.indexOf("ocelotbot") > -1){
-                                    matchableContent = matchableContent.replace("ocelotbot", `<@${message.author.id}>`);
-                                    message.channel.send(matchableContent);
-                                }else{
-                                    message.channel.send(message.content);
+                if(message.getSetting("autorespond.threshold") > 1) {
+                    if (bot.lastMessages[message.channel.id]) {
+                        if (bot.lastMessages[message.channel.id] === message.content.toLowerCase()) {
+                            if (bot.lastMessageCounts[message.channel.id])
+                                bot.lastMessageCounts[message.channel.id]++;
+                            else
+                                bot.lastMessageCounts[message.channel.id] = 1;
+                            if (bot.lastMessageCounts[message.channel.id] >= message.getSetting("autorespond.threshold")) {
+                                if (!message.author.bot && !message.content.match(/@everyone|pls|spam|@here|raid|<@.*>|[-!.\]=/\\>+].*|http.*/gi)) {
+                                    bot.logger.log(`Triggered repeat autorespond at channel ${message.channel.id} from ${message.content} = ${bot.lastMessages[message.channel.id]} ${bot.lastMessageCounts[message.channel.id]} times`)
+                                    let matchableContent = message.content.toLowerCase();
+                                    if (matchableContent.indexOf("ocelotbot") > -1) {
+                                        matchableContent = matchableContent.replace("ocelotbot", `<@${message.author.id}>`);
+                                        message.channel.send(matchableContent);
+                                    } else {
+                                        message.channel.send(message.content);
+                                    }
                                 }
+                                bot.lastMessageCounts[message.channel.id] = -1000;
                             }
-                            bot.lastMessageCounts[message.channel.id] = -1000;
+                        } else {
+                            bot.lastMessageCounts[message.channel.id] = 0;
+                            bot.lastMessages[message.channel.id] = message.content.toLowerCase();
                         }
-                    }else{
-                        bot.lastMessageCounts[message.channel.id] = 0;
+                    } else {
                         bot.lastMessages[message.channel.id] = message.content.toLowerCase();
                     }
-                }else{
-                    bot.lastMessages[message.channel.id] = message.content.toLowerCase();
                 }
 
                 if(message.mentions && message.mentions.users.has(bot.client.user.id) && !message.author.bot){

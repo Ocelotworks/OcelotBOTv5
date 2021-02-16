@@ -154,7 +154,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
         if(!hasFailed)
             message.replyLang("SONGGUESS", {minutes: message.getSetting("songguess.seconds") / 60});
         console.log("Joining");
-        let span = bot.apm.startSpan("Create player");
+        let span = bot.util.startSpan("Create player");
         let player;
         let errored = false;
         try {
@@ -172,7 +172,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
         }
         span.end();
         let won = false;
-        span = bot.apm.startSpan("Create message collector");
+        span = bot.util.startSpan("Create message collector");
         let collector = message.channel.createMessageCollector(() => true, {time: message.getSetting("songguess.seconds") * 1000});
         runningGames[voiceChannel.id] = {player, collector};
         player.seek(10);
@@ -187,7 +187,6 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
             if (message.author.id === "146293573422284800") return;
             if (message.author.bot)return;
             if(bot.banCache.user.indexOf(message.author.id) > -1)return;
-            let tx = bot.apm.startTransaction("Process guess", "meta");
             const guessTime = new Date();
             const strippedMessage = message.cleanContent.toLowerCase().replace(/\W/g, "").replace(message.getSetting("prefix")+"guess");
             console.log(strippedMessage);
@@ -204,7 +203,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                 embed.setThumbnail(`https://unacceptableuse.com/petify/album/${song.album}`);
                 embed.setDescription(`The song was **${title}**`);
                 embed.addField(":stopwatch: Time Taken", bot.util.prettySeconds((guessTime - now) / 1000, message.guild && message.guild.id, message.author.id));
-                span = tx.startSpan("Get fastest guess");
+                span = bot.util.startSpan("Get fastest guess");
                 let fastestTime = (await bot.database.getFastestSongGuess(title))[0];
                 span.end();
                 if(fastestTime && fastestTime.time) {
@@ -213,7 +212,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                 }
 
                 bot.util.replyTo(message, embed)
-                span = tx.startSpan("Update record");
+                span = bot.util.startSpan("Update record");
                 let newOffset = guessTime-now;
                 if(fastestTime && fastestTime.time && fastestTime.time > newOffset) {
                     await bot.database.updateSongRecord(title, message.author.id, newOffset);
@@ -221,7 +220,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                 }
                 span.end();
 
-                span = tx.startSpan("Update badges");
+                span = bot.util.startSpan("Update badges");
                 let totalGuesses = await bot.database.getTotalCorrectGuesses(message.author.id);
 
                 if(totalGuesses && totalGuesses[0] && totalGuesses[0]['COUNT(*)'])
@@ -237,7 +236,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
             }else if(strippedMessage.indexOf(title) > -1){
                 message.reply("the song title is somewhere in your message!");
             }else{
-                span = tx.startSpan("Process hints");
+                span = bot.util.startSpan("Process hints");
                 for(let i = 0; i< hints.length; i++){
                     if(strippedMessage.indexOf(hints[i].hint) > -1 || (strippedMessage.length >= (hints[i].hint.length / 3) && answer.indexOf(strippedMessage) > -1)){
                         message.reply(`Hint: ${hints[i].hintText}`);
@@ -246,10 +245,10 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                 }
                 span.end();
             }
-            span = tx.startSpan("Log guess");
+            span = bot.util.startSpan("Log guess");
             await bot.database.addSongGuess(message.author.id, message.channel.id, message.guild.id, message.cleanContent, title, won, guessTime - now);
             span.end();
-            tx.end();
+            span.end();
         });
         collector.on('end', async function collectorEnd() {
             console.log("Collection Ended");
@@ -257,7 +256,7 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                 message.replyLang("SONGGUESS_OVER", {title});
             await player.stop();
             player.removeAllListeners();
-            player.destroy();
+            //playedestrr.oy();
             bot.lavaqueue.requestLeave(voiceChannel, "Song is over");
             if(message.getSetting("guess.repeat")) {
                 timeouts[voiceChannel.id] = setTimeout(function () {

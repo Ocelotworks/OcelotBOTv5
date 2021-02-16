@@ -8,10 +8,6 @@ const GoogleImages = require('google-images');
 const config = require('config').get("Commands.image");
 const Discord = require('discord.js');
 let client = new GoogleImages(config.get("cse"), config.get("key"));
-let cache = {
-    sfw: {},
-    nsfw: {}
-};
 const naughtyRegex = /((sexy|nude|naked)?)( ?)(young( ?)(girl|boy?)|child|kid(die?)|(1?)[0-7]( ?)(year(s?)?)( ?)(old?)|bab(y|ie)|toddler)(s?)( ?)(sexy|porn|sex|naked|nude|fuck(ed?))/gi;
 module.exports = {
     name: "Google Image Search",
@@ -36,14 +32,9 @@ module.exports = {
             message.channel.startTyping();
             try {
                 let images;
-                let type = (!message.guild || message.channel.nsfw) ? "nsfw" : "sfw";
-                if(cache[type][query]) {
-                    bot.logger.log("Using cached copy for "+query);
-                    images = cache[type][query];
-                }else {
-                    images = await client.search(query, {safe: message.channel.nsfw ? "off" : "high"});
-                    cache[type][query] = images;
-                }
+                const nsfw = (!message.guild || message.channel.nsfw);
+                let type = nsfw ? "nsfw" : "sfw";
+                images = bot.redis.cache(`images/${type}/${query}`, async ()=>await client.search(query, {safe: nsfw ? "off" : "high"}), 3600)
                 if(images.length === 0)
                     return message.replyLang(!message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
 

@@ -15,6 +15,9 @@ module.exports = {
             userRateLimits: 0,
             reconnects: 0,
             lastUpdate: 0,
+            commandsFailed: 0,
+            cacheHits: 0,
+            cacheMisses: 0,
        };
         let currentStats = {
             messagesPerMinute: 0,
@@ -41,6 +44,10 @@ module.exports = {
         bot.bus.on("messageSent", function(){
             currentStats.messagesSentPerMinute++;
             bot.stats.messagesSentTotal++;
+        })
+
+        bot.bus.on("commandFailed", ()=>{
+            bot.stats.commandsFailed++;
         })
 
         bot.client.on("rateLimit", function(){

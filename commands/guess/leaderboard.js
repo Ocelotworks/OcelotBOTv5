@@ -35,21 +35,21 @@ module.exports = {
 
         message.channel.startTyping();
         try {
-            let span = bot.apm.startSpan("Get Translation Key");
+            let span = bot.util.startSpan("Get Translation Key");
             const unknownUserKey = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "TRIVIA_UNKNOWN_USER");
             span.end();
-            span = bot.apm.startSpan("Get Leaderboard");
+            span = bot.util.startSpan("Get Leaderboard");
             let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/${server}/${timescale}`);
             span.end();
             if (!leaderboard.data || leaderboard.data.length === 0) {
                 return message.channel.send(`There is no data for that timeframe. Try **${args[0]} leaderboard all** to see the all time scores.`);
             }
-            span = bot.apm.startSpan("Get Position");
+            span = bot.util.startSpan("Get Position");
             let positionData = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/${server}/${timescale}/${message.author.id}`);
             span.end();
             let outputData = [];
 
-            span = bot.apm.startSpan("Create Table");
+            span = bot.util.startSpan("Create Table");
             for (let i = 0; i < leaderboard.data.length; i++) {
                 const entry = leaderboard.data[i]
                 let user;

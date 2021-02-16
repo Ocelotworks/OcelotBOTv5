@@ -64,6 +64,7 @@
     "config",
     "lang",
     "statistics",
+    "redis",
     "bans",
     "commands",
     "lavaqueue",

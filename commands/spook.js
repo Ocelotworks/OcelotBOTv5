@@ -410,7 +410,7 @@ module.exports = {
             return bot.sendSpookEnd(message.guild.id, message.channel, await bot.database.getSpooked(message.guild.id));
 
         if(args.length > 1){
-            let span = bot.apm.startSpan("Check can spook");
+            let span = bot.util.startSpan("Check can spook");
             const canSpook = await bot.database.canSpook(message.author.id, message.guild.id);
             span.end();
             if (!canSpook)
@@ -438,7 +438,7 @@ module.exports = {
 
             if(target.id === message.author.id)
                 return message.replyLang("SPOOK_SELF");
-            span = bot.apm.startSpan("Get spook count");
+            span = bot.util.startSpan("Get spook count");
             const result = await bot.database.getSpookCount(target.id, message.guild.id);
             span.end();
             let count = result[0]['COUNT(*)'] + 1;
@@ -447,12 +447,12 @@ module.exports = {
                 spooked: target.id
             });
 
-            span = bot.apm.startSpan("Create spook");
+            span = bot.util.startSpan("Create spook");
             await bot.spook.createSpook(message.channel, message.author, target);
             span.end();
         }else{
             const now = new Date();
-            let span = bot.apm.startSpan("Get current spook");
+            let span = bot.util.startSpan("Get current spook");
             const result = await bot.database.getSpooked(message.guild.id);
             span.end();
             if(result[0])

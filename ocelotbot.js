@@ -8,13 +8,13 @@
 const   config          = require('config'),
         EventEmitter    = require('events'),
         Sentry          = require('@sentry/node'),
+        Tracing        = require("@sentry/tracing"),
         request         = require('request'),
         os              = require('os'),
         dateFormat      = require('dateformat'),
         colors          = require('colors'),
         caller_id       = require('caller-id'),
-        path            = require('path'),
-        apm             = require('elastic-apm-node');
+        path            = require('path')
 
 
 //The app object is shared between all modules, it will contain any functions the modules expose and also the event bus.
@@ -53,12 +53,14 @@ function configureSentry(){
             bot.logger.log(message.grey, caller_id.getData());
     };
 
-    bot.version = `stevie5-${process.env.VERSION}`;
+    bot.version = `stevie5 Build ${process.env.VERSION}`;
 
     Sentry.init({
         captureUnhandledRejections: true,
         autoBreadcrumbs: true,
         dsn: config.get("Sentry.DSN"),
+        serverName: `${os.hostname()}-${process.env.BOT_ID}-${process.env.SHARD}`,
+        release: process.env.VERSION,
     });
     bot.raven = Sentry; //Cheeky backwards compatibility
     init();
@@ -68,15 +70,6 @@ function configureSentry(){
  * Initialise the Chat server
  */
 function init(){
-
-    if(config.get("APM")){
-        bot.apm = apm.start({
-            active: false,
-            serviceName: config.get("APM.ServiceName"),
-            secretToken: config.get("APM.Token"),
-            serverUrl: config.get("APM.Server")
-        })
-    }
 
     process.env.SHARDS = `[${process.env.SHARD-1}]` // Yes
 

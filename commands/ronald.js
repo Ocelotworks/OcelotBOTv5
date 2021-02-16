@@ -15,21 +15,21 @@ module.exports = {
         return bot.util.imageProcessor(message, {
             "components": [
                 {
-                    "pos": {"x": 199, "y": 47, "w": 111, "h": 146},
+                    "pos": {"x": 205, "y": 56, "w": 111, "h": 146},
                     "rot": 0.02548181,
                     "background": "#ffffff",
                     "filter": [{
                         name: "text",
                         args: {
                             font: "arial.ttf",
-                            fontSize: content.length < 100 ? 40 : 25 ,
+                            fontSize: content.length < 100 ? 20 : 10 ,
                             colour: "#000000",
                             content: content,
-                            x: 20,
-                            y: 20,
+                            x: 5,
+                            y: 5,
                             ax: 0,
                             ay: 0,
-                            w: 292,
+                            w: 101,
                             spacing: 1.1,
                             align: 0,
                         }

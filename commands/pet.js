@@ -23,6 +23,8 @@ module.exports = {
             message.channel.send(`:warning: It looks like you're trying to use ${args[0]} with a different bot, I will now temporarily disable the ${args[0]} command on OcelotBOT for you so as not to spam.
 To prevent this in the future, consider changing OcelotBOT's prefix with **${message.getSetting("prefix")}settings set prefix** or disabling the pet command with **${message.getSetting("prefix")}settings disableCommand pet**.
 You can still access this command with ${message.getSetting("prefix")}petpet`);
+            if(!bot.config.cache[message.guild.id])
+                bot.config.cache[message.guild.id] = {};
             bot.config.cache[message.guild.id]["pet.disable"] = "1";
             return
         }
@@ -31,10 +33,10 @@ You can still access this command with ${message.getSetting("prefix")}petpet`);
             return message.channel.send("You must enter an image URL or mention a user");
         message.channel.startTyping();
         try {
-            let span = bot.apm.startSpan("Load avatar");
+            let span = bot.util.startSpan("Load avatar");
             const avatar = await canvas.loadImage(avatarURL);
             span.end();
-            span = bot.apm.startSpan("Load sprite");
+            span = bot.util.startSpan("Load sprite");
             const sprite = await canvas.loadImage(__dirname + "/../static/petpet.png")
             span.end();
             const canvas1 = canvas.createCanvas(size, size);
@@ -48,7 +50,7 @@ You can still access this command with ${message.getSetting("prefix")}petpet`);
 
             let promises = [];
             for (let i = 0; i < frames.length; i++) {
-                let span = bot.apm.startSpan("Render frame");
+                let span = bot.util.startSpan("Render frame");
                 const frame = frames[i];
                 ctx2.clearRect(0, 0, size, size);
                 ctx2.drawImage(avatar, frame.x, frame.y, frame.w, frame.h);
