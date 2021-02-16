@@ -11,6 +11,7 @@ module.exports = {
       let embed = new Discord.MessageEmbed();
       embed.setTitle("Would You Rather...");
       embed.setColor("#6dccf2");
+      console.log(question);
       embed.addField(decodeURIComponent(question.option_1), "OR");
       embed.addField(decodeURIComponent(question.option_2), question.moreinfo ? `_${decodeURIComponent(question.moreinfo)}_` : "(No description)");
       message.channel.send(embed);
