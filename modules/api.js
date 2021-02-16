@@ -46,6 +46,7 @@ module.exports = {
             output += writeOpenMetric("uptime", bot.client.uptime);
             output += writeOpenMetric("guildsUnavailable", bot.client.guilds.cache.filter((g)=>!g.available).size);
             output += writeOpenMetric("drain", +bot.drain);
+            output += writeOpenMetric("tasks", bot.tasks.running.length);
 
             res.header('Content-Type', 'text/plain')
             res.send(output);

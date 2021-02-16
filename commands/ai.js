@@ -99,7 +99,7 @@ module.exports = {
         try {
             message.channel.startTyping();
             let input = encodeURIComponent(message.cleanContent.substring(args[0].length + 1));
-            let response = bot.redis.cache(`ai/${input}`, async ()=>await clev.query(input, {cs: contexts[message.channel.id]}), 3600);
+            let response = await bot.redis.cache(`ai/${input}`, async ()=>await clev.query(input, {cs: contexts[message.channel.id]}), 3600);
             contexts[message.channel.id] = response.cs;
 
             if(response.output) {
@@ -108,12 +108,12 @@ module.exports = {
                 contextIDs[message.channel.id] = messageID[0];
             }else {
                 message.replyLang("GENERIC_ERROR");
-                bot.raven.captureException(e);
             }
 
             message.channel.stopTyping();
 
         }catch(e){
+            console.log(e);
             let output;
             if(Math.random() > 0.8) {
                 output = titles[titleIndex++].data.title.replace(/[\[(].*[\])]/gi, "").replace(/reddit/gi, "Discord");

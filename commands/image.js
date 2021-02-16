@@ -43,7 +43,7 @@ module.exports = {
                     embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true, format: "png"}));
                     embed.setTimestamp(new Date());
                     embed.setTitle(`Image results for '${query}'`);
-                    if(message.getSetting("image.useThumbnails") || !page.url)
+                    if(!page.thumbnail.url.startsWith("x-raw-image") && (message.getSetting("image.useThumbnails") || !page.url))
                         embed.setImage(page.thumbnail.url);
                     else
                         embed.setImage(page.url);

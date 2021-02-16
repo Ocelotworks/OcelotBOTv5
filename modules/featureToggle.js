@@ -13,6 +13,7 @@ module.exports = {
             url: config.get("Unleash.URL"),
             appName: config.get("Unleash.AppName"),
             instanceId: config.get("Unleash.InstanceId"),
+            refreshInterval: 60000
         });
 
         bot.feature.enabledFor = function enabledFor(message, key){
