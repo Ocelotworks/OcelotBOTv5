@@ -8,7 +8,7 @@
 const   config          = require('config'),
         EventEmitter    = require('events'),
         Sentry          = require('@sentry/node'),
-        Tracing        = require("@sentry/tracing"),
+        Tracing         = require("@sentry/tracing"),
         request         = require('request'),
         os              = require('os'),
         dateFormat      = require('dateformat'),
