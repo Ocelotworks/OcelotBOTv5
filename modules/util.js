@@ -645,7 +645,7 @@ module.exports = {
                     const arg = args[argument];
                     if(arg) {
                         const user = bot.util.getUserFromMention(arg);
-                        if (user) return user.avatarURL({dynamic: true, format: "png"});
+                        if (user) return user.displayAvatarURL({dynamic: true, format: "png"});
                         if (arg.startsWith("https://tenor.com/"))return await bot.util.getImageFromTenorURL(arg);
                         if (arg.startsWith("https://gfycat.com/"))return await bot.util.getImageFromGfycatURL(arg);
                         if (arg.startsWith("http")) return arg;
@@ -655,7 +655,7 @@ module.exports = {
                     }
                     return bot.util.getImageFromPrevious(message, argument);
                 }else if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
-                    return message.mentions.users.first().avatarURL({dynamic: true, format: "png"});
+                    return message.mentions.users.first().displayAvatarURL({dynamic: true, format: "png"});
                 } else if (args[2] && args[2].indexOf("http") > -1) {
                     return args[2]
                 } else if (args[1] && args[1].indexOf("http") > -1) {

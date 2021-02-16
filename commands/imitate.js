@@ -40,7 +40,7 @@ module.exports = {
         const webhooks = await message.channel.fetchWebhooks();
         let webhook;
         if(webhooks.size < 1){
-            webhook = await message.channel.createWebhook("OcelotBOT", bot.client.user.avatarURL({dynamic: true, format: "png"}));
+            webhook = await message.channel.createWebhook("OcelotBOT", bot.client.user.displayAvatarURL({dynamic: true, format: "png"}));
         }else{
             webhook = webhooks.first();
         }
@@ -52,7 +52,7 @@ module.exports = {
 
         webhook.send(content, {
             username: target.displayName,
-            avatarURL: target.user.avatarURL({dynamic: 'true'}),
+            avatarURL: target.user.displayAvatarURL({dynamic: 'true'}),
             disableEveryone: true
         });
 

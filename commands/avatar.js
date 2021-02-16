@@ -14,7 +14,7 @@ module.exports = {
             embed:{
                 title: `${target.username}'s Avatar:`,
                 image: {
-                    url: target.avatarURL({dynamic: true, format: "png", size: 4096})
+                    url: target.displayAvatarURL({dynamic: true, format: "png", size: 4096})
                 }
             }
 
