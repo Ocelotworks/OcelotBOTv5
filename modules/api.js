@@ -25,6 +25,11 @@ module.exports = {
             });
         });
 
+        bot.api.get("/commands", (req, res)=>{
+            res.json(bot.commandUsages);
+        })
+
+
         bot.api.get("/metrics", (req, res)=>{
             let output = "";
             for(let key in bot.stats){
