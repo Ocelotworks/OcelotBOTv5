@@ -1,7 +1,7 @@
 module.exports = {
     name: "List Reminders",
     usage: "list",
-    commands: ["remove", "delete", "del"],
+    commands: ["remove", "delete", "del", "cancel"],
     run: async function(message, args, bot, reminderObject){
       if(!args[2] || isNaN(args[2]))
           return message.channel.send(`To remove a reminder, find it's ID from **${args[0]} list** and enter it here, e.g ${args[0]} remove 420`);
