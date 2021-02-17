@@ -19,8 +19,8 @@ module.exports = {
                     "id :: ": reminder.id+" ::",
                     channel: channel ? channel.name : "unknown",
                     set: reminder.timestamp.toLocaleString(),
-                    message: reminder.message.substring(0, 100),
                     due: reminder.recurrence ? "recurring" : reminder.at.toLocaleString(),
+                    message: reminder.message.substring(0, 100),
                 });
             }
             return header+columnify(formatted)+"\n```";
