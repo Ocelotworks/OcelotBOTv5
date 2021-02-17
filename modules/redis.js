@@ -12,7 +12,8 @@ module.exports = {
                 bot.logger.log(`Redis reconnecting in ${reconnect}ms`)
                 // reconnect after
                 return reconnect;
-            }
+            },
+            enable_offline_queue: false,
         });
 
         bot.redis.client.on("ready", ()=>{
