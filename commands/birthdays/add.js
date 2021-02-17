@@ -16,6 +16,10 @@ module.exports = {
         let date = chrono.parseDate(message.content);
         if(!date)
             return message.replyLang("BIRTHDAY_ADD_DATE", {command: args[0], arg: args[1], user: bot.client.user});
+        const age = (new Date().getFullYear()-date.getFullYear());
+        if(age > 2 && age < 13){
+            return message.channel.send("Please enter an age above or equal to 13.");
+        }
         try {
             await bot.database.addBirthday(target.id, message.guild.id, date);
             if(target.username.startsWith("Deleted User ")){
