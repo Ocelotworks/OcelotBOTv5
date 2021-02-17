@@ -7,8 +7,8 @@ module.exports = {
 
         bot.redis.client = redis.createClient({
             url: config.get("Redis.host"),
-            retry_strategy: (options)=>{
-                const reconnect = Math.min(options.attempt * 100, 3000);
+            retry_strategy: function retry(options){
+                const reconnect = Math.max(options.attempt * 100, 3000);
                 bot.logger.log(`Redis reconnecting in ${reconnect}ms`)
                 // reconnect after
                 return reconnect;
