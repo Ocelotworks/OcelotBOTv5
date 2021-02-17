@@ -22,7 +22,7 @@ module.exports = {
             bot.logger.log("Waiting for tasks to end to quit");
             setInterval(()=>{
                 if(bot.tasks.running.length === 0)
-                    process.exit(0);
+                    process.exit(-3);
                 else
                     bot.logger.warn(`Cannot quit - there are still ${bot.tasks.running.length} tasks!`);
             }, 1000)
@@ -78,7 +78,7 @@ module.exports = {
             bot.tasks.running.splice(index, 1);
             if(bot.drain && bot.tasks.length === 0) {
                 console.log("all tasks are finished")
-                process.exit(1);
+                process.exit(-4);
             }
             try {
                 bot.rabbit.event({type: "tasksClear", payload: true});

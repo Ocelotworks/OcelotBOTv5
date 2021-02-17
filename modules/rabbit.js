@@ -110,7 +110,7 @@ module.exports = {
                     }
                     setTimeout(() => {
                         console.error("Drain has been set for over 1 minute and I'm still alive, suicide time");
-                        process.exit(61);
+                        process.exit(-2);
                     }, 60000)
                 }
             })
