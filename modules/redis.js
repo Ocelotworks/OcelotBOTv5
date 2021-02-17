@@ -32,6 +32,7 @@ module.exports = {
                             bot.stats.cacheMisses++;
                             bot.redis.client.set(key, JSON.stringify(freshData), "EX", ttl);
                         } else {
+                            bot.logger.log("Using cached copy for "+key);
                             fulfill(JSON.parse(data))
                             bot.stats.cacheHits++;
                         }
