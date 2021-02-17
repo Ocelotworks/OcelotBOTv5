@@ -5,7 +5,7 @@
  *  ════╝
  */
 const axios = require('axios');
-
+const os = require('os');
 
 function setDeep(obj, path, value, setRecursively = false) {
     path.reduce((a, b, level) => {
@@ -55,6 +55,7 @@ module.exports = {
             axios[botList.statsMethod](botList.statsUrl, body, {
                 headers: {
                     "Authorization": botList.statsKey,
+                    "User-Agent": `OcelotBOT https://ocelotbot.xyz ${bot.version} ${os.hostname()}`
                 }
             }).then(()=>{
                 bot.logger.log(`Posted stats to ${botList.id}`)
