@@ -1,5 +1,7 @@
 
 const shipLevels = {
+    "-10": ["💔", "Only hatred here"],
+    0: ["💔", "Nothing at all..."],
     10: ["💔", "No Spark..."],
     20: ["🫀", "Just Friends...."],
     35: ["😏", "More than friends?"],
