@@ -135,8 +135,11 @@ module.exports = {
 
             bot.rabbit.emit = async function emit(type, payload) {
                 let buf = Buffer.from(JSON.stringify(payload));
-                if (!bot.rabbit.pubsub[type])
+                if (!bot.rabbit.pubsub[type]) {
+                    if(bot.rabbit.pubsub[type] === false)return;
+                    bot.rabbit.pubsub[type] = false;
                     bot.rabbit.pubsub[type] = await bot.rabbit.createPubsub(type);
+                }
                 bot.rabbit.pubsub[type].publish(type, '', buf, {appId: identifier});
             };
 
