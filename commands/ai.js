@@ -8,6 +8,7 @@ const config = require('config').get("Commands.ai");
 const Cleverbot = require('cleverbot');
 const request = require('request');
 
+const axios = require('axios');
 let contexts = {};
 
 let contextIDs = {};
@@ -96,20 +97,45 @@ module.exports = {
     run: async function run(message, args, bot) {
         if(args.length < 2)
             return message.replyLang("8BALL_NO_QUESTION");
+
+
+
         try {
             message.channel.startTyping();
-            let input = encodeURIComponent(message.cleanContent.substring(args[0].length + 1));
-            let response = await bot.redis.cache(`ai/${input}`, async ()=>await clev.query(input, {cs: contexts[message.channel.id]}), 3600);
-            contexts[message.channel.id] = response.cs;
-
-            if(response.output) {
-                message.channel.send(response.output);
-                let messageID = await bot.database.logAiConversation(message.author.id, message.guild?message.guild.id:"dm", contextIDs[message.channel.id], message.cleanContent.substring(args[0].length + 1), response.output);
-                contextIDs[message.channel.id] = messageID[0];
+            let input = message.cleanContent.substring(args[0].length + 1);
+            if(message.getBool("ai.gpt")){
+                let gptResult = await bot.redis.cache(`ai/gpt/${input}`, async () =>await axios.post("https://api.openai.com/v1/engines/ada/completions", {
+                    prompt: "You: "+input+"\nOcelotBOT:",
+                    temperature: 0.3,
+                    max_tokens: 60,
+                    top_p: 0.3,
+                    frequency_penalty: 0.5,
+                    presence_penalty: 0.0,
+                    stop: ["You:","\n","OcelotBOT:"]
+                }, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer "+config.get("gpt"),
+                    }
+                }))
+                if(gptResult.data.choices && gptResult.data.choices[0]){
+                    return message.channel.send(gptResult.data.choices[0].text.trim())
+                }else{
+                    console.log(gptResult.data);
+                    message.replyLang("GENERIC_ERROR");
+                }
             }else {
-                message.replyLang("GENERIC_ERROR");
-            }
+                let response = await bot.redis.cache(`ai/${input}`, async () => await clev.query(encodeURIComponent(input), {cs: contexts[message.channel.id]}), 3600);
+                contexts[message.channel.id] = response.cs;
 
+                if (response.output) {
+                    message.channel.send(response.output);
+                    let messageID = await bot.database.logAiConversation(message.author.id, message.guild ? message.guild.id : "dm", contextIDs[message.channel.id], message.cleanContent.substring(args[0].length + 1), response.output);
+                    contextIDs[message.channel.id] = messageID[0];
+                } else {
+                    message.replyLang("GENERIC_ERROR");
+                }
+            }
             message.channel.stopTyping();
 
         }catch(e){
