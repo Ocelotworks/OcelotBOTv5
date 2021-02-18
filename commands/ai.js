@@ -101,10 +101,9 @@ module.exports = {
 
 
         try {
-            message.channel.startTyping();
             let input = message.cleanContent.substring(args[0].length + 1);
             if(message.getBool("ai.gpt")){
-                let gptResult = await bot.redis.cache(`ai/gpt/${input}`, async () =>await axios.post("https://api.openai.com/v1/engines/ada/completions", {
+                let gptResult = await bot.redis.cache(`ai/gpt/${input}`, async () =>await axios.post(`https://api.openai.com/v1/engines/${message.getSetting("ai.engine")}/completions`, {
                     prompt: "You: "+input+"\nOcelotBOT:",
                     temperature: 0.3,
                     max_tokens: 60,
@@ -125,6 +124,7 @@ module.exports = {
                     message.replyLang("GENERIC_ERROR");
                 }
             }else {
+                message.channel.startTyping();
                 let response = await bot.redis.cache(`ai/${input}`, async () => await clev.query(encodeURIComponent(input), {cs: contexts[message.channel.id]}), 3600);
                 contexts[message.channel.id] = response.cs;
 
