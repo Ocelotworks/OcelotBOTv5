@@ -98,8 +98,6 @@ module.exports = {
         if(args.length < 2)
             return message.replyLang("8BALL_NO_QUESTION");
 
-
-
         try {
             let input = message.cleanContent.substring(args[0].length + 1);
             if(message.getBool("ai.gpt")){
