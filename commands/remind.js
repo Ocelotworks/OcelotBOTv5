@@ -42,7 +42,7 @@ module.exports = {
             let claimed = [];
             for (let i = 0; i < reminderResult.length; i++) {
                 const reminder = reminderResult[i];
-                if (reminder.server && bot.client.guilds.cache.has(reminder.server)) {
+                if ((reminder.server && bot.client.guilds.cache.has(reminder.server)) || (!reminder.server && bot.util.shard == 0)) {
                     bot.logger.log(`Reminder ${reminder.id} belongs to this shard.`);
                     const remainingTime = reminder.at - now;
                     if (remainingTime <= 0) {

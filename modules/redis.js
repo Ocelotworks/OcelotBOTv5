@@ -7,12 +7,13 @@ module.exports = {
 
         bot.redis.client = redis.createClient({
             url: config.get("Redis.host"),
-            retry_strategy: (options)=>{
-                const reconnect = Math.min(options.attempt * 100, 3000);
+            retry_strategy: function retry(options){
+                const reconnect = Math.max(options.attempt * 100, 3000);
                 bot.logger.log(`Redis reconnecting in ${reconnect}ms`)
                 // reconnect after
                 return reconnect;
-            }
+            },
+            enable_offline_queue: false,
         });
 
         bot.redis.client.on("ready", ()=>{
@@ -32,6 +33,7 @@ module.exports = {
                             bot.stats.cacheMisses++;
                             bot.redis.client.set(key, JSON.stringify(freshData), "EX", ttl);
                         } else {
+                            bot.logger.log("Using cached copy for "+key);
                             fulfill(JSON.parse(data))
                             bot.stats.cacheHits++;
                         }

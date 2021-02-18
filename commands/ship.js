@@ -1,5 +1,7 @@
 
 const shipLevels = {
+    "-10": ["💔", "Only hatred here"],
+    0: ["💔", "Nothing at all..."],
     10: ["💔", "No Spark..."],
     20: ["🫀", "Just Friends...."],
     35: ["😏", "More than friends?"],
@@ -34,12 +36,17 @@ module.exports = {
             message.channel.send(`Usage: ${args[0]} @user1 @user2`);
         }else{
             let split = message.content.split(" ");
-            let people = message.mentions.members.map((m)=>m.displayName);
+            let people;
+            if(message.guild)
+                 people = message.mentions.members.map((m)=>m.displayName);
+            else
+                people = message.mentions.users.map((m)=>m.username);
             for(let i = 1; i < split.length; i++){
                 if(!split[i].startsWith("<")){
                     people.push(split[i]);
                 }
             }
+
 
             let shipPoints = 0, shipName = people[0];
             for(let i = 1; i < people.length; i++){

@@ -489,6 +489,7 @@ module.exports = {
                 guilds: bot.client.guilds.cache.size,
                 users: bot.client.users.cache.size,
                 channels: bot.client.channels.cache.size,
+                unavailable: bot.client.guilds.cache.filter((g)=>!g.available).size,
                 ws: {
                     shard: {
                         ping: shard.ping,

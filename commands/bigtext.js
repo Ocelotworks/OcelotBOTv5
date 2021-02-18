@@ -11,6 +11,7 @@ module.exports = {
             message.replyLang("GENERIC_TEXT", {command: args[0]});
             return;
         }
+
         const term = args.slice(1).join(" ");
         let loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
         let response = await bot.rabbit.rpc("imageFilter", {url: term, filter: "bigtext"});

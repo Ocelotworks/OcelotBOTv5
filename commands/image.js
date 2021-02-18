@@ -42,7 +42,7 @@ module.exports = {
                     let embed = new Discord.MessageEmbed();
                     embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true, format: "png"}));
                     embed.setTimestamp(new Date());
-                    embed.setTitle(`Image results for '${query}'`);
+                    embed.setTitle(`Image results for '${query.substring(0, 200)}'`);
                     if(!page.thumbnail.url.startsWith("x-raw-image") && (message.getSetting("image.useThumbnails") || !page.url))
                         embed.setImage(page.thumbnail.url);
                     else

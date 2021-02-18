@@ -36,6 +36,9 @@ function configureSentry(){
         if(shard < 10)
             shard = "0"+shard;
         console[error?"error":"log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, message);
+        if(bot.rabbit && bot.rabbit.emit){
+            bot.rabbit.emit("log", {message, caller, error});
+        }
     };
 
     bot.logger.error = function error(message){
