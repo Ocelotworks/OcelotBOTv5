@@ -22,7 +22,7 @@ module.exports = {
             name = urlSplit[urlSplit.length-1].split(".")[0];
             if(!validName.test(name))name = message.id;
         }
-        for(let i = 0; i < args.length; i++){
+        for(let i = 1; i < args.length; i++){
             if(args[i].startsWith("http") || args[i].startsWith("<"))continue;
             name = args[i];
             break;
