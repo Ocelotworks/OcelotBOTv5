@@ -60,11 +60,11 @@ module.exports = {
         bot.client.on("messageReactionAdd", async (reaction, user)=>{
             if(!reaction.message.guild)return;
             if(reaction.message.guild.id !== "478950156654346292")return;
-            if(reaction.emoji.toString() !== "🍞")return;
+            if(reaction.emoji.toString() !== "🍞" && reaction.emoji.id !== "812259123864272906")return;
             if(reaction.message.breaded)return;
             reaction.message.breaded = true;
             await bot.database.addTopic(userMaps[reaction.message.author.id], reaction.message.content);
-            reaction.message.channel.send(`:bread: ${user}: Added _<${userMaps[reaction.message.author.id]}> ${reaction.message.content}_ to the list of topics`);
+            reaction.message.channel.send(`${reaction.emoji} ${user}: Added _<${userMaps[reaction.message.author.id]}> ${reaction.message.content}_ to the list of topics`);
         })
 
 
