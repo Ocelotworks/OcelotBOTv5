@@ -414,7 +414,7 @@ module.exports = {
             setInterval(()=>{
                 if(!process.connected) {
                     bot.logger.warn("Shard was orphaned, killing...");
-                    process.exit(-1);
+                    process.exit(0);
                 }
             }, 1000);
         })

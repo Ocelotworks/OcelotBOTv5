@@ -18,7 +18,7 @@ module.exports = {
             bot.rabbit.connection.on("close", function (err) {
                 console.log(err);
                 bot.logger.warn("RabbitMQ connection closed!");
-                process.exit(62);
+                process.exit(0);
             })
 
             bot.rabbit.connection.on("blocked", (reason) => {
@@ -110,7 +110,7 @@ module.exports = {
                     }
                     setTimeout(() => {
                         console.error("Drain has been set for over 1 minute and I'm still alive, suicide time");
-                        process.exit(-2);
+                        process.exit(0);
                     }, 60000)
                 }
             })
