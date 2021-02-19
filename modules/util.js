@@ -534,7 +534,7 @@ module.exports = {
             bot.logger.log(url);
             if(message.getBool("imageFilter.useExternal")) {
                 span = bot.util.startSpan("Receive from RPC");
-                let response = await bot.redis.cache(`imageProcessor/${input}/${filter}`, async ()=>await bot.rabbit.rpc("imageFilter", {url, filter, input, format}, 60000, {durable: true}));
+                let response = await bot.redis.cache(`imageProcessor/${filter}/${input}/${url}`, async ()=>await bot.rabbit.rpc("imageFilter", {url, filter, input, format}, 60000, {durable: true}));
                 span.end();
                 if(loadingMessage) {
                     span = bot.util.startSpan("Edit loading message");
