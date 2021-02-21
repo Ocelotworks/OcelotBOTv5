@@ -8,6 +8,8 @@ module.exports = {
     name: "Birthdays List",
     usage: "birthday help/@user/add/list",
     detailedHelp: "List peoples birthdays and get reminders when it's their birthday ",
+    usageExample: "birthday add @Big P 9th February",
+    responseExample: "🎉 Birthday added!",
     categories: ["tools"],
     commands: ["birthdays", "birthday"],
     init: function init(bot){

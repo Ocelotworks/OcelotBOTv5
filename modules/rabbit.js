@@ -104,14 +104,10 @@ module.exports = {
                 if (message.meta.appId !== identifier && message.id === bot.util.shard) {
                     bot.logger.warn(`A new shard (Version ${message.version}) has started with the same ID as me (${message.id}). This shard is version ${bot.version}. Draining.`);
                     bot.drain = true;
-                    if (bot.tasks.length === 0) {
-                        console.log("No tasks, dying");
-                        process.exit(0);
-                    }
-                    setTimeout(() => {
-                        console.error("Drain has been set for over 1 minute and I'm still alive, suicide time");
-                        process.exit(0);
-                    }, 60000)
+                    // setTimeout(() => {
+                    //     console.error("Drain has been set for over 10 minutes and I'm still alive, suicide time");
+                    //     process.exit(0);
+                    // }, 600000)
                 }
             })
 

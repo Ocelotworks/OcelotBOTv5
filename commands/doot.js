@@ -5,7 +5,7 @@ module.exports = {
     usage: "doot",
     rateLimit: 50,
     categories: ["voice", "memes"],
-    detailedHelp: "Doot Doot",
+    detailedHelp: "Doot Doot\nPlays a random doot remix in the voice channel you're in",
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["doot", "toot"],
     run:  async function run(message, args, bot){

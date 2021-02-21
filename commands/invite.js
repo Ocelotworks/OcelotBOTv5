@@ -1,6 +1,9 @@
 module.exports = {
     name: "Bot Invite Link",
     usage: "invite",
+    usageExample: "invite",
+    responseExample: "Invite the bot to your server at https://ocelotbot.xyz/invite",
+    detailedHelp: "Get a unique referral code to get rewards when you invite another server to the bot.",
     commands: ["invite", "joinserver", "addbot"],
     categories: ["meta"],
     init: async function init(bot){

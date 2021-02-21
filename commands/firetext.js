@@ -9,6 +9,7 @@ module.exports = {
     usage: "firetext <text>",
     categories: ["text"],
     detailedHelp: "Makes some super cool fire text",
+    usageExample: "fire Epic cool",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["firetext", "fire"],
     run: function(message, args, bot){

@@ -6,8 +6,11 @@ const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『�
 
 module.exports = {
     name: "Reminders",
-    usage: "remind <in> \"<message>\"",
+    usage: "remind <in/every> \"<message>\"",
     accessLevel: 0,
+    detailedHelp: "Set one-time reminders or set recurring reminders",
+    usageExample: "remind in 5 minutes 'fix reminders'",
+    responseExample: "⏱ Reminding you in **5 minutes**",
     commands: ["remind", "remindme", "reminder", "setreminder", "reminders"],
     categories: ["tools"],
     // This doesn't feel right

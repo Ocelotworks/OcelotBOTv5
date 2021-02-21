@@ -29,8 +29,9 @@ module.exports = {
     usage: "advice",
     rateLimit: 10,
     detailedHelp: "Get some great advice from the wise elders.",
+    usageExample: "advice",
+    responseExample: "📜 `man who fart in church sit in own pew`",
     categories: ["fun"],
-    requiredPermissions: [],
     commands: ["advice", "advise", "wise"],
     run:  function(message, args, bot){
         message.channel.send(`:scroll: \`${bot.util.arrayRand(responses)}\``);

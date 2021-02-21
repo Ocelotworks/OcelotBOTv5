@@ -11,6 +11,8 @@ module.exports = {
     usage: "identify [URL]",
     rateLimit: 50,
     detailedHelp: "Tries to identify an image",
+    usageExample: "identify @Big P",
+    responseExample: "🤔 That looks like a great developer.",
     commands: ["identify", "ident"],
     categories: ["tools", "image"],
     run: async function run(message, args, bot) {

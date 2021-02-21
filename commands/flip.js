@@ -5,6 +5,8 @@ module.exports = {
     name: "Coin Flip",
     usage: "flip",
     detailedHelp: "Heads or tails",
+    usageExample: "flip",
+    responseExample: "🌕 TAILS!",
     commands: ["flip", "coin"],
     categories: ["tools"],
     run: function run(message, args, bot) {

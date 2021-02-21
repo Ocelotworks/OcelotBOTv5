@@ -9,6 +9,7 @@ module.exports = {
     name: "Error Message Generator",
     usage: "error <message>",
     detailedHelp: "Make a windows 98 error message",
+    usageExample: "error Unable to can.",
     commands: ["error", "errormessage"],
     categories: ["image"],
     requiredPermissions: ["ATTACH_FILES"],

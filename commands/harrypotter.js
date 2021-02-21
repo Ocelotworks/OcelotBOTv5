@@ -8,7 +8,8 @@ module.exports = {
     name: "Harry Potter Text Generator",
     usage: "potter <text>",
     categories: ["text"],
-    detailedHelp: "Hotel Porter",
+    detailedHelp: "Make harry potter text",
+    usageExample: "harrypotter Hotel Porter",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["potter", "harrypotter"],
     run:  function(message, args, bot){

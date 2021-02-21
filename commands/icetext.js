@@ -8,6 +8,7 @@ module.exports = {
     name: "Ice Text Generator",
     usage: "icetext <text>",
     categories: ["text"],
+    detailedHelp: "Ice text font",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["icetext", "ice"],
     run:  function(message, args, bot){

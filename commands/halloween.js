@@ -9,6 +9,8 @@ module.exports = {
     name: "Halloween Countdown",
     usage: "halloween",
     detailedHelp: "Countdown to halloween",
+    usageExample: "halloween",
+    responseExample: "👻 251 days, 11 hours, 7 minutes and 41 seconds until halloween!",
     categories: ["tools"],
     commands: ["halloween"],
     run: function run(message, args, bot) {

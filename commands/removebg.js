@@ -13,6 +13,8 @@ let deadKeys = [];
 module.exports = {
     name: "Remove Background",
     usage: "removebg [URL]",
+    usageExample: "removebg @Big P",
+    detailedHelp: "Tries to remove the background of an image. Works best on real-life photos",
     rateLimit: 100,
     premium: true,
     commands: ["removebg", "rbg", "removebackground"],

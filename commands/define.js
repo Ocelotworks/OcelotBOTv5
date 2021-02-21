@@ -6,6 +6,8 @@ module.exports = {
     usage: "define <word>",
     categories: ["tools", "search"],
     detailedHelp: "Find the definition of a word",
+    usageExample: "define seven",
+    responseExample: "**seven**: the number that is one more than six",
     commands: ["define", "def", "dictionary", "dict"],
     run: async function run(message, args, bot) {
         if(!args[1])

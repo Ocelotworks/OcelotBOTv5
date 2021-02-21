@@ -17,6 +17,9 @@ module.exports = {
     name: "Insult Generator",
     usage: "insult <person>",
     commands: ["insult"],
+    detailedHelp: "Insult someone/something",
+    usageExample: "insult @Big P",
+    responseExample: "@Big P I hope you step in a puddle... with socks on.",
     categories: ["fun"],
     unwholesome: true,
     init: function(bot){

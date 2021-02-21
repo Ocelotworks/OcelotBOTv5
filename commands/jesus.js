@@ -2,6 +2,7 @@ module.exports = {
     name: "Jesus Meme",
     usage: "jesus <text>",
     rateLimit: 10,
+    detailedHelp: "Jesus knows the truth",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jesus", "truth"],
     categories: ["image", "memes"],
