@@ -9,6 +9,7 @@ module.exports = {
     usage: "calc [sum]",
     detailedHelp: "Calculate something",
     usageExample: "calc 8.30662386292^2",
+    responseExample: "69.00000000003199",
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["calc", "calculator", "math"],

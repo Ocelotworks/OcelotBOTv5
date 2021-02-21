@@ -14,6 +14,7 @@ module.exports = {
     usage: "image <text>",
     rateLimit: 50,
     detailedHelp: "Search Google Images",
+    usageExample: "image cute puppies",
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
     commands: ["image", "images", "im", "googleimage"],
     vote: true,

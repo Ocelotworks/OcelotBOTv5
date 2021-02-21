@@ -27,6 +27,7 @@ module.exports = {
     usage: "ai <message>",
     detailedHelp: "Ask a question to the Artificial Intelligence",
     usageExample: "ai what is the meaning of life?",
+    responseExample: "42.",
     categories: ["fun"],
     rateLimit: 20,
     commands: ["ai","cleverbot"],

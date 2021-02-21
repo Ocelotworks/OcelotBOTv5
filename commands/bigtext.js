@@ -4,6 +4,7 @@ module.exports = {
     usage: "bigtext <text>",
     categories: ["text"],
     detailedHelp: "Make text, but bigger.",
+    usageExample: "bigtext this is really big",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["bigtext", "big"],
     run:  async function(message, args, bot) {

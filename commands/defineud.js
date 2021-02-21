@@ -7,6 +7,8 @@ module.exports = {
     usage: "defineud <word>",
     categories: ["tools", "fun"],
     detailedHelp: "Find the urban definition of a word",
+    usageExample: "defineud peng",
+    responseExample: "Definition for **peng**: \nA very [positive] word used casualy [to show] how [attracted] etc you are to something/someone",
     commands: ["defineud", "ud", "urban", "urbandictionary"],
     run: async function run(message, args, bot) {
         if(!args[1]){

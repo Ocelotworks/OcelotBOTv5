@@ -4,6 +4,7 @@ module.exports = {
     categories: ["tools"],
     requiredPermissions: [],
     detailedHelp: "Find emojis in other servers",
+    usageExample: "emoji pogchamp",
     commands: ["emoji", "emojisearch", "emojis", "emote"],
     run: async function(message, args, bot){
         if(!args[1]){

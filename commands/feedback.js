@@ -5,6 +5,8 @@ module.exports = {
     accessLevel: 0,
     rateLimit: 30,
     detailedHelp: "Complain/compliment/flirt with the developers",
+    usageExample: "feedback this bot is amazing!",
+    responseExample: "✅ Your feedback has been recorded.",
     categories: ["meta"],
     commands: ["feedback", "complain", "report", "support", "broken", "broke"],
     init: function init(bot){

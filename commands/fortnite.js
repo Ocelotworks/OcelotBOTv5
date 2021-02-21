@@ -38,6 +38,8 @@ module.exports = {
     name: game+" Stats",
     usage: game.toLowerCase()+" [platform] <player>",
     commands: [game.toLowerCase()],
+    detailedHelp: `Get ${game} stats for a specific user`,
+    usageExample: `${game.toLowerCase()} mr. Pink 1880`,
     categories: ["stats"],
     run: function run(message, args, bot) {
         if(!args[1])

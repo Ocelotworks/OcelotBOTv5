@@ -9,6 +9,7 @@ module.exports = {
     usage: "jpeg [url]",
     categories: ["image", "filter"],
     rateLimit: 10,
+    detailedHelp: "JPEG-Ify an image",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jpeg", "jpg"],
     run: async function(message, args, bot){

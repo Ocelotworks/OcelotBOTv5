@@ -10,6 +10,8 @@ module.exports = {
     categories: ["memes"],
     rateLimit: 10,
     detailedHelp: "Puts clap emojis in between the text you input.",
+    usageExample: "clap Get OcelotBOT Today",
+    responseExample: "Get👏OcelotBOT👏Today",
     commands: ["clap", "claptext"],
     run: function run(message, args, bot) {
        if(!args[1]){

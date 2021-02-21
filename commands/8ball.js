@@ -6,6 +6,7 @@ module.exports = {
   usage: "8ball <question>",
   detailedHelp: "Gives an 8-ball style response to your question",
   usageExample: "8ball is OcelotBOT the best bot ever made?",
+  responseExample: "🎱 `It is certain.`",
   categories: ["fun"],
   commands: ["8ball", "magic8ball"],
   run: function run(message, args) {

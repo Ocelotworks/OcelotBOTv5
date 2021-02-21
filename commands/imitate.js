@@ -11,6 +11,7 @@ module.exports = {
     rateLimit: 100,
     detailedHelp: "Send a message as if you're another user",
     usageExample: "imitate @Ned Flanders I'm a big stupid four eyed lamo and I wear the same stupid sweater every day",
+    responseExample: "I'm a big stupid four eyed lamo and I wear the same stupid sweater every day",
     requiredPermissions: ["MANAGE_WEBHOOKS"],
     commands: ["imitate", "imatate"],
     categories: ["fun"],
