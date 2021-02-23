@@ -84,6 +84,10 @@ module.exports = {
         };
 
         bot.config.getBool = function getBool(server, property, user){
+            if(bot.feature && bot.feature.enabled(property, {
+                userId: user.id,
+                sessionId: server,
+            }))return true;
             let result = bot.config.get(server, property, user);
             return result === "true" || result === "1";
         };
