@@ -160,7 +160,16 @@ module.exports = {
         //bot.presenceMessage = null;
 
         const clientOpts = {
-            allowedMentions: {parse: ["users"]}
+            allowedMentions: {parse: ["users"]},
+            messageCacheLifetime: 60,
+            messageSweepInterval: 60,
+            messageEditHistoryMaxSize: 1,
+            presence: {
+                activity: {
+                    name: "Windows XP Startup Tune",
+                    type: "LISTENING",
+                }
+            }
         };
 
         if(process.env.GATEWAY){
