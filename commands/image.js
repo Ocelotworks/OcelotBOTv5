@@ -37,7 +37,7 @@ module.exports = {
                 let type = nsfw ? "nsfw" : "sfw";
                 images = await bot.redis.cache(`images/${type}/${query}`, async ()=>await client.search(query, {safe: nsfw ? "off" : "high"}), 3600)
 
-                images = images.filter((image)=>!image.thumbnail.url.startsWith("x-raw-image"))
+                images = images.filter((image)=>!image.thumbnail.url.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
 
                 if(images.length === 0)
                     return message.replyLang(!message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
