@@ -37,23 +37,44 @@ function configureSentry(){
             shard = "0"+shard;
         console[error?"error":"log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, message);
         if(bot.rabbit && bot.rabbit.emit){
-            bot.rabbit.emit("log", {message, caller, error});
+            bot.rabbit.emit("log", {
+                message,
+                caller,
+                timestamp: new Date(),
+                shard: bot.util.shard,
+                hostname: os.hostname(),
+            });
         }
     };
 
     bot.logger.error = function error(message){
-        if(!message)
-            bot.logger.log(message.red, caller_id.getData(), true);
+        if(!message) {
+            if(typeof message == "object")
+                message.type = "error"
+            else
+                message = message.red;
+            bot.logger.log(message, caller_id.getData(), true);
+        }
     };
 
     bot.logger.warn = function warn(message){
-        if(message)
-            bot.logger.log(message.yellow, caller_id.getData());
+        if(message) {
+            if(typeof message == "object")
+                message.type = "warn"
+            else
+                message = message.yellow;
+            bot.logger.log(message, caller_id.getData());
+        }
     };
 
-    bot.logger.info = function warn(message){
-        if(!message)
-            bot.logger.log(message.grey, caller_id.getData());
+    bot.logger.info = function info(message){
+        if(!message) {
+            if(typeof message == "object")
+                message.type = "info"
+            else
+                message = message.grey;
+            bot.logger.log(message, caller_id.getData());
+        }
     };
 
     bot.version = `stevie5 Build ${process.env.VERSION}`;

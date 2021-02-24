@@ -110,19 +110,15 @@ module.exports = {
         Discord.Message.prototype.edit = function edit(content, options){
             bot.bus.emit("messageSent", content);
 
-            let output = "";
-            if(this.guild)
-                output += `${this.guild.name} (${this.guild.id})`;
-            else
-                output += "DM Channel";
-            output += `${this.id} Edited -> `;
-
-            output += getContent(content);
-
-            if(options)
-                output += " "+getContent(options);
-
-            bot.logger.log(output);
+            bot.logger.log({
+                type: "messageEdited",
+                content,
+                options,
+                guild: {
+                    name: this.guild.name,
+                    id: this.guild.id,
+                },
+            })
 
             return oldedit.apply(this, [content, options]);
         };
@@ -131,19 +127,15 @@ module.exports = {
         Discord.TextChannel.prototype.send = async function send(content, options){
             bot.bus.emit("messageSent", content);
 
-            let output = "";
-            if(this.guild)
-                output += `${this.guild.name} (${this.guild.id})`;
-            else
-                output += "DM Channel";
-            output += " -> ";
-
-            output += getContent(content);
-
-            if(options)
-                output += " "+getContent(options);
-
-            bot.logger.log(output);
+            bot.logger.log({
+                type: "messageSend",
+                content,
+                options,
+                guild: {
+                    name: this.guild.name,
+                    id: this.guild.id,
+                },
+            })
 
             return Reattempt.run({times: 3, onError: (error, done, abort)=>{
                 if(error.code !== "ECONNRESET"){

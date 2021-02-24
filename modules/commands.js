@@ -42,7 +42,28 @@ module.exports = {
                     return;
 
 
-                bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
+                bot.logger.log({
+                    type: "commandPerformed",
+                    command: {
+                        name: command,
+                        id: bot.commands[command].id,
+                        message: message.content,
+                        reference: message.reference,
+                    },
+                    user: {
+                        id: message.author.id,
+                        username: message.author.username,
+                    },
+                    guild: {
+                        id: message.guild ? message.guild.id : null,
+                        name: message.guild ? message.guild.name : null,
+                    },
+                    channel: {
+                        id: message.channel.id,
+                        name: message.channel.name,
+                    }
+                })
+                //bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
                 let span = bot.util.startSpan("Fetch Command Usage")
                 let commandUsage = bot.commandUsages[command];
                 span.end();
@@ -188,7 +209,11 @@ module.exports = {
                         span.end();
 
                         if(!permissions || !permissions.has("SEND_MESSAGES")){
-                            bot.logger.log("No permission to send messages in this channel.");
+                            bot.logger.log({
+                                type: "commandPerformed",
+                                success: false,
+                                outcome: "No Permissions"
+                            })
                             span = bot.util.startSpan("Create DM Channel");
                             const dm = await message.author.createDM();
                             span.end();
