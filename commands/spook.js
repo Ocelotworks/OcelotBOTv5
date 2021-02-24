@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const end = new Date("1 November 2020");
-const start = new Date("1 October 2020");
+const start = new Date("1 October 2021");
 const teaserStart = new Date("1 September 2020");
 module.exports = {
     name: "Spook",
@@ -403,8 +403,7 @@ module.exports = {
             return message.replyLang("GENERIC_DM_CHANNEL");
 
         const now = new Date();
-        if(start-now > 0)
-            return message.replyLang("SPOOK_TEASER", {time: bot.util.prettySeconds((start-now)/1000, message.guild && message.guild.id, message.author.id)});
+        return message.replyLang("SPOOK_TEASER", {time: bot.util.prettySeconds((start-now)/1000, message.guild && message.guild.id, message.author.id), year: now.getFullYear()});
 
         if(end-now <= 0)
             return bot.sendSpookEnd(message.guild.id, message.channel, await bot.database.getSpooked(message.guild.id));
