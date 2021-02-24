@@ -63,7 +63,8 @@ module.exports = {
                 const userObj = await bot.client.users.fetch(user);
                 (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${await bot.database.getBotlistUrl(source)}`)
             }catch(e){
-                console.log(e);
+                // fart
+                //console.log(e);
             }
             for(let i = 0; i < bot.waitingVoteChannels.length; i++){
                 if(bot.waitingVoteChannels[i].members && bot.waitingVoteChannels[i].members.has(user)){
