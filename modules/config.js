@@ -84,7 +84,7 @@ module.exports = {
         };
 
         bot.config.getBool = function getBool(server, property, user){
-            if(bot.feature && bot.feature.unleash && bot.feature.enabled(property, {
+            if(bot.feature && bot.feature.unleash && user && bot.feature.enabled(property, {
                 userId: user.id,
                 sessionId: server,
             }))return true;
