@@ -102,7 +102,7 @@ module.exports = {
         try {
             let input = message.cleanContent.substring(args[0].length + 1);
             if(message.getBool("ai.gpt")){
-                let gptResult = await bot.redis.cache(`ai/gpt/${input}`, async () =>await axios.post(`https://api.openai.com/v1/engines/${message.getSetting("ai.engine")}/completions`, {
+                let gptResult = await bot.redis.cache(`ai/gpt/${input}`, async () =>(await axios.post(`https://api.openai.com/v1/engines/${message.getSetting("ai.engine")}/completions`, {
                     prompt: "You: "+input+"\nOcelotBOT:",
                     temperature: 0.3,
                     max_tokens: 60,
@@ -115,11 +115,11 @@ module.exports = {
                         "Content-Type": "application/json",
                         Authorization: "Bearer "+config.get("gpt"),
                     }
-                }))
-                if(gptResult.data.choices && gptResult.data.choices[0]){
-                    return message.channel.send(gptResult.data.choices[0].text.trim())
+                })).data)
+                if(gptResult.choices && gptResult.choices[0]){
+                    return message.channel.send(gptResult.choices[0].text.trim())
                 }else{
-                    console.log(gptResult.data);
+                    console.log(gptResult);
                     message.replyLang("GENERIC_ERROR");
                 }
             }else {

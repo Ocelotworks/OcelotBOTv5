@@ -1165,13 +1165,12 @@ module.exports = {
         };
 
         let waitingUsers = {};
-        bot.util.getUserInfo = function getUserInfo(userID){
-            return bot.client.users.fetch(userID);
-            // return new Promise(function getUserInfoPromise(fulfill){
-            //     bot.rabbit.event({type: "getUserInfo", payload: userID});
-            //     let timeout = setTimeout(fulfill, 200);
-            //     waitingUsers[userID] = [fulfill, timeout];
-            // });
+        bot.util.getUserInfo = async function getUserInfo(userID){
+            try {
+                return await bot.client.users.fetch(userID);
+            }catch(e){
+                return null
+            }
         };
 
         bot.util.getChannelInfo = function getChannelInfo(channelID){
