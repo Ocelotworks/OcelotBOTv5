@@ -116,8 +116,8 @@ build-shard-master:
       --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
       --build-arg VERSION=$CI_PIPELINE_IID
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
-    - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
-    - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
+    - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
+    - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - curl -X POST $BOT_DEPLOY_WEBHOOK
 
