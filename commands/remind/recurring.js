@@ -17,7 +17,16 @@ module.exports = {
                     if(bot.drain)return;
                     try {
                         let channel = await bot.client.channels.fetch(reminder.channel);
-                        await channel.send(reminder.message);
+                        if(channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES", true)) {
+                            console.log("Bot has send message permissions");
+                            await channel.send(reminder.message);
+                        }else{
+                            scheduledReminder.clear();
+                            await bot.database.removeReminderByUser(reminder.id, reminder.user);
+                            const userDM = await (await bot.client.users.fetch(reminder.user)).createDM();
+                            userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in ${channel} was deleted as OcelotBOT no longer has permission to send messages in that channel.`);
+
+                        }
                     }catch(e){
                         console.log(e);
                         bot.raven.captureException(e);
