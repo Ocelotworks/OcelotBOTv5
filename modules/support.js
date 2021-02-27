@@ -25,7 +25,7 @@ module.exports = {
             if(bot.config.getBool("global", "leaderboard.enable")){
                 await updateLeaderboard("guess.records", "guess/records", "total");
                 await updateLeaderboard("guess", "guess/global", "total");
-                await updateLeaderboard("trivia", "trivia/global", "total");
+                await updateLeaderboard("trivia", "trivia/global", "score");
             }
         }
 

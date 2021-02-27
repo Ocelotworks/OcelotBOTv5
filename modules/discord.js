@@ -110,15 +110,20 @@ module.exports = {
         Discord.Message.prototype.edit = function edit(content, options){
             bot.bus.emit("messageSent", content);
 
-            bot.logger.log({
+            let message = {
                 type: "messageEdited",
                 content,
                 options,
-                guild: {
+            }
+
+            if(this.guild) {
+                message.guild = {
                     name: this.guild.name,
                     id: this.guild.id,
-                },
-            })
+                };
+            }
+
+            bot.logger.log(message)
 
             return oldedit.apply(this, [content, options]);
         };
@@ -127,15 +132,21 @@ module.exports = {
         Discord.TextChannel.prototype.send = async function send(content, options){
             bot.bus.emit("messageSent", content);
 
-            bot.logger.log({
+
+            let message = {
                 type: "messageSend",
                 content,
                 options,
-                guild: {
+            }
+
+            if(this.guild) {
+                message.guild = {
                     name: this.guild.name,
                     id: this.guild.id,
-                },
-            })
+                };
+            }
+
+            bot.logger.log(message)
 
             return Reattempt.run({times: 3, onError: (error, done, abort)=>{
                 if(error.code !== "ECONNRESET"){
