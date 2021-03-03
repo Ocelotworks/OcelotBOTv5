@@ -22,6 +22,7 @@ module.exports = {
                 shard: bot.util.shard,
                 totalShards: process.env.SHARD_COUNT,
                 drain: bot.drain,
+                version: process.env.VERSION,
             });
         });
 

@@ -12,7 +12,7 @@ const naughtyRegex = /((sexy|nude|naked)?)( ?)(young( ?)(girl|boy?)|child|kid(di
 module.exports = {
     name: "Google Image Search",
     usage: "image <text>",
-    rateLimit: 50,
+    rateLimit: 80,
     detailedHelp: "Search Google Images",
     usageExample: "image cute puppies",
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
@@ -35,7 +35,7 @@ module.exports = {
                 let images;
                 const nsfw = (!message.guild || message.channel.nsfw);
                 let type = nsfw ? "nsfw" : "sfw";
-                images = await bot.redis.cache(`images/${type}/${query}`, async ()=>await client.search(query, {safe: nsfw ? "off" : "high"}), 3600)
+                images = await bot.redis.cache(`images/${type}/${query}`, async ()=>await client.search(query, {safe: nsfw ? "off" : "high"}), 36000)
 
                 images = images.filter((image)=>!image.thumbnail.url.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
 
@@ -58,6 +58,7 @@ module.exports = {
                    return embed;
                 }, true);
             }catch(e){
+                message.channel.stopTyping(true);
                 if(e.message === "Response code 403 (Forbidden)"){
                     message.replyLang("REMOVEBG_QUOTA");
                 }else{
