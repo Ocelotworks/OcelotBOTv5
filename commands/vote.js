@@ -33,6 +33,13 @@ module.exports = {
             bot.logger.log("Logging vote from "+user);
             let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
             bot.badges.updateBadge({id: user}, 'votes', count, channel);
+            try {
+                const userObj = await bot.client.users.fetch(user);
+                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${await bot.database.getBotlistUrl(source)}`)
+            }catch(e){
+                // fart
+                console.log(e);
+            }
 
             // bot.matomo.track({
             //     action_name: "Vote",
@@ -59,12 +66,7 @@ module.exports = {
             let source = message.payload.source;
             let voteServer = null;
             let channel = null;
-            try {
-                const userObj = await bot.client.users.fetch(user);
-                (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${await bot.database.getBotlistUrl(source)}`)
-            }catch(e){
-                console.log(e);
-            }
+
             for(let i = 0; i < bot.waitingVoteChannels.length; i++){
                 if(bot.waitingVoteChannels[i].members && bot.waitingVoteChannels[i].members.has(user)){
                     channel = bot.waitingVoteChannels[i];
