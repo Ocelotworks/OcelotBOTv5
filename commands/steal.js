@@ -1,7 +1,7 @@
 const validName = /[a-z_]{2,32}/gi
 module.exports = {
     name: "Steal Emoji",
-    usage: "esteal <URL or emoji>",
+    usage: "esteal <URL or emoji> [name]",
     categories: ["tools"],
     requiredPermissions: ["MANAGE_EMOJIS"],
     commands: ["esteal", "emojisteal", "steal"],
@@ -21,6 +21,11 @@ module.exports = {
             const urlSplit = url.split("/");
             name = urlSplit[urlSplit.length-1].split(".")[0];
             if(!validName.test(name))name = message.id;
+        }
+        for(let i = 1; i < args.length; i++){
+            if(args[i].startsWith("http") || args[i].startsWith("<"))continue;
+            name = args[i];
+            break;
         }
         try {
             let result = await message.guild.emojis.create(url, name, {reason: "Steal emoji command"});

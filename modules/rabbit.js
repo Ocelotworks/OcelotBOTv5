@@ -18,7 +18,7 @@ module.exports = {
             bot.rabbit.connection.on("close", function (err) {
                 console.log(err);
                 bot.logger.warn("RabbitMQ connection closed!");
-                process.exit(62);
+                process.exit(0);
             })
 
             bot.rabbit.connection.on("blocked", (reason) => {
@@ -102,16 +102,12 @@ module.exports = {
 
             bot.bus.on("spawned", (message) => {
                 if (message.meta.appId !== identifier && message.id === bot.util.shard) {
-                    bot.logger.warn(`A new shard (Version ${message.version}) has started with the same ID as me (${message.id}). This shard is version ${bot.version}. Draining.`);
+                    bot.logger.warn(`A new shard (Version ${message.version} Identifier ${message.meta.appId}) has started with the same ID as me (${message.id}). This shard is version ${bot.version} Identifier ${identifier}. Draining.`);
                     bot.drain = true;
-                    if (bot.tasks.length === 0) {
-                        console.log("No tasks, dying");
-                        process.exit(0);
-                    }
                     setTimeout(() => {
-                        console.error("Drain has been set for over 1 minute and I'm still alive, suicide time");
-                        process.exit(61);
-                    }, 60000)
+                        console.error("Drain has been set for over 10 minutes and I'm still alive, suicide time");
+                        process.exit(0);
+                    }, 600000)
                 }
             })
 
@@ -135,8 +131,11 @@ module.exports = {
 
             bot.rabbit.emit = async function emit(type, payload) {
                 let buf = Buffer.from(JSON.stringify(payload));
-                if (!bot.rabbit.pubsub[type])
+                if (!bot.rabbit.pubsub[type]) {
+                    if(bot.rabbit.pubsub[type] === false)return;
+                    bot.rabbit.pubsub[type] = false;
                     bot.rabbit.pubsub[type] = await bot.rabbit.createPubsub(type);
+                }
                 bot.rabbit.pubsub[type].publish(type, '', buf, {appId: identifier});
             };
 

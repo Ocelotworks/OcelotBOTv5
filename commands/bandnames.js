@@ -148,6 +148,8 @@ module.exports = {
     usage: "bandname",
     rateLimit: 10,
     detailedHelp: "Creates a brand new band name",
+    usageExample: "bandname",
+    responseExample: "🎸 🎹 Starting a band? You should call it `Darude The Elephant`",
     categories: ["fun"],
     requiredPermissions: [],
     commands: ["bandname", "bandnames", "bn", "bands"],

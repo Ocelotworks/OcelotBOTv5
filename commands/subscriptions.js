@@ -2,6 +2,8 @@ const fs = require('fs');
 
 let subs = {
 };
+
+let removedSubs = [];
 let checkTimer;
 
 module.exports = {
@@ -39,11 +41,7 @@ module.exports = {
                }
            }
         });
-        let loadedSubscriptions = false;
-
-        bot.client.on("ready", async function discordReady(){
-            if(loadedSubscriptions) return;
-            loadedSubscriptions = true;
+        bot.client.once("ready", async function discordReady(){
             bot.logger.log("Loading active subscriptions...");
             const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.cache.keyArray());
             bot.logger.log(`Loaded ${rawSubs.length} subs`);
@@ -86,6 +84,7 @@ module.exports = {
            if(subs.hasOwnProperty(data)){
                const subList = subs[data];
                const sub = subList[0];
+               if(removedSubs.includes(sub.id))continue;
                if(bot.subscriptions[sub.type]){
                    if(!bot.subscriptions[sub.type].check)continue;
                     let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
@@ -118,7 +117,7 @@ module.exports = {
         if(!message.guild)
             return message.channel.send(":bangbang: This can't be used in a DM channel.");
 
-        bot.util.standardNestedCommand(message, args, bot, "subscriptions", {subs});
+        bot.util.standardNestedCommand(message, args, bot, "subscriptions", {subs, removedSubs});
         return;
 
         const action = args[1].toLowerCase();

@@ -534,7 +534,7 @@ module.exports = {
             bot.logger.log(url);
             if(message.getBool("imageFilter.useExternal")) {
                 span = bot.util.startSpan("Receive from RPC");
-                let response = await bot.redis.cache(`imageProcessor/${input}/${filter}`, async ()=>await bot.rabbit.rpc("imageFilter", {url, filter, input, format}, 60000, {durable: true}));
+                let response = await bot.redis.cache(`imageProcessor/${filter}/${input}/${url}`, async ()=>await bot.rabbit.rpc("imageFilter", {url, filter, input, format}, 60000, {durable: true}));
                 span.end();
                 if(loadingMessage) {
                     span = bot.util.startSpan("Edit loading message");
@@ -645,7 +645,7 @@ module.exports = {
                     const arg = args[argument];
                     if(arg) {
                         const user = bot.util.getUserFromMention(arg);
-                        if (user) return user.avatarURL({dynamic: true, format: "png"});
+                        if (user) return user.displayAvatarURL({dynamic: true, format: "png"});
                         if (arg.startsWith("https://tenor.com/"))return await bot.util.getImageFromTenorURL(arg);
                         if (arg.startsWith("https://gfycat.com/"))return await bot.util.getImageFromGfycatURL(arg);
                         if (arg.startsWith("http")) return arg;
@@ -655,7 +655,7 @@ module.exports = {
                     }
                     return bot.util.getImageFromPrevious(message, argument);
                 }else if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
-                    return message.mentions.users.first().avatarURL({dynamic: true, format: "png"});
+                    return message.mentions.users.first().displayAvatarURL({dynamic: true, format: "png"});
                 } else if (args[2] && args[2].indexOf("http") > -1) {
                     return args[2]
                 } else if (args[1] && args[1].indexOf("http") > -1) {
@@ -1165,13 +1165,12 @@ module.exports = {
         };
 
         let waitingUsers = {};
-        bot.util.getUserInfo = function getUserInfo(userID){
-            return bot.client.users.fetch(userID);
-            // return new Promise(function getUserInfoPromise(fulfill){
-            //     bot.rabbit.event({type: "getUserInfo", payload: userID});
-            //     let timeout = setTimeout(fulfill, 200);
-            //     waitingUsers[userID] = [fulfill, timeout];
-            // });
+        bot.util.getUserInfo = async function getUserInfo(userID){
+            try {
+                return await bot.client.users.fetch(userID);
+            }catch(e){
+                return null
+            }
         };
 
         bot.util.getChannelInfo = function getChannelInfo(channelID){

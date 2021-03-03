@@ -4,6 +4,8 @@ module.exports = {
     categories: ["nsfw", "fun"],
     rateLimit: 10,
     detailedHelp: "Give someone a nice, if not occasionally creepy compliment.",
+    usageExample: "compliment @Big P",
+    responseExample: "@Big P, you could have a career as a phone sex line operator",
     commands: ["compliment", "complement", "complament"],
     init: function(bot){
       bot.usedTopicalCompliments = [];

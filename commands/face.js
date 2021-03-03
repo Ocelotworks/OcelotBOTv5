@@ -6,6 +6,8 @@ module.exports = {
     accessLevel: 0,
     rateLimit: 10,
     detailedHelp: "Find faces in an image and guess their age.",
+    usageExample: "age @Big P",
+    responseExample: "🤔 That looks like a 22 year old male.",
     categories: ["tools", "image"],
     commands: ["face", "age"],
     run: async function run(message, args, bot) {

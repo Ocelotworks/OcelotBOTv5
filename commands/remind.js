@@ -6,8 +6,11 @@ const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『�
 
 module.exports = {
     name: "Reminders",
-    usage: "remind <in> \"<message>\"",
+    usage: "remind <in/every> \"<message>\"",
     accessLevel: 0,
+    detailedHelp: "Set one-time reminders or set recurring reminders",
+    usageExample: "remind in 5 minutes 'fix reminders'",
+    responseExample: "⏱ Reminding you in **5 minutes**",
     commands: ["remind", "remindme", "reminder", "setreminder", "reminders"],
     categories: ["tools"],
     // This doesn't feel right
@@ -42,7 +45,7 @@ module.exports = {
             let claimed = [];
             for (let i = 0; i < reminderResult.length; i++) {
                 const reminder = reminderResult[i];
-                if (reminder.server && bot.client.guilds.cache.has(reminder.server)) {
+                if ((reminder.server && bot.client.guilds.cache.has(reminder.server)) || (!reminder.server && bot.util.shard == 0)) {
                     bot.logger.log(`Reminder ${reminder.id} belongs to this shard.`);
                     const remainingTime = reminder.at - now;
                     if (remainingTime <= 0) {

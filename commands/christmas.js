@@ -3,6 +3,8 @@ module.exports = {
     name: "Christmas Countdown",
     usage: "christmas",
     detailedHelp: "How long until Christmas?",
+    usageExample: "christmas",
+    responseExample: "🎅 **306 days, 11 hours, 19 minutes and 54 seconds** until christmas!",
     categories: ["tools"],
     commands: ["xmas", "christmas"],
     run: function run(message, args, bot) {

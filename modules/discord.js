@@ -110,19 +110,20 @@ module.exports = {
         Discord.Message.prototype.edit = function edit(content, options){
             bot.bus.emit("messageSent", content);
 
-            let output = "";
-            if(this.guild)
-                output += `${this.guild.name} (${this.guild.id})`;
-            else
-                output += "DM Channel";
-            output += `${this.id} Edited -> `;
+            let message = {
+                type: "messageEdited",
+                content,
+                options,
+            }
 
-            output += getContent(content);
+            if(this.guild) {
+                message.guild = {
+                    name: this.guild.name,
+                    id: this.guild.id,
+                };
+            }
 
-            if(options)
-                output += " "+getContent(options);
-
-            bot.logger.log(output);
+            bot.logger.log(message)
 
             return oldedit.apply(this, [content, options]);
         };
@@ -131,19 +132,21 @@ module.exports = {
         Discord.TextChannel.prototype.send = async function send(content, options){
             bot.bus.emit("messageSent", content);
 
-            let output = "";
-            if(this.guild)
-                output += `${this.guild.name} (${this.guild.id})`;
-            else
-                output += "DM Channel";
-            output += " -> ";
 
-            output += getContent(content);
+            let message = {
+                type: "messageSend",
+                content,
+                options,
+            }
 
-            if(options)
-                output += " "+getContent(options);
+            if(this.guild) {
+                message.guild = {
+                    name: this.guild.name,
+                    id: this.guild.id,
+                };
+            }
 
-            bot.logger.log(output);
+            bot.logger.log(message)
 
             return Reattempt.run({times: 3, onError: (error, done, abort)=>{
                 if(error.code !== "ECONNRESET"){
@@ -160,7 +163,16 @@ module.exports = {
         //bot.presenceMessage = null;
 
         const clientOpts = {
-            allowedMentions: {parse: ["users"]}
+            allowedMentions: {parse: ["users"]},
+            messageCacheLifetime: 60,
+            messageSweepInterval: 60,
+            messageEditHistoryMaxSize: 1,
+            presence: {
+                activity: {
+                    name: "Windows XP Startup Tune",
+                    type: "LISTENING",
+                }
+            }
         };
 
         if(process.env.GATEWAY){
@@ -414,7 +426,7 @@ module.exports = {
             setInterval(()=>{
                 if(!process.connected) {
                     bot.logger.warn("Shard was orphaned, killing...");
-                    process.exit(-1);
+                    process.exit(0);
                 }
             }, 1000);
         })
@@ -489,6 +501,7 @@ module.exports = {
                 guilds: bot.client.guilds.cache.size,
                 users: bot.client.users.cache.size,
                 channels: bot.client.channels.cache.size,
+                unavailable: bot.client.guilds.cache.filter((g)=>!g.available).size,
                 ws: {
                     shard: {
                         ping: shard.ping,

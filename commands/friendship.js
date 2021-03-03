@@ -11,6 +11,7 @@ module.exports = {
     name: "Friendship ended with",
     usage: "friendship <@user1> <@user2>",
     detailedHelp: "Officially end your friendship with someone.",
+    usageExample: "friendship @Big P @Small P",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["friendship", "freindship"],
     categories: ["image", "memes"],

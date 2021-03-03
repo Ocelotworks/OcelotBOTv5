@@ -1,6 +1,7 @@
 module.exports = {
     name: "User Avatar",
     usage: "avatar <@User>",
+    usageExample: "avatar @Big P",
     detailedHelp: "Get a user's avatar. Or your own.",
     categories: ["image", "tools"],
     requiredPermissions: ["EMBED_LINKS"],
@@ -14,7 +15,7 @@ module.exports = {
             embed:{
                 title: `${target.username}'s Avatar:`,
                 image: {
-                    url: target.avatarURL({dynamic: true, format: "png", size: 4096})
+                    url: target.displayAvatarURL({dynamic: true, format: "png", size: 4096})
                 }
             }
 

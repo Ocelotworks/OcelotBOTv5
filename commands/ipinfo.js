@@ -31,7 +31,9 @@ module.exports = {
     name: "IP Info",
     usage: "ipinfo <ip>",
     categories: ["tools"],
-    requiredPermissions: [],
+    detailedHelp: "Get information about an IP address",
+    usageExample: "ipinfo 8.8.8.8",
+    requiredPermissions: ["EMBED_LINKS"],
     commands: ["ipinfo", "ip"],
     run: async function run(message, args, bot) {
         if(args.length < 2){

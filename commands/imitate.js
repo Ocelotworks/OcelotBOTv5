@@ -10,7 +10,8 @@ module.exports = {
     usage: "imitate <@user> <message>",
     rateLimit: 100,
     detailedHelp: "Send a message as if you're another user",
-    usageExample: "imitate I'm a big stupid four eyed lamo and I wear the same stupid sweater every day",
+    usageExample: "imitate @Ned Flanders I'm a big stupid four eyed lamo and I wear the same stupid sweater every day",
+    responseExample: "I'm a big stupid four eyed lamo and I wear the same stupid sweater every day",
     requiredPermissions: ["MANAGE_WEBHOOKS"],
     commands: ["imitate", "imatate"],
     categories: ["fun"],
@@ -40,7 +41,7 @@ module.exports = {
         const webhooks = await message.channel.fetchWebhooks();
         let webhook;
         if(webhooks.size < 1){
-            webhook = await message.channel.createWebhook("OcelotBOT", bot.client.user.avatarURL({dynamic: true, format: "png"}));
+            webhook = await message.channel.createWebhook("OcelotBOT", bot.client.user.displayAvatarURL({dynamic: true, format: "png"}));
         }else{
             webhook = webhooks.first();
         }
@@ -52,7 +53,7 @@ module.exports = {
 
         webhook.send(content, {
             username: target.displayName,
-            avatarURL: target.user.avatarURL({dynamic: 'true'}),
+            avatarURL: target.user.displayAvatarURL({dynamic: 'true'}),
             disableEveryone: true
         });
 

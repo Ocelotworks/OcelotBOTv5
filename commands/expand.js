@@ -7,6 +7,8 @@ module.exports = {
     commands: ["expand"],
     categories: ["text", "fun"],
     detailedHelp: "Makes the text look like t h i s ",
+    usageExample: "expand aesthetic",
+    responseExample: "a e s t h e t i c",
     run: function run(message, args) {
         if(args.length < 2)
             return  message.replyLang("EXPAND_NO_TEXT");

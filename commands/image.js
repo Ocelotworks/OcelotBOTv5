@@ -12,8 +12,9 @@ const naughtyRegex = /((sexy|nude|naked)?)( ?)(young( ?)(girl|boy?)|child|kid(di
 module.exports = {
     name: "Google Image Search",
     usage: "image <text>",
-    rateLimit: 50,
+    rateLimit: 80,
     detailedHelp: "Search Google Images",
+    usageExample: "image cute puppies",
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
     commands: ["image", "images", "im", "googleimage"],
     vote: true,
@@ -34,16 +35,21 @@ module.exports = {
                 let images;
                 const nsfw = (!message.guild || message.channel.nsfw);
                 let type = nsfw ? "nsfw" : "sfw";
-                images = await bot.redis.cache(`images/${type}/${query}`, async ()=>await client.search(query, {safe: nsfw ? "off" : "high"}), 3600)
+                images = await bot.redis.cache(`images/${type}/${query}`, async ()=>await client.search(query, {safe: nsfw ? "off" : "high"}), 36000)
+
+                images = images.filter((image)=>!image.thumbnail.url.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
+
                 if(images.length === 0)
                     return message.replyLang(!message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
+
+
 
                 bot.util.standardPagination(message.channel, images, async function(page, index){
                     let embed = new Discord.MessageEmbed();
                     embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true, format: "png"}));
                     embed.setTimestamp(new Date());
-                    embed.setTitle(`Image results for '${query}'`);
-                    if(message.getSetting("image.useThumbnails") || !page.url)
+                    embed.setTitle(`Image results for '${query.substring(0, 200)}'`);
+                    if(!page.thumbnail.url.startsWith("x-raw-image") && (message.getSetting("image.useThumbnails") || !page.url))
                         embed.setImage(page.thumbnail.url);
                     else
                         embed.setImage(page.url);
@@ -52,6 +58,7 @@ module.exports = {
                    return embed;
                 }, true);
             }catch(e){
+                message.channel.stopTyping(true);
                 if(e.message === "Response code 403 (Forbidden)"){
                     message.replyLang("REMOVEBG_QUOTA");
                 }else{

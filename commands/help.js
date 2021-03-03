@@ -10,6 +10,7 @@ module.exports = {
     name: "Help Command",
     usage: "help [command]",
     detailedHelp: "Get a list of commands here.",
+    usageExample: "help",
     commands: ["help", "commands"],
     categories: ["meta"],
     init: function init(bot){

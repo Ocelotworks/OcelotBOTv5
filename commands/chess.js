@@ -18,6 +18,8 @@ module.exports = {
     usage: "chess start <@player>/<move>",
     accessLevel: 0,
     detailedHelp: "Start a game of chess. If you don't know how to play chess, this game isn't for you.\nIf you do know how to play chess, it's probably also not for you.",
+    usageExample: "chess start @Small P",
+    responseExample: "🚨 @Small P, @Big P challenges you to a game of **chess**! Type **!chess accept** to start!",
     commands: ["chess", "playchess"],
     categories: ["games"],
     run: function run(message, args, bot){
