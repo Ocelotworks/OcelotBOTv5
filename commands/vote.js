@@ -20,6 +20,8 @@ module.exports = {
             bot.logger.log(`Vote Source: ${source}`);
 
 
+            await bot.database.addPoints(message.author.id, 10, `vote`);
+
             let lastVote = await bot.database.getLastVote(user);
             if(lastVote[0])
                 lastVote = lastVote[0]['MAX(timestamp)'];

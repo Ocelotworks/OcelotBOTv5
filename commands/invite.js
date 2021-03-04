@@ -20,7 +20,8 @@ module.exports = {
                     let server = await bot.client.guilds.fetch(serverId);
                     let dmChannel = await user.createDM();
                     let referrals = await bot.database.getReferralCount(code);
-                    dmChannel.send(`:tada: Someone just used your invite code (${code}) to invite OcelotBOT to **${server.name}**!\nYou've now referred **${referrals}** servers with this code.`);
+                    let points = await bot.database.addPoints(message.author.id, 100, `referral`);
+                    dmChannel.send(`:tada: You just earned <:points:817100139603820614>100 because someone used your invite code (${code}) to invite OcelotBOT to **${server.name}**!\nYou now have <:points:817100139603820614>${points.toLocaleString()}.`);
                 }catch(e){
                     console.log(e);
                     bot.logger.warn(`Failed to send referral message: ${e.message}`);
