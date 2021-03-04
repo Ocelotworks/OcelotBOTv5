@@ -112,9 +112,17 @@ module.exports = {
 
             let message = {
                 type: "messageEdited",
-                content,
-                options,
             }
+
+            if(content.attachment)
+                message.content = {name: content.name, attachment: true}
+            else
+                message.content = content;
+
+            if(options && options.attachment)
+                message.options = {name: options.name, attachment: true};
+            else
+                message.options = options;
 
             if(this.guild) {
                 message.guild = {
@@ -128,16 +136,30 @@ module.exports = {
             return oldedit.apply(this, [content, options]);
         };
 
+        const oldStartTyping = Discord.TextChannel.prototype.startTyping;
+        Discord.TextChannel.prototype.startTyping = function startTyping(){
+            oldStartTyping.apply(this, arguments);
+            setTimeout(()=>{
+                this.stopTyping();
+            }, 60000);
+        }
+
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = async function send(content, options){
             bot.bus.emit("messageSent", content);
 
-
             let message = {
                 type: "messageSend",
-                content,
-                options,
             }
+            if(content.attachment)
+                message.content = {name: content.name, attachment: true}
+            else
+                message.content = content;
+
+            if(options && options.attachment)
+                message.options = {name: options.name, attachment: true};
+            else
+                message.options = options;
 
             if(this.guild) {
                 message.guild = {
