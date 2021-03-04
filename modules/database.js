@@ -1084,6 +1084,20 @@ module.exports = {
             },
             getRecurringRemindersForDMs(receiver){
                 return knex.select().from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({receiver}).whereNull("server");
+            },
+            async getPoints(user){
+                let result = await knex.select().from("ocelotbot_points").where({user}).limit(1);
+                if(result[0])
+                    return result[0].points;
+                await knex.insert({user, points: 100}).into("ocelotbot_points");
+                return 100;
+            },
+            async addPoints(user, amount, origin){
+                let currentPoints = await bot.database.getPoints(user);
+                let newPoints = currentPoints+amount;
+                await knex("ocelotbot_points").update({points: newPoints}).where({user}).limit(1);
+                await knex.insert({user, amount, origin, balance_before: currentPoints, balance_after: newPoints}).into("ocelotbot_points_transactions");
+                return newPoints;
             }
         };
     }
