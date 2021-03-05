@@ -292,13 +292,13 @@ module.exports = {
                     }
                     await bot.database.unleaveServer(guild.id);
                     let mainChannel = bot.util.determineMainChannel(guild);
-                    if(bot.config.getBool("global", "welcome.enabled")) {
+                    if(!bot.drain && bot.config.getBool("global", "welcome.enabled")) {
                         if (mainChannel) {
                             bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
                             let embed = new Discord.MessageEmbed();
                             embed.setColor(bot.config.get("global", "welcome.embedColour"));
                             embed.setTitle("Welcome to OcelotBOT!");
-                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/#commands) or by typing ${guild.getSetting("prefix")}help.`);
+                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/commands) or by typing ${guild.getSetting("prefix")}help.`);
                             embed.addField("Prefix", `The default prefix is !, if you want to change it type **${guild.getSetting("prefix")}settings set prefix %**`);
                             embed.addField("Wholesome?", `Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **${guild.getSetting("prefix")}settings set wholesome true**`);
                             embed.addField("Administrators", `You can change the bot's settings by typing **${guild.getSetting("prefix")}settings help**`);
