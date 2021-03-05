@@ -42,7 +42,7 @@ module.exports = {
                     top_p: 0.3,
                     frequency_penalty: 0.7,
                     presence_penalty: 0.8,
-                    stop: [":","\n"]
+                    stop: [message.author.username+":","\n"]
                 }, {
                     headers: {
                         "Content-Type": "application/json",
@@ -53,7 +53,7 @@ module.exports = {
                     let result = gptResult.choices[0].text.trim();
                     if(result.length == 0)
                         result = "[No Response]";
-                    else if(result.toLowerCase().indexOf("don't know") === -1)
+                    else if(result.toLowerCase().indexOf("don't know") === -1 && result.toLowerCase().indexOf("not sure") > -1 && result.toLowerCase().indexOf("don't understand") > -1)
                         contexts[message.channel.id] = `${message.author.username}: ${input}\nOcelotBOT: ${result}\n`;
                     else
                         contexts[message.channel.id] = null;
