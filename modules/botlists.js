@@ -37,6 +37,17 @@ module.exports = {
             if(!guild.available)return;
             return module.exports.updateBotLists(bot)
         });
+
+        bot.bus.on("commandLoadFinished", async function(){
+            return axios.post("https://api.discordservices.net/bot/146293573422284800/commands", Object.keys(bot.commandObjects).map((key)=>{
+                const cmd = bot.commandObjects[key]
+                return {
+                    command: "!"+cmd.commands[0],
+                    desc: cmd.name,
+                    category: cmd.categories[0],
+                }
+            }), {headers: {authorization: (await bot.database.getBotlist("services"))[0].statsKey}})
+        })
     },
     updateBotLists: async function updateBotLists(bot){
         let botLists = await bot.database.getBotlistsWithStats();

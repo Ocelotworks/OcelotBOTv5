@@ -1066,6 +1066,9 @@ module.exports = {
                 let result = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_referrals").where({id});
                 return result[0]['COUNT(*)'];
             },
+            getBotlist: function(id){
+                return knex.select().from("ocelotbot_botlists").where({id}).limit(1);
+            },
             getBotlistsWithStats: function(){
                 return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl");
             },
