@@ -117,7 +117,9 @@ module.exports = {
                     }
                 })).data)
                 if(gptResult.choices && gptResult.choices[0]){
-                    return message.channel.send(gptResult.choices[0].text.trim())
+                    let result = gptResult.choices[0].text.trim();
+                    if(result.length == 0)result = "[No Response]";
+                    return message.channel.send(result);
                 }else{
                     console.log(gptResult);
                     message.replyLang("GENERIC_ERROR");
