@@ -7,7 +7,7 @@ module.exports = {
     detailedHelp: "Generates a random inspirational quote",
     categories: ["image", "fun"],
     requiredPermissions: ["ATTACH_FILES"],
-    commands: ["inspiration", "inspirational", "inspirationalquote"],
+    commands: ["inspiration", "inspirational", "inspirationalquote", "inspo"],
     unwholesome: true,
     run: async function(message, args, bot){
         let result = await axios.get("https://inspirobot.me/api?generate=true");
