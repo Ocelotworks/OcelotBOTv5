@@ -36,13 +36,13 @@ module.exports = {
                 if(input.lastIndexOf("\n") > -1)
                     input = input.substring(input.lastIndexOf("\n"))
                 let gptResult = await bot.redis.cache(`ai/gpt/${input}`, async () =>(await axios.post(`https://api.openai.com/v1/engines/${message.getSetting("ai.engine")}/completions`, {
-                    prompt: `${contexts[message.channel.id] || ""}You: ${input}\nOcelotBOT:`,
+                    prompt: `OcelotBOT is a chat bot.\n${contexts[message.channel.id] || ""}${message.author.username}: ${input}\nOcelotBOT:`,
                     temperature: 0.5,
                     max_tokens: 60,
                     top_p: 0.3,
-                    frequency_penalty: 0.5,
-                    presence_penalty: 0.6,
-                    stop: ["You:","\n","OcelotBOT:"]
+                    frequency_penalty: 0.7,
+                    presence_penalty: 0.8,
+                    stop: [":","\n"]
                 }, {
                     headers: {
                         "Content-Type": "application/json",
@@ -53,8 +53,10 @@ module.exports = {
                     let result = gptResult.choices[0].text.trim();
                     if(result.length == 0)
                         result = "[No Response]";
+                    else if(result.toLowerCase().indexOf("don't know") === -1)
+                        contexts[message.channel.id] = `${message.author.username}: ${input}\nOcelotBOT: ${result}\n`;
                     else
-                        contexts[message.channel.id] = `You: ${input}\nOcelotBOT:${gptResult.choices[0].text}\n`;
+                        contexts[message.channel.id] = null;
                     return message.channel.send(result);
                 }else{
                     console.log(gptResult);
