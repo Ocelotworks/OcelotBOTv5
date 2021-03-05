@@ -5,7 +5,7 @@ module.exports = {
     commands: ["getconfig", "config"],
     run:  function(message, args, bot){
         let output = `Config Property: \`${args[2]}\`\n`;
-        if(bot.feature && bot.feature.enabled(args[2], {
+        if(bot.feature && bot.feature.enabled && bot.feature.enabled(args[2], {
             userId: message.author.id,
             sessionId: message.guild.id,
         }))

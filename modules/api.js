@@ -6,7 +6,7 @@ module.exports = {
 
 
         function writeOpenMetric(name, value){
-            return `# TYPE ${name} gauge\n${name}{shard="${bot.util.shard}"} ${value}\n`
+            return `# TYPE ${name} gauge\n${name}{shard="${bot.util.shard}", dockerHost="${process.env.DOCKER_HOST}", hostname="${os.hostname()}"} ${value}\n`
         }
 
 
@@ -23,6 +23,7 @@ module.exports = {
                 totalShards: process.env.SHARD_COUNT,
                 drain: bot.drain,
                 version: process.env.VERSION,
+                dockerHost: process.env.DOCKER_HOST,
             });
         });
 

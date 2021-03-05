@@ -107,33 +107,14 @@ module.exports = {
         };
 
         const oldedit = Discord.Message.prototype.edit;
-        Discord.Message.prototype.edit = function edit(content, options){
+        Discord.Message.prototype.edit = async function edit(content, options){
             bot.bus.emit("messageSent", content);
 
-            let message = {
-                type: "messageEdited",
-            }
+            let editedMessage = await oldedit.apply(this, [content, options]);
 
-            if(content.attachment)
-                message.content = {name: content.name, attachment: true}
-            else
-                message.content = content;
+            bot.logger.log({type: "messageEdited", message: bot.util.serialiseMessage(editedMessage)})
 
-            if(options && options.attachment)
-                message.options = {name: options.name, attachment: true};
-            else
-                message.options = options;
-
-            if(this.guild) {
-                message.guild = {
-                    name: this.guild.name,
-                    id: this.guild.id,
-                };
-            }
-
-            bot.logger.log(message)
-
-            return oldedit.apply(this, [content, options]);
+            return editedMessage;
         };
 
         const oldStartTyping = Discord.TextChannel.prototype.startTyping;
@@ -148,38 +129,11 @@ module.exports = {
         Discord.TextChannel.prototype.send = async function send(content, options){
             bot.bus.emit("messageSent", content);
 
-            let message = {
-                type: "messageSend",
-            }
-            if(content.attachment)
-                message.content = {name: content.name, attachment: true}
-            else
-                message.content = content;
+            let sentMessage = await oldsend.apply(this, [content, options]);
 
-            if(options && options.attachment)
-                message.options = {name: options.name, attachment: true};
-            else
-                message.options = options;
+            bot.logger.log({type: "messageSend", message: bot.util.serialiseMessage(sentMessage)})
 
-            if(this.guild) {
-                message.guild = {
-                    name: this.guild.name,
-                    id: this.guild.id,
-                };
-            }
-
-            bot.logger.log(message)
-
-            return Reattempt.run({times: 3, onError: (error, done, abort)=>{
-                if(error.code !== "ECONNRESET"){
-                    Sentry.captureException(error);
-                    bot.logger.warn("Send Error: "+error);
-                    oldsend.apply(this, ["Send Error: " + error]);
-                    abort();
-                }else{
-                    bot.logger.warn("Connection reset, retrying send...");
-                }
-            }}, ()=>oldsend.apply(this, [content, options]));
+            return sentMessage;
         };
 
         //bot.presenceMessage = null;
@@ -292,13 +246,13 @@ module.exports = {
                     }
                     await bot.database.unleaveServer(guild.id);
                     let mainChannel = bot.util.determineMainChannel(guild);
-                    if(bot.config.getBool("global", "welcome.enabled")) {
+                    if(!bot.drain && bot.config.getBool("global", "welcome.enabled")) {
                         if (mainChannel) {
                             bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
                             let embed = new Discord.MessageEmbed();
                             embed.setColor(bot.config.get("global", "welcome.embedColour"));
                             embed.setTitle("Welcome to OcelotBOT!");
-                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/#commands) or by typing ${guild.getSetting("prefix")}help.`);
+                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/commands) or by typing ${guild.getSetting("prefix")}help.`);
                             embed.addField("Prefix", `The default prefix is !, if you want to change it type **${guild.getSetting("prefix")}settings set prefix %**`);
                             embed.addField("Wholesome?", `Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **${guild.getSetting("prefix")}settings set wholesome true**`);
                             embed.addField("Administrators", `You can change the bot's settings by typing **${guild.getSetting("prefix")}settings help**`);
