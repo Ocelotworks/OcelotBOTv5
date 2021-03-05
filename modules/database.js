@@ -1070,7 +1070,7 @@ module.exports = {
                 return knex.select().from("ocelotbot_botlists").where({id}).limit(1);
             },
             getBotlistsWithStats: function(){
-                return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl");
+                return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1});
             },
             getBotlistUrl: async function(id){
                 let url = await knex.select("botUrl").from("ocelotbot_botlists").where({id}).orWhere({id: 'topgg'}).limit(1);
