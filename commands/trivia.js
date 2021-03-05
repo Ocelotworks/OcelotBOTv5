@@ -220,6 +220,8 @@ module.exports = {
                                             if(streak > 1)
                                                 output += `(🔥 **${streak}**) `;
 
+                                            bot.database.addPoints(message.author.id, 1+points, `trivia win`);
+
                                             bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(async function(){
                                                 let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['count(*)'];
                                                 await bot.badges.updateBadge(await bot.client.users.fetch(correct[i]), 'trivia', count, message.channel);
@@ -227,8 +229,11 @@ module.exports = {
                                             });
                                         }
 
-
                                         output += "\n";
+
+                                        if(message.getBool("points.enabled")){
+                                            output += `+<:points:817100139603820614>${1+points}\n`
+                                        }
 
                                         output += await bot.lang.getTranslation(message.guild.id, "TRIVIA_WIN"+ (correct.length === 1 ? "_SINGLE" : ""), {points});
                                     }
