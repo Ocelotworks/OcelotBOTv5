@@ -1,6 +1,5 @@
 const fs = require('fs');
 const Sentry = require('@sentry/node');
-
 const { crc32 } = require('crc');
 
 module.exports = {
@@ -298,6 +297,7 @@ module.exports = {
                 }
 
                 bot.commandObjects[command] = loadedCommand;
+
                 for (let i in loadedCommand.commands) {
                     if (loadedCommand.commands.hasOwnProperty(i)) {
                         const commandName = loadedCommand.commands[i];
@@ -347,6 +347,7 @@ module.exports = {
                 }
                 bot.bus.emit("commandLoadFinished");
                 bot.logger.log("Finished loading commands.");
+
                 bot.client.once("ready", ()=>{
                     bot.rabbit.event({
                         type: "commandList",
