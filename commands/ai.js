@@ -51,8 +51,10 @@ module.exports = {
                 })).data)
                 if(gptResult.choices && gptResult.choices[0]){
                     let result = gptResult.choices[0].text.trim();
-                    if(result.length == 0)result = "[No Response]";
-                    contexts[message.channel.id] = `You: ${input}\nOcelotBOT:${gptResult.choices[0].text}\n`;
+                    if(result.length == 0)
+                        result = "[No Response]";
+                    else
+                        contexts[message.channel.id] = `You: ${input}\nOcelotBOT:${gptResult.choices[0].text}\n`;
                     return message.channel.send(result);
                 }else{
                     console.log(gptResult);
