@@ -1411,6 +1411,53 @@ module.exports = {
         }
 
 
+        bot.util.serialiseUser = function serialiseUser(user){
+            return {
+                avatar: user.avatarURL({size: 32, format: "png"}),
+                id: user.id,
+                username: user.username,
+                bot: user.bot,
+            }
+        }
+
+        bot.util.serialiseMember = function serialiseMember(member){
+            return {
+                id: member.id,
+                bot: member.user.bot,
+                avatar: member.user.avatarURL({size: 32, format: "png"}),
+                nickname: member.nickname,
+                username: member.user.username,
+                colour: member.displayHexColor,
+            }
+        }
+
+        bot.util.serialiseChannel = function serialiseChannel(channel){
+            return {
+                id: channel.id,
+                name: channel.name
+            }
+        }
+
+        bot.util.serialiseGuild = function serialiseGuild(guild){
+            if(!guild) return null;
+            return {
+                id: guild.id,
+                name: guild.name,
+            }
+        }
+
+        bot.util.serialiseMessage = function serialiseMessage(message){
+            return {
+                guild: bot.util.serialiseGuild(message.guild),
+                channel: bot.util.serialiseChannel(message.channel),
+                author: message.member ?  bot.util.serialiseMember(message.member) : bot.util.serialiseUser(message.author),
+                content: message.content,
+                reference: message.reference,
+                attachments: message.attachments.map((a)=>a.name),
+                embeds: message.embeds,
+            }
+        }
+
 
         bot.util.shard = parseInt(process.env.SHARD)-1
 

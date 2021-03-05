@@ -45,22 +45,10 @@ module.exports = {
                     type: "commandPerformed",
                     command: {
                         name: command,
-                        id: bot.commands[command].id,
-                        message: message.content,
-                        reference: message.reference,
+                        id: bot.commandUsages[command].id,
+                        content: message.content,
                     },
-                    user: {
-                        id: message.author.id,
-                        username: message.author.username,
-                    },
-                    guild: {
-                        id: message.guild ? message.guild.id : null,
-                        name: message.guild ? message.guild.name : null,
-                    },
-                    channel: {
-                        id: message.channel.id,
-                        name: message.channel.name,
-                    }
+                    message: bot.util.serialiseMessage(message),
                 })
                 //bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
                 let span = bot.util.startSpan("Fetch Command Usage")

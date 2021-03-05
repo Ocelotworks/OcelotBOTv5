@@ -48,7 +48,10 @@ module.exports = {
                 }
 
                 if(message.mentions && message.mentions.users.has(bot.client.user.id) && !message.author.bot){
-                    bot.logger.warn(`Mentioned by ${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}): ${message.cleanContent}`);
+                    bot.logger.log({
+                        type: "mentioned",
+                        message: bot.util.serialiseMessage(message),
+                    })
                     if(message.content.toLowerCase().indexOf("prefix") > -1 )
                         bot.util.replyTo(message, `My prefix is **${message.getSetting("prefix")}**\nTo change the prefix, do ${message.getSetting("prefix")}settings set prefix %\nWhere % is the prefix you want.`);
                     else if(message.content.toLowerCase().indexOf("help") > -1 || message.content.toLowerCase().indexOf("commands") > -1)
