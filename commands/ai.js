@@ -37,7 +37,7 @@ module.exports = {
                     input = input.substring(input.lastIndexOf("\n"))
                 let gptResult = await bot.redis.cache(`ai/gpt/${input}`, async () =>(await axios.post(`https://api.openai.com/v1/engines/${message.getSetting("ai.engine")}/completions`, {
                     prompt: `OcelotBOT is a chat bot.\n${contexts[message.channel.id] || ""}${message.author.username}: ${input}\nOcelotBOT:`,
-                    temperature: 0.5,
+                    temperature: 0.7,
                     max_tokens: 60,
                     top_p: 0.3,
                     frequency_penalty: 0.7,
