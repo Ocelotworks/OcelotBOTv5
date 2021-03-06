@@ -31,10 +31,10 @@ module.exports = {
     run: async function (message, args, bot) {
         let fullArgs = Discord.escapeMarkdown(args.slice(1).join(" "));
         let options = fullArgs.split(',');
-        if(options.length < 2)
+        if (options.length < 2)
             return message.channel.send(`:bangbang: You need to enter at least 2 poll items. For example, ${args[0]} Dogs, Cats`);
 
-        if(options.length > 20)
+        if (options.length > 20)
             return message.channel.send(":bangbang: You can only enter a maximum of 20 poll options.");
 
         bot.tasks.startTask("poll", message.id);
@@ -64,13 +64,13 @@ module.exports = {
 
         await sentMessage.awaitReactions(async function (reaction, user) {
             if (user.id === bot.client.user.id) return false;
-            let vote = reaction.emoji.name.substr(0, 1)-1;
+            let vote = reaction.emoji.name.substr(0, 1) - 1;
 
             //Have they voted before?
             if (voters.indexOf(user.id) !== -1) {
                 //remove their vote and reaction
                 votes[currentVotes[user.id]]--;
-                if(voteReactions[user].emoji.name !== reaction.emoji.name)
+                if (voteReactions[user].emoji.name !== reaction.emoji.name)
                     voteReactions[user].users.remove(user);
             }
 
@@ -87,12 +87,12 @@ module.exports = {
         let winningOption = 0;
         let draw = false;
 
-        for(let i = 0; i < votes.length; i++){
+        for (let i = 0; i < votes.length; i++) {
             if (votes[i] > votes[winningOption])
                 winningOption = i;
         }
 
-        if(votes.indexOf(winningOption) > 1){
+        if (votes.indexOf(winningOption) > 1) {
             draw = true;
         }
 
@@ -101,7 +101,7 @@ module.exports = {
             sentMessage.reactions.removeAll();
         }
 
-        if(!draw) {
+        if (!draw) {
             message.channel.send(options[winningOption] + " wins the vote!");
         } else {
             message.channel.send("There was a draw!");

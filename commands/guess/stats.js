@@ -1,11 +1,8 @@
-
-
-
 module.exports = {
     name: "Stop Guessing",
     usage: "stop",
     commands: ["stop", "end"],
-    run:  async function (message, args, bot, runningGames) {
+    run: async function (message, args, bot, runningGames) {
         message.channel.startTyping();
         try {
             let span = bot.util.startSpan("Get guess stats");
@@ -16,9 +13,9 @@ module.exports = {
             stats.averageTimeParsed = bot.util.prettySeconds(stats.averageTime / 1000, message.guild && message.guild.id, message.author.id);
             stats.totalTimeParsed = bot.util.prettySeconds(stats.totalTime / 1000, message.guild && message.guild.id, message.author.id);
             message.replyLang("SONGGUESS_STATS", stats)
-        }catch(e){
+        } catch (e) {
             bot.raven.captureException(e);
-        }finally{
+        } finally {
             message.channel.stopTyping(true);
         }
     }

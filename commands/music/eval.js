@@ -10,13 +10,13 @@ module.exports = {
     commands: ["eval"],
     hidden: true,
     run: async function (message, args, bot, music) {
-       if(message.getBool("admin"))return;
+        if (message.getBool("admin")) return;
 
-       let term = message.cleanContent.substring(args[0].length+args[1].length+2).trim();
-       try {
-           message.channel.send("```\n"+JSON.stringify(eval(term))+"\n```");
-       }catch(e){
-           message.channel.send("```\n"+e+"\n```");
-       }
+        let term = message.cleanContent.substring(args[0].length + args[1].length + 2).trim();
+        try {
+            message.channel.send("```\n" + JSON.stringify(eval(term)) + "\n```");
+        } catch (e) {
+            message.channel.send("```\n" + e + "\n```");
+        }
     }
 };

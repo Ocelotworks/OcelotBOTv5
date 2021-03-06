@@ -17,7 +17,7 @@ module.exports = {
             return message.replyLang("MUSIC_NOTHING_PLAYING");
 
         //if(listener.playing && listener.voiceChannel.members.size > 2)
-         //   return message.channel.send(`:bangbang: You can only use this command if you're the only one listening.`);
+        //   return message.channel.send(`:bangbang: You can only use this command if you're the only one listening.`);
 
         message.channel.send(":wave: Goodbye.");
     }

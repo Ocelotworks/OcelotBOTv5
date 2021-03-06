@@ -14,7 +14,7 @@ module.exports = {
     commands: ["crop"],
     categories: ["image"],
     run: async function run(message, args, bot) {
-        const url =  await bot.util.getImage(message, args);
+        const url = await bot.util.getImage(message, args);
 
         request({
             method: 'POST',
@@ -27,10 +27,10 @@ module.exports = {
             body: {
                 url: url
             }
-        }, async function(err, resp, body){
-            if(err)
+        }, async function (err, resp, body) {
+            if (err)
                 return message.replyLang("GENERIC_ERROR");
-            if(body.areaOfInterest)
+            if (body.areaOfInterest)
                 return bot.util.processImageFilter(module, message, args, "crop", [body.areaOfInterest.w, body.areaOfInterest.h, body.areaOfInterest.x, body.areaOfInterest.y]);
             else
                 message.replyLang("CROP_NO_AOI");

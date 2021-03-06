@@ -6,8 +6,8 @@ module.exports = {
     categories: ["image", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bernie", "sanders"],
-    run: function(message, args, bot){
-        if(!args[1]){
+    run: function (message, args, bot) {
+        if (!args[1]) {
             message.replyLang("IMAGE_NO_TEXT");
             return;
         }

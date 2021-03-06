@@ -6,9 +6,12 @@ module.exports = {
         const result = await bot.database.addRoleMessage(message.channel.id, message.id);
         const id = result[0];
 
-        if(message.reference && message.reference.messageID){
-            roleData[message.guild.id] = {messageID: id, message: await message.channel.messages.fetch(message.reference.messageID)};
-        }else{
+        if (message.reference && message.reference.messageID) {
+            roleData[message.guild.id] = {
+                messageID: id,
+                message: await message.channel.messages.fetch(message.reference.messageID)
+            };
+        } else {
             roleData[message.guild.id] = {messageID: id, message: message};
         }
 

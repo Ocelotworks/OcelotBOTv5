@@ -10,19 +10,19 @@ module.exports = {
     usage: "info <name>",
     commands: ["info"],
     run: async function (message, args, bot) {
-        if(!message.guild)
+        if (!message.guild)
             return message.replyLang("GENERIC_DM_CHANNEL");
-        if(!args[2])
+        if (!args[2])
             return message.replyLang("MEME_INFO_HELP");
 
         let meme = (await bot.database.getMemeInfo(args[2].toLowerCase(), message.guild.id))[0];
 
-        if(!meme)
+        if (!meme)
             return message.replyLang("MEME_NOT_FOUND");
 
         let embed = new Discord.MessageEmbed();
 
-        if(meme.meme.startsWith("http"))
+        if (meme.meme.startsWith("http"))
             embed.setThumbnail(meme.meme);
 
         embed.setTitle(await message.getLang("MEME_INFO_HEADER", {meme: meme.name}));

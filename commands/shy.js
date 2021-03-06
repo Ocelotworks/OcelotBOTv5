@@ -5,8 +5,8 @@ module.exports = {
     commands: ["shy"],
     rateLimit: 10,
     categories: ["image", "memes"],
-    run:  function(message, args, bot){
-        if(!args[1]){
+    run: function (message, args, bot) {
+        if (!args[1]) {
             message.replyLang("IMAGE_NO_TEXT");
             return;
         }

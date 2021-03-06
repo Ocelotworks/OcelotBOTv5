@@ -1,5 +1,5 @@
-const   request = require('request'),
-        config  = require('config');
+const request = require('request'),
+    config = require('config');
 
 module.exports = {
     name: "OCR",
@@ -9,9 +9,9 @@ module.exports = {
     categories: ["tools"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["ocr"],
-    run: async function(message, args, bot){
-        const url =  await bot.util.getImage(message, args);
-        if(!url){
+    run: async function (message, args, bot) {
+        const url = await bot.util.getImage(message, args);
+        if (!url) {
             message.replyLang("CRUSH_NO_USER");
             message.channel.stopTyping(true);
             return;
@@ -23,21 +23,21 @@ module.exports = {
                 apikey: config.get("Commands.b.key"),
                 OCREngine: 2,
             }
-        }, async function OCRResponse(err, resp, body){
-            if(err){
+        }, async function OCRResponse(err, resp, body) {
+            if (err) {
                 bot.logger.error(err);
-                if(err.ErrorMessage){
+                if (err.ErrorMessage) {
                     message.channel.send(err.ErrorMessage.join("\n"));
-                }else{
+                } else {
 
                     bot.raven.captureException(err);
                     message.replyLang("GENERIC_ERROR");
                 }
-            }else{
-                try{
+            } else {
+                try {
                     let output = "";
                     const data = JSON.parse(body);
-                    if(!data.ParsedResults){
+                    if (!data.ParsedResults) {
                         bot.logger.log(data);
                         message.replyLang("GENERIC_ERROR");
                         return;
@@ -50,14 +50,14 @@ module.exports = {
                         output += data.ParsedResults[i].ParsedText + "\n"
                     }
 
-                    if(output === "\n"){
+                    if (output === "\n") {
                         return message.replyLang("B_NO_TEXT");
                     }
 
 
                     message.channel.send(`\`\`\`\n${output}\n\`\`\``);
 
-                }catch(e){
+                } catch (e) {
                     console.log(e);
                     bot.logger.error(e);
                     bot.raven.captureException(e);

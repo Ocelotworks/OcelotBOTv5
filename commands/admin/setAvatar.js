@@ -2,14 +2,14 @@ module.exports = {
     name: "Set Avatar",
     usage: "avatar <path>",
     commands: ["avatar", "setavatar"],
-    run: async function(message, args, bot){
-        if(args[1]){
+    run: async function (message, args, bot) {
+        if (args[1]) {
             try {
                 bot.client.user.setAvatar(args[2]);
-            }catch(e){
+            } catch (e) {
                 message.channel.send(e.message);
             }
-        }else{
+        } else {
             message.channel.send("Usage: !admin avatar <path>");
         }
     }

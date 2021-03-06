@@ -2,14 +2,14 @@ module.exports = {
     name: "Give Points",
     usage: "givePoints",
     commands: ["givepoints", "points"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
         let target;
         let amount = parseInt(args[3]);
-        if(isNaN(amount))
+        if (isNaN(amount))
             return message.channel.send("Usage: !admin givePoints @user amount");
-        if(!message.mentions.users.first()){
+        if (!message.mentions.users.first()) {
             target = args[2];
-        }else{
+        } else {
             target = message.mentions.users.first().id;
         }
 

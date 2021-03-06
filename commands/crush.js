@@ -5,9 +5,9 @@ module.exports = {
     categories: ["image", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["crush"],
-    run: async function run(message, args, bot){
+    run: async function run(message, args, bot) {
         const url = await bot.util.getImage(message, args);
-        if(!url){
+        if (!url) {
             message.replyLang("CRUSH_NO_USER");
             return;
         }

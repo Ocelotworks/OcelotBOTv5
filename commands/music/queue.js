@@ -9,25 +9,25 @@ module.exports = {
     name: "Queue Song",
     usage: "queue <url/next>",
     commands: ["queue", "play", "add", "q"],
-    run: async function(message, args, bot, music){
-        if(!args[2])
+    run: async function (message, args, bot, music) {
+        if (!args[2])
             return message.replyLang("MUSIC_QUEUE_USAGE");
 
-        let query = message.cleanContent.substring(args[0].length+args[1].length+2).trim();
+        let query = message.cleanContent.substring(args[0].length + args[1].length + 2).trim();
         let guild = message.guild.id;
-        if(!music.listeners[guild]){
-            if(!message.member.voice || !message.member.voice.channel)
+        if (!music.listeners[guild]) {
+            if (!message.member.voice || !message.member.voice.channel)
                 return message.channel.send(":warning: You have to be in a voice channel to use this command.");
             bot.logger.log("Constructing listener");
-           await music.constructListener(message.guild, message.member.voice.channel, message.channel);
+            await music.constructListener(message.guild, message.member.voice.channel, message.channel);
         }
 
-       // await message.channel.startTyping();
+        // await message.channel.startTyping();
         try {
             bot.logger.log("Adding song to queue");
             let song = await music.addToQueue(guild, query, message.author.id);
             bot.logger.log("Added song to queue successfully");
-            if(!music.listeners[guild])
+            if (!music.listeners[guild])
                 return message.channel.send(":thinking: Something went horribly wrong whilst queueing this song. Please try again.");
             if (!song)
                 return message.channel.send(":warning: No results.");
@@ -39,10 +39,10 @@ module.exports = {
                 return message.channel.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
             }
             message.channel.send(`:white_check_mark: Playing **${song.author} - ${song.title}**.`);
-        }catch(e){
+        } catch (e) {
             message.replyLang("GENERIC_ERROR");
             Sentry.captureException(e);
-        }finally{
+        } finally {
             //message.channel.stopTyping(true);
         }
 

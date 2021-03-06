@@ -10,7 +10,7 @@ module.exports = {
     name: "Force input",
     usage: "forceinput <id> <text>",
     commands: ["force", "forceinput"],
-    run: async function(message, args, bot, data){
+    run: async function (message, args, bot, data) {
         data.gameContainers[args[3]].gameIterator.next(Discord.escapeMarkdown(args.slice(4).join(" ")));
     }
 };

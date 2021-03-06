@@ -1,6 +1,6 @@
 const fs = require('fs');
 const Sentry = require('@sentry/node');
-const { crc32 } = require('crc');
+const {crc32} = require('crc');
 
 module.exports = {
     name: "Commands",
@@ -12,32 +12,32 @@ module.exports = {
 
         bot.prefixCache = {};
 
-        process.on('exit', async (code)=>{
+        process.on('exit', async (code) => {
             bot.logger.log("Process close requested", code);
             bot.drain = true;
-            for(let command in bot.commandObjects){
-                if(bot.commandObjects.hasOwnProperty(command) && bot.commandObjects[command].shutdown){
+            for (let command in bot.commandObjects) {
+                if (bot.commandObjects.hasOwnProperty(command) && bot.commandObjects[command].shutdown) {
                     bot.logger.log("Shutting down ", command);
                     await bot.commandObjects[command].shutdown(bot);
                 }
             }
         })
 
-        bot.client.on("message",function onMessage(message) {
-            if(bot.drain || message.author.bot)return;
-            Sentry.configureScope(async function onMessage(scope){
+        bot.client.on("message", function onMessage(message) {
+            if (bot.drain || message.author.bot) return;
+            Sentry.configureScope(async function onMessage(scope) {
                 scope.setUser({
                     username: message.author.username,
                     id: message.author.id
                 });
                 const prefix = message.getSetting("prefix");
-                if(!prefix)return;//Bot hasn't fully loaded
+                if (!prefix) return;//Bot hasn't fully loaded
                 const prefixLength = prefix.length;
-                if(!message.content.startsWith(prefix))
+                if (!message.content.startsWith(prefix))
                     return;
                 const args = message.content.split(/ +/g);
                 const command = args[0].substring(prefixLength).toLowerCase();
-                if(!bot.commands[command])
+                if (!bot.commands[command])
                     return;
 
 
@@ -56,8 +56,8 @@ module.exports = {
                 span.end();
 
                 message.channel.stopTyping();
-                if(commandUsage.vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))){
-                    if(message.getSetting("restrictionType") === "vote") {
+                if (commandUsage.vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))) {
+                    if (message.getSetting("restrictionType") === "vote") {
                         span = bot.util.startSpan("Get last vote time")
                         let lastVote = await bot.database.getLastVote(message.author.id);
                         if (lastVote[0])
@@ -70,59 +70,59 @@ module.exports = {
                             return message.replyLang("COMMAND_VOTE_REQUIRED")
                         }
                         span.end();
-                    }else{
+                    } else {
                         span = bot.util.startSpan("Fetch user in support server");
                         // This is dumb, but I can't avoid this
                         try {
                             await (await bot.client.guilds.fetch("322032568558026753")).members.fetch(message.author.id)
                             span.end();
-                        }catch(e){
+                        } catch (e) {
                             span.end("Not in support server");
                             return message.channel.send("You must join the support server or purchase premium to enable this command. You can join the support server here: https://discord.gg/PTaXZmE")
                         }
                     }
                 }
 
-                if(commandUsage.premium && !(message.getBool("premium") || message.getBool("serverPremium"))) {
+                if (commandUsage.premium && !(message.getBool("premium") || message.getBool("serverPremium"))) {
                     span.end("Requires premium");
                     return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type \\${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using \\${message.getSetting("prefix")}settings disableCommand ${command}`);
                 }
 
-                if(message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1) {
+                if (message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1) {
                     span.end("NSFW Disabled");
                     return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
                 }
 
-                if(message.guild && !message.channel.nsfw && commandUsage.categories.indexOf("nsfw") > -1) {
+                if (message.guild && !message.channel.nsfw && commandUsage.categories.indexOf("nsfw") > -1) {
                     span.end("NSFW Channel required")
                     return message.channel.send(`:warning: This command can only be used in NSFW channels.`);
                 }
 
-                if(message.getBool(`${command}.disable`)) {
+                if (message.getBool(`${command}.disable`)) {
                     span.end("Command disabled");
                     return bot.logger.log(`${command} is disabled in this server: ${message}`);
                 }
 
-                if(message.getSetting(`${command}.override`)) {
+                if (message.getSetting(`${command}.override`)) {
                     span.end("Command override")
                     return message.channel.send(message.getSetting(`${command}.override`));
                 }
 
-                if(message.getBool("wholesome")){
-                    if(commandUsage.categories.indexOf("nsfw") > -1 || commandUsage.unwholesome){
+                if (message.getBool("wholesome")) {
+                    if (commandUsage.categories.indexOf("nsfw") > -1 || commandUsage.unwholesome) {
                         span.end("Wholesome mode enabled - unwholesome command")
                         return message.channel.send(":star:  This command is not allowed in wholesome mode!");
                     }
-                    if(bot.util.swearRegex.exec(message.content)) {
+                    if (bot.util.swearRegex.exec(message.content)) {
                         span.end("Wholesome mode enabled - swearing")
                         return message.channel.send("No swearing!");
                     }
                 }
 
                 const channelDisable = message.getSetting(`${command}.channelDisable`);
-                if(channelDisable && channelDisable.indexOf(message.channel.id) > -1){
+                if (channelDisable && channelDisable.indexOf(message.channel.id) > -1) {
                     span.end("Channel disabled")
-                    if(message.getBool("sendDisabledMessage")) {
+                    if (message.getBool("sendDisabledMessage")) {
                         const dm = await message.author.createDM();
                         dm.send(`${command} is disabled in that channel`);
                         //TODO: COMMAND_DISABLED_CHANNEL
@@ -131,9 +131,9 @@ module.exports = {
                     return;
                 }
                 const channelRestriction = message.getSetting(`${command}.channelRestriction`);
-                if(channelRestriction && channelRestriction.indexOf(message.channel.id) === -1){
+                if (channelRestriction && channelRestriction.indexOf(message.channel.id) === -1) {
                     span.end("Channel restricted")
-                    if(message.getBool("sendDisabledMessage")) {
+                    if (message.getBool("sendDisabledMessage")) {
                         const dm = await message.author.createDM();
                         dm.send(`${command} is disabled in that channel`);
                         //TODO: COMMAND_DISABLED_CHANNEL
@@ -141,22 +141,22 @@ module.exports = {
                     }
                     return;
                 }
-                if(bot.checkBan(message)) {
+                if (bot.checkBan(message)) {
                     span.end("User banned")
                     return bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
                 }
 
-                if(bot.isRateLimited(message.author.id, message.guild ? message.guild.id : "global")){
+                if (bot.isRateLimited(message.author.id, message.guild ? message.guild.id : "global")) {
                     bot.bus.emit("commandRatelimited", command, message);
-                    if(bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
+                    if (bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
                         console.log(bot.rateLimits[message.author.id]);
                         bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM"} (${message.guild ? message.guild.id : message.channel.id}) was ratelimited`);
                         const now = new Date();
-                        const timeDifference = now-bot.lastRatelimitRefresh;
-                        let timeLeft = 60000-timeDifference;
-                        message.replyLang("COMMAND_RATELIMIT", {timeLeft: bot.util.prettySeconds(timeLeft/1000, message.guild && message.guild.id, message.author.id)});
+                        const timeDifference = now - bot.lastRatelimitRefresh;
+                        let timeLeft = 60000 - timeDifference;
+                        message.replyLang("COMMAND_RATELIMIT", {timeLeft: bot.util.prettySeconds(timeLeft / 1000, message.guild && message.guild.id, message.author.id)});
                         bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
-                    }else{
+                    } else {
                         console.log(bot.rateLimits[message.author.id]);
                         bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM"} (${message.guild ? message.guild.id : message.channel.id}) was ratelimited`);
                     }
@@ -182,20 +182,20 @@ module.exports = {
 
                 try {
                     span = bot.util.startSpan("Send notice")
-                    if(message.getSetting("notice")){
+                    if (message.getSetting("notice")) {
                         message.channel.send(message.getSetting("notice"));
                         bot.database.deleteSetting(message.guild.id, "notice");
-                        if(bot.config.cache[message.guild.id])
+                        if (bot.config.cache[message.guild.id])
                             bot.config.cache[message.guild.id].notice = null;
                     }
                     span.end();
 
-                    if(message.channel.permissionsFor){
+                    if (message.channel.permissionsFor) {
                         span = bot.util.startSpan("Get channel permissions");
                         const permissions = await message.channel.permissionsFor(bot.client.user);
                         span.end();
 
-                        if(!permissions || !permissions.has("SEND_MESSAGES")){
+                        if (!permissions || !permissions.has("SEND_MESSAGES")) {
                             bot.logger.log({
                                 type: "commandPerformed",
                                 success: false,
@@ -211,12 +211,12 @@ module.exports = {
                         }
 
                         span = bot.util.startSpan("Calculate permissions");
-                        if(bot.commandUsages[command].requiredPermissions && !permissions.has(bot.commandUsages[command].requiredPermissions)){
+                        if (bot.commandUsages[command].requiredPermissions && !permissions.has(bot.commandUsages[command].requiredPermissions)) {
                             let permission = "";
-                            for(let i = 0; i < bot.commandUsages[command].requiredPermissions.length; i++){
+                            for (let i = 0; i < bot.commandUsages[command].requiredPermissions.length; i++) {
                                 permission += bot.util.permissionsMap[bot.commandUsages[command].requiredPermissions[i]];
-                                if(i < bot.commandUsages[command].requiredPermissions.length-1)
-                                    permission+=", ";
+                                if (i < bot.commandUsages[command].requiredPermissions.length - 1)
+                                    permission += ", ";
                             }
                             span.end();
                             span.end("Missing permission");
@@ -237,7 +237,7 @@ module.exports = {
                     bot.raven.captureException(e);
                     span.end("Exception");
                 } finally {
-                    bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command ,message.content).catch(function (e) {
+                    bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command, message.content).catch(function (e) {
                         Sentry.captureException(e);
                         bot.logger.error(e);
                     })
@@ -246,7 +246,7 @@ module.exports = {
         });
 
 
-        bot.loadCommand = function loadCommand(command, reload){
+        bot.loadCommand = function loadCommand(command, reload) {
             try {
                 const module = `${__dirname}/../commands/${command}`;
                 if (reload) {
@@ -290,7 +290,8 @@ module.exports = {
                     if (loadedCommand.commands.hasOwnProperty(i)) {
                         const commandName = loadedCommand.commands[i];
                         if (bot.commands[commandName] && !reload) {
-                            bot.rabbit.event({type: "warning",
+                            bot.rabbit.event({
+                                type: "warning",
                                 payload: {
                                     id: "commandOverwritten-" + commandName,
                                     message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`
@@ -305,21 +306,21 @@ module.exports = {
                         };
                     }
                 }
-            }catch(e){
+            } catch (e) {
                 bot.logger.error("failed to load command", e);
             }
         };
 
-       // module.exports.loadPrefixCache(bot);
+        // module.exports.loadPrefixCache(bot);
         module.exports.loadCommands(bot);
     },
-    loadPrefixCache: async function(bot){
+    loadPrefixCache: async function (bot) {
         const prefixes = await bot.database.getPrefixes();
-        for(let i = 0; i < prefixes.length; i++){
+        for (let i = 0; i < prefixes.length; i++) {
             const prefix = prefixes[i];
             bot.prefixCache[prefix.server] = prefix.prefix;
         }
-        bot.logger.log("Populated prefix cache with "+Object.keys(bot.prefixCache).length+" servers");
+        bot.logger.log("Populated prefix cache with " + Object.keys(bot.prefixCache).length + " servers");
     },
     loadCommands: function (bot) {
         fs.readdir(`${__dirname}/../commands`, function readCommands(err, files) {
@@ -336,7 +337,7 @@ module.exports = {
                 bot.bus.emit("commandLoadFinished");
                 bot.logger.log("Finished loading commands.");
 
-                bot.client.once("ready", ()=>{
+                bot.client.once("ready", () => {
                     bot.rabbit.event({
                         type: "commandList",
                         payload: bot.commandUsages

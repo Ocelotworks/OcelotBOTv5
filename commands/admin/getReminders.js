@@ -29,7 +29,7 @@ module.exports = {
                 },
                 columns: ['id', 'at', 'user', 'channel', 'message']
             });
-            await sentMessage.edit(`Page ${index+1}/${pages.length}\n\`\`\`\n${data}\n\`\`\``);
+            await sentMessage.edit(`Page ${index + 1}/${pages.length}\n\`\`\`\n${data}\n\`\`\``);
         };
 
         await buildPage();

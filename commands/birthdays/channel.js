@@ -1,30 +1,30 @@
 module.exports = {
     name: "Set Birthday Channel",
-    usage: "channel #name/clear" ,
+    usage: "channel #name/clear",
     commands: ["setchannel", "channel"],
-    init: async function init(bot){
-        bot.client.once("ready", ()=>{
+    init: async function init(bot) {
+        bot.client.once("ready", () => {
             const now = new Date();
             let date = new Date();
-            if(date.getHours() >= 10) {
-                date.setDate(date.getDate()+1);
+            if (date.getHours() >= 10) {
+                date.setDate(date.getDate() + 1);
             }
             date.setHours(10, 0, 0, 0);
-            let initialTimer = date-now;
+            let initialTimer = date - now;
             bot.logger.log(`Sending birthday messages in ${initialTimer}ms`);
             setTimeout(processChannels, initialTimer, bot);
         });
     },
-    run: async function(message, args, bot){
-        if(!message.member.hasPermission("MANAGE_CHANNELS"))return message.channel.send("You must have the Manage Channels permission to use this command.");
+    run: async function (message, args, bot) {
+        if (!message.member.hasPermission("MANAGE_CHANNELS")) return message.channel.send("You must have the Manage Channels permission to use this command.");
         let target = message.channel.id;
-        if(message.mentions.channels.size > 0)
+        if (message.mentions.channels.size > 0)
             target = message.mentions.channels.first().id;
 
-        if(args[2] && args[2].toLowerCase() === "clear"){
+        if (args[2] && args[2].toLowerCase() === "clear") {
             await bot.config.set(message.guild.id, "birthday.channel", null);
             message.channel.send("The Birthdays channel has been disabled.");
-        }else{
+        } else {
             await bot.config.set(message.guild.id, "birthday.channel", target);
             message.channel.send(`The Birthdays channel has been set to <#${target}>. At 10AM GMT, any birthdays on that day will be announced! To disable this, do **${args[0]} ${args[1]} clear**`)
         }
@@ -32,13 +32,13 @@ module.exports = {
 };
 
 
-async function processChannels(bot){
-    if(bot.drain)return;
-    setTimeout(processChannels,8.64e7, bot);
+async function processChannels(bot) {
+    if (bot.drain) return;
+    setTimeout(processChannels, 8.64e7, bot);
     let birthdays = await bot.database.getBirthdaysTodayForShard(bot.client.guilds.cache.keyArray());
     bot.logger.log(`Got ${birthdays.length} birthdays today.`);
     const nowYear = new Date().getFullYear();
-    for(let i = 0; i < birthdays.length; i++){
+    for (let i = 0; i < birthdays.length; i++) {
         try {
             const birthday = birthdays[i];
             let birthdayChannelId = bot.config.get(birthday.server, "birthday.channel", birthday.user);
@@ -50,7 +50,7 @@ async function processChannels(bot){
             } else {
                 birthdayChannel.send(`:tada: Today is <@${birthday.user}>'s birthday!`);
             }
-        }catch(e){
+        } catch (e) {
             bot.raven.captureException(e);
             console.error(e);
         }

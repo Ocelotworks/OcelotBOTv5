@@ -104,15 +104,15 @@ module.exports = {
     rateLimit: 10,
     hidden: true,
     commands: ["open", "crate"],
-    init: function(bot){
+    init: function (bot) {
         return;
         bot.crates = {};
 
 
-        bot.bus.on("commandPerformed", function giveCrate(command, message){
-            if(message.getBool("create.disable"))return;
-            if(Math.random() > message.getSetting("crate.chance")){
-                if(bot.crates[message.author.id])
+        bot.bus.on("commandPerformed", function giveCrate(command, message) {
+            if (message.getBool("create.disable")) return;
+            if (Math.random() > message.getSetting("crate.chance")) {
+                if (bot.crates[message.author.id])
                     bot.crates[message.author.id]++;
                 else
                     bot.crates[message.author.id] = 1;
@@ -121,7 +121,7 @@ module.exports = {
                 embed.setThumbnail("https://i.imgur.com/0JkoaVs.png");
                 embed.setTitle("You got an OcelotCRATE");
                 embed.setDescription(`Open it with ${message.getSetting("prefix")}open`);
-               // embed.setFooter("(April Fools)");
+                // embed.setFooter("(April Fools)");
                 embed.setColor("#3ba13b");
                 message.channel.send("", embed);
                 bot.logger.log(`Giving a crate to ${message.author.username} (${message.author.id})`);
@@ -131,18 +131,18 @@ module.exports = {
     },
     run: async function run(message, args, bot) {
         return;
-       if(message.getBool("crate.disable"))return;
-       if(bot.crates[message.author.id] && bot.crates[message.author.id] > 0){
+        if (message.getBool("crate.disable")) return;
+        if (bot.crates[message.author.id] && bot.crates[message.author.id] > 0) {
 
 
-           let i = crateIndex % crateTypes.length;
+            let i = crateIndex % crateTypes.length;
 
-            if(i === 12) {
+            if (i === 12) {
                 let hasBadge = await bot.database.hasBadge(message.author.id, 53);
                 if (!hasBadge) {
                     bot.badges.giveBadge(message.author, message.channel, 53);
                     return;
-                }else{
+                } else {
                     i = 0;
                 }
             }
@@ -155,20 +155,20 @@ module.exports = {
             embed.setDescription(crate.desc);
             embed.setThumbnail("https://i.imgur.com/0JkoaVs.png");
             embed.setColor("#3ba13b");
-            if(crate.image)
+            if (crate.image)
                 embed.setImage(crate.image);
 
             message.channel.send("", embed);
 
-            if(i !== 0)
+            if (i !== 0)
                 bot.crates[message.author.id]--;
 
             bot.logger.log(bot.crates[message.author.id]);
 
             crateIndex++;
-       }else{
-           message.channel.send("You don't have any crates!");
-       }
+        } else {
+            message.channel.send("You don't have any crates!");
+        }
 
     }
 };

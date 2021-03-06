@@ -15,22 +15,22 @@ module.exports = {
     name: "Leaderboards",
     usage: "leaderboard all/monthly/weekly/yearly server",
     commands: ["leaderboard", "lb"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
 
         let server = "global";
 
-        if(!args[2] || args[2].toLowerCase() === "server") {
-            if(args[2] && args[2].toLowerCase() === "server")
+        if (!args[2] || args[2].toLowerCase() === "server") {
+            if (args[2] && args[2].toLowerCase() === "server")
                 args[3] = "server";
             args[2] = "all";
         }
 
-        if(args[3] && args[3].toLowerCase() === "server" && message.guild)
+        if (args[3] && args[3].toLowerCase() === "server" && message.guild)
             server = message.guild.id;
 
         const timescale = timescales[args[2].toLowerCase()];
 
-        if(!timescale)
+        if (!timescale)
             return message.channel.send(`:bangbang: The available leaderboards are: **all, year, month and week** Add **server** to see the leaderboard for this server, for example: **${args[0]} leaderboard year server**`);
 
         message.channel.startTyping();
@@ -67,11 +67,11 @@ module.exports = {
             span.end();
 
             message.channel.send(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total players${timescale === "all" ? " of all time" : ` this ${timescale}`}${server === "global" ? "." : " in this server."}\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
-        }catch(e){
+        } catch (e) {
             bot.logger.log(e);
             Sentry.captureException(e);
             message.replyLang("GENERIC_ERROR");
-        }finally{
+        } finally {
             message.channel.stopTyping(true);
         }
     }

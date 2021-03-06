@@ -10,21 +10,21 @@ module.exports = {
     name: "Voice Connections",
     usage: "voiceConnections",
     commands: ["vcs", "voiceconnections"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
         let nodes = [];
         let players = [];
-        bot.lavaqueue.manager.nodes.forEach(function(node, host){
+        bot.lavaqueue.manager.nodes.forEach(function (node, host) {
             nodes.push({
-                "host ::": node.host+" ::",
+                "host ::": node.host + " ::",
                 id: node.id,
-                ready: node.connected ? "✔": "✖",
+                ready: node.connected ? "✔" : "✖",
                 playing: node.stats.playingPlayers,
                 total: node.stats.players,
                 memory: bot.util.prettyMemory(node.stats.memory.used),
                 cpu: node.stats.cpu.lavalinkLoad.toFixed(2),
             });
         });
-        bot.lavaqueue.manager.players.forEach((player)=>{
+        bot.lavaqueue.manager.players.forEach((player) => {
 
             const track = player.track && encoding.decode(player.track);
             players.push({

@@ -25,44 +25,44 @@ module.exports = {
     responseExample: "42.",
     categories: ["fun"],
     rateLimit: 20,
-    commands: ["ai","cleverbot"],
+    commands: ["ai", "cleverbot"],
     run: async function run(message, args, bot) {
-        if(args.length < 2)
+        if (args.length < 2)
             return message.replyLang("8BALL_NO_QUESTION");
 
         try {
             let input = message.cleanContent.substring(args[0].length + 1);
-            if(message.getBool("ai.gpt")){
-                if(input.lastIndexOf("\n") > -1)
+            if (message.getBool("ai.gpt")) {
+                if (input.lastIndexOf("\n") > -1)
                     input = input.substring(input.lastIndexOf("\n"))
-                let gptResult = await bot.redis.cache(`ai/gpt/${input}`, async () =>(await axios.post(`https://api.openai.com/v1/engines/${message.getSetting("ai.engine")}/completions`, {
+                let gptResult = await bot.redis.cache(`ai/gpt/${input}`, async () => (await axios.post(`https://api.openai.com/v1/engines/${message.getSetting("ai.engine")}/completions`, {
                     prompt: `OcelotBOT is a chat bot.\n${contexts[message.channel.id] || ""}${message.author.username}: ${input}\nOcelotBOT:`,
                     temperature: 0.7,
                     max_tokens: 60,
                     top_p: 0.3,
                     frequency_penalty: 0.7,
                     presence_penalty: 0.8,
-                    stop: [message.author.username+":","\n"]
+                    stop: [message.author.username + ":", "\n"]
                 }, {
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: "Bearer "+config.get("gpt"),
+                        Authorization: "Bearer " + config.get("gpt"),
                     }
                 })).data)
-                if(gptResult.choices && gptResult.choices[0]){
+                if (gptResult.choices && gptResult.choices[0]) {
                     let result = gptResult.choices[0].text.trim();
-                    if(result.length == 0)
+                    if (result.length == 0)
                         result = "[No Response]";
-                    else if(result.toLowerCase().indexOf("don't know") === -1 && result.toLowerCase().indexOf("not sure") > -1 && result.toLowerCase().indexOf("don't understand") > -1)
+                    else if (result.toLowerCase().indexOf("don't know") === -1 && result.toLowerCase().indexOf("not sure") > -1 && result.toLowerCase().indexOf("don't understand") > -1)
                         contexts[message.channel.id] = `${message.author.username}: ${input}\nOcelotBOT: ${result}\n`;
                     else
                         contexts[message.channel.id] = null;
                     return message.channel.send(result);
-                }else{
+                } else {
                     console.log(gptResult);
                     message.replyLang("GENERIC_ERROR");
                 }
-            }else {
+            } else {
                 message.channel.startTyping();
                 let response = await bot.redis.cache(`ai/${input}`, async () => await clev.query(encodeURIComponent(input), {cs: contexts[message.channel.id]}), 3600);
                 contexts[message.channel.id] = response.cs;
@@ -77,7 +77,7 @@ module.exports = {
             }
             message.channel.stopTyping();
 
-        }catch(e){
+        } catch (e) {
             console.log(e);
             message.replyLang("GENERIC_ERROR");
             message.channel.stopTyping();

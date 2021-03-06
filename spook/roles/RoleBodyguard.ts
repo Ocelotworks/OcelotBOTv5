@@ -1,7 +1,7 @@
 import Role from "./Role";
 import {User} from "discord.js";
 
-export default class RoleBodyguard extends Role{
+export default class RoleBodyguard extends Role {
 
 
     getDesc(): string {

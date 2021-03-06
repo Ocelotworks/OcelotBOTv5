@@ -27,9 +27,9 @@ const uuid = require('uuid/v4');
 var knex = require('knex')(config.get("Database"));
 const series = 2020; //Spook series
 module.exports = {
-        name: "Database Module",
-        enabled: true,
-        init: function init(bot) {
+    name: "Database Module",
+    enabled: true,
+    init: function init(bot) {
 
         const SERVERS_TABLE = "ocelotbot_servers";
         const PETERMON_TABLE = "pm_status";
@@ -47,9 +47,8 @@ module.exports = {
         const BADGES_TABLE = "ocelotbot_badges";
 
 
-
         knex
- 
+
         bot.database = {
             knex,
             /**
@@ -94,16 +93,16 @@ module.exports = {
             leaveServer: function leaveServer(server, timestamp = new Date()) {
                 return knex.insert({server, timestamp}).into(LEFTSERVERS_TABLE);
             },
-            unleaveServer: function unleaveServer(server){
+            unleaveServer: function unleaveServer(server) {
                 return knex.delete().from(LEFTSERVERS_TABLE).where({server}).limit(1);
             },
-            addServerWebhook: function addServerWebhook(server, webhookID, webhookToken){
+            addServerWebhook: function addServerWebhook(server, webhookID, webhookToken) {
                 return knex(SERVERS_TABLE).update({webhookID, webhookToken}).where({server}).limit(1);
             },
-            getServerWebhook: function getServerWebhook(server){
+            getServerWebhook: function getServerWebhook(server) {
                 return knex.select("webhookID", "webhookToken").from(SERVERS_TABLE).where({server}).limit(1);
             },
-            updateServer: function(server, update){
+            updateServer: function (server, update) {
                 return knex(SERVERS_TABLE).update(update).where({server}).limit(1);
             },
             /**
@@ -234,14 +233,14 @@ module.exports = {
             getMeme: function getMeme(name, server) {
                 return knex.select("meme").from(MEMES_TABLE).where({name}).whereIn("server", [server, "global"]).orderBy("server").limit(1);
             },
-            getMemeInfo: function getMemeInfo(name, server){
+            getMemeInfo: function getMemeInfo(name, server) {
                 return knex.select().from(MEMES_TABLE).where({name}).whereIn("server", [server, "global"]).orderBy("server").limit(1);
             },
-            getRandomMeme: function getRandomMeme(server){
+            getRandomMeme: function getRandomMeme(server) {
                 return knex.select().from(MEMES_TABLE).whereIn("server", [server, "global"]).orderByRaw("RAND()").limit(1);
             },
-            searchMeme: function searchMeme(query, server){
-               return knex.select("name", "server").from(MEMES_TABLE).whereIn("server", [server, "global"]).andWhere("name", "LIKE", `%${query}%`).orderBy("server");
+            searchMeme: function searchMeme(query, server) {
+                return knex.select("name", "server").from(MEMES_TABLE).whereIn("server", [server, "global"]).andWhere("name", "LIKE", `%${query}%`).orderBy("server");
             },
             /**
              * Get a meme regardless of whether or not it belongs to the current serve
@@ -278,10 +277,10 @@ module.exports = {
             getReminders: function getReminders(receiver) {
                 return knex.select().from(REMINDERS_TABLE).whereNull("recurrence").andWhere({receiver});
             },
-            getRemindersForUser: function(receiver, user, server){
+            getRemindersForUser: function (receiver, user, server) {
                 return knex.select().from(REMINDERS_TABLE).where({receiver, user, server}).orderBy("at", "asc");
             },
-            getOrphanedReminders: function getOrphanedReminders(claimedReminders, receiver){
+            getOrphanedReminders: function getOrphanedReminders(claimedReminders, receiver) {
                 return knex.select().from(REMINDERS_TABLE).whereNotIn("id", claimedReminders).whereNull("recurrence").andWhere({receiver});
             },
             /**
@@ -295,7 +294,7 @@ module.exports = {
             removeReminderByUser: function removeReminderByUser(id, user) {
                 return knex.delete().from(REMINDERS_TABLE).where({id, user}).limit(1);
             },
-            getReminderById: function getReminderById(id){
+            getReminderById: function getReminderById(id) {
                 return knex.select().from(REMINDERS_TABLE).where({id});
             },
             /**
@@ -322,7 +321,7 @@ module.exports = {
                     .orderBy("Score", "DESC")
                     .groupBy("user");
             },
-            getServerTriviaLeaderboard: function getServerTriviaLeaderboard(users){
+            getServerTriviaLeaderboard: function getServerTriviaLeaderboard(users) {
                 return knex.select("user", knex.raw("SUM(difficulty) as 'Score'"), knex.raw("COUNT(*) as 'correct'"))
                     .from(TRIVIA_TABLE)
                     .whereIn("user", users)
@@ -346,8 +345,8 @@ module.exports = {
                     server: server
                 }).into(TRIVIA_TABLE);
             },
-            getTriviaCorrectCount: function(user){
-                  return knex.select(knex.raw("count(*)")).from(TRIVIA_TABLE).where({user}).limit(1);
+            getTriviaCorrectCount: function (user) {
+                return knex.select(knex.raw("count(*)")).from(TRIVIA_TABLE).where({user}).limit(1);
             },
 
             logCommand: function logCommand(userID, channelID, serverID, messageID, commandID, command) {
@@ -405,7 +404,7 @@ module.exports = {
             /**
              * Get a random topic for Ocelotworks
              */
-            getRandomTopic: function(){
+            getRandomTopic: function () {
                 return knex.select().from("Topics").where({naughty: 0}).orderBy(knex.raw("RAND()")).limit(1);
             },
             /**
@@ -414,7 +413,7 @@ module.exports = {
              * @param {String} message The message
              * @returns {*}
              */
-            addTopic: function(user, message){
+            addTopic: function (user, message) {
                 return knex.insert({
                     username: user,
                     topic: message,
@@ -425,7 +424,7 @@ module.exports = {
              * Remove a topic
              * @param {Number} id The topic ID
              */
-            removeTopic: function(id){
+            removeTopic: function (id) {
                 return knex.delete().from("Topics").where({id: id}).limit(1);
             },
             /**
@@ -434,14 +433,14 @@ module.exports = {
              * @param {String} message The message
              * @returns {*}
              */
-            getTopicID: function(user, message){
+            getTopicID: function (user, message) {
                 return knex.select(id).from("Topics").where({username: user, topic: message})
             },
             /**
              * Get stats of topic per user
              * @returns {*}
              */
-            getTopicStats: function(){
+            getTopicStats: function () {
                 return knex.select(knex.raw("username, COUNT(*)")).from("Topics").orderByRaw("COUNT(*) DESC").groupBy("username");
             },
             /**
@@ -451,7 +450,7 @@ module.exports = {
              * @param {ChannelID} channel
              * @returns {*}
              */
-            logMessage: function(user, message, channel){
+            logMessage: function (user, message, channel) {
                 return knex.insert({
                     user: user,
                     message: message,
@@ -462,8 +461,8 @@ module.exports = {
             /**
              * Generates a "roses are red" poem
              */
-            getRandomRosesPoem: function(){
-                return knex.select("message","user","time")
+            getRandomRosesPoem: function () {
+                return knex.select("message", "user", "time")
                     .from("Messages")
                     .whereRaw('message REGEXP ".*([to]o|u|[uei]w|2)$" AND (LENGTH(message) - LENGTH(REPLACE(message, " ", ""))) > 5')
                     .orderByRaw("RAND()")
@@ -474,9 +473,9 @@ module.exports = {
              * @param {String} target The users name
              * @returns {Array|*}
              */
-            getMessages: function(target){
+            getMessages: function (target) {
                 let query = knex.select().from("Messages");
-                if(target)query = query.where({user: target});
+                if (target) query = query.where({user: target});
                 return query;
             },
             /**
@@ -485,7 +484,7 @@ module.exports = {
              * @param {String} message
              * @returns {*}
              */
-            getMessageID: function(user, message){
+            getMessageID: function (user, message) {
                 // don't really understand what this does
                 // message = message.replace(/<@!?\d+>/g, '<@!?[0-9]+>')
                 return knex.select("id").from("Messages").where({message: message, user: user});
@@ -495,7 +494,7 @@ module.exports = {
              * @param {Number} id
              * @returns {*}
              */
-            getMessageContext: function(id) {
+            getMessageContext: function (id) {
                 return knex.select().from("Messages").whereBetween("id", [id - 5, id + 5]);
             },
             /**
@@ -504,15 +503,15 @@ module.exports = {
              * @param {Number} month
              * @returns {*}
              */
-            getOnThisDayMessages: function(day,month){
-                return knex.select().from("Messages").whereRaw("DAY(FROM_UNIXTIME(time/1000)) = "+day).andWhereRaw("MONTH(FROM_UNIXTIME(time/1000)) = "+month).orderBy("time", "ASC");
+            getOnThisDayMessages: function (day, month) {
+                return knex.select().from("Messages").whereRaw("DAY(FROM_UNIXTIME(time/1000)) = " + day).andWhereRaw("MONTH(FROM_UNIXTIME(time/1000)) = " + month).orderBy("time", "ASC");
             },
             /**
              * Gets a random message containing a particular phrase
              * @param {String} phrase
              * @returns {*}
              */
-            getMessageContaining: function(phrase){
+            getMessageContaining: function (phrase) {
                 return knex.select().from("Messages").where("message", "like", `%${phrase}%`).limit(1).orderbyRaw("RAND()");
             },
             /**
@@ -521,22 +520,22 @@ module.exports = {
              * @param {String} [phrase]
              * @returns {*}
              */
-            getMessageFrom: function(user, phrase){
+            getMessageFrom: function (user, phrase) {
                 var query = knex.select().from("Messages").limit(1).orderByRaw("RAND()");
-                if(user)
+                if (user)
                     query = query.andWhere("user", user);
-                if(phrase)
+                if (phrase)
                     query = query.andWhere("message", "like", `%${phrase}%`);
                 return query;
             },
-            getPhraseCount: function(phrase){
+            getPhraseCount: function (phrase) {
                 return knex.select(knex.raw("COUNT(*)")).from("Messages").where("message", "like", `%${phrase}%`);
             },
             /**
              * Gets the database stats
              * @returns {Promise.<{servers: Number, leftServers: Number, memes: Number, reminders: Number, commands: Number}>}
              */
-            getDatabaseStats: async function(){
+            getDatabaseStats: async function () {
                 const serverCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_servers");
                 const leftServerCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_leftservers");
                 const memeCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_memes");
@@ -556,11 +555,11 @@ module.exports = {
              * @param {ServerID} server
              * @returns {Promise.<boolean>}
              */
-            canSpook: async function canSpook(user, server){
+            canSpook: async function canSpook(user, server) {
                 const result = await bot.database.getSpooked(server);
-                if(!result[0])
-                     bot.logger.log(`${user} can spook because there have been no spooks.`);
-                else if(result[0].spooked !== user)
+                if (!result[0])
+                    bot.logger.log(`${user} can spook because there have been no spooks.`);
+                else if (result[0].spooked !== user)
                     bot.logger.log(`${user} can't spook ${result[0].spooked} is spooked not ${user}`);
 
                 return !result[0] || result[0].spooked === user;
@@ -579,9 +578,19 @@ module.exports = {
              * @param spookedAvatar
              * @returns {*}
              */
-            spook: function spook(spooked, spooker, server, channel, spookerUsername, spookedUsername, spookerColour, spookedColour, spookerAvatar, spookedAvatar){
+            spook: function spook(spooked, spooker, server, channel, spookerUsername, spookedUsername, spookerColour, spookedColour, spookerAvatar, spookedAvatar) {
                 return knex.insert({
-                    spooked, spooker, server, channel, spookerUsername, spookedUsername, spookerColour, spookedColour, spookerAvatar, spookedAvatar, series
+                    spooked,
+                    spooker,
+                    server,
+                    channel,
+                    spookerUsername,
+                    spookedUsername,
+                    spookerColour,
+                    spookedColour,
+                    spookerAvatar,
+                    spookedAvatar,
+                    series
                 }).into(SPOOK_TABLE);
             },
             /**
@@ -589,8 +598,8 @@ module.exports = {
              * @param {ServerID} [server]
              * @returns {*}
              */
-            getSpooked: function(server){
-                if(!server) {
+            getSpooked: function (server) {
+                if (!server) {
                     return knex.select().from(SPOOK_TABLE).orderBy("timestamp", "desc").where({series});
                 }
                 return knex.select().from(SPOOK_TABLE).where({server, series}).orderBy("timestamp", "desc").limit(1);
@@ -599,37 +608,37 @@ module.exports = {
              * Gets spooked server stats
              * @returns {Promise.<{servers: Number, total: Number}>}
              */
-            getSpookedServers: async function(){
-                return{
+            getSpookedServers: async function () {
+                return {
                     servers: await knex.select("server", knex.raw("COUNT(*)")).from(SPOOK_TABLE).groupBy("server").where({series}),
                     total: await knex.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({series})
                 }
             },
-            getCompletedRoles: function(server) {
+            getCompletedRoles: function (server) {
                 return knex.select("user", "role").from("ocelotbot_spook_role_assignments").where("required", "=", "current").andWhereNot({role: 3}).andWhere({server});
             },
-            getCompletedSabRole: function(server, spooked){
+            getCompletedSabRole: function (server, spooked) {
                 return knex.select("user").from("ocelotbot_spook_role_assignments").where({role: 4, spooked, server});
             },
             /**
              * Gets all servers that have participated in the spooking
              * @returns {Array|*}
              */
-            getParticipatingServers: function(){
+            getParticipatingServers: function () {
                 return knex.select().distinct("server").from(SPOOK_TABLE).where({series});
             },
             /**
              * Gets all users that have participated in the spooking
              * @returns {Array|*}
              */
-            getParticipatingUsers: function(servers){
+            getParticipatingUsers: function (servers) {
                 return knex.select().distinct("spooker", "spooked").from(SPOOK_TABLE).where({series}).whereIn("server", servers);
             },
             /**
              * Gets all spooks where there is a username missing
              * @returns {*}
              */
-            getDirtySpooks: function(){
+            getDirtySpooks: function () {
                 return knex.select().from("ocelotbot_spooks").whereNull("spookerUsername").orWhereNull("spookedUsername").where({series});
             },
             /**
@@ -642,7 +651,7 @@ module.exports = {
              * @param {UserID} [spook.spooked]
              * @param {ServerID} [spook.server]
              */
-            updateSpook: function(id, spook){
+            updateSpook: function (id, spook) {
                 return knex("ocelotbot_spooks").update(spook).where({id, series}).limit(1);
             },
             /**
@@ -651,7 +660,7 @@ module.exports = {
              * @param {ServerID} server
              * @returns {*}
              */
-            getSpookCount: function(spooked, server) {
+            getSpookCount: function (spooked, server) {
                 return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server, spooked, series});
             },
             /**
@@ -659,94 +668,122 @@ module.exports = {
              * @param {ServerID} server
              * @returns {Promise.<{mostSpooked: Object<{spooked: UserID, COUNT(*): Number}>, totalSpooks: Number, longestSpook: Object<{spooked: {UserID}, diff: Number}>}>}
              */
-            getSpookStats: async function(server){
+            getSpookStats: async function (server) {
                 return {
-                    mostSpooked: (await knex.select("spooked", knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server, series}).andWhereNot({"spooker": bot.client.user.id}).groupBy("spooked").orderByRaw("COUNT(*) DESC").limit(1))[0],
-                    totalSpooks: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server, series}))[0]['COUNT(*)'],
+                    mostSpooked: (await knex.select("spooked", knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({
+                        server,
+                        series
+                    }).andWhereNot({"spooker": bot.client.user.id}).groupBy("spooked").orderByRaw("COUNT(*) DESC").limit(1))[0],
+                    totalSpooks: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({
+                        server,
+                        series
+                    }))[0]['COUNT(*)'],
                     allSpooks: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({series}))[0]['COUNT(*)'],
                     //I'm sorry papa
-                    longestSpook: (await knex.select("spooked", knex.raw("TIMESTAMPDIFF(SECOND, timestamp, (SELECT timestamp FROM ocelotbot_spooks AS spooks3 WHERE id = (SELECT min(id) FROM ocelotbot_spooks AS spooks2 WHERE spooks2.id > ocelotbot_spooks.id AND spooks2.server = ocelotbot_spooks.server))) as diff")).from("ocelotbot_spooks").where({server, series}).orderBy("diff", "DESC").limit(1))[0]
+                    longestSpook: (await knex.select("spooked", knex.raw("TIMESTAMPDIFF(SECOND, timestamp, (SELECT timestamp FROM ocelotbot_spooks AS spooks3 WHERE id = (SELECT min(id) FROM ocelotbot_spooks AS spooks2 WHERE spooks2.id > ocelotbot_spooks.id AND spooks2.server = ocelotbot_spooks.server))) as diff")).from("ocelotbot_spooks").where({
+                        server,
+                        series
+                    }).orderBy("diff", "DESC").limit(1))[0]
                 }
             },
-            getCurrentlySpookedForShard: function(servers){
-                return knex.select("server", "spooked", "spooker","timestamp").from(knex.raw("ocelotbot_spooks as a")).whereIn("server", servers).andWhere("id", knex.select(knex.raw("MAX(id)")).from(knex.raw("ocelotbot_spooks as b")).whereRaw("a.server = b.server")).andWhere("series", 2020);
+            getCurrentlySpookedForShard: function (servers) {
+                return knex.select("server", "spooked", "spooker", "timestamp").from(knex.raw("ocelotbot_spooks as a")).whereIn("server", servers).andWhere("id", knex.select(knex.raw("MAX(id)")).from(knex.raw("ocelotbot_spooks as b")).whereRaw("a.server = b.server")).andWhere("series", 2020);
             },
-            incrementSpecialRole: function(server, spooker, spooked){
+            incrementSpecialRole: function (server, spooker, spooked) {
                 return knex("ocelotbot_spook_role_assignments").increment("current").where({spooker, spooked}).limit(1);
             },
-            getSpecialRoleCount:async  function(server){
+            getSpecialRoleCount: async function (server) {
                 let result = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spook_role_assignments").where({server});
                 return result[0]['COUNT(*)']
             },
-            getSpookRoles: function(){
+            getSpookRoles: function () {
                 return knex.select().from("ocelotbot_spook_roles");
             },
-            getSpookRole: async function(server, user){
-                let result = await knex.select().from("ocelotbot_spook_role_assignments").where({server, user}).limit(1).innerJoin("ocelotbot_spook_roles", "ocelotbot_spook_roles.id", "ocelotbot_spook_role_assignments.role");
+            getSpookRole: async function (server, user) {
+                let result = await knex.select().from("ocelotbot_spook_role_assignments").where({
+                    server,
+                    user
+                }).limit(1).innerJoin("ocelotbot_spook_roles", "ocelotbot_spook_roles.id", "ocelotbot_spook_role_assignments.role");
                 return result[0];
             },
-            deleteSpookRole: function(server, user){
+            deleteSpookRole: function (server, user) {
                 return knex.delete().from("ocelotbot_spook_role_assignments").where({server, user}).limit(1);
             },
-            setRoleComplete: function(server, user, complete = 1){
+            setRoleComplete: function (server, user, complete = 1) {
                 return knex("ocelotbot_spook_role_assignments").update({complete}).where({server, user}).limit(1);
             },
-            hasSpookRole: async function(server, user){
-                let result = await knex.select('user').from("ocelotbot_spook_role_assignments").where({server, user}).limit(1);
+            hasSpookRole: async function (server, user) {
+                let result = await knex.select('user').from("ocelotbot_spook_role_assignments").where({
+                    server,
+                    user
+                }).limit(1);
                 return !!result[0]
             },
-            assignSpookRole: function(role, user, spooked, required, server, spooker){
-                return knex.insert({role, user, spooker, spooked, required, server}).into("ocelotbot_spook_role_assignments");
+            assignSpookRole: function (role, user, spooked, required, server, spooker) {
+                return knex.insert({
+                    role,
+                    user,
+                    spooker,
+                    spooked,
+                    required,
+                    server
+                }).into("ocelotbot_spook_role_assignments");
             },
-            getProfile: function(user){
+            getProfile: function (user) {
                 return knex.select().from("ocelotbot_profile").where({id: user}).limit(1);
             },
-            getProfileOption: function(id){
+            getProfileOption: function (id) {
                 return knex.select().from("ocelotbot_profile_options").where({id}).limit(1);
             },
-            getProfileOptions: function(type){
+            getProfileOptions: function (type) {
                 return knex.select().from("ocelotbot_profile_options").where({type, hidden: 0});
             },
-            getProfileOptionByKey: function(key, type){
+            getProfileOptionByKey: function (key, type) {
                 return knex.select().from("ocelotbot_profile_options").where({key, type}).limit(1);
             },
-            setProfileOption: function(id, option, value){
+            setProfileOption: function (id, option, value) {
                 return knex("ocelotbot_profile").update({[option]: value}).where({id}).limit(1);
             },
-            createProfile: async function(user){
-                return knex.insert({id: user, firstSeen: (await bot.database.getFirstSeen(user))[0]['MIN(timestamp)']}).into("ocelotbot_profile");
+            createProfile: async function (user) {
+                return knex.insert({
+                    id: user,
+                    firstSeen: (await bot.database.getFirstSeen(user))[0]['MIN(timestamp)']
+                }).into("ocelotbot_profile");
             },
-            getProfileBadges: function(user){
+            getProfileBadges: function (user) {
                 return knex.select().from("ocelotbot_badge_assignments").where({user: user}).innerJoin(BADGES_TABLE, "ocelotbot_badges.id", "ocelotbot_badge_assignments.badge").orderBy("ocelotbot_badge_assignments.order", "ASC").groupByRaw("`ocelotbot_badge_assignments`.`badge`, `ocelotbot_badge_assignments`.`order`");
             },
-            getBadgeTypes: function(){
+            getBadgeTypes: function () {
                 return knex.select().from(BADGES_TABLE).orderBy("order");
             },
-            getBadgesInSeries: function(series){
+            getBadgesInSeries: function (series) {
                 return knex.select().from(BADGES_TABLE).orderBy("order").where({series});
             },
-            setProfileTagline: function(user, tagline){
+            setProfileTagline: function (user, tagline) {
                 return knex("ocelotbot_profile").update({caption: tagline}).where({id: user}).limit(1);
             },
-            giveBadge: function(user, badge){
+            giveBadge: function (user, badge) {
                 return knex.insert({user: user, badge: badge}).into("ocelotbot_badge_assignments");
             },
-            getBadge: function(id){
+            getBadge: function (id) {
                 return knex.select().from("ocelotbot_badges").where({id}).limit(1);
             },
-            hasBadge: async function(user, badge){
-                return (await knex.select().from("ocelotbot_badge_assignments").where({user, badge}).limit(1)).length > 0
+            hasBadge: async function (user, badge) {
+                return (await knex.select().from("ocelotbot_badge_assignments").where({
+                    user,
+                    badge
+                }).limit(1)).length > 0
             },
-            haveBadge: async function(users, badge){
+            haveBadge: async function (users, badge) {
                 return knex.select("user").where({badge}).whereIn("user", users).from("ocelotbot_badge_assignments");
             },
-            removeBadge: function(user, badge){
+            removeBadge: function (user, badge) {
                 return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge});
             },
-            getFirstSeen: function(user){
+            getFirstSeen: function (user) {
                 return knex.select(knex.raw("MIN(timestamp)")).from(COMMANDLOG_TABLE).where({userID: user})
             },
-            addSubscription: function(server, channel, user, type, url){
+            addSubscription: function (server, channel, user, type, url) {
                 return knex.insert({
                     server: server,
                     channel: channel,
@@ -755,92 +792,96 @@ module.exports = {
                     data: url
                 }).into("ocelotbot_subscriptions");
             },
-            getSubscriptionsForChannel: function(channel){
+            getSubscriptionsForChannel: function (channel) {
                 return knex.select().from("ocelotbot_subscriptions").where({
                     channel: channel
                 });
             },
-            getAllSubscriptions: function(){
+            getAllSubscriptions: function () {
                 return knex.select().from("ocelotbot_subscriptions");
             },
-            getSubscriptionsForShard: function(servers){
+            getSubscriptionsForShard: function (servers) {
                 return knex.select().from("ocelotbot_subscriptions").whereIn("server", servers);
             },
-            updateLastCheck: function(id){
+            updateLastCheck: function (id) {
                 return knex("ocelotbot_subscriptions").update({lastcheck: new Date()}).where({id}).limit(1);
             },
-            removeSubscription: function(server, channel, id){
+            removeSubscription: function (server, channel, id) {
                 return knex("ocelotbot_subscriptions").delete().where({
                     server: server,
                     channel: channel,
                     id: id
                 }).limit(1);
             },
-            removeSubscriptionsForChannel: function(server, channel){
+            removeSubscriptionsForChannel: function (server, channel) {
                 return knex("ocelotbot_subscriptions").delete().where({server, channel});
             },
-            addLangKey: function(lang, key, message){
+            addLangKey: function (lang, key, message) {
                 return knex.insert({
                     lang: lang,
                     key: key,
                     message: message
                 }).into(LANG_KEYS_TABLE);
             },
-            getLanguageList: function(){
+            getLanguageList: function () {
                 return knex.select().from(LANG_TABLE);
             },
-            getAllLanguageKeys: function(){
+            getAllLanguageKeys: function () {
                 return knex.select().from(LANG_KEYS_TABLE);
             },
-            getLanguageKeys: function(lang){
+            getLanguageKeys: function (lang) {
                 return knex.select().from(LANG_KEYS_TABLE).where({lang: lang});
             },
-            getLanguagesForShard: function(guilds){
+            getLanguagesForShard: function (guilds) {
                 return knex.select("server", "language").from(SERVERS_TABLE).whereIn("server", guilds);
             },
-            getServerSetting: function(server, property){
-                return knex.select().from(SERVER_SETTINGS_TABLE).where({server, setting: property, bot}).orWhere({server: "global", setting: property, bot}).orderBy("server").limit(1);
+            getServerSetting: function (server, property) {
+                return knex.select().from(SERVER_SETTINGS_TABLE).where({
+                    server,
+                    setting: property,
+                    bot
+                }).orWhere({server: "global", setting: property, bot}).orderBy("server").limit(1);
             },
-            getServerSettings: function(server, bot){
+            getServerSettings: function (server, bot) {
                 return knex.select().from(SERVER_SETTINGS_TABLE).where({server, bot});
             },
-            getUserSettingsForShard: function(users){
+            getUserSettingsForShard: function (users) {
                 return knex.select().from("ocelotbot_user_settings");
             },
-            getSettingsForShard: function(guilds, bot){
+            getSettingsForShard: function (guilds, bot) {
                 return knex.select().from(SERVER_SETTINGS_TABLE).whereIn("server", guilds).andWhere({bot});
             },
-            getGlobalSettings: function(bot){
+            getGlobalSettings: function (bot) {
                 return knex.select().from(SERVER_SETTINGS_TABLE).where({server: "global", bot});
             },
-            setSetting: async function(server, setting, value, bot){
+            setSetting: async function (server, setting, value, bot) {
                 let currentKey = await knex.select().from(SERVER_SETTINGS_TABLE).where({server, setting, bot}).limit(1);
-                if(currentKey.length > 0)
+                if (currentKey.length > 0)
                     return knex(SERVER_SETTINGS_TABLE).update({setting, value}).where({server, setting, bot}).limit(1);
                 return knex.insert({server, setting, value, bot}).into(SERVER_SETTINGS_TABLE);
             },
-            setUserSetting: async function(user, setting, value){
+            setUserSetting: async function (user, setting, value) {
                 let currentKey = await knex.select().from("ocelotbot_user_settings").where({user, setting}).limit(1);
-                if(currentKey.length > 0)
+                if (currentKey.length > 0)
                     return knex("ocelotbot_user_settings").update({setting, value}).where({user, setting}).limit(1);
                 return knex.insert({user, setting, value}).into("ocelotbot_user_settings");
             },
-            deleteSetting: async function(server, setting, bot){
-                await knex.delete().from(SERVER_SETTINGS_TABLE).where({server,setting, bot}).limit(1);
+            deleteSetting: async function (server, setting, bot) {
+                await knex.delete().from(SERVER_SETTINGS_TABLE).where({server, setting, bot}).limit(1);
             },
-            addSongGuess: async function(user, channel, server, guess, song, correct, elapsed){
-                await knex.insert({user, channel, server, guess,song, correct, elapsed}).into("ocelotbot_song_guess");
+            addSongGuess: async function (user, channel, server, guess, song, correct, elapsed) {
+                await knex.insert({user, channel, server, guess, song, correct, elapsed}).into("ocelotbot_song_guess");
             },
-            addVote: async function(user, referralServer, source){
+            addVote: async function (user, referralServer, source) {
                 await knex.insert({user, referralServer, source}).into("ocelotbot_votes");
             },
-            getVoteCount: function(user){
+            getVoteCount: function (user) {
                 return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_votes").where({user});
             },
-            getLastVote: function(user){
+            getLastVote: function (user) {
                 return knex.select(knex.raw("MAX(timestamp)")).from("ocelotbot_votes").where({user}).limit(1);
             },
-            getEligbleBadge: function(user, series, count){
+            getEligbleBadge: function (user, series, count) {
                 return knex.select()
                     .from(BADGES_TABLE)
                     .whereNotIn('id', knex.select('badge').from("ocelotbot_badge_assignments").where({user}))
@@ -849,39 +890,46 @@ module.exports = {
                     .andWhere('max', '>', count)
                     .limit(1);
             },
-            deleteBadgeFromSeries: async function(user, series){
+            deleteBadgeFromSeries: async function (user, series) {
                 await knex.raw(`delete s.* from \`ocelotbot_badge_assignments\` s INNER JOIN ocelotbot_badges ON ocelotbot_badges.id = s.badge where \`user\` = '${user}' and \`series\` = '${series}'`);
             },
-            getSongList: function(){
+            getSongList: function () {
                 //return knex.select("name", "title", "path").from("petify.songs").whereNotNull("mbid").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
                 return knex.select("songs.id", "name", "title", "path", "album").from("petify.playlist_data").where({playlist_id: "62564ae2-b77b-41ee-8708-632815b23334"}).innerJoin("petify.songs", "petify.playlist_data.song_id", "petify.songs.id").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
             },
-            getSongPath: async function(id){
+            getSongPath: async function (id) {
                 return (await knex.select("path").from("petify.songs").where({id}).limit(1))[0].path;
             },
-            updateSongRecord: async function(song, user, time){
-                  let currentRecord = (await knex.select("time").from("ocelotbot_song_guess_records").where({song}).limit(1))[0];
-                  if(!currentRecord)
-                      return knex.insert({song, user, time}).into("ocelotbot_song_guess_records");
-                  if(currentRecord.time > time)
-                    return knex("ocelotbot_song_guess_records").update({user, time, timestamp: new Date()}).where({song}).limit(1);
+            updateSongRecord: async function (song, user, time) {
+                let currentRecord = (await knex.select("time").from("ocelotbot_song_guess_records").where({song}).limit(1))[0];
+                if (!currentRecord)
+                    return knex.insert({song, user, time}).into("ocelotbot_song_guess_records");
+                if (currentRecord.time > time)
+                    return knex("ocelotbot_song_guess_records").update({
+                        user,
+                        time,
+                        timestamp: new Date()
+                    }).where({song}).limit(1);
             },
-            getFastestSongGuess: function(song){
+            getFastestSongGuess: function (song) {
                 return knex.select().from("ocelotbot_song_guess_records").where({song});
             },
-            getTotalCorrectGuesses: function(user){
-                return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").groupBy("user").where({user, correct: 1});
+            getTotalCorrectGuesses: function (user) {
+                return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").groupBy("user").where({
+                    user,
+                    correct: 1
+                });
             },
-            getCommandCountByCommand: async function(userID){
+            getCommandCountByCommand: async function (userID) {
                 let result = await knex.select(knex.raw("COUNT(*)"), "commandID").from("commandlog").groupBy("commandID").where({userID});
                 let output = {};
-                for(let i = 0; i < result.length; i ++){
+                for (let i = 0; i < result.length; i++) {
                     let row = result[i];
                     output[row.commandID] = row['COUNT(*)'];
                 }
                 return output;
             },
-            getGuessStats: async function(){
+            getGuessStats: async function () {
                 return {
                     totalGuesses: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess"))[0]['COUNT(*)'],
                     totalCorrect: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['COUNT(*)'],
@@ -890,47 +938,47 @@ module.exports = {
                     totalTime: (await knex.select(knex.raw("SUM(elapsed)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['SUM(elapsed)']
                 }
             },
-            getGuessLeaderboard: function(){
+            getGuessLeaderboard: function () {
                 return knex.select(knex.raw("user, COUNT(*) AS total, SUM(correct) AS points")).from("ocelotbot_song_guess").groupBy("user").orderByRaw("SUM(correct) DESC");
             },
-            getGuessMonthlyLeaderboard: function(){
+            getGuessMonthlyLeaderboard: function () {
                 return knex.select(knex.raw("user, COUNT(*) AS total, SUM(correct) AS points")).from("ocelotbot_song_guess").groupBy("user").orderByRaw("SUM(correct) DESC").whereRaw("MONTH(timestamp) = MONTH(CURRENT_TIMESTAMP)")
             },
-            getGuessServerLeaderboard: function(users){
+            getGuessServerLeaderboard: function (users) {
                 return knex.select(knex.raw("user, COUNT(*) AS total, SUM(correct) AS points")).from("ocelotbot_song_guess").groupBy("user").orderByRaw("SUM(correct) DESC").whereIn("user", users);
             },
-            getCommandCount: function(){
+            getCommandCount: function () {
                 return knex.select(knex.raw("MAX(id)")).from(COMMANDLOG_TABLE);
             },
-            createPremiumKey: async function(owner){
+            createPremiumKey: async function (owner) {
                 let id = uuid();
                 await knex.insert({id, owner}).into("ocelotbot_premium_keys");
                 return id;
             },
-            getPremiumKey: function(id){
+            getPremiumKey: function (id) {
                 return knex.select().from("ocelotbot_premium_keys").where({id});
             },
-            redeemPremiumKey: function(id, server){
+            redeemPremiumKey: function (id, server) {
                 return knex("ocelotbot_premium_keys").update({server, redeemed: new Date()}).where({id}).limit(1);
             },
-            getWeedPlants: function(ownerID){
-                if(ownerID !== undefined) {
+            getWeedPlants: function (ownerID) {
+                if (ownerID !== undefined) {
                     return knex.select().from("ocelotbot_weed").where({ownerID});
                 } else {
                     return knex.select().from("ocelotbot_weed");
                 }
             },
-            addNewPlant: async function(plant) {
-                return await knex.insert(plant.toStorable()).into("ocelotbot_weed").returning('id').then(function(id){
+            addNewPlant: async function (plant) {
+                return await knex.insert(plant.toStorable()).into("ocelotbot_weed").returning('id').then(function (id) {
                     return id;
                 })[0];
             },
-            updatePlant: function(plant){
-                return knex("ocelotbot_weed").update(plant.toStorable()).where({id:plant.id}).limit(1);
+            updatePlant: function (plant) {
+                return knex("ocelotbot_weed").update(plant.toStorable()).where({id: plant.id}).limit(1);
             },
-            deletePlant: async function(plant){
+            deletePlant: async function (plant) {
                 //return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge});
-                await knex().delete().from("ocelotbot_weed").where({id:plant.id});
+                await knex().delete().from("ocelotbot_weed").where({id: plant.id});
             },
             saveAllPlants: function (plantDict) {
                 Object.keys(plantDict).forEach(function (key) {
@@ -943,163 +991,195 @@ module.exports = {
                     })
                 });
             },
-            getStreak: async function(user, type){
-                let output = (await knex.select("streak", "started").from("ocelotbot_streaks").where({user, type}).limit(1))[0];
-                if(output)
+            getStreak: async function (user, type) {
+                let output = (await knex.select("streak", "started").from("ocelotbot_streaks").where({
+                    user,
+                    type
+                }).limit(1))[0];
+                if (output)
                     return output.streak;
                 return null;
             },
-            setStreak: function(user, type, streak){
+            setStreak: function (user, type, streak) {
                 return knex("ocelotbot_streaks").update({streak}).where({user, type}).limit(1)
             },
-            incrementStreak: async function(user, type){
+            incrementStreak: async function (user, type) {
                 let streak = await bot.database.getStreak(user, type);
-                if(streak === null)
+                if (streak === null)
                     await knex.insert({user, type}).into("ocelotbot_streaks");
                 else
-                    await bot.database.setStreak(user, type, streak+1);
-                return streak+1;
+                    await bot.database.setStreak(user, type, streak + 1);
+                return streak + 1;
             },
-            resetStreak: async function(user, type){
+            resetStreak: async function (user, type) {
                 let streak = await bot.database.getStreak(user, type);
-                if(!streak)return;
-                await knex("ocelotbot_streaks").update({highest: streak, achieved: new Date()}).where({user, type}).andWhere("highest", "<", streak).limit(1);
+                if (!streak) return;
+                await knex("ocelotbot_streaks").update({highest: streak, achieved: new Date()}).where({
+                    user,
+                    type
+                }).andWhere("highest", "<", streak).limit(1);
                 await bot.database.setStreak(user, type, 0);
             },
-            getHighestStreak: async function(user, type){
-                return (await knex.select("highest", "achieved").from("ocelotbot_streaks").where({user, type}).limit(1))[0];
+            getHighestStreak: async function (user, type) {
+                return (await knex.select("highest", "achieved").from("ocelotbot_streaks").where({
+                    user,
+                    type
+                }).limit(1))[0];
             },
-            getBirthdays: function(server){
+            getBirthdays: function (server) {
                 return knex.select().from("ocelotbot_birthdays").where({server}).orderByRaw("DATE(birthday), MONTH(birthday)");
             },
-            addBirthday: function(user, server, birthday){
+            addBirthday: function (user, server, birthday) {
                 return knex.insert({user, server, birthday}).into("ocelotbot_birthdays");
             },
-            removeBirthday: async function(user, server){
+            removeBirthday: async function (user, server) {
                 return knex.delete().from("ocelotbot_birthdays").where({user, server}).limit(1);
             },
-            getBirthday: async function(user, server){
+            getBirthday: async function (user, server) {
                 let result = await knex.select().from("ocelotbot_birthdays").where({user, server}).limit(1);
-                if(result.length === 0)
+                if (result.length === 0)
                     return null;
                 return result[0];
             },
-            createMusicSession: async function(server, voiceChannel, textChannel){
+            createMusicSession: async function (server, voiceChannel, textChannel) {
                 let result = await knex.insert({server, voiceChannel, textChannel}).into("ocelotbot_music_sessions");
                 return result[0];
             },
-            endMusicSession: function(id){
+            endMusicSession: function (id) {
                 return knex("ocelotbot_music_sessions").update({ended: new Date()}).where({id}).limit(1);
             },
-            queueSong: async function(session, uri, requester, next = false){
-                let order = (await knex.select(knex.raw(`${next?"MIN(\`order\`)-1":"MAX(\`order\`)+1"} AS 'val'`)).from("ocelotbot_music_queue").where({session}))[0].val || 10;
-                console.log("Order",order);
+            queueSong: async function (session, uri, requester, next = false) {
+                let order = (await knex.select(knex.raw(`${next ? "MIN(\`order\`)-1" : "MAX(\`order\`)+1"} AS 'val'`)).from("ocelotbot_music_queue").where({session}))[0].val || 10;
+                console.log("Order", order);
                 let result = await knex.insert({session, order, uri, requester}).into("ocelotbot_music_queue");
                 return result[0];
             },
-            removeSong: async function(id){
+            removeSong: async function (id) {
                 await knex.delete().from("ocelotbot_music_queue").where({id}).limit(1);
             },
-            getActiveSessions: function(){
+            getActiveSessions: function () {
                 return knex.select().from("ocelotbot_music_sessions").whereNull("ended")
             },
-            hasActiveSession: async function(server){
+            hasActiveSession: async function (server) {
                 let result = await knex.select().from("ocelotbot_music_sessions").where({server}).whereNull("ended").limit(1);
                 return result.length > 0;
             },
-            getQueueForSession: async function(session){
+            getQueueForSession: async function (session) {
                 return knex.select().from("ocelotbot_music_queue").where({session}).orderByRaw("`order` asc, id asc");
             },
-            updateNowPlaying: async function(id, uri){
+            updateNowPlaying: async function (id, uri) {
                 return knex("ocelotbot_music_sessions").update({playing: uri}).where({id}).limit(1);
             },
-            updateLastMessage: async function(id, lastMessage){
+            updateLastMessage: async function (id, lastMessage) {
                 return knex("ocelotbot_music_sessions").update({lastMessage}).where({id}).limit(1);
             },
-            clearQueue: function(session){
+            clearQueue: function (session) {
                 return knex.delete().from("ocelotbot_music_queue").where({session});
             },
-            getPreviousQueue: async function(server, currentSession){
+            getPreviousQueue: async function (server, currentSession) {
                 let q = knex.select("ocelotbot_music_queue.session", "ocelotbot_music_sessions.started", "ocelotbot_music_sessions.ended", knex.raw("COUNT(*) as length")).from("ocelotbot_music_queue")
                     .innerJoin("ocelotbot_music_sessions", "ocelotbot_music_queue.session", "ocelotbot_music_sessions.id")
                     .where({server: server.id})
                     .groupBy("session")
                     .orderBy("started", "desc");
 
-                if(currentSession)
+                if (currentSession)
                     q = q.andWhereNot({session: currentSession});
 
                 return q;
             },
-            logOmegleMessage: async function(serverID, channelID, userID, message){
+            logOmegleMessage: async function (serverID, channelID, userID, message) {
                 return knex.insert({serverID, channelID, message, userID}).into("ocelotbot_omegle");
             },
-            addRoleMessage: async function(channel, message){
-                let existingRole = await knex.select("id").from("ocelotbot_role_messages").where({channel, message}).limit(1);
-                if(existingRole[0])
+            addRoleMessage: async function (channel, message) {
+                let existingRole = await knex.select("id").from("ocelotbot_role_messages").where({
+                    channel,
+                    message
+                }).limit(1);
+                if (existingRole[0])
                     return [existingRole[0].id];
                 return knex.insert({channel, message}).into("ocelotbot_role_messages");
             },
-            addRoleButton: function(message, emoji, role){
-                console.log("We got: ",message, emoji, role);
+            addRoleButton: function (message, emoji, role) {
+                console.log("We got: ", message, emoji, role);
                 return knex.insert({message, role, emoji}).into("ocelotbot_role_buttons");
             },
-            loadRoleMessagesForShard: function(channels){
+            loadRoleMessagesForShard: function (channels) {
                 return knex.select().from("ocelotbot_role_messages").whereIn("channel", channels);
             },
-            getButtonsForRoleMessage: function(message){
+            getButtonsForRoleMessage: function (message) {
                 return knex.select().from("ocelotbot_role_buttons").where({message});
             },
-            getBirthdaysTodayForShard: function(servers){
+            getBirthdaysTodayForShard: function (servers) {
                 return knex.select().from("ocelotbot_birthdays").whereIn("server", servers).andWhereRaw("DAY(birthday) = DAY(CURRENT_TIMESTAMP) AND MONTH(birthday) = MONTH(current_timestamp)");
             },
-            generateReferralCode: async function(messageID, server, user){
+            generateReferralCode: async function (messageID, server, user) {
                 let charCodes = [];
-                for(let i = 0; i < messageID.length; i+=3){
-                    charCodes.push(messageID[i]+messageID[i+1]+messageID[i+3]);
+                for (let i = 0; i < messageID.length; i += 3) {
+                    charCodes.push(messageID[i] + messageID[i + 1] + messageID[i + 3]);
                 }
                 let id = Buffer.from(charCodes).toString("base64");
                 await knex.insert({id, server, user}).into("ocelotbot_referral_codes");
                 return id;
             },
-            getReferralCount: async function(id){
+            getReferralCount: async function (id) {
                 let result = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_referrals").where({id});
                 return result[0]['COUNT(*)'];
             },
-            getBotlist: function(id){
+            getBotlist: function (id) {
                 return knex.select().from("ocelotbot_botlists").where({id}).limit(1);
             },
-            getBotlistsWithStats: function(){
+            getBotlistsWithStats: function () {
                 return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1});
             },
-            getBotlistUrl: async function(id){
+            getBotlistUrl: async function (id) {
                 let url = await knex.select("botUrl").from("ocelotbot_botlists").where({id}).orWhere({id: 'topgg'}).limit(1);
                 return url[0].botUrl;
             },
-            logAiConversation: function(userID, serverID, lastMessageID, message, response){
-                return knex.insert({userID, serverID, lastMessageID, message, response}).into("ocelotbot_ai_conversations");
+            logAiConversation: function (userID, serverID, lastMessageID, message, response) {
+                return knex.insert({
+                    userID,
+                    serverID,
+                    lastMessageID,
+                    message,
+                    response
+                }).into("ocelotbot_ai_conversations");
             },
-            addRecurringReminder: function(receiver, user, server, channel, message, recurrence){
-                return knex(REMINDERS_TABLE).insert({receiver, user, server, channel, message, recurrence: JSON.stringify(recurrence), at: new Date()})
+            addRecurringReminder: function (receiver, user, server, channel, message, recurrence) {
+                return knex(REMINDERS_TABLE).insert({
+                    receiver,
+                    user,
+                    server,
+                    channel,
+                    message,
+                    recurrence: JSON.stringify(recurrence),
+                    at: new Date()
+                })
             },
-            getRecurringRemindersForShard(receiver, servers){
+            getRecurringRemindersForShard(receiver, servers) {
                 return knex.select().from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({receiver}).whereIn("server", servers);
             },
-            getRecurringRemindersForDMs(receiver){
+            getRecurringRemindersForDMs(receiver) {
                 return knex.select().from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({receiver}).whereNull("server");
             },
-            async getPoints(user){
+            async getPoints(user) {
                 let result = await knex.select().from("ocelotbot_points").where({user}).limit(1);
-                if(result[0])
+                if (result[0])
                     return result[0].points;
                 await knex.insert({user, points: 100}).into("ocelotbot_points");
                 return 100;
             },
-            async addPoints(user, amount, origin){
+            async addPoints(user, amount, origin) {
                 let currentPoints = await bot.database.getPoints(user);
-                let newPoints = currentPoints+amount;
+                let newPoints = currentPoints + amount;
                 await knex("ocelotbot_points").update({points: newPoints}).where({user}).limit(1);
-                await knex.insert({user, amount, origin, balance_before: currentPoints, balance_after: newPoints}).into("ocelotbot_points_transactions");
+                await knex.insert({
+                    user,
+                    amount,
+                    origin,
+                    balance_before: currentPoints,
+                    balance_after: newPoints
+                }).into("ocelotbot_points_transactions");
                 return newPoints;
             }
         };

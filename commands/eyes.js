@@ -17,8 +17,8 @@ module.exports = {
     detailedHelp: "Adds red eyes to faces in the image",
     categories: ["image", "filter"],
     commands: ["eyes", "eye"],
-    init: async function(){
-        red = await canvas.loadImage(__dirname+"/../static/eyes/red.png");
+    init: async function () {
+        red = await canvas.loadImage(__dirname + "/../static/eyes/red.png");
     },
     run: async function run(message, args, bot) {
         const url = await bot.util.getImage(message, args);
@@ -34,17 +34,17 @@ module.exports = {
             body: {
                 url: url
             }
-        }, async function(err, resp, body){
-            if(err){
+        }, async function (err, resp, body) {
+            if (err) {
                 bot.raven.captureException(err);
-            }else if(body.length > 0) {
+            } else if (body.length > 0) {
                 let payload = {
                     "components": [
                         {"url": url}
                     ]
                 }
 
-                for(let i = 0; i < body.length; i++) {
+                for (let i = 0; i < body.length; i++) {
                     let face = body[i];
                     if (face.faceLandmarks) {
                         let leftEye = face.faceLandmarks.pupilLeft;
@@ -75,7 +75,7 @@ module.exports = {
 
                 return bot.util.imageProcessor(message, payload, "eyes");
 
-            }else{
+            } else {
                 message.replyLang("FACE_NO_FACES");
             }
         })

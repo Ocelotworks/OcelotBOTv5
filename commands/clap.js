@@ -14,13 +14,13 @@ module.exports = {
     responseExample: "Get👏OcelotBOT👏Today",
     commands: ["clap", "claptext"],
     run: function run(message, args, bot) {
-       if(!args[1]){
+        if (!args[1]) {
             return message.replyLang("GENERIC_TEXT", {command: args[0]})
-       }else{
-           message.channel.send(message.content.substring(message.content.indexOf(args[1])).replace(/ /g, message.getSetting("clap.emoji")))
-       }
+        } else {
+            message.channel.send(message.content.substring(message.content.indexOf(args[1])).replace(/ /g, message.getSetting("clap.emoji")))
+        }
     },
-    test: function(test) {
+    test: function (test) {
         test('clap no text', function (t) {
             const args = ["clap"];
             const message = {

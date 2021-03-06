@@ -9,24 +9,24 @@ module.exports = {
     usage: "delete <name>",
     commands: ["delete", "remove"],
     run: async function (message, args, bot) {
-        if(!message.guild)
+        if (!message.guild)
             return message.replyLang("GENERIC_DM_CHANNEL");
-        if(!args[2])
+        if (!args[2])
             return message.replyLang("MEME_REMOVE_HELP");
 
 
         let meme = await bot.database.getMemeInfo(args[2].toLowerCase(), message.guild.id);
 
-        if(!meme[0])
+        if (!meme[0])
             return message.replyLang("MEME_NOT_FOUND");
 
-        if(meme[0].addedby !== message.author.id && !message.member.hasPermission("MANAGE_MESSAGES"))
+        if (meme[0].addedby !== message.author.id && !message.member.hasPermission("MANAGE_MESSAGES"))
             return message.replyLang("MESSAGE_REMOVE_INVALID_MEME");
 
         try {
             await bot.database.removeMeme(args[2].toLowerCase(), message.guild.id);
             message.replyLang("MEME_REMOVE_SUCCESS");
-        }catch(e){
+        } catch (e) {
             message.replyLang("MESSAGE_REMOVE_ERROR");
         }
 

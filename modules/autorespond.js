@@ -1,14 +1,14 @@
-const Sentry          = require('@sentry/node');
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "Automatic Responses",
-    init: function(bot){
+    init: function (bot) {
 
         bot.lastMessages = {};
         bot.lastMessageCounts = {};
 
         bot.client.on("message", async function onMessage(message) {
-            if(bot.drain)return;
-            Sentry.configureScope(function onMessage(scope){
+            if (bot.drain) return;
+            Sentry.configureScope(function onMessage(scope) {
                 scope.setTags({
                     "channel": message.channel.id,
                     "guild": message.guild ? message.guild.id : "DM",
@@ -18,7 +18,7 @@ module.exports = {
                     id: message.author.id,
                     username: message.author.username
                 });
-                if(message.getSetting("autorespond.threshold") > 1) {
+                if (message.getSetting("autorespond.threshold") > 1) {
                     if (bot.lastMessages[message.channel.id]) {
                         if (bot.lastMessages[message.channel.id] === message.content.toLowerCase()) {
                             if (bot.lastMessageCounts[message.channel.id])
@@ -47,16 +47,16 @@ module.exports = {
                     }
                 }
 
-                if(message.mentions && message.mentions.users.has(bot.client.user.id) && !message.author.bot){
+                if (message.mentions && message.mentions.users.has(bot.client.user.id) && !message.author.bot) {
                     bot.logger.log({
                         type: "mentioned",
                         message: bot.util.serialiseMessage(message),
                     })
-                    if(message.content.toLowerCase().indexOf("prefix") > -1 )
+                    if (message.content.toLowerCase().indexOf("prefix") > -1)
                         bot.util.replyTo(message, `My prefix is **${message.getSetting("prefix")}**\nTo change the prefix, do ${message.getSetting("prefix")}settings set prefix %\nWhere % is the prefix you want.`);
-                    else if(message.content.toLowerCase().indexOf("help") > -1 || message.content.toLowerCase().indexOf("commands") > -1)
+                    else if (message.content.toLowerCase().indexOf("help") > -1 || message.content.toLowerCase().indexOf("commands") > -1)
                         bot.util.replyTo(message, `You can see my commands with ${message.getSetting("prefix")}help`);
-                    else if(message.content.toLowerCase().indexOf("shut up") > -1){
+                    else if (message.content.toLowerCase().indexOf("shut up") > -1) {
                         bot.util.replyTo(message, `:pensive: If I'm interrupting, you can always change my prefix with **${message.getSetting("prefix")}settings set prefix** or disable conflicting commands with ${message.getSetting("prefix")}settings disableCommand`)
                     }
 
@@ -69,7 +69,7 @@ module.exports = {
                     //     message: message.cleanContent
                     // })
                 }
-                if(message.getSetting("yikesUser") && message.author.id === message.getSetting("yikesUser") && message.content.length > message.getSetting("yikesThreshold")){
+                if (message.getSetting("yikesUser") && message.author.id === message.getSetting("yikesUser") && message.content.length > message.getSetting("yikesThreshold")) {
                     message.react(message.getSetting("yikesEmoji"));
                 }
             });
@@ -87,11 +87,11 @@ module.exports = {
         //     newMember.guild.me.lastMessage.channel.send(`**Oh god, ${bot.util.bots.music[newMember.id]} too?**`);
         // });
 
-        bot.client.on("channelCreate", function channelCreate(channel){
-            if(channel.deleted)return;
-            if(channel.type !== "text")return;
-            if(channel.name.toLowerCase().indexOf("ocelot") < 0)return;
-            if(!channel.guild.getBool("autorespond.channel"))return;
+        bot.client.on("channelCreate", function channelCreate(channel) {
+            if (channel.deleted) return;
+            if (channel.type !== "text") return;
+            if (channel.name.toLowerCase().indexOf("ocelot") < 0) return;
+            if (!channel.guild.getBool("autorespond.channel")) return;
             bot.logger.log(`Autoresponding to channel name ${channel.name}`);
             channel.send("Aww, a channel just for me? <3");
 

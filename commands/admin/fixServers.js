@@ -8,13 +8,13 @@ module.exports = {
     name: "Fix Servers",
     usage: "fixservers",
     commands: ["fixservers"],
-    init: function(bot){
-        bot.bus.on("fixServers", (message)=>{
+    init: function (bot) {
+        bot.bus.on("fixServers", (message) => {
             let timeout = bot.util.shard * 20000;
             bot.logger.log(`Fixing Servers in ${timeout}ms`);
-            setTimeout(async function(){
+            setTimeout(async function () {
                 const servers = bot.client.guilds.cache;
-                servers.forEach(async function(server){
+                servers.forEach(async function (server) {
                     try {
                         let databaseEntry = (await bot.database.getServer(server.id))[0];
                         if (!databaseEntry) {
@@ -44,19 +44,19 @@ module.exports = {
                                 //bot.logger.warn("No permission to create a webhook.");
                             }
                         }
-                    }catch(e){
+                    } catch (e) {
                         //bot.logger.error(`Failed for server ${server.name} (${server.id}): ${e}`);
                     }
                 });
 
-                if(bot.util.shard === 1){
+                if (bot.util.shard === 1) {
                     let servers = await bot.database.getActiveServers();
-                    for(let i = 0; i < servers.length; i++){
+                    for (let i = 0; i < servers.length; i++) {
                         let row = servers[i];
-                        if(row.server === "global" || row.server === "default")continue;
+                        if (row.server === "global" || row.server === "default") continue;
                         let result = await bot.rabbit.broadcastEval(`this.guilds.cache.has('${row.server}')`);
                         //onsole.log(result);
-                        if(result.indexOf(true) > -1)
+                        if (result.indexOf(true) > -1)
                             continue;
                         bot.logger.warn(`Server ${row.name} (${row.server}) was left`);
                         await bot.database.leaveServer(row.server, new Date(0));
@@ -66,7 +66,7 @@ module.exports = {
             }, timeout);
         })
     },
-    run: function(message, args, bot){
-       bot.rabbit.event({type: "fixServers"});
+    run: function (message, args, bot) {
+        bot.rabbit.event({type: "fixServers"});
     }
 };

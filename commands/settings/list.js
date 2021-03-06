@@ -8,12 +8,12 @@ module.exports = {
     name: "View Settings",
     usage: "list",
     commands: ["list", "view"],
-    run: async function(message, args, bot, data){
+    run: async function (message, args, bot, data) {
         let output = "```diff\nAvailable Settings:\n";
-        for(let setting in data.settings){
-            if(data.settings.hasOwnProperty(setting)) {
+        for (let setting in data.settings) {
+            if (data.settings.hasOwnProperty(setting)) {
                 let settingInfo = data.settings[setting];
-                output += `+${settingInfo.name}${message.getSetting(settingInfo.setting) ? " (Currently '"+message.getSetting(settingInfo.setting)+"')" : ""}\n`;
+                output += `+${settingInfo.name}${message.getSetting(settingInfo.setting) ? " (Currently '" + message.getSetting(settingInfo.setting) + "')" : ""}\n`;
                 output += `-${settingInfo.help}\n`;
                 output += ` Set with ${args[0]} set ${setting} ${settingInfo.value || "value"}\n`;
                 output += "----\n";

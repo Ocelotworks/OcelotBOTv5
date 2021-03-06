@@ -9,55 +9,58 @@ module.exports = {
     name: "List Birthdays",
     usage: "list",
     commands: ["list", "view"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
         let allBirthdays = await bot.database.getBirthdays(message.guild.id);
-        if(allBirthdays.length === 0)
+        if (allBirthdays.length === 0)
             return message.replyLang("BIRTHDAY_NONE", {command: args[0]});
 
         const now = new Date();
 
         let header;
-        if(message.getSetting("birthday.channel")){
+        if (message.getSetting("birthday.channel")) {
             header = `:information_source: Birthday reminders will be sent in <#${message.getSetting("birthday.channel")}>`
-        }else{
+        } else {
             header = `:information_source: You can get a message every time it's someones birthday with **${args[0]} setchannel**\n`
         }
 
         header += "```asciidoc\n";
 
-        allBirthdays = allBirthdays.map((birthday)=>{
+        allBirthdays = allBirthdays.map((birthday) => {
             let d = birthday.birthday; //Yes
             d.setYear(now.getFullYear());
-            if(d <= now)
-                d.setYear(now.getFullYear()+1);
+            if (d <= now)
+                d.setYear(now.getFullYear() + 1);
 
-            birthday.days = Math.ceil((d-now)/8.64e+7);
-            if(birthday.days === 365)birthday.days = 0;
+            birthday.days = Math.ceil((d - now) / 8.64e+7);
+            if (birthday.days === 365) birthday.days = 0;
             return birthday;
-        }).sort((a,b)=>a.days-b.days);
+        }).sort((a, b) => a.days - b.days);
 
         let chunkedBirthdays = allBirthdays.chunk(20);
-        return bot.util.standardPagination(message.channel, chunkedBirthdays, async function(birthdays, index){
+        return bot.util.standardPagination(message.channel, chunkedBirthdays, async function (birthdays, index) {
             let formatted = [];
-            for(let i = 0; i < birthdays.length; i++){
+            for (let i = 0; i < birthdays.length; i++) {
                 const birthday = birthdays[i];
                 let user = await bot.util.getUserInfo(birthday.user);
-                if(!user)continue;
-                if(user.username.startsWith("Deleted User "))continue; //Fuck you discord
+                if (!user) continue;
+                if (user.username.startsWith("Deleted User ")) continue; //Fuck you discord
                 let d = birthday.birthday; //Yes
                 let days = birthday.days;
-                if(days === 0)
+                if (days === 0)
                     days = await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_TODAY", {}, message.author.id);
                 else
                     days = await bot.lang.getTranslation(message.guild.id, days !== 1 ? "BIRTHDAY_DAYS" : "BIRTHDAY_DAY", {days}, message.author.id);
                 formatted.push({
                     "user ::": `${user.username}#${user.discriminator} ::`,
-                    birthday: await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_DATE", {day: bot.util.getNumberPrefix(d.getDate()), month: bot.util.months[d.getMonth()]}, message.author.id),
+                    birthday: await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_DATE", {
+                        day: bot.util.getNumberPrefix(d.getDate()),
+                        month: bot.util.months[d.getMonth()]
+                    }, message.author.id),
                     in: days
                 });
             }
 
-            return header+columnify(formatted)+"\n```";
+            return header + columnify(formatted) + "\n```";
         });
     }
 };
