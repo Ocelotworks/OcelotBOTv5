@@ -17,7 +17,7 @@ module.exports = {
     commands: ["colour", "color"],
     run: function run(message, args, bot) {
         if (!args[1]) {
-            return message.replyLang("GENERIC_TEXT", {command: args[0]})
+            return message.channel.send(`:bangbang: You must supply a colour, e.g ${args[0]} red or ${args[0]} #ff0000`)
         } else {
             const size = parseInt(message.getSetting("colour.size"));
             const cnv = canvas.createCanvas(size, size);
