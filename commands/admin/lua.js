@@ -11,20 +11,6 @@ module.exports = {
             end = message.content.length;
         }
         let code = message.content.substring(start, end);
-        console.log(message.content);
-        console.log(code)
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-        try {
-            let result = await axios.post("https://ob-custom-commands.d.int.unacc.eu/run", {
-                script: code, message: bot.util.serialiseMessage(message)
-            })
-
-            if (result.data.content)
-                return message.channel.send(result.data.content);
-
-            return message.channel.send(`Custom command returned an error:\n\`\`\`json\n${JSON.stringify(result.data, null, 1)}\n\`\`\``)
-        } catch (e) {
-            return message.channel.send(`Custom command returned an error:\n\`\`\`\n${e.message}\n${e.response ? JSON.stringify(e.response.data) : ""}\n\`\`\``)
-        }
+        return message.channel.send((await bot.util.runCustomFunction(code, message)).output)
     }
 }

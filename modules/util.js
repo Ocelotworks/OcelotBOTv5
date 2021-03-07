@@ -1,7 +1,9 @@
 const gm = require('gm');
 const wrap = require('word-wrap');
 const Discord = require('discord.js');
+// TODO: Replace request
 const request = require('request');
+const axios = require('axios');
 const fs = require('fs');
 const twemoji = require('twemoji-parser');
 const config = require('config');
@@ -1473,6 +1475,27 @@ module.exports = {
                 attachments: message.attachments.map((a) => a.name),
                 embeds: message.embeds,
             }
+        }
+
+        bot.util.runCustomFunction = async function(code, message){
+            try {
+                process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+                let result = await axios.post("https://ob-custom-commands.d.int.unacc.eu/run", {
+                    script: code, message: bot.util.serialiseMessage(message)
+                })
+
+                return {output: result.data, success: true};
+            }catch(e){
+                let errorEmbed = new Discord.MessageEmbed()
+                errorEmbed.setColor("#ff0000")
+                errorEmbed.setTitle(":warning: Execution Error");
+                if(e.response && e.response.data)
+                    errorEmbed.setDescription(`An error was encountered with your custom function.\n\`\`\`json\n${JSON.stringify(e.response.data, null, 1)}\n\`\`\``);
+                else
+                    errorEmbed.setDescription("An error occurred trying to run your custom function.");
+                return {output: errorEmbed, success: false};
+            }
+
         }
 
 

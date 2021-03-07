@@ -37,8 +37,13 @@ module.exports = {
                     return;
                 const args = message.content.split(/ +/g);
                 const command = args[0].substring(prefixLength).toLowerCase();
-                if (!bot.commands[command])
+                if (!bot.commands[command]) {
+                    if(!message.guild)return;
+                    let customCommand = await bot.database.getCustomCommand(message.guild.id, command);
+                    if(!customCommand)return
+                    message.channel.send((await bot.util.runCustomFunction(customCommand, message)).output)
                     return;
+                }
 
 
                 bot.logger.log({

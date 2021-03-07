@@ -1181,6 +1181,13 @@ module.exports = {
                     balance_after: newPoints
                 }).into("ocelotbot_points_transactions");
                 return newPoints;
+            },
+            async getCustomCommand(server, trigger){
+                let result = await knex.select("function").from("ocelotbot_custom_functions").where({server, trigger, type: "COMMAND"}).limit(1);
+                return result[0].function;
+            },
+            addCustomFunction(server, name, trigger, type, func, user){
+                return knex.insert({server, name, trigger, type, "function": func, user}).into("ocelotbot_custom_functions")
             }
         };
     }
