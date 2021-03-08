@@ -27,6 +27,12 @@ module.exports = {
                 return message.channel.send(output);
 
             await bot.database.addCustomFunction(message.guild.id, "", trigger, type, code, message.author.id);
+            const responseType = type === "COMMAND" ? "customCommands" : "customAutoResponses";
+            if(bot[responseType][message.guild.id])
+                bot[responseType][message.guild.id][trigger] = code;
+            else
+                bot[responseType][message.guild.id] = {[trigger]: code}
+
             if(type === "COMMAND")
                 return message.channel.send(`✅ Custom command added! **${message.getSetting("prefix")}${trigger}** will now trigger the function.`);
             return message.channel.send(`✅ Custom autorespond added! Messages containing **${trigger}** will now trigger the function.`);

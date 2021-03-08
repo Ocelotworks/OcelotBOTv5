@@ -8,7 +8,11 @@ module.exports = {
         if(!func)return message.channel.send(`Couldn't find a function with that ID. Find the ID with **${args[0]} list**. Then enter **${args[0]} ${args[1]} id**`);
 
         await bot.database.deleteCustomFunction(message.guild.id, parseInt(args[2]));
-        bot.redis.clear(`custom/${message.guild.id}/${func.type}/${func.trigger}`);
+
+        const responseType = func.type === "COMMAND" ? "customCommands" : "customAutoResponses";
+        if(bot[responseType][message.guild.id])
+            delete bot[responseType][message.guild.id][func.trigger];
+
         return message.channel.send(`✅ Function was successfully deleted.\nHere is the code, in case you want to re-add it:\n\`\`\`lua\n${func.function}\n\`\`\``);
     }
 }

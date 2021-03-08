@@ -21,7 +21,13 @@ module.exports = {
             return message.channel.send(output);
 
         await bot.database.updateCustomFunction(message.guild.id, parseInt(args[2]), code);
-        bot.redis.clear(`custom/${message.guild.id}/${func.type}/${func.trigger}`);
+
+        const responseType = func.type === "COMMAND" ? "customCommands" : "customAutoResponses";
+        if(bot[responseType][message.guild.id])
+            bot[responseType][message.guild.id][func.trigger] = code;
+        else
+            bot[responseType][message.guild.id] = {[func.trigger]: code}
+
         return message.channel.send("✅ Function was successfully edited!");
     }
 }

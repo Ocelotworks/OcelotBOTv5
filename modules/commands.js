@@ -12,6 +12,8 @@ module.exports = {
 
         bot.prefixCache = {};
 
+        bot.customCommands = {};
+
         process.on('exit', async (code) => {
             bot.logger.log("Process close requested", code);
             bot.drain = true;
@@ -20,6 +22,17 @@ module.exports = {
                     bot.logger.log("Shutting down ", command);
                     await bot.commandObjects[command].shutdown(bot);
                 }
+            }
+        })
+
+        bot.client.on("ready", async ()=>{
+            let commands = await bot.database.getCustomCommandsForShard(bot.client.channels.cache.keyArray());
+            for(let i = 0; i < commands.length; i++){
+                const command = commands[i];
+                if(bot.customCommands[command.server])
+                    bot.customCommands[command.server][command.trigger] = command.function;
+                else
+                    bot.customCommands[command.server] = {[command.trigger]: command.function};
             }
         })
 
@@ -38,9 +51,9 @@ module.exports = {
                 const args = message.content.split(/ +/g);
                 const command = args[0].substring(prefixLength).toLowerCase();
                 if (!bot.commands[command]) {
-                    if(!message.guild)return;
-                    let customCommand = await bot.redis.cache(`custom/${message.guild.id}/COMMAND/${command}`, async ()=>(await bot.database.getCustomCommand(message.guild.id, command)), 60000);
-                    if(!customCommand)return;
+                    if(!message.guild || !bot.customCommands[message.guild.id])return;
+                    let customCommand = bot.customCommands[message.guild.id][command]
+                    if(!customCommand)return console.log("Command doesn't exist");
                     bot.logger.log({
                         type: "commandPerformed",
                         command: {

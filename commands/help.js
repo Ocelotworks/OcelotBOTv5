@@ -49,6 +49,10 @@ module.exports = {
                     continue;
                 output += `For '${i}' use ${args[0]} ${i}\n`;
             }
+
+            if(message.guild && bot.customCommands[message.guild.id])
+                output += `For 'custom' use ${args[0]} custom\n`;
+
             //output += "\n```";
             message.replyLang("COMMANDS_CATEGORIES", {
                 categories: output
@@ -56,7 +60,15 @@ module.exports = {
             return;
         }
         const arg = args[1].toLowerCase();
-        if (!bot.commandCategories[arg]) {
+        if(arg === "custom" && message.guild && bot.customCommands[message.guild.id]){
+            let output = "```cs\n# Custom Commands\n";
+            const customCommands = Object.keys(bot.customCommands[message.guild.id]);
+            for(let i = 0; i < customCommands.length; i++){
+                output += `${message.getSetting("prefix")}${customCommands[i]}\n`;
+            }
+            output += `\`\`\`\nTo view custom commands help, type ${message.getSetting("prefix")}help`;
+            return message.channel.send(output);
+        }else if (!bot.commandCategories[arg]) {
             if (bot.commandUsages[arg]) {
                 let command = bot.commandUsages[arg];
                 let output = `**${command.name} Help:**\n`;

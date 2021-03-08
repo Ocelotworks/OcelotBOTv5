@@ -6,9 +6,23 @@ module.exports = {
         bot.lastMessages = {};
         bot.lastMessageCounts = {};
 
+        bot.customAutoResponses = {};
+
+
+        bot.client.on("ready", async ()=>{
+            let responses = await bot.database.getCustomResponsesForShard(bot.client.channels.cache.keyArray());
+            for(let i = 0; i < responses.length; i++){
+                const response = responses[i];
+                if(bot.customAutoResponses[response.server])
+                    bot.customAutoResponses[response.server][response.trigger] = response.function;
+                else
+                    bot.customAutoResponses[response.server] = {[response.trigger]: response.function};
+            }
+        })
+
         bot.client.on("message", async function onMessage(message) {
             if (bot.drain) return;
-            Sentry.configureScope(function onMessage(scope) {
+            Sentry.configureScope(async function onMessage(scope) {
                 scope.setTags({
                     "channel": message.channel.id,
                     "guild": message.guild ? message.guild.id : "DM",
@@ -18,6 +32,16 @@ module.exports = {
                     id: message.author.id,
                     username: message.author.username
                 });
+                if(message.guild && !message.author.bot && bot.customAutoResponses[message.guild.id]){
+                    const keys = Object.keys(bot.customAutoResponses[message.guild.id]);
+                    const match = message.content.toLowerCase()
+                    for(let i = 0; i < keys.length; i++)
+                        if(match.includes(keys[i])) {
+                            const result = await bot.util.runCustomFunction(bot.customAutoResponses[message.guild.id][keys[i]], message);
+                            message.channel.send(result.output);
+                            if(!result.success)break;
+                        }
+                }
                 if (message.getSetting("autorespond.threshold") > 1) {
                     if (bot.lastMessages[message.channel.id]) {
                         if (bot.lastMessages[message.channel.id] === message.content.toLowerCase()) {
