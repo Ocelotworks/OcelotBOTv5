@@ -10,7 +10,7 @@ module.exports = {
 
 
         bot.client.on("ready", async ()=>{
-            let responses = await bot.database.getCustomResponsesForShard(bot.client.channels.cache.keyArray());
+            let responses = await bot.database.getCustomResponsesForShard(bot.client.guilds.cache.keyArray());
             for(let i = 0; i < responses.length; i++){
                 const response = responses[i];
                 if(bot.customAutoResponses[response.server])
@@ -38,7 +38,8 @@ module.exports = {
                     for(let i = 0; i < keys.length; i++)
                         if(match.includes(keys[i])) {
                             const result = await bot.util.runCustomFunction(bot.customAutoResponses[message.guild.id][keys[i]], message);
-                            message.channel.send(result.output);
+                            if(result.output.length > 0)
+                                message.channel.send(result.output);
                             if(!result.success)break;
                         }
                 }

@@ -26,7 +26,7 @@ module.exports = {
         })
 
         bot.client.on("ready", async ()=>{
-            let commands = await bot.database.getCustomCommandsForShard(bot.client.channels.cache.keyArray());
+            let commands = await bot.database.getCustomCommandsForShard(bot.client.guilds.cache.keyArray());
             for(let i = 0; i < commands.length; i++){
                 const command = commands[i];
                 if(bot.customCommands[command.server])
@@ -63,7 +63,9 @@ module.exports = {
                         },
                         message: bot.util.serialiseMessage(message),
                     })
-                    message.channel.send((await bot.util.runCustomFunction(customCommand, message)).output)
+                    let output = (await bot.util.runCustomFunction(customCommand, message)).output
+                    if(output.length > 0)
+                        message.channel.send(output);
                     return;
                 }
 
