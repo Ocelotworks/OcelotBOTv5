@@ -38,9 +38,8 @@ module.exports = {
                     for(let i = 0; i < keys.length; i++)
                         if(match.includes(keys[i])) {
                             const result = await bot.util.runCustomFunction(bot.customAutoResponses[message.guild.id][keys[i]], message);
-                            if(result.output.length > 0)
-                                message.channel.send(result.output);
-                            if(!result.success)break;
+                            if (!result.success || !result.output) break;
+                            message.channel.send(result.output);
                         }
                 }
                 if (message.getSetting("autorespond.threshold") > 1) {

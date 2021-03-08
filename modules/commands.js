@@ -64,9 +64,7 @@ module.exports = {
                         message: bot.util.serialiseMessage(message),
                     })
                     let output = (await bot.util.runCustomFunction(customCommand, message)).output
-                    if(output.length > 0)
-                        message.channel.send(output);
-                    return;
+                    return message.channel.send(output);
                 }
 
                 bot.logger.log({
