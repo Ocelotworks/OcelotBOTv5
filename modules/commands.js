@@ -111,7 +111,7 @@ module.exports = {
 
                 if (commandUsage.premium && !(message.getBool("premium") || message.getBool("serverPremium"))) {
                     span.end("Requires premium");
-                    return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type \\${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using \\${message.getSetting("prefix")}settings disableCommand ${command}`);
+                    return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using ${message.getSetting("prefix")}settings disableCommand ${command}`);
                 }
 
                 if (message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1) {
