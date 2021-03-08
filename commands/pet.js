@@ -15,7 +15,7 @@ const frames = [{"x": 18, "y": 18, "w": 98, "h": 98}, {"x": 14, "y": 30, "w": 10
     "h": 80
 }, {"x": 6, "y": 30, "w": 102, "h": 86}, {"x": 14, "y": 18, "w": 98, "h": 98}];
 
-const ignoredArgs = ["play", "explore", "stats", "walk", "feed", "🍆", "clean", "train", "rename"];
+const ignoredArgs = ["play", "explore", "stats", "walk", "feed", "clean", "train", "rename"];
 
 module.exports = {
     name: "Pet Pet",
