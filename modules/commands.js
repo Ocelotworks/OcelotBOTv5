@@ -39,7 +39,7 @@ module.exports = {
                 const command = args[0].substring(prefixLength).toLowerCase();
                 if (!bot.commands[command]) {
                     if(!message.guild)return;
-                    let customCommand = await bot.database.getCustomCommand(message.guild.id, command);
+                    let customCommand = await bot.redis.cache(`custom/${message.guild.id}/COMMAND/${command}`, async ()=>(await bot.database.getCustomCommand(message.guild.id, command)), 60000);
                     if(!customCommand)return
                     message.channel.send((await bot.util.runCustomFunction(customCommand, message)).output)
                     return;

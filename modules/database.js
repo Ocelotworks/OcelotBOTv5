@@ -1184,11 +1184,24 @@ module.exports = {
             },
             async getCustomCommand(server, trigger){
                 let result = await knex.select("function").from("ocelotbot_custom_functions").where({server, trigger, type: "COMMAND"}).limit(1);
-                return result[0].function;
+                return result[0] ? result[0].function : null;
             },
             addCustomFunction(server, name, trigger, type, func, user){
                 return knex.insert({server, name, trigger, type, "function": func, user}).into("ocelotbot_custom_functions")
+            },
+            updateCustomFunction(server, id, code){
+                return knex("ocelotbot_custom_functions").update({"function": code}).where({id, server}).limit(1);
+            },
+            getCustomFunctions(server){
+                return knex.select("id", "trigger", "type").from("ocelotbot_custom_functions").where({server});
+            },
+            getCustomFunction(server, id){
+                return knex.select().from("ocelotbot_custom_functions").where({server, id}).limit(1);
+            },
+            deleteCustomFunction(server, id){
+                return knex.delete().from("ocelotbot_custom_functions").where({server, id}).limit(1);
             }
+
         };
     }
 };

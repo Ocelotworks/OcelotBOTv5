@@ -35,25 +35,6 @@ module.exports = {
             bot.logger.log("Logging vote from " + user);
             let count = (await bot.database.getVoteCount(user))[0]['COUNT(*)'];
             bot.badges.updateBadge({id: user}, 'votes', count, channel);
-
-            // bot.matomo.track({
-            //     action_name: "Vote",
-            //     uid:  user,
-            //     url: `http://bot.ocelotbot.xyz/vote/done`,
-            //     ua: "Shard "+bot.client.shard_id,
-            //     e_c: "Vote",
-            //     e_a: "Voted",
-            //     e_n: user,
-            //     e_v: 1,
-            //     cvar: JSON.stringify({
-            //         1: ['Server ID', voteServer],
-            //         2: ['Server Name',bot.client.guilds.cache.has(voteServer) ? bot.client.guilds.cache.get(voteServer).name : "Unknown"],
-            //         3: ['Message', ""],
-            //         4: ['Channel Name', channel ? channel.id : "0"],
-            //         5: ['Channel ID', channel ? channel.name : "Unknown"]
-            //     })
-            // });
-
         }
 
         bot.bus.on("registerVote", async (message) => {
@@ -61,6 +42,7 @@ module.exports = {
             let source = message.payload.source;
             let voteServer = null;
             let channel = null;
+
             try {
                 const userObj = await bot.client.users.fetch(user);
                 (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${await bot.database.getBotlistUrl(source)}`)
@@ -68,6 +50,7 @@ module.exports = {
                 // fart
                 //console.log(e);
             }
+
             for (let i = 0; i < bot.waitingVoteChannels.length; i++) {
                 if (bot.waitingVoteChannels[i].members && bot.waitingVoteChannels[i].members.has(user)) {
                     channel = bot.waitingVoteChannels[i];

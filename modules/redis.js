@@ -45,5 +45,15 @@ module.exports = {
                 })
             })
         }
+
+        bot.redis.clear = async function(key){
+            return new Promise((fulfill)=>{
+                bot.redis.client.del(key, (err)=>{
+                    bot.logger.log({type: "deleteKey", key})
+                    if(err)bot.logger.log(err);
+                    fulfill();
+                })
+            })
+        }
     }
 }
