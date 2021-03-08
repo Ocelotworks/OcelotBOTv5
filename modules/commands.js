@@ -40,11 +40,19 @@ module.exports = {
                 if (!bot.commands[command]) {
                     if(!message.guild)return;
                     let customCommand = await bot.redis.cache(`custom/${message.guild.id}/COMMAND/${command}`, async ()=>(await bot.database.getCustomCommand(message.guild.id, command)), 60000);
-                    if(!customCommand)return
+                    if(!customCommand)return;
+                    bot.logger.log({
+                        type: "commandPerformed",
+                        command: {
+                            name: command,
+                            id: "custom-"+command,
+                            content: message.content,
+                        },
+                        message: bot.util.serialiseMessage(message),
+                    })
                     message.channel.send((await bot.util.runCustomFunction(customCommand, message)).output)
                     return;
                 }
-
 
                 bot.logger.log({
                     type: "commandPerformed",

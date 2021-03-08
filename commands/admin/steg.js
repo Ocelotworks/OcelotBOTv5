@@ -12,8 +12,9 @@ module.exports = {
         let imageData = await axios.get(image, {
             responseType: 'arraybuffer'
         });
-        fs.writeFileSync("../temp/out.png", Buffer.from(imageData.data));
-        child_process.execFile("../lib/stego", ["-r", "-imgi", "../temp/out.png"], async (err, out) => {
+        fs.writeFileSync("temp/out.png", Buffer.from(imageData.data));
+        child_process.execFile("lib/stego.exe", ["-r", "-imgi", "temp/out.png"], async (err, out) => {
+            console.log(err);
             try {
                 let output = "**Valid OcelotBOT Image**"
                 if (out !== "OCELOTBOT") {
