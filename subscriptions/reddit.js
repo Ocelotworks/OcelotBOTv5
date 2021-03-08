@@ -29,10 +29,11 @@ module.exports = {
                         console.log("Post time", post.created_utc*1000);
                         console.log("Last check",lastCheck);
                         let embed = new Discord.MessageEmbed();
+                        embed.setColor("#FF5700")
                         embed.setTitle(post.title.substring(0,256));
-                        embed.setAuthor(post.author);
+                        embed.setAuthor(post.author, "https://www.shareicon.net/data/64x64/2016/11/03/849484_reddit_512x512.png", `https://reddit.com/u/${post.author}`);
                         embed.setURL(`https://reddit.com${post.permalink}`);
-                        embed.setFooter(`${post.ups} points on ${post.subreddit}`);
+                        embed.setFooter(`${post.ups} points on r/${post.subreddit}`);
                         embed.setTimestamp(new Date(post.created_utc*1000));
                         if(post.selftext)
                             embed.setDescription(post.selftext.substring(0,1024));
