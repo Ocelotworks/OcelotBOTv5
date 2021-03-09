@@ -6,12 +6,12 @@ module.exports = {
     usage: "meme help",
     commands: ["meme"],
     categories: ["tools"],
-    init: function init(bot){
+    init: function init(bot) {
         bot.util.standardNestedCommandInit('meme');
     },
     run: async function run(message, args, bot) {
-        bot.util.standardNestedCommand(message, args, bot, "meme", null, async function invalidUsage(){
-            if(!args[1])
+        bot.util.standardNestedCommand(message, args, bot, "meme", null, async function invalidUsage() {
+            if (!args[1])
                 return message.channel.send(`:bangbang: Invalid Usage. Try ${args[0]} help`);
 
             try {
@@ -22,7 +22,7 @@ module.exports = {
                 } else {
                     message.replyLang("MEME_NOT_FOUND");
                 }
-            }catch(e){
+            } catch (e) {
                 message.replyLang("MEME_ERROR");
                 bot.raven.captureException(e);
             }

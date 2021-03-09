@@ -19,12 +19,12 @@ module.exports = {
     rateLimit: 100,
     commands: ["tile"],
     run: async function run(message, args, bot) {
-        let url1 = await bot.util.getImage(message,  args, 1);
-        let url2 = await bot.util.getImage(message,  args, 2);
-        if(!url1 || !url2)
+        let url1 = await bot.util.getImage(message, args, 1);
+        let url2 = await bot.util.getImage(message, args, 2);
+        if (!url1 || !url2)
             return message.channel.send("You must enter 2 images.");
 
-        if(!args[2]){
+        if (!args[2]) {
             const tempUrl1 = url1;
             url1 = url2;
             url2 = tempUrl1;
@@ -33,10 +33,10 @@ module.exports = {
         const image1 = await canvas.loadImage(url1);
         const image2 = await canvas.loadImage(url2);
 
-        const cnv = canvas.createCanvas(image1.width+image2.width, image1.height);
+        const cnv = canvas.createCanvas(image1.width + image2.width, image1.height);
         const ctx = cnv.getContext("2d");
 
-        ctx.drawImage(image1, 0,0);
+        ctx.drawImage(image1, 0, 0);
         ctx.drawImage(image2, image1.width, 0, image2.width, image1.height);
 
 

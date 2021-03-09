@@ -8,14 +8,14 @@ module.exports = {
     name: "List Games",
     usage: "listgames",
     commands: ["listgames"],
-    run: async function(message, args, bot, data){
+    run: async function (message, args, bot, data) {
         let buffer = "```Current games:\n";
         Object.keys(data.gameContainers).forEach(function (key) {
             buffer += key + "\n";
         });
         buffer += "\nDead games:\n";
         Object.keys(data.gameContainers).forEach(function (key) {
-            if(data.gameContainers[key].dead)
+            if (data.gameContainers[key].dead)
                 buffer += key + "\n";
         });
         buffer += "```";

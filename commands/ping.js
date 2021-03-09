@@ -10,13 +10,13 @@ module.exports = {
     commands: ["ping"],
     rateLimit: 30,
     categories: ["tools"],
-    run: async function run(message, args, bot){
-        if(args.length < 2){
+    run: async function run(message, args, bot) {
+        if (args.length < 2) {
             message.replyLang("PING_NO_ADDRESS");
             return;
         }
 
-        if(!ipRegex.test(args[1]) && !domainRegex.test(args[1])){
+        if (!ipRegex.test(args[1]) && !domainRegex.test(args[1])) {
             return message.channel.send("Invalid address, enter a domain name or IP address.");
         }
 
@@ -26,12 +26,12 @@ module.exports = {
             timeout: 1000
         });
 
-        if(sentMessage.deleted)
+        if (sentMessage.deleted)
             return bot.logger.log("Message was deleted before the ping completed.");
 
-        if(res.alive){
+        if (res.alive) {
             return sentMessage.editLang("PING_RESPONSE", {response: res.output});
-        }else{
+        } else {
             return sentMessage.editLang("PING_NO_RESPONSE");
         }
     }

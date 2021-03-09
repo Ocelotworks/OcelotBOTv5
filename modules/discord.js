@@ -32,7 +32,7 @@ const presenceMessages = [
 let lastWebhook = 0;
 
 
-function getContent(content){
+function getContent(content) {
     try {
         if (typeof content !== "string") {
             if (!content)
@@ -45,7 +45,7 @@ function getContent(content){
                 return `[Embed: ${content.title} - ${content.description}]`;
 
             if (content.fields)
-                return `[Embed: ${content.fields.map((f)=>`${f.name}: ${f.value} `)}]`;
+                return `[Embed: ${content.fields.map((f) => `${f.name}: ${f.value} `)}]`;
 
             if (content.reply)
                 return `[Mention: @${content.reply.tag} (${content.reply.id})] ${getContent(content.content)}`;
@@ -56,108 +56,84 @@ function getContent(content){
             if (content.content)
                 return content.content;
 
-            if(content.attachment || content.name)
+            if (content.attachment || content.name)
                 return `[Attachment: ${content.name || content.attachment}]`
 
-            if(content.embed)
+            if (content.embed)
                 return getContent(content.embed);
 
             return JSON.stringify(content);
         }
         return content;
-    }catch(e){
+    } catch (e) {
         return `[Error parsing ${e.message}]`;
     }
 }
 
 module.exports = {
     name: "Discord.js Integration",
-    init: function(bot){
+    init: function (bot) {
 
-        Discord.Message.prototype.getLang = async function(message, values){
+        Discord.Message.prototype.getLang = async function (message, values) {
             return bot.lang.getForMessage(this, message, values);
         }
 
-        Discord.Message.prototype.replyLang = async function(message, values){
+        Discord.Message.prototype.replyLang = async function (message, values) {
             return this.channel.send(bot.lang.getForMessage(this, message, values));
         };
 
-        Discord.TextChannel.prototype.sendLang = async function(message, values){
+        Discord.TextChannel.prototype.sendLang = async function (message, values) {
             return this.send(bot.lang.getForMessage(this, message, values));
         };
 
-        Discord.Message.prototype.editLang = async function(message, values){
+        Discord.Message.prototype.editLang = async function (message, values) {
             return this.edit(bot.lang.getForMessage(this, message, values));
         };
 
-        Discord.Guild.prototype.getSetting = function(setting, user){
+        Discord.Guild.prototype.getSetting = function (setting, user) {
             return bot.config.get(this.id ? this.id : "global", setting, user);
         };
 
-        Discord.Guild.prototype.getBool = function(setting, user){
-            return bot.config.getBool(this.id, setting, user, );
+        Discord.Guild.prototype.getBool = function (setting, user) {
+            return bot.config.getBool(this.id, setting, user,);
         };
 
-        Discord.Message.prototype.getSetting = function(setting){
+        Discord.Message.prototype.getSetting = function (setting) {
             return bot.config.get(this.guild ? this.guild.id : "global", setting, this.author.id);
         };
 
-        Discord.Message.prototype.getBool = function(setting){
-           return bot.config.getBool(this.guild ? this.guild.id : "global", setting, this.author.id);
+        Discord.Message.prototype.getBool = function (setting) {
+            return bot.config.getBool(this.guild ? this.guild.id : "global", setting, this.author.id);
         };
 
         const oldedit = Discord.Message.prototype.edit;
-        Discord.Message.prototype.edit = function edit(content, options){
+        Discord.Message.prototype.edit = async function edit(content, options) {
             bot.bus.emit("messageSent", content);
 
-            let message = {
-                type: "messageEdited",
-                content,
-                options,
-            }
+            let editedMessage = await oldedit.apply(this, [content, options]);
 
-            if(this.guild) {
-                message.guild = {
-                    name: this.guild.name,
-                    id: this.guild.id,
-                };
-            }
+            bot.logger.log({type: "messageEdited", message: bot.util.serialiseMessage(editedMessage)})
 
-            bot.logger.log(message)
-
-            return oldedit.apply(this, [content, options]);
+            return editedMessage;
         };
 
+        const oldStartTyping = Discord.TextChannel.prototype.startTyping;
+        Discord.TextChannel.prototype.startTyping = function startTyping() {
+            oldStartTyping.apply(this, arguments);
+            setTimeout(() => {
+                this.stopTyping();
+            }, 60000);
+        }
+
         const oldsend = Discord.TextChannel.prototype.send;
-        Discord.TextChannel.prototype.send = async function send(content, options){
+        Discord.TextChannel.prototype.send = async function send(content, options) {
             bot.bus.emit("messageSent", content);
 
+            let sentMessage = await oldsend.apply(this, [content, options]);
 
-            let message = {
-                type: "messageSend",
-                content,
-                options,
-            }
+            bot.logger.log({type: "messageSend", message: bot.util.serialiseMessage(sentMessage)})
 
-            if(this.guild) {
-                message.guild = {
-                    name: this.guild.name,
-                    id: this.guild.id,
-                };
-            }
-
-            bot.logger.log(message)
-
-            return Reattempt.run({times: 3, onError: (error, done, abort)=>{
-                if(error.code !== "ECONNRESET"){
-                    Sentry.captureException(error);
-                    bot.logger.warn("Send Error: "+error);
-                    oldsend.apply(this, ["Send Error: " + error]);
-                    abort();
-                }else{
-                    bot.logger.warn("Connection reset, retrying send...");
-                }
-            }}, ()=>oldsend.apply(this, [content, options]));
+            return sentMessage;
         };
 
         //bot.presenceMessage = null;
@@ -175,7 +151,7 @@ module.exports = {
             }
         };
 
-        if(process.env.GATEWAY){
+        if (process.env.GATEWAY) {
             console.log("Using gateway", process.env.GATEWAY);
             clientOpts.http = {
                 api: process.env.GATEWAY
@@ -186,30 +162,30 @@ module.exports = {
 
         bot.client.setMaxListeners(100);
         bot.lastPresenceUpdate = 0;
-        bot.updatePresence = async function(){
+        bot.updatePresence = async function () {
             const now = new Date();
-            if(now-bot.lastPresenceUpdate>100000) {
+            if (now - bot.lastPresenceUpdate > 100000) {
                 bot.lastPresenceUpdate = now;
                 const serverCount = (await bot.rabbit.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
-                let randPresence =  bot.util.arrayRand(presenceMessages);
+                let randPresence = bot.util.arrayRand(presenceMessages);
                 await bot.client.user.setPresence({
-                   activity: {
-                       name: `${bot.presenceMessage ? bot.presenceMessage : randPresence.message} | ${serverCount.toLocaleString()} servers.`,
-                       type: randPresence.type
-                   }
+                    activity: {
+                        name: `${bot.presenceMessage ? bot.presenceMessage : randPresence.message} | ${serverCount.toLocaleString()} servers.`,
+                        type: randPresence.type
+                    }
                 });
-            }else{
+            } else {
                 bot.logger.log("Not updating presence as last update was too recent.");
             }
         };
 
-        bot.client.on("ready", async function discordReady(){
-            Sentry.configureScope(function discordReady(scope){
+        bot.client.on("ready", async function discordReady() {
+            Sentry.configureScope(function discordReady(scope) {
                 bot.logger.log(`Logged in as ${bot.client.user.tag}`);
                 scope.addBreadcrumb({
                     message: "ready",
                     level: Sentry.Severity.Info,
-                    category:  "discord",
+                    category: "discord",
                 });
                 setTimeout(bot.updatePresence, 150000);
 
@@ -232,20 +208,19 @@ module.exports = {
         //     });
         // });
 
-        bot.client.on("disconnect", function discordDisconnected(evt){
+        bot.client.on("disconnect", function discordDisconnected(evt) {
             Sentry.getCurrentHub().addBreadcrumb({
                 category: "discord",
                 message: "Disconnected",
                 level: Sentry.Severity.Warning,
                 data: evt
             });
-           bot.logger.warn("Disconnected");
+            bot.logger.warn("Disconnected");
         });
 
 
-
-        bot.client.on("guildCreate", function joinGuild(guild){
-            Sentry.configureScope(async function joinGuild(scope){
+        bot.client.on("guildCreate", function joinGuild(guild) {
+            Sentry.configureScope(async function joinGuild(scope) {
                 bot.logger.log(`Joined server ${guild.id} (${guild.name})`);
                 scope.addBreadcrumb({
                     category: "discord",
@@ -258,25 +233,25 @@ module.exports = {
                 });
                 bot.updatePresence();
                 try {
-                    if(!guild.region)return;
-                    if(!guild.available)return;
+                    if (!guild.region) return;
+                    if (!guild.available) return;
                     let lang = "en-gb";
-                    if(guild.region.startsWith("us"))
+                    if (guild.region.startsWith("us"))
                         lang = "en-us";
                     try {
                         await bot.database.addServer(guild.id, guild.ownerID, guild.name, guild.joinedAt, lang);
-                    }catch(e){
+                    } catch (e) {
                         console.error(e);
                     }
                     await bot.database.unleaveServer(guild.id);
                     let mainChannel = bot.util.determineMainChannel(guild);
-                    if(bot.config.getBool("global", "welcome.enabled")) {
+                    if (!bot.drain && bot.config.getBool("global", "welcome.enabled")) {
                         if (mainChannel) {
                             bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
                             let embed = new Discord.MessageEmbed();
                             embed.setColor(bot.config.get("global", "welcome.embedColour"));
                             embed.setTitle("Welcome to OcelotBOT!");
-                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/#commands) or by typing ${guild.getSetting("prefix")}help.`);
+                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/commands) or by typing ${guild.getSetting("prefix")}help.`);
                             embed.addField("Prefix", `The default prefix is !, if you want to change it type **${guild.getSetting("prefix")}settings set prefix %**`);
                             embed.addField("Wholesome?", `Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **${guild.getSetting("prefix")}settings set wholesome true**`);
                             embed.addField("Administrators", `You can change the bot's settings by typing **${guild.getSetting("prefix")}settings help**`);
@@ -286,29 +261,29 @@ module.exports = {
                         }
                     }
 
-                    if(bot.config.getBool("global", "webhook.enabled")){
+                    if (bot.config.getBool("global", "webhook.enabled")) {
                         try {
                             let webhook = await mainChannel.createWebhook("OcelotBOT", bot.client.avatar);
                             bot.logger.log(`Created webhook for ${guild.id}: ${webhook.id}`);
                             await bot.database.addServerWebhook(guild.id, webhook.id, webhook.token);
-                        }catch(e){
-                            bot.logger.warn("Failed to create webhook: "+e);
+                        } catch (e) {
+                            bot.logger.warn("Failed to create webhook: " + e);
                         }
-                    }else{
+                    } else {
                         bot.logger.log("Not creating webhook.");
                     }
 
-                }catch(e){
+                } catch (e) {
                     bot.logger.warn(`Error adding server ${e}`);
                     Sentry.captureException(e);
                 }
             });
         });
 
-        bot.client.on("guildDelete", function leaveGuild(guild){
-            Sentry.configureScope(async function leaveGuild(scope){
+        bot.client.on("guildDelete", function leaveGuild(guild) {
+            Sentry.configureScope(async function leaveGuild(scope) {
                 bot.logger.log(`Left server ${guild.id} (${guild.name})`);
-                if(!guild.available)
+                if (!guild.available)
                     return bot.logger.warn("Guild is unavailable, probably discord issues.");
                 scope.addBreadcrumb({
                     category: "discord",
@@ -322,7 +297,7 @@ module.exports = {
                 await bot.database.leaveServer(guild.id);
 
                 const now = new Date();
-                if(bot.config.getBool("global", "webhook.enabled") && now-lastWebhook > 60000) {
+                if (bot.config.getBool("global", "webhook.enabled") && now - lastWebhook > 60000) {
                     bot.logger.log("Trying to send webhook...");
                     let webhookData = (await bot.database.getServerWebhook(guild.id))[0];
                     if (webhookData && webhookData.webhookID && webhookData.webhookToken) {
@@ -340,22 +315,22 @@ module.exports = {
                     } else {
                         bot.logger.warn("Server had no webhook...");
                     }
-                }else{
+                } else {
                     bot.logger.log("Not sending webhook");
                 }
                 lastWebhook = now;
             });
         });
 
-        bot.client.on("error", function websocketError(evt){
+        bot.client.on("error", function websocketError(evt) {
             bot.logger.log("Websocket Error");
             bot.logger.log(evt);
             Sentry.captureException(evt.error);
         });
 
-        bot.client.on("guildUnavailable", function guildUnavailable(guild){
+        bot.client.on("guildUnavailable", function guildUnavailable(guild) {
             bot.logger.warn(`Guild ${guild.id} has become unavailable.`);
-            lastWebhook = (new Date()).getTime()+120000; //Quick hack to fix webhook spam during outages
+            lastWebhook = (new Date()).getTime() + 120000; //Quick hack to fix webhook spam during outages
             Sentry.getCurrentHub().addBreadcrumb({
                 category: "discord",
                 message: "guildUnavailable",
@@ -368,20 +343,20 @@ module.exports = {
         });
 
 
-        bot.client.on("guildUpdate", async function guildUpdate(oldGuild, newGuild){
-             if(oldGuild.name !== newGuild.name && newGuild.getBool("doGuildNameUpdates")){
-                 Sentry.getCurrentHub().addBreadcrumb({
-                     category: "discord",
-                     message: "guildUpdate",
-                     level: Sentry.Severity.Info,
-                     data: {
-                         id: newGuild.id,
-                         name: newGuild.name
-                     }
-                 });
-                 bot.logger.warn(`Guild ${oldGuild.name} (${oldGuild.id}) has changed it's name to ${newGuild.name}`);
-                 await bot.database.updateServer(oldGuild.id, {name: newGuild.name});
-             }
+        bot.client.on("guildUpdate", async function guildUpdate(oldGuild, newGuild) {
+            if (oldGuild.name !== newGuild.name && newGuild.getBool("doGuildNameUpdates")) {
+                Sentry.getCurrentHub().addBreadcrumb({
+                    category: "discord",
+                    message: "guildUpdate",
+                    level: Sentry.Severity.Info,
+                    data: {
+                        id: newGuild.id,
+                        name: newGuild.name
+                    }
+                });
+                bot.logger.warn(`Guild ${oldGuild.name} (${oldGuild.id}) has changed it's name to ${newGuild.name}`);
+                await bot.database.updateServer(oldGuild.id, {name: newGuild.name});
+            }
         });
 
         // bot.client.on("rateLimit", function rateLimit(info){
@@ -394,7 +369,7 @@ module.exports = {
         //     bot.raven.captureException(new Error(`Rate Limit Hit ${info.method} ${info.path}`));
         // });
 
-        bot.client.on("warn", function warn(warning){
+        bot.client.on("warn", function warn(warning) {
             bot.logger.warn(warning);
             Sentry.getCurrentHub().addBreadcrumb({
                 category: "discord",
@@ -406,10 +381,10 @@ module.exports = {
             });
         });
 
-        bot.client.on("guildMemberUpdate", function guildMemberUpdate(oldMember, newMember){
-            if(oldMember.id !== bot.client.user.id)return;
-            if(!newMember.nickname)return;
-            if(oldMember.nickname && oldMember.nickname === newMember.nickname)return;
+        bot.client.on("guildMemberUpdate", function guildMemberUpdate(oldMember, newMember) {
+            if (oldMember.id !== bot.client.user.id) return;
+            if (!newMember.nickname) return;
+            if (oldMember.nickname && oldMember.nickname === newMember.nickname) return;
             bot.logger.warn(`Nickname changed in ${oldMember.guild.name} (${oldMember.guild.id}) changed to ${newMember.nickname}`);
             Sentry.getCurrentHub().addBreadcrumb({
                 category: "discord",
@@ -421,10 +396,10 @@ module.exports = {
             });
         });
 
-        bot.client.once("ready", function orphanCheck(){
-            if(!bot.client.shard)return;
-            setInterval(()=>{
-                if(!process.connected) {
+        bot.client.once("ready", function orphanCheck() {
+            if (!bot.client.shard) return;
+            setInterval(() => {
+                if (!process.connected) {
                     bot.logger.warn("Shard was orphaned, killing...");
                     process.exit(0);
                 }
@@ -432,34 +407,34 @@ module.exports = {
         })
 
 
-        bot.bus.on("requestData", async (message)=>{
+        bot.bus.on("requestData", async (message) => {
             let data;
-            if(message.payload.name === "channels"){
+            if (message.payload.name === "channels") {
                 let guild = message.payload.data.server;
-                if(bot.client.guilds.cache.has(guild)){
+                if (bot.client.guilds.cache.has(guild)) {
                     let guildObj = bot.client.guilds.cache.get(guild);
-                    let channels = guildObj.channels.cache.map(function(channel){
+                    let channels = guildObj.channels.cache.map(function (channel) {
                         return {name: channel.name, id: channel.id, type: channel.type}
                     });
-                    bot.logger.log("Sending channel data for "+guildObj.name+" ("+guild+")");
+                    bot.logger.log("Sending channel data for " + guildObj.name + " (" + guild + ")");
                     data = channels;
                 }
-            }else if(message.payload.data.shard == bot.util.shard){
-                if(message.payload.name === "guildCount"){
+            } else if (message.payload.data.shard == bot.util.shard) {
+                if (message.payload.name === "guildCount") {
                     data = {count: bot.client.guilds.cache.size};
-                }else if(message.payload.name === "guilds"){
+                } else if (message.payload.name === "guilds") {
                     data = bot.client.guilds.cache.array();
-                }else if(message.payload.name === "unavailableGuilds"){
-                    data = bot.client.guilds.cache.filter((g)=>!g.available).array();
-                }else if(message.payload.name === "commandVersions"){
+                } else if (message.payload.name === "unavailableGuilds") {
+                    data = bot.client.guilds.cache.filter((g) => !g.available).array();
+                } else if (message.payload.name === "commandVersions") {
                     data = {};
-                    for(let command in bot.commandUsages){
-                        if(bot.commandUsages.hasOwnProperty(command))
+                    for (let command in bot.commandUsages) {
+                        if (bot.commandUsages.hasOwnProperty(command))
                             data[command] = bot.commandUsages[command].crc;
                     }
                 }
             }
-            if(data) {
+            if (data) {
                 await bot.rabbit.event({
                     type: "dataCallback",
                     payload: {
@@ -467,21 +442,21 @@ module.exports = {
                         data,
                     }
                 });
-            }else{
-                bot.logger.warn("Unknown requestData type "+message.payload.name)
+            } else {
+                bot.logger.warn("Unknown requestData type " + message.payload.name)
             }
         });
 
-        bot.bus.on("presence", async (message)=>{
-            bot.logger.log("Updating presence: "+message.payload);
+        bot.bus.on("presence", async (message) => {
+            bot.logger.log("Updating presence: " + message.payload);
             bot.presenceMessage = message.payload === "clear" ? null : message.payload;
             await bot.updatePresence();
         })
 
-        bot.bus.on("getUserInfo", async(message)=>{
+        bot.bus.on("getUserInfo", async (message) => {
             let userID = message.payload;
             let user = await bot.client.users.fetch(userID);
-            if(user) {
+            if (user) {
                 await bot.rabbit.event({
                     type: "getUserInfoResponse", payload: {
                         id: user.id,
@@ -493,7 +468,7 @@ module.exports = {
         })
 
 
-        bot.api.get('/discord', (req, res)=>{
+        bot.api.get('/discord', (req, res) => {
             const shard = bot.client.ws.shards.first();
             res.json({
                 readyAt: bot.client.readyAt,
@@ -501,7 +476,7 @@ module.exports = {
                 guilds: bot.client.guilds.cache.size,
                 users: bot.client.users.cache.size,
                 channels: bot.client.channels.cache.size,
-                unavailable: bot.client.guilds.cache.filter((g)=>!g.available).size,
+                unavailable: bot.client.guilds.cache.filter((g) => !g.available).size,
                 ws: {
                     shard: {
                         ping: shard.ping,
@@ -514,10 +489,10 @@ module.exports = {
             })
         })
 
-        bot.api.get('/user/:id', async (req, res)=>{
+        bot.api.get('/user/:id', async (req, res) => {
             try {
                 return res.json(await bot.client.users.fetch(req.params.id))
-            }catch(err){
+            } catch (err) {
                 return res.json({err})
             }
         })

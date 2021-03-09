@@ -8,23 +8,23 @@ module.exports = {
     name: "Enable Command",
     usage: "enableCommand <command>",
     commands: ["enablecommand", "ec"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
         let command = args[2];
-        if(!command)
+        if (!command)
             return message.replyLang("SETTINGS_ENABLE_NONE", {command: args[0], arg: args[1]});
 
         command = command.toLowerCase().replace(message.getSetting("prefix"), "");
 
-        if(!bot.commands[command])
+        if (!bot.commands[command])
             return message.replyLang("SETTINGS_ENABLE_INVALID", {command: args[0], arg: args[1]});
 
 
-        if(!message.getBool(`${command}.disable`))
+        if (!message.getBool(`${command}.disable`))
             return message.replyLang("SETTINGS_ENABLE_ENABLED", {arg: args[0], command});
 
 
-        await bot.config.set(message.guild.id, command+".disable", false);
+        await bot.config.set(message.guild.id, command + ".disable", false);
 
         message.replyLang("SETTINGS_ENABLE_SUCCESS", {command});
-}
+    }
 };

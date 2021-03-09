@@ -16,7 +16,7 @@ module.exports = {
             refreshInterval: 60000
         });
 
-        bot.feature.enabledFor = function enabledFor(message, key){
+        bot.feature.enabledFor = function enabledFor(message, key) {
             return isEnabled(key, {
                 userId: message.author.id,
                 sessionId: message.guild ? message.guild.id : message.channel.id,

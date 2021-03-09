@@ -8,11 +8,11 @@ module.exports = {
     name: "Determine Main Channel",
     usage: "determineMainChannel",
     commands: ["determinemainchannel"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
         let mainChannel = bot.util.determineMainChannel(message.guild);
-        if(mainChannel){
-            message.channel.send("Determined main channel to be "+mainChannel);
-        }else{
+        if (mainChannel) {
+            message.channel.send("Determined main channel to be " + mainChannel);
+        } else {
             message.channel.send("No eligible channels.");
         }
     }

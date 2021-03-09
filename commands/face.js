@@ -24,23 +24,23 @@ module.exports = {
             body: {
                 url: url
             }
-        }, async function(err, resp, body){
-            if(err){
+        }, async function (err, resp, body) {
+            if (err) {
                 bot.raven.captureException(err);
-            }else if(body.length > 0) {
-                if(body.length === 1){
+            } else if (body.length > 0) {
+                if (body.length === 1) {
                     message.replyLang("FACE_RESPONSE", body[0].faceAttributes);
-                }else{
+                } else {
                     let output = "";
-                    for(let i = 0; i < body.length; i++){
+                    for (let i = 0; i < body.length; i++) {
                         output += await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE", body[i].faceAttributes);
                         output += "\n";//i < body.length-2 ? ", " : i === body.length-2 ? " and " : "."
                     }
-                    message.channel.send(await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE_MULTIPLE", {num: body.length})+"\n "+output);
+                    message.channel.send(await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE_MULTIPLE", {num: body.length}) + "\n " + output);
 
                 }
 
-            }else{
+            } else {
                 message.replyLang("FACE_NO_FACES");
             }
         })

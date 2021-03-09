@@ -1,4 +1,3 @@
-
 const shipLevels = {
     "-10": ["💔", "Only hatred here"],
     0: ["💔", "Nothing at all..."],
@@ -32,43 +31,43 @@ module.exports = {
     requiredPermissions: [],
     commands: ["ship", "shipname", "relationship", "shipgenerator"],
     run: async function run(message, args, bot) {
-        if(args.length < 3){
+        if (args.length < 3) {
             message.channel.send(`Usage: ${args[0]} @user1 @user2`);
-        }else{
+        } else {
             let split = message.content.split(" ");
             let people;
-            if(message.guild)
-                 people = message.mentions.members.map((m)=>m.displayName);
+            if (message.guild)
+                people = message.mentions.members.map((m) => m.displayName);
             else
-                people = message.mentions.users.map((m)=>m.username);
-            for(let i = 1; i < split.length; i++){
-                if(!split[i].startsWith("<")){
+                people = message.mentions.users.map((m) => m.username);
+            for (let i = 1; i < split.length; i++) {
+                if (!split[i].startsWith("<")) {
                     people.push(split[i]);
                 }
             }
 
 
             let shipPoints = 0, shipName = people[0];
-            for(let i = 1; i < people.length; i++){
+            for (let i = 1; i < people.length; i++) {
                 let result = ship(shipName, people[i], bot);
                 shipPoints += result.shipPoints;
                 shipName = result.shipName;
             }
 
             let shipTags = ["<a:pogshake:789340616785526825>", "IMPOSSIBLE LOVE!"];
-            for(let level in shipLevels){
-                if(shipLevels.hasOwnProperty(level) && shipPoints < level) {
+            for (let level in shipLevels) {
+                if (shipLevels.hasOwnProperty(level) && shipPoints < level) {
                     shipTags = shipLevels[level];
                     break;
                 }
             }
 
-            if(shipName){
+            if (shipName) {
                 let output = `**Ship Generator:**\n${shipTags[0]} Compatibility Score: **${Math.round(shipPoints).toLocaleString()}: **_${shipTags[1]}_\n:yellow_heart: Ship Name: \`${shipName}\``;
-                if(people.includes(shipName))
+                if (people.includes(shipName))
                     output += `\n:thinking: **Wait... that's just the same name**`;
                 message.channel.send(output);
-            }else{
+            } else {
                 message.channel.send(":broken_heart: I'm sorry... I couldn't ship these people. It just wouldn't work.");
             }
 
@@ -76,23 +75,23 @@ module.exports = {
     }
 };
 
-function ship(person1, person2, bot){
+function ship(person1, person2, bot) {
     let shipName = "", shipPoints = 0;
-    if(person1.indexOf(" ") > -1 && person2.indexOf(" ") > -1) {
+    if (person1.indexOf(" ") > -1 && person2.indexOf(" ") > -1) {
         bot.logger.log("Both names have spaces in");
         shipPoints += 25;
-        shipName = person1.split(" ")[0]+" "+person2.split(" ")[1];
+        shipName = person1.split(" ")[0] + " " + person2.split(" ")[1];
         return {shipName, shipPoints}
     }
     let possibleCombos = [];
-    for(let f = 1; f < person1.length; f++){
+    for (let f = 1; f < person1.length; f++) {
         const firstChar = person1[f];
-        if(firstChar === " ")continue;
-        for(let s = 0; s < person2.length-1; s++){
+        if (firstChar === " ") continue;
+        for (let s = 0; s < person2.length - 1; s++) {
             const secondChar = person2[s];
-            if(secondChar === " ")continue;
-            if(firstChar.toLowerCase() === secondChar.toLowerCase() || (bot.util.vowels.indexOf(firstChar.toLowerCase()) === -1 && bot.util.vowels.indexOf(secondChar.toLowerCase()) > -1)){
-                possibleCombos.push([f,s]);
+            if (secondChar === " ") continue;
+            if (firstChar.toLowerCase() === secondChar.toLowerCase() || (bot.util.vowels.indexOf(firstChar.toLowerCase()) === -1 && bot.util.vowels.indexOf(secondChar.toLowerCase()) > -1)) {
+                possibleCombos.push([f, s]);
                 shipPoints += 1;
             }
         }
@@ -100,9 +99,9 @@ function ship(person1, person2, bot){
 
     let seenLetters = [];
 
-    for(let i = 0; i < person2.length; i++) {
+    for (let i = 0; i < person2.length; i++) {
         let character = person2[i];
-        if (seenLetters.includes(character)){
+        if (seenLetters.includes(character)) {
             shipPoints--;
         } else {
             seenLetters.push(character);
@@ -110,17 +109,17 @@ function ship(person1, person2, bot){
         }
     }
 
-    if(seenLetters.length < 5)
+    if (seenLetters.length < 5)
         shipPoints /= 2;
 
-    if(possibleCombos.length > 0){
-        bot.logger.log(possibleCombos.length+" possible combinations");
-        shipPoints += 3*possibleCombos.length;
-        const combo = possibleCombos[parseInt(possibleCombos.length/2)];
-        shipName = person1.substring(0, combo[0])+person2.substring(combo[1]);
+    if (possibleCombos.length > 0) {
+        bot.logger.log(possibleCombos.length + " possible combinations");
+        shipPoints += 3 * possibleCombos.length;
+        const combo = possibleCombos[parseInt(possibleCombos.length / 2)];
+        shipName = person1.substring(0, combo[0]) + person2.substring(combo[1]);
         shipPoints += (bot.util.vowels.indexOf(person1[combo[0]].toLowerCase()) > -1) ? 7 : 18;
-    }else{
-        shipName = person1.substring(0, bot.util.intBetween(1,person1.length))+person2.substring(bot.util.intBetween(0,person2.length));
+    } else {
+        shipName = person1.substring(0, bot.util.intBetween(1, person1.length)) + person2.substring(bot.util.intBetween(0, person2.length));
         shipPoints -= 10;
     }
 

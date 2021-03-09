@@ -10,9 +10,9 @@ module.exports = {
     name: "Save",
     usage: "save <save name>",
     commands: ["save"],
-    run: async function(message, args, bot, data){
+    run: async function (message, args, bot, data) {
         try {
-            fs.writeFileSync(__dirname+"/../z5saves/" + args[3], new Buffer(data.gameContainers[data.id].game.getSerialData().buffer), {});
+            fs.writeFileSync(__dirname + "/../z5saves/" + args[3], new Buffer(data.gameContainers[data.id].game.getSerialData().buffer), {});
         } catch (e) {
             console.log(e);
             message.channel.send("Save failed.");

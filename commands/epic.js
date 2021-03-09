@@ -10,11 +10,11 @@ module.exports = {
     categories: ["image", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["epic", "thisisepic", "okaythisisepic", "tis"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
 
-        const url =  await bot.util.getImage(message, args);
+        const url = await bot.util.getImage(message, args);
 
-        if(!url || !url.startsWith("http"))
+        if (!url || !url.startsWith("http"))
             return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
 
         console.log(url);
@@ -22,18 +22,18 @@ module.exports = {
 
         const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
-        request(url).on("end", ()=>{
+        request(url).on("end", () => {
             gm(fileName)
                 .resize(429)
-                .append(__dirname+"/../static/epic.png")
-                .toBuffer("PNG", function(err, buffer){
-                    if(err){
+                .append(__dirname + "/../static/epic.png")
+                .toBuffer("PNG", function (err, buffer) {
+                    if (err) {
                         message.replyLang("GENERIC_ERROR");
                         return;
                     }
                     let attachment = new Discord.MessageAttachment(buffer, "epic.png");
                     message.channel.send("", attachment);
-                    fs.unlink(fileName, function unlink(err){
+                    fs.unlink(fileName, function unlink(err) {
                         console.log(err);
                     });
                 });

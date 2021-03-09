@@ -8,13 +8,13 @@ module.exports = {
         let previousQueues;
 
         let guild = message.guild.id;
-        if(!music.listeners[guild]){
+        if (!music.listeners[guild]) {
             previousQueues = await bot.database.getPreviousQueue(guild);
-        }else{
+        } else {
             previousQueues = await bot.database.getPreviousQueue(guild, music.listeners[guild].id);
         }
 
-        if(previousQueues.length === 0)
+        if (previousQueues.length === 0)
             return message.channel.send(":spider_web: You have no previous queues. If the bot leaves without finishing a queue, it is saved here.");
 
     }

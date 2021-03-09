@@ -9,7 +9,7 @@ const config = require('config');
 const os = require('os');
 module.exports = {
     name: "RabbitMQ",
-    init: async function(bot) {
+    init: async function (bot) {
         try {
             bot.drain = false;
             bot.rabbit = {};
@@ -132,7 +132,7 @@ module.exports = {
             bot.rabbit.emit = async function emit(type, payload) {
                 let buf = Buffer.from(JSON.stringify(payload));
                 if (!bot.rabbit.pubsub[type]) {
-                    if(bot.rabbit.pubsub[type] === false)return;
+                    if (bot.rabbit.pubsub[type] === false) return;
                     bot.rabbit.pubsub[type] = false;
                     bot.rabbit.pubsub[type] = await bot.rabbit.createPubsub(type);
                 }
@@ -238,7 +238,7 @@ module.exports = {
                     message: getSafeMessage(message),
                 });
             });
-        }catch(e){
+        } catch (e) {
             console.error(e);
             process.exit(63);
         }
@@ -246,10 +246,10 @@ module.exports = {
 };
 
 
-function getValue(object, value){
+function getValue(object, value) {
     let ind = value.indexOf(".");
-    if(ind > -1){
-        return getValue(object[value.substring(0, ind)], value.substring(ind+1))
+    if (ind > -1) {
+        return getValue(object[value.substring(0, ind)], value.substring(ind + 1))
     }
     return object[value];
 }

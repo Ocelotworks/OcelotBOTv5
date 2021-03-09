@@ -15,32 +15,33 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["curse", "cursed"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
 
-        const url =  await bot.util.getImage(message, args);
+        const url = await bot.util.getImage(message, args);
 
-        if(!url || !url.startsWith("http"))
+        if (!url || !url.startsWith("http"))
             return message.replyLang("GENERIC_NO_IMAGE", module.exports);
 
         console.log(url);
 
         const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
-        request(url).on("end", ()=>{
+        request(url).on("end", () => {
             gm(fileName)
                 .modulate(50)
-                .gamma(1,0.8,0.8)
+                .gamma(1, 0.8, 0.8)
                 //.edge(50)
                 .quality(50)
-                .toBuffer("JPEG", function(err, buffer){
-                    if(err)
+                .toBuffer("JPEG", function (err, buffer) {
+                    if (err)
                         return message.replyLang("GENERIC_ERROR");
                     let attachment = new Discord.MessageAttachment(buffer, "jpeg.jpg");
-                    message.channel.send("", attachment).catch(function(e){
+                    message.channel.send("", attachment).catch(function (e) {
                         console.log(e);
-                        message.channel.send("Upload error: "+e);
+                        message.channel.send("Upload error: " + e);
                     });
-                    fs.unlink(fileName, function(){});
+                    fs.unlink(fileName, function () {
+                    });
                 });
         }).pipe(fs.createWriteStream(fileName));
 

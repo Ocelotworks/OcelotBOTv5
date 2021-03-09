@@ -19,14 +19,14 @@ module.exports = {
         let result = await bot.rabbit.rpc("z5", {
             name: "gameData",
             data: input,
-            server : message.guild ? message.guild.id : message.channel.id, player : message.author.id,
+            server: message.guild ? message.guild.id : message.channel.id, player: message.author.id,
             admin: message.getBool("admin")
         }, 300000, {durable: false});
 
         let text = Discord.escapeMarkdown(decodeURIComponent(result.text));
         let channelMessage = "";
 
-        if(result.loaded){
+        if (result.loaded) {
             channelMessage += "``` Previous save has been auto loaded \n Try '!z5 look' to see where you left off ```"
         }
 
@@ -37,7 +37,7 @@ module.exports = {
 
         channelMessage += "```yaml\n" + body + "\n```";
 
-        if(result.text !== undefined) {
+        if (result.text !== undefined) {
             message.channel.send(channelMessage);
         }
 

@@ -33,15 +33,15 @@ module.exports = {
     responseExample: "📜 `man who fart in church sit in own pew`",
     categories: ["fun"],
     commands: ["advice", "advise", "wise"],
-    run:  function(message, args, bot){
+    run: function (message, args, bot) {
         message.channel.send(`:scroll: \`${bot.util.arrayRand(responses)}\``);
     },
-    test: function(test){
-        test('wise', function(t){
+    test: function (test) {
+        test('wise', function (t) {
             const message = {
                 channel: {
-                    send: function(message){
-                        if(message.startsWith(":scroll"))
+                    send: function (message) {
+                        if (message.startsWith(":scroll"))
                             t.pass();
                         else
                             t.fail();
@@ -50,7 +50,7 @@ module.exports = {
             };
             const bot = {
                 util: {
-                    arrayRand: function(arr){
+                    arrayRand: function (arr) {
                         t.pass();
                         return arr[0];
                     }

@@ -8,13 +8,14 @@ module.exports = {
     commands: ["steg"],
     run: async function (message, args, bot) {
         let image = await bot.util.getImage(message, args);
-        if(!image)return message.channel.send("No image found");
-        let imageData = await axios.get(image,{
+        if (!image) return message.channel.send("No image found");
+        let imageData = await axios.get(image, {
             responseType: 'arraybuffer'
         });
-        fs.writeFileSync("../temp/out.png", Buffer.from(imageData.data));
-        child_process.execFile("../lib/stego", ["-r", "-imgi", "../temp/out.png"], async (err, out)=>{
-            try{
+        fs.writeFileSync("temp/out.png", Buffer.from(imageData.data));
+        child_process.execFile("lib/stego.exe", ["-r", "-imgi", "temp/out.png"], async (err, out) => {
+            console.log(err);
+            try {
                 let output = "**Valid OcelotBOT Image**"
                 if (out !== "OCELOTBOT") {
                     let data = JSON.parse(out);
@@ -30,7 +31,7 @@ module.exports = {
                     output += ` (${data.u})\nMessage: ${data.m}\nTimestamp: **${Discord.SnowflakeUtil.deconstruct(data.m).date.toLocaleString()}**`;
                 }
                 message.channel.send(output);
-            }catch(e){
+            } catch (e) {
                 console.log(e);
                 message.channel.send(`Unable to decode.`);
             }
@@ -38,10 +39,10 @@ module.exports = {
     }
 }
 
-async function cacheGet(cache, get){
+async function cacheGet(cache, get) {
     try {
         return await cache.fetch(get)
-    }catch(e){
+    } catch (e) {
         return null
     }
 }

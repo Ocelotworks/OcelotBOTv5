@@ -12,7 +12,7 @@ module.exports = {
     detailedHelp: "JPEG-Ify an image",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jpeg", "jpg"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
         return bot.util.processImageFilter(module, message, args, "quality", [message.getSetting("jpeg.quality")], "JPEG");
     }
 };

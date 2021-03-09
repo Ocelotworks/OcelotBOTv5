@@ -30,15 +30,15 @@ module.exports = {
     name: "Status",
     usage: "status",
     commands: ["status"],
-    run: async function(message, args, bot){
-        pm2.connect(function(err){
-            if(err){
+    run: async function (message, args, bot) {
+        pm2.connect(function (err) {
+            if (err) {
                 message.channel.send(`:warning: Couldn't connect to PM2: ${err}`);
                 bot.raven.captureException(err);
                 return;
             }
-            pm2.list(async function(err, list){
-                if(err){
+            pm2.list(async function (err, list) {
+                if (err) {
                     message.channel.send(`:warning: Couldn't list PM2 processes: ${err}`);
                     bot.raven.captureException(err);
                     return;
@@ -47,17 +47,17 @@ module.exports = {
 
                 let output = "SERVICE STATUS:\n";
 
-                for(let i = 0; i < list.length; i++){
+                for (let i = 0; i < list.length; i++) {
                     const process = list[i];
-                    if(process.pm2_env && process.pm2_env.status)
-                        output += statuses[process.pm2_env.status]+" ";
+                    if (process.pm2_env && process.pm2_env.status)
+                        output += statuses[process.pm2_env.status] + " ";
 
                     output += process.name;
                     output += "\n";
                 }
 
                 const keys = Object.keys(pings);
-                for(let j = 0; j < keys.length; j++){
+                for (let j = 0; j < keys.length; j++) {
                     let alive = await ping.promise.probe(pings[keys[j]]);
                     output += alive ? "<:green_tick_mark:542884088160190464> " : "<:red_cross_mark:542884087996874752> ";
                     output += keys[j];

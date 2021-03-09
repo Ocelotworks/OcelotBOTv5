@@ -16,19 +16,19 @@ module.exports = {
     rateLimit: 40,
     commands: ["colour", "color"],
     run: function run(message, args, bot) {
-        if(!args[1]){
-            return message.replyLang("GENERIC_TEXT", {command: args[0]})
-        }else{
+        if (!args[1]) {
+            return message.channel.send(`:bangbang: You must supply a colour, e.g ${args[0]} red or ${args[0]} #ff0000`)
+        } else {
             const size = parseInt(message.getSetting("colour.size"));
             const cnv = canvas.createCanvas(size, size);
             const ctx = cnv.getContext("2d");
-            let input = message.cleanContent.substring(args[0].length+1);
+            let input = message.cleanContent.substring(args[0].length + 1);
             ctx.fillStyle = input;
 
-            if(ctx.fillStyle === "#000000" && !blacks.includes(input.replace(/ /g, "")))
+            if (ctx.fillStyle === "#000000" && !blacks.includes(input.replace(/ /g, "")))
                 return message.channel.send("Invalid colour, try a hex colour code or one from this list: https://www.w3schools.com/colors/colors_names.asp");
 
-            ctx.fillRect(0,0,cnv.width, cnv.height);
+            ctx.fillRect(0, 0, cnv.width, cnv.height);
 
             message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "colour.png"));
         }

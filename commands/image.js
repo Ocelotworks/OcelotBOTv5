@@ -19,10 +19,10 @@ module.exports = {
     commands: ["image", "images", "im", "googleimage"],
     vote: true,
     categories: ["image", "search"],
-    run:  async function(message, args, bot){
-        if(args.length > 1){
-            const query = message.cleanContent.substring(args[0].length+1);
-            if(naughtyRegex.test(query)){
+    run: async function (message, args, bot) {
+        if (args.length > 1) {
+            const query = message.cleanContent.substring(args[0].length + 1);
+            if (naughtyRegex.test(query)) {
                 bot.logger.warn("Blocking query");
                 let embed = new Discord.MessageEmbed();
                 embed.setTitle(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IMAGE_BLOCKED_QUERY_TITLE", {}, message.author.id));
@@ -35,42 +35,41 @@ module.exports = {
                 let images;
                 const nsfw = (!message.guild || message.channel.nsfw);
                 let type = nsfw ? "nsfw" : "sfw";
-                images = await bot.redis.cache(`images/${type}/${query}`, async ()=>await client.search(query, {safe: nsfw ? "off" : "high"}), 36000)
+                images = await bot.redis.cache(`images/${type}/${query}`, async () => await client.search(query, {safe: nsfw ? "off" : "high"}), 36000)
 
-                images = images.filter((image)=>!image.thumbnail.url.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
+                images = images.filter((image) => !image.thumbnail.url.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
 
-                if(images.length === 0)
+                if (images.length === 0)
                     return message.replyLang(!message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
 
 
-
-                bot.util.standardPagination(message.channel, images, async function(page, index){
+                bot.util.standardPagination(message.channel, images, async function (page, index) {
                     let embed = new Discord.MessageEmbed();
                     embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true, format: "png"}));
                     embed.setTimestamp(new Date());
                     embed.setTitle(`Image results for '${query.substring(0, 200)}'`);
-                    if(!page.thumbnail.url.startsWith("x-raw-image") && (message.getSetting("image.useThumbnails") || !page.url))
+                    if (!page.thumbnail.url.startsWith("x-raw-image") && (message.getSetting("image.useThumbnails") || !page.url))
                         embed.setImage(page.thumbnail.url);
                     else
                         embed.setImage(page.url);
                     embed.setDescription(page.description);
-                    embed.setFooter(`Page ${index+1}/${images.length}`);
-                   return embed;
+                    embed.setFooter(`Page ${index + 1}/${images.length}`);
+                    return embed;
                 }, true);
-            }catch(e){
+            } catch (e) {
                 message.channel.stopTyping(true);
-                if(e.message === "Response code 403 (Forbidden)"){
+                if (e.message === "Response code 403 (Forbidden)") {
                     message.replyLang("REMOVEBG_QUOTA");
-                }else{
+                } else {
                     message.replyLang("GENERIC_ERROR");
                 }
                 console.log(e);
                 bot.raven.captureException(e);
-            }finally{
+            } finally {
                 message.channel.stopTyping(true);
             }
-        }else{
-            message.channel.send(":bangbang: You must supply a search query. Try **"+args[0]+" cute puppies**")
+        } else {
+            message.channel.send(":bangbang: You must supply a search query. Try **" + args[0] + " cute puppies**")
         }
     }
 };

@@ -4,30 +4,30 @@ module.exports = {
     name: "Set Recurring Reminder",
     usage: "every <time> \"reminder message\"",
     commands: ["every", "everyday"],
-    init: async function init(bot, reminderData){
-        bot.client.once("ready", async ()=>{
+    init: async function init(bot, reminderData) {
+        bot.client.once("ready", async () => {
             let servers = bot.client.guilds.cache.keyArray();
             let reminders = await bot.database.getRecurringRemindersForShard(bot.client.user.id, servers);
-            if(bot.util.shard == "0")
+            if (bot.util.shard == "0")
                 reminders.push(...(await bot.database.getRecurringRemindersForDMs(bot.client.user.id)));
             bot.logger.log(`Got ${reminders.length} recurring reminders.`);
-            for(let i = 0; i < reminders.length; i++){
+            for (let i = 0; i < reminders.length; i++) {
                 let reminder = reminders[i];
-                let scheduledReminder = later.setInterval(async ()=>{
-                    if(bot.drain)return;
+                let scheduledReminder = later.setInterval(async () => {
+                    if (bot.drain) return;
                     try {
                         let channel = await bot.client.channels.fetch(reminder.channel);
-                        if(channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES", true)) {
+                        if (channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES", true)) {
                             console.log("Bot has send message permissions");
                             await channel.send(reminder.message);
-                        }else{
+                        } else {
                             scheduledReminder.clear();
                             await bot.database.removeReminderByUser(reminder.id, reminder.user);
                             const userDM = await (await bot.client.users.fetch(reminder.user)).createDM();
                             userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in ${channel} was deleted as OcelotBOT no longer has permission to send messages in that channel.`);
 
                         }
-                    }catch(e){
+                    } catch (e) {
                         console.log(e);
                         bot.raven.captureException(e);
                         scheduledReminder.clear();
@@ -40,19 +40,19 @@ module.exports = {
 
     },
     run: async function (message, args, bot, reminderData) {
-        if(message.guild && !message.member.hasPermission("MANAGE_CHANNELS"))return message.channel.send("You must have the Manage Channels permission to use this command.");
+        if (message.guild && !message.member.hasPermission("MANAGE_CHANNELS")) return message.channel.send("You must have the Manage Channels permission to use this command.");
         const input = args.slice(1).join(" ");
         let parse = later.parse.text(input);
         const rargs = regex.exec(message.content);
         let reminder;
         if (!rargs || rargs.length < 3) {
-            if(parse.error === -1)
+            if (parse.error === -1)
                 return message.replyLang("REMIND_INVALID_MESSAGE");
             reminder = input.substring(parse.error);
-        }else {
-            if(input.indexOf(rargs[2])-1 !== parse.error){
+        } else {
+            if (input.indexOf(rargs[2]) - 1 !== parse.error) {
                 console.log(input.indexOf(rargs[2]), parse.error);
-                if(parse.error === 0)
+                if (parse.error === 0)
                     return message.channel.send(`Invalid time period. Try 'every 5 minutes' or 'every day at 10:15pm'.`);
                 else
                     return message.channel.send(`Could only understand up to \`${input.substring(0, parse.error)}\`.`);
@@ -61,10 +61,10 @@ module.exports = {
             reminder = rargs[2];
         }
 
-        if(reminder.length > 1000)
+        if (reminder.length > 1000)
             return message.channel.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
 
-        if(parse.schedules.length === 0){
+        if (parse.schedules.length === 0) {
             return message.channel.send("Unable to parse time: Try something like 'every 5 minutes' or 'every day at 10:15pm'");
         }
 
@@ -75,7 +75,7 @@ module.exports = {
         let occurrences = later.schedule(parse).next(10);
         let tooShort = 0;
 
-        if(occurrences.length > 1){
+        if (occurrences.length > 1) {
             for (let i = 0; i < occurrences.length - 1; i++) {
                 let first = occurrences[i];
                 let second = occurrences[i + 1];
@@ -86,19 +86,19 @@ module.exports = {
             }
         }
 
-        if(tooShort > occurrences.length/2)
+        if (tooShort > occurrences.length / 2)
             return message.channel.send(":warning: Your message is too frequent. You must have at least 10 seconds between messages.");
 
         let schedule = parse.schedules[0];
         let output = ""
 
-        if(schedule.t){
+        if (schedule.t) {
             output += "- at ";
-            if(schedule.t.length === 1){
+            if (schedule.t.length === 1) {
                 output += parseTime(schedule.t[0]);
-            }else if(schedule.t.length < 5){
+            } else if (schedule.t.length < 5) {
                 output += schedule.t.map(parseTime);
-            }else{
+            } else {
                 output += `${schedule.t.length} distinct times (${schedule.t.slice(0, 5).map(parseTime)}...)`
             }
             output += "\n";
@@ -115,7 +115,7 @@ module.exports = {
         output += parseScheduleArea(schedule.M, 12, "month", bot);
         output += parseScheduleArea(schedule.Y, 481, "year", bot);
 
-        if(parse.exceptions[0]){
+        if (parse.exceptions[0]) {
             output += " EXCEPT on:\n";
             let exceptions = parse.exceptions[0];
             output += parseScheduleArea(exceptions.s, 60, "second", bot);
@@ -128,18 +128,21 @@ module.exports = {
             output += parseScheduleArea(exceptions.Y, 481, "year", bot);
         }
 
-        let result = await bot.database.addRecurringReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, reminder, {schedules: parse.schedules, exceptions: parse.exceptions});
+        let result = await bot.database.addRecurringReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, reminder, {
+            schedules: parse.schedules,
+            exceptions: parse.exceptions
+        });
 
         // Making a lot of questionable decisions today
-        if(output.endsWith("of "))
-            output = output.substring(0, output.length-3)+".";
+        if (output.endsWith("of "))
+            output = output.substring(0, output.length - 3) + ".";
 
 
         // TODO unduplicate this
-        let scheduledReminder = later.setInterval(async ()=>{
+        let scheduledReminder = later.setInterval(async () => {
             try {
                 await message.channel.send(reminder);
-            }catch(e){
+            } catch (e) {
                 console.log(e);
                 bot.raven.captureException(e);
                 scheduledReminder.clear();
@@ -152,15 +155,15 @@ module.exports = {
     }
 }
 
-function parseScheduleArea(scheduleArray, maximum, name, bot){
+function parseScheduleArea(scheduleArray, maximum, name, bot) {
     let output = "";
-    if(scheduleArray){
+    if (scheduleArray) {
         output += "- ";
-        if(scheduleArray.length === 1)
+        if (scheduleArray.length === 1)
             output += `the **${bot.util.getNumberPrefix(scheduleArray[0])}** ${name}`;
-        else if(scheduleArray.length < 5)
+        else if (scheduleArray.length < 5)
             output += `the **${scheduleArray.map(bot.util.getNumberPrefix)}** ${name}s`;
-        else if(scheduleArray.length >= maximum)
+        else if (scheduleArray.length >= maximum)
             output += `every **${name}**`
         else
             output += `**${scheduleArray.length} distinct ${name}s** (${scheduleArray.slice(0, 5).map(bot.util.getNumberPrefix)}...)`
@@ -169,15 +172,15 @@ function parseScheduleArea(scheduleArray, maximum, name, bot){
     return output;
 }
 
-function parseTime(totalSeconds){
-    let hours = Math.floor(totalSeconds/60/60);
-    let minutes = Math.floor(totalSeconds/60 % 60);
+function parseTime(totalSeconds) {
+    let hours = Math.floor(totalSeconds / 60 / 60);
+    let minutes = Math.floor(totalSeconds / 60 % 60);
     let seconds = Math.floor(totalSeconds % 60);
     return `${toFixed(hours)}:${toFixed(minutes)}:${toFixed(seconds)}`
 }
 
-function toFixed(time){
-    if(time >= 10)
+function toFixed(time) {
+    if (time >= 10)
         return time;
-    return "0"+time;
+    return "0" + time;
 }

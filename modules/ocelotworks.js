@@ -24,10 +24,10 @@ const thatsTrue = /.*that('?)s true.*/ig;
 
 module.exports = {
     name: "Ocelotworks Specific Functions",
-    init: function(bot){
+    init: function (bot) {
         bot.topicCounter = 0;
 
-        bot.changeTopic = async function(message){
+        bot.changeTopic = async function (message) {
             bot.topicCounter = 0;
             bot.logger.log("Changing topic");
             const topicResult = await bot.database.getRandomTopic();
@@ -38,30 +38,30 @@ module.exports = {
         };
 
         bot.client.on("message", async function onMessage(message) {
-           // noinspection EqualityComparisonWithCoercionJS
-            if(message.guild && message.guild.id == "478950156654346292"){
-               bot.topicCounter++;
-               await bot.database.logMessage(userMaps[message.author.id] || message.author.id, message.content, message.channel.id);
-                if(bot.topicCounter >= 100){
-                   bot.changeTopic(message);
+            // noinspection EqualityComparisonWithCoercionJS
+            if (message.guild && message.guild.id == "478950156654346292") {
+                bot.topicCounter++;
+                await bot.database.logMessage(userMaps[message.author.id] || message.author.id, message.content, message.channel.id);
+                if (bot.topicCounter >= 100) {
+                    bot.changeTopic(message);
                 }
-                if(message.content.toLowerCase() === "too hot"){
+                if (message.content.toLowerCase() === "too hot") {
                     bot.util.replyTo(message, "_hot damn_");
-                }else if(message.content.toLowerCase() === "shitpost"){
+                } else if (message.content.toLowerCase() === "shitpost") {
                     message.channel.send("A days power in half an hour");
-                }else if(message.content.toLowerCase() === "test"){
+                } else if (message.content.toLowerCase() === "test") {
                     bot.util.replyTo(message, "icles");
-                }else if(thatsTrue.test(message.content)){
+                } else if (thatsTrue.test(message.content)) {
                     message.channel.send("thAts trUE");
                 }
-           }
+            }
         });
 
-        bot.client.on("messageReactionAdd", async (reaction, user)=>{
-            if(!reaction.message.guild)return;
-            if(reaction.message.guild.id !== "478950156654346292")return;
-            if(reaction.emoji.toString() !== "🍞" && reaction.emoji.id !== "812259123864272906")return;
-            if(reaction.message.breaded)return;
+        bot.client.on("messageReactionAdd", async (reaction, user) => {
+            if (!reaction.message.guild) return;
+            if (reaction.message.guild.id !== "478950156654346292") return;
+            if (reaction.emoji.toString() !== "🍞" && reaction.emoji.id !== "812259123864272906") return;
+            if (reaction.message.breaded) return;
             reaction.message.breaded = true;
             await bot.database.addTopic(userMaps[reaction.message.author.id], reaction.message.content);
             reaction.message.channel.send(`${reaction.emoji} ${user}: Added _<${userMaps[reaction.message.author.id]}> ${reaction.message.content}_ to the list of topics`);

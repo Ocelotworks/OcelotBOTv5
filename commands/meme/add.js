@@ -9,26 +9,26 @@ module.exports = {
     usage: "add <name> <url>",
     commands: ["add"],
     run: async function (message, args, bot) {
-        if(!message.guild.id)
+        if (!message.guild.id)
             return message.replyLang("GENERIC_DM_CHANNEL");
-        if(message.getSetting("meme.disallowAdding"))
+        if (message.getSetting("meme.disallowAdding"))
             return message.replyLang("MEME_DISABLED");
-        if(message.getSetting("meme.disallowUserAdding") && message.getSetting("meme.disallowUserAdding").indexOf(message.author.id) > -1)
+        if (message.getSetting("meme.disallowUserAdding") && message.getSetting("meme.disallowUserAdding").indexOf(message.author.id) > -1)
             return message.replyLang("MEME_BANNED");
 
         try {
             let meme;
             if (!args[3]) {
                 meme = await bot.util.getImage(message, args);
-                if(!meme)
+                if (!meme)
                     return message.replyLang("MEME_ENTER_URL");
-            }else{
-                if(message.mentions.users.size > 0 || message.mentions.roles.size > 0 || message.content.indexOf("@everyone") > -1 && message.getSetting("meme.disallowTags"))
+            } else {
+                if (message.mentions.users.size > 0 || message.mentions.roles.size > 0 || message.content.indexOf("@everyone") > -1 && message.getSetting("meme.disallowTags"))
                     return message.replyLang("MEME_ROLE");
                 meme = message.content.substring(args[0].length + args[1].length + args[2].length + 3)
             }
 
-            if(!args[2]){
+            if (!args[2]) {
                 return message.channel.send(`You need to enter a name. e.g ${args[0]} add ocelotbot`);
             }
             const newMemeName = args[2].toLowerCase();

@@ -1,7 +1,7 @@
 const express = require('express');
 module.exports = {
     name: "Statistics Aggregator",
-    init: async function(bot){
+    init: async function (bot) {
         bot.stats = {
             messagesPerMinute: 0,
             messagesTotal: 0,
@@ -18,7 +18,7 @@ module.exports = {
             commandsFailed: 0,
             cacheHits: 0,
             cacheMisses: 0,
-       };
+        };
         let currentStats = {
             messagesPerMinute: 0,
             messagesSentPerMinute: 0,
@@ -26,50 +26,50 @@ module.exports = {
         };
 
 
-        bot.api.get('/stats', (req, res)=>{
+        bot.api.get('/stats', (req, res) => {
             res.json(bot.stats)
         })
 
 
-        bot.client.on("message", function(){
+        bot.client.on("message", function () {
             currentStats.messagesPerMinute++;
             bot.stats.messagesTotal++;
         });
 
-        bot.bus.on("commandPerformed", function(){
+        bot.bus.on("commandPerformed", function () {
             currentStats.commandsPerMinute++;
             bot.stats.commandsTotal++;
         });
 
-        bot.bus.on("messageSent", function(){
+        bot.bus.on("messageSent", function () {
             currentStats.messagesSentPerMinute++;
             bot.stats.messagesSentTotal++;
         })
 
-        bot.bus.on("commandFailed", ()=>{
+        bot.bus.on("commandFailed", () => {
             bot.stats.commandsFailed++;
         })
 
-        bot.client.on("rateLimit", function(){
+        bot.client.on("rateLimit", function () {
             bot.stats.botRateLimits++;
         });
-        bot.client.on("error", function(){
+        bot.client.on("error", function () {
             bot.stats.errors++;
         });
 
-        bot.client.on("shardError", function(){
+        bot.client.on("shardError", function () {
             bot.stats.errors++;
         });
 
-        bot.client.on("warn", function(){
+        bot.client.on("warn", function () {
             bot.stats.warnings++;
         });
 
-        bot.client.on("shardReconnecting", function(){
+        bot.client.on("shardReconnecting", function () {
             bot.stats.reconnects++;
         });
 
-        setInterval(async function(){
+        setInterval(async function () {
             bot.stats.messagesPerMinute = currentStats.messagesPerMinute;
             bot.stats.commandsPerMinute = currentStats.commandsPerMinute;
             bot.stats.messagesSentPerMinute = currentStats.messagesSentPerMinute;

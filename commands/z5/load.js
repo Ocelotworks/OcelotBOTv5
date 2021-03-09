@@ -10,7 +10,7 @@ module.exports = {
     name: "Load",
     usage: "load <save name>",
     commands: ["load"],
-    run: async function(message, args, bot, data){
+    run: async function (message, args, bot, data) {
         try {
             message.channel.send("Attempting restore");
             data.gameContainers[data.id].game.setSerialData(new Uint8Array(fs.readFileSync("./z5saves/" + args[3], {})));

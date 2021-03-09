@@ -197,6 +197,9 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                     collector.stop();
                 message.channel.startTyping();
 
+                let points = 10;
+                await bot.database.addPoints(message.author.id, 10, `guess win`);
+
                 let embed = new Discord.MessageEmbed();
                 embed.setColor("#77ee77");
                 embed.setTitle(`${message.author.username} wins!`);
@@ -211,14 +214,21 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                     embed.addField(":timer: Fastest Time", bot.util.prettySeconds(fastestTime.time / 1000, message.guild && message.guild.id, message.author.id)+(fastestUser ? ` (${fastestUser.username}#${fastestUser.discriminator})` : ""));
                 }
 
+
                 bot.util.replyTo(message, embed)
                 span = bot.util.startSpan("Update record");
                 let newOffset = guessTime-now;
                 if(fastestTime && fastestTime.time && fastestTime.time > newOffset) {
                     await bot.database.updateSongRecord(title, message.author.id, newOffset);
                     message.replyLang("SONGGUESS_RECORD");
+                    await bot.database.addPoints(message.author.id, 15, `guess record`);
+                    points += 15;
                 }
                 span.end();
+
+                if(message.getBool("points.enabled")){
+                    embed.addField("Points", `+<:points:817100139603820614>${points}`)
+                }
 
                 span = bot.util.startSpan("Update badges");
                 let totalGuesses = await bot.database.getTotalCorrectGuesses(message.author.id);
@@ -256,7 +266,6 @@ async function doGuess(voiceChannel, message, bot, hasFailed = false){
                 message.replyLang("SONGGUESS_OVER", {title});
             await player.stop();
             player.removeAllListeners();
-            //playedestrr.oy();
             bot.lavaqueue.requestLeave(voiceChannel, "Song is over");
             if(message.getSetting("guess.repeat")) {
                 timeouts[voiceChannel.id] = setTimeout(function () {

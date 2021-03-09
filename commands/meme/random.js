@@ -10,17 +10,17 @@ module.exports = {
     usage: "random",
     commands: ["random", "rand"],
     run: async function (message, args, bot) {
-        if(!message.guild)
+        if (!message.guild)
             return message.replyLang("GENERIC_DM_CHANNEL");
 
         let meme = (await bot.database.getRandomMeme(message.guild.id))[0];
 
-        if(!meme)
+        if (!meme)
             return message.replyLang("MEME_NOT_FOUND");
 
         let embed = new Discord.MessageEmbed();
 
-        if(meme.meme.startsWith("http"))
+        if (meme.meme.startsWith("http"))
             embed.setImage(meme.meme);
 
         embed.setTitle(await message.getLang("MEME_INFO_HEADER", {meme: meme.name}));

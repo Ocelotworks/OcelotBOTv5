@@ -8,45 +8,45 @@ module.exports = {
     detailedHelp: "Doot Doot\nPlays a random doot remix in the voice channel you're in",
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["doot", "toot"],
-    run:  async function run(message, args, bot){
-        if(args[1] && args[1].toLowerCase() === "stop"){
+    run: async function run(message, args, bot) {
+        if (args[1] && args[1].toLowerCase() === "stop") {
             message.channel.send("https://i.imgur.com/QA8anth.jpg");
-        }else if(!message.guild){
+        } else if (!message.guild) {
             message.replyLang("GENERIC_DM_CHANNEL");
-        }else if(!message.guild.available){
+        } else if (!message.guild.available) {
             message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-        }else if(!message.member.voice.channel) {
+        } else if (!message.member.voice.channel) {
             message.replyLang("VOICE_NO_CHANNEL");
-        }else if(message.member.voice.channel.full){
+        } else if (message.member.voice.channel.full) {
             message.replyLang("VOICE_FULL_CHANNEL");
-        }else if(!message.member.voice.channel.joinable) {
+        } else if (!message.member.voice.channel.joinable) {
             message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-        }else if(!message.member.voice.channel.speakable){
+        } else if (!message.member.voice.channel.speakable) {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
-        }else if(await bot.database.hasActiveSession(message.guild.id)){
+        } else if (await bot.database.hasActiveSession(message.guild.id)) {
             message.channel.send("The bot is currently playing music. Please wait for the queue to end to start dooting");
-        }else{
+        } else {
             try {
-                bot.logger.log("Joining voice channel "+message.member.voice.channel.name);
+                bot.logger.log("Joining voice channel " + message.member.voice.channel.name);
 
 
-                fs.readdir(__dirname+"/../static/doot", function readDir(err, files){
-                    if(err){
+                fs.readdir(__dirname + "/../static/doot", function readDir(err, files) {
+                    if (err) {
                         bot.logger.log(err);
                         bot.raven.captureException(err);
                         message.replyLang("GENERIC_ERROR");
-                    }else{
+                    } else {
                         let doot = args[1] && !isNaN(args[1]) ? parseInt(args[1]) : dootCount++ % files.length;
-                        if(!files[doot])
+                        if (!files[doot])
                             return message.replyLang("DOOT_NOT_FOUND");
-                        const file = "/home/peter/stevie5/static/doot/"+files[doot];
-                        bot.logger.log("Playing "+file);
+                        const file = "/home/peter/stevie5/static/doot/" + files[doot];
+                        bot.logger.log("Playing " + file);
                         message.replyLang("DOOT", {doot, arg: args[0], fileName: files[doot]});
                         bot.lavaqueue.playOneSong(message.member.voice.channel, file);
 
                     }
                 })
-            }catch(e){
+            } catch (e) {
                 //bot.raven.captureException(e);
                 bot.logger.log(e);
                 message.replyLang("GENERIC_ERROR");

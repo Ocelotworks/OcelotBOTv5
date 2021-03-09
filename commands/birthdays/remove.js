@@ -10,7 +10,7 @@ module.exports = {
     commands: ["remove", "delete"],
     run: async function (message, args, bot) {
         let target = message.author;
-        if(message.member.hasPermission("MANAGE_CHANNELS")) {
+        if (message.member.hasPermission("MANAGE_CHANNELS")) {
             if (message.mentions.users.size > 0)
                 target = message.mentions.users.first();
             else if (args.length > 2) {
@@ -30,7 +30,7 @@ module.exports = {
                     return message.channel.send("Couldn't find user, @ them or try a different search");
                 }
             }
-        }else if(args.length > 2){
+        } else if (args.length > 2) {
             return message.channel.send("You must have the Manage Channels permission to remove other people's birthdays.")
         }
         await bot.database.removeBirthday(target.id, message.guild.id);

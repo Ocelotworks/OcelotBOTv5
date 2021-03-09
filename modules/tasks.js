@@ -13,18 +13,18 @@ module.exports = {
         bot.tasks.taskTimers = {};
 
 
-        bot.api.get("/tasks", (req, res)=>{
+        bot.api.get("/tasks", (req, res) => {
             res.json(bot.tasks.running);
         });
 
 
-        process.on('exit', async (code)=>{
+        process.on('exit', async (code) => {
             bot.logger.log("Waiting for tasks to end to quit");
-            setInterval(()=>{
-                if(bot.tasks.running.length === 0) {
+            setInterval(() => {
+                if (bot.tasks.running.length === 0) {
                     console.log("There are no tasks running goodbye");
                     process.exit(0);
-                }else
+                } else
                     bot.logger.warn(`Cannot quit - there are still ${bot.tasks.running.length} tasks!`);
             }, 1000)
         })
@@ -40,9 +40,9 @@ module.exports = {
             bot.logger.info(`Started task ${name} (${id})`);
             try {
                 bot.rabbit.event({type: "tasksClear", payload: false});
-            }catch(e){
+            } catch (e) {
                 bot.raven.captureException(e);
-                if(e.message && e.message.includes("Channel closed")){
+                if (e.message && e.message.includes("Channel closed")) {
                     process.exit(1)
                 }
             }
@@ -57,7 +57,7 @@ module.exports = {
             return bot.tasks.running.indexOf(name + id);
         };
 
-        bot.tasks.renewTask = function renewTask(name, id){
+        bot.tasks.renewTask = function renewTask(name, id) {
             const index = bot.tasks.getTaskIndex(name, id);
             if (index === -1)
                 return bot.logger.warn(`Task ${name} ${id} doesn't exist!`);
@@ -77,15 +77,15 @@ module.exports = {
                 clearTimeout(bot.tasks.taskTimers[name + id]);
             bot.logger.info(`Ended task ${name} (${id})`);
             bot.tasks.running.splice(index, 1);
-            if(bot.drain && bot.tasks.length === 0) {
+            if (bot.drain && bot.tasks.length === 0) {
                 console.log("all tasks are finished")
                 process.exit(0);
             }
             try {
                 bot.rabbit.event({type: "tasksClear", payload: true});
-            }catch(e){
+            } catch (e) {
                 bot.raven.captureException(e);
-                if(e.message && e.message.includes("Channel closed")){
+                if (e.message && e.message.includes("Channel closed")) {
                     process.exit(1);
                 }
             }

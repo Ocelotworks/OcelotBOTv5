@@ -3,13 +3,13 @@ module.exports = {
     name: "View Lang",
     usage: "lang <key/list>",
     commands: ["lang"],
-    run: async function(message, args, bot){
-        if(!args[2]){
+    run: async function (message, args, bot) {
+        if (!args[2]) {
             message.channel.send("Invalid usage: !admin lang <lang>");
-        }else if(args[2].toLowerCase() === "list") {
+        } else if (args[2].toLowerCase() === "list") {
             let index = 0;
             const strings = bot.lang.strings.default;
-            const keys = Object.keys(strings).map(function(key) {
+            const keys = Object.keys(strings).map(function (key) {
                 return {key: key, string: strings[key].replace(/`/g, "'")};
             });
             let pages = keys.chunk(10);
@@ -24,7 +24,7 @@ module.exports = {
                         }
                     }
                 });
-                return (`Page ${index+1}/${pages.length}\n\`\`\`\n${data}\n\`\`\``);
+                return (`Page ${index + 1}/${pages.length}\n\`\`\`\n${data}\n\`\`\``);
             };
 
             let sentMessage = await message.channel.send(buildPage());
@@ -64,8 +64,8 @@ module.exports = {
 
             }, {time: 60000});
             sentMessage.reactions.removeAll();
-        }else{
-           message.replyLang(args[2], args[3] ? JSON.parse(args[3]) : {});
+        } else {
+            message.replyLang(args[2], args[3] ? JSON.parse(args[3]) : {});
         }
     }
 };

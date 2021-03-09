@@ -14,23 +14,23 @@ module.exports = {
             return message.replyLang("MUSIC_NOTHING_PLAYING");
 
         const listener = music.listeners[guild];
-        if(listener.playing && listener.voiceChannel.members.size > 2 && listener.playing.requester !== message.author.id)
+        if (listener.playing && listener.voiceChannel.members.size > 2 && listener.playing.requester !== message.author.id)
             return message.channel.send(`:bangbang: You can only use this command if you're the only one listening or it is your track playing.`);
 
-        if(!args[2] || isNaN(args[2])) {
+        if (!args[2] || isNaN(args[2])) {
             console.log(args[2]);
             return message.channel.send(":bangbang: Enter a position to seek to in seconds, or relative e.g +10 or -10");
         }
 
         let position = args[2];
-        if(args[2].startsWith("+") || args[2].startsWith("-"))
-            position = (listener.playing.position/1000)+(parseInt(args[2]));
+        if (args[2].startsWith("+") || args[2].startsWith("-"))
+            position = (listener.playing.position / 1000) + (parseInt(args[2]));
 
 
-        if(position*1000 > listener.playing.info.length)
+        if (position * 1000 > listener.playing.info.length)
             return message.channel.send(`:warning: That would seek past the end of the song. To skip, type ${args[0]} skip`);
 
-        listener.connection.seek(position*1000);
+        listener.connection.seek(position * 1000);
         message.channel.send(`Seeked to **${bot.util.shortSeconds(position)}**`);
     }
 };

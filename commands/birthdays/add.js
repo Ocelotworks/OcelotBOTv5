@@ -7,26 +7,26 @@
 const chrono = require('chrono-node');
 module.exports = {
     name: "Add Birthday",
-    usage: "add @user date" ,
+    usage: "add @user date",
     commands: ["add", "new"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
         let target = message.author;
-        if(message.mentions.users.size > 0)
+        if (message.mentions.users.size > 0)
             target = message.mentions.users.first();
         let date = chrono.parseDate(message.content);
-        if(!date)
+        if (!date)
             return message.replyLang("BIRTHDAY_ADD_DATE", {command: args[0], arg: args[1], user: bot.client.user});
-        const age = (new Date().getFullYear()-date.getFullYear());
-        if(age > 2 && age < 13){
+        const age = (new Date().getFullYear() - date.getFullYear());
+        if (age > 2 && age < 13) {
             return message.channel.send("Please enter an age above or equal to 13.");
         }
         try {
             await bot.database.addBirthday(target.id, message.guild.id, date);
-            if(target.username.startsWith("Deleted User ")){
+            if (target.username.startsWith("Deleted User ")) {
                 message.channel.send(":warning: Due to a limitation with Discord, your birthday will not show up in the list until you remove 'Deleted User' from your name.");
             }
             message.replyLang("BIRTHDAY_ADD_SUCCESS");
-        }catch(e){
+        } catch (e) {
             message.replyLang("BIRTHDAY_ADD_EXISTS", {command: args[0], target});
         }
     }

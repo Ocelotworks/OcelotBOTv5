@@ -1,20 +1,20 @@
 module.exports = {
     name: "Bans",
-    init: function(bot){
+    init: function (bot) {
         bot.rateLimits = {};
         bot.lastRatelimitRefresh = new Date();
         bot.banCache = {
-            user:   [],
-            channel:[],
+            user: [],
+            channel: [],
             server: [],
-            update: async function updateBanCache(){
+            update: async function updateBanCache() {
                 bot.logger.log("Updating Ban Cache");
                 bot.banCache.user = [];
                 bot.banCache.channel = [];
                 bot.banCache.server = [];
                 const bans = await bot.database.getBans();
 
-                for(let i = 0; i < bans.length; i++){
+                for (let i = 0; i < bans.length; i++) {
                     const ban = bans[i];
                     bot.banCache[ban.type].push(ban.id);
                 }
@@ -22,24 +22,24 @@ module.exports = {
         };
 
         bot.banCache.update();
-        bot.bus.on("updateBans", (msg)=>{
+        bot.bus.on("updateBans", (msg) => {
             bot.banCache.update();
         })
 
-        setInterval(function(){
+        setInterval(function () {
             bot.rateLimits = {};
             bot.lastRatelimitRefresh = new Date();
         }, 60000);
 
-        bot.checkBan = function checkBan(message){
-            if(message.guild && bot.banCache.server.indexOf(message.guild.id) > -1)return true;
-            if(message.channel && bot.banCache.channel.indexOf(message.channel.id) > -1)return true;
+        bot.checkBan = function checkBan(message) {
+            if (message.guild && bot.banCache.server.indexOf(message.guild.id) > -1) return true;
+            if (message.channel && bot.banCache.channel.indexOf(message.channel.id) > -1) return true;
             return bot.banCache.user.indexOf(message.author.id) > -1;
         };
 
-        function updateRateLimit(command, message){
+        function updateRateLimit(command, message) {
             const amt = bot.commandUsages[command].rateLimit || 10;
-            if(bot.rateLimits[message.author.id])
+            if (bot.rateLimits[message.author.id])
                 bot.rateLimits[message.author.id] += amt;
             else
                 bot.rateLimits[message.author.id] = amt;
@@ -50,11 +50,11 @@ module.exports = {
 
         let rateLimitLimits = [];
 
-        setInterval(function(){
+        setInterval(function () {
             rateLimitLimits = [];
         }, 240000);
 
-        bot.bus.on("commandRatelimited", function rateLimited(command, message){
+        bot.bus.on("commandRatelimited", function rateLimited(command, message) {
             // if(rateLimitLimits.indexOf(message.guild.id) > -1){
             //     // let currentRatelimit = message.getSetting("rateLimit");
             //     // let newRatelimit = currentRatelimit <= 10 ? 10 : currentRatelimit-10;
@@ -69,7 +69,7 @@ module.exports = {
             updateRateLimit(command, message);
         });
 
-        bot.isRateLimited = function isRateLimited(user, guild){
+        bot.isRateLimited = function isRateLimited(user, guild) {
             return !(!bot.rateLimits[user] || bot.rateLimits[user] <= bot.config.get(guild, "rateLimit", user));
         }
     }

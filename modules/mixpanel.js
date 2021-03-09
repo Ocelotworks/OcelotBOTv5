@@ -8,13 +8,13 @@ const config = require('config');
 const MatomoTracker = require('matomo-tracker');
 module.exports = {
     name: "Mixpanel Integration",
-    init: function(bot){
+    init: function (bot) {
         bot.matomo = new MatomoTracker(config.get("Matomo.SiteID"), config.get("Matomo.URL"));
         let cachedUsers = [];
 
-        bot.bus.on("commandPerformed", async function(command, message){
-            let newVisit  = cachedUsers.indexOf(message.author.id) === -1;
-            if(newVisit)
+        bot.bus.on("commandPerformed", async function (command, message) {
+            let newVisit = cachedUsers.indexOf(message.author.id) === -1;
+            if (newVisit)
                 cachedUsers.push(message.author.id);
             bot.matomo.track({
                 action_name: "Command Performed",
@@ -36,12 +36,12 @@ module.exports = {
             });
         });
 
-        bot.bus.on("commandRatelimited", function rateLimited(command, message){
+        bot.bus.on("commandRatelimited", function rateLimited(command, message) {
             bot.matomo.track({
                 action_name: "Command Rate Limited",
                 uid: message.author.id,
                 url: `http://bot.ocelotbot.xyz/${command}`,
-                ua:  message.guild ? message.guild.name : "DM Channel",
+                ua: message.guild ? message.guild.name : "DM Channel",
                 e_c: "Command",
                 e_a: "Rate Limited",
                 e_n: command,

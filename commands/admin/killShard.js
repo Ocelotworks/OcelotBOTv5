@@ -1,8 +1,8 @@
 module.exports = {
     name: "Kill Shard",
     usage: "killshard",
-    commands: ["killshard"],
-    run: function(){
+    commands: ["killshard", "killshart"],
+    run: function () {
         process.exit(0);
     }
 };

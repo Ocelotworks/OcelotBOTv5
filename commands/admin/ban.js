@@ -8,7 +8,7 @@ module.exports = {
     name: "Ban User",
     usage: "ban <user>",
     commands: ["ban"],
-    run: async function(message, args, bot){
+    run: async function (message, args, bot) {
         const target = message.mentions.users.first() ? message.mentions.users.first().id : args[2];
         await bot.database.ban(target, "user", "Admin ban");
         await bot.rabbit.event({type: "updateBans"});

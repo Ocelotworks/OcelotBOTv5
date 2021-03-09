@@ -1,42 +1,44 @@
 const gm = require('gm');
 const wrap = require('word-wrap');
 const Discord = require('discord.js');
+// TODO: Replace request
 const request = require('request');
+const axios = require('axios');
 const fs = require('fs');
 const twemoji = require('twemoji-parser');
 const config = require('config');
 const deepai = require('deepai');
 const sentry = require('@sentry/node');
 const zlib = require('zlib');
-const { crc32 } = require('crc');
+const {crc32} = require('crc');
 deepai.setApiKey(config.get("Commands.recolor.key"));
 module.exports = {
     name: "Utilities",
-    init: function(bot){
+    init: function (bot) {
 
         bot.util = {};
 
         //Someone is definitely going to tell me a different way of doing this
-        bot.util.vowels = [ "a", "e", "i", "o", "u",
-                            "ａ","ｅ","ｉ","ｏ","ｕ",
-                            "Ａ","Ｅ","Ｉ","Ｏ","Ｕ",
-                            "𝕒","𝕖","𝕚","𝕠","𝕦",
-                            "ⓐ","ⓔ","ⓘ","ⓞ","ⓤ",
-                            "🅐","🅔","🅘","🅞","🅤",
-                            "𝐚","𝐞","𝐢","𝐨","𝐮",
-                            "𝖆","𝖊","𝖎","𝖔","𝖚",
-                            "𝒂","𝒆","𝒊","𝒐","𝒖",
-                            "𝓪","𝓮","𝓲","𝓸","𝓾",
-                            "𝖺","𝖾","𝗂","𝗈","𝗎",
-                            "𝗮","𝗲","𝗶","𝗼","𝘂",
-                            "𝙖","𝙚","𝙞","𝙤","𝙪",
-                            "𝘢","𝘦","𝘪","𝘰","𝘶",
-                            "⒜","⒠","⒤","⒪","⒰",
-                            "🇦","🇪","🇮","🇴","🇺",
-                            "🄰","🄴","🄸","🄾","🅄",
-                            "🅰","🅴","🅸","🅾","🆄",
-                            "A","ɘ","i","o","U",
-                            "о"
+        bot.util.vowels = ["a", "e", "i", "o", "u",
+            "ａ", "ｅ", "ｉ", "ｏ", "ｕ",
+            "Ａ", "Ｅ", "Ｉ", "Ｏ", "Ｕ",
+            "𝕒", "𝕖", "𝕚", "𝕠", "𝕦",
+            "ⓐ", "ⓔ", "ⓘ", "ⓞ", "ⓤ",
+            "🅐", "🅔", "🅘", "🅞", "🅤",
+            "𝐚", "𝐞", "𝐢", "𝐨", "𝐮",
+            "𝖆", "𝖊", "𝖎", "𝖔", "𝖚",
+            "𝒂", "𝒆", "𝒊", "𝒐", "𝒖",
+            "𝓪", "𝓮", "𝓲", "𝓸", "𝓾",
+            "𝖺", "𝖾", "𝗂", "𝗈", "𝗎",
+            "𝗮", "𝗲", "𝗶", "𝗼", "𝘂",
+            "𝙖", "𝙚", "𝙞", "𝙤", "𝙪",
+            "𝘢", "𝘦", "𝘪", "𝘰", "𝘶",
+            "⒜", "⒠", "⒤", "⒪", "⒰",
+            "🇦", "🇪", "🇮", "🇴", "🇺",
+            "🄰", "🄴", "🄸", "🄾", "🅄",
+            "🅰", "🅴", "🅸", "🅾", "🆄",
+            "A", "ɘ", "i", "o", "U",
+            "о"
         ];
 
         bot.util.months = [
@@ -62,17 +64,17 @@ module.exports = {
          * @param {Number} max
          * @returns {number}
          */
-        bot.util.intBetween = function(min, max){
-            return Math.round((Math.random() * (max - min))+min);
+        bot.util.intBetween = function (min, max) {
+            return Math.round((Math.random() * (max - min)) + min);
         };
 
         /**
-        * Chooses a random object from `array`
-        * @param {Array} array
-        * @returns {*} A random object from the specified array
-        */
-        bot.util.arrayRand = function arrayRand(array){
-            return array[Math.round(Math.random()*(array.length-1))];
+         * Chooses a random object from `array`
+         * @param {Array} array
+         * @returns {*} A random object from the specified array
+         */
+        bot.util.arrayRand = function arrayRand(array) {
+            return array[Math.round(Math.random() * (array.length - 1))];
         };
 
         /**
@@ -81,11 +83,11 @@ module.exports = {
          * @param {Number} amount
          * @returns {Promise<[Discord.Message]>}
          */
-        bot.util.fetchMessages = async function(channel, amount){
-            let iterations = Math.ceil(amount/100);
+        bot.util.fetchMessages = async function (channel, amount) {
+            let iterations = Math.ceil(amount / 100);
             let before;
             let messages = [];
-            for(let i = 0; i < iterations; i++){
+            for (let i = 0; i < iterations; i++) {
                 let messageChunk = await channel.messages.fetch({before, limit: 100});
                 messages = messages.concat(messageChunk.array());
                 before = messageChunk.lastKey();
@@ -99,13 +101,12 @@ module.exports = {
          * @param {Function} callback The function called once the time is up
          * @param {Number} timeout_ms The amount of milliseconds until the time should be called
          */
-        bot.util.setLongTimeout = function setLongTimeout(callback, timeout_ms){
-            if(timeout_ms > 2147483646){
-                setTimeout(function(){
+        bot.util.setLongTimeout = function setLongTimeout(callback, timeout_ms) {
+            if (timeout_ms > 2147483646) {
+                setTimeout(function () {
                     setLongTimeout(callback, (timeout_ms - 2147483646));
-                },2147483646);
-            }
-            else{
+                }, 2147483646);
+            } else {
                 setTimeout(callback, timeout_ms);
             }
         };
@@ -116,8 +117,10 @@ module.exports = {
          * @param {Array} second
          * @returns {Array}
          */
-        bot.util.arrayDiff = function(first, second) {
-            return first.filter(function(i) {return second.indexOf(i) < 0;});
+        bot.util.arrayDiff = function (first, second) {
+            return first.filter(function (i) {
+                return second.indexOf(i) < 0;
+            });
         };
 
         /**
@@ -155,7 +158,6 @@ module.exports = {
         };
 
 
-
         /**
          * Parses a number of seconds as a proper time
          * @param {Number} seconds
@@ -165,13 +167,13 @@ module.exports = {
          */
         bot.util.prettySeconds = function prettySeconds(seconds, server = "global", user) {
             seconds = Math.round(seconds);
-            if(seconds < 1) return bot.lang.getTranslation(server, "TIME_FRACTION", {}, user);
+            if (seconds < 1) return bot.lang.getTranslation(server, "TIME_FRACTION", {}, user);
 
             let prettyString = '', data = [];
 
             if (typeof seconds === 'number') {
-                data = bot.util.quantify(data, 'TIME_DAY',    Math.floor((seconds) / 86400), server, user);
-                data = bot.util.quantify(data, 'TIME_HOUR',   Math.floor((seconds % 86400) / 3600), server, user);
+                data = bot.util.quantify(data, 'TIME_DAY', Math.floor((seconds) / 86400), server, user);
+                data = bot.util.quantify(data, 'TIME_HOUR', Math.floor((seconds % 86400) / 3600), server, user);
                 data = bot.util.quantify(data, 'TIME_MINUTE', Math.floor((seconds % 3600) / 60), server, user);
                 data = bot.util.quantify(data, 'TIME_SECOND', Math.floor(seconds % 60), server, user);
 
@@ -192,30 +194,30 @@ module.exports = {
             return prettyString;
         };
 
-        bot.util.shortSeconds = function(totalSeconds){
+        bot.util.shortSeconds = function (totalSeconds) {
             let hours = Math.floor(totalSeconds / 3600);
             totalSeconds %= 3600;
             let minutes = Math.floor(totalSeconds / 60);
             let seconds = Math.round(totalSeconds % 60);
 
-            if(minutes < 10)
-                minutes = "0"+minutes;
-            if(seconds < 10)
-                seconds = "0"+seconds;
+            if (minutes < 10)
+                minutes = "0" + minutes;
+            if (seconds < 10)
+                seconds = "0" + seconds;
 
-            if(hours >= 1) {
-                if(hours < 10)
-                    hours = "0"+hours;
+            if (hours >= 1) {
+                if (hours < 10)
+                    hours = "0" + hours;
                 return `${hours}:${minutes}:${seconds}`
             }
             return `${minutes}:${seconds}`;
         };
 
-        bot.util.progressBar = function(current, total, width = 50){
-            let progress = width*(current/total);
+        bot.util.progressBar = function (current, total, width = 50) {
+            let progress = width * (current / total);
             let output = "[";
-            for(let i = 0; i < width; i++)
-                output+= i < progress ? "█" :  "░";
+            for (let i = 0; i < width; i++)
+                output += i < progress ? "█" : "░";
             output += "]";
             return output;
         };
@@ -225,13 +227,13 @@ module.exports = {
          * @param {Number} bytes The number of Bytes
          * @returns {string}
          */
-        bot.util.prettyMemory = function prettyMemory(bytes){
-            if(bytes < 1000)return bytes+" bytes"; //< 1kb
-            if(bytes < 1000000)return parseInt(bytes/1000)+"KB"; //<1mb
-            if(bytes < 1e+9)return parseInt(bytes/1000000)+"MB"; //<1gb
-            if(bytes < 1e+12)return parseInt(bytes/1e+9)+"GB"; //<1tb
-            if(bytes < 1e+15)return parseInt(bytes/1e+12)+"TB"; //<1pb
-            return parseInt(bytes/1e+15)+"PB";
+        bot.util.prettyMemory = function prettyMemory(bytes) {
+            if (bytes < 1000) return bytes + " bytes"; //< 1kb
+            if (bytes < 1000000) return parseInt(bytes / 1000) + "KB"; //<1mb
+            if (bytes < 1e+9) return parseInt(bytes / 1000000) + "MB"; //<1gb
+            if (bytes < 1e+12) return parseInt(bytes / 1e+9) + "GB"; //<1tb
+            if (bytes < 1e+15) return parseInt(bytes / 1e+12) + "TB"; //<1pb
+            return parseInt(bytes / 1e+15) + "PB";
         };
 
         //Why is this here
@@ -250,10 +252,10 @@ module.exports = {
          */
         bot.util.debounce = function debounce(func, wait, immediate) {
             var timeout;
-            return function() {
+            return function () {
                 var context = this
                     , args = arguments;
-                var later = function() {
+                var later = function () {
                     timeout = null;
                     if (!immediate)
                         func.apply(context, args)
@@ -276,13 +278,13 @@ module.exports = {
         bot.util.throttle = function throttle(fn, threshhold, scope) {
             threshhold || (threshhold = 250);
             var last, deferTimer;
-            return function() {
+            return function () {
                 var context = scope || this;
                 var now = +new Date
                     , args = arguments;
                 if (last && now < last + threshhold) {
                     clearTimeout(deferTimer);
-                    deferTimer = setTimeout(function() {
+                    deferTimer = setTimeout(function () {
                         last = now;
                         fn.apply(context, args)
                     }, threshhold)
@@ -315,16 +317,12 @@ module.exports = {
                 while (i < len) {
                     out.push(a.slice(i, i += size));
                 }
-            }
-
-            else if (balanced) {
+            } else if (balanced) {
                 while (i < len) {
                     size = Math.ceil((len - i) / n--);
                     out.push(a.slice(i, i += size));
                 }
-            }
-
-            else {
+            } else {
 
                 n--;
                 size = Math.floor(len / n);
@@ -351,8 +349,8 @@ module.exports = {
          * @param {String} fileName The name of the uploaded file
          * @param {String} filePath The path of the template
          */
-        bot.util.processImageMeme = function processImageMeme(message, args, x, y, textSize, textWidth, fileName, filePath){
-            if(!args[1]){
+        bot.util.processImageMeme = function processImageMeme(message, args, x, y, textSize, textWidth, fileName, filePath) {
+            if (!args[1]) {
                 message.replyLang("IMAGE_NO_TEXT");
                 return;
             }
@@ -360,19 +358,22 @@ module.exports = {
 
             bot.tasks.startTask("imageMeme", message.id);
 
-            filePath = __dirname+"/../"+filePath;
+            filePath = __dirname + "/../" + filePath;
 
             message.channel.startTyping();
             gm(filePath)
-                .font(__dirname+"/../static/arial.ttf", textSize)
-                .drawText(x, y, wrap(message.cleanContent.substring(args[0].length).substring(0,1010), {width: textWidth, indent: ''}))
-                .toBuffer('PNG', function convertToPNG(err, buffer){
+                .font(__dirname + "/../static/arial.ttf", textSize)
+                .drawText(x, y, wrap(message.cleanContent.substring(args[0].length).substring(0, 1010), {
+                    width: textWidth,
+                    indent: ''
+                }))
+                .toBuffer('PNG', function convertToPNG(err, buffer) {
                     span.end();
-                    if(err){
+                    if (err) {
                         message.replyLang("GENERIC_ERROR");
                         bot.logger.log(err);
                         bot.raven.captureException(err);
-                    }else{
+                    } else {
                         const attachment = new Discord.MessageAttachment(buffer, fileName);
                         message.channel.send("", attachment);
                     }
@@ -381,51 +382,54 @@ module.exports = {
                 });
         };
 
-        bot.util.processDeepAi = async function(message, args, filter){
-            const url =  await bot.util.getImage(message, args);
-            if(!url || !url.startsWith("http"))
+        bot.util.processDeepAi = async function (message, args, filter) {
+            const url = await bot.util.getImage(message, args);
+            if (!url || !url.startsWith("http"))
                 return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
             message.channel.startTyping();
 
             try {
                 let result = await deepai.callStandardApi(filter, {image: url});
 
-                if(result.output_url) {
+                if (result.output_url) {
                     message.channel.send("", new Discord.MessageAttachment(result.output_url));
-                }else{
+                } else {
                     message.replyLang("ENHANCE_MAXIMUM_RESOLUTION");
                 }
-            }catch(e){
+            } catch (e) {
                 message.replyLang("GENERIC_ERROR");
                 sentry.captureException(e)
-            }finally {
+            } finally {
                 message.channel.stopTyping(true);
             }
         };
 
-        bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage){
+        bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage) {
             request.metadata = {
                 s: message.guild ? message.guild.id : null,
                 u: message.author.id,
                 c: message.channel.id,
                 m: message.id,
             };
-            if(message.content.indexOf("-debug") > -1)
+            if (message.content.indexOf("-debug") > -1)
                 request.debug = true;
             request.compression = true;
 
             let span = bot.util.startSpan("Receive from RPC");
             let loadingMessage;
-            let loadingMessageDelay = setTimeout(async ()=>{
+            let loadingMessageDelay = setTimeout(async () => {
                 message.channel.stopTyping(true);
                 loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
             }, 3000)
             message.channel.startTyping();
             let key = crc32(JSON.stringify(request)).toString(32);
-            let response = await bot.redis.cache("imageProcessor/"+key, async ()=>await bot.rabbit.rpc("imageProcessor", request, 120000, {arguments: {"x-message-ttl": 60000}, durable: false}), 600);
+            let response = await bot.redis.cache("imageProcessor/" + key, async () => await bot.rabbit.rpc("imageProcessor", request, 120000, {
+                arguments: {"x-message-ttl": 60000},
+                durable: false
+            }), 600);
             clearTimeout(loadingMessageDelay)
             span.end();
-            if(loadingMessage) {
+            if (loadingMessage) {
                 span = bot.util.startSpan("Edit loading message");
                 await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
                 span.end();
@@ -433,42 +437,42 @@ module.exports = {
             if (response.err) {
                 span = bot.util.startSpan("Delete processing message");
                 message.channel.stopTyping(true);
-                if(loadingMessage)
+                if (loadingMessage)
                     await loadingMessage.delete();
                 span.end();
-                return message.replyLang("IMAGE_PROCESSOR_ERROR_"+response.err.toUpperCase());
+                return message.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
             }
             span = bot.util.startSpan("Upload image");
             let output;
-            if(response.extension.startsWith("gzip/")){
+            if (response.extension.startsWith("gzip/")) {
                 response.extension = response.extension.split("/")[1];
                 const compressedData = Buffer.from(response.data, 'base64');
                 fs.writeFileSync("profile.png.gz", compressedData);
                 output = zlib.gunzipSync(compressedData);
-            }else{
+            } else {
                 output = Buffer.from(response.data, 'base64')
             }
 
             let messageResult;
             let attachment = new Discord.MessageAttachment(output, `${name}.${response.extension}`);
             try {
-                if(sentMessage)
+                if (sentMessage)
                     messageResult = await message.channel.send(sentMessage, attachment);
                 else
                     messageResult = await message.channel.send(attachment);
-            }catch(e){
+            } catch (e) {
                 bot.raven.captureException(e);
             }
             message.channel.stopTyping(true);
             span.end();
             span = bot.util.startSpan("Delete processing message");
-            if(loadingMessage)
+            if (loadingMessage)
                 await loadingMessage.delete();
             span.end();
             return messageResult;
         }
 
-        bot.util.imageProcessorOutlinedText = function imageProcessorOutlinedText(content, x, y, w, h, fontSize, foregroundColour = "#ffffff", backgroundColour = "#000000", font = "arial.ttf"){
+        bot.util.imageProcessorOutlinedText = function imageProcessorOutlinedText(content, x, y, w, h, fontSize, foregroundColour = "#ffffff", backgroundColour = "#000000", font = "arial.ttf") {
             return {
                 pos: {x, y, w, h},
                 filter: [
@@ -517,11 +521,11 @@ module.exports = {
          * @param format The output format
          * @returns {Promise<*|void|Promise<*>>}
          */
-        bot.util.processImageFilter = async function processImageFilter(module, message, args, filter, input, format = "PNG"){
+        bot.util.processImageFilter = async function processImageFilter(module, message, args, filter, input, format = "PNG") {
             let span = bot.util.startSpan("Get Image");
-            const url =  await bot.util.getImage(message, args);
+            const url = await bot.util.getImage(message, args);
             span.end();
-            if(!url || !url.startsWith("http"))
+            if (!url || !url.startsWith("http"))
                 return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
 
             bot.tasks.startTask("imageFilter", message.id);
@@ -532,11 +536,16 @@ module.exports = {
 
 
             bot.logger.log(url);
-            if(message.getBool("imageFilter.useExternal")) {
+            if (message.getBool("imageFilter.useExternal")) {
                 span = bot.util.startSpan("Receive from RPC");
-                let response = await bot.redis.cache(`imageProcessor/${filter}/${input}/${url}`, async ()=>await bot.rabbit.rpc("imageFilter", {url, filter, input, format}, 60000, {durable: true}));
+                let response = await bot.redis.cache(`imageProcessor/${filter}/${input}/${url}`, async () => await bot.rabbit.rpc("imageFilter", {
+                    url,
+                    filter,
+                    input,
+                    format
+                }, 60000, {durable: true}));
                 span.end();
-                if(loadingMessage) {
+                if (loadingMessage) {
                     span = bot.util.startSpan("Edit loading message");
                     await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
                     span.end();
@@ -552,7 +561,7 @@ module.exports = {
                 let attachment = new Discord.MessageAttachment(Buffer.from(response.image, 'base64'), response.name);
                 try {
                     await message.channel.send(attachment);
-                }catch(e){
+                } catch (e) {
                     bot.raven.captureException(e);
                 }
                 span.end();
@@ -560,7 +569,7 @@ module.exports = {
                 await loadingMessage.delete();
                 span.end();
                 bot.tasks.endTask("imageFilter", message.id);
-            }else {
+            } else {
                 const fileName = `${__dirname}/../temp/${Math.random()}.png`;
                 let shouldProcess = true;
                 request(url)
@@ -634,49 +643,49 @@ module.exports = {
          * @param {Number?} argument
          * @returns {Promise.<*>}
          */
-        bot.util.getImage = async function getImage(message, args, argument){
+        bot.util.getImage = async function getImage(message, args, argument) {
             try {
-                if(message.reference) {
+                if (message.reference) {
                     let referencedMessage = await message.channel.messages.fetch(message.reference.messageID);
                     let result = bot.util.getImageFromMessage(referencedMessage);
-                    if(result)return result;
+                    if (result) return result;
                 }
-                if(argument){
+                if (argument) {
                     const arg = args[argument];
-                    if(arg) {
+                    if (arg) {
                         const user = bot.util.getUserFromMention(arg);
                         if (user) return user.displayAvatarURL({dynamic: true, format: "png"});
-                        if (arg.startsWith("https://tenor.com/"))return await bot.util.getImageFromTenorURL(arg);
-                        if (arg.startsWith("https://gfycat.com/"))return await bot.util.getImageFromGfycatURL(arg);
+                        if (arg.startsWith("https://tenor.com/")) return await bot.util.getImageFromTenorURL(arg);
+                        if (arg.startsWith("https://gfycat.com/")) return await bot.util.getImageFromGfycatURL(arg);
                         if (arg.startsWith("http")) return arg;
                         const emoji = bot.util.getEmojiURLFromMention(arg);
                         if (emoji) return emoji;
                         return null;
                     }
                     return bot.util.getImageFromPrevious(message, argument);
-                }else if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
+                } else if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
                     return message.mentions.users.first().displayAvatarURL({dynamic: true, format: "png"});
                 } else if (args[2] && args[2].indexOf("http") > -1) {
                     return args[2]
                 } else if (args[1] && args[1].indexOf("http") > -1) {
                     return args[1];
-                }else if(args[1] && bot.util.getEmojiURLFromMention(args[1])){
+                } else if (args[1] && bot.util.getEmojiURLFromMention(args[1])) {
                     return bot.util.getEmojiURLFromMention(args[1]);
-                }else if(args[2] && bot.util.getEmojiURLFromMention(args[2])){
+                } else if (args[2] && bot.util.getEmojiURLFromMention(args[2])) {
                     return bot.util.getEmojiURLFromMention(args[2]);
-                }else {
+                } else {
                     message.channel.startTyping();
                     const result = bot.util.getImageFromPrevious(message, argument);
                     message.channel.stopTyping();
                     return result;
                 }
-            }catch(e){
+            } catch (e) {
                 bot.raven.captureException(e);
                 return null;
             }
         };
 
-        bot.util.getImageFromTenorURL = async function(url){
+        bot.util.getImageFromTenorURL = async function (url) {
             try {
                 const urlSplit = url.split("-");
                 const id = urlSplit[urlSplit.length - 1];
@@ -693,26 +702,26 @@ module.exports = {
                     return null;
                 }
                 return data.results[0].media[0].gif.url;
-            }catch(e){
+            } catch (e) {
                 sentry.captureException(e);
                 return null;
             }
         };
 
-        bot.util.getImageFromGfycatURL = async function(url){
-            try{
+        bot.util.getImageFromGfycatURL = async function (url) {
+            try {
                 const urlSplit = url.split("/");
-                const id = urlSplit[urlSplit.length-1];
+                const id = urlSplit[urlSplit.length - 1];
                 let data = await bot.util.getJson(`https://api.gfycat.com/v1/gfycats/${id}`);
-                if(data.gfyItem && data.gfyItem.content_urls){
-                    if(data.gfyItem.content_urls.max5mbGif)
+                if (data.gfyItem && data.gfyItem.content_urls) {
+                    if (data.gfyItem.content_urls.max5mbGif)
                         return data.gfyItem.content_urls.max5mbGif.url;
-                    if(data.gfyItem.content_urls.max1mbGif)
+                    if (data.gfyItem.content_urls.max1mbGif)
                         return data.gfyItem.content_urls.max1mbGif.url;
-                    if(data.gfyItem.content_urls.largeGif)
+                    if (data.gfyItem.content_urls.largeGif)
                         return data.gfyItem.content_urls.largeGif.url;
                 }
-            }catch(e){
+            } catch (e) {
                 sentry.captureException(e);
                 return null;
             }
@@ -724,54 +733,54 @@ module.exports = {
          * @param {Number} argument
          * @returns {Promise.<*>}
          */
-        bot.util.getImageFromPrevious = async function getImageFromPrevious(message, argument){
+        bot.util.getImageFromPrevious = async function getImageFromPrevious(message, argument) {
             let span = bot.util.startSpan("Fetch Messages");
             const previousMessages = (await message.channel.messages.fetch({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
             span.end();
             let offset = 0;
             span = bot.util.startSpan("Find Message");
-            const targetMessage = previousMessages.find((previousMessage) =>{
-                if(argument && offset++ < argument){
+            const targetMessage = previousMessages.find((previousMessage) => {
+                if (argument && offset++ < argument) {
                     console.log(argument, offset);
                     return false;
                 }
-                if(previousMessage.content.startsWith("http"))return true;
-                if(previousMessage.attachments && previousMessage.attachments.size > 0)return true;
+                if (previousMessage.content.startsWith("http")) return true;
+                if (previousMessage.attachments && previousMessage.attachments.size > 0) return true;
                 return (previousMessage.embeds && previousMessage.embeds.length > 0 && previousMessage.embeds[0].image);
             });
             span.end();
-            if(targetMessage)
+            if (targetMessage)
                 return bot.util.getImageFromMessage(targetMessage);
             return null;
         };
 
-        bot.util.getImageFromMessage = async function getImageFromMessage(targetMessage){
-            if(targetMessage.content.startsWith("http")) {
+        bot.util.getImageFromMessage = async function getImageFromMessage(targetMessage) {
+            if (targetMessage.content.startsWith("http")) {
                 let url = targetMessage.content.split(" ")[0];
-                if(url.startsWith("https://tenor.com/"))
+                if (url.startsWith("https://tenor.com/"))
                     return await bot.util.getImageFromTenorURL(url);
-                if(url.startsWith("https://gfycat.com"))
+                if (url.startsWith("https://gfycat.com"))
                     return await bot.util.getImageFromGfycatURL(url);
                 return url;
-            }else if(targetMessage.attachments && targetMessage.attachments.size > 0){
-                const targetAttachment = targetMessage.attachments.find((attachment)=>(attachment.url || attachment.proxyURL));
-                if(!targetAttachment)return null;
+            } else if (targetMessage.attachments && targetMessage.attachments.size > 0) {
+                const targetAttachment = targetMessage.attachments.find((attachment) => (attachment.url || attachment.proxyURL));
+                if (!targetAttachment) return null;
                 return targetAttachment.url || targetAttachment.proxyURL;
-            }else if(targetMessage.embeds && targetMessage.embeds.length > 0){
+            } else if (targetMessage.embeds && targetMessage.embeds.length > 0) {
                 const targetEmbed = targetMessage.embeds.find(function (embed) {
                     return embed.image && (embed.image.url || embed.image.proxyURL)
                 });
-                if(!targetEmbed)return null;
+                if (!targetEmbed) return null;
                 return targetEmbed.image.url || targetEmbed.image.proxyURL;
             }
             return null;
         }
 
         Object.defineProperty(Array.prototype, 'chunk', {
-            value: function(chunkSize) {
+            value: function (chunkSize) {
                 var R = [];
-                for (var i=0; i<this.length; i+=chunkSize)
-                    R.push(this.slice(i,i+chunkSize));
+                for (var i = 0; i < this.length; i += chunkSize)
+                    R.push(this.slice(i, i + chunkSize));
                 return R;
             }
         });
@@ -781,7 +790,7 @@ module.exports = {
          * @param {Number} i
          * @returns {string}
          */
-        bot.util.getNumberPrefix = function getNumberPrefix(i){
+        bot.util.getNumberPrefix = function getNumberPrefix(i) {
             let j = i % 10,
                 k = i % 100;
             if (j === 1 && k !== 11) {
@@ -796,7 +805,7 @@ module.exports = {
             return i + "th";
         };
 
-        bot.util.replyTo = function replyTo(message, content){
+        bot.util.replyTo = function replyTo(message, content) {
             let api = new Discord.APIMessage(message.channel, {});
             api.data = {
                 content: "",
@@ -806,9 +815,9 @@ module.exports = {
                     guild_id: message.guild ? message.guild.id : null,
                 }
             }
-            if(typeof content === "string"){
+            if (typeof content === "string") {
                 api.data.content = content;
-            }else{
+            } else {
                 api.data.embed = content;
             }
 
@@ -858,25 +867,25 @@ module.exports = {
          * @param {Discord.Guild} guild
          * @returns {Discord.TextChannel}
          */
-        bot.util.determineMainChannel = function determineMainChannel(guild){
+        bot.util.determineMainChannel = function determineMainChannel(guild) {
             let channels = guild.channels;
 
-            let mainChannel = channels.cache.find(function(channel){
+            let mainChannel = channels.cache.find(function (channel) {
                 return channel.type === "text" && channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
-            if(mainChannel)
+            if (mainChannel)
                 return mainChannel;
 
-            let secondaryChannel = channels.cache.find(function(channel){
+            let secondaryChannel = channels.cache.find(function (channel) {
                 return channel.type === "text" && channel.name.match(secondaryChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
-            if(secondaryChannel)
+            if (secondaryChannel)
                 return secondaryChannel;
 
-            return channels.cache.find(function(channel){
-                return channel.type === "text" &&channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
+            return channels.cache.find(function (channel) {
+                return channel.type === "text" && channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
             });
         };
 
@@ -889,7 +898,7 @@ module.exports = {
             if (!mention) return null;
             if (mention.startsWith('<@') && mention.endsWith('>')) {
                 mention = mention.slice(2, -1);
-                if(mention.startsWith('&'))
+                if (mention.startsWith('&'))
                     return null;
                 if (mention.startsWith('!'))
                     mention = mention.slice(1);
@@ -903,24 +912,24 @@ module.exports = {
          * @param {string} mention
          * @returns {string|null}
          */
-        bot.util.getEmojiURLFromMention = function getEmojiURLFromMention(mention){
-            if(!mention) return null;
-            if(mention.startsWith("<:") && mention.endsWith(">")){
+        bot.util.getEmojiURLFromMention = function getEmojiURLFromMention(mention) {
+            if (!mention) return null;
+            if (mention.startsWith("<:") && mention.endsWith(">")) {
                 let id = mention.substring(2).split(":")[1];
-                if(!id)return null;
-                id = id.substring(0,id.length-1);
+                if (!id) return null;
+                id = id.substring(0, id.length - 1);
                 return `https://cdn.discordapp.com/emojis/${id}.png?v=1`;
             }
 
-            if(mention.startsWith("<a:") && mention.endsWith(">")){
+            if (mention.startsWith("<a:") && mention.endsWith(">")) {
                 let id = mention.substring(3).split(":")[1];
-                if(!id)return null;
-                id = id.substring(0,id.length-1);
+                if (!id) return null;
+                id = id.substring(0, id.length - 1);
                 return `https://cdn.discordapp.com/emojis/${id}.gif?v=1`;
             }
 
-            let parse = twemoji.parse(mention, { assetType: 'png' });
-            if(parse[0])return parse[0].url;
+            let parse = twemoji.parse(mention, {assetType: 'png'});
+            if (parse[0]) return parse[0].url;
 
             return null;
         };
@@ -935,7 +944,7 @@ module.exports = {
          * @param reactDict
          * @returns {Promise<void>}
          */
-        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 120000, reactDict){
+        bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 120000, reactDict) {
             let index = 0;
             let sentMessage;
 
@@ -943,7 +952,7 @@ module.exports = {
             let buildPage = async function () {
                 let span = bot.util.startSpan("Build page");
                 let output = await formatMessage(pages[index], index);
-                if(sentMessage)
+                if (sentMessage)
                     await sentMessage.edit(output);
                 else
                     sentMessage = await channel.send(output);
@@ -954,12 +963,12 @@ module.exports = {
 
             bot.tasks.startTask("standardPagination", sentMessage.id);
 
-            if(pages.length === 1 && !reactDict)
+            if (pages.length === 1 && !reactDict)
                 return;
 
             // noinspection ES6MissingAwait
             (async function () {
-                if(pages.length > 1) {
+                if (pages.length > 1) {
                     if (fullReactions)
                         await sentMessage.react("⏮");
                     await sentMessage.react("◀");
@@ -967,7 +976,7 @@ module.exports = {
                     if (fullReactions)
                         await sentMessage.react("⏭");
                 }
-                if(reactDict) {
+                if (reactDict) {
                     // noinspection ES6MissingAwait
                     Object.keys(reactDict).forEach(async function (react) {
                         await sentMessage.react(react);
@@ -977,15 +986,15 @@ module.exports = {
 
             await sentMessage.awaitReactions(async function (reaction, user) {
                 if (user.id === bot.client.user.id) return false;
-                if(reactDict) {
+                if (reactDict) {
                     bot.tasks.renewTask("standardPagination", sentMessage.id);
                     if (reactDict[reaction.emoji.name] !== undefined) {
                         await reactDict[reaction.emoji.name]();
                         await buildPage();
 
                     }
-                    if(pages.length === 1) {
-                        if(channel.guild)
+                    if (pages.length === 1) {
+                        if (channel.guild)
                             reaction.users.remove(user);
                         return;
                     }
@@ -1015,17 +1024,17 @@ module.exports = {
                         await buildPage();
                         break;
                 }
-                if(channel.guild)
+                if (channel.guild)
                     reaction.users.remove(user);
 
             }, {idle: reactionTime});
-            if(!sentMessage)return;
-            if(!sentMessage.deleted) {
+            if (!sentMessage) return;
+            if (!sentMessage.deleted) {
                 bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
 
-                if(sentMessage.guild)
+                if (sentMessage.guild)
                     sentMessage.reactions.removeAll();
-            }else{
+            } else {
                 bot.logger.info(`${sentMessage.id} was deleted before the reactions expired.`);
             }
             bot.tasks.endTask("standardPagination", sentMessage.id);
@@ -1034,27 +1043,27 @@ module.exports = {
 
         bot.util.nestedCommands = {};
 
-        bot.util.standardNestedCommandInit = function standardNestedCommandInit(id, directory = id, initData){
+        bot.util.standardNestedCommandInit = function standardNestedCommandInit(id, directory = id, initData) {
             bot.logger.log(`Initialising nested commands for ${id}`);
-            fs.readdir(`${__dirname}/../commands/${directory}`, function loadNestedCommands(err, files){
-                if(err){
+            fs.readdir(`${__dirname}/../commands/${directory}`, function loadNestedCommands(err, files) {
+                if (err) {
                     bot.raven.captureException(err);
                     bot.logger.warn(`Unable to read ${id} command dir (${directory})`);
                     bot.logger.log(err);
-                }else{
+                } else {
                     bot.util.nestedCommands[id] = {};
-                    for(let i = 0; i < files.length; i++){
-                        try{
+                    for (let i = 0; i < files.length; i++) {
+                        try {
                             const command = require(`../commands/${directory}/${files[i]}`);
                             bot.logger.log(`Loaded ${id} command ${command.name}`);
-                            if(command.init){
+                            if (command.init) {
                                 bot.logger.log(`Performing init for ${id} command ${command.name}`);
                                 command.init(bot, initData);
                             }
-                            for(let c = 0; c < command.commands.length; c++){
+                            for (let c = 0; c < command.commands.length; c++) {
                                 bot.util.nestedCommands[id][command.commands[c]] = command;
                             }
-                        }catch(e){
+                        } catch (e) {
                             bot.raven.captureException(e);
                             bot.logger.log(`Error loading ${id} command for ${files[i]}: ${e}`);
                         }
@@ -1063,66 +1072,74 @@ module.exports = {
             });
         };
 
-        bot.util.standardNestedCommand = async function standardNestedCommand(message, args, bot, id, data, invalidUsageFunction, subCommandIndex = 1){
+        bot.util.standardNestedCommand = async function standardNestedCommand(message, args, bot, id, data, invalidUsageFunction, subCommandIndex = 1) {
             const commandName = args[subCommandIndex] ? args[subCommandIndex].toLowerCase() : "help";
             const commandType = bot.util.nestedCommands[id];
-            if(!commandType){
+            if (!commandType) {
                 bot.logger.warn(`No nested command init detected for ${id}!`);
-                bot.rabbit.event({type: "warning", payload: {
-                    id: "noNestedInit-"+id, message: `No nested command init for ${id}`
-                }});
+                bot.rabbit.event({
+                    type: "warning", payload: {
+                        id: "noNestedInit-" + id, message: `No nested command init for ${id}`
+                    }
+                });
                 return message.channel.send("No nested command init detected - Big P Screwed this up.");
             }
             const command = commandType[commandName];
-            if(command && command.run){
+            if (command && command.run) {
                 await command.run(message, args, bot, data);
-            }else if(commandName === "help"){
+            } else if (commandName === "help") {
                 let output = "";
                 let usedAliases = [];
-                for(let helpItemName in commandType){
-                    if(!commandType.hasOwnProperty(helpItemName))continue;
+                for (let helpItemName in commandType) {
+                    if (!commandType.hasOwnProperty(helpItemName)) continue;
                     const helpItem = commandType[helpItemName];
-                    if(usedAliases.indexOf(helpItem.commands[0]) > -1)continue;
-                    if(!helpItem.hidden)
+                    if (usedAliases.indexOf(helpItem.commands[0]) > -1) continue;
+                    if (!helpItem.hidden)
                         output += `${helpItem.name} :: ${args[0]} ${helpItem.usage}\n`;
                     usedAliases.push.apply(usedAliases, helpItem.commands);
                 }
                 message.replyLang("COMMANDS", {commands: output});
-            }else{
-                if(invalidUsageFunction)
+            } else {
+                if (invalidUsageFunction)
                     return invalidUsageFunction();
                 message.replyLang("GENERIC_INVALID_USAGE", {arg: args[0]});
             }
         };
 
-        bot.util.startSpan = function startSpan(name){
+        bot.util.startSpan = function startSpan(name) {
             const tx = sentry.startTransaction({
                 op: name.toLowerCase().replace(/ /g, "_"), name,
             });
-            if(tx)return {end: tx.finish};
+            if (tx) return {end: tx.finish};
 
-            return {end: ()=> {}}
+            return {
+                end: () => {
+                }
+            }
         }
 
-        bot.util.getJson = async function getJson(url, extraData, headers){
-            return new Promise((resolve, reject)=>{
-                request({url, headers:{'User-Agent': 'OcelotBOT https://ocelotbot.xyz/', ...headers}, ...extraData}, (err, resp, body)=>{
-                    if(err)return reject(err);
+        bot.util.getJson = async function getJson(url, extraData, headers) {
+            return new Promise((resolve, reject) => {
+                request({
+                    url,
+                    headers: {'User-Agent': 'OcelotBOT https://ocelotbot.xyz/', ...headers}, ...extraData
+                }, (err, resp, body) => {
+                    if (err) return reject(err);
                     try {
                         resolve(JSON.parse(body))
-                    }catch(e){
+                    } catch (e) {
                         reject(e);
                     }
                 })
             })
         }
 
-        bot.util.coolTextGenerator = function(message, args, bot, options){
-            if(!args[1]){
+        bot.util.coolTextGenerator = function (message, args, bot, options) {
+            if (!args[1]) {
                 return message.replyLang("GENERIC_TEXT", {command: args[0]});
             }
 
-            const text = message.cleanContent.substring(args[0].length+1);
+            const text = message.cleanContent.substring(args[0].length + 1);
             message.channel.startTyping();
 
             options.text = text;
@@ -1134,56 +1151,56 @@ module.exports = {
                     'content-type': "application/x-www-form-urlencoded; charset=UTF-8"
                 },
                 form: options
-            }, function(err, resp, body){
-                if(err){
+            }, function (err, resp, body) {
+                if (err) {
                     console.log(err);
                     bot.raven.captureException(err);
                     message.channel.stopTyping(true);
                     return message.replyLang("GENERIC_ERROR");
                 }
-                try{
+                try {
                     let data = JSON.parse(body);
-                    if(data.renderLocation) {
+                    if (data.renderLocation) {
                         // TODO: stupid fuck lets encrypt bollocks
                         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
                         message.channel.send("", new Discord.MessageAttachment(data.renderLocation)); // Still eating dicks 2k20
-                    }else {
+                    } else {
                         message.replyLang("GENERIC_ERROR");
                         bot.logger.warn("Invalid Response?");
                         bot.logger.warn(body);
                     }
-                }catch(e){
+                } catch (e) {
                     bot.raven.captureException(e);
                     bot.logger.error(e);
                     console.log(e);
                     console.log("Body:", body);
                     message.replyLang("GENERIC_ERROR");
-                }finally{
+                } finally {
                     message.channel.stopTyping();
                 }
             })
         };
 
         let waitingUsers = {};
-        bot.util.getUserInfo = async function getUserInfo(userID){
+        bot.util.getUserInfo = async function getUserInfo(userID) {
             try {
                 return await bot.client.users.fetch(userID);
-            }catch(e){
+            } catch (e) {
                 return null
             }
         };
 
-        bot.util.getChannelInfo = function getChannelInfo(channelID){
-            try{
+        bot.util.getChannelInfo = function getChannelInfo(channelID) {
+            try {
                 return bot.client.channels.fetch(channelID)
-            }catch(e){
+            } catch (e) {
                 return null;
             }
         }
 
-        bot.bus.on("getUserInfoResponse", (message)=>{
+        bot.bus.on("getUserInfoResponse", (message) => {
             const waitingUser = waitingUsers[message.payload.id];
-            if(waitingUser){
+            if (waitingUser) {
                 clearTimeout(waitingUser[1]);
                 waitingUser[0](message.payload);
             }
@@ -1207,7 +1224,8 @@ module.exports = {
         bot.util.timezoneRegex = /(UTC|GMT)([+\-][0-9]+)/i;
 
         //STILL fuck you joel
-        bot.util.timezones = {ACDT: "10.5",
+        bot.util.timezones = {
+            ACDT: "10.5",
             ACST: "09.5",
             ACT: "-05",
             ACWST: "08.75",
@@ -1387,32 +1405,101 @@ module.exports = {
             WIT: "07",
             WST: "08",
             YAKT: "09",
-            YEKT: "05"};
+            YEKT: "05"
+        };
 
-        bot.util.drawOutlinedText = function drawOutlinedText(ctx, text, x, y, size, font = "Sans-serif", foreground= "white", background = "black", thickness = 3){
+        bot.util.drawOutlinedText = function drawOutlinedText(ctx, text, x, y, size, font = "Sans-serif", foreground = "white", background = "black", thickness = 3) {
             ctx.fillStyle = background;
             ctx.font = `${size}px ${font}`;
             ctx.fillText(text, x, y);
             ctx.fillStyle = foreground;
             ctx.font = `${size}px ${font}`;
-            ctx.fillText(text, x-thickness, y-thickness);
+            ctx.fillText(text, x - thickness, y - thickness);
         };
 
         bot.util.drawRoundRect = function roundRect(ctx, x, y, w, h, r) {
             if (w < 2 * r) r = w / 2;
             if (h < 2 * r) r = h / 2;
             ctx.beginPath();
-            ctx.moveTo(x+r, y);
-            ctx.arcTo(x+w, y,   x+w, y+h, r);
-            ctx.arcTo(x+w, y+h, x,   y+h, r);
-            ctx.arcTo(x,   y+h, x,   y,   r);
-            ctx.arcTo(x,   y,   x+w, y,   r);
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
             ctx.closePath();
         }
 
 
+        bot.util.serialiseUser = function serialiseUser(user) {
+            return {
+                avatar: user.avatarURL({size: 32, format: "png"}),
+                id: user.id,
+                username: user.username,
+                bot: user.bot,
+            }
+        }
 
-        bot.util.shard = parseInt(process.env.SHARD)-1
+        bot.util.serialiseMember = function serialiseMember(member) {
+            return {
+                id: member.id,
+                bot: member.user.bot,
+                avatar: member.user.avatarURL({size: 32, format: "png"}),
+                nickname: member.nickname,
+                username: member.user.username,
+                colour: member.displayHexColor,
+            }
+        }
+
+        bot.util.serialiseChannel = function serialiseChannel(channel) {
+            return {
+                id: channel.id,
+                name: channel.name
+            }
+        }
+
+        bot.util.serialiseGuild = function serialiseGuild(guild) {
+            if (!guild) return null;
+            return {
+                id: guild.id,
+                name: guild.name,
+            }
+        }
+
+        bot.util.serialiseMessage = function serialiseMessage(message) {
+            return {
+                guild: bot.util.serialiseGuild(message.guild),
+                channel: bot.util.serialiseChannel(message.channel),
+                author: message.member ? bot.util.serialiseMember(message.member) : bot.util.serialiseUser(message.author),
+                content: message.content,
+                reference: message.reference,
+                attachments: message.attachments.map((a) => a.name),
+                embeds: message.embeds,
+            }
+        }
+
+        bot.util.runCustomFunction = async function(code, message){
+            try {
+                process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+                let result = await axios.post("https://ob-custom-commands.d.int.unacc.eu/run", {
+                    script: code, message: bot.util.serialiseMessage(message)
+                })
+
+                return {output: result.data, success: true};
+            }catch(e){
+                let errorEmbed = new Discord.MessageEmbed()
+                errorEmbed.setColor("#ff0000")
+                errorEmbed.setTitle(":warning: Execution Error");
+                if(e.response && e.response.data)
+                    errorEmbed.setDescription(`An error was encountered with your custom function.\n\`\`\`json\n${JSON.stringify(e.response.data, null, 1)}\n\`\`\``);
+                else
+                    errorEmbed.setDescription("An error occurred trying to run your custom function.");
+                return {output: errorEmbed, success: false};
+            }
+
+        }
+
+
+        bot.util.shard = parseInt(process.env.SHARD) - 1
 
     }
 };

@@ -14,7 +14,7 @@ module.exports = {
             return message.replyLang("MUSIC_NOTHING_PLAYING");
 
         const listener = music.listeners[guild];
-        if(listener.playing && listener.voiceChannel.members.size > 2 && listener.playing.requester !== message.author.id)
+        if (listener.playing && listener.voiceChannel.members.size > 2 && listener.playing.requester !== message.author.id)
             return message.channel.send(`:bangbang: You can only use this command if you're the only one listening or it is your track playing.`);
 
 
