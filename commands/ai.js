@@ -6,7 +6,6 @@
  */
 const config = require('config').get("Commands.ai");
 const Cleverbot = require('cleverbot');
-const request = require('request');
 
 const axios = require('axios');
 let contexts = {};
