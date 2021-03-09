@@ -5,6 +5,7 @@ module.exports = {
     categories: ["image", "memes", "nsfw"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["brazzers"],
+    unwholesome: true,
     run: async function run(message, args, bot){
         const url = await bot.util.getImage(message, args);
         if(!url){
