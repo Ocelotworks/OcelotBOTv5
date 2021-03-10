@@ -6,7 +6,6 @@
  */
 const config = require('config').get("Commands.ai");
 const Cleverbot = require('cleverbot');
-const request = require('request');
 
 const axios = require('axios');
 let contexts = {};
@@ -42,7 +41,7 @@ module.exports = {
                     top_p: 0.3,
                     frequency_penalty: 0.7,
                     presence_penalty: 0.8,
-                    stop: [message.author.username + ":", "\n"]
+                    stop: [message.author.username + ":", "\n", "http"]
                 }, {
                     headers: {
                         "Content-Type": "application/json",
