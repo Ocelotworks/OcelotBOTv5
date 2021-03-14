@@ -18,6 +18,8 @@ module.exports = {
                 start = args.slice(0, 4).join(" ").length+1;
                 end = message.content.length;
             }else{
+                if(type === "AUTORESPOND")
+                    trigger = message.content.substring(message.content.indexOf(args[2])+args[2].length, start).trim();
                 start += 6
             }
             let code = message.content.substring(start, end);

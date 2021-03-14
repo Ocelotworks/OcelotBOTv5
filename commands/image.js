@@ -5,6 +5,7 @@
  *  ════╝
  */
 const GoogleImages = require('google-images');
+const axios = require('axios');
 const config = require('config').get("Commands.image");
 const Discord = require('discord.js');
 let client = new GoogleImages(config.get("cse"), config.get("key"));
@@ -35,10 +36,25 @@ module.exports = {
                 let images;
                 const nsfw = (!message.guild || message.channel.nsfw);
                 let type = nsfw ? "nsfw" : "sfw";
-                images = await bot.redis.cache(`images/${type}/${query}`, async () => await client.search(query, {safe: nsfw ? "off" : "high"}), 36000)
 
-                images = images.filter((image) => !image.thumbnail.url.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
+                if(message.getBool("image.yandex")){
+                    let result = await bot.redis.cache(`images/supplementary/${type}/${query}`, axios.get(`https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/ImageSearchAPI?q=${encodeURIComponent(query)}&pageNumber=1&pageSize=10&safeSearch=${!nsfw}`, {
+                        headers: {
+                            "x-rapidapi-key": config.get("contextualKey"),
+                            "x-rapidapi-host": "contextualwebsearch-websearch-v1.p.rapidapi.com",
+                            "useQueryString": true
+                        }
+                    }));
+                    images = result.data.value.map((result)=>({
+                        url: result.url,
+                        thumbnail: {url: result.thumbnail},
+                        description: result.title,
+                    }));
+                }else {
+                    images = await bot.redis.cache(`images/${type}/${query}`, async () => await client.search(query, {safe: nsfw ? "off" : "high"}), 36000)
+                    images = images.filter((image) => !image.thumbnail.url.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
 
+                }
                 if (images.length === 0)
                     return message.replyLang(!message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
 
