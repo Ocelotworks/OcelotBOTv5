@@ -112,7 +112,7 @@ module.exports = {
             let unique = []; //ahhh..
             let output = "";
             if (arg === "nsfw" && !message.channel.nsfw)
-                output += ":warning: NSFW Commands can only be used in NSFW channels.";
+                output += "# NSFW Commands can only be used in NSFW channels.";
             const prefix = message.getSetting("prefix");
             let commandUsages = bot.commandUsages;
             if (args[1] && Object.keys(bot.commandCategories).indexOf(arg) > -1) {
