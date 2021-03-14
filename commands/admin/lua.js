@@ -4,11 +4,13 @@ module.exports = {
     usage: "lua <code>",
     commands: ["lua", "runlua"],
     run: async function (message, args, bot) {
-        let start = message.content.indexOf("\n```lua\n") + 8
+        let start = message.content.indexOf("```lua")
         let end = message.content.length - 4;
         if (start === -1) {
-            start = args[0].length + args[1].length + 2;
+            start = args.slice(0, 3).join(" ").length+1;
             end = message.content.length;
+        }else{
+            start += 6
         }
         let code = message.content.substring(start, end);
         return message.channel.send((await bot.util.runCustomFunction(code, message)).output)
