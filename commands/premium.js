@@ -16,9 +16,6 @@ module.exports = {
             if(!message.guild.id)
                 return message.replyLang("PREMIUM_DM_CHANNEL", {arg: args[0]});
 
-            if(message.getBool("serverPremium"))
-                return message.replyLang("PREMIUM_ALREADY_HAS");
-
             if(args[1].toLowerCase() === "redeem"){
                 if(bot.config.getBool("global", "premium", message.author.id)) {
                     message.delete();
@@ -33,6 +30,9 @@ module.exports = {
                 }
                 return message.channel.send("This command can only be used in the specific support server channels for your premium type. If you have purchased premium, please use them there.")
             }
+
+            if(message.getBool("serverPremium"))
+                return message.replyLang("PREMIUM_ALREADY_HAS");
 
             let result = await bot.database.getPremiumKey(args[1]);
 
