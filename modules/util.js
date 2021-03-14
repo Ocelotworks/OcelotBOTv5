@@ -447,7 +447,7 @@ module.exports = {
             if (response.extension.startsWith("gzip/")) {
                 response.extension = response.extension.split("/")[1];
                 const compressedData = Buffer.from(response.data, 'base64');
-                fs.writeFileSync("profile.png.gz", compressedData);
+               //fs.writeFileSync("profile.png.gz", compressedData);
                 output = zlib.gunzipSync(compressedData);
             } else {
                 output = Buffer.from(response.data, 'base64')
