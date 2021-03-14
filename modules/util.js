@@ -1462,6 +1462,7 @@ module.exports = {
             return {
                 id: guild.id,
                 name: guild.name,
+                icon: guild.iconURL(),
             }
         }
 
@@ -1472,6 +1473,8 @@ module.exports = {
                 author: message.member ? bot.util.serialiseMember(message.member) : bot.util.serialiseUser(message.author),
                 content: message.content,
                 reference: message.reference,
+                id: message.id,
+                timestamp: message.createdTimestamp,
                 attachments: message.attachments.map((a) => a.name),
                 embeds: message.embeds,
             }
