@@ -11,75 +11,28 @@ module.exports = {
     commands: ["premium", "donate", "patreon"],
     rateLimit: 1,
     categories: ["meta"],
-    init: function(bot){
-        bot.client.on("ready", function startPremiumListener(){
-           if(bot.client.guilds.cache.has("322032568558026753")){
-               bot.logger.log("Listening for premium changes on this shard");
-               bot.client.on("guildMemberUpdate", async function guildMemberUpdate(oldMember, newMember){
-                    if(oldMember.guild.id !== "322032568558026753")return;
-                    if(!newMember.hoistRole)return;
-                    if(oldMember.hoistRole && oldMember.hoistRole.name === newMember.hoistRole.name)return;
-                    if(oldMember.hoistRole && oldMember.hoistRole.name === "Premium" && (!newMember.hoistRole || newMember.hoistRole.name !== "Premium")){
-                        console.log(`${oldMember} is no longer premium`);
-                    }else if(newMember.hoistRole && newMember.hoistRole.name === "Premium"){
-                        bot.logger.log("Found new premium subscriber "+newMember);
-                        let user = newMember.user;
-                        let dm = await user.createDM();
-                        dm.send(`:hearts: Thank you for purchasing **Ocelot Premium**!
-You now have access to the following features:
-- <:premium:547494108160196624> New profile badge
-- Custom profile background
-- Custom profile font
-- Premium profile border
-- Fast track support 
-- Reliable uptime
-- Higher ratelimit
-- Access to the !usersettings command
-- Have a shard named after you
-**More perks being added all the time for no additional charge!**`);
-
-                        await bot.database.setUserSetting(user.id, "premium", 1);
-                        await bot.database.setUserSetting(user.id, "rateLimit", 400);
-                        bot.rabbit.event({type: "reloadUserConfig"});
-                        await bot.database.giveBadge(user.id, 52);
-                        bot.client.channels.cache.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Premium**! <3`);
-                    }else if(newMember.hoistRole && newMember.hoistRole.name === "Server Premium"){
-                        bot.logger.log("Found new server premium subscriber "+newMember);
-                        let user = newMember.user;
-                        let dm = await user.createDM();
-                        let key = await bot.database.createPremiumKey(newMember.id);
-                        dm.send(`:hearts: Thank you for purchasing **Ocelot Server Premium**!
-You now have access to the following features:
-- <:premium:547494108160196624> New profile badge
-- Custom profile background
-- Custom profile font
-- Premium profile border
-- Fast track support 
-- Reliable uptime
-- Higher ratelimit
-- Access to the !usersettings command
-- Have a shard named after you
-**Also, as you have purchased Server Premium you can share some of these benefits with a server of your choosing**
-To Redeem Server Premium, run the following command in the server you choose: **!premium ${key}**
-The key is unique to you and can only be used in one server, so choose wisely!`);
-
-                        await bot.database.setUserSetting(user.id, "premium", 1);
-                        await bot.database.setUserSetting(user.id, "rateLimit", 400);
-                        bot.rabbit.event({type: "reloadUserConfig"});
-                        await bot.database.giveBadge(user.id, 52);
-                        bot.client.channels.cache.get("322032568558026753").send(`<:ocelotbot:533369578114514945> ${user} just purchased **Ocelot Server Premium**! <3`);
-                    }
-               });
-           }
-        });
-    },
     run: async function run(message, args, bot){
         if(args[1]){
             if(!message.guild.id)
-                return message.replyLang("PREMIUM_DM_CHANEL", {arg: args[0]});
+                return message.replyLang("PREMIUM_DM_CHANNEL", {arg: args[0]});
 
             if(message.getBool("serverPremium"))
                 return message.replyLang("PREMIUM_ALREADY_HAS");
+
+            if(args[1].toLowerCase() === "redeem"){
+                if(bot.config.getBool("global", "premium", message.author.id)) {
+                    message.delete();
+                    let dm = await message.author.createDM();
+                    return dm.send("You already have premium. If you have changed your premium plan, please contact Big P#1843");
+                }else if(message.channel.id === message.getSetting("premium.redeemChannel")){
+                    message.delete();
+                    return redeemPremium(bot, message.author);
+                }else if(message.channel.id === message.getSetting("premium.server.redeemChannel")){
+                    message.delete();
+                    return redeemServerPremium(bot, message.author);
+                }
+                return message.channel.send("This command can only be used in the specific support server channels for your premium type. If you have purchased premium, please use them there.")
+            }
 
             let result = await bot.database.getPremiumKey(args[1]);
 
@@ -133,3 +86,52 @@ The key is unique to you and can only be used in one server, so choose wisely!`)
         message.channel.send(embed);
     }
 };
+
+
+async function redeemPremium(bot, user){
+    let dm = await user.createDM();
+    dm.send(`:hearts: Thank you for purchasing **Ocelot Premium**!
+You now have access to the following features:
+- <:premium:547494108160196624> New profile badge
+- Custom profile background
+- Custom profile font
+- Premium profile border
+- Fast track support 
+- Reliable uptime
+- Higher ratelimit
+- No voting required
+- Access to the !usersettings command
+- Have a shard named after you
+**More perks being added all the time for no additional charge!**`);
+
+    await bot.database.setUserSetting(user.id, "premium", 1);
+    await bot.database.setUserSetting(user.id, "rateLimit", 400);
+    bot.rabbit.event({type: "reloadUserConfig"});
+    await bot.database.giveBadge(user.id, 52);
+}
+
+async function redeemServerPremium(bot, user){
+    let dm = await user.createDM();
+    let key = await bot.database.createPremiumKey(user.id);
+    dm.send(`:hearts: Thank you for purchasing **Ocelot Server Premium**!
+You now have access to the following features:
+- <:premium:547494108160196624> New profile badge
+- Custom profile background
+- Custom profile font
+- Premium profile border
+- Fast track support 
+- Reliable uptime
+- Higher ratelimit
+- Access to the !usersettings command
+- Have a shard named after you
+- No voting required
+- Custom Commands and Autoresponders
+**Also, as you have purchased Server Premium you can share some of these benefits with a server of your choosing**
+To Redeem Server Premium, run the following command in the server you choose: **!premium ${key}**
+The key is unique to you and can only be used in one server, so choose wisely!`);
+
+    await bot.database.setUserSetting(user.id, "premium", 1);
+    await bot.database.setUserSetting(user.id, "rateLimit", 400);
+    bot.rabbit.event({type: "reloadUserConfig"});
+    await bot.database.giveBadge(user.id, 52);
+}

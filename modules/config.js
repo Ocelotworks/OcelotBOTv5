@@ -112,10 +112,12 @@ module.exports = {
                     delete cacheReloads[msg.payload];
                 }, 5000);
                 bot.logger.log("Broker requested config reload for " + msg.payload);
-            } else if (msg.type === "reloadUserConfig") {
-                bot.logger.log("Reloading user config");
-                bot.config.loadUserCache();
             }
+        })
+
+        bot.bus.on("reloadUserConfig", (msg)=>{
+            bot.logger.log("Reloading user config");
+            bot.config.loadUserCache();
         })
 
     }
