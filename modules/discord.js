@@ -140,9 +140,9 @@ module.exports = {
 
         const clientOpts = {
             allowedMentions: {parse: ["users"]},
-            messageCacheLifetime: 60,
-            messageSweepInterval: 60,
-            messageEditHistoryMaxSize: 1,
+            messageCacheLifetime: 3600,
+            messageSweepInterval: 3600,
+            messageEditHistoryMaxSize: 2,
             presence: {
                 activity: {
                     name: "Windows XP Startup Tune",
