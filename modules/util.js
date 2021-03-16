@@ -56,7 +56,7 @@ module.exports = {
             "December"
         ];
 
-        bot.util.voteTimeout = 43200000;
+        bot.util.voteTimeout = 8.64e+7;
 //59640014
         /**
          * Returns a random number between `min` and `max`
