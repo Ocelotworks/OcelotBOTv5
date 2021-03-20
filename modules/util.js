@@ -1484,10 +1484,15 @@ module.exports = {
             try {
                 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
                 let result = await axios.post("https://ob-custom-commands.d.int.unacc.eu/run", {
-                    script: code, message: bot.util.serialiseMessage(message)
+                    version: 1,
+                    script: code,
+                    message: bot.util.serialiseMessage(message)
                 })
-
-                return {output: result.data, success: true};
+                await Promise.all(result.data.map((out)=>{
+                    if(!out || out.content === "")return;
+                    return message.channel.send(out)
+                }))
+                return true;
             }catch(e){
                 let errorEmbed = new Discord.MessageEmbed()
                 errorEmbed.setColor("#ff0000")
@@ -1496,13 +1501,11 @@ module.exports = {
                     errorEmbed.setDescription(`An error was encountered with your custom function.\n\`\`\`json\n${JSON.stringify(e.response.data, null, 1)}\n\`\`\``);
                 else
                     errorEmbed.setDescription("An error occurred trying to run your custom function.");
-                return {output: errorEmbed, success: false};
+                message.channel.send(errorEmbed);
+                return false
             }
-
         }
 
-
         bot.util.shard = parseInt(process.env.SHARD) - 1
-
     }
 };

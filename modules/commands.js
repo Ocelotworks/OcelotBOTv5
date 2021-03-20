@@ -53,7 +53,6 @@ module.exports = {
                 if (!bot.commands[command]) {
                     if(!message.guild || !bot.customCommands[message.guild.id])return;
                     let customCommand = bot.customCommands[message.guild.id][command]
-                    if(!customCommand)return console.log("Command doesn't exist");
                     bot.logger.log({
                         type: "commandPerformed",
                         command: {
@@ -63,8 +62,7 @@ module.exports = {
                         },
                         message: bot.util.serialiseMessage(message),
                     })
-                    let output = (await bot.util.runCustomFunction(customCommand, message)).output
-                    return message.channel.send(output);
+                    return await bot.util.runCustomFunction(customCommand, message)
                 }
 
                 bot.logger.log({
