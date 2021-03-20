@@ -45,15 +45,15 @@ module.exports = {
                 if (bot.topicCounter >= 100) {
                     bot.changeTopic(message);
                 }
-                if (message.content.toLowerCase() === "too hot") {
-                    bot.util.replyTo(message, "_hot damn_");
-                } else if (message.content.toLowerCase() === "shitpost") {
-                    message.channel.send("A days power in half an hour");
-                } else if (message.content.toLowerCase() === "test") {
-                    bot.util.replyTo(message, "icles");
-                } else if (thatsTrue.test(message.content)) {
-                    message.channel.send("thAts trUE");
-                }
+                // if (message.content.toLowerCase() === "too hot") {
+                //     bot.util.replyTo(message, "_hot damn_");
+                // } else if (message.content.toLowerCase() === "shitpost") {
+                //     message.channel.send("A days power in half an hour");
+                // } else if (message.content.toLowerCase() === "test") {
+                //     bot.util.replyTo(message, "icles");
+                // } else if (thatsTrue.test(message.content)) {
+                //     message.channel.send("thAts trUE");
+                // }
             }
         });
 
