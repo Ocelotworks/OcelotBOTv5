@@ -37,7 +37,7 @@ module.exports = {
                 const nsfw = (!message.guild || message.channel.nsfw);
                 let type = nsfw ? "nsfw" : "sfw";
 
-                if(message.getBool("image.yandex")){
+                if(message.getBool("image.yandex") && !nsfw){
                     let result = await bot.redis.cache(`images/supplementary/${type}/${query}`, ()=>axios.get(`https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/ImageSearchAPI?q=${encodeURIComponent(query)}&pageNumber=1&pageSize=10&safeSearch=${!nsfw}`, {
                         headers: {
                             "x-rapidapi-key": config.get("contextualKey"),

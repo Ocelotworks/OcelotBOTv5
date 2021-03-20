@@ -16,10 +16,6 @@ module.exports = {
             if (firstReady) {
                 firstReady = false;
                 const resumeKey = bot.client.user.id + "-" + bot.util.shard;
-                let options = {
-                    resumeKey,
-                    resumeTimeout: 60
-                }
 
                 const clients = [
                     {
@@ -28,6 +24,7 @@ module.exports = {
                         port: 2333,
                         password: config.get("Lavalink.password"),
                         reconnectInterval: 1000,
+                        resumeKey,
                     },
                     {
                         id: "2",
@@ -35,6 +32,7 @@ module.exports = {
                         port: 80,
                         password: config.get("Lavalink.password"),
                         reconnectInterval: 1000,
+                        resumeKey,
                     },
                     {
                         id: "guess",
@@ -42,12 +40,13 @@ module.exports = {
                         port: 80,
                         password: config.get("Lavalink.password"),
                         reconnectInterval: 1000,
+                        resumeKey,
                     }
                 ];
 
 
                 bot.lavaqueue.manager = new Manager(bot.client, clients, {
-                    user: bot.client.user.id
+                    user: bot.client.user.id,
                 });
 
                 await bot.lavaqueue.updateDockerContainers();

@@ -24,7 +24,7 @@ module.exports = {
         } else if (!message.member.voice.channel.speakable) {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         } else if (await bot.database.hasActiveSession(message.guild.id)) {
-            message.channel.send("The bot is currently playing music. Please wait for the queue to end to start dooting");
+            message.channel.send(`The bot is currently playing music. Please wait for the queue or type ${message.getSetting("prefix")}music stop to end to start dooting`);
         } else {
             try {
                 bot.logger.log("Joining voice channel " + message.member.voice.channel.name);

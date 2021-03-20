@@ -1480,29 +1480,53 @@ module.exports = {
             }
         }
 
-        bot.util.runCustomFunction = async function(code, message){
+
+        let customTypes = {};
+
+        fs.readdir(__dirname+"/../custom", (err, files)=>{
+            if(err)return bot.logger.error(err);
+            for(let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    let customType = require(__dirname+'/../custom/' + file);
+                    bot.logger.log(`Loading type ${customType.type}`)
+                    customTypes[customType.type] = customType.run;
+                }catch(e){
+                    bot.logger.error(e);
+                }
+            }
+        })
+
+        bot.util.runCustomFunction = async function(code, message, showErrors = true, doOutput = true){
             try {
                 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
                 let result = await axios.post("https://ob-custom-commands.d.int.unacc.eu/run", {
-                    script: code, message: bot.util.serialiseMessage(message)
+                    version: 1,
+                    script: code,
+                    message: bot.util.serialiseMessage(message)
                 })
-
-                return {output: result.data, success: true};
+                if(doOutput)
+                    await Promise.all(result.data.map((out)=>{
+                        if(!customTypes[out.type])return bot.logger.warn(`No custom type ${out.type}`);
+                        return customTypes[out.type](message, out, bot);
+                    }));
+                return true;
             }catch(e){
                 let errorEmbed = new Discord.MessageEmbed()
                 errorEmbed.setColor("#ff0000")
                 errorEmbed.setTitle(":warning: Execution Error");
                 if(e.response && e.response.data)
                     errorEmbed.setDescription(`An error was encountered with your custom function.\n\`\`\`json\n${JSON.stringify(e.response.data, null, 1)}\n\`\`\``);
-                else
+                else {
+                    bot.logger.log(e);
                     errorEmbed.setDescription("An error occurred trying to run your custom function.");
-                return {output: errorEmbed, success: false};
+                }
+                if(showErrors)
+                    message.channel.send(errorEmbed);
+                return false
             }
-
         }
 
-
         bot.util.shard = parseInt(process.env.SHARD) - 1
-
     }
 };

@@ -38,6 +38,10 @@ module.exports = {
 
         bot.client.on("message", function onMessage(message) {
             if (bot.drain || message.author.bot) return;
+            return bot.runCommand(message);
+        });
+
+        bot.runCommand = async function(message){
             Sentry.configureScope(async function onMessage(scope) {
                 scope.setUser({
                     username: message.author.username,
@@ -48,23 +52,22 @@ module.exports = {
                 const prefixLength = prefix.length;
                 if (!message.content.startsWith(prefix))
                     return;
-                const args = message.content.split(/ +/g);
+                const args = message.content.split(/\s+/g);
                 const command = args[0].substring(prefixLength).toLowerCase();
                 if (!bot.commands[command]) {
-                    if(!message.guild || !bot.customCommands[message.guild.id])return;
+                    if (!message.guild || !bot.customCommands[message.guild.id] || message.synthetic) return;
                     let customCommand = bot.customCommands[message.guild.id][command]
-                    if(!customCommand)return console.log("Command doesn't exist");
+                    if(!customCommand)return;
                     bot.logger.log({
                         type: "commandPerformed",
                         command: {
                             name: command,
-                            id: "custom-"+command,
+                            id: "custom-" + command,
                             content: message.content,
                         },
                         message: bot.util.serialiseMessage(message),
                     })
-                    let output = (await bot.util.runCustomFunction(customCommand, message)).output
-                    return message.channel.send(output);
+                    return await bot.util.runCustomFunction(customCommand, message)
                 }
 
                 bot.logger.log({
@@ -269,7 +272,7 @@ module.exports = {
                     })
                 }
             });
-        });
+        }
 
 
         bot.loadCommand = function loadCommand(command, reload) {
