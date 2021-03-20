@@ -24,9 +24,8 @@ module.exports = {
             }
             let code = message.content.substring(start, end);
             console.log(code);
-            let {output, success} = await bot.util.runCustomFunction(code, message);
-            if(!success)
-                return message.channel.send(output);
+            let success = await bot.util.runCustomFunction(code, message, true, false);
+            if(!success) return;
 
             await bot.database.addCustomFunction(message.guild.id, "", trigger, type, code, message.author.id);
             const responseType = type === "COMMAND" ? "customCommands" : "customAutoResponses";

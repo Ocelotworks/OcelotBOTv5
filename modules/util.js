@@ -1497,7 +1497,7 @@ module.exports = {
             }
         })
 
-        bot.util.runCustomFunction = async function(code, message, showErrors = true){
+        bot.util.runCustomFunction = async function(code, message, showErrors = true, doOutput = true){
             try {
                 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
                 let result = await axios.post("https://ob-custom-commands.d.int.unacc.eu/run", {
@@ -1505,10 +1505,11 @@ module.exports = {
                     script: code,
                     message: bot.util.serialiseMessage(message)
                 })
-                await Promise.all(result.data.map((out)=>{
-                    if(!customTypes[out.type])return bot.logger.warn(`No custom type ${out.type}`);
-                    return customTypes[out.type](message, out, bot);
-                }))
+                if(doOutput)
+                    await Promise.all(result.data.map((out)=>{
+                        if(!customTypes[out.type])return bot.logger.warn(`No custom type ${out.type}`);
+                        return customTypes[out.type](message, out, bot);
+                    }));
                 return true;
             }catch(e){
                 let errorEmbed = new Discord.MessageEmbed()

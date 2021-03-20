@@ -16,9 +16,8 @@ module.exports = {
         }
         let code = message.content.substring(start, end);
 
-        let {output, success} = await bot.util.runCustomFunction(code, message);
-        if(!success)
-            return message.channel.send(output);
+        let success = await bot.util.runCustomFunction(code, message, true, false);
+        if(!success)return;
 
         await bot.database.updateCustomFunction(message.guild.id, parseInt(args[2]), code);
 
