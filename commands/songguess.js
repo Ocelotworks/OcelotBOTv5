@@ -95,7 +95,7 @@ module.exports = {
             message.replyLang("SONGGUESS_OCCUPIED");
         } else if (await bot.database.hasActiveSession(message.guild.id)) {
             message.replyLang("SONGGUESS_MUSIC");
-            message.channel.send("The bot is currently playing music. Please wait for the queue to end to start guessing");
+            message.channel.send(`The bot is currently playing music. Please wait for the queue or type ${message.getSetting("prefix")}music stop to end to start guessing`);
         } else {
             try {
                 bot.logger.log("Joining voice channel " + message.member.voice.channel.name);
