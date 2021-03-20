@@ -37,7 +37,7 @@ module.exports = {
                     const match = message.content.toLowerCase()
                     for(let i = 0; i < keys.length; i++)
                         if(match.includes(keys[i])) {
-                            const success = await bot.util.runCustomFunction(bot.customAutoResponses[message.guild.id][keys[i]], message);
+                            const success = await bot.util.runCustomFunction(bot.customAutoResponses[message.guild.id][keys[i]], message, false);
                             if (!success) break;
                         }
                 }
