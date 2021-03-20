@@ -52,11 +52,12 @@ module.exports = {
                 const prefixLength = prefix.length;
                 if (!message.content.startsWith(prefix))
                     return;
-                const args = message.content.split(/ +/g);
+                const args = message.content.split(/\s+/g);
                 const command = args[0].substring(prefixLength).toLowerCase();
                 if (!bot.commands[command]) {
                     if (!message.guild || !bot.customCommands[message.guild.id] || message.synthetic) return;
                     let customCommand = bot.customCommands[message.guild.id][command]
+                    if(!customCommand)return;
                     bot.logger.log({
                         type: "commandPerformed",
                         command: {
