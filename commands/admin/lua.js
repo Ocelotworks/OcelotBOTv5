@@ -13,6 +13,6 @@ module.exports = {
             start += 6
         }
         let code = message.content.substring(start, end);
-        return message.channel.send((await bot.util.runCustomFunction(code, message)).output)
+        return bot.util.runCustomFunction(code, message);
     }
 }

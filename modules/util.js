@@ -1480,6 +1480,23 @@ module.exports = {
             }
         }
 
+
+        let customTypes = {};
+
+        fs.readdir(__dirname+"/../custom", (err, files)=>{
+            if(err)return bot.logger.error(err);
+            for(let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    let customType = require(__dirname+'/../custom/' + file);
+                    bot.logger.log(`Loading type ${customType.type}`)
+                    customTypes[customType.type] = customType.run;
+                }catch(e){
+                    bot.logger.error(e);
+                }
+            }
+        })
+
         bot.util.runCustomFunction = async function(code, message, showErrors = true){
             try {
                 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -1489,8 +1506,8 @@ module.exports = {
                     message: bot.util.serialiseMessage(message)
                 })
                 await Promise.all(result.data.map((out)=>{
-                    if(!out || out.content === "")return;
-                    return message.channel.send(out)
+                    if(!customTypes[out.type])return bot.logger.warn(`No custom type ${out.type}`);
+                    return customTypes[out.type](message, out, bot);
                 }))
                 return true;
             }catch(e){
@@ -1499,8 +1516,10 @@ module.exports = {
                 errorEmbed.setTitle(":warning: Execution Error");
                 if(e.response && e.response.data)
                     errorEmbed.setDescription(`An error was encountered with your custom function.\n\`\`\`json\n${JSON.stringify(e.response.data, null, 1)}\n\`\`\``);
-                else
+                else {
+                    bot.logger.log(e);
                     errorEmbed.setDescription("An error occurred trying to run your custom function.");
+                }
                 if(showErrors)
                     message.channel.send(errorEmbed);
                 return false
