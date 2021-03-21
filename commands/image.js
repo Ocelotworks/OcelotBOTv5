@@ -38,14 +38,14 @@ module.exports = {
                 let type = nsfw ? "nsfw" : "sfw";
 
                 if(message.getBool("image.yandex") && !nsfw){
-                    let result = await bot.redis.cache(`images/supplementary/${type}/${query}`, ()=>axios.get(`https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/ImageSearchAPI?q=${encodeURIComponent(query)}&pageNumber=1&pageSize=10&safeSearch=${!nsfw}`, {
+                    let result = await bot.redis.cache(`images/supplementary/${type}/${query}`, async ()=>(await axios.get(`https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/ImageSearchAPI?q=${encodeURIComponent(query)}&pageNumber=1&pageSize=10&safeSearch=${!nsfw}`, {
                         headers: {
                             "x-rapidapi-key": config.get("contextualKey"),
                             "x-rapidapi-host": "contextualwebsearch-websearch-v1.p.rapidapi.com",
                             "useQueryString": true
                         }
-                    }));
-                    images = result.data.value.map((result)=>({
+                    })).data);
+                    images = result.value.map((result)=>({
                         url: result.url,
                         thumbnail: {url: result.thumbnail},
                         description: result.title,
