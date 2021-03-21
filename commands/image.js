@@ -19,6 +19,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
     commands: ["image", "images", "im", "googleimage"],
     vote: true,
+    pointsCost: 2,
     categories: ["image", "search"],
     run: async function (message, args, bot) {
         if (args.length > 1) {
@@ -37,7 +38,7 @@ module.exports = {
                 const nsfw = (!message.guild || message.channel.nsfw);
                 let type = nsfw ? "nsfw" : "sfw";
 
-                if(message.getBool("image.yandex") && !nsfw){
+                if(message.getBool("image.yandex") && !nsfw) {
                     let result = await bot.redis.cache(`images/supplementary/${type}/${query}`, async ()=>(await axios.get(`https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/ImageSearchAPI?q=${encodeURIComponent(query)}&pageNumber=1&pageSize=10&safeSearch=${!nsfw}`, {
                         headers: {
                             "x-rapidapi-key": config.get("contextualKey"),
@@ -50,7 +51,7 @@ module.exports = {
                         thumbnail: {url: result.thumbnail},
                         description: result.title,
                     }));
-                }else {
+                } else {
                     images = await bot.redis.cache(`images/${type}/${query}`, async () => await client.search(query, {safe: nsfw ? "off" : "high"}), 36000)
                     images = images.filter((image) => !image.thumbnail.url.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
 
@@ -58,6 +59,7 @@ module.exports = {
                 if (images.length === 0)
                     return message.replyLang(!message.channel.nsfw ? "IMAGE_NO_IMAGES_NSFW" : "IMAGE_NO_IMAGES");
 
+                const points = (await bot.database.getPoints(message.author.id)).toLocaleString();
 
                 bot.util.standardPagination(message.channel, images, async function (page, index) {
                     let embed = new Discord.MessageEmbed();
@@ -69,23 +71,25 @@ module.exports = {
                     else
                         embed.setImage(page.url);
                     embed.setDescription(page.description);
-                    embed.setFooter(`Page ${index + 1}/${images.length}`);
+                    if(message.getBool("points.enabled"))
+                        embed.setFooter(`${points} • Page ${index + 1}/${images.length}`, "https://cdn.discordapp.com/emojis/817100139603820614.png?v=1");
+                    else
+                        embed.setFooter(`Page ${index + 1}/${images.length}`);
                     return embed;
                 }, true);
             } catch (e) {
                 message.channel.stopTyping(true);
-                if (e.message === "Response code 403 (Forbidden)") {
+                if (e.message === "Response code 403 (Forbidden)")
                     message.replyLang("REMOVEBG_QUOTA");
-                } else {
+                else
                     message.replyLang("GENERIC_ERROR");
-                }
                 bot.logger.error(e);
                 bot.raven.captureException(e);
             } finally {
                 message.channel.stopTyping(true);
             }
         } else {
-            message.channel.send(":bangbang: You must supply a search query. Try **" + args[0] + " cute puppies**")
+            message.channel.send(`:bangbang: You must supply a search query. Try **${args[0]} cute puppies**`)
         }
     }
 };

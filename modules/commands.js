@@ -85,36 +85,42 @@ module.exports = {
                 span.end();
 
                 message.channel.stopTyping();
-                if (commandUsage.vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))) {
-                    if (message.getSetting("restrictionType") === "vote") {
-                        span = bot.util.startSpan("Get last vote time")
-                        let lastVote = await bot.database.getLastVote(message.author.id);
-                        if (lastVote[0])
-                            lastVote = lastVote[0]['MAX(timestamp)'];
+                if(!message.getBool("points.enabled")) {
+                    if (commandUsage.vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))) {
+                        if (message.getSetting("restrictionType") === "vote") {
+                            span = bot.util.startSpan("Get last vote time")
+                            let lastVote = await bot.database.getLastVote(message.author.id);
+                            if (lastVote[0])
+                                lastVote = lastVote[0]['MAX(timestamp)'];
 
-                        let difference = new Date() - lastVote;
-                        console.log("difference is " + difference);
-                        if (difference > bot.util.voteTimeout * 2) {
-                            span.end("Vote Required");
-                            return message.replyLang("COMMAND_VOTE_REQUIRED")
-                        }
-                        span.end();
-                    } else {
-                        span = bot.util.startSpan("Fetch user in support server");
-                        // This is dumb, but I can't avoid this
-                        try {
-                            await (await bot.client.guilds.fetch("322032568558026753")).members.fetch(message.author.id)
+                            let difference = new Date() - lastVote;
+                            console.log("difference is " + difference);
+                            if (difference > bot.util.voteTimeout * 2) {
+                                span.end("Vote Required");
+                                return message.replyLang("COMMAND_VOTE_REQUIRED")
+                            }
                             span.end();
-                        } catch (e) {
-                            span.end("Not in support server");
-                            return message.channel.send("You must join the support server or purchase premium to enable this command. You can join the support server here: https://discord.gg/PTaXZmE")
+                        } else {
+                            span = bot.util.startSpan("Fetch user in support server");
+                            // This is dumb, but I can't avoid this
+                            try {
+                                await (await bot.client.guilds.fetch("322032568558026753")).members.fetch(message.author.id)
+                                span.end();
+                            } catch (e) {
+                                span.end("Not in support server");
+                                return message.channel.send("You must join the support server or purchase premium to enable this command. You can join the support server here: https://discord.gg/PTaXZmE")
+                            }
                         }
                     }
-                }
 
-                if (commandUsage.premium && !(message.getBool("premium") || message.getBool("serverPremium"))) {
-                    span.end("Requires premium");
-                    return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using ${message.getSetting("prefix")}settings disableCommand ${command}`);
+                    if (commandUsage.premium && !(message.getBool("premium") || message.getBool("serverPremium"))) {
+                        span.end("Requires premium");
+                        return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using ${message.getSetting("prefix")}settings disableCommand ${command}`);
+                    }
+                }else if(commandUsage.pointsCost){
+                    const canUse = await bot.database.takePoints(message.author.id, commandUsage.pointsCost, commandUsage.id);
+                    if(!canUse)
+                        return message.channel.send(`This command requires <:points:817100139603820614>**${commandUsage}** points to use. Learn more with ${message.getSetting("prefix")}points`);
                 }
 
                 if (message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1) {

@@ -1188,6 +1188,20 @@ module.exports = {
                 }).into("ocelotbot_points_transactions");
                 return newPoints;
             },
+            async takePoints(user, amount, origin){
+                let currentPoints = await bot.database.getPoints(user);
+                let newPoints = currentPoints - amount;
+                if(newPoints < 0)return false;
+                await knex("ocelotbot_points").update({points: newPoints}).where({user}).limit(1);
+                await knex.insert({
+                    user,
+                    amount,
+                    origin,
+                    balance_before: currentPoints,
+                    balance_after: newPoints
+                }).into("ocelotbot_points_transactions");
+                return true;
+            },
             async getCustomCommand(server, trigger){
                 let result = await knex.select("function").from("ocelotbot_custom_functions").where({server, trigger, type: "COMMAND"}).limit(1);
                 return result[0] ? result[0].function : null;
