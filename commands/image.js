@@ -79,7 +79,7 @@ module.exports = {
                 } else {
                     message.replyLang("GENERIC_ERROR");
                 }
-                console.log(e);
+                bot.logger.error(e);
                 bot.raven.captureException(e);
             } finally {
                 message.channel.stopTyping(true);

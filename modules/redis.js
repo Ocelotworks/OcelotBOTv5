@@ -22,7 +22,7 @@ module.exports = {
 
 
         bot.redis.cache = async function (key, func, ttl = 3600) {
-            return new Promise((fulfill) => {
+            return new Promise((fulfill, reject) => {
                 bot.redis.client.get(key, async (err, data) => {
                     try {
                         if (err || !data) {
@@ -30,8 +30,14 @@ module.exports = {
                             fulfill(freshData);
                             if (err)
                                 bot.logger.warn("redis error: " + err);
-                            else
-                                bot.redis.client.set(key, JSON.stringify(freshData), "EX", ttl);
+                            else {
+                                try {
+                                    bot.redis.client.set(key, JSON.stringify(freshData), "EX", ttl);
+                                }catch(e){
+                                    bot.logger.error(e)
+                                    bot.raven.captureException(e);
+                                }
+                            }
                             bot.stats.cacheMisses++;
                         } else {
                             bot.logger.log("Using cached copy for " + key);
@@ -39,8 +45,9 @@ module.exports = {
                             bot.stats.cacheHits++;
                         }
                     } catch (e) {
-                        console.error(e);
-                        fulfill(await func());
+                        bot.logger.error(e);
+                        bot.raven.captureException(e);
+                        reject(e);
                     }
                 })
             })

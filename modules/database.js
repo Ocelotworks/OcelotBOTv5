@@ -1145,6 +1145,12 @@ module.exports = {
                     response
                 }).into("ocelotbot_ai_conversations");
             },
+            getAiResponse: async function(message) {
+                // Lord Forgive Me
+                let result = await knex.raw(`SELECT response, ABS(LENGTH(message)-LENGTH(?)) as 'distance', MATCH(message) AGAINST (? IN NATURAL LANGUAGE MODE) as 'score' FROM ocelotbot_ai_conversations WHERE MATCH(message) AGAINST (? IN NATURAL LANGUAGE MODE) ORDER BY distance, score DESC LIMIT 10`, [message, message, message]);
+                if(!result[0] || result[0].length === 0)return null;
+                return bot.util.arrayRand(result[0]).response;
+            },
             addRecurringReminder: function (receiver, user, server, channel, message, recurrence) {
                 return knex(REMINDERS_TABLE).insert({
                     receiver,
