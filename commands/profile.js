@@ -211,12 +211,13 @@ module.exports = {
             imageRequest.components.push(bot.util.imageProcessorOutlinedText(profileInfo.caption, TAGLINE_X, TAGLINE_Y, PROFILE_WIDTH-TAGLINE_X, PROFILE_HEIGHT-BODY_X, TAGLINE_SIZE))
 
 
-            const [guildCounts, userStats, voteStats, guessStats, triviaStats] = await Promise.all([
+            const [guildCounts, userStats, voteStats, guessStats, triviaStats, points] = await Promise.all([
                 bot.rabbit.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${target.id}')).size`),
                 bot.database.getUserStats(target.id),
                 bot.database.getVoteCount(target.id),
                 bot.database.getTotalCorrectGuesses(target.id),
                 bot.database.getTriviaCorrectCount(target.id),
+                bot.database.getPoints(target.id)
             ]);
 
 
@@ -246,6 +247,8 @@ module.exports = {
             drawStat(guessStats[0] && guessStats[0]['COUNT(*)'] ? guessStats[0]['COUNT(*)'] : 0, "songs guessed");
             drawStat(triviaStats[0] && triviaStats[0]['count(*)'] ? triviaStats[0]['count(*)'] : 0, "trivia correct");
             drawStat(dateFormat(profileInfo.firstSeen, "dd/mm/yy"), "first command");
+            if(message.getBool("points.enabled"))
+                drawStat("1 "+points.toLocaleString(), "points");
 
             imageRequest.components.push({
                 pos: {
@@ -307,6 +310,18 @@ module.exports = {
                     }
                 }]
             })
+
+            if(message.getBool("points.enabled"))
+                imageRequest.components.push({
+                    pos: {
+                        x: BODY_X + (BODY_WIDTH/2) + 3,
+                        y: BODY_Y + (35)*6,
+                        w: 32,
+                        h: 32,
+                    },
+                    url: "coin.png",
+                    local: true,
+                })
 
             const badges = await bot.database.getProfileBadges(target.id);
             for(let i = 0; i < badges.length; i++){
