@@ -9,7 +9,6 @@ const presenceMessages = [
     {message: "!guess", type: 'LISTENING'},
     {message: "!premium", type: 'LISTENING'},
     {message: "!vote", type: 'LISTENING'},
-    {message: "!guess", type: 'LISTENING'},
     {message: "!suggest", type: 'LISTENING'},
     {message: "Minecraft Parody Songs", type: 'LISTENING'},
     {message: "ASMR", type: 'LISTENING'},
@@ -20,55 +19,17 @@ const presenceMessages = [
     {message: "farts", type: 'LISTENING'},
     {message: "that faint ringing", type: 'LISTENING'},
     {message: "the world burn", type: 'WATCHING'},
-    {message: "!noviews", type: 'WATCHING'},
     {message: "you in the shower", type: 'WATCHING'},
     {message: "your complaints", type: 'LISTENING'},
     {message: "your !feedback", type: 'LISTENING'},
     {message: "staying indoors", type: 'LISTENING'},
-    {message: "Toilet Jake isn't real, he can't hurt you", type: "WATCHING"}
+    {message: "Toilet Jake isn't real, he can't hurt you", type: "WATCHING"},
+    {message: "amogus", type: "WATCHING"},
+    {message: "the imposter", type: "WATCHING"},
 ];
 
 
 let lastWebhook = 0;
-
-
-function getContent(content) {
-    try {
-        if (typeof content !== "string") {
-            if (!content)
-                return "[null]"
-
-            if (content.username)
-                return `[Mention: @${content.tag} (${content.id})]`;
-
-            if (content.title || content.type && content.type === "rich")
-                return `[Embed: ${content.title} - ${content.description}]`;
-
-            if (content.fields)
-                return `[Embed: ${content.fields.map((f) => `${f.name}: ${f.value} `)}]`;
-
-            if (content.reply)
-                return `[Mention: @${content.reply.tag} (${content.reply.id})] ${getContent(content.content)}`;
-
-            if (content.target)
-                return `[Reply to: ${content.data.message_reference.message_id}] ${getContent(content.data)}`;
-
-            if (content.content)
-                return content.content;
-
-            if (content.attachment || content.name)
-                return `[Attachment: ${content.name || content.attachment}]`
-
-            if (content.embed)
-                return getContent(content.embed);
-
-            return JSON.stringify(content);
-        }
-        return content;
-    } catch (e) {
-        return `[Error parsing ${e.message}]`;
-    }
-}
 
 module.exports = {
     name: "Discord.js Integration",
