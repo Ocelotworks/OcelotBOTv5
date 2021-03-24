@@ -48,7 +48,7 @@ module.exports = {
             const watsonResult = await bot.util.getJson("https://ob-watson.d.int.unacc.eu/");
             if(watsonResult && watsonResult.uptimes && watsonResult.uptimes[bot.client.user.id]){
                 const uptime = watsonResult.uptimes[bot.client.user.id];
-                const downtime = watsonResult.downtimes[bot.client.user.id];
+                const downtime = watsonResult.downtimes[bot.client.user.id] || 0;
                 const upSince = watsonResult.lastChanges[bot.client.user.id];
                 const upSeconds = ((new Date())-(new Date(upSince)))/10000
                 uptimeValue = `${bot.util.prettySeconds(upSeconds, message.guild && message.guild.id, message.author.id)} (${(uptime/(uptime+downtime)).toFixed(2)}% Uptime)`;
