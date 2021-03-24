@@ -26,6 +26,14 @@ const presenceMessages = [
     {message: "Toilet Jake isn't real, he can't hurt you", type: "WATCHING"},
     {message: "amogus", type: "WATCHING"},
     {message: "the imposter", type: "WATCHING"},
+    {message: "the Olympics", type: "COMPETING"},
+    {message: "meme posting", type: "COMPETING"},
+    {message: "speed eating", type: "COMPETING"},
+    {message: "creating bugs", type: "COMPETING"},
+    {message: "pee", type: "STREAMING"},
+    {message: "bad music", type: "STREAMING"},
+    {message: "good music", type: "STREAMING"},
+    {message: "hot garbage", type: "STREAMING"},
 ];
 
 
