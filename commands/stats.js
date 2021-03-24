@@ -50,8 +50,8 @@ module.exports = {
                 const uptime = watsonResult.uptimes[bot.client.user.id];
                 const downtime = watsonResult.downtimes[bot.client.user.id] || 0;
                 const upSince = watsonResult.lastChanges[bot.client.user.id];
-                const upSeconds = ((new Date())-(new Date(upSince)))/10000
-                uptimeValue = `${bot.util.prettySeconds(upSeconds, message.guild && message.guild.id, message.author.id)} (${(uptime/(uptime+downtime)).toFixed(2)}% Uptime)`;
+                const upSeconds = ((new Date())-(new Date(upSince)))/1000
+                uptimeValue = `${bot.util.prettySeconds(upSeconds, message.guild && message.guild.id, message.author.id)} (${((uptime/(uptime+downtime))*100).toFixed(2)}% Uptime)`;
             }
         }catch(e){
             bot.logger.error(e);
