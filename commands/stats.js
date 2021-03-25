@@ -22,6 +22,13 @@ module.exports = {
     commands: ["stats", "statistics", "info", "about", "privacy"],
     categories: ["meta"],
     run: async function run(message, args, bot) {
+        if(args[1] && args[1] === "watson"){
+            return message.channel.send(`${args[2]}|${JSON.stringify({
+                version: bot.version,
+                podUptime: process.uptime(),
+                shard: bot.util.shard,
+            })}`);
+        }
         const title = await message.getLang("STATS_VERSION", {version: bot.version});
         const tagline = await message.getLang("STATS_MESSAGE", {instance: `Shard ${shardNames[bot.util.shard] ? "'" + shardNames[bot.util.shard] + "'" : "Unnamed"} (${bot.util.shard + 1}/${process.env.SHARD_COUNT})`});
         const totalUsers = await message.getLang("STATS_TOTAL_USERS");
