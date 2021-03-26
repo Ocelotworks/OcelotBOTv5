@@ -664,7 +664,7 @@ module.exports = {
                     }
                     return bot.util.getImageFromPrevious(message, argument);
                 } else if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
-                    return message.mentions.users.first().displayAvatarURL({dynamic: true, format: "png"});
+                    return message.mentions.users.first().displayAvatarURL({dynamic: true, format: "png", size: 256});
                 } else if (args[2] && args[2].indexOf("http") > -1) {
                     return args[2]
                 } else if (args[1] && args[1].indexOf("http") > -1) {
