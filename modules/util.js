@@ -7,11 +7,9 @@ const axios = require('axios');
 const fs = require('fs');
 const twemoji = require('twemoji-parser');
 const config = require('config');
-const deepai = require('deepai');
 const sentry = require('@sentry/node');
 const zlib = require('zlib');
 const {crc32} = require('crc');
-deepai.setApiKey(config.get("Commands.recolor.key"));
 module.exports = {
     name: "Utilities",
     init: function (bot) {
