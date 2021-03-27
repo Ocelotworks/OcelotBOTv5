@@ -881,6 +881,11 @@ module.exports = {
             getLastVote: function (user) {
                 return knex.select(knex.raw("MAX(timestamp)")).from("ocelotbot_votes").where({user}).limit(1);
             },
+            getLastVoteBySource: async function (user, source) {
+                let result = await knex.select(knex.raw("MAX(timestamp)")).from("ocelotbot_votes").where({user, source}).limit(1);
+                if(result[0])return result[0]['MAX(timestamp)'];
+                return null;
+            },
             getEligbleBadge: function (user, series, count) {
                 return knex.select()
                     .from(BADGES_TABLE)
@@ -1131,6 +1136,9 @@ module.exports = {
             },
             getBotlistsWithStats: function () {
                 return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1});
+            },
+            getBotlistsWithVoteRewards: function(){
+                return knex.select().from("ocelotbot_botlists").whereNotNull("pointsReward").andWhere({enabled: 1}).orderBy("pointsReward", "DESC");
             },
             getBotlistUrl: async function (id) {
                 let url = await knex.select("botUrl").from("ocelotbot_botlists").where({id}).orWhere({id: 'topgg'}).limit(1);
