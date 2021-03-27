@@ -1430,6 +1430,7 @@ module.exports = {
         }
 
 
+
         bot.util.serialiseUser = function serialiseUser(user) {
             return {
                 avatar: user.avatarURL({size: 32, format: "png"}),
@@ -1447,13 +1448,15 @@ module.exports = {
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
+                roles: member.roles.cache,
             }
         }
 
         bot.util.serialiseChannel = function serialiseChannel(channel) {
             return {
                 id: channel.id,
-                name: channel.name
+                name: channel.name,
+                type: channel.type,
             }
         }
 
