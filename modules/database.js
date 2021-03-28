@@ -1137,6 +1137,9 @@ module.exports = {
             getBotlistsWithStats: function () {
                 return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1});
             },
+            getSingleBotlist: async function(index){
+                return (await knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1}).limit(1).offset(index))[0];
+            },
             getBotlistsWithVoteRewards: function(){
                 return knex.select().from("ocelotbot_botlists").whereNotNull("pointsReward").andWhere({enabled: 1}).orderBy("pointsReward", "DESC");
             },
