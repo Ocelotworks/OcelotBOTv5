@@ -1210,6 +1210,17 @@ module.exports = {
                 }).into("ocelotbot_points_transactions");
                 return true;
             },
+            getPointsChallenges(){
+                const now = new Date();
+                return knex.select()
+                    .from("ocelotbot_points_challenges")
+                    .where("begin", "<=", now)
+                    .andWhere("end", ">", now)
+                    .innerJoin("ocelotbot_points_challenge_types", "ocelotbot_points_challenges.challenge_type", "ocelotbot_points_challenge_types.id")
+            },
+            getCompletedChallenges(user, challenges){
+                return knex.select().from("ocelotbot_points_challenge_log").whereIn("challenge", challenges).andWhere({user});
+            },
             async getCustomCommand(server, trigger){
                 let result = await knex.select("function").from("ocelotbot_custom_functions").where({server, trigger, type: "COMMAND"}).limit(1);
                 return result[0] ? result[0].function : null;
