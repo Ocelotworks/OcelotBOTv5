@@ -14,11 +14,11 @@ module.exports = {
         }
 
         const term = args.slice(1).join(" ");
-        let loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
+        let loadingMessage = await message.replyLang("GENERIC_PROCESSING");
         let response = await bot.rabbit.rpc("imageFilter", {url: term, filter: "bigtext"});
 
         if(loadingMessage) {
-            await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
+            await message.editLang("GENERIC_UPLOADING");
         }
 
         if (response.err) {

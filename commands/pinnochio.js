@@ -8,8 +8,7 @@ module.exports = {
     unwholesome: true,
     run:  function(message, args, bot){
         if(!args[1]){
-            message.replyLang("IMAGE_NO_TEXT");
-            return;
+            return  message.replyLang("IMAGE_NO_TEXT");
         }
 
         return bot.util.imageProcessor(message, {

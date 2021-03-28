@@ -27,7 +27,7 @@ module.exports = {
                        if(!data.success){
                            if(data.error){
                                if(data.error.info){
-                                   if(data.error.info.indexOf("subscription") > -1){
+                                   if(data.error.info.indexOf("Subscription") > -1){
                                         message.channel.send(`Screenshot quota has been reached for this month. If you would like to help me raise this quota, consider ${message.getSetting("prefix")}premium`)
                                    }else {
                                        message.channel.send(data.error.info);

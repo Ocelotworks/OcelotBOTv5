@@ -417,7 +417,7 @@ module.exports = {
             let loadingMessage;
             let loadingMessageDelay = setTimeout(async () => {
                 message.channel.stopTyping(true);
-                loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
+                loadingMessage = await message.replyLang("GENERIC_PROCESSING");
             }, 3000)
             message.channel.startTyping();
             let key = crc32(JSON.stringify(request)).toString(32);
@@ -429,7 +429,7 @@ module.exports = {
             span.end();
             if (loadingMessage) {
                 span = bot.util.startSpan("Edit loading message");
-                await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
+                await loadingMessage.editLang("GENERIC_UPLOADING");
                 span.end();
             }
             if (response.err) {
@@ -1515,12 +1515,12 @@ module.exports = {
             }catch(e){
                 let errorEmbed = new Discord.MessageEmbed()
                 errorEmbed.setColor("#ff0000")
-                errorEmbed.setTitle(":warning: Execution Error");
+                errorEmbed.setTitle(await message.getLang("CUSTOM_COMMAND_ERROR_TITLE"));
                 if(e.response && e.response.data)
-                    errorEmbed.setDescription(`An error was encountered with your custom function.\n\`\`\`json\n${JSON.stringify(e.response.data, null, 1)}\n\`\`\``);
+                    errorEmbed.setDescription(await message.getLang("CUSTOM_COMMAND_ERROR", {error: JSON.stringify(e.response.data, null, 1)}));
                 else {
                     bot.logger.log(e);
-                    errorEmbed.setDescription("An error occurred trying to run your custom function.");
+                    errorEmbed.setDescription(await message.getLang("CUSTOM_COMMAND_INTERNAL_ERROR"))
                 }
                 if(showErrors)
                     message.channel.send(errorEmbed);

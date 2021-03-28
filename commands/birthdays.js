@@ -20,18 +20,22 @@ module.exports = {
 
         await bot.util.standardNestedCommand(message, args, bot, "birthdays", null, async function () {
             if (message.mentions.users.size === 0)
-                return message.channel.send(`To find a users birthday, you must @mention them. For more usage, type ${args[0]} help`);
+                return message.replyLang("BIRTHDAY_USAGE", {arg: args[0]});
             let target = message.mentions.users.first();
             let birthday = await bot.database.getBirthday(target.id, message.guild.id);
             if (!birthday)
-                return message.channel.send(`That user doesn't have a birthday set up! If you know it, do ${args[0]} add`);
+                return message.replyLang("BIRTHDAY_NOT_FOUND", {arg: args[0]})
             const now = new Date();
             let d = birthday.birthday;
             d.setYear(now.getFullYear());
             if(d <= now)
                 d.setYear(now.getFullYear()+1);
 
-            message.channel.send(`${target}'s birthday is the **${bot.util.getNumberPrefix(d.getDate())} of ${bot.util.months[d.getMonth()]}**\n That's in ${bot.util.prettySeconds((d - now) / 1000)}`);
+            message.replyLang("BIRTHDAY", {
+                target, day: bot.util.getNumberPrefix(d.getDate()),
+                month: bot.util.months[d.getMonth()],
+                time: bot.util.prettySeconds((d - now) / 1000, message.guild.id, message.author.id)
+            })
         });
     }
 };

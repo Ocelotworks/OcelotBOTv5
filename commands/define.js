@@ -17,7 +17,7 @@ module.exports = {
 
         let data = await bot.util.getJson(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${encodeURIComponent(term)}?key=${key}`);
         if(!data || data.length === 0)
-            return message.channel.send("No results.");
+            return message.replyLang("DEFINE_NO_DEFINITION");
         await bot.util.standardPagination(message.channel, data, async function(result){
             const embed = new Discord.MessageEmbed();
 
