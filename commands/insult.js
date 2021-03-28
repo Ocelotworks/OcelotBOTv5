@@ -37,7 +37,7 @@ module.exports = {
         if(mention && customInsults[mention.id]){
             message.channel.send(`<@${mention.id}>, ${bot.util.arrayRand(customInsults[mention.id])}`);
         }else if(args[1].toLowerCase() === "@everyone"){
-            message.channel.send("You are a fucking idiot and you should never @everyone on this discord again and I'm fucking serious. I almost have a feeling you're the only guy making all these @everyone pings because you're a dumbass who likes to be annoying and @everyone for the LULZ and get a reaction out of @everyone . Fuck you, be good at something in YOUR life and then maybe try to troll these fucking idiots on discord, like I give a fuck. It's so easy to spot out your @everyone now, you're a retard. Always doing stupid shit like this. Why don't you try to be a good user? Just for once not @everyone ? For once in your fucking life try not to @everyone on this discord. That's just you, you're always right at getting it wrong. Fuck you. You are nothing.");
+            return message.replyLang("INSULT_EVERYONE");
         }else if(args[1].toLowerCase() === bot.client.user.username.toLowerCase() ||
             args[1].indexOf(bot.client.user.id) > -1 ||
             (message.guild && message.guild.me.nickname && args[1].toLowerCase() === message.guild.me.nickname.toLowerCase())){

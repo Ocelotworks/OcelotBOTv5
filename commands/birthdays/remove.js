@@ -27,11 +27,11 @@ module.exports = {
                     }
                 }
                 if (!found) {
-                    return message.channel.send("Couldn't find user, @ them or try a different search");
+                    return message.replyLang("BIRTHDAY_REMOVE_NOT_FOUND");
                 }
             }
         } else if (args.length > 2) {
-            return message.channel.send("You must have the Manage Channels permission to remove other people's birthdays.")
+            return message.replyLang("BIRTHDAY_REMOVE_PERMISSION");
         }
         await bot.database.removeBirthday(target.id, message.guild.id);
         return message.replyLang("BIRTHDAY_REMOVE_SUCCESS", {user: target});

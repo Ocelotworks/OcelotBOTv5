@@ -49,17 +49,14 @@ module.exports = {
                         leaderboardData = await bot.database.getTriviaLeaderboard();
                     }
 
-                    const userKey = bot.lang.getTranslation(message.guild.id, "TRIVIA_USER");
-                    const scoreKey = bot.lang.getTranslation(message.guild.id, "TRIVIA_SCORE");
-                    const correctKey = bot.lang.getTranslation(message.guild.id, "TRIVIA_CORRECT");
-                    const unknownUserKey = bot.lang.getTranslation(message.guild.id, "TRIVIA_UNKNOWN_USER");
+                    const userKey = await message.getLang( "TRIVIA_USER");
+                    const scoreKey = await message.getLang( "TRIVIA_SCORE");
+                    const correctKey = await message.getLang( "TRIVIA_CORRECT");
+                    const unknownUserKey = await message.getLang("TRIVIA_UNKNOWN_USER");
 
                     let i = 0;
                     let data = [];
                     let position = -1;
-
-
-
 
                     await pasync.eachSeries(leaderboardData, async function processLeaderboard(entry, cb){
                         i++;
@@ -88,7 +85,7 @@ module.exports = {
                         else cb();
                     });
                     if(args[2] && args[2].toLowerCase() === "daily"){
-                        message.channel.send("There's no daily leaderboard queen, fuck");
+                        return message.replyLang("TRIVIA_LEADERBOARD_DAILY");
                     }else {
                         message.replyLang("TRIVIA_LEADERBOARD_LIST" + (args[2] ? "_MONTHLY" : ""), {
                             user: message.author.id,
@@ -109,8 +106,7 @@ module.exports = {
                     return;
                 }
                 if(message.getSetting("trivia.singleOnly") && runningGames.indexOf(message.channel.id) > -1){
-                    message.channel.send(":warning: Only one trivia game can run at a time");
-                    return;
+                    return message.replyLang("TRIVIA_SINGLE");
                 }
                 bot.tasks.startTask("trivia", message.id);
                 message.channel.startTyping();
@@ -143,23 +139,23 @@ module.exports = {
 
                             let embed = new Discord.MessageEmbed();
 
-                            embed.setTitle(await bot.lang.getTranslation(message.guild.id, "TRIVIA_SECONDS", {seconds: message.getSetting("trivia.seconds")}));
+                            embed.setTitle(await message.getLang("TRIVIA_SECONDS", {seconds: message.getSetting("trivia.seconds")}));
                             embed.setDescription(decodeURIComponent(question.question));
-                            embed.setAuthor(await bot.lang.getTranslation(message.guild.id, "TRIVIA_CATEGORY", {category: decodeURIComponent(question.category)}));
+                            embed.setAuthor(await message.getLang("TRIVIA_CATEGORY", {category: decodeURIComponent(question.category)}));
                             embed.setColor(difficultyColours[question.difficulty]);
 
                             if(isBoolean){
                                 embed.addField(
-                                    await bot.lang.getTranslation(message.guild.id, "TRIVIA_FOR", {answer: "TRUE"}),
-                                    await bot.lang.getTranslation(message.guild.id, "TRIVIA_REACT", {reaction: ":white_check_mark:"}), true);
+                                     await message.getLang("TRIVIA_FOR", {answer: "TRUE"}),
+                                     await message.getLang("TRIVIA_REACT", {reaction: ":white_check_mark:"}), true);
                                 embed.addField(
-                                    await bot.lang.getTranslation(message.guild.id, "TRIVIA_FOR", {answer: "FALSE"}),
-                                    await bot.lang.getTranslation(message.guild.id, "TRIVIA_REACT", {reaction: ":negative_squared_cross_mark:"}), true)
+                                     await message.getLang("TRIVIA_FOR", {answer: "FALSE"}),
+                                     await message.getLang("TRIVIA_REACT", {reaction: ":negative_squared_cross_mark:"}), true)
                             }else{
                                 for(let i = 0; i < answers.length; i++){
                                     embed.addField(
-                                        await bot.lang.getTranslation(message.guild.id, "TRIVIA_FOR", {answer: decodeURIComponent(answers[i])}),
-                                        await bot.lang.getTranslation(message.guild.id, "TRIVIA_REACT", {reaction: numbers[i]}), true)
+                                        await message.getLang("TRIVIA_FOR", {answer: decodeURIComponent(answers[i])}),
+                                        await message.getLang("TRIVIA_REACT", {reaction: numbers[i]}), true)
                                 }
                             }
 
@@ -246,7 +242,7 @@ module.exports = {
                                     }
 
                                     if(cheaters.length > 0)
-                                        output += `\n${cheaters.length} ${cheaters.length === 1 ? "person" : "people"} tried to cheat.\nhttps://tenor.com/view/shame-go-t-game-of-thrones-walk-of-shame-shameful-gif-4949558`
+                                        output += `\n${await message.getLang(cheaters.length > 1 ? "TRIVIA_CHEAT_MULTIPLE" : "TRIVIA_CHEAT_SINGLE", {count: cheaters.length})}`
 
                                     message.channel.send(output);
                                     bot.tasks.endTask("trivia", message.id);

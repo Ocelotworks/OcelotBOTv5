@@ -3,14 +3,14 @@ module.exports = {
     usage: "add command/autorespond <trigger> <code>",
     commands: ["add", "new", "create"],
     run: async function (message, args, bot) {
-        if(!args[2])return message.channel.send("Invalid usage, you must specify a function type. Either 'command' or 'autorespond'.");
+        if(!args[2]) return message.replyLang("CUSTOM_USAGE");
         let type = args[2].toUpperCase();
         if(["COMMAND", "AUTORESPOND"].includes(type)){
-            if(!args[3])return message.channel.send("Invalid usage, you must specify a trigger word");
+            if(!args[3])return message.replyLang("CUSTOM_USAGE_TRIGGER_WORD");
             let trigger = args[3].toLowerCase().split("\n")[0];
-            if(type === "COMMAND" && trigger.startsWith(message.getSetting("prefix")))return message.channel.send("You do not need to include the prefix in your trigger.");
-            if(type === "COMMAND" && bot.commands[trigger])return message.channel.send("You cannot override built-in commands with custom commands.");
-            if(type === "COMMAND" && await bot.database.getCustomCommand(message.guild.id, trigger))return message.channel.send(`A custom command with that trigger already exists, to edit it use ${args[0]} edit`);
+            if(type === "COMMAND" && trigger.startsWith(message.getSetting("prefix")))return message.replyLang("CUSTOM_TRIGGER_PREFIX");
+            if(type === "COMMAND" && bot.commands[trigger])return message.replyLang("CUSTOM_TRIGGER_BUILTIN");
+            if(type === "COMMAND" && await bot.database.getCustomCommand(message.guild.id, trigger))return message.replyLang("CUSTOM_TRIGGER_EXISTS", {arg: args[0]});
 
             let start = message.content.indexOf("```lua")
             let end = message.content.length - 4;
@@ -34,11 +34,9 @@ module.exports = {
             else
                 bot[responseType][message.guild.id] = {[trigger]: code}
 
-            if(type === "COMMAND")
-                return message.channel.send(`✅ Custom command added! **${message.getSetting("prefix")}${trigger}** will now trigger the function.`);
-            return message.channel.send(`✅ Custom autorespond added! Messages containing **${trigger}** will now trigger the function.`);
+            return message.replyLang(`CUSTOM_${type}_SUCCESS`, {trigger});
         }else{
-            return message.channel.send("Function type must be either 'command' or 'autorespond'.")
+            return message.replyLang("CUSTOM_USAGE");
         }
     }
 }

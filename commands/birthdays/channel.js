@@ -23,10 +23,11 @@ module.exports = {
 
         if (args[2] && args[2].toLowerCase() === "clear") {
             await bot.config.set(message.guild.id, "birthday.channel", null);
+            message.replyLang("BIRTHDAY_CHANNEL_DISABLED");
             message.channel.send("The Birthdays channel has been disabled.");
         } else {
             await bot.config.set(message.guild.id, "birthday.channel", target);
-            message.channel.send(`The Birthdays channel has been set to <#${target}>. At 10AM GMT, any birthdays on that day will be announced! To disable this, do **${args[0]} ${args[1]} clear**`)
+            message.replyLang("BIRTHDAY_CHANNEL_SET", {target, command: args[0], arg: args[1]})
         }
     }
 };
@@ -46,9 +47,9 @@ async function processChannels(bot) {
             let birthdayChannel = await bot.client.channels.fetch(birthdayChannelId);
             const age = nowYear - new Date(birthday.birthday).getFullYear();
             if (age > 13) {
-                birthdayChannel.send(`:tada: Today is <@${birthday.user}>'s ${bot.util.getNumberPrefix(age)} birthday!`);
+                birthdayChannel.sendLang("BIRTHDAY_MESSAGE_AGE", {user: birthday.user, age: bot.util.getNumberPrefix(age)})
             } else {
-                birthdayChannel.send(`:tada: Today is <@${birthday.user}>'s birthday!`);
+                birthdayChannel.sendLang("BIRTHDAY_MESSAGE", {user: birthday.user})
             }
         } catch (e) {
             bot.raven.captureException(e);
