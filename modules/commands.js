@@ -37,7 +37,7 @@ module.exports = {
         })
 
         bot.client.on("message", function onMessage(message) {
-            if (bot.drain || message.author.bot) return;
+            if (bot.drain || (message.author.bot && message.author.id !== "824045686600368189")) return;
             return bot.runCommand(message);
         });
 

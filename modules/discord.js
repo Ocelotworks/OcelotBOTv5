@@ -466,6 +466,48 @@ module.exports = {
             }
         })
 
+        bot.api.get('/guild/:id/channels', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                res.json(guild.channels.cache.map((c)=>bot.util.serialiseChannel(c)));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
+        bot.api.get('/guild/:id/emoji', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                res.json(guild.emojis.cache.map((e)=>({id: e.id, url: e.url, name: e.name})));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
+        bot.api.get('/guild/:id/members', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                const members = await guild.members.fetch({cache: false});
+                res.json(members.map((m)=>bot.util.serialiseMember(m)));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
+        bot.api.get('/guild/:id/member/:member', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                const member = await guild.members.fetch({user: req.params.member, cache: false});
+                res.json(bot.util.serialiseMember(member));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
         bot.logger.log("Logging in to Discord...");
         bot.client.login();
     }
