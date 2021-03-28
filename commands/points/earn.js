@@ -22,6 +22,7 @@ module.exports = {
         }
         output += `<:points:817100139603820614> **Earn 10 winning a ${message.getSetting("prefix")}guess game (+15 for a new record)**\n`
         output += `<:points:817100139603820614> **Earn up to 5 winning a ${message.getSetting("prefix")}trivia game**\n`
+        output += `<:points:817100139603820614> **Earn 100 points for referring a server with your ${message.getSetting("prefix")}invite code**\n`
         embed.setColor("#03F783");
         embed.setAuthor(message.author.username, message.author.avatarURL());
         embed.setDescription(output);
