@@ -16,14 +16,9 @@ module.exports = {
 
         const now = new Date();
 
-        let header;
-        if (message.getSetting("birthday.channel")) {
-            header = `:information_source: Birthday reminders will be sent in <#${message.getSetting("birthday.channel")}>`
-        } else {
-            header = `:information_source: You can get a message every time it's someones birthday with **${args[0]} setchannel**\n`
-        }
+        let header = await message.getLang(message.getSetting("birthday.channel") ? "BIRTHDAY_CHANNEL" : "BIRTHDAY_CHANNEL_NAG", {channel: message.getSetting("birthday.channel"), arg: args[0]});
 
-        header += "```asciidoc\n";
+        header += "\n```asciidoc\n";
 
         allBirthdays = allBirthdays.map((birthday) => {
             let d = birthday.birthday; //Yes

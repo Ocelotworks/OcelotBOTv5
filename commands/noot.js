@@ -32,7 +32,7 @@ module.exports = {
                     if (err) {
                         bot.logger.log(err);
                         bot.raven.captureException(err);
-                        message.channel.send("An error occurred. Try again later.");
+                        return message.replyLang("GENERIC_ERROR");
 
                     } else {
                         let noot = args[1] && !isNaN(args[1]) ? parseInt(args[1]) : nootCount++ % files.length;

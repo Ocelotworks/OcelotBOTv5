@@ -18,7 +18,7 @@ module.exports = {
         let response = await bot.rabbit.rpc("imageFilter", {url: term, filter: "bigtext"});
 
         if(loadingMessage) {
-            await message.editLang("GENERIC_UPLOADING");
+            await loadingMessage.editLang("GENERIC_UPLOADING");
         }
 
         if (response.err) {
