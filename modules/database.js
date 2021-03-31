@@ -258,16 +258,18 @@ module.exports = {
              * @param {ChannelID} channel The channel ID
              * @param {Number} at The unix timestamp in milliseconds to trigger the reminder
              * @param {String} message The reminder message
+             * @param messageID
              * @returns {*}
              */
-            addReminder: function addReminder(receiver, user, server, channel, at, message) {
+            addReminder: function addReminder(receiver, user, server, channel, at, message, messageID) {
                 return knex.insert({
-                    receiver: receiver,
-                    user: user,
-                    server: server,
-                    channel: channel,
+                    receiver,
+                    user,
+                    server,
+                    channel,
                     at: knex.raw(`FROM_UNIXTIME(${at / 1000})`),
-                    message: message
+                    message,
+                    messageID,
                 }).into(REMINDERS_TABLE);
             },
             /**
@@ -1136,6 +1138,9 @@ module.exports = {
             },
             getBotlistsWithStats: function () {
                 return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1});
+            },
+            getSingleBotlist: async function(index){
+                return (await knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1}).limit(1).offset(index))[0];
             },
             getBotlistsWithVoteRewards: function(){
                 return knex.select().from("ocelotbot_botlists").whereNotNull("pointsReward").andWhere({enabled: 1}).orderBy("pointsReward", "DESC");

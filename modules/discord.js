@@ -468,6 +468,7 @@ module.exports = {
 
         bot.api.get('/guild/:id/channels', async (req, res) => {
             try {
+                console.log(req.params);
                 const guild = await bot.client.guilds.fetch(req.params.id);
                 res.json(guild.channels.cache.map((c)=>bot.util.serialiseChannel(c)));
             } catch (err) {
