@@ -34,11 +34,11 @@ module.exports = {
     name: "Bot List Management",
     enabled: true,
     init: function init(bot) {
-        bot.client.on("guildCreate", async function (guild) {
-            if (bot.client.user.id !== "146293573422284800") return;
-            if (!guild.available) return;
-            return module.exports.updateBotLists(bot)
-        });
+        // bot.client.on("guildCreate", async function (guild) {
+        //     if (bot.client.user.id !== "146293573422284800") return;
+        //     if (!guild.available) return;
+        //     return module.exports.updateBotLists(bot)
+        // });
 
         bot.client.on("ready", ()=>{
             if (bot.client.user.id !== "146293573422284800" || bot.util.shard > 0) return;
