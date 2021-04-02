@@ -69,7 +69,7 @@ module.exports = {
                     })
 
                     bot.lavaqueue.updateDockerContainers();
-                }, 36000);
+                }, 300000);
             }
         });
 
