@@ -19,22 +19,6 @@ module.exports = {
 
                 const clients = [
                     {
-                        id: "1",
-                        host: "lavalink-1.ocelotbot.xyz",
-                        port: 2333,
-                        password: config.get("Lavalink.password"),
-                        reconnectInterval: 1000,
-                        resumeKey,
-                    },
-                    {
-                        id: "2",
-                        host: "lavalink-2.ocelotbot.xyz",
-                        port: 80,
-                        password: config.get("Lavalink.password"),
-                        reconnectInterval: 1000,
-                        resumeKey,
-                    },
-                    {
                         id: "guess",
                         host: "lavalink-3.ocelotbot.xyz",
                         port: 80,
@@ -85,7 +69,7 @@ module.exports = {
                     })
 
                     bot.lavaqueue.updateDockerContainers();
-                }, 36000);
+                }, 300000);
             }
         });
 
@@ -143,10 +127,11 @@ module.exports = {
             }
         };
 
-        bot.lavaqueue.playOneSong = async function playOneSong(voiceChannel, song, node = "1") {
+        bot.lavaqueue.playOneSong = async function playOneSong(voiceChannel, song, node) {
             // if(voiceChannel.guild && voiceChannel.guild.id === "622757587489914880")
             //    song = "https://cdn.discordapp.com/attachments/626353784888754177/767805301260025896/websdr_recording_start_2020-10-19T17_41_42Z_7055.0kHz.wav";
             bot.lavaqueue.cancelLeave(voiceChannel);
+            if(!node)node = bot.lavaqueue.manager.idealNodes[0].id;
             bot.tasks.startTask("playOneSong", voiceChannel.id);
             let span = bot.util.startSpan("Join Voice Channel", "voice");
             let player = await bot.lavaqueue.manager.join({
@@ -185,7 +170,7 @@ module.exports = {
                 bot.lavaqueue.manager.nodes.forEach((connectedNode) => {
                     if (connectedNode.id.startsWith("docker-") && !dockerHosts.includes(connectedNode.id.split("-")[1])) {
                         bot.logger.log(`Node ${connectedNode.id} doesn't exist anymore.`);
-                        bot.lavaqueue.manager.removeNode(connectecdNode.id);
+                        bot.lavaqueue.manager.removeNode(connectedNode.id);
                     }
                 })
 
