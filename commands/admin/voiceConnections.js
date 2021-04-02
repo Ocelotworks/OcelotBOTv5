@@ -21,7 +21,7 @@ module.exports = {
                 playing: node.stats.playingPlayers,
                 total: node.stats.players,
                 memory: bot.util.prettyMemory(node.stats.memory.used),
-                cpu: node.stats.cpu.lavalinkLoad.toFixed(2),
+                cpu: node.stats.cpu.systemLoad.toFixed(2),
             });
         });
         bot.lavaqueue.manager.players.forEach((player) => {
