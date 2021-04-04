@@ -9,7 +9,6 @@ const presenceMessages = [
     {message: "!guess", type: 'LISTENING'},
     {message: "!premium", type: 'LISTENING'},
     {message: "!vote", type: 'LISTENING'},
-    {message: "!guess", type: 'LISTENING'},
     {message: "!suggest", type: 'LISTENING'},
     {message: "Minecraft Parody Songs", type: 'LISTENING'},
     {message: "ASMR", type: 'LISTENING'},
@@ -20,55 +19,25 @@ const presenceMessages = [
     {message: "farts", type: 'LISTENING'},
     {message: "that faint ringing", type: 'LISTENING'},
     {message: "the world burn", type: 'WATCHING'},
-    {message: "!noviews", type: 'WATCHING'},
     {message: "you in the shower", type: 'WATCHING'},
     {message: "your complaints", type: 'LISTENING'},
     {message: "your !feedback", type: 'LISTENING'},
     {message: "staying indoors", type: 'LISTENING'},
-    {message: "Toilet Jake isn't real, he can't hurt you", type: "WATCHING"}
+    {message: "Toilet Jake isn't real, he can't hurt you", type: "WATCHING"},
+    {message: "amogus", type: "WATCHING"},
+    {message: "the imposter", type: "WATCHING"},
+    {message: "the Olympics", type: "COMPETING"},
+    {message: "meme posting", type: "COMPETING"},
+    {message: "speed eating", type: "COMPETING"},
+    {message: "creating bugs", type: "COMPETING"},
+    {message: "pee", type: "STREAMING"},
+    {message: "bad music", type: "STREAMING"},
+    {message: "good music", type: "STREAMING"},
+    {message: "hot garbage", type: "STREAMING"},
 ];
 
 
 let lastWebhook = 0;
-
-
-function getContent(content) {
-    try {
-        if (typeof content !== "string") {
-            if (!content)
-                return "[null]"
-
-            if (content.username)
-                return `[Mention: @${content.tag} (${content.id})]`;
-
-            if (content.title || content.type && content.type === "rich")
-                return `[Embed: ${content.title} - ${content.description}]`;
-
-            if (content.fields)
-                return `[Embed: ${content.fields.map((f) => `${f.name}: ${f.value} `)}]`;
-
-            if (content.reply)
-                return `[Mention: @${content.reply.tag} (${content.reply.id})] ${getContent(content.content)}`;
-
-            if (content.target)
-                return `[Reply to: ${content.data.message_reference.message_id}] ${getContent(content.data)}`;
-
-            if (content.content)
-                return content.content;
-
-            if (content.attachment || content.name)
-                return `[Attachment: ${content.name || content.attachment}]`
-
-            if (content.embed)
-                return getContent(content.embed);
-
-            return JSON.stringify(content);
-        }
-        return content;
-    } catch (e) {
-        return `[Error parsing ${e.message}]`;
-    }
-}
 
 module.exports = {
     name: "Discord.js Integration",
@@ -493,6 +462,49 @@ module.exports = {
             try {
                 return res.json(await bot.client.users.fetch(req.params.id))
             } catch (err) {
+                return res.json({err})
+            }
+        })
+
+        bot.api.get('/guild/:id/channels', async (req, res) => {
+            try {
+                console.log(req.params);
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                res.json(guild.channels.cache.map((c)=>bot.util.serialiseChannel(c)));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
+        bot.api.get('/guild/:id/emoji', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                res.json(guild.emojis.cache.map((e)=>({id: e.id, url: e.url, name: e.name})));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
+        bot.api.get('/guild/:id/members', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                const members = await guild.members.fetch({cache: false});
+                res.json(members.map((m)=>bot.util.serialiseMember(m)));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
+        bot.api.get('/guild/:id/member/:member', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                const member = await guild.members.fetch({user: req.params.member, cache: false});
+                res.json(bot.util.serialiseMember(member));
+            } catch (err) {
+                console.log(err);
                 return res.json({err})
             }
         })

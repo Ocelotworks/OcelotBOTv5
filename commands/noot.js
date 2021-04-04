@@ -23,7 +23,7 @@ module.exports = {
         } else if (!message.member.voice.channel.speakable) {
             message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         } else if (await bot.database.hasActiveSession(message.guild.id)) {
-            message.channel.send("The bot is currently playing music. Please wait for the queue to end to start nooting");
+            message.channel.send(`The bot is currently playing music. Please wait for the queue or type ${message.getSetting("prefix")}music stop to end to start nooting`);
         } else {
             try {
                 bot.logger.log("Joining voice channel " + message.member.voice.channel.name);
@@ -32,7 +32,7 @@ module.exports = {
                     if (err) {
                         bot.logger.log(err);
                         bot.raven.captureException(err);
-                        message.channel.send("An error occurred. Try again later.");
+                        return message.replyLang("GENERIC_ERROR");
 
                     } else {
                         let noot = args[1] && !isNaN(args[1]) ? parseInt(args[1]) : nootCount++ % files.length;

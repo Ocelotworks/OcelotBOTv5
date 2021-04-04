@@ -19,8 +19,10 @@ module.exports = {
         async function logVote(user, voteServer, channel, source) {
             bot.logger.log(`Vote Source: ${source}`);
 
-
-            await bot.database.addPoints(user, 10, `vote`);
+            const botList = await bot.database.getBotlist(source);
+            if(botList[0] && botList[0].pointsReward) {
+                await bot.database.addPoints(user, botList[0].pointsReward, `vote (${source})`);
+            }
 
             let lastVote = await bot.database.getLastVote(user);
             if (lastVote[0])

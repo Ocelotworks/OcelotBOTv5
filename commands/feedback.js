@@ -54,7 +54,7 @@ module.exports = {
                 return;
             }
             if(message.getBool("feedback.banned"))
-                return message.channel.send("You are unable to send feedback messages.");
+                return message.replyLang("FEEDBACK_BANNED");
             bot.lastFeedbackChannel = message.channel.id;
             message.replyLang("FEEDBACK_SUCCESS");
             if(!message.getBool("feedback.shadowbanned")) {

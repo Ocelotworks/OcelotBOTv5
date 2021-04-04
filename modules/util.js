@@ -7,11 +7,9 @@ const axios = require('axios');
 const fs = require('fs');
 const twemoji = require('twemoji-parser');
 const config = require('config');
-const deepai = require('deepai');
 const sentry = require('@sentry/node');
 const zlib = require('zlib');
 const {crc32} = require('crc');
-deepai.setApiKey(config.get("Commands.recolor.key"));
 module.exports = {
     name: "Utilities",
     init: function (bot) {
@@ -419,7 +417,7 @@ module.exports = {
             let loadingMessage;
             let loadingMessageDelay = setTimeout(async () => {
                 message.channel.stopTyping(true);
-                loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
+                loadingMessage = await message.replyLang("GENERIC_PROCESSING");
             }, 3000)
             message.channel.startTyping();
             let key = crc32(JSON.stringify(request)).toString(32);
@@ -431,7 +429,7 @@ module.exports = {
             span.end();
             if (loadingMessage) {
                 span = bot.util.startSpan("Edit loading message");
-                await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
+                await loadingMessage.editLang("GENERIC_UPLOADING");
                 span.end();
             }
             if (response.err) {
@@ -664,7 +662,7 @@ module.exports = {
                     }
                     return bot.util.getImageFromPrevious(message, argument);
                 } else if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
-                    return message.mentions.users.first().displayAvatarURL({dynamic: true, format: "png"});
+                    return message.mentions.users.first().displayAvatarURL({dynamic: true, format: "png", size: 256});
                 } else if (args[2] && args[2].indexOf("http") > -1) {
                     return args[2]
                 } else if (args[1] && args[1].indexOf("http") > -1) {
@@ -1430,6 +1428,7 @@ module.exports = {
         }
 
 
+
         bot.util.serialiseUser = function serialiseUser(user) {
             return {
                 avatar: user.avatarURL({size: 32, format: "png"}),
@@ -1447,13 +1446,15 @@ module.exports = {
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
+                roles: member.roles.cache,
             }
         }
 
         bot.util.serialiseChannel = function serialiseChannel(channel) {
             return {
                 id: channel.id,
-                name: channel.name
+                name: channel.name,
+                type: channel.type,
             }
         }
 
@@ -1480,29 +1481,53 @@ module.exports = {
             }
         }
 
-        bot.util.runCustomFunction = async function(code, message){
+
+        let customTypes = {};
+
+        fs.readdir(__dirname+"/../custom", (err, files)=>{
+            if(err)return bot.logger.error(err);
+            for(let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    let customType = require(__dirname+'/../custom/' + file);
+                    bot.logger.log(`Loading type ${customType.type}`)
+                    customTypes[customType.type] = customType.run;
+                }catch(e){
+                    bot.logger.error(e);
+                }
+            }
+        })
+
+        bot.util.runCustomFunction = async function(code, message, showErrors = true, doOutput = true){
             try {
                 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
                 let result = await axios.post("https://ob-custom-commands.d.int.unacc.eu/run", {
-                    script: code, message: bot.util.serialiseMessage(message)
+                    version: 1,
+                    script: code,
+                    message: bot.util.serialiseMessage(message)
                 })
-
-                return {output: result.data, success: true};
+                if(doOutput)
+                    await Promise.all(result.data.map((out)=>{
+                        if(!customTypes[out.type])return bot.logger.warn(`No custom type ${out.type}`);
+                        return customTypes[out.type](message, out, bot);
+                    }));
+                return true;
             }catch(e){
                 let errorEmbed = new Discord.MessageEmbed()
                 errorEmbed.setColor("#ff0000")
-                errorEmbed.setTitle(":warning: Execution Error");
+                errorEmbed.setTitle(await message.getLang("CUSTOM_COMMAND_ERROR_TITLE"));
                 if(e.response && e.response.data)
-                    errorEmbed.setDescription(`An error was encountered with your custom function.\n\`\`\`json\n${JSON.stringify(e.response.data, null, 1)}\n\`\`\``);
-                else
-                    errorEmbed.setDescription("An error occurred trying to run your custom function.");
-                return {output: errorEmbed, success: false};
+                    errorEmbed.setDescription(await message.getLang("CUSTOM_COMMAND_ERROR", {error: JSON.stringify(e.response.data, null, 1)}));
+                else {
+                    bot.logger.log(e);
+                    errorEmbed.setDescription(await message.getLang("CUSTOM_COMMAND_INTERNAL_ERROR"))
+                }
+                if(showErrors)
+                    message.channel.send(errorEmbed);
+                return false
             }
-
         }
 
-
         bot.util.shard = parseInt(process.env.SHARD) - 1
-
     }
 };

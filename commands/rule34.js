@@ -15,6 +15,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
     commands: ["rule34", "r34"],
     vote: true,
+    pointsCost: 1,
     run: async function(message, args, bot){
         if(!args[1])
             return message.channel.send(":bangbang: You must enter a tag to search for");
@@ -22,8 +23,9 @@ module.exports = {
 
         let tag = encodeURIComponent(message.content.substring(args[0].length+1).replace(/ /g, "_"));
 
-        request(`https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=${tag}`, function(err, resp, body){
+        const points = (await bot.database.getPoints(message.author.id)).toLocaleString();
 
+        request(`https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=${tag}`, function(err, resp, body){
             if(err)
                 return message.replyLang("GENERIC_ERROR");
 
@@ -42,8 +44,10 @@ module.exports = {
                     embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true}));
                     embed.setImage(page.file_url);
                     embed.addField("Score", page.score);
-                    embed.setFooter(`Page ${index+1}/${result.posts.post.length}`);
-
+                    if(message.getBool("points.enabled"))
+                        embed.setFooter(`${points} • Page ${index + 1}/${result.posts.post.length}`, "https://cdn.discordapp.com/emojis/817100139603820614.png?v=1");
+                    else
+                        embed.setFooter(`Page ${index+1}/${result.posts.post.length}`);
 
                     return embed;
                 }, true);

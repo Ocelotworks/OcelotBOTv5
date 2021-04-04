@@ -213,7 +213,7 @@ module.exports = {
                         at: at.getTime(),
                     })));
                 } else {
-                    const reminderResponse = await bot.database.addReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, at.getTime(), reminder);
+                    const reminderResponse = await bot.database.addReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, at.getTime(), reminder, message.id);
                     bot.util.setLongTimeout(async function () {
                         try {
                             await message.replyLang("REMIND_REMINDER", {

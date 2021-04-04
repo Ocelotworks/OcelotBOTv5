@@ -258,16 +258,18 @@ module.exports = {
              * @param {ChannelID} channel The channel ID
              * @param {Number} at The unix timestamp in milliseconds to trigger the reminder
              * @param {String} message The reminder message
+             * @param messageID
              * @returns {*}
              */
-            addReminder: function addReminder(receiver, user, server, channel, at, message) {
+            addReminder: function addReminder(receiver, user, server, channel, at, message, messageID) {
                 return knex.insert({
-                    receiver: receiver,
-                    user: user,
-                    server: server,
-                    channel: channel,
+                    receiver,
+                    user,
+                    server,
+                    channel,
                     at: knex.raw(`FROM_UNIXTIME(${at / 1000})`),
-                    message: message
+                    message,
+                    messageID,
                 }).into(REMINDERS_TABLE);
             },
             /**
@@ -881,6 +883,11 @@ module.exports = {
             getLastVote: function (user) {
                 return knex.select(knex.raw("MAX(timestamp)")).from("ocelotbot_votes").where({user}).limit(1);
             },
+            getLastVoteBySource: async function (user, source) {
+                let result = await knex.select(knex.raw("MAX(timestamp)")).from("ocelotbot_votes").where({user, source}).limit(1);
+                if(result[0])return result[0]['MAX(timestamp)'];
+                return null;
+            },
             getEligbleBadge: function (user, series, count) {
                 return knex.select()
                     .from(BADGES_TABLE)
@@ -1132,6 +1139,12 @@ module.exports = {
             getBotlistsWithStats: function () {
                 return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1});
             },
+            getSingleBotlist: async function(index){
+                return (await knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1}).limit(1).offset(index))[0];
+            },
+            getBotlistsWithVoteRewards: function(){
+                return knex.select().from("ocelotbot_botlists").whereNotNull("pointsReward").andWhere({enabled: 1}).orderBy("pointsReward", "DESC");
+            },
             getBotlistUrl: async function (id) {
                 let url = await knex.select("botUrl").from("ocelotbot_botlists").where({id}).orWhere({id: 'topgg'}).limit(1);
                 return url[0].botUrl;
@@ -1144,6 +1157,12 @@ module.exports = {
                     message,
                     response
                 }).into("ocelotbot_ai_conversations");
+            },
+            getAiResponse: async function(message) {
+                // Lord Forgive Me
+                let result = await knex.raw(`SELECT response, ABS(LENGTH(message)-LENGTH(?)) as 'distance', MATCH(message) AGAINST (? IN NATURAL LANGUAGE MODE) as 'score' FROM ocelotbot_ai_conversations WHERE MATCH(message) AGAINST (? IN NATURAL LANGUAGE MODE) ORDER BY distance, score DESC LIMIT 10`, [message, message, message]);
+                if(!result[0] || result[0].length === 0)return null;
+                return bot.util.arrayRand(result[0]).response;
             },
             addRecurringReminder: function (receiver, user, server, channel, message, recurrence) {
                 return knex(REMINDERS_TABLE).insert({
@@ -1181,6 +1200,31 @@ module.exports = {
                     balance_after: newPoints
                 }).into("ocelotbot_points_transactions");
                 return newPoints;
+            },
+            async takePoints(user, amount, origin){
+                let currentPoints = await bot.database.getPoints(user);
+                let newPoints = currentPoints - amount;
+                if(newPoints < 0)return false;
+                await knex("ocelotbot_points").update({points: newPoints}).where({user}).limit(1);
+                await knex.insert({
+                    user,
+                    amount,
+                    origin,
+                    balance_before: currentPoints,
+                    balance_after: newPoints
+                }).into("ocelotbot_points_transactions");
+                return true;
+            },
+            getPointsChallenges(){
+                const now = new Date();
+                return knex.select()
+                    .from("ocelotbot_points_challenges")
+                    .where("begin", "<=", now)
+                    .andWhere("end", ">", now)
+                    .innerJoin("ocelotbot_points_challenge_types", "ocelotbot_points_challenges.challenge_type", "ocelotbot_points_challenge_types.id")
+            },
+            getCompletedChallenges(user, challenges){
+                return knex.select().from("ocelotbot_points_challenge_log").whereIn("challenge", challenges).andWhere({user});
             },
             async getCustomCommand(server, trigger){
                 let result = await knex.select("function").from("ocelotbot_custom_functions").where({server, trigger, type: "COMMAND"}).limit(1);

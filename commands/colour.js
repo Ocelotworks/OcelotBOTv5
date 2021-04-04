@@ -17,7 +17,7 @@ module.exports = {
     commands: ["colour", "color"],
     run: function run(message, args, bot) {
         if (!args[1]) {
-            return message.channel.send(`:bangbang: You must supply a colour, e.g ${args[0]} red or ${args[0]} #ff0000`)
+            return message.replyLang("COLOUR_USAGE", {arg: args[0]});
         } else {
             const size = parseInt(message.getSetting("colour.size"));
             const cnv = canvas.createCanvas(size, size);
@@ -26,7 +26,7 @@ module.exports = {
             ctx.fillStyle = input;
 
             if (ctx.fillStyle === "#000000" && !blacks.includes(input.replace(/ /g, "")))
-                return message.channel.send("Invalid colour, try a hex colour code or one from this list: https://www.w3schools.com/colors/colors_names.asp");
+                return message.replyLang("COLOUR_INVALID");
 
             ctx.fillRect(0, 0, cnv.width, cnv.height);
 

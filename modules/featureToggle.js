@@ -2,6 +2,7 @@ const {
     initialize,
     isEnabled,
     getVariant,
+    getFeatureToggleDefinitions,
 } = require('unleash-client');
 const config = require('config');
 module.exports = {
@@ -25,6 +26,11 @@ module.exports = {
 
         bot.feature.enabled = isEnabled;
         bot.feature.getVariant = getVariant;
+        bot.feature.getVariants = (message)=>{
+            return getFeatureToggleDefinitions()
+                .map((f)=>`${f.name}=${+isEnabled(f.name, {userId: message.author.id, sessionId: message.guild ? message.guild.id : message.channel.id})}`)
+                .join(";")
+        }
 
     },
 }
