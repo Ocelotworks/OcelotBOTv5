@@ -4,12 +4,9 @@
  * ╚════ ║   (ocelotbotv5) colour
  *  ════╝
  */
-const Discord = require('discord.js');
-const canvas = require('canvas');
-const blacks = ["black", "#000000", "rgb(0,0,0)", "rgba(0,0,0)"]
 module.exports = {
     name: "Colour Code",
-    usage: "colour <code>",
+    usage: "colour <code> [code] ...",
     detailedHelp: "Accepts HTML Colour codes e.g #FF0000",
     usageExample: "colour #FF0000",
     categories: ["tools"],
@@ -18,19 +15,48 @@ module.exports = {
     run: function run(message, args, bot) {
         if (!args[1]) {
             return message.replyLang("COLOUR_USAGE", {arg: args[0]});
-        } else {
-            const size = parseInt(message.getSetting("colour.size"));
-            const cnv = canvas.createCanvas(size, size);
-            const ctx = cnv.getContext("2d");
-            let input = message.cleanContent.substring(args[0].length + 1);
-            ctx.fillStyle = input;
-
-            if (ctx.fillStyle === "#000000" && !blacks.includes(input.replace(/ /g, "")))
-                return message.replyLang("COLOUR_INVALID");
-
-            ctx.fillRect(0, 0, cnv.width, cnv.height);
-
-            message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "colour.png"));
         }
+        const size = parseInt(message.getSetting("colour.size"));
+        const colours = [];
+        for(let i = 1; i < args.length; i++){
+            let input = args[i];
+            if(!input.startsWith("#"))input = "#"+input;
+            if(input.length !== 7 && input.length !== 9)continue;
+            colours.push(input);
+        }
+        if(colours.length === 0){
+            return message.channel.send("Please enter a full colour code like #00FF00 or #FF00FFFF");
+        }
+
+        const filter = [];
+        const stripWidth = size/colours.length;
+        if(stripWidth < 1)return message.channel.send("Too many colours!");
+        for(let i = 0; i < colours.length; i++){
+            filter.push({
+               name: "rectangle",
+                args: {
+                    x: i*stripWidth,
+                    y: 0,
+                    w: stripWidth,
+                    height: size,
+                    colour: colours[i],
+                }
+            })
+        }
+
+        return bot.util.imageProcessor(message, {
+            components: [{
+                pos: {
+                    x: 0,
+                    y: 0,
+                    w: size,
+                    h: size,
+                },
+                filter,
+            }],
+            width: size,
+            height: size,
+        }, 'colour')
+
     },
 };
