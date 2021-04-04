@@ -40,8 +40,8 @@ async function processChannels(bot) {
     bot.logger.log(`Got ${birthdays.length} birthdays today.`);
     const nowYear = new Date().getFullYear();
     for (let i = 0; i < birthdays.length; i++) {
+        const birthday = birthdays[i];
         try {
-            const birthday = birthdays[i];
             let birthdayChannelId = bot.config.get(birthday.server, "birthday.channel", birthday.user);
             if (!birthdayChannelId) continue;
             let birthdayChannel = await bot.client.channels.fetch(birthdayChannelId);
@@ -52,6 +52,7 @@ async function processChannels(bot) {
                 birthdayChannel.sendLang("BIRTHDAY_MESSAGE", {user: birthday.user})
             }
         } catch (e) {
+            await bot.config.set(birthday.server, "birthday.channel", null);
             bot.raven.captureException(e);
             console.error(e);
         }
