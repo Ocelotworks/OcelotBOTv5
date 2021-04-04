@@ -62,7 +62,7 @@ module.exports = {
         })
     },
     updateList: async function(botList, bot){
-        const voiceConnections = bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.reduce((acc, n)=>acc+n.stats.players, 0);
+        const voiceConnections = 0//bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.reduce((acc, n)=>acc+n.stats.players, 0);
         const serverCount = (await bot.rabbit.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
         let body = {};
         conditionallyAssign(body, botList, "shardCountField", parseInt(process.env.SHARD_COUNT));
