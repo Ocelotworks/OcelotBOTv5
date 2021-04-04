@@ -6,9 +6,6 @@
  */
 const request = require('request');
 const config = require('config');
-const canvas = require('canvas');
-const Discord = require('discord.js');
-let red;
 module.exports = {
     name: "Red Eyes",
     usage: "eyes [url or @user]",
@@ -17,9 +14,6 @@ module.exports = {
     detailedHelp: "Adds red eyes to faces in the image",
     categories: ["image", "filter"],
     commands: ["eyes", "eye"],
-    init: async function () {
-        red = await canvas.loadImage(__dirname + "/../static/eyes/red.png");
-    },
     run: async function run(message, args, bot) {
         const url = await bot.util.getImage(message, args);
         bot.logger.log(url);
