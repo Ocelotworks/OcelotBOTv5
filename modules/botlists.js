@@ -51,7 +51,7 @@ module.exports = {
     },
     updateBotLists: async function updateBotLists(bot) {
         let botLists = await bot.database.getBotlistsWithStats();
-        const voiceConnections = bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.has("0") ? bot.lavaqueue.manager.nodes.get("0").stats.players : 0;
+        const voiceConnections = 0;//bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.has("0") ? bot.lavaqueue.manager.nodes.get("0").stats.players : 0;
         const serverCount = (await bot.rabbit.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
         for (let i = 0; i < botLists.length; i++) {
             const botList = botLists[i];
