@@ -4,8 +4,6 @@
  * ╚════ ║   (ocelotbotv5) overlay
  *  ════╝
  */
-const Discord = require('discord.js');
-const canvas = require('canvas');
 module.exports = {
     name: "Overlay Images",
     usage: "overlay <image1> <image2>",
