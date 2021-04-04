@@ -20,11 +20,10 @@ module.exports = {
                 end = message.content.length;
             }else{
                 if(type === "AUTORESPOND")
-                    trigger = message.content.substring(message.content.indexOf(args[2])+args[2].length, start).trim();
+                    trigger = message.content.substring(message.content.indexOf(args[2])+args[2].length, start).trim().toLowerCase();
                 start += 6
             }
             let code = message.content.substring(start, end);
-            console.log(code);
             let success = await bot.util.runCustomFunction(code, message, true, false);
             if(!success) return;
 
