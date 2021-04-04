@@ -38,7 +38,7 @@ module.exports = {
                 url: url,
                 apikey: config.get("API.ocr.key"),
                 isOverlayRequired: true,
-                OCREngine: 2,
+                OCREngine: url.endsWith("gif") ? 1 : 2,
             }
         }, async function OCRResponse(err, resp, body) {
             if (err) {
@@ -94,7 +94,7 @@ module.exports = {
                                 url: "b.png",
                                 local: true,
                                 pos: {
-                                    x: lines[0].Words[0].Left-(word.Height/2),
+                                    x: lines[0].Words[0].Left-(lines[0].Words[0].Height/2),
                                     y: lines[0].Words[0].Top,
                                     w: lines[0].Words[0].Height,
                                     h: lines[0].Words[0].Height,
