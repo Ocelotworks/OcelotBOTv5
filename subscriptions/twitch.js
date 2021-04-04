@@ -8,7 +8,7 @@
 const Discord = require('discord.js');
 const config = require('config');
 const request = require('request');
-const client = config.get("Commands.twitch.clientID");
+const client = config.get("API.twitch.clientID");
 module.exports = {
     name: "Twitch",
     id: "twitch",

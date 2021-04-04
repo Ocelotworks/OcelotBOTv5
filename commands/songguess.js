@@ -271,7 +271,7 @@ function normalise(text){
 }
 
 async function getToken(bot){
-    const key = Buffer.from(`${config.get("Commands.songguess.client_id")}:${config.get("Commands.songguess.client_secret")}`).toString("base64");
+    const key = Buffer.from(`${config.get("API.spotify.client_id")}:${config.get("API.spotify.client_secret")}`).toString("base64");
 
     let tokenData = await bot.redis.cache("songguess/token", async () => (await axios.post("https://accounts.spotify.com/api/token", "grant_type=client_credentials", {
         headers: {

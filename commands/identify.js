@@ -28,7 +28,7 @@ module.exports = {
             url: "https://westeurope.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Description&details=Celebrities&language=en",
             headers: {
                 "Content-Type": "application/json",
-                "Ocp-Apim-Subscription-Key": config.get("Commands.identify.key")
+                "Ocp-Apim-Subscription-Key": config.get("API.msVision.key")
             },
             body: {
                 url: url

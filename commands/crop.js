@@ -22,7 +22,7 @@ module.exports = {
             url: "https://westeurope.api.cognitive.microsoft.com/vision/v2.0/areaOfInterest",
             headers: {
                 "Content-Type": "application/json",
-                "Ocp-Apim-Subscription-Key": config.get("Commands.identify.key")
+                "Ocp-Apim-Subscription-Key": config.get("API.msVision.key")
             },
             body: {
                 url: url

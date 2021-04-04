@@ -692,7 +692,7 @@ module.exports = {
                     return null;
                 }
 
-                let data = await bot.util.getJson(`https://api.tenor.com/v1/gifs?ids=${id}&key=${config.get("Tenor.key")}`)
+                let data = await bot.util.getJson(`https://api.tenor.com/v1/gifs?ids=${id}&key=${config.get("API.tenor.key")}`)
                 if (data.error || !data.results || data.results.length === 0 || !data.results[0].media) {
                     bot.logger.warn("Malformed tenor URL " + url);
                     sentry.setExtra("response", data)

@@ -14,7 +14,7 @@ module.exports = {
        let url = args[1];
        if(!url)
            return message.replyLang("SHORTEN_USAGE", {arg: args[0]});
-       const result = await bot.util.getJson(`https://cutt.ly/api/api.php?key=${config.get("Commands.shorten.key")}&short=${encodeURIComponent(args[1])}`);
+       const result = await bot.util.getJson(`https://cutt.ly/api/api.php?key=${config.get("API.cuttly.key")}&short=${encodeURIComponent(args[1])}`);
        if(!result.url)
            return message.replyLang("GENERIC_ERROR");
 

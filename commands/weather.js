@@ -15,7 +15,7 @@ module.exports = {
             return;
         }
         const search = message.content.substring(args[0].length+1).trim();
-        request(`http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(search)}&appid=${config.get("Commands.weather.key")}&units=metric`, function getWeather(err, resp, body) {
+        request(`http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(search)}&appid=${config.get("API.openweathermap.key")}&units=metric`, function getWeather(err, resp, body) {
             if (err) {
                 bot.logger.error("Error getting weather information: " + err);
                 message.replyLang("WEATHER_ERROR");
