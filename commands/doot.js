@@ -1,3 +1,4 @@
+let dootCount = 0;
 const doots = [
     "https://www.youtube.com/watch?v=dHRqHfT9Nfo",
     "https://www.youtube.com/watch?v=_C0fxoot-7c",
