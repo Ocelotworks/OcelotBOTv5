@@ -1476,7 +1476,7 @@ module.exports = {
                 reference: message.reference,
                 id: message.id,
                 timestamp: message.createdTimestamp,
-                attachments: message.attachments.map((a) => a.name),
+                attachments: message.attachments.map((a) => a.url),
                 embeds: message.embeds,
             }
         }
