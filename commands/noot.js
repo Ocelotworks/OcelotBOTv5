@@ -1,4 +1,3 @@
-const fs = require('fs');
 const noots = [
     "https://www.youtube.com/watch?v=x9ur3exaUTI",
     "https://www.youtube.com/watch?v=lrAW0YWh1CU",
