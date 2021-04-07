@@ -387,7 +387,7 @@ module.exports = {
                 return knex.select().from(BANS_TABLE);
             },
             getBan: function(id){
-                return knex.select().from(BANS_TABLE).where({id: user}).limit(1);
+                return knex.select().from(BANS_TABLE).where({id}).limit(1);
             },
             /**
              * Get most used commands, through a very slow database query
