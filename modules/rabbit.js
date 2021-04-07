@@ -190,7 +190,11 @@ module.exports = {
             bot.bus.on("broadcastEval", (msg) => {
                 bot.rabbit.event({
                     type: "clientValueCallback", id: msg.id, value: (function () {
-                        return eval(msg.script)
+                        try {
+                            return eval(msg.script)
+                        }catch(e){
+                            return e;
+                        }
                     }).call(bot.client)
                 })
             })

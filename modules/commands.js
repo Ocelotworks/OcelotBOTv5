@@ -272,7 +272,7 @@ module.exports = {
                     bot.raven.captureException(e);
                     span.end("Exception");
                 } finally {
-                    bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command, message.content).catch(function (e) {
+                    bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command, message.content, bot.client.user.id).catch(function (e) {
                         Sentry.captureException(e);
                         bot.logger.error(e);
                     })
