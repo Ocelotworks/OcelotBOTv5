@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const shardNames = [
     "Remo.tv",
-    "Let's Robot",
+    "shart",
     "Sexy Trap Wife",
     "Autistic",
     "Wankish",
@@ -13,7 +13,13 @@ const shardNames = [
     "S1othy",
     "Omz",
     "sunny",
-    "smirkstudios"
+    "smirkstudios",
+    "Gnome Fire",
+    "Litchfield",
+    "orchid",
+    "Prince Ali, Fabulous He",
+    "Seegee",
+    "Scotty",
 ];
 module.exports = {
     name: "Stats",
