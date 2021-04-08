@@ -52,6 +52,8 @@ module.exports = {
                     message.channel.send("The last feedback was sent before this shard last restarted.");
                 }
                 return;
+            }else if(message.channel.id === "344931831151329302"){
+                return message.channel.send("You forgot 'respond'");
             }
             if(message.getBool("feedback.banned"))
                 return message.replyLang("FEEDBACK_BANNED");

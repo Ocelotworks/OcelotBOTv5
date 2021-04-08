@@ -24,6 +24,7 @@
 
 const config = require('config');
 const uuid = require('uuid/v4');
+const os = require('os');
 var knex = require('knex')(config.get("Database"));
 const series = 2020; //Spook series
 module.exports = {
@@ -46,8 +47,6 @@ module.exports = {
         const SERVER_SETTINGS_TABLE = "ocelotbot_server_settings";
         const BADGES_TABLE = "ocelotbot_badges";
 
-
-        knex
 
         bot.database = {
             knex,
@@ -112,6 +111,9 @@ module.exports = {
              */
             getServer: function getServer(serverID) {
                 return knex.select().from(SERVERS_TABLE).where({server: serverID}).limit(1);
+            },
+            getLeftServer: function getLeftServer(serverID){
+                return knex.select().from(LEFTSERVERS_TABLE).where({server: serverID});
             },
             /**
              * Set a server's bot settings
@@ -351,7 +353,7 @@ module.exports = {
                 return knex.select(knex.raw("count(*)")).from(TRIVIA_TABLE).where({user}).limit(1);
             },
 
-            logCommand: function logCommand(userID, channelID, serverID, messageID, commandID, command) {
+            logCommand: function logCommand(userID, channelID, serverID, messageID, commandID, command, productID) {
                 return knex.insert({
                     userID,
                     channelID,
@@ -359,7 +361,8 @@ module.exports = {
                     messageID,
                     commandID,
                     command,
-                    server: bot.client.shard ? bot.util.shard : 0
+                    server: os.hostname()+"/"+bot.util.shard,
+                    productID
                 }).into(COMMANDLOG_TABLE);
             },
             /**
@@ -383,6 +386,9 @@ module.exports = {
             getBans: function () {
                 return knex.select().from(BANS_TABLE);
             },
+            getBan: function(id){
+                return knex.select().from(BANS_TABLE).where({id}).limit(1);
+            },
             /**
              * Get most used commands, through a very slow database query
              */
@@ -394,6 +400,15 @@ module.exports = {
                     .orderBy("count", "DESC")
                     .groupBy("commandName")
                     .limit(5);
+            },
+            getUserCommands: function(userID){
+                return knex.select('id', 'command').from(COMMANDLOG_TABLE).where({userID}).orderBy("timestamp", "desc").limit(5);
+            },
+            getServerCommands: function(serverID){
+                return knex.select('id', 'command').from(COMMANDLOG_TABLE).where({serverID}).orderBy("timestamp", "desc").limit(5);
+            },
+            getCommandById: function(id){
+                return knex.select().from(COMMANDLOG_TABLE).where({id}).limit(1);
             },
             /**
              * Get the count of commands by a particular user

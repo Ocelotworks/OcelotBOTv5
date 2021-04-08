@@ -1196,6 +1196,14 @@ module.exports = {
             }
         }
 
+        bot.util.getInfo = async function getInfo(bot, type, id){
+            try{
+                return await bot.client[type].fetch(id);
+            }catch(e){
+                return null;
+            }
+        }
+
         bot.bus.on("getUserInfoResponse", (message) => {
             const waitingUser = waitingUsers[message.payload.id];
             if (waitingUser) {
