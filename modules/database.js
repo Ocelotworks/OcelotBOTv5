@@ -33,7 +33,6 @@ module.exports = {
     init: function init(bot) {
 
         const SERVERS_TABLE = "ocelotbot_servers";
-        const PETERMON_TABLE = "pm_status";
         const MEMES_TABLE = "ocelotbot_memes";
         const REMINDERS_TABLE = "ocelotbot_reminders";
         const TRIVIA_TABLE = "trivia";
@@ -166,38 +165,12 @@ module.exports = {
                 return knex.select("server", "prefix").from(SERVERS_TABLE);
             },
             /**
-             * Gets the last sent data from the petermon database
-             * @deprecated
-             */
-            getLastPetermonData: function getLastPetermonData() {
-                return knex.select().from(PETERMON_TABLE).orderBy("timestamp", "DESC").limit(1);
-            },
-            /**
-             * Gets the last time peter's state was set to being somewhere other than at home or asleep
-             * @deprecated
-             */
-            getPetermonLastOutside: function getPetermonLastOutside() {
-                return knex.select("timestamp")
-                    .from(PETERMON_TABLE)
-                    .where({state: 'Outside'})
-                    .orWhere({state: 'Abbeys'})
-                    .orderBy("timestamp", "DESC")
-                    .limit(1);
-            },
-            /**
              * Gets a list of all memes available to a particular server
              * @param {ServerID} server The server's Snowflake ID
              * @returns {Promise<Array>}
              */
             getMemes: function getMemes(server) {
                 return knex.select("name", "server").from(MEMES_TABLE).where({server: server}).orWhere({server: "global"});
-            },
-            /**
-             * Gets the names of all memes in the database
-             * @returns {Promise<Array>}
-             */
-            getAllMemes: function getAllMemes() {
-                return knex.select("name").from(MEMES_TABLE);
             },
             /**
              * Remove a meme from the database
@@ -243,14 +216,6 @@ module.exports = {
             },
             searchMeme: function searchMeme(query, server) {
                 return knex.select("name", "server").from(MEMES_TABLE).whereIn("server", [server, "global"]).andWhere("name", "LIKE", `%${query}%`).orderBy("server");
-            },
-            /**
-             * Get a meme regardless of whether or not it belongs to the current serve
-             * @param {String} meme The meme name
-             * @returns {*}
-             */
-            forceGetMeme: function forceGetMeme(meme) {
-                return knex.select("meme", "server").from(MEMES_TABLE).where({name: meme});
             },
             /**
              * Add a reminder
@@ -886,8 +851,8 @@ module.exports = {
             deleteSetting: async function (server, setting, bot) {
                 await knex.delete().from(SERVER_SETTINGS_TABLE).where({server, setting, bot}).limit(1);
             },
-            addSongGuess: async function (user, channel, server, guess, song, correct, elapsed) {
-                await knex.insert({user, channel, server, guess, song, correct, elapsed}).into("ocelotbot_song_guess");
+            addSongGuess: async function (user, channel, server, guess, song, correct, elapsed, custom = false) {
+                await knex.insert({user, channel, server, guess, song, correct, elapsed, custom}).into("ocelotbot_song_guess");
             },
             addVote: async function (user, referralServer, source) {
                 await knex.insert({user, referralServer, source}).into("ocelotbot_votes");
@@ -969,6 +934,14 @@ module.exports = {
             getGuessServerLeaderboard: function (users) {
                 return knex.select(knex.raw("user, COUNT(*) AS total, SUM(correct) AS points")).from("ocelotbot_song_guess").groupBy("user").orderByRaw("SUM(correct) DESC").whereIn("user", users);
             },
+            getGuessPlaylists: function(server){
+                return knex.select("id").from("ocelotbot_song_guess_playlists").whereIn("server", [server, "global"]);
+            },
+            getGuessPlaylist: async function(server, id){
+                  let result = await knex.select("spotify_id").from("ocelotbot_song_guess_playlists").whereIn("server", [server, "global"]).andWhere({id}).orderBy("server").limit(1);
+                  if(result[0])return result[0]['spotify_id'];
+                  return null;
+            },
             getCommandCount: function () {
                 return knex.select(knex.raw("MAX(id)")).from(COMMANDLOG_TABLE);
             },
@@ -983,36 +956,7 @@ module.exports = {
             redeemPremiumKey: function (id, server) {
                 return knex("ocelotbot_premium_keys").update({server, redeemed: new Date()}).where({id}).limit(1);
             },
-            getWeedPlants: function (ownerID) {
-                if (ownerID !== undefined) {
-                    return knex.select().from("ocelotbot_weed").where({ownerID});
-                } else {
-                    return knex.select().from("ocelotbot_weed");
-                }
-            },
-            addNewPlant: async function (plant) {
-                return await knex.insert(plant.toStorable()).into("ocelotbot_weed").returning('id').then(function (id) {
-                    return id;
-                })[0];
-            },
-            updatePlant: function (plant) {
-                return knex("ocelotbot_weed").update(plant.toStorable()).where({id: plant.id}).limit(1);
-            },
-            deletePlant: async function (plant) {
-                //return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge});
-                await knex().delete().from("ocelotbot_weed").where({id: plant.id});
-            },
-            saveAllPlants: function (plantDict) {
-                Object.keys(plantDict).forEach(function (key) {
-                    plantDict[key].forEach(async function (value) {
-                        try {
-                            await knex("ocelotbot_weed").update(value.toStorable()).where({id: value.id}).limit(1);
-                        } catch {
-                            bot.logger.log("Plant update error.");
-                        }
-                    })
-                });
-            },
+
             getStreak: async function (user, type) {
                 let output = (await knex.select("streak", "started").from("ocelotbot_streaks").where({
                     user,
@@ -1109,9 +1053,6 @@ module.exports = {
                     q = q.andWhereNot({session: currentSession});
 
                 return q;
-            },
-            logOmegleMessage: async function (serverID, channelID, userID, message) {
-                return knex.insert({serverID, channelID, message, userID}).into("ocelotbot_omegle");
             },
             addRoleMessage: async function (channel, message) {
                 let existingRole = await knex.select("id").from("ocelotbot_role_messages").where({

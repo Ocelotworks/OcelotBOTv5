@@ -1,7 +1,7 @@
 module.exports = {
-    name: "Stop Guessing",
-    usage: "stop",
-    commands: ["stop", "end"],
+    name: "Stats",
+    usage: "stats",
+    commands: ["stats"],
     run: async function (message, args, bot, runningGames) {
         message.channel.startTyping();
         try {

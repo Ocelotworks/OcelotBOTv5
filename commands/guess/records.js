@@ -13,7 +13,6 @@ const timescales = {
     me: "mine",
 }
 
-
 module.exports = {
     name: "Records Leaderboard",
     usage: "records mine/all/monthly/weekly/yearly",
