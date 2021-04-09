@@ -8,7 +8,8 @@
 const Discord = require('discord.js');
 const axios = require('axios');
 const config = require('config');
-let counter = Math.round(Math.random()*100); // Start a random position in the playlist on startup
+// Start a random position in the playlist on startup, mostly for my sanity during testing
+let counter = Math.round(Math.random()*100);
 let runningGames = {"":{
     voiceChannel: {},
     textChannel: {},
@@ -169,7 +170,6 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
         game.lastGuessTime = new Date();
         let elapsed = new Date()-guessStarted;
         const normalisedContent = normalise(m.cleanContent);
-        console.log(normalisedContent);
         const partialLength = normalisedName.indexOf(normalisedContent) > -1 ? normalisedContent.length : 0;
         // If the message contains the entire title, or the message is more than 30% of the title
         if(normalisedContent.indexOf(normalisedName) > -1 || partialLength >= normalisedName.length/3){
@@ -196,9 +196,8 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
     game.collector = collector;
 
     player.once("end", ()=>{
-        if(!collector.ended) {
+        if(!collector.ended)
             collector.stop();
-        }
     })
 
     collector.on("end", async (collected)=>{
@@ -239,7 +238,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                     }
                 }
             }
-
+            bot.bus.emit("onGuessWin", {winner, game})
             bot.util.replyTo(winner, winEmbed);
         }else {
             textChannel.send(`:stopwatch: The song is over! The answer was **${song.track.artists.map((a) => a.name).join(", ")} - ${song.track.name}**`);

@@ -10,12 +10,56 @@ module.exports = {
     commands: ["backgrounds", "background"],
     run: async function (message, args, bot) {
         const result = await bot.database.getProfileOptions("background");
-        let output = "Backgrounds:\n";
+        const cols = 4;
+        const width = 1024;
+        const height = 700;
+        const columnWidth = width/cols;
+        const rowHeight = (columnWidth/width)*height;
+        const components = [];
         for (let i = 0; i < result.length; i++) {
             const background = result[i];
-            output += `For **${background.name}**${background.premium ? " (<:ocelotbot:533369578114514945> **Premium**)" : ""}: \nΤype ${args[0]} set background ${background.key}\n`;
+            components.push({
+                url: `profile/new/backgrounds/${background.path}`,
+                local: true,
+                pos: {
+                    x: (i % cols) * columnWidth,
+                    y: Math.floor((i / cols)) * rowHeight,
+                    w: columnWidth,
+                    h: rowHeight,
+                },
+                filter: [{
+                    name: "text",
+                    args: {
+                        font: "arial.ttf",
+                        fontSize: 100,
+                        colour: "#000000",
+                        content: background.key,
+                        x: -2, y: -2,
+                        ax: 0, ay: 0,
+                        w: columnWidth,
+                        spacing: 1.1,
+                        align: 0,
+                    }
+                },{
+                    name: "text",
+                    args: {
+                        font: "arial.ttf",
+                        fontSize: 100,
+                        colour: "#ffffff",
+                        content: background.key,
+                        x: 0, y: 0,
+                        ax: 0, ay: 0,
+                        w: columnWidth,
+                        spacing: 1.1,
+                        align: 0,
+                    }
+                }]
+            })
         }
-        output += `**Get a custom background with Ocelot Premium, for more info type: ${message.getSetting("prefix")}premium**`;
-        message.channel.send(output);
+        return bot.util.imageProcessor(message, {
+            components,
+            width: cols*columnWidth,
+            height: (result.length/4)*rowHeight
+        }, "shop")
     }
 };

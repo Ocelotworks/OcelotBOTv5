@@ -413,6 +413,7 @@ module.exports = {
                 request.debug = true;
             request.compression = true;
 
+            bot.logger.log(JSON.stringify(request));
             let span = bot.util.startSpan("Receive from RPC");
             let loadingMessage;
             let loadingMessageDelay = setTimeout(async () => {
