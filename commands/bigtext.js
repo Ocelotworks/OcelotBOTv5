@@ -27,7 +27,7 @@ module.exports = {
             return message.channel.send(response.err);
         }
 
-        let attachment = new Discord.MessageAttachment(Buffer.from(response.image, 'base64'), "bigtext.gif");
+        let attachment = new Discord.MessageAttachment(Buffer.from(response.image, 'base64'), response.performance ?"bigtext.gif" : "bigtext.png");
         try {
             const performanceMessage = response.performance ? `Frame Count: ${response.performance.frameCount} | Rendering Time: ${bot.util.prettySeconds(response.performance.frameTimeTotal/1000, message.guild ? message.guild.id : "global", message.author.id)} | ${Math.round(response.performance.frameTimeTotal/response.performance.frameCount)}ms/frame` : "No Perf Metrics";
             if(message.author.id === "139871249567318017") {
