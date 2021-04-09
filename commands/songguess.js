@@ -55,29 +55,18 @@ module.exports = {
             }
         }
 
-        if(playlist === null){
+        if(playlist === null)
             playlist = await bot.database.getGuessPlaylist(message.guild.id, message.getSetting("songguess.default"));
-        }
 
-        if (!bot.lavaqueue || !bot.lavaqueue.manager.nodes.has(message.getSetting("songguess.node")) || !bot.lavaqueue.manager.nodes.get(message.getSetting("songguess.node")).connected) {
-            return message.replyLang("SONGGUESS_UNAVAILABLE");
-        }
+        if (!bot.lavaqueue)return message.replyLang("SONGGUESS_UNAVAILABLE");
+        if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
+        if (!message.member.voice || !message.member.voice.channel) return message.replyLang("VOICE_NO_CHANNEL");
+        if (message.member.voice.channel.full) return message.replyLang("VOICE_FULL_CHANNEL");
+        if (!message.member.voice.channel.joinable) return message.replyLang("VOICE_UNJOINABLE_CHANNEL");
+        if (!message.member.voice.channel.speakable) return message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
+        if (message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voice.channel.id] && message.getSetting("songguess.disallowReguess"))return message.replyLang("SONGGUESS_OCCUPIED");
+        if (await bot.database.hasActiveSession(message.guild.id)) return message.replyLang("SONGGUESS_MUSIC");
 
-        if (!message.guild.available) {
-            return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-        }
-        if (!message.member.voice || !message.member.voice.channel) {
-            return message.replyLang("VOICE_NO_CHANNEL");
-        }
-        if (message.member.voice.channel.full) {
-            return message.replyLang("VOICE_FULL_CHANNEL");
-        }
-        if (!message.member.voice.channel.joinable) {
-            return message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-        }
-        if (!message.member.voice.channel.speakable) {
-            return message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
-        }
         if (runningGames[message.guild.id]) {
             if(playlist != runningGames[message.guild.id].playlistId){
                 runningGames[message.guild.id].playlistId = playlist;
@@ -90,13 +79,7 @@ module.exports = {
             }
             return message.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: runningGames[message.guild.id].voiceChannel.name})
         }
-        if (message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voice.channel.id] && message.getSetting("songguess.disallowReguess")) {
-            return message.replyLang("SONGGUESS_OCCUPIED");
-        }
 
-        if (await bot.database.hasActiveSession(message.guild.id)) {
-            return message.replyLang("SONGGUESS_MUSIC");
-        }
 
         return startGame(bot, message, playlist, isCustom);
     }
