@@ -397,7 +397,6 @@ module.exports = {
                 }
             }
 
-            console.log(JSON.stringify(imageRequest));
             message.channel.stopTyping();
             return bot.util.imageProcessor(message, imageRequest, "profile");
         }else{

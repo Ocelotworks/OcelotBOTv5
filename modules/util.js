@@ -478,22 +478,6 @@ module.exports = {
                     {
                         name: "text",
                         args: {
-                            x: 2,
-                            y: 2,
-                            ax: 0,
-                            ay: 0,
-                            w,
-                            spacing: 1.2,
-                            align: 0,
-                            font,
-                            fontSize,
-                            content,
-                            colour: backgroundColour
-                        }
-                    },
-                    {
-                        name: "text",
-                        args: {
                             x: 0,
                             y: 0,
                             ax: 0,
@@ -504,6 +488,7 @@ module.exports = {
                             font,
                             fontSize,
                             content,
+                            shadowColour: backgroundColour,
                             colour: foregroundColour
                         }
                     },
