@@ -402,6 +402,7 @@ module.exports = {
             }
         };
 
+
         bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage) {
             request.metadata = {
                 s: message.guild ? message.guild.id : null,
@@ -411,7 +412,7 @@ module.exports = {
             };
             if (message.content.indexOf("-debug") > -1)
                 request.debug = true;
-            request.compression = true;
+            request.version = 1;
 
             bot.logger.log(JSON.stringify(request));
             let span = bot.util.startSpan("Receive from RPC");
@@ -441,19 +442,10 @@ module.exports = {
                 span.end();
                 return message.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
             }
+            console.log(response);
             span = bot.util.startSpan("Upload image");
-            let output;
-            if (response.extension.startsWith("gzip/")) {
-                response.extension = response.extension.split("/")[1];
-                const compressedData = Buffer.from(response.data, 'base64');
-               //fs.writeFileSync("profile.png.gz", compressedData);
-                output = zlib.gunzipSync(compressedData);
-            } else {
-                output = Buffer.from(response.data, 'base64')
-            }
-
             let messageResult;
-            let attachment = new Discord.MessageAttachment(output, `${name}.${response.extension}`);
+            let attachment = new Discord.MessageAttachment(response.path, `${name}.${response.extension}`);
             try {
                 if (sentMessage)
                     messageResult = await message.channel.send(sentMessage, attachment);
