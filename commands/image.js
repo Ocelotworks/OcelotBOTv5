@@ -6,9 +6,9 @@
  */
 const GoogleImages = require('google-images');
 const axios = require('axios');
-const config = require('config').get("Commands.image");
+const config = require('config')
 const Discord = require('discord.js');
-let client = new GoogleImages(config.get("cse"), config.get("key"));
+let client = new GoogleImages(config.get("API.googleImages.cse"), config.get("API.googleImages.key"));
 const naughtyRegex = /((sexy|nude|naked)?)( ?)(young( ?)(girl|boy?)|child|kid(die?)|(1?)[0-7]( ?)(year(s?)?)( ?)(old?)|bab(y|ie)|toddler)(s?)( ?)(sexy|porn|sex|naked|nude|fuck(ed?))/gi;
 module.exports = {
     name: "Google Image Search",
@@ -42,7 +42,7 @@ module.exports = {
                     try {
                         let result = await bot.redis.cache(`images/supplementary/${type}/${query}`, async () => (await axios.get(`https://contextualwebsearch-websearch-v1.p.rapidapi.com/api/Search/ImageSearchAPI?q=${encodeURIComponent(query)}&pageNumber=1&pageSize=10&safeSearch=${!nsfw}`, {
                             headers: {
-                                "x-rapidapi-key": config.get("contextualKey"),
+                                "x-rapidapi-key": config.get("API.contextual.key"),
                                 "x-rapidapi-host": "contextualwebsearch-websearch-v1.p.rapidapi.com",
                                 "useQueryString": true
                             }
