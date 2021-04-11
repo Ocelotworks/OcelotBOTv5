@@ -57,7 +57,7 @@ module.exports = {
             try {
                 bot.logger.log("Joining voice channel " + message.member.voice.channel.name);
                 let nootNumber = nootCount++ % noots.length;
-                if(args[1] && !isNaN(parseInt(args[1])))nootNumber = parseInt(args[1]);
+                if(args[1] && !isNaN(parseInt(args[1])))nootNumber = parseInt(args[1]) % noots.length;
                 const noot = noots[nootNumber]
                 message.channel.startTyping();
                 let {songData, player} = await bot.lavaqueue.playOneSong(message.member.voice.channel, noot);
