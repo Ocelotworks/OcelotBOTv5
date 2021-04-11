@@ -4,9 +4,6 @@
  * ╚════ ║   (ocelotbotv5) friendship
  *  ════╝
  */
-const Discord = require('discord.js');
-const canvas = require('canvas');
-let background, cross1, cross2, overlay;
 module.exports = {
     name: "Friendship ended with",
     usage: "friendship <@user1> <@user2>",
@@ -16,12 +13,6 @@ module.exports = {
     commands: ["friendship", "freindship"],
     categories: ["image", "memes"],
     unwholesome: true,
-    init: async function(){
-        background = await canvas.loadImage(__dirname+"/../static/friendship.png");
-        cross1 = await canvas.loadImage(__dirname+"/../static/friendship_cross1.png");
-        cross2 = await canvas.loadImage(__dirname+"/../static/friendship_cross2.png");
-        overlay = await canvas.loadImage(__dirname+"/../static/friendship_overlay.png");
-    },
     run: async function run(message, args, bot) {
         if(message.mentions.users.size < 2)
             return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);

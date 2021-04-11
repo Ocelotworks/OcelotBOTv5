@@ -46,7 +46,6 @@ module.exports = {
                 if (err.ErrorMessage) {
                     message.channel.send(err.ErrorMessage.join("\n"));
                 } else {
-
                     bot.raven.captureException(err);
                     message.replyLang("GENERIC_ERROR");
                 }
