@@ -4,19 +4,12 @@
  * ╚════ ║   (ocelotbotv5) mafia
  *  ════╝
  */
-
-const Discord = require('discord.js');
-const canvas = require('canvas');
-let mafiaLogo;
 module.exports = {
     name: "Mafia Boss",
     usage: "mafia <@user1> <@user2>",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["mafia", "mafiaboss"],
     categories: ["image", "memes"],
-    init: async function () {
-        mafiaLogo = await canvas.loadImage(__dirname + "/../static/mafia.png");
-    },
     run: async function run(message, args, bot) {
         if (message.mentions.users.size < 2)
             return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
