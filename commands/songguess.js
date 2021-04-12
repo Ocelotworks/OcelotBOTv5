@@ -22,6 +22,7 @@ let runningGames = {"":{
     ending: false,
 }};
 
+
 const spotifyPlaylist = /.*open\.spotify\.com\/playlist\/(.*)[\/?#]?/gi
 
 
@@ -97,13 +98,19 @@ async function endGame(bot, id){
     const game = runningGames[id];
     if(!game || game.ending)return;
     game.ending = true;
-    // Player listeners are removed first to stop the next song from playing
-    game.player.removeAllListeners();
-    // The collector is stopped to trigger the end of round message
-    game.collector.stop();
-    // The collectors listeners are removed then the song is stopped
-    game.collector.removeAllListeners();
-    await game.player.stop();
+    if(game.player) {
+        // Player listeners are removed first to stop the next song from playing
+        game.player.removeAllListeners();
+    }
+    if(game.collector) {
+        // The collector is stopped to trigger the end of round message
+        game.collector.stop();
+        // The collectors listeners are removed then the song is stopped
+        game.collector.removeAllListeners();
+    }
+    if(game.player) {
+        await game.player.stop();
+    }
     await bot.lavaqueue.manager.leave(game.voiceChannel.guild.id);
     delete runningGames[id];
 }
