@@ -21,10 +21,7 @@ module.exports = {
 
         message.channel.startTyping();
         try {
-            let span = bot.util.startSpan("Get Translation Key");
-            const unknownUserKey = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "TRIVIA_UNKNOWN_USER");
-            span.end();
-            span = bot.util.startSpan("Get Leaderboard");
+            let span = bot.util.startSpan("Get Leaderboard");
             let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/points//${timescale}`);
             span.end();
             if (!leaderboard.data || leaderboard.data.length === 0) {
@@ -38,14 +35,9 @@ module.exports = {
             span = bot.util.startSpan("Create Table");
             for (let i = 0; i < leaderboard.data.length; i++) {
                 const entry = leaderboard.data[i]
-                let user;
-                try {
-                    user = await bot.util.getUserInfo(entry.user);
-                } catch (e) {
-                }
                 outputData.push({
                     "#": i + 1,
-                    "user": user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,
+                    "user": await bot.util.getUserTag(entry.user),
                     [timescale === "all" ? "balance" : "earned"]: parseInt(entry.points).toLocaleString(),
                 });
             }

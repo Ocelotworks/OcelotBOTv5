@@ -1157,6 +1157,8 @@ module.exports = {
             })
         };
 
+
+
         let waitingUsers = {};
         bot.util.getUserInfo = async function getUserInfo(userID) {
             try {
@@ -1180,6 +1182,12 @@ module.exports = {
             }catch(e){
                 return null;
             }
+        }
+
+        bot.util.getUserTag = async function(userID){
+            if(bot.config.getBool("global", "privacy.anonymous", userID))return "Anonymous";
+            let user = await bot.util.getUserInfo(userID);
+            return user ? user.tag : "Unknown User "+userID;
         }
 
         bot.bus.on("getUserInfoResponse", (message) => {

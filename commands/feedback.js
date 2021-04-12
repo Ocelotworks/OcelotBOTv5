@@ -25,7 +25,7 @@ module.exports = {
             }
         })
     },
-    run: function run(message, args, bot) {
+    run: async function run(message, args, bot) {
         if(message.getSetting("prefix") === "!" && args[0].indexOf("feedback") > -1 && message.channel.members && message.channel.members.has("507970352501227523"))  //Fast Food Bot
             return message.replyLang("FEEDBACK_FASTFOOD_BOT");
 
@@ -37,17 +37,12 @@ module.exports = {
             if(args[1].toLowerCase() === "respond" && (message.getBool("admin") || message.getBool("feedback.responder"))){
                 if(bot.lastFeedbackChannel){
                     const response = message.content.substring(message.content.indexOf(args[2]));
-                    if(bot.client.channels.cache.has(bot.lastFeedbackChannel)){
-                        bot.client.channels.cache.get(bot.lastFeedbackChannel).sendLang("FEEDBACK_RESPONSE", {response, admin: message.author.tag});
-                        message.channel.send("Responded.");
-                    }else{
-                        bot.rabbit.event({type: "feedbackResponse", message: {
-                                channel: bot.lastFeedbackChannel,
-                                response: response,
-                                admin: message.author.tag
-                        }});
-                        message.channel.send("Responded. (On different shard)");
-                    }
+                    bot.rabbit.event({type: "feedbackResponse", message: {
+                            channel: bot.lastFeedbackChannel,
+                            response: response,
+                            admin: await bot.util.getUserTag(message.author.id)
+                    }});
+                    message.channel.send("Responded. (On different shard)");
                 }else{
                     message.channel.send("The last feedback was sent before this shard last restarted.");
                 }
@@ -64,7 +59,7 @@ module.exports = {
                     type: "feedback", message: {
                         userID: message.author.id,
                         message: Discord.escapeMarkdown(message.content),
-                        username: `${message.author.username}#${message.author.discriminator}`,
+                        username: `${await bot.util.getUserTag(message.author.id)}`,
                         guildID: message.guild ? message.guild.id : "DM Channel",
                         guild: message.guild ? message.guild.name : "DM Channel",
                         channelID: message.channel.id

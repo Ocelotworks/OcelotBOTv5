@@ -228,12 +228,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
             if(!game.custom) {
                 const fastestGuess = await bot.database.getFastestSongGuess(loggedTrackName);
                 if (fastestGuess[0]) {
-                    let field = bot.util.prettySeconds(fastestGuess[0].time / 1000, winner.guild.id, winner.author.id);
-                    const user = await bot.util.getUserInfo(fastestGuess[0].user);
-                    if (user) {
-                        field += ` (${user.tag})`
-                    }
-                    winEmbed.addField(":timer: Fastest Time", field);
+                    winEmbed.addField(":timer: Fastest Time", `${bot.util.prettySeconds(fastestGuess[0].time / 1000, winner.guild.id, winner.author.id)} (${await bot.util.getUserTag(fastestGuess[0].user)})`);
                 }
 
                 if (!fastestGuess[0] || fastestGuess[0].time > elapsed) {

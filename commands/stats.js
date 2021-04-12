@@ -25,7 +25,7 @@ module.exports = {
     name: "Stats",
     usage: "stats",
     requiredPermissions: ["EMBED_LINKS"],
-    commands: ["stats", "statistics", "info", "about", "privacy"],
+    commands: ["stats", "statistics", "info", "about"],
     categories: ["meta"],
     run: async function run(message, args, bot) {
         if(args[1] && args[1] === "watson"){
