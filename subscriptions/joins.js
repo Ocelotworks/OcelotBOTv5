@@ -16,6 +16,7 @@ module.exports = {
         let channel = await bot.client.channels.fetch(sub.channel);
         bot.client.on("guildMemberAdd", function(guildMember) {
             if(guildMember.guild.id === sub.server){
+                if(bot.drain)return;
                 channel.send(message.formatUnicorn({
                     user: guildMember.user,
                     username: guildMember.user.username,
