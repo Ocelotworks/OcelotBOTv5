@@ -38,7 +38,8 @@ module.exports = {
         let guildCollection = (await bot.rabbit.broadcastEval(`
             this.guilds.cache.filter((guild)=>guild.members.cache.has('${userId}')).map((guild)=>\`\${guild.name} (\${guild.id})\`);
         `)).reduce((a,b)=>a.concat(b), []);
-        output.addField("Seen in", guildCollection.join(", "))
+        output.addField("Seen in", guildCollection.length === 0 ? guildCollection.join(", ") : "Nowhere.");
+
 
         let lastCommands = await bot.database.getUserCommands(userId);
         output.addField("Last 5 Commands", `Use **${args[0]} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)

@@ -15,7 +15,7 @@ module.exports = {
         try {
             let result = await axios.get(`https://api.twitter.com/2/users/by/username/${encodeURIComponent(input)}`, {
                 headers: {
-                    authorization: `Bearer ${config.get("Subscriptions.twitter.bearer")}`
+                    authorization: `Bearer ${config.get("API.twitter.bearer")}`
                 }
             });
 
@@ -30,7 +30,7 @@ module.exports = {
     check: async function check(id, lastCheck){
         let result = await axios.get(`https://api.twitter.com/2/users/${id}/tweets?start_time=${new Date(lastCheck).toISOString()}&media.fields=url&expansions=author_id&user.fields=username,name,profile_image_url&tweet.fields=created_at`,{
             headers: {
-                authorization: `Bearer ${config.get("Subscriptions.twitter.bearer")}`
+                authorization: `Bearer ${config.get("API.twitter.bearer")}`
             }
         });
         let user = result.data.includes.users[0];

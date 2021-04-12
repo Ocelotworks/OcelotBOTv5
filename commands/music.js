@@ -278,7 +278,7 @@ module.exports = {
             length += "`" + bot.util.shortSeconds(elapsed / 1000) + "`/";
             length += "`" + bot.util.shortSeconds(listener.playing.info.length / 1000) + "`";
         } else {
-            length = bot.util.prettySeconds(elapsed / 1000, message.guild && message.guild.id, message.author.id) + " elapsed.";
+            length = bot.util.prettySeconds(elapsed / 1000, "global") + " elapsed.";
         }
         embed.addField("Length", length);
         return embed;

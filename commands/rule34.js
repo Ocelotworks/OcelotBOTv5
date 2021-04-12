@@ -5,6 +5,7 @@
  *  ════╝
  */
 const request = require('request');
+const axios = require('axios');
 const Discord = require('discord.js');
 const xml2js = require('xml2js');
 module.exports = {
@@ -25,33 +26,29 @@ module.exports = {
 
         const points = (await bot.database.getPoints(message.author.id)).toLocaleString();
 
-        request(`https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=${tag}`, function(err, resp, body){
+        const result = await axios.get(`https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=${tag}`, {responseType: "text"})
+        xml2js.parseString(result.data, (err, result)=>{
             if(err)
                 return message.replyLang("GENERIC_ERROR");
 
-            xml2js.parseString(body, (err, result)=>{
-                if(err)
-                    return message.replyLang("GENERIC_ERROR");
+            if(!result.posts || !result.posts.post || result.posts.post.length === 0)
+                return message.channel.send(":warning: No results");
 
-                if(!result.posts.post || result.posts.post.length === 0)
-                    return message.channel.send(":warning: No results");
+            bot.util.standardPagination(message.channel, result.posts.post, async function(page, index){
+                page = page["$"];
+                let embed = new Discord.MessageEmbed();
 
-                bot.util.standardPagination(message.channel, result.posts.post, async function(page, index){
-                    page = page["$"];
-                    let embed = new Discord.MessageEmbed();
+                embed.setTitle(`Results for '${tag}'`);
+                embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true}));
+                embed.setImage(page.file_url);
+                embed.addField("Score", page.score);
+                if(message.getBool("points.enabled"))
+                    embed.setFooter(`${points} • Page ${index + 1}/${result.posts.post.length}`, "https://cdn.discordapp.com/emojis/817100139603820614.png?v=1");
+                else
+                    embed.setFooter(`Page ${index+1}/${result.posts.post.length}`);
 
-                    embed.setTitle(`Results for '${tag}'`);
-                    embed.setAuthor(message.author.username, message.author.avatarURL({dynamic: true}));
-                    embed.setImage(page.file_url);
-                    embed.addField("Score", page.score);
-                    if(message.getBool("points.enabled"))
-                        embed.setFooter(`${points} • Page ${index + 1}/${result.posts.post.length}`, "https://cdn.discordapp.com/emojis/817100139603820614.png?v=1");
-                    else
-                        embed.setFooter(`Page ${index+1}/${result.posts.post.length}`);
-
-                    return embed;
-                }, true);
-            })
-        });
+                return embed;
+            }, true);
+        })
     }
 };

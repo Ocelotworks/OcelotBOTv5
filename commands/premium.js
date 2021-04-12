@@ -51,7 +51,7 @@ module.exports = {
                 if(owner){
                     let dm = await owner.createDM();
                     //KEY_REDEEMED_DM
-                    dm.send(`Your Ocelot Premium key has been redeemed by **${message.author.tag}** for server **${message.guild.name}**. If you didn't authorize this, contact Big P#1843`);
+                    dm.send(`Your Ocelot Premium key has been redeemed by **${await bot.util.getUserTag(message.author.id)}** for server **${message.guild.name}**. If you didn't authorize this, contact Big P#1843`);
                 }
             }
 

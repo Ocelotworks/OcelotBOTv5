@@ -1,7 +1,7 @@
 module.exports = {
     name: "Stats",
     usage: "stats",
-    commands: ["stats"],
+    commands: ["stats", "statistics"],
     run: async function (message, args, bot, runningGames) {
         message.channel.startTyping();
         try {

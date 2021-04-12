@@ -8,10 +8,11 @@ module.exports = {
         if(["COMMAND", "AUTORESPOND"].includes(type)){
             if(!args[3])return message.replyLang("CUSTOM_USAGE_TRIGGER_WORD");
             let trigger = args[3].toLowerCase().split("\n")[0];
-            if(type === "COMMAND" && trigger.startsWith(message.getSetting("prefix")))return message.replyLang("CUSTOM_TRIGGER_PREFIX");
-            if(type === "COMMAND" && bot.commands[trigger])return message.replyLang("CUSTOM_TRIGGER_BUILTIN");
-            if(type === "COMMAND" && await bot.database.getCustomCommand(message.guild.id, trigger))return message.replyLang("CUSTOM_TRIGGER_EXISTS", {arg: args[0]});
-
+            if(type === "COMMAND"){
+                if(trigger.startsWith(message.getSetting("prefix")))return message.replyLang("CUSTOM_TRIGGER_PREFIX");
+                if(bot.commands[trigger])return message.replyLang("CUSTOM_TRIGGER_BUILTIN");
+                if(await bot.database.getCustomCommand(message.guild.id, trigger))return message.replyLang("CUSTOM_TRIGGER_EXISTS", {arg: args[0]});
+            }
             let start = message.content.indexOf("```lua")
             let end = message.content.length - 4;
             if (start === -1) {
@@ -19,11 +20,10 @@ module.exports = {
                 end = message.content.length;
             }else{
                 if(type === "AUTORESPOND")
-                    trigger = message.content.substring(message.content.indexOf(args[2])+args[2].length, start).trim();
+                    trigger = message.content.substring(message.content.indexOf(args[2])+args[2].length, start).trim().toLowerCase();
                 start += 6
             }
             let code = message.content.substring(start, end);
-            console.log(code);
             let success = await bot.util.runCustomFunction(code, message, true, false);
             if(!success) return;
 

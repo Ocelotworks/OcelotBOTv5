@@ -13,9 +13,9 @@ module.exports = {
         let output = "Backgrounds:\n";
         for (let i = 0; i < result.length; i++) {
             const background = result[i];
-            output += `For **${background.name}**${background.premium ? " (<:ocelotbot:533369578114514945> **Premium**)" : ""}: \nΤype ${args[0]} set background ${background.key}\n`;
+            output += `For **${background.name}**${background.cost > 0 ? ` (<:points:817100139603820614>**${background.cost.toLocaleString()}**)` : ""}: \nΤype ${args[0]} set background ${background.key}\n`;
         }
         output += `**Get a custom background with Ocelot Premium, for more info type: ${message.getSetting("prefix")}premium**`;
-        message.channel.send(output);
+        return message.channel.send(output);
     }
 };

@@ -46,15 +46,13 @@ module.exports = {
         }
 
         async function makeLeaderboard(type, totalField, time) {
-            const unknownUserKey = await bot.lang.getTranslation("322032568558026753", "TRIVIA_UNKNOWN_USER");
             const leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/${type}/${time}?items=20`);
             let outputData = [];
             for (let i = 0; i < leaderboard.data.length; i++) {
                 const entry = leaderboard.data[i]
-                let user = await bot.util.getUserInfo(entry.user);
                 let row = {
                     "#": i + 1,
-                    "user": user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,
+                    "user": await bot.util.getUserTag(entry.user),
                 };
                 if (entry.points)
                     row["Correct"] = entry.points.toLocaleString();

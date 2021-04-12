@@ -4,16 +4,15 @@
  * ╚════ ║   (ocelotbotv5) ai
  *  ════╝
  */
-const config = require('config').get("Commands.ai");
+const config = require('config')
 const Cleverbot = require('cleverbot');
 
-const axios = require('axios');
 let contexts = {};
 
 let contextIDs = {};
 
 let clev = new Cleverbot({
-    key: config.get("key")
+    key: config.get("API.cleverbot.key")
 });
 
 module.exports = {

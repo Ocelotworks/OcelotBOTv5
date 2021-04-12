@@ -6,9 +6,6 @@
  */
 const request = require('request');
 const config = require('config');
-const canvas = require('canvas');
-const Discord = require('discord.js');
-let red;
 module.exports = {
     name: "Red Eyes",
     usage: "eyes [url or @user]",
@@ -17,9 +14,6 @@ module.exports = {
     detailedHelp: "Adds red eyes to faces in the image",
     categories: ["image", "filter"],
     commands: ["eyes", "eye"],
-    init: async function () {
-        red = await canvas.loadImage(__dirname + "/../static/eyes/red.png");
-    },
     run: async function run(message, args, bot) {
         const url = await bot.util.getImage(message, args);
         bot.logger.log(url);
@@ -29,7 +23,7 @@ module.exports = {
             url: "https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=true&returnFaceAttributes=age,gender",
             headers: {
                 "Content-Type": "application/json",
-                "Ocp-Apim-Subscription-Key": config.get("Commands.face.key")
+                "Ocp-Apim-Subscription-Key": config.get("API.msFaceDetect.key")
             },
             body: {
                 url: url

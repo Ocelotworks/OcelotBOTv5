@@ -16,7 +16,7 @@ module.exports = {
             message.channel.startTyping();
             request({
                 encoding: null,
-                url: `http://api.screenshotlayer.com/api/capture?access_key=${config.get("Commands.screenshot.key")}&url=${encodeURIComponent(args[1].startsWith("http") ? args[1] : "http://"+args[1])}&viewport=${config.get("Commands.screenshot.viewport")}&width=${config.get("Commands.screenshot.width")}`
+                url: `http://api.screenshotlayer.com/api/capture?access_key=${config.get("API.screenshotLayer.key")}&url=${encodeURIComponent(args[1].startsWith("http") ? args[1] : "http://"+args[1])}&viewport=800x600&width=480`
             }, function(err, resp, body){
                 if(err){
                     bot.raven.captureException(err);

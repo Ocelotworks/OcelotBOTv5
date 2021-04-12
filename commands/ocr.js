@@ -20,7 +20,7 @@ module.exports = {
         request.post("https://api.ocr.space/parse/image", {
             form: {
                 url: url,
-                apikey: config.get("Commands.b.key"),
+                apikey: config.get("API.ocr.key"),
                 OCREngine: 2,
             }
         }, async function OCRResponse(err, resp, body) {

@@ -47,8 +47,7 @@ module.exports = {
 
             if(bot.client.guilds.cache.has("322032568558026753")) {
                 try {
-                    const userObj = await bot.client.users.fetch(user);
-                    (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${userObj.tag}** just voted at ${await bot.database.getBotlistUrl(source)}`)
+                    (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${await bot.util.getUserTag(user)}** just voted at ${await bot.database.getBotlistUrl(source)}`)
                 } catch (e) {
                     // fart
                     //console.log(e);

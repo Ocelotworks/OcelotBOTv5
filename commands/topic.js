@@ -44,7 +44,10 @@ module.exports = {
                 const messageFetch = await message.channel.messages.fetch({limit: limit});
                 const target = messageFetch.last();
                 try {
-                    await bot.database.addTopic(userMaps[target.author.id], target.content);
+                    let topic = target.content;
+                    if(message.attachments[0])
+                        topic += "\n"+message.attachments[0].url;
+                    await bot.database.addTopic(userMaps[target.author.id], topic);
                     message.channel.send(`:white_check_mark: Added _<${userMaps[target.author.id]}> ${target.content}_ to the list of topics`);
                     if (target.author.id === message.author.id)
                         message.channel.send("_topicing something you said is like laughing at your own joke_ - Neil 2015");

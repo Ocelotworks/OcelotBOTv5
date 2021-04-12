@@ -164,8 +164,8 @@ module.exports = {
          * @returns {String}
          */
         bot.util.prettySeconds = function prettySeconds(seconds, server = "global", user) {
+            if (seconds < 1) return bot.lang.getTranslation(server, "TIME_SECONDS", seconds.toFixed(2), user);
             seconds = Math.round(seconds);
-            if (seconds < 1) return bot.lang.getTranslation(server, "TIME_FRACTION", {}, user);
 
             let prettyString = '', data = [];
 
@@ -402,6 +402,7 @@ module.exports = {
             }
         };
 
+
         bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage) {
             request.metadata = {
                 s: message.guild ? message.guild.id : null,
@@ -411,8 +412,9 @@ module.exports = {
             };
             if (message.content.indexOf("-debug") > -1)
                 request.debug = true;
-            request.compression = true;
+            request.version = 1;
 
+            bot.logger.log(JSON.stringify(request));
             let span = bot.util.startSpan("Receive from RPC");
             let loadingMessage;
             let loadingMessageDelay = setTimeout(async () => {
@@ -440,19 +442,10 @@ module.exports = {
                 span.end();
                 return message.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
             }
+            console.log(response);
             span = bot.util.startSpan("Upload image");
-            let output;
-            if (response.extension.startsWith("gzip/")) {
-                response.extension = response.extension.split("/")[1];
-                const compressedData = Buffer.from(response.data, 'base64');
-               //fs.writeFileSync("profile.png.gz", compressedData);
-                output = zlib.gunzipSync(compressedData);
-            } else {
-                output = Buffer.from(response.data, 'base64')
-            }
-
             let messageResult;
-            let attachment = new Discord.MessageAttachment(output, `${name}.${response.extension}`);
+            let attachment = new Discord.MessageAttachment(response.path, `${name}.${response.extension}`);
             try {
                 if (sentMessage)
                     messageResult = await message.channel.send(sentMessage, attachment);
@@ -477,22 +470,6 @@ module.exports = {
                     {
                         name: "text",
                         args: {
-                            x: 2,
-                            y: 2,
-                            ax: 0,
-                            ay: 0,
-                            w,
-                            spacing: 1.2,
-                            align: 0,
-                            font,
-                            fontSize,
-                            content,
-                            colour: backgroundColour
-                        }
-                    },
-                    {
-                        name: "text",
-                        args: {
                             x: 0,
                             y: 0,
                             ax: 0,
@@ -503,6 +480,7 @@ module.exports = {
                             font,
                             fontSize,
                             content,
+                            shadowColour: backgroundColour,
                             colour: foregroundColour
                         }
                     },
@@ -692,7 +670,7 @@ module.exports = {
                     return null;
                 }
 
-                let data = await bot.util.getJson(`https://api.tenor.com/v1/gifs?ids=${id}&key=${config.get("Tenor.key")}`)
+                let data = await bot.util.getJson(`https://api.tenor.com/v1/gifs?ids=${id}&key=${config.get("API.tenor.key")}`)
                 if (data.error || !data.results || data.results.length === 0 || !data.results[0].media) {
                     bot.logger.warn("Malformed tenor URL " + url);
                     sentry.setExtra("response", data)
@@ -1179,6 +1157,8 @@ module.exports = {
             })
         };
 
+
+
         let waitingUsers = {};
         bot.util.getUserInfo = async function getUserInfo(userID) {
             try {
@@ -1202,6 +1182,12 @@ module.exports = {
             }catch(e){
                 return null;
             }
+        }
+
+        bot.util.getUserTag = async function(userID){
+            if(bot.config.getBool("global", "privacy.anonymous", userID))return "Anonymous";
+            let user = await bot.util.getUserInfo(userID);
+            return user ? user.tag : "Unknown User "+userID;
         }
 
         bot.bus.on("getUserInfoResponse", (message) => {
@@ -1484,7 +1470,7 @@ module.exports = {
                 reference: message.reference,
                 id: message.id,
                 timestamp: message.createdTimestamp,
-                attachments: message.attachments.map((a) => a.name),
+                attachments: message.attachments.map((a) => a.url),
                 embeds: message.embeds,
             }
         }

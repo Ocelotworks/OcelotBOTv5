@@ -1,7 +1,5 @@
 const Discord = require('discord.js');
-const canvas = require('canvas');
 const dateFormat = require('dateformat');
-const wrap = require('word-wrap');
 
 
 //Something tells me theres better ways to do this, but I'm doing it this way
@@ -399,7 +397,6 @@ module.exports = {
                 }
             }
 
-            console.log(JSON.stringify(imageRequest));
             message.channel.stopTyping();
             return bot.util.imageProcessor(message, imageRequest, "profile");
         }else{

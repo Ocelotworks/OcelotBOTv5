@@ -43,8 +43,8 @@ module.exports = {
                 return message.channel.send(":bangbang: Invalid IP Address.");
 
             try {
-                let abuseIp = await bot.util.getJson(`https://api.abuseipdb.com/api/v2/check?ipAddress=${args[1]}&days=${config.get("Commands.ipinfo.days")}}`, null, {
-                    Key: config.get("Commands.ipinfo.key"),
+                let abuseIp = await bot.util.getJson(`https://api.abuseipdb.com/api/v2/check?ipAddress=${args[1]}&days=31`, null, {
+                    Key: config.get("API.abuseipdb.key"),
                     Accept: 'application/json'
                 });
                 if (abuseIp && abuseIp.data) {
@@ -80,7 +80,7 @@ module.exports = {
                 Sentry.captureException(e);
             }
             if(!message.getSetting("ipinfo.disableTorrents")) {
-                let torrentData = await bot.util.getJson(`https://api.antitor.com/history/peer?ip=${args[1]}&key=${config.get("Commands.ipinfo.torrentKey")}&days=30`);
+                let torrentData = await bot.util.getJson(`https://api.antitor.com/history/peer?ip=${args[1]}&key=${config.get("API.antitor.key")}&days=30`);
                 let output = "";
                 if (torrentData.hasPorno) {
                     output += (await message.getLang("IPINFO_PORN"))+"\n";

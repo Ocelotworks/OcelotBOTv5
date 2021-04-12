@@ -19,7 +19,7 @@ module.exports = {
             url: "https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender",
             headers: {
                 "Content-Type": "application/json",
-                "Ocp-Apim-Subscription-Key": config.get("Commands.face.key")
+                "Ocp-Apim-Subscription-Key": config.get("API.msFaceDetect.key")
             },
             body: {
                 url: url

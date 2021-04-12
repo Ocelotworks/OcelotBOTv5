@@ -6,6 +6,7 @@ module.exports = {
         syntheticMessage.synthetic = true;
         syntheticMessage.content = response.content;
         syntheticMessage.cleanContent = response.content;
+        syntheticMessage.client = bot.client;
         return bot.runCommand(syntheticMessage)
     }
 }

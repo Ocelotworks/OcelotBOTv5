@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const shardNames = [
     "Remo.tv",
-    "Let's Robot",
+    "shart",
     "Sexy Trap Wife",
     "Autistic",
     "Wankish",
@@ -13,13 +13,19 @@ const shardNames = [
     "S1othy",
     "Omz",
     "sunny",
-    "smirkstudios"
+    "smirkstudios",
+    "Gnome Fire",
+    "Litchfield",
+    "orchid",
+    "Prince Ali, Fabulous He",
+    "Seegee",
+    "Scotty",
 ];
 module.exports = {
     name: "Stats",
     usage: "stats",
     requiredPermissions: ["EMBED_LINKS"],
-    commands: ["stats", "statistics", "info", "about", "privacy"],
+    commands: ["stats", "statistics", "info", "about"],
     categories: ["meta"],
     run: async function run(message, args, bot) {
         if(args[1] && args[1] === "watson"){
