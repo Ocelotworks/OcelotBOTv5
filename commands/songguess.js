@@ -24,6 +24,7 @@ let runningGames = {"":{
 
 const spotifyPlaylist = /.*open\.spotify\.com\/playlist\/(.*)[\/?#]?/gi
 
+
 module.exports = {
     name: "Guess The Song",
     usage: "guess [stop/stats/leaderboard]",
@@ -35,6 +36,10 @@ module.exports = {
         bot.util.standardNestedCommandInit("guess");
     },
     run:  async function run(message, args, bot) {
+        // Hack for A/B testing
+        if(message.getBool("songguess.old")){
+            return bot.commands["guess_old"](message, args, bot);
+        }
         if (!message.guild) {
             return message.replyLang("GENERIC_DM_CHANNEL");
         }
