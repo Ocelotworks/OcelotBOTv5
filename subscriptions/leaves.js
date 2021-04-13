@@ -16,6 +16,7 @@ module.exports = {
         let channel = bot.client.channels.cache.get(sub.channel);
         bot.client.on("guildMemberRemove", function(guildMember) {
             if(guildMember.guild.id === sub.server){
+                if(bot.drain)return;
                 channel.send(message.formatUnicorn({
                     user: guildMember.user,
                     username: guildMember.user.username,

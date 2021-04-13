@@ -47,7 +47,7 @@ module.exports = {
                 let botList = await bot.database.getSingleBotlist(counter++);
                 if(!botList)return counter = 0;
                 await module.exports.updateList(botList, bot);
-            }, 300000)
+            }, 60000)
         })
 
         bot.bus.on("commandLoadFinished", async function () {
