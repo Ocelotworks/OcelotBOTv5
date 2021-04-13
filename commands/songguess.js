@@ -99,6 +99,9 @@ async function endGame(bot, id){
     const game = runningGames[id];
     if(!game || game.ending)return;
     game.ending = true;
+    if(game.timeout){
+        clearTimeout(game.timeout);
+    }
     if(game.player) {
         // Player listeners are removed first to stop the next song from playing
         game.player.removeAllListeners();
@@ -254,16 +257,21 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
         }else {
             game.failures++;
             let message = `:stopwatch: The song is over! The answer was **${song.track.artists.map((a) => a.name).join(", ")} - ${song.track.name}**`;
-            if( game.failures === 3){
+            if( game.failures > 2){
                 message += `\n:thinking: Stuck? Try a different playlist from **${game.textChannel.guild.getSetting("prefix")}guess playlists**`
             }
+
             textChannel.send(message);
         }
         if(game.ending)return;
         if(voiceChannel.members.filter((m)=>!m.user.bot).size < 1)return textChannel.send(":zzz: Stopping because nobody is in the voice channel anymore.");
-        if((new Date()).getTime()-game.lastGuessTime > 60000)return textChannel.send(":zzz: Stopping because nobody has guessed anything in a while.");
+        if((new Date()).getTime()-game.lastGuessTime > 70000)return textChannel.send(":zzz: Stopping because nobody has guessed anything in a while.");
+        if(bot.drain)return textChannel.send("OcelotBOT has received an update, please wait a few seconds and start your game again.");
         if(new Date().getTime()-guessStarted < 1000 && !winner)return bot.logger.log("Track took less than a second to play, something bad happened");
-        return newGuess(bot, voiceChannel);
+        textChannel.send(`The next song will start shortly... (Type **${game.textChannel.guild.getSetting("prefix")}guess stop** to cancel)`);
+        return game.timeout = setTimeout(()=>{
+            newGuess(bot, voiceChannel)
+        }, 3000);
     })
 }
 
