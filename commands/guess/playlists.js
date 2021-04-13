@@ -9,7 +9,7 @@ module.exports = {
         for(let i = 0; i < playlists.length; i++){
             if(playlists[i].id.length > spaceLength)spaceLength = playlists[i].id.length+1;
         }
-        const header = `Select a playlist using ${args[0]} followed by one of the IDs below:\n\`\`\`\n`
+        const header = `Select a playlist using **${args[0]}** followed a spotify playlist URL, or one of the following:\n\`\`\`\n`
         return bot.util.standardPagination(message.channel, chunkedPlaylists, async function (page, index) {
             let output = "";
             output += header;

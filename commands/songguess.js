@@ -20,6 +20,7 @@ let runningGames = {"":{
     custom: false,
     collector: {},
     ending: false,
+    failures: 0,
 }};
 
 
@@ -130,6 +131,7 @@ async function startGame(bot, message, playlistId, custom){
         playlistId,
         player,
         custom,
+        failures: 0,
         end: ()=>endGame(bot, message.guild.id),
     }
     player.on("error", (e)=>{
@@ -245,10 +247,17 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                     }
                 }
             }
+            winEmbed.setFooter(`ℹ BETA: Report any bugs with ${game.textChannel.guild.getSetting("prefix")}feedback`);
             bot.bus.emit("onGuessWin", {winner, game})
             bot.util.replyTo(winner, winEmbed);
+            game.failures = 0;
         }else {
-            textChannel.send(`:stopwatch: The song is over! The answer was **${song.track.artists.map((a) => a.name).join(", ")} - ${song.track.name}**`);
+            game.failures++;
+            let message = `:stopwatch: The song is over! The answer was **${song.track.artists.map((a) => a.name).join(", ")} - ${song.track.name}**`;
+            if( game.failures === 3){
+                message += `\n:thinking: Stuck? Try a different playlist from **${game.textChannel.guild.getSetting("prefix")}guess playlists**`
+            }
+            textChannel.send(message);
         }
         if(game.ending)return;
         if(voiceChannel.members.filter((m)=>!m.user.bot).size < 1)return textChannel.send(":zzz: Stopping because nobody is in the voice channel anymore.");
