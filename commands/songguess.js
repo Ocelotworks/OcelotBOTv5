@@ -235,6 +235,8 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                 winEmbed.setThumbnail(song.track.images[0].url);
             else if(song.track.album && song.track.album.images && song.track.album.images[0])
                 winEmbed.setThumbnail(song.track.album.images[0].url);
+            let points = 10;
+            await bot.database.addPoints(winner.author.id, 10, `guess win`);
             let elapsed = winner.createdAt-guessStarted;
             winEmbed.addField(":stopwatch: Time Taken", bot.util.prettySeconds(elapsed / 1000, winner.guild.id, winner.author.id));
             if(!game.custom) {
@@ -246,9 +248,14 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                 if (!fastestGuess[0] || fastestGuess[0].time > elapsed) {
                     bot.database.updateSongRecord(loggedTrackName, winner.author.id, elapsed)
                     if (fastestGuess[0]) {
+                        await bot.database.addPoints(message.author.id, 15, `guess record`);
+                        points += 15;
                         textChannel.send(":tada: You beat the fastest time for this song!");
                     }
                 }
+            }
+            if(game.textChannel.guild.getBool("points.enabled")){
+                winEmbed.addField("Points", `+<:points:817100139603820614>${points}`)
             }
             winEmbed.setFooter(`ℹ BETA: Report any bugs with ${game.textChannel.guild.getSetting("prefix")}feedback`);
             bot.bus.emit("onGuessWin", {winner, game})
