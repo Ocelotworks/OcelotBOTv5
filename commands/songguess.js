@@ -65,6 +65,7 @@ module.exports = {
 
         if(playlist === null) {
             const availablePlaylists = await message.getSetting("songguess.default").split(",");
+            bot.logger.log(`Using playlist: ${availablePlaylists}`);
             playlist = await bot.database.getGuessPlaylist(message.guild.id, bot.util.arrayRand(availablePlaylists));
         }
 
@@ -187,6 +188,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
     const collector = textChannel.createMessageCollector((m)=>{
         if(m.author.bot)return false;
         game.lastGuessTime = new Date();
+        bot.logger.log(bot.util.serialiseMessage(m));
         let elapsed = new Date()-guessStarted;
         const normalisedContent = normalise(m.cleanContent);
         const partialLength = normalisedName.indexOf(normalisedContent) > -1 ? normalisedContent.length : 0;
@@ -250,7 +252,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                 if (!fastestGuess[0] || fastestGuess[0].time > elapsed) {
                     bot.database.updateSongRecord(loggedTrackName, winner.author.id, elapsed)
                     if (fastestGuess[0]) {
-                        await bot.database.addPoints(message.author.id, 15, `guess record`);
+                        await bot.database.addPoints(winner.author.id, 15, `guess record`);
                         points += 15;
                         textChannel.send(":tada: You beat the fastest time for this song!");
                     }
