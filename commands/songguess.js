@@ -63,8 +63,10 @@ module.exports = {
             }
         }
 
-        if(playlist === null)
-            playlist = await bot.database.getGuessPlaylist(message.guild.id, message.getSetting("songguess.default"));
+        if(playlist === null) {
+            const availablePlaylists = await message.getSetting("songguess.default").split(",");
+            playlist = await bot.database.getGuessPlaylist(message.guild.id, bot.util.arrayRand(availablePlaylists));
+        }
 
         if (!bot.lavaqueue)return message.replyLang("SONGGUESS_UNAVAILABLE");
         if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
