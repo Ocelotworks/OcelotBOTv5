@@ -55,7 +55,7 @@ module.exports = {
 
         request({
             headers: {
-                "TRN-Api-Key": config.get(`Commands.${module.exports.commands[0]}.key`),
+                "TRN-Api-Key": config.get(`API.fortnite.key`),
                 "Content-Type": "application/json"
             },
             url: url+`${platform}/${encodeURIComponent(username)}`,
