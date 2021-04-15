@@ -63,8 +63,11 @@ module.exports = {
             }
         }
 
-        if(playlist === null)
-            playlist = await bot.database.getGuessPlaylist(message.guild.id, message.getSetting("songguess.default"));
+        if(playlist === null) {
+            const availablePlaylists = await message.getSetting("songguess.default").split(",");
+            bot.logger.log(`Using playlist: ${availablePlaylists}`);
+            playlist = await bot.database.getGuessPlaylist(message.guild.id, bot.util.arrayRand(availablePlaylists));
+        }
 
         if (!bot.lavaqueue)return message.replyLang("SONGGUESS_UNAVAILABLE");
         if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
@@ -125,7 +128,7 @@ async function startGame(bot, message, playlistId, custom){
     const player = await bot.lavaqueue.manager.join({
         guild: message.guild.id,
         channel: vcId,
-        node: bot.lavaqueue.manager.idealNodes[0].id,
+        node: bot.util.arrayRand(bot.lavaqueue.manager.idealNodes).id,
     }, {selfdeaf: true})
 
     runningGames[message.guild.id] = {
@@ -185,6 +188,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
     const collector = textChannel.createMessageCollector((m)=>{
         if(m.author.bot)return false;
         game.lastGuessTime = new Date();
+        bot.logger.log(bot.util.serialiseMessage(m));
         let elapsed = new Date()-guessStarted;
         const normalisedContent = normalise(m.cleanContent);
         const partialLength = normalisedName.indexOf(normalisedContent) > -1 ? normalisedContent.length : 0;
@@ -235,6 +239,8 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                 winEmbed.setThumbnail(song.track.images[0].url);
             else if(song.track.album && song.track.album.images && song.track.album.images[0])
                 winEmbed.setThumbnail(song.track.album.images[0].url);
+            let points = 10;
+            await bot.database.addPoints(winner.author.id, 10, `guess win`);
             let elapsed = winner.createdAt-guessStarted;
             winEmbed.addField(":stopwatch: Time Taken", bot.util.prettySeconds(elapsed / 1000, winner.guild.id, winner.author.id));
             if(!game.custom) {
@@ -246,9 +252,14 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                 if (!fastestGuess[0] || fastestGuess[0].time > elapsed) {
                     bot.database.updateSongRecord(loggedTrackName, winner.author.id, elapsed)
                     if (fastestGuess[0]) {
+                        await bot.database.addPoints(winner.author.id, 15, `guess record`);
+                        points += 15;
                         textChannel.send(":tada: You beat the fastest time for this song!");
                     }
                 }
+            }
+            if(game.textChannel.guild.getBool("points.enabled")){
+                winEmbed.addField("Points", `+<:points:817100139603820614>${points}`)
             }
             winEmbed.setFooter(`ℹ BETA: Report any bugs with ${game.textChannel.guild.getSetting("prefix")}feedback`);
             bot.bus.emit("onGuessWin", {winner, game})

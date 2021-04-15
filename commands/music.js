@@ -308,7 +308,7 @@ module.exports = {
         let player = await bot.lavaqueue.manager.join({
             guild: server.id,
             channel: voiceChannel.id,
-            node: bot.lavaqueue.manager.idealNodes[0].id,
+            node: bot.util.arrayRand(bot.lavaqueue.manager.idealNodes).id,
         });
         bot.logger.log("Successfully joined voice channel");
         if (!id) {
