@@ -128,7 +128,7 @@ async function startGame(bot, message, playlistId, custom){
     const player = await bot.lavaqueue.manager.join({
         guild: message.guild.id,
         channel: vcId,
-        node: bot.lavaqueue.manager.idealNodes[0].id,
+        node: bot.util.arrayRand(bot.lavaqueue.manager.idealNodes).id,
     }, {selfdeaf: true})
 
     runningGames[message.guild.id] = {

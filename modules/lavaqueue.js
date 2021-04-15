@@ -131,7 +131,7 @@ module.exports = {
             // if(voiceChannel.guild && voiceChannel.guild.id === "622757587489914880")
             //    song = "https://cdn.discordapp.com/attachments/626353784888754177/767805301260025896/websdr_recording_start_2020-10-19T17_41_42Z_7055.0kHz.wav";
             bot.lavaqueue.cancelLeave(voiceChannel);
-            if(!node)node = bot.lavaqueue.manager.idealNodes[0].id;
+            if(!node)node = bot.util.arrayRand(bot.lavaqueue.manager.idealNodes).id;
             bot.tasks.startTask("playOneSong", voiceChannel.id);
             let span = bot.util.startSpan("Join Voice Channel", "voice");
             let player = await bot.lavaqueue.manager.join({
