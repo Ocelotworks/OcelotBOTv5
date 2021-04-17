@@ -28,7 +28,7 @@ module.exports = {
         });
 
         bot.api.get("/commands", (req, res) => {
-            res.json(bot.commandUsages);
+            res.json(bot.commandObjects);
         })
 
 
