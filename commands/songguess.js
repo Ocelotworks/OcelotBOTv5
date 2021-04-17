@@ -150,12 +150,16 @@ async function startGame(bot, message, playlistId, custom){
 
 async function newGuess(bot, voiceChannel, retrying = false){
     const game = runningGames[voiceChannel.guild.id];
-    const playlist = await getPlaylist(bot, game.playlistId);
+    const playlistLength = await getPlaylistLength(bot, game.playlistId);
+    const index = counter++ % playlistLength;
+    const chunk = Math.floor(index/100)*100;
+    bot.logger.log(`Counter: ${counter} Index: ${index} Chunk: ${chunk}`);
+    const playlist = await getPlaylist(bot, game.playlistId, chunk);
     if(!playlist || playlist.length === 0) {
         endGame(bot,  voiceChannel.guild.id);
         return game.textChannel.send(":warning: The playlist you selected has no playable songs.")
     }
-    const song = playlist[counter++ % playlist.length];
+    const song = playlist[index];
     console.log(song);
     game.currentTrack = song;
     const songData = await bot.lavaqueue.getSong(song.track.preview_url, game.player);
@@ -303,9 +307,9 @@ async function getToken(bot){
     return tokenData.access_token;
 }
 
-async function getPlaylist(bot, playlistId){
-    return await bot.redis.cache(`songguess/playlist/${playlistId}`, async () =>{
-        let result = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=GB`, {
+async function getPlaylist(bot, playlistId, chunk){
+    return await bot.redis.cache(`songguess/playlist/${playlistId}/${chunk}`, async () =>{
+        let result = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?offset=${chunk}&limit=100&market=GB`, {
             headers: {
                 authorization: `Bearer ${await getToken(bot)}`
             }
@@ -316,6 +320,17 @@ async function getPlaylist(bot, playlistId){
         }
         let songList = result.data.items.filter((item)=>item.track&&item.track.preview_url);
         bot.util.shuffle(songList);
-        return songList;
+        return songList
+    }, 120);
+}
+
+async function getPlaylistLength(bot, playlistId){
+    return await bot.redis.cache(`songguess/playlist/${playlistId}/length`, async () =>{
+        let result = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=GB&fields=total`, {
+            headers: {
+                authorization: `Bearer ${await getToken(bot)}`
+            }
+        })
+        return result.data.total;
     }, 120);
 }
