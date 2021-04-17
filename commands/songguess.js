@@ -24,7 +24,7 @@ let runningGames = {"":{
 }};
 
 
-const spotifyPlaylist = /.*open\.spotify\.com\/playlist\/(.*)[\/?#]?/gi
+const spotifyPlaylist = /.*\/open\.spotify\.com\/playlist\/(.+?)([\/?#]|$)/gi
 
 
 module.exports = {
