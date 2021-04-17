@@ -317,5 +317,5 @@ async function getPlaylist(bot, playlistId){
         let songList = result.data.items.filter((item)=>item.track&&item.track.preview_url);
         bot.util.shuffle(songList);
         return songList;
-    }, 3.6e+6);
+    }, 120);
 }
