@@ -22,6 +22,9 @@ module.exports = {
                 case "banned":
                     output = `This subreddit is banned.`;
                     break;
+                case "private":
+                    output = `This subreddit is private.`;
+                    break;
                 default:
                     output = `Unable to access subreddit. Reddit said: ${result.reason || result.message}`;
             }
