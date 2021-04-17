@@ -86,7 +86,7 @@ module.exports = {
                     playlistName = message.getSetting("songguess.default");
                 else if(args[1].startsWith("http"))
                     playlistName = "<"+args[1]+">";
-                return message.channel.send(`Switched the playlist to **${playlistName}**`);
+                return message.channel.send(`Switched the playlist to **${playlistName}**\nThe next song will be from this playlist, or to start now type **${args[0]} skip**`);
             }
             return message.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: runningGames[message.guild.id].voiceChannel.name})
         }
