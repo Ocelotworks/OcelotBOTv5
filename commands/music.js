@@ -10,67 +10,16 @@ let Discord = require('discord.js');
 const Sentry = require('@sentry/node');
 let bot;
 
-module.exports = {
-    name: "Music Streaming",
-    usage: "music help/play/skip",
-    rateLimit: 10,
-    categories: ["voice"],
-    //requiredPermissions: ["CONNECT", "SPEAK"],
-    premium: false,
-    commands: ["music", "m"],
-    subCommands: {},
+// I hate ALL of this code
+let music = {
     shuffleQueue: [],
     listeners: {},
-    init: function init(fuckdamn) {
-        //fuck you
-        bot = fuckdamn;
-        bot.util.standardNestedCommandInit('music');
-        module.exports.populateShuffleQueue();
-
-        bot.client.on("ready", function ready() {
-            return;
-            bot.lavaqueue.manager.on("ready", async function () {
-                let activeSessions = await bot.database.getActiveSessions();
-                for (let i = 0; i < activeSessions.length; i++) {
-                    const session = activeSessions[i];
-                    try {
-                        if (bot.client.guilds.cache.has(session.server)) {
-                            bot.logger.log(`Resuming session ${session.id}`);
-                            const listener = await module.exports.constructListener(bot.client.guilds.cache.get(session.server), bot.client.channels.cache.get(session.voiceChannel), bot.client.channels.cache.get(session.textChannel), session.id);
-                            listener.playing = await bot.lavaqueue.getSong(session.playing, listener.connection);
-                            listener.autodj = session.autodj;
-                            if (session.lastMessage) {
-                                if (!listener.channel) return await bot.database.endMusicSession(session.id);
-                                listener.lastMessage = await listener.channel.messages.fetch(session.lastMessage);
-                                await module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), true);
-                                if (listener.channel.guild.getBool("music.updateNowPlaying")) {
-                                    listener.editInterval = setInterval(function updateNowPlaying() {
-                                        if (module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false))
-                                            clearInterval(listener.editInterval);
-                                    }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
-                                }
-                            }
-                            await module.exports.requeue(session, await bot.database.getQueueForSession(session.id));
-                        }
-                    } catch (e) {
-                        Sentry.captureException(e);
-                        await bot.database.endMusicSession(session.id);
-                    }
-                }
-            })
-        });
-        bot.music = module.exports;
-    },
     requeue: async function requeue(session, queue) {
         bot.logger.log("Populating queue with " + queue.length + " songs.");
         for (let i = 0; i < queue.length; i++) {
             let song = queue[i];
-            await module.exports.addToQueue(session.server, song.uri, song.requester, false, song.id);
+            await music.addToQueue(session.server, song.uri, song.requester, false, song.id);
         }
-    },
-    run: function (message, args, bot) {
-        if (!message.guild) return message.replyLang("GENERIC_DM_CHANNEL");
-        bot.util.standardNestedCommand(message, args, bot, 'music', module.exports);
     },
     //shit
     _addToQueue: async function (listener, track, requester, next, id) {
@@ -82,11 +31,11 @@ module.exports = {
         listener.queue[next ? "unshift" : "push"](track);
     },
     addToQueue: async function (server, search, requester, next = false, id) {
-        let listener = module.exports.listeners[server];
+        let listener = music.listeners[server];
         if (!listener) { // Not sure how we got here
             bot.logger.error("The bad things happened");
-            console.log(module.exports.listeners);
-            Sentry.setExtra("listeners", module.exports.listeners);
+            console.log(music.listeners);
+            Sentry.setExtra("listeners", music.listeners);
             Sentry.captureMessage("Invalid state: addToQueue successfully called with no listener");
             return null;
         }
@@ -107,13 +56,13 @@ module.exports = {
             case "SEARCH_RESULT":
             case "TRACK_LOADED":
                 bot.logger.log("Track was successfully loaded");
-                await module.exports._addToQueue(listener, result.tracks[0], requester, next, id);
+                await music._addToQueue(listener, result.tracks[0], requester, next, id);
                 obj = result.tracks[0].info;
                 bot.logger.log(`Object is now: ${obj}`);
                 break;
             case "PLAYLIST_LOADED":
                 bot.logger.log("Playlist was successfully loaded");
-                result.tracks.forEach(async (t) => await module.exports._addToQueue(listener, t, requester, next, id));
+                result.tracks.forEach(async (t) => await music._addToQueue(listener, t, requester, next, id));
                 obj = {
                     count: result.tracks.length,
                     name: result.playlistInfo.name,
@@ -130,7 +79,7 @@ module.exports = {
 
         if (!listener.playing && !id) {
             bot.logger.log("Playing next in queue");
-            module.exports.playNextInQueue(server);
+            music.playNextInQueue(server);
         } else {
             bot.logger.log("Not playing now as something is playing or this is a session resume");
         }
@@ -142,7 +91,7 @@ module.exports = {
         request("https://unacceptableuse.com/petify/templates/songs/shuffleQueue", function (err, resp, body) {
             if (!err && body) {
                 try {
-                    module.exports.shuffleQueue = JSON.parse(body);
+                    music.shuffleQueue = JSON.parse(body);
                 } catch (e) {
                     console.error(e);
                 }
@@ -153,9 +102,9 @@ module.exports = {
     },
     getAutoDJSong: async function getAutoDJSong(player) {
         return new Promise(async function (fulfill) {
-            if (module.exports.shuffleQueue.length < 5)
-                module.exports.populateShuffleQueue();
-            let petifySong = module.exports.shuffleQueue.shift();
+            if (music.shuffleQueue.length < 5)
+                music.populateShuffleQueue();
+            let petifySong = music.shuffleQueue.shift();
 
             if (!petifySong) {
                 bot.logger.warn("Shits fucked");
@@ -163,7 +112,7 @@ module.exports = {
                 songData.info.author = "Moloko";
                 songData.info.title = "Moloko - The Time Is Now";
                 fulfill(songData);
-                module.exports.populateShuffleQueue();
+                music.populateShuffleQueue();
             } else {
                 request(`https://unacceptableuse.com/petify/api/song/${petifySong.id}/info`, async function (err, resp, body) {
                     try {
@@ -186,11 +135,11 @@ module.exports = {
     },
     playNextInQueue: async function playNextInQueue(server) {
         bot.logger.log(`Playing next song for ${server}`);
-        if (!module.exports.listeners[server]) {
+        if (!music.listeners[server]) {
             return bot.logger.warn(`Queue for ${server} is missing!`);
         }
 
-        let listener = module.exports.listeners[server];
+        let listener = music.listeners[server];
         let newSong = listener.queue.shift();
         bot.logger.log("New song is " + JSON.stringify(newSong));
 
@@ -203,7 +152,7 @@ module.exports = {
             bot.logger.log("There is no new song, or the voice channel is empty");
             if (listener.autodj) {
                 bot.logger.log("AutoDJ is enabled, so play next song");
-                newSong = await module.exports.getAutoDJSong(listener.connection);
+                newSong = await music.getAutoDJSong(listener.connection);
             } else {
                 bot.logger.log("Requesting leave")
                 listener.playing = null;
@@ -220,13 +169,13 @@ module.exports = {
         listener.voteSkips = [];
 
         bot.logger.log("Playing new song " + JSON.stringify(newSong));
-        module.exports.playSong(listener);
+        music.playSong(listener);
         bot.logger.log("Sending update message");
-        await module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener));
+        await music.updateOrSendMessage(listener, music.createNowPlayingEmbed(listener));
 
         if (listener.channel.guild.getBool("music.updateNowPlaying")) {
             listener.editInterval = setInterval(function updateNowPlaying() {
-                if (module.exports.updateOrSendMessage(listener, module.exports.createNowPlayingEmbed(listener), false))
+                if (music.updateOrSendMessage(listener, music.createNowPlayingEmbed(listener), false))
                     clearInterval(listener.editInterval);
             }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
         }
@@ -319,7 +268,7 @@ module.exports = {
             //    channel.send(`:information_source: You have **${oldQueues.length}** previous queues stored. To restore or clear them, type ${channel.guild.getSetting("prefix")}music requeue`);
         }
         bot.logger.log("Creating listener");
-        let listener = module.exports.listeners[server.id] = {
+        let listener = music.listeners[server.id] = {
             connection: player,
             voteSkips: [],
             queue: [],
@@ -333,13 +282,13 @@ module.exports = {
                 bot.logger.log(`Event for listener ${listener.server}: ${JSON.stringify(evt)}`);
                 if (evt.type === "TrackEndEvent" && evt.reason !== "REPLACED") {
                     bot.logger.log(`Song for listener ${listener.server} has ended`);
-                    module.exports.playNextInQueue(listener.server);
+                    music.playNextInQueue(listener.server);
                     bot.lavaqueue.requestLeave(listener.voiceChannel, "Song has ended");
                 }
             },
             playerUpdateListener: function playerUpdate(evt) {
                 if (listener && listener.playing) {
-                    bot.logger.log("Listener update: " + evt.state.position);
+                    bot.logger.log(`Listener update: (${listener.playing.info.title}) ${evt.state.position}`);
                     listener.playing.position = evt.state.position;
                 }
             },
@@ -348,7 +297,7 @@ module.exports = {
                 if (error.error) {
                     listener.channel.send(":warning: " + error.error);
                     Sentry.captureException(error.error);
-                    module.exports.playNextInQueue(listener.server);
+                    music.playNextInQueue(listener.server);
                 } else if (error.reason && error.reason === "Closed by client") {
                     bot.lavaqueue.requestLeave(listener.voiceChannel, "Closed by client");
                 } else {
@@ -370,7 +319,7 @@ module.exports = {
     },
     deconstructListener: async function (server) {
         bot.logger.log("Deconstructing listener " + server);
-        const listener = module.exports.listeners[server];
+        const listener = music.listeners[server];
         if (!listener) return bot.logger.warn(`Trying to deconstruct listener for server ${server} that does not exist.`);
         listener.connection.removeListener("event", listener.eventListener);
         listener.connection.removeListener("playerUpdate", listener.playerUpdateListener);
@@ -381,7 +330,7 @@ module.exports = {
             clearInterval(listener.checkInterval);
         if (listener.editInterval)
             clearInterval(listener.editInterval);
-        module.exports.listeners[server] = undefined;
+        music.listeners[server] = undefined;
         bot.logger.log("Ending music session " + listener.id);
         await bot.database.endMusicSession(listener.id);
     },
@@ -392,7 +341,7 @@ module.exports = {
                 if (listener.playing.info.length <= 1000) {
                     bot.logger.log(`Song is ${listener.playing.info.length}ms long which is too short.`);
                     await listener.channel.sendLang("MUSIC_PLAY_SHORT");
-                    return module.exports.playNextInQueue(listener.server);
+                    return music.playNextInQueue(listener.server);
                 }
 
                 bot.logger.log(`Updating now playing to be ${listener.playing.info.uri}`);
@@ -415,7 +364,7 @@ module.exports = {
                                 await bot.lavaqueue.manager.leave(listener.server);
                             }
                             bot.logger.log("Deconstructing the listener " + listener.server);
-                            await module.exports.deconstructListener(listener.server);
+                            await music.deconstructListener(listener.server);
                         }
                     }, 1.8e+6);
                 }
@@ -436,25 +385,63 @@ module.exports = {
                 listener.channel.stopTyping(true);
                 bot.logger.error("Something bad happened");
                 console.error(e);
-                await module.exports.playNextInQueue(listener.server)
+                await music.playNextInQueue(listener.server)
             }
-            // bot.matomo.track({
-            //     action_name: "Stream Song",
-            //     uid:  listener.playing.requester,
-            //     url: `http://bot.ocelotbot.xyz/stream`,
-            //     ua: "Shard "+bot.client.shard_id,
-            //     e_c: "Song",
-            //     e_a: "Streamed",
-            //     e_n: listener.playing.info.title,
-            //     e_v: 1,
-            //     cvar: JSON.stringify({
-            //         1: ['Server ID', listener.server],
-            //         2: ['Server Name', bot.client.guilds.cache.get(listener.server).name],
-            //         3: ['Message', ""],
-            //         4: ['Channel Name', listener.channel.name],
-            //         5: ['Channel ID', listener.channel.id]
-            //     })
-            // });
         })
     }
+}
+
+module.exports = {
+    name: "Music Streaming",
+    usage: "music help/play/skip",
+    rateLimit: 10,
+    categories: ["voice"],
+    //requiredPermissions: ["CONNECT", "SPEAK"],
+    premium: false,
+    commands: ["music", "m"],
+
+    init: function init(fuckdamn) {
+        //fuck you
+        bot = fuckdamn;
+        bot.util.standardNestedCommandInit('music');
+        music.populateShuffleQueue();
+
+        bot.client.on("ready", function ready() {
+            return;
+            bot.lavaqueue.manager.on("ready", async function () {
+                let activeSessions = await bot.database.getActiveSessions();
+                for (let i = 0; i < activeSessions.length; i++) {
+                    const session = activeSessions[i];
+                    try {
+                        if (bot.client.guilds.cache.has(session.server)) {
+                            bot.logger.log(`Resuming session ${session.id}`);
+                            const listener = await music.constructListener(bot.client.guilds.cache.get(session.server), bot.client.channels.cache.get(session.voiceChannel), bot.client.channels.cache.get(session.textChannel), session.id);
+                            listener.playing = await bot.lavaqueue.getSong(session.playing, listener.connection);
+                            listener.autodj = session.autodj;
+                            if (session.lastMessage) {
+                                if (!listener.channel) return await bot.database.endMusicSession(session.id);
+                                listener.lastMessage = await listener.channel.messages.fetch(session.lastMessage);
+                                await music.updateOrSendMessage(listener, music.createNowPlayingEmbed(listener), true);
+                                if (listener.channel.guild.getBool("music.updateNowPlaying")) {
+                                    listener.editInterval = setInterval(function updateNowPlaying() {
+                                        if (music.updateOrSendMessage(listener, music.createNowPlayingEmbed(listener), false))
+                                            clearInterval(listener.editInterval);
+                                    }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
+                                }
+                            }
+                            await music.requeue(session, await bot.database.getQueueForSession(session.id));
+                        }
+                    } catch (e) {
+                        Sentry.captureException(e);
+                        await bot.database.endMusicSession(session.id);
+                    }
+                }
+            })
+        });
+        bot.music = music;
+    },
+    run: function (message, args, bot) {
+        if (!message.guild) return message.replyLang("GENERIC_DM_CHANNEL");
+        bot.util.standardNestedCommand(message, args, bot, 'music', music);
+    },
 };

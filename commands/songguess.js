@@ -8,6 +8,7 @@
 const Discord = require('discord.js');
 const axios = require('axios');
 const config = require('config');
+const Sentry = require('@sentry/node');
 // Start a random position in the playlist on startup, mostly for my sanity during testing
 let counter = Math.round(Math.random()*100);
 let runningGames = {"":{
@@ -154,13 +155,31 @@ async function newGuess(bot, voiceChannel, retrying = false){
     const index = counter++ % playlistLength;
     const chunk = Math.floor(index/100)*100;
     bot.logger.log(`Counter: ${counter} Index: ${index} Chunk: ${chunk}`);
+    Sentry.addBreadcrumb({
+        message: "Starting guess",
+        data: {
+            counter,
+            index,
+            chunk,
+            playlistId: game.playlistId
+        }
+    })
     const playlist = await getPlaylist(bot, game.playlistId, chunk);
     if(!playlist || playlist.length === 0) {
         endGame(bot,  voiceChannel.guild.id);
         return game.textChannel.send(":warning: The playlist you selected has no playable songs.")
     }
     const song = playlist[index];
-    console.log(song);
+    if(!song) {
+        if (!retrying) {
+            return newGuess(bot, voiceChannel, true);
+        } else {
+            game.textChannel.stopTyping();
+            Sentry.captureMessage("Failed to load song")
+            endGame(bot, voiceChannel.guild.id);
+            return game.textChannel.channel.send("Failed to load song. Try again later.")
+        }
+    }
     game.currentTrack = song;
     const songData = await bot.lavaqueue.getSong(song.track.preview_url, game.player);
     if(!songData){
