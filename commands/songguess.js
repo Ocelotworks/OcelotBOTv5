@@ -164,6 +164,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             playlistId: game.playlistId
         }
     })
+
     const playlist = await getPlaylist(bot, game.playlistId, chunk);
     if(!playlist || playlist.length === 0) {
         endGame(bot,  voiceChannel.guild.id);
@@ -177,7 +178,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             game.textChannel.stopTyping();
             Sentry.captureMessage("Failed to load song")
             endGame(bot, voiceChannel.guild.id);
-            return game.textChannel.channel.send("Failed to load song. Try again later.")
+            return game.textChannel.send("Failed to load song. Try again later.")
         }
     }
     game.currentTrack = song;
