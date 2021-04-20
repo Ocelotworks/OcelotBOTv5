@@ -178,7 +178,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             game.textChannel.stopTyping();
             Sentry.captureMessage("Failed to load song")
             endGame(bot, voiceChannel.guild.id);
-            return game.textChannel.channel.send("Failed to load song. Try again later.")
+            return game.textChannel.send("Failed to load song. Try again later.")
         }
     }
     game.currentTrack = song;
