@@ -164,6 +164,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             playlistId: game.playlistId
         }
     })
+
     const playlist = await getPlaylist(bot, game.playlistId, chunk);
     if(!playlist || playlist.length === 0) {
         endGame(bot,  voiceChannel.guild.id);
