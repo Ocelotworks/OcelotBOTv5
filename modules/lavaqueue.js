@@ -170,7 +170,7 @@ module.exports = {
                 bot.lavaqueue.manager.nodes.forEach((connectedNode) => {
                     if (connectedNode.id.startsWith("docker-") && !dockerHosts.includes(connectedNode.id.split("-")[1])) {
                         bot.logger.log(`Node ${connectedNode.id} doesn't exist anymore.`);
-                        const removed = bot.lavaqueue.manager.removeNode(connectedNode.id);
+                        const removed = bot.lavaqueue.manager.nodes.delete(connectedNode.id);
                         if(!removed)
                             bot.logger.log(`Node was not removed! ${connectedNode.id}, ${dockerHosts}`);
                     }
