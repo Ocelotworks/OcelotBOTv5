@@ -8,6 +8,7 @@ module.exports = {
     name: "Ban User",
     usage: "ban <user>",
     commands: ["ban"],
+    noCustom: true,
     run: async function (message, args, bot) {
         const target = message.mentions.users.first() ? message.mentions.users.first().id : args[2];
         await bot.database.ban(target, "user", "Admin ban");

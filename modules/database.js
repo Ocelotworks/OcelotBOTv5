@@ -366,14 +366,26 @@ module.exports = {
                     .groupBy("commandName")
                     .limit(5);
             },
-            getUserCommands: function(userID){
-                return knex.select('id', 'command').from(COMMANDLOG_TABLE).where({userID}).orderBy("timestamp", "desc").limit(5);
+            getUserCommands: function(userID, productID){
+                let query = knex.select('id', 'command').from(COMMANDLOG_TABLE).where({userID}).orderBy("timestamp", "desc").limit(5);
+                if(productID){
+                    query = query.andWhere({productID});
+                }
+                return query;
             },
-            getServerCommands: function(serverID){
-                return knex.select('id', 'command').from(COMMANDLOG_TABLE).where({serverID}).orderBy("timestamp", "desc").limit(5);
+            getServerCommands: function(serverID, productID){
+                let query = knex.select('id', 'command').from(COMMANDLOG_TABLE).where({serverID}).orderBy("timestamp", "desc").limit(5);;
+                if(productID){
+                    query = query.andWhere({productID});
+                }
+                return query;
             },
-            getCommandById: function(id){
-                return knex.select().from(COMMANDLOG_TABLE).where({id}).limit(1);
+            getCommandById: function(id, productID){
+                let query = knex.select().from(COMMANDLOG_TABLE).where({id}).limit(1);
+                if(productID){
+                    query = query.andWhere({productID});
+                }
+                return query;
             },
             /**
              * Get the count of commands by a particular user

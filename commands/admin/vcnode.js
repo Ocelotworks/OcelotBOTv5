@@ -2,6 +2,7 @@ module.exports = {
     name: "Switch VC node",
     usage: "vcnode <node>",
     commands: ["vcnode"],
+    noCustom: true,
     init: function init(bot) {
         bot.bus.on("switchNode", async (msg) => {
             const node = bot.lavaqueue.manager.nodes.get(msg.message.node);

@@ -8,6 +8,7 @@ module.exports = {
     name: "Eval Local Async",
     usage: "evalasync <script>",
     commands: ["evalasync"],
+    noCustom: true,
     run: async function (message, args, bot) {
         try {
             let output = `\`\`\`\n${eval("(async function(){" + message.content.substring(args[0].length + args[1].length + 2) + "})()")}\n\`\`\``;

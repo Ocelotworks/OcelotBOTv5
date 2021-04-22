@@ -2,6 +2,7 @@ module.exports = {
     name: "Eval Script",
     usage: "eval <script>",
     commands: ["eval"],
+    noCustom: true,
     run: async function (message, args, bot) {
         let sentMessage = await message.channel.send("Evaluating on all shards...");
         let result = await bot.rabbit.broadcastEval(message.content.substring(args[0].length + args[1].length + 2));

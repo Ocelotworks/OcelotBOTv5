@@ -2,6 +2,7 @@ module.exports = {
     name: "Give Points",
     usage: "givePoints",
     commands: ["givepoints", "points"],
+    noCustom: true,
     run: async function (message, args, bot) {
         let target;
         let amount = parseInt(args[3]);
