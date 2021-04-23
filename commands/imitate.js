@@ -39,11 +39,9 @@ module.exports = {
             return message.channel.send("https://78.media.tumblr.com/80918f5b6f4ccf8d3a82dced9ec63561/tumblr_pfg0xmvLMz1qb3quho1_500.gif");
 
         const webhooks = await message.channel.fetchWebhooks();
-        let webhook;
-        if(webhooks.size < 1){
-            webhook = await message.channel.createWebhook("OcelotBOT", bot.client.user.displayAvatarURL({dynamic: true, format: "png"}));
-        }else{
-            webhook = webhooks.first();
+        let webhook = webhooks.filter((w)=>w.type === "Incoming").first();
+        if(!webhook){
+            webhook = await message.channel.createWebhook(bot.client.user.username, bot.client.user.displayAvatarURL({dynamic: true, format: "png"}));
         }
 
         const content = message.content.substring(args[0].length+args[1].length+2);
