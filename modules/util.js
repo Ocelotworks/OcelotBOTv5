@@ -1502,7 +1502,7 @@ module.exports = {
                 let result = await axios.post("https://ob-custom-commands.d.int.unacc.eu/run", {
                     version: 1,
                     script: code,
-                    message: bot.util.serialiseMessage(message)
+                    message: bot.util.serialiseMessage(message),
                 })
                 if(doOutput)
                     await Promise.all(result.data.map((out)=>{
