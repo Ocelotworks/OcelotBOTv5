@@ -25,6 +25,11 @@ module.exports = {
             if (target.username.startsWith("Deleted User ")) {
                 message.replyLang("BIRTHDAY_DELETED_USER");
             }
+
+            if(target.id === bot.client.user.id && date.getFullYear() !== 2013 && date.getMonth() !== 6 && date.getDate() !== 15){
+                return message.channel.send(":tada: Birthday added! My birthday is actually **15th July 2013**, by the way.");
+            }
+
             message.replyLang("BIRTHDAY_ADD_SUCCESS");
         } catch (e) {
             message.replyLang("BIRTHDAY_ADD_EXISTS", {command: args[0], target});
