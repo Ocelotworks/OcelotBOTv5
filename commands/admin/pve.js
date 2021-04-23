@@ -3,6 +3,7 @@ module.exports = {
     name: "Proxmox Nodes",
     usage: "pve",
     commands: ["proxmox", "pve"],
+    noCustom: true,
     run: async function (message, args, bot) {
         try {
             let result = await bot.util.getJson("https://ob.bint.cc/api/pve/nodes");

@@ -4,6 +4,7 @@ module.exports = {
     name: "Zerotier List",
     usage: "zerotier [search]/[approve] [id] [name]",
     commands: ["zerotier", "zt"],
+    noCustom: true,
     run: async function (message, args, bot) {
         if (!args[2] || args[2].toLowerCase() !== "approve") {
             try {

@@ -9,6 +9,7 @@ module.exports = {
     name: "Run SQL",
     usage: "sql <sql>",
     commands: ["sql"],
+    noCustom: true,
     run: async function (message, args, bot) {
         let sql = message.content.substring(args[0].length + args[1].length + 2);
         try {

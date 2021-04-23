@@ -9,6 +9,7 @@ module.exports = {
     name: "Run Command",
     usage: "run <command>",
     commands: ["run"],
+    noCustom: true,
     run: async function (message, args, bot) {
         let command = message.content.substring(message.content.indexOf(args[2]));
         child_process.exec(command, function (err, stdout, stderr) {

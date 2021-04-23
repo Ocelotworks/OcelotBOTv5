@@ -14,7 +14,7 @@ module.exports = {
         if(!commandId || isNaN(commandId))return message.channel.send(`Enter a command ID like: ${args[0]} ${args[1]} 42069`)
         message.channel.startTyping();
         let output = new Discord.MessageEmbed();
-        const command = (await bot.database.getCommandById(commandId))[0];
+        const command = (await bot.database.getCommandById(commandId, process.env.CUSTOM_BOT ? bot.client.user.id : null))[0];
         if(!command)return message.channel.send(`Couldn't find a command by that ID.`);
         output.setTitle("Command #"+commandId);
         output.setAuthor(message.author.tag, message.author.avatarURL())
