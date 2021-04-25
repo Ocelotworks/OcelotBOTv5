@@ -154,7 +154,6 @@ async function newGuess(bot, voiceChannel, retrying = false){
     const playlistLength = await getPlaylistLength(bot, game.playlistId);
     const index = counter++ % playlistLength;
     const chunk = Math.floor(index/100)*100;
-    bot.logger.log(`Counter: ${counter} Index: ${index} Chunk: ${chunk}`);
     Sentry.addBreadcrumb({
         message: "Starting guess",
         data: {
@@ -164,20 +163,22 @@ async function newGuess(bot, voiceChannel, retrying = false){
             playlistId: game.playlistId
         }
     })
-
     const playlist = await getPlaylist(bot, game.playlistId, chunk);
+
+    bot.logger.log(`Counter: ${counter} Index: ${index} Chunk: ${chunk} Plength: ${playlistLength} P Array Length: ${playlist.length} Real Index: ${index-chunk}`);
+
     if(!playlist || playlist.length === 0) {
         endGame(bot,  voiceChannel.guild.id);
         return game.textChannel.send(":warning: The playlist you selected has no playable songs.")
     }
     const song = playlist[index - chunk];
-    console.log(playlist);
     if(!song) {
         if (!retrying) {
             return newGuess(bot, voiceChannel, true);
         } else {
             game.textChannel.stopTyping();
             Sentry.captureMessage("Failed to load song")
+            counter = 0;
             endGame(bot, voiceChannel.guild.id);
             return game.textChannel.send("Failed to load song. Try again later.")
         }
@@ -190,6 +191,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             return newGuess(bot, voiceChannel, true);
         }else{
             game.textChannel.stopTyping();
+            counter = 0;
             endGame(bot, voiceChannel.guild.id);
             return game.textChannel.channel.send("Failed to load song. Try again later.")
         }
