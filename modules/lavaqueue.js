@@ -48,15 +48,16 @@ module.exports = {
                     bot.logger.error("Node Error: ", error);
                 });
 
+                bot.lavaqueue.manager.players.forEach(function playerHarvest(player) {
+                    if (!player.playing) {
+                        bot.logger.log(`Cleaning up stale player ${player.id} (${player.timestamp})`)
+                        bot.lavaqueue.manager.leave(player.id);
+                        player.removeAllListeners();
+                        player.destroy();
+                    }
+                });
+
                 setInterval(() => {
-                    bot.lavaqueue.manager.players.forEach(function playerHarvest(player) {
-                        if (!player.playing) {
-                            bot.logger.log(`Cleaning up stale player ${player.id} (${player.timestamp})`)
-                            bot.lavaqueue.manager.leave(player.id);
-                            player.removeAllListeners();
-                            player.destroy();
-                        }
-                    });
                     bot.lavaqueue.manager.nodes.forEach(async function nodeReconnect(node) {
                         if (!node.connected) {
                             bot.logger.log(`Attempting to connect node ${node.id}`);

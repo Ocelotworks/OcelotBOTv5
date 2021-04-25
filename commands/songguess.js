@@ -66,8 +66,9 @@ module.exports = {
 
         if(playlist === null) {
             const availablePlaylists = await message.getSetting("songguess.default").split(",");
-            bot.logger.log(`Using playlist: ${availablePlaylists}`);
-            playlist = await bot.database.getGuessPlaylist(message.guild.id, bot.util.arrayRand(availablePlaylists));
+            const playlistId = bot.util.arrayRand(availablePlaylists);
+            bot.logger.log(`Using playlist: ${playlistId}`);
+            playlist = await bot.database.getGuessPlaylist(message.guild.id, playlistId);
         }
 
         if (!bot.lavaqueue)return message.replyLang("SONGGUESS_UNAVAILABLE");
@@ -164,15 +165,17 @@ async function newGuess(bot, voiceChannel, retrying = false){
         }
     })
     const playlist = await getPlaylist(bot, game.playlistId, chunk);
-
-    bot.logger.log(`Counter: ${counter} Index: ${index} Chunk: ${chunk} Plength: ${playlistLength} P Array Length: ${playlist.length} Real Index: ${index-chunk}`);
+    const realIndex = (index-chunk) % playlist.length; // For some reason spotify sends unusual things
+    bot.logger.log(`Counter: ${counter} | Index: ${index} | Chunk: ${chunk} | List length: ${playlistLength} | Array Length: ${playlist.length} | Real Index: ${realIndex}`);
 
     if(!playlist || playlist.length === 0) {
         endGame(bot,  voiceChannel.guild.id);
         return game.textChannel.send(":warning: The playlist you selected has no playable songs.")
     }
-    const song = playlist[index - chunk];
+    const song = playlist[realIndex];
     if(!song) {
+        bot.logger.warn("Song is null");
+        bot.logger.log(playlist);
         if (!retrying) {
             return newGuess(bot, voiceChannel, true);
         } else {
@@ -186,6 +189,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
     game.currentTrack = song;
     const songData = await bot.lavaqueue.getSong(song.track.preview_url, game.player);
     if(!songData){
+        bot.logger.warn("songData is null")
         if(!retrying) {
             console.log("retrying...");
             return newGuess(bot, voiceChannel, true);
@@ -302,10 +306,22 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
             textChannel.send(message);
         }
         if(game.ending)return;
-        if(voiceChannel.members.filter((m)=>!m.user.bot).size < 1)return textChannel.send(":zzz: Stopping because nobody is in the voice channel anymore.");
-        if((new Date()).getTime()-game.lastGuessTime > 70000)return textChannel.send(":zzz: Stopping because nobody has guessed anything in a while.");
-        if(bot.drain)return textChannel.send("OcelotBOT has received an update, please wait a few seconds and start your game again.");
-        if(new Date().getTime()-guessStarted < 1000 && !winner)return bot.logger.log("Track took less than a second to play, something bad happened");
+        if(voiceChannel.members.filter((m)=>!m.user.bot).size < 1){
+            endGame(bot,  voiceChannel.guild.id);
+            return textChannel.send(":zzz: Stopping because nobody is in the voice channel anymore.");
+        }
+        if((new Date()).getTime()-game.lastGuessTime > 70000){
+            endGame(bot,  voiceChannel.guild.id);
+            return textChannel.send(":zzz: Stopping because nobody has guessed anything in a while.");
+        }
+        if(bot.drain){
+            endGame(bot,  voiceChannel.guild.id);
+            return textChannel.send("OcelotBOT has received an update, please wait a few seconds and start your game again.");
+        }
+        if(new Date().getTime()-guessStarted < 1000 && !winner) {
+            endGame(bot,  voiceChannel.guild.id);
+            return bot.logger.log("Track took less than a second to play, something bad happened");
+        }
         textChannel.send(`The next song will start shortly... (Type **${game.textChannel.guild.getSetting("prefix")}guess stop** to cancel)`);
         return game.timeout = setTimeout(()=>{
             newGuess(bot, voiceChannel)
