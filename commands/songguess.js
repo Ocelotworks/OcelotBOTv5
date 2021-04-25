@@ -10,7 +10,7 @@ const axios = require('axios');
 const config = require('config');
 const Sentry = require('@sentry/node');
 // Start a random position in the playlist on startup, mostly for my sanity during testing
-let counter = Math.round(Math.random()*100);
+let counter = Math.round(Math.random()*1000);
 let runningGames = {"":{
     voiceChannel: {},
     textChannel: {},
@@ -170,7 +170,8 @@ async function newGuess(bot, voiceChannel, retrying = false){
         endGame(bot,  voiceChannel.guild.id);
         return game.textChannel.send(":warning: The playlist you selected has no playable songs.")
     }
-    const song = playlist[index];
+    const song = playlist[index - chunk];
+    console.log(playlist);
     if(!song) {
         if (!retrying) {
             return newGuess(bot, voiceChannel, true);
