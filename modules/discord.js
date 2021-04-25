@@ -466,9 +466,18 @@ module.exports = {
             }
         })
 
+        bot.api.get('/guild/:id', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                res.json(bot.util.serialiseGuild(guild));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
         bot.api.get('/guild/:id/channels', async (req, res) => {
             try {
-                console.log(req.params);
                 const guild = await bot.client.guilds.fetch(req.params.id);
                 res.json(guild.channels.cache.map((c)=>bot.util.serialiseChannel(c)));
             } catch (err) {
