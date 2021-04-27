@@ -16,7 +16,7 @@ module.exports = {
                 formatted.push({
                     "id :: ": func.id + " ::",
                     type: func.type,
-                    trigger: func.trigger,
+                    trigger: func.type === "SCHEDULED" ? func.trigger.split("/")[1] : func.trigger,
                 });
             }
             return header + columnify(formatted) + "\n```";

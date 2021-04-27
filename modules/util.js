@@ -1528,5 +1528,81 @@ module.exports = {
         }
 
         bot.util.shard = parseInt(process.env.SHARD) - 1
+
+
+        bot.util.parseSchedule = function(schedule){
+            let output = ""
+
+            if (schedule.schedules[0].t) {
+                output += "\n- at ";
+                if (schedule.schedules[0].t.length === 1) {
+                    output += parseTime(schedule.t[0]);
+                } else if (schedule.schedules[0].t.length < 5) {
+                    output += schedule.schedules[0].t.map(parseTime);
+                } else {
+                    output += `${schedule.schedules[0].t.length} distinct times (${schedule.schedules[0].t.slice(0, 5).map(parseTime)}...)`
+                }
+                output += "\n";
+            }
+
+            output += "on:\n";
+
+            output += parseScheduleArea(schedule.schedules[0].s, 60, "second", bot);
+            output += parseScheduleArea(schedule.schedules[0].m, 60, "minute", bot);
+            output += parseScheduleArea(schedule.schedules[0].h, 24, "hour", bot);
+            output += parseScheduleArea(schedule.schedules[0].d, 7, "weekday", bot);
+            output += parseScheduleArea(schedule.schedules[0].D, 31, "day", bot);
+            output += parseScheduleArea(schedule.schedules[0].wy, 52, "week", bot);
+            output += parseScheduleArea(schedule.schedules[0].M, 12, "month", bot);
+            output += parseScheduleArea(schedule.schedules[0].Y, 481, "year", bot);
+
+            if (schedule.exceptions[0]) {
+                output += " EXCEPT on:\n";
+                let exceptions = schedule.exceptions[0];
+                output += parseScheduleArea(exceptions.s, 60, "second", bot);
+                output += parseScheduleArea(exceptions.m, 60, "minute", bot);
+                output += parseScheduleArea(exceptions.h, 24, "hour", bot);
+                output += parseScheduleArea(exceptions.d, 7, "weekday", bot);
+                output += parseScheduleArea(exceptions.D, 31, "day", bot);
+                output += parseScheduleArea(exceptions.wy, 52, "week", bot);
+                output += parseScheduleArea(exceptions.M, 12, "month", bot);
+                output += parseScheduleArea(exceptions.Y, 481, "year", bot);
+            }
+
+            if (output.endsWith("of "))
+                output = output.substring(0, output.length - 3) + ".";
+
+            return output
+        }
     }
 };
+
+function parseScheduleArea(scheduleArray, maximum, name, bot) {
+    let output = "";
+    if (scheduleArray) {
+        output += "- ";
+        if (scheduleArray.length === 1)
+            output += `the **${bot.util.getNumberPrefix(scheduleArray[0])}** ${name}`;
+        else if (scheduleArray.length < 5)
+            output += `the **${scheduleArray.map(bot.util.getNumberPrefix)}** ${name}s`;
+        else if (scheduleArray.length >= maximum)
+            output += `every **${name}**`
+        else
+            output += `**${scheduleArray.length} distinct ${name}s** (${scheduleArray.slice(0, 5).map(bot.util.getNumberPrefix)}...)`
+        output += "\n";
+    }
+    return output;
+}
+
+function parseTime(totalSeconds) {
+    let hours = Math.floor(totalSeconds / 60 / 60);
+    let minutes = Math.floor(totalSeconds / 60 % 60);
+    let seconds = Math.floor(totalSeconds % 60);
+    return `${toFixed(hours)}:${toFixed(minutes)}:${toFixed(seconds)}`
+}
+
+function toFixed(time) {
+    if (time >= 10)
+        return time;
+    return "0" + time;
+}
