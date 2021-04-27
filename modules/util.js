@@ -1536,7 +1536,7 @@ module.exports = {
             if (schedule.schedules[0].t) {
                 output += "\n- at ";
                 if (schedule.schedules[0].t.length === 1) {
-                    output += parseTime(schedule.t[0]);
+                    output += parseTime(schedule.schedules.t[0]);
                 } else if (schedule.schedules[0].t.length < 5) {
                     output += schedule.schedules[0].t.map(parseTime);
                 } else {
