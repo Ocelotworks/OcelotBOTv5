@@ -64,10 +64,10 @@ module.exports = {
             if (reaction.message.breaded) return;
             reaction.message.breaded = true;
             let topic =  reaction.message.content
-            if( reaction.message.attachments[0])
-                topic += "\n"+message.attachments[0].url;
+            if(reaction.message.attachments.first())
+                topic += "\n"+reaction.message.attachments.first().url;
             await bot.database.addTopic(userMaps[reaction.message.author.id], topic);
-            reaction.message.channel.send(`${reaction.emoji} ${user}: Added _<${userMaps[reaction.message.author.id]}> ${reaction.message.content}_ to the list of topics`);
+            reaction.message.channel.send(`${reaction.emoji} ${user}: Added _<${userMaps[reaction.message.author.id]}> ${topic}_ to the list of topics`);
         })
 
 
