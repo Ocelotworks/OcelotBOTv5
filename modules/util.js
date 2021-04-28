@@ -429,7 +429,7 @@ module.exports = {
             }), 600);
             clearTimeout(loadingMessageDelay)
             span.end();
-            if (loadingMessage) {
+            if (loadingMessage && !loadingMessage.deleted) {
                 span = bot.util.startSpan("Edit loading message");
                 await loadingMessage.editLang("GENERIC_UPLOADING");
                 span.end();
@@ -437,7 +437,7 @@ module.exports = {
             if (response.err) {
                 span = bot.util.startSpan("Delete processing message");
                 message.channel.stopTyping(true);
-                if (loadingMessage)
+                if (loadingMessage && !loadingMessage.deleted)
                     await loadingMessage.delete();
                 span.end();
                 return message.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
@@ -457,7 +457,7 @@ module.exports = {
             message.channel.stopTyping(true);
             span.end();
             span = bot.util.startSpan("Delete processing message");
-            if (loadingMessage)
+            if (loadingMessage && !loadingMessage.deleted)
                 await loadingMessage.delete();
             span.end();
             return messageResult;
