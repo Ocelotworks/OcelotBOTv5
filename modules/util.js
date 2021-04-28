@@ -1467,6 +1467,7 @@ module.exports = {
         }
 
         bot.util.serialiseMessage = function serialiseMessage(message) {
+            if(!message)return {}
             return {
                 guild: bot.util.serialiseGuild(message.guild),
                 channel: bot.util.serialiseChannel(message.channel),
