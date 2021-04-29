@@ -27,7 +27,7 @@ module.exports = {
             bot.customFunctions[func.type][message.guild.id] = {[func.trigger]: code}
 
         // This is really terrible
-        if(type === "SCHEDULED"){
+        if(func.type === "SCHEDULED"){
             custom.loadScheduled(bot);
         }
 
