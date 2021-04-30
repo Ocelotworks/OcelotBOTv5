@@ -4,7 +4,7 @@ module.exports = {
     commands: ["playlists", "pl", "list", "playlist"],
     run: async function (message, args, bot) {
         const playlists = await bot.database.getGuessPlaylists(message.guild.id);
-        const chunkedPlaylists = playlists.chunk(10);
+        const chunkedPlaylists = playlists.chunk(12);
         let spaceLength = 0;
         for(let i = 0; i < playlists.length; i++){
             if(playlists[i].id.length > spaceLength)spaceLength = playlists[i].id.length+1;

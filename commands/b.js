@@ -64,7 +64,7 @@ module.exports = {
                         return;
                     }
                     const results = data.ParsedResults[0];
-                    if (results && results.TextOverlay) {
+                    if (results && results.TextOverlay && results.TextOverlay.Lines.length > 0) {
                         const lines = results.TextOverlay.Lines;
                         for (let i = 0; i < lines.length; i++) {
                             const line = lines[i];

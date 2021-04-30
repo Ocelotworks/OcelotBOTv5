@@ -14,7 +14,6 @@ module.exports = {
     name: "Bot Settings",
     usage: "settings help/set/list/enableCommand/disableCommand",
     categories: ["meta"],
-    requiredPermissions: ["ATTACH_FILES"],
     commands: ["settings", "config"],
     settings: {
         prefix: {

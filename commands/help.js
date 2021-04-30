@@ -50,7 +50,7 @@ module.exports = {
                 output += `For '${i}' use ${args[0]} ${i}\n`;
             }
 
-            if(message.guild && bot.customCommands[message.guild.id])
+            if(message.guild && bot.customFunctions.COMMAND[message.guild.id])
                 output += `For 'custom' use ${args[0]} custom\n`;
 
             //output += "\n```";
@@ -60,9 +60,9 @@ module.exports = {
             return;
         }
         const arg = args[1].toLowerCase();
-        if(arg === "custom" && message.guild && bot.customCommands[message.guild.id]){
+        if(arg === "custom" && message.guild && bot.customFunctions.COMMAND[message.guild.id]){
             let output = "```cs\n# Custom Commands\n";
-            const customCommands = Object.keys(bot.customCommands[message.guild.id]);
+            const customCommands = Object.keys(bot.customFunctions.COMMAND[message.guild.id]);
             for(let i = 0; i < customCommands.length; i++){
                 output += `${message.getSetting("prefix")}${customCommands[i]}\n`;
             }

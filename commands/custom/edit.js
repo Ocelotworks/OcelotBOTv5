@@ -2,7 +2,7 @@ module.exports = {
     name: "Edit Custom Function",
     usage: "edit <id> <code>",
     commands: ["edit", "update"],
-    run: async function (message, args, bot) {
+    run: async function (message, args, bot, custom) {
         if(!args[2] || isNaN(args[2].split("\n")[0]))return message.channel.send(`Invalid ID. Find the ID with **${args[0]} list**. Then enter **${args[0]} ${args[1]} id**`)
         let func = (await bot.database.getCustomFunction(message.guild.id, parseInt(args[2])))[0];
         if(!func)return message.channel.send(`Couldn't find a function with that ID. Find the ID with **${args[0]} list**. Then enter **${args[0]} ${args[1]} id**`);
@@ -21,11 +21,15 @@ module.exports = {
 
         await bot.database.updateCustomFunction(message.guild.id, parseInt(args[2]), code);
 
-        const responseType = func.type === "COMMAND" ? "customCommands" : "customAutoResponses";
-        if(bot[responseType][message.guild.id])
-            bot[responseType][message.guild.id][func.trigger] = code;
+        if(bot.customFunctions[func.type][message.guild.id])
+            bot.customFunctions[func.type][message.guild.id][func.trigger] = code;
         else
-            bot[responseType][message.guild.id] = {[func.trigger]: code}
+            bot.customFunctions[func.type][message.guild.id] = {[func.trigger]: code}
+
+        // This is really terrible
+        if(func.type === "SCHEDULED"){
+            custom.loadScheduled(bot);
+        }
 
         return message.channel.send("✅ Function was successfully edited!");
     }

@@ -12,8 +12,8 @@ module.exports = {
       embed.setTitle("Would You Rather...");
       embed.setColor("#6dccf2");
       console.log(question);
-      embed.addField(decodeURIComponent(question.option_1), "OR");
-      embed.addField(decodeURIComponent(question.option_2), question.moreinfo ? `_${question.moreinfo}_` : "(No description)");
+      embed.addField(question.option_1, "OR");
+      embed.addField(question.option_2, question.moreinfo ? `_${question.moreinfo}_` : "(No description)");
       message.channel.send(embed);
     }
 };

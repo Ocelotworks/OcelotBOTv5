@@ -65,7 +65,7 @@ module.exports = {
                 if (records.data.length === 0) {
                     return message.channel.send(":stopwatch: You have no records!");
                 }
-                const pages = records.data.chunk(20);
+                const pages = records.data.chunk(10);
                 await bot.util.standardPagination(message.channel, pages, async function (records, index) {
                     let output = "```autohotkey\n";
                     let rows = [];

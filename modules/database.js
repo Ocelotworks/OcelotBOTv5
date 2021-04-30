@@ -1213,12 +1213,9 @@ module.exports = {
             deleteCustomFunction(server, id){
                 return knex.delete().from("ocelotbot_custom_functions").where({server, id}).limit(1);
             },
-            getCustomResponsesForShard(servers) {
-                return knex.select().from("ocelotbot_custom_functions").where({type: "AUTORESPOND"}).whereIn("server", servers)
+            getCustomFunctionsForShard(type, servers) {
+                return knex.select().from("ocelotbot_custom_functions").where({type}).whereIn("server", servers)
             },
-            getCustomCommandsForShard(servers){
-                return knex.select().from("ocelotbot_custom_functions").where({type: "COMMAND"}).whereIn("server", servers)
-            }
         };
     }
 };

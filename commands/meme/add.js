@@ -39,6 +39,9 @@ module.exports = {
             if (memeCheckResult[0] && memeCheckResult[0].server !== "global")
                 return message.replyLang("MEME_ADD_EXISTS");
 
+            if(meme.length > 1000)
+                return message.channel.send(`Your meme must be < 1000 characters. Yours is ${meme.length} characters.`);
+
             await bot.database.addMeme(message.author.id, message.guild.id, newMemeName, meme);
             message.replyLang("MEME_ADD_SUCCESS");
         } catch (e) {

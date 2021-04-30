@@ -11,9 +11,6 @@ module.exports = {
         bot.commands = {};
 
         bot.prefixCache = {};
-
-        bot.customCommands = {};
-
         process.on('exit', async (code) => {
             bot.logger.log("Process close requested", code);
             bot.drain = true;
@@ -26,13 +23,13 @@ module.exports = {
         })
 
         bot.client.on("ready", async ()=>{
-            let commands = await bot.database.getCustomCommandsForShard(bot.client.guilds.cache.keyArray());
+            let commands = await bot.database.getCustomFunctionsForShard("COMMAND", bot.client.guilds.cache.keyArray());
             for(let i = 0; i < commands.length; i++){
                 const command = commands[i];
-                if(bot.customCommands[command.server])
-                    bot.customCommands[command.server][command.trigger] = command.function;
+                if(bot.customFunctions.COMMAND[command.server])
+                    bot.customFunctions.COMMAND[command.server][command.trigger] = command.function;
                 else
-                    bot.customCommands[command.server] = {[command.trigger]: command.function};
+                    bot.customFunctions.COMMAND[command.server] = {[command.trigger]: command.function};
             }
         })
 
@@ -55,8 +52,8 @@ module.exports = {
                 const args = message.content.split(/\s+/g);
                 const command = args[0].substring(prefixLength).toLowerCase();
                 if (!bot.commands[command]) {
-                    if (!message.guild || !bot.customCommands[message.guild.id] || message.synthetic) return;
-                    let customCommand = bot.customCommands[message.guild.id][command]
+                    if (!message.guild || !bot.customFunctions.COMMAND[message.guild.id] || message.synthetic) return;
+                    let customCommand = bot.customFunctions.COMMAND[message.guild.id][command]
                     if(!customCommand)return;
                     bot.logger.log({
                         type: "commandPerformed",

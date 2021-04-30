@@ -3,7 +3,7 @@ const math = mathjs.create(mathjs.all)
 const Discord = require('discord.js');
 const limitedEval = math.evaluate;
 let scope = {};
-
+//×
 module.exports = {
     name: "Calculator",
     usage: "calc [sum]",
@@ -29,7 +29,10 @@ module.exports = {
             message.channel.send(`Usage: ${message.getSetting("prefix")}calc <expression>`);
         }else {
             try {
-                message.channel.send(Discord.escapeMarkdown(limitedEval(message.content.substring(args[0].length + 1), scope).toString()).replace(/[@!#]/gi, ""));
+                let expression = message.content.substring(args[0].length + 1);
+                expression.replace(/×/g, "*");
+                expression.replace(/÷/g, "/");
+                message.channel.send(Discord.escapeMarkdown(limitedEval(expression, scope).toString()).replace(/[@!#]/gi, ""));
             } catch (e) {
                 message.channel.send(e.toString());
             }

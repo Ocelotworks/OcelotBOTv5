@@ -5,18 +5,16 @@ module.exports = {
 
         bot.lastMessages = {};
         bot.lastMessageCounts = {};
-
-        bot.customAutoResponses = {};
-
+        
 
         bot.client.on("ready", async ()=>{
-            let responses = await bot.database.getCustomResponsesForShard(bot.client.guilds.cache.keyArray());
+            let responses = await bot.database.getCustomFunctionsForShard("AUTORESPOND", bot.client.guilds.cache.keyArray());
             for(let i = 0; i < responses.length; i++){
                 const response = responses[i];
-                if(bot.customAutoResponses[response.server])
-                    bot.customAutoResponses[response.server][response.trigger] = response.function;
+                if(bot.customFunctions.AUTORESPOND[response.server])
+                    bot.customFunctions.AUTORESPOND[response.server][response.trigger] = response.function;
                 else
-                    bot.customAutoResponses[response.server] = {[response.trigger]: response.function};
+                    bot.customFunctions.AUTORESPOND[response.server] = {[response.trigger]: response.function};
             }
         })
 
@@ -32,12 +30,12 @@ module.exports = {
                     id: message.author.id,
                     username: message.author.username
                 });
-                if(message.guild && !message.author.bot && bot.customAutoResponses[message.guild.id]){
-                    const keys = Object.keys(bot.customAutoResponses[message.guild.id]);
+                if(message.guild && !message.author.bot && bot.customFunctions.AUTORESPOND[message.guild.id]){
+                    const keys = Object.keys(bot.customFunctions.AUTORESPOND[message.guild.id]);
                     const match = message.content.toLowerCase()
                     for(let i = 0; i < keys.length; i++)
                         if(match.includes(keys[i])) {
-                            const success = await bot.util.runCustomFunction(bot.customAutoResponses[message.guild.id][keys[i]], message, false);
+                            const success = await bot.util.runCustomFunction(bot.customFunctions.AUTORESPOND[message.guild.id][keys[i]], message, false);
                             if (!success) break;
                         }
                 }

@@ -89,53 +89,10 @@ module.exports = {
         if (tooShort > occurrences.length / 2)
             return message.channel.send(":warning: Your message is too frequent. You must have at least 10 seconds between messages.");
 
-        let schedule = parse.schedules[0];
-        let output = ""
-
-        if (schedule.t) {
-            output += "- at ";
-            if (schedule.t.length === 1) {
-                output += parseTime(schedule.t[0]);
-            } else if (schedule.t.length < 5) {
-                output += schedule.t.map(parseTime);
-            } else {
-                output += `${schedule.t.length} distinct times (${schedule.t.slice(0, 5).map(parseTime)}...)`
-            }
-            output += "\n";
-        }
-
-        output += "on:\n";
-
-        output += parseScheduleArea(schedule.s, 60, "second", bot);
-        output += parseScheduleArea(schedule.m, 60, "minute", bot);
-        output += parseScheduleArea(schedule.h, 24, "hour", bot);
-        output += parseScheduleArea(schedule.d, 7, "weekday", bot);
-        output += parseScheduleArea(schedule.D, 31, "day", bot);
-        output += parseScheduleArea(schedule.wy, 52, "week", bot);
-        output += parseScheduleArea(schedule.M, 12, "month", bot);
-        output += parseScheduleArea(schedule.Y, 481, "year", bot);
-
-        if (parse.exceptions[0]) {
-            output += " EXCEPT on:\n";
-            let exceptions = parse.exceptions[0];
-            output += parseScheduleArea(exceptions.s, 60, "second", bot);
-            output += parseScheduleArea(exceptions.m, 60, "minute", bot);
-            output += parseScheduleArea(exceptions.h, 24, "hour", bot);
-            output += parseScheduleArea(exceptions.d, 7, "weekday", bot);
-            output += parseScheduleArea(exceptions.D, 31, "day", bot);
-            output += parseScheduleArea(exceptions.wy, 52, "week", bot);
-            output += parseScheduleArea(exceptions.M, 12, "month", bot);
-            output += parseScheduleArea(exceptions.Y, 481, "year", bot);
-        }
-
         let result = await bot.database.addRecurringReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, reminder, {
             schedules: parse.schedules,
             exceptions: parse.exceptions
         });
-
-        // Making a lot of questionable decisions today
-        if (output.endsWith("of "))
-            output = output.substring(0, output.length - 3) + ".";
 
 
         // TODO unduplicate this
@@ -151,7 +108,7 @@ module.exports = {
 
         reminderData.recurringReminders[result[0]] = scheduledReminder;
 
-        message.channel.send(`:white_check_mark: Successfully set recurring reminder.\nThe message:\n> ${reminder}\nWill be sent ${output}\nTo remove the reminder, type **${args[0]} remove ${result[0]}**`)
+        message.channel.send(`:white_check_mark: Successfully set recurring reminder.\nThe message:\n> ${reminder}\nWill be sent ${bot.util.parseSchedule(parse)}\nTo remove the reminder, type **${args[0]} remove ${result[0]}**`)
     }
 }
 
