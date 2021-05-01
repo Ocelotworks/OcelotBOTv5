@@ -12,7 +12,12 @@ module.exports = {
         embed.setDescription(`Use ID ${func.id} to edit/delete this.`);
         embed.addField("Type", func.type, true);
         embed.addField("Trigger", func.trigger, true);
-        embed.addField("Code", `\`\`\`lua\n${func.function}\n\`\`\``);
-        return message.channel.send(embed);
+        if(func.function.length < 1024) {
+            embed.addField("Code", `\`\`\`lua\n${func.function}\n\`\`\``);
+            return message.channel.send(embed);
+        } else {
+            await message.channel.send(embed);
+            return message.channel.send(new Discord.MessageAttachment(Buffer.from(func.function), "code.lua"))
+        }
     }
 }
