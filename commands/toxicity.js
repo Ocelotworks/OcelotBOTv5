@@ -14,6 +14,7 @@ const typeMap = {
     ATTACK_ON_COMMENTER: "Attack on User"
 }
 
+
 module.exports = {
     name: "Toxicity Checker",
     usage: "toxicity [text]",
