@@ -21,6 +21,7 @@ build-consumer-image:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
+    - echo $CI_PIPELINE_IID
     - docker pull $REGISTRY/ocelotbotv5/image-consumer:latest || true
     - docker build -f ImageProcessor.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/image-consumer:latest
       -t $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
