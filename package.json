@@ -58,6 +58,7 @@
     "sourcequery": "0.0.2",
     "twemoji-parser": "^13.0.0",
     "unleash-client": "^3.4.0",
+    "uuid": "^8.3.2",
     "word-wrap": "^1.2.3",
     "ws": "^7.4.3"
   }
