@@ -1,5 +1,4 @@
-const request = require('request');
-const key = require('config').get("Commands.define.key");
+const key = require('config').get("API.dictionary.key");
 const Discord = require('discord.js');
 module.exports = {
     name:  "Dictionary Lookup",
