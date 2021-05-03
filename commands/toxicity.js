@@ -66,7 +66,7 @@ module.exports = {
             })
             let embed = new Discord.MessageEmbed();
             embed.setTitle("Toxicity Report");
-            embed.setDescription("Target Message:\n> "+target);
+            embed.setDescription("Target Message:\n>>> "+target);
             embed.addField("Results", output.join("\n"));
             embed.setColor(bad ? "#ff0000" : "#22aa22");
             return message.channel.send(embed);
