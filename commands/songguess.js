@@ -42,6 +42,7 @@ module.exports = {
         if (!message.guild) {
             return message.replyLang("GENERIC_DM_CHANNEL");
         }
+
         let playlist = null;
         let isCustom = false;
         if (args[1] && (playlist = await bot.database.getGuessPlaylist(message.guild.id, args[1].toLowerCase())) == null) {
@@ -161,7 +162,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
         }
     })
     const playlist = await getPlaylist(bot, game.playlistId, chunk);
-    const realIndex = (index-chunk) % playlist.length; // For some reason spotify sends unusual things
+    const realIndex = (index-chunk)-1 % playlist.length; // For some reason spotify sends unusual things
     bot.logger.log(`Counter: ${counter} | Index: ${index} | Chunk: ${chunk} | List length: ${playlistLength} | Array Length: ${playlist.length} | Real Index: ${realIndex}`);
 
     if(!playlist || playlist.length === 0) {

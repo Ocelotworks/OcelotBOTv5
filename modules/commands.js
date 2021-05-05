@@ -339,7 +339,9 @@ module.exports = {
                     }
                 }
             } catch (e) {
-                bot.logger.error("failed to load command", e);
+                bot.logger.error("failed to load command");
+                bot.logger.error(e);
+                Sentry.captureException(e);
             }
         };
 

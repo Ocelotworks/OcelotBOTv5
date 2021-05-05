@@ -1,6 +1,6 @@
 {
   "name": "ocelotbot",
-  "version": "5.2.2",
+  "version": "5.2.3",
   "description": "",
   "main": "broker/broker.js",
   "directories": {
@@ -42,6 +42,7 @@
     "gifuct-js": "^2.0.0",
     "gm": "^1.23.1",
     "google-images": "^2.1.0",
+    "googleapis": "^73.0.0",
     "knex": "^0.21.17",
     "later": "^1.2.0",
     "mathjs": "^9.3.0",
@@ -57,6 +58,7 @@
     "sourcequery": "0.0.2",
     "twemoji-parser": "^13.0.0",
     "unleash-client": "^3.4.0",
+    "uuid": "^8.3.2",
     "word-wrap": "^1.2.3",
     "ws": "^7.4.3"
   }
