@@ -49,6 +49,7 @@ module.exports = {
                 text: target,
             },
             doNotStore: true,
+            languages: ["en"],
             requestedAttributes: {TOXICITY: {}, SEVERE_TOXICITY: {}, IDENTITY_ATTACK: {}, PROFANITY: {}, INSULT: {}, THREAT: {}, FLIRTATION: {}, SEXUALLY_EXPLICIT: {}, SPAM: {}, ATTACK_ON_COMMENTER: {}}
         }}, (err, resp)=>{
             if(err || !resp.data.attributeScores){

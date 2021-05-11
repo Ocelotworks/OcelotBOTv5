@@ -1117,6 +1117,9 @@ module.exports = {
                 let url = await knex.select("botUrl").from("ocelotbot_botlists").where({id}).orWhere({id: 'topgg'}).limit(1);
                 return url[0].botUrl;
             },
+            botlistSuccess: function(id){
+              return knex("ocelotbot_botlists").update({lastSuccessfulPost: new Date()}).where({id});
+            },
             logAiConversation: function (userID, serverID, lastMessageID, message, response) {
                 return knex.insert({
                     userID,
