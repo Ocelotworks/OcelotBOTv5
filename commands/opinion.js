@@ -26,7 +26,7 @@ module.exports = {
             } else {
                 try {
                     const data = JSON.parse(body);
-                    comments = data.data.children;
+                    comments = data.data.children.filter((comment)=>comment.data.body.indexOf("http") > -1 && comment.data.body.indexOf("verif") > -1);
                     commentIndex = 0;
                     bot.logger.log("Downloaded "+comments.length+" comments");
                 } catch(e) {
@@ -55,9 +55,6 @@ Fuck, my fucking mum caught me with the neighbors cat. I'd painted her eyes gree
             }else {
                 message.channel.startTyping();
                 if (comments.length > 0) {
-                    if (comments[commentIndex++].data.body.indexOf("http") > -1)
-                        commentIndex++;
-
                     message.channel.send(comments[commentIndex++].data.body);
 
                     if (commentIndex >= comments.length - 3)
