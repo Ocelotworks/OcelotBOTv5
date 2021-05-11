@@ -29,7 +29,7 @@ module.exports = {
                     {
                         id: "germany",
                         host: "45.89.127.53",
-                        port: 80,
+                        port: 2333,
                         password: config.get("Lavalink.password"),
                         reconnectInterval: 1000,
                         resumeKey,
