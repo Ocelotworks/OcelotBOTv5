@@ -80,6 +80,7 @@ module.exports = {
             }
         }).then(() => {
             bot.logger.log(`Posted stats to ${botList.id}`)
+            return bot.database.botlistSuccess(botList.id);
         }).catch((e) => {
             bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
             if (e.response && e.response.data)
