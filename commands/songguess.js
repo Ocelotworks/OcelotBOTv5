@@ -149,6 +149,7 @@ async function startGame(bot, message, playlistId, custom){
 
 async function newGuess(bot, voiceChannel, retrying = false){
     const game = runningGames[voiceChannel.guild.id];
+    if(!game)return; // Game has disappeared somehow
     const playlistLength = await getPlaylistLength(bot, game.playlistId);
     const index = counter++ % playlistLength;
     const chunk = Math.floor(index/100)*100;
@@ -174,6 +175,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
         bot.logger.warn("Song is null");
         bot.logger.log(playlist);
         if (!retrying) {
+            counter = Math.random()*200;
             return newGuess(bot, voiceChannel, true);
         } else {
             game.textChannel.stopTyping();
