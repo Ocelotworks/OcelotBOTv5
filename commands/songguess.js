@@ -175,7 +175,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
         bot.logger.warn("Song is null");
         bot.logger.log(playlist);
         if (!retrying) {
-            counter = Math.random()*200;
+            counter = parseInt(Math.random()*200);
             return newGuess(bot, voiceChannel, true);
         } else {
             game.textChannel.stopTyping();
