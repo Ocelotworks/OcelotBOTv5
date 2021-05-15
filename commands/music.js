@@ -406,7 +406,13 @@ module.exports = {
         bot.util.standardNestedCommandInit('music');
         music.populateShuffleQueue();
 
-        bot.client.on("ready", function ready() {
+        bot.client.on("ready", async function ready() {
+            let activeSessions = await bot.database.getActiveSessions();
+            for (let i = 0; i < activeSessions.length; i++) {
+                const session = activeSessions[i];
+                bot.logger.log("Ending music session "+session.id);
+                await bot.database.endMusicSession(session.id);
+            }
             return;
             bot.lavaqueue.manager.on("ready", async function () {
                 let activeSessions = await bot.database.getActiveSessions();

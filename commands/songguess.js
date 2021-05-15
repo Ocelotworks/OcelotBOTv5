@@ -235,7 +235,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
         // If they mention one of the artists, send them a message the first time
         for(let i = 0; i < artistNames.length; i++){
             if(normalisedContent.indexOf(artistNames[i]) > -1 && !artistsVisited[i]){
-                bot.util.replyTo(m, `${song.track.artists[i].name} is ${artistNames.length > 1 ? "one of the artists" : "the artist"}, but we're not looking for that.`);
+                bot.util.replyTo(m, `${song.track.artists[i].name} is ${artistNames.length > 1 ? "one of the artists" : "the artist"}, but what's the song title?.`);
                 artistsVisited[i] = true;
                 break
             }
