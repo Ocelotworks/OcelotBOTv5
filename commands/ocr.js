@@ -26,10 +26,9 @@ module.exports = {
         }, async function OCRResponse(err, resp, body) {
             if (err) {
                 bot.logger.error(err);
-                if (err.ErrorMessage) {
-                    message.channel.send(err.ErrorMessage.join("\n"));
+                if (err.message.ErrorMessage) {
+                    message.channel.send(err.message.ErrorMessage.join("\n"));
                 } else {
-
                     bot.raven.captureException(err);
                     message.replyLang("GENERIC_ERROR");
                 }

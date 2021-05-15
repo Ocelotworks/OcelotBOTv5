@@ -45,9 +45,9 @@ module.exports = {
             let voteServer = null;
             let channel = null;
 
-            if(bot.client.guilds.cache.has("322032568558026753")) {
+            if(bot.client.channels.cache.has("756854640204709899")) {
                 try {
-                    (await bot.client.channels.fetch("756854640204709899")).send(`:heart: **${await bot.util.getUserTag(user)}** just voted at ${await bot.database.getBotlistUrl(source)}`)
+                    bot.client.channels.cache.get("756854640204709899").send(`:heart: **${await bot.util.getUserTag(user)}** just voted at ${await bot.database.getBotlistUrl(source)}`)
                 } catch (e) {
                     // fart
                     //console.log(e);

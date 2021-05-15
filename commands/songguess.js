@@ -25,6 +25,10 @@ let runningGames = {"":{
 }};
 
 
+const llErrors = {
+    "WebSocketClosedEvent": ":thinking: Looks like I was disconnected from the Voice Channel for some reason. Try again in a minute or so."
+}
+
 const spotifyPlaylist = /.*\/open\.spotify\.com\/playlist\/(.+?)([\/?#]|$)/gi
 
 
@@ -141,7 +145,12 @@ async function startGame(bot, message, playlistId, custom){
     }
     player.on("error", (e)=>{
         console.error(e);
-        message.channel.send("Something went wrong. "+e.type);
+        if(llErrors[e.type])
+            message.channel.send(llErrors[e.type])
+        else{
+            Sentry.captureException(e)
+            message.channel.send("An unknown error happened. If you see Big P, tell him this: "+e.type);
+        }
         endGame(bot, message.guild.id);
     });
     await newGuess(bot, message.member.voice.channel);
@@ -175,14 +184,14 @@ async function newGuess(bot, voiceChannel, retrying = false){
         bot.logger.warn("Song is null");
         bot.logger.log(playlist);
         if (!retrying) {
-            counter = parseInt(Math.random()*200);
+            counter += 100;
             return newGuess(bot, voiceChannel, true);
         } else {
             game.textChannel.stopTyping();
             Sentry.captureMessage("Failed to load song")
             counter = 0;
             endGame(bot, voiceChannel.guild.id);
-            return game.textChannel.send("Failed to load song. Try again later.")
+            return game.textChannel.send(`Failed to get the track data from spotify. Wait a minute or so and try again. If you keep getting this error, try a different playlist or reach out via ${game.textChannel.guild.getSetting("prefix")}feedback.`)
         }
     }
     game.currentTrack = song;
@@ -194,7 +203,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             return newGuess(bot, voiceChannel, true);
         }else{
             game.textChannel.stopTyping();
-            counter = 0;
+            counter = 2;
             endGame(bot, voiceChannel.guild.id);
             return game.textChannel.channel.send("Failed to load song. Try again later.")
         }
@@ -235,7 +244,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
         // If they mention one of the artists, send them a message the first time
         for(let i = 0; i < artistNames.length; i++){
             if(normalisedContent.indexOf(artistNames[i]) > -1 && !artistsVisited[i]){
-                bot.util.replyTo(m, `${song.track.artists[i].name} is ${artistNames.length > 1 ? "one of the artists" : "the artist"}, but we're not looking for that.`);
+                bot.util.replyTo(m, `${song.track.artists[i].name} is ${artistNames.length > 1 ? "one of the artists" : "the artist"}, but what's the song title?.`);
                 artistsVisited[i] = true;
                 break
             }
