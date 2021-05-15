@@ -163,7 +163,13 @@ module.exports = {
                 //     connection.disconnect();
                 // });
 
-                bot.rabbit.event({"type": "ready"});
+                try {
+                    bot.rabbit.event({"type": "ready"});
+                }catch(e){
+                    console.error(e);
+                    // If we have no rabbit, we are in trouble
+                    process.exit(37);
+                }
             });
         });
 
