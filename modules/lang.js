@@ -77,6 +77,16 @@ module.exports = {
         };
 
         bot.lang.getTranslationFor = function getTranslationFor(lang, key) {
+            if(!bot.lang.strings){
+                try {
+                    bot.logger.log("Languages are not loaded for some reason!");
+                    bot.lang.loadLanguages();
+                }catch(e){
+                    bot.logger.log(e);
+                    bot.raven.captureException(e);
+                }
+                return key;
+            }
             if (bot.lang.strings[lang] && bot.lang.strings[lang][key]) {
                 return bot.lang.strings[lang][key];
             } else if (bot.lang.strings.default[key]) {
