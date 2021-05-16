@@ -505,8 +505,29 @@ module.exports = {
         bot.api.get('/guild/:id/members', async (req, res) => {
             try {
                 const guild = await bot.client.guilds.fetch(req.params.id);
-                const members = await guild.members.fetch({cache: false});
+                const members = await guild.members.fetch();
                 res.json(members.map((m)=>bot.util.serialiseMember(m)));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
+        bot.api.get('/guild/:id/bots', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                const members = await guild.members.fetch();
+                res.json(members.filter((m)=>m.user.bot).map((m)=>bot.util.serialiseMember(m)));
+            } catch (err) {
+                console.log(err);
+                return res.json({err})
+            }
+        })
+
+        bot.api.get('/guild/:id/roles', async (req, res) => {
+            try {
+                const guild = await bot.client.guilds.fetch(req.params.id);
+                res.json((await guild.roles.fetch()).cache);
             } catch (err) {
                 console.log(err);
                 return res.json({err})
