@@ -9,6 +9,7 @@ const Discord = require('discord.js');
 const axios = require('axios');
 const config = require('config');
 const Sentry = require('@sentry/node');
+const cheerio = require('cheerio');
 // Start a random position in the playlist on startup, mostly for my sanity during testing
 let counter = Math.round(Math.random()*1000);
 let runningGames = {"":{
@@ -47,13 +48,14 @@ module.exports = {
             return message.replyLang("GENERIC_DM_CHANNEL");
         }
 
+        let playlists = null;
         let playlist = null;
         let isCustom = false;
-        if (args[1] && (playlist = await bot.database.getGuessPlaylist(message.guild.id, args[1].toLowerCase())) == null) {
+        if (args[1] && (playlists = await bot.database.getGuessPlaylist(message.guild.id, args[1].toLowerCase())) == null) {
             let regexResult = spotifyPlaylist.exec(args[1]);
             if(regexResult && regexResult[1]){
                 isCustom = true;
-                playlist = regexResult[1]
+                playlists = regexResult[1]
             }else{
                 return bot.util.standardNestedCommand(message, args, bot, 'guess', runningGames, () => {
                     if (message.member && message.member.voice.channel && runningGames[message.guild.id]) {
@@ -65,12 +67,14 @@ module.exports = {
             }
         }
 
-        if(playlist === null) {
-            const availablePlaylists = await message.getSetting("songguess.default").split(",");
-            const playlistId = bot.util.arrayRand(availablePlaylists);
-            bot.logger.log(`Using playlist: ${playlistId}`);
-            playlist = await bot.database.getGuessPlaylist(message.guild.id, playlistId);
+        if(playlists === null) {
+            const playlistId = message.getSetting("songguess.default");
+            bot.logger.log(`Using playlist ID: ${playlistId}`);
+            playlists = await bot.database.getGuessPlaylist(message.guild.id, playlistId);
         }
+
+        playlist = bot.util.arrayRand(playlists.split(","));
+        bot.logger.log(`Using spotify playlist: ${playlist}`);
 
         if (!bot.lavaqueue)return message.replyLang("SONGGUESS_UNAVAILABLE");
         if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
@@ -172,28 +176,56 @@ async function newGuess(bot, voiceChannel, retrying = false){
         }
     })
     const playlist = await getPlaylist(bot, game.playlistId, chunk);
-    const realIndex = (index-chunk)-1 % playlist.length; // For some reason spotify sends unusual things
+    let realIndex = ((index-chunk)-1) % playlist.length; // For some reason spotify sends unusual things
+    Sentry.addBreadcrumb({
+       message: "Calculate realIndex",
+       data: {
+           realIndex,
+           playlistId: game.playlistId
+       }
+    });
+    if(realIndex < 0 || realIndex > playlist.length){
+        Sentry.captureMessage("RealIndex is calculated incorrectly");
+        bot.logger.warn("realIndex was incorrect "+realIndex);
+        realIndex = bot.util.intBetween(0, playlist.length); // Last ditch
+    }
     bot.logger.log(`Counter: ${counter} | Index: ${index} | Chunk: ${chunk} | List length: ${playlistLength} | Array Length: ${playlist.length} | Real Index: ${realIndex}`);
 
     if(!playlist || playlist.length === 0) {
         endGame(bot,  voiceChannel.guild.id);
-        return game.textChannel.send(":warning: The playlist you selected has no playable songs.")
+        return game.textChannel.send(":warning: The playlist you selected has no playable songs. This could be because the playlist is private, or because the playlist only contains songs that Spotify does not supply previews for.");
     }
-    const song = playlist[realIndex];
+    let song = playlist[realIndex];
     if(!song) {
         bot.logger.warn("Song is null");
         bot.logger.log(playlist);
         if (!retrying) {
-            counter += 100;
+            counter = bot.util.intBetween(0, playlistLength);
             return newGuess(bot, voiceChannel, true);
-        } else {
+        } else if(counter === 0){
             game.textChannel.stopTyping();
             Sentry.captureMessage("Failed to load song")
             counter = 0;
             endGame(bot, voiceChannel.guild.id);
             return game.textChannel.send(`Failed to get the track data from spotify. Wait a minute or so and try again. If you keep getting this error, try a different playlist or reach out via ${game.textChannel.guild.getSetting("prefix")}feedback.`)
+        }else{
+            counter = 0;
+            song = playlist[0];
         }
     }
+
+    if(!song.track.preview_url){
+        Sentry.addBreadcrumb({
+            message: "Fetched alternative preview",
+            data: song.track
+        });
+        bot.logger.warn("Fetching alternative preview for "+song.track.id);
+        song.track.preview_url = await fetchAlternativePreview(song.track.id);
+        if(!song.track.preview_url){
+            Sentry.captureMessage("Alternative preview URL was null");
+        }
+    }
+
     game.currentTrack = song;
     const songData = await bot.lavaqueue.getSong(song.track.preview_url, game.player);
     if(!songData){
@@ -203,7 +235,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             return newGuess(bot, voiceChannel, true);
         }else{
             game.textChannel.stopTyping();
-            counter = 2;
+            counter = 10;
             endGame(bot, voiceChannel.guild.id);
             return game.textChannel.channel.send("Failed to load song. Try again later.")
         }
@@ -215,6 +247,8 @@ async function newGuess(bot, voiceChannel, retrying = false){
     });
     return game.player.play(songData.track);
 }
+
+
 
 async function doGuess(bot, player, textChannel, song, voiceChannel){
     const game = runningGames[voiceChannel.guild.id];
@@ -365,7 +399,7 @@ async function getPlaylist(bot, playlistId, chunk){
         if(!result.data.items){
             return console.log("Invalid response", result.data);
         }
-        let songList = result.data.items.filter((item)=>item.track&&item.track.preview_url);
+        let songList = result.data.items.filter((item)=>item.track);
         bot.util.shuffle(songList);
         return songList
     }, 120);
@@ -380,4 +414,11 @@ async function getPlaylistLength(bot, playlistId){
         })
         return result.data.total;
     }, 120);
+}
+
+
+async function fetchAlternativePreview(id) {
+    const { data } = await axios.get(`https://open.spotify.com/embed/track/${id}`);
+    const $ = cheerio.load(data);
+    return JSON.parse(decodeURIComponent($('script[id="resource"]')[0].children[0].data)).preview_url;
 }

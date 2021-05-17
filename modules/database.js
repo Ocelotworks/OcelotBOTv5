@@ -1213,6 +1213,9 @@ module.exports = {
             getCustomFunction(server, id){
                 return knex.select().from("ocelotbot_custom_functions").where({server, id}).limit(1);
             },
+            getCustomFunctionByTrigger(server, trigger){
+                return knex.select().from("ocelotbot_custom_functions").where({server, trigger});
+            },
             deleteCustomFunction(server, id){
                 return knex.delete().from("ocelotbot_custom_functions").where({server, id}).limit(1);
             },

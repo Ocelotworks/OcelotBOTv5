@@ -6,8 +6,7 @@ module.exports = {
     rateLimit: 10,
     detailedHelp: "Add custom commands or autoresponders",
     categories: ["meta"],
-    commands: ["custom"],
-    premium: true,
+    commands: ["custom", "customcommands"],
     init: async function init(bot) {
         bot.util.standardNestedCommandInit("custom");
         bot.customFunctions = {
