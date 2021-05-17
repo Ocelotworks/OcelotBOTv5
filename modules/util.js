@@ -7,7 +7,7 @@ const axios = require('axios');
 const fs = require('fs');
 const twemoji = require('twemoji-parser');
 const config = require('config');
-const sentry = require('@sentry/node');
+const Sentry = require('@Sentry/node');
 const zlib = require('zlib');
 const {crc32} = require('crc');
 module.exports = {
@@ -396,7 +396,7 @@ module.exports = {
                 }
             } catch (e) {
                 message.replyLang("GENERIC_ERROR");
-                sentry.captureException(e)
+                Sentry.captureException(e)
             } finally {
                 message.channel.stopTyping(true);
             }
@@ -673,13 +673,13 @@ module.exports = {
                 let data = await bot.util.getJson(`https://api.tenor.com/v1/gifs?ids=${id}&key=${config.get("API.tenor.key")}`)
                 if (data.error || !data.results || data.results.length === 0 || !data.results[0].media) {
                     bot.logger.warn("Malformed tenor URL " + url);
-                    sentry.setExtra("response", data)
-                    sentry.captureMessage("Malformed tenor URL")
+                    Sentry.setExtra("response", data)
+                    Sentry.captureMessage("Malformed tenor URL")
                     return null;
                 }
                 return data.results[0].media[0].gif.url;
             } catch (e) {
-                sentry.captureException(e);
+                Sentry.captureException(e);
                 return null;
             }
         };
@@ -698,7 +698,7 @@ module.exports = {
                         return data.gfyItem.content_urls.largeGif.url;
                 }
             } catch (e) {
-                sentry.captureException(e);
+                Sentry.captureException(e);
                 return null;
             }
         }
@@ -1087,7 +1087,7 @@ module.exports = {
         };
 
         bot.util.startSpan = function startSpan(name) {
-            const tx = sentry.startTransaction({
+            const tx = Sentry.startTransaction({
                 op: name.toLowerCase().replace(/ /g, "_"), name,
             });
             if (tx) return {end: tx.finish};
@@ -1104,10 +1104,14 @@ module.exports = {
                     url,
                     headers: {'User-Agent': 'OcelotBOT https://ocelotbot.xyz/', ...headers}, ...extraData
                 }, (err, resp, body) => {
-                    if (err) return reject(err);
+                    if (err){
+                        Sentry.captureException(err);
+                        return reject(err);
+                    }
                     try {
                         resolve(JSON.parse(body))
                     } catch (e) {
+                        Sentry.captureException(e);
                         reject(e);
                     }
                 })
