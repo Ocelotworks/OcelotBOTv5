@@ -4,6 +4,11 @@ module.exports = {
     usage: "add command/autorespond/scheduled <trigger> <code>",
     commands: ["add", "new", "create"],
     run: async function (message, args, bot, custom) {
+        if(!message.getBool("serverPremium")){
+            const funcs = await bot.database.getCustomFunctions(message.guild.id);
+            if(funcs.length >= 2)
+                return message.channel.send(`:warning: Adding more than 2 custom functions requires **OcelotBOT Premium**! Learn more with ${message.getSetting("prefix")}premium`);
+        }
         if(!args[2]) return message.replyLang("CUSTOM_USAGE");
         let type = args[2].toUpperCase();
         if(["COMMAND", "AUTORESPOND", "SCHEDULED"].includes(type)){
@@ -14,7 +19,7 @@ module.exports = {
                 if(bot.commands[trigger])return message.replyLang("CUSTOM_TRIGGER_BUILTIN");
                 if(await bot.database.getCustomCommand(message.guild.id, trigger))return message.replyLang("CUSTOM_TRIGGER_EXISTS", {arg: args[0]});
             }
-            let start = message.content.indexOf("```lua")
+            let start = message.content.indexOf("```")
             let end = message.content.length - 4;
             if (start === -1) {
                 start = args.slice(0, 4).join(" ").length+1;
@@ -22,7 +27,7 @@ module.exports = {
             }else{
                 if(type !== "COMMAND")
                     trigger = message.content.substring(message.content.indexOf(args[2])+args[2].length, start).trim().toLowerCase();
-                start += 6
+                start += 3
             }
 
             // oh man
@@ -54,6 +59,13 @@ module.exports = {
             }
 
             let code = message.content.substring(start, end).trim();
+
+            if(code.startsWith("lua"))code = code.substring(3); // Remove lua from the start of the codeblock
+
+            if(code.length === 0){
+                return message.channel.send(":warning: Couldn't figure out where your code starts. For the best results, enter your code inside of a codeblock (wrapped in ```)")
+            }
+
             let success = await bot.util.runCustomFunction(code, message, true, false);
             if(!success) return;
 
