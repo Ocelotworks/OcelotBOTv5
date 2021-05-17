@@ -28,6 +28,7 @@
     "axios": "^0.21.1",
     "caller-id": "^0.1.0",
     "canvas": "^2.6.1",
+    "cheerio": "^1.0.0-rc.9",
     "chess": "^0.5.0",
     "chrono-node": "^2.2.0",
     "cleverbot": "^1.0.1",
