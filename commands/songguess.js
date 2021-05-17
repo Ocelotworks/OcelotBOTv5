@@ -48,13 +48,14 @@ module.exports = {
             return message.replyLang("GENERIC_DM_CHANNEL");
         }
 
+        let playlists = null;
         let playlist = null;
         let isCustom = false;
-        if (args[1] && (playlist = await bot.database.getGuessPlaylist(message.guild.id, args[1].toLowerCase())) == null) {
+        if (args[1] && (playlists = await bot.database.getGuessPlaylist(message.guild.id, args[1].toLowerCase())) == null) {
             let regexResult = spotifyPlaylist.exec(args[1]);
             if(regexResult && regexResult[1]){
                 isCustom = true;
-                playlist = regexResult[1]
+                playlists = regexResult[1]
             }else{
                 return bot.util.standardNestedCommand(message, args, bot, 'guess', runningGames, () => {
                     if (message.member && message.member.voice.channel && runningGames[message.guild.id]) {
@@ -66,12 +67,14 @@ module.exports = {
             }
         }
 
-        if(playlist === null) {
-            const availablePlaylists = await message.getSetting("songguess.default").split(",");
-            const playlistId = bot.util.arrayRand(availablePlaylists);
-            bot.logger.log(`Using playlist: ${playlistId}`);
-            playlist = await bot.database.getGuessPlaylist(message.guild.id, playlistId);
+        if(playlists === null) {
+            const playlistId = message.getSetting("songguess.default");
+            bot.logger.log(`Using playlist ID: ${playlistId}`);
+            playlists = await bot.database.getGuessPlaylist(message.guild.id, playlistId);
         }
+
+        playlist = bot.util.arrayRand(playlists.split(","));
+        bot.logger.log(`Using spotify playlist: ${playlist}`);
 
         if (!bot.lavaqueue)return message.replyLang("SONGGUESS_UNAVAILABLE");
         if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
