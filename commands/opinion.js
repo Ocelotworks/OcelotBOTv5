@@ -26,7 +26,7 @@ module.exports = {
             } else {
                 try {
                     const data = JSON.parse(body);
-                    comments = data.data.children.filter((comment)=>comment.data.body.indexOf("http") > -1 && comment.data.body.indexOf("verif") > -1);
+                    comments = data.data.children.filter((comment)=>comment.data.body.indexOf("http") == -1 && comment.data.body.indexOf("verif") == -1);
                     commentIndex = 0;
                     bot.logger.log("Downloaded "+comments.length+" comments");
                 } catch(e) {
