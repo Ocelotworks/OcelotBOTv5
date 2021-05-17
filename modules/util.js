@@ -7,8 +7,7 @@ const axios = require('axios');
 const fs = require('fs');
 const twemoji = require('twemoji-parser');
 const config = require('config');
-const Sentry = require('@Sentry/node');
-const zlib = require('zlib');
+const Sentry = require('@sentry/node');
 const {crc32} = require('crc');
 module.exports = {
     name: "Utilities",
