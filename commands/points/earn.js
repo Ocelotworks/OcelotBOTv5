@@ -8,20 +8,23 @@ module.exports = {
         embed.setTitle("Earn Points");
         const now = new Date();
         embed.setDescription("Stuck for points? Here are some ways you can earn:");
-        let voteRewards = "";
-        const voteSources = await bot.database.getBotlistsWithVoteRewards();
-        for (let i = 0; i < voteSources.length; i++) {
-            const voteSource = voteSources[i];
-            const lastVote = await bot.database.getLastVoteBySource(message.author.id, voteSource.id);
-            let line = `Earn ${voteSource.pointsReward} Voting at [${voteSource.name}](${voteSource.botUrl})`;
-            if (lastVote && now - lastVote < (voteSource.voteTimer * 3600000)) { // Vote timer is stored in hours, we want milliseconds
-                line = `<:points_off:825695949790904330> ~~${line}~~ [Available in ${bot.util.shortSeconds(((voteSource.voteTimer * 3600000) - (now - lastVote)) / 1000)}]`
-            }else{
-                line = `<:points:817100139603820614> **${line}**`;
+
+        const voteSources = (await bot.database.getBotlistsWithVoteRewards()).chunk(5);
+        for(let c = 0; c < voteSources.length; c++){
+            let voteRewards = "";
+            for (let i = 0; i < voteSources[c].length; i++) {
+                const voteSource = voteSources[c][i];
+                const lastVote = await bot.database.getLastVoteBySource(message.author.id, voteSource.id);
+                let line = `Earn ${voteSource.pointsReward} Voting at [${voteSource.name}](${voteSource.botUrl})`;
+                if (lastVote && now - lastVote < (voteSource.voteTimer * 3600000)) { // Vote timer is stored in hours, we want milliseconds
+                    line = `<:points_off:825695949790904330> ~~${line}~~ [Available in ${bot.util.shortSeconds(((voteSource.voteTimer * 3600000) - (now - lastVote)) / 1000)}]`
+                }else{
+                    line = `<:points:817100139603820614> **${line}**`;
+                }
+                voteRewards += line + "\n";
             }
-            voteRewards += line + "\n";
+            embed.addField(c === 0 ? "Voting" : "‍", voteRewards.substring(0, 1024));
         }
-        embed.addField("Voting", voteRewards);
         let games = "";
         games += `<:points:817100139603820614> **Earn 10 winning a ${message.getSetting("prefix")}guess game (+15 for a new record)**\n`
         games += `<:points:817100139603820614> **Earn up to 5 winning a ${message.getSetting("prefix")}trivia game**\n`
