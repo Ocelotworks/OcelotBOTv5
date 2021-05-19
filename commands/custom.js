@@ -1,4 +1,5 @@
 const later = require('later');
+const Sentry = require('@sentry/node')
 let cronIntervals = [];
 module.exports = {
     name: "Custom Functions",
@@ -31,15 +32,26 @@ module.exports = {
                 const trigger = later.parse.text(triggerSplit[1]);
                 const channel = await bot.client.channels.fetch(triggerSplit[0]);
                 const interval = later.setInterval(async () => {
-                    if(!channel.lastMessageID){
-                        return bot.logger.warn(`No last message was sent in ${channel.id}`);
-                    }
-                    const message = await channel.messages.fetch(channel.lastMessageID);
-                    bot.logger.log(`Running custom function #${cron.id}`);
-                    const success = bot.util.runCustomFunction(cron.function, message, true, true);
-                    if(!success){
-                        bot.logger.warn(`Cron ${cron.id} failed to run`);
-                        interval.clear();
+                    try {
+                        Sentry.addBreadcrumb({
+                            message: "Running custom cron",
+                            data: cron,
+                        })
+                        if (!channel.lastMessageID) {
+                            return bot.logger.warn(`No last message was sent in ${channel.id}`);
+                        }
+                        const message = (await channel.messages.fetch({limit: 1})).first();
+                        bot.logger.log(`Running custom function #${cron.id}`);
+                        const success = bot.util.runCustomFunction(cron.function, message, true, true);
+                        if (!success) {
+                            Sentry.captureMessage("Cron job failed to run");
+                            bot.logger.warn(`Cron ${cron.id} failed to run`);
+                            interval.clear();
+                        }
+                    }catch(e){
+                        channel.send(`:warning: An internal error occurred running custom function ${cron.id}`);
+                        bot.logger.log(e);
+                        Sentry.captureException(e);
                     }
                 }, trigger);
                 cronIntervals.push(interval);
