@@ -920,7 +920,7 @@ module.exports = {
          * @returns {Promise<void>}
          */
         bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 120000, reactDict) {
-            let index = 0;
+            let index = parseInt(channel.getSetting("pagination.page")) || 0;
             let sentMessage;
 
 
@@ -939,6 +939,9 @@ module.exports = {
             bot.tasks.startTask("standardPagination", sentMessage.id);
 
             if (pages.length === 1 && !reactDict)
+                return;
+
+            if(channel.getBool("pagination.disable"))
                 return;
 
             // noinspection ES6MissingAwait
@@ -1504,7 +1507,7 @@ module.exports = {
         bot.util.runCustomFunction = async function(code, message, showErrors = true, doOutput = true){
             try {
                 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-                let result = await axios.post("https://ob-custom-commands.d.int.unacc.eu/run", {
+                let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "https://ob-custom-commands.d.int.unacc.eu/run", {
                     version: 1,
                     script: code,
                     message: bot.util.serialiseMessage(message),
@@ -1533,6 +1536,14 @@ module.exports = {
 
         bot.util.shard = parseInt(process.env.SHARD) - 1
 
+
+        bot.util.getUniqueId = function(message){
+            let charCodes = [];
+            for (let i = 0; i < message.id.length; i += 3) {
+                charCodes.push(message.id[i] + message.id[i + 1] + message.id[i + 3]);
+            }
+            return Buffer.from(charCodes).toString("base64");
+        }
 
         bot.util.parseSchedule = function(schedule){
             let output = ""

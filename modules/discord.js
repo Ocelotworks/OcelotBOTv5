@@ -43,20 +43,28 @@ module.exports = {
     name: "Discord.js Integration",
     init: function (bot) {
 
-        Discord.Message.prototype.getLang = async function (message, values) {
+        Discord.Message.prototype.getLang = function (message, values) {
             return bot.lang.getForMessage(this, message, values);
         }
 
         Discord.Message.prototype.replyLang = async function (message, values) {
-            return this.channel.send(bot.lang.getForMessage(this, message, values));
+            return this.channel.send(this.getLang(message, values));
         };
 
         Discord.TextChannel.prototype.sendLang = async function (message, values) {
-            return this.send(bot.lang.getForMessage(this, message, values));
+            return this.send(this.getLang(message, values));
         };
 
         Discord.Message.prototype.editLang = async function (message, values) {
-            return this.edit(bot.lang.getForMessage(this, message, values));
+            return this.edit(this.getLang(message, values));
+        };
+
+        Discord.TextChannel.prototype.getSetting = function (setting, user) {
+            return bot.config.get(this.guild ? this.guild.id : "global", setting, user);
+        };
+
+        Discord.TextChannel.prototype.getBool = function (setting, user) {
+            return bot.config.getBool(this.guild ? this.guild.id : "global", setting, user,);
         };
 
         Discord.Guild.prototype.getSetting = function (setting, user) {

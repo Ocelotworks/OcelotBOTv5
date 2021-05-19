@@ -1222,6 +1222,21 @@ module.exports = {
             getCustomFunctionsForShard(type, servers) {
                 return knex.select().from("ocelotbot_custom_functions").where({type}).whereIn("server", servers)
             },
+            async getPublishedFunctionFromOrigin(origin){
+                return (await knex.select().from("ocelotbot_published_custom_functions").where({origin}).limit(1))[0];
+            },
+            async getPublishedFunction(id){
+                return (await knex.select().from("ocelotbot_published_custom_functions").where({id}).limit(1))[0]
+            },
+            createPublishedFunction(id, name, type, code, user, origin){
+                return knex.insert({id, name, type, code, user, origin}).into("ocelotbot_published_custom_functions");
+            },
+            updatePublishedFunction(id, code){
+                return knex("ocelotbot_published_custom_functions").update({code}).where({id}).limit(1);
+            },
+            incrementPublishedFunctionImports(id){
+                return knex("ocelotbot_published_custom_functions").increment("imports").where({id}).limit(1);
+            }
         };
     }
 };
