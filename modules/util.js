@@ -1537,6 +1537,14 @@ module.exports = {
         bot.util.shard = parseInt(process.env.SHARD) - 1
 
 
+        bot.util.getUniqueId = function(message){
+            let charCodes = [];
+            for (let i = 0; i < message.id.length; i += 3) {
+                charCodes.push(message.id[i] + message.id[i + 1] + message.id[i + 3]);
+            }
+            return Buffer.from(charCodes).toString("base64");
+        }
+
         bot.util.parseSchedule = function(schedule){
             let output = ""
 

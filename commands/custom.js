@@ -16,11 +16,21 @@ module.exports = {
             "SCHEDULED": {},
         };
         bot.client.on("ready", ()=>{
-            module.exports.loadScheduled(bot);
+            utils.loadScheduled(bot);
         })
 
     },
-    loadScheduled: async function loadScheduled(bot){
+    run: function run(message, args, bot) {
+        if(message.synthetic)return message.replyLang("GENERIC_CUSTOM_COMMAND");
+        if(!message.guild)return message.replyLang("GENERIC_DM_CHANNEL");
+        if (!message.getBool("admin") && !message.member.hasPermission("MANAGE_GUILD")) return message.channel.send("You must have the Manage Server permission to use this command.");
+        bot.util.standardNestedCommand(message, args, bot, "custom", utils);
+    },
+};
+
+
+const utils = {
+    async loadScheduled(bot){
         cronIntervals.forEach((c)=>c.clear());
         // I've got crons disease ha ha
         const crons = await bot.database.getCustomFunctionsForShard("SCHEDULED", bot.client.guilds.cache.keyArray());
@@ -61,12 +71,40 @@ module.exports = {
             }
         }
     },
-    run: function run(message, args, bot) {
-        if(message.synthetic)return message.replyLang("GENERIC_CUSTOM_COMMAND");
-        if(!message.guild)return message.replyLang("GENERIC_DM_CHANNEL");
-        if (!message.getBool("admin") && !message.member.hasPermission("MANAGE_GUILD")) return message.channel.send("You must have the Manage Server permission to use this command.");
-        bot.util.standardNestedCommand(message, args, bot, "custom", module.exports);
+    isValidType(type){
+        return ["COMMAND", "AUTORESPOND", "SCHEDULED"].includes(type)
     },
-};
+    getCodeBlock(message){
+        let start = message.content.indexOf("```")
+        let end = message.content.length - 4;
+        if (start === -1) {
+            start = args.slice(0, 3).join(" ").length+1;
+            end = message.content.length;
+        }else{
+            start += 3
+        }
+        let code = message.content.substring(start, end);
 
+        if(code.startsWith("lua"))code = code.substring(3); // Remove lua from the start of the codeblock
+        return code;
+    },
+    async getNameOrId(message, args, bot){
+        if(!args[2])
+            return message.channel.send(`Enter a custom command to edit in the format **${args[0]} ${args[1]} name**`);
 
+        let func;
+        if(!isNaN(args[2])){
+            func = (await bot.database.getCustomFunction(message.guild.id, parseInt(args[2])))[0];
+        }
+        if(!func){
+            const funcs = await bot.database.getCustomFunctionByTrigger(message.guild.id, args[2]);
+            if(funcs.length > 1){
+                return message.channel.send(`:thinking: There are multiple functions with that name. Instead, enter the ID from **${args[0]} list** in the format **${args[0]} ${args[1]} id**`)
+            }
+            func = funcs[0];
+        }
+
+        if(!func)return message.channel.send(`Couldn't find a function with that trigger or ID. Find the ID with **${args[0]} list**. Then enter **${args[0]} ${args[1]} id**`);
+        return func;
+    }
+}

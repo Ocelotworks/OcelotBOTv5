@@ -43,7 +43,7 @@ module.exports = {
     name: "Discord.js Integration",
     init: function (bot) {
 
-        Discord.Message.prototype.getLang = async function (message, values) {
+        Discord.Message.prototype.getLang = function (message, values) {
             return bot.lang.getForMessage(this, message, values);
         }
 
