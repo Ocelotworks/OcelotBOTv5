@@ -52,7 +52,9 @@ module.exports = {
         };
 
         Discord.TextChannel.prototype.sendLang = async function (message, values) {
-            return this.send(this.getLang(message, values));
+            if(this.getLang)
+                return this.send(this.getLang(message, values));
+            return this.send(bot.lang.getForMessage(this, message, values));
         };
 
         Discord.Message.prototype.editLang = async function (message, values) {

@@ -6,10 +6,10 @@ module.exports = {
         bot.client.once("ready", () => {
             const now = new Date();
             let date = new Date();
-            if (date.getHours() >= 10) {
+            if (date.getHours() >= 11) {
                 date.setDate(date.getDate() + 1);
             }
-            date.setHours(10, 0, 0, 0);
+            date.setHours(11, 0, 0, 0);
             let initialTimer = date - now;
             bot.logger.log(`Sending birthday messages in ${initialTimer}ms`);
             setTimeout(processChannels, initialTimer, bot);
