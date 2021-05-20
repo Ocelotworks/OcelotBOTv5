@@ -920,7 +920,7 @@ module.exports = {
          * @returns {Promise<void>}
          */
         bot.util.standardPagination = async function standardPagination(channel, pages, formatMessage, fullReactions = false, reactionTime = 120000, reactDict) {
-            let index = parseInt(channel.getSetting("pagination.page")) || 0;
+            let index = channel.getSetting && parseInt(channel.getSetting("pagination.page")) || 0;
             let sentMessage;
 
 
@@ -941,7 +941,7 @@ module.exports = {
             if (pages.length === 1 && !reactDict)
                 return;
 
-            if(channel.getBool("pagination.disable"))
+            if(channel.getBool && channel.getBool("pagination.disable"))
                 return;
 
             // noinspection ES6MissingAwait
