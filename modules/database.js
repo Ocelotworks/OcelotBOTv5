@@ -1179,7 +1179,7 @@ module.exports = {
                 await knex("ocelotbot_points").update({points: newPoints}).where({user}).limit(1);
                 await knex.insert({
                     user,
-                    amount,
+                    amount:-amount,
                     origin,
                     balance_before: currentPoints,
                     balance_after: newPoints

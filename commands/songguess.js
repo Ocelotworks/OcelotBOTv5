@@ -188,6 +188,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
         Sentry.captureMessage("RealIndex is calculated incorrectly");
         bot.logger.warn("realIndex was incorrect "+realIndex);
         realIndex = bot.util.intBetween(0, playlist.length); // Last ditch
+        counter = bot.util.intBetween(0, playlistLength); // Reset the counter
     }
     bot.logger.log(`Counter: ${counter} | Index: ${index} | Chunk: ${chunk} | List length: ${playlistLength} | Array Length: ${playlist.length} | Real Index: ${realIndex}`);
 
