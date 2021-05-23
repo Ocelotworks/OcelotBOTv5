@@ -650,6 +650,8 @@ module.exports = {
                 return str;
             };
 
+
+
         /**
          * Get an image for use in meme templates
          * @param {Object} message The message object
