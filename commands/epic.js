@@ -7,7 +7,7 @@ module.exports = {
     usage: "epic [url]",
     rateLimit: 30,
     detailedHelp: "Okay, now THIS is epic.",
-    categories: ["image", "memes"],
+    categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["epic", "thisisepic", "okaythisisepic", "tis"],
     run: async function (message, args, bot) {

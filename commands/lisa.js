@@ -4,7 +4,7 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["lisa"],
-    categories: ["image", "memes"],
+    categories: ["memes"],
     run:  function(message, args, bot){
         if(!args[1])
             return message.replyLang("IMAGE_NO_TEXT");

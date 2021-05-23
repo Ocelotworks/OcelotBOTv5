@@ -11,7 +11,7 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["sexysingle", "sexy", "single"],
-    categories: ["image"],
+    categories: ["memes"],
     unwholesome: true,
     init: function init(bot){
         bot.logger.log("Loading sexysingle templates");

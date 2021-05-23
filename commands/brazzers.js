@@ -2,7 +2,7 @@ module.exports = {
     name: "Brazzers",
     usage: "brazzers <user or url>",
     rateLimit: 10,
-    categories: ["image", "memes", "nsfw"],
+    categories: ["memes", "nsfw"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["brazzers"],
     unwholesome: true,

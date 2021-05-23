@@ -6,7 +6,7 @@ module.exports = {
     usageExample: "tradeoffer server admin / amogus meme",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["tradeoffer"],
-    categories: ["image", "memes"],
+    categories: ["memes"],
     run: function (message, args, bot) {
         if (!args[1]) {
             return message.channel.send(`Enter one or two things like: **${args[0]} sloppy toppy** or **${args[0]} admin / nothing**`)

@@ -1,20 +1,18 @@
 module.exports = {
-    name: "Pinocchio Meme",
-    usage: "pinocchio <text>",
+    name: "1984 Meme",
+    usage: "1984 <text>",
     requiredPermissions: ["ATTACH_FILES"],
-    commands: ["pinocchio", "pinnochio", "pinochio"],
+    commands: ["1984", "984"],
     rateLimit: 10,
-    categories: ["memes", "nsfw"],
-    unwholesome: true,
-    run:  function(message, args, bot){
-        if(!args[1]){
-            return  message.replyLang("IMAGE_NO_TEXT");
-        }
+    categories: ["memes"],
+    run: function (message, args, bot) {
+        if (!args[1])
+            return message.replyLang("IMAGE_NO_TEXT");
 
         return bot.util.imageProcessor(message, {
             "components": [
                 {
-                    "url": "pinnochio.png",
+                    "url": "1984.png",
                     "local": true,
                     "filter": [{
                         name: "text",
@@ -23,17 +21,17 @@ module.exports = {
                             fontSize: 25,
                             colour: "#000000",
                             content: message.cleanContent.substring(args[0].length),
-                            x: 114,
-                            y: 431,
+                            x: 210,
+                            y: 69,
                             ax: 0.5,
                             ay: 0.5,
-                            w: 178,
+                            w: 311,
                             spacing: 1.1,
                             align: 1,
                         }
                     }]
                 },
             ]
-        }, "pinocchio")
+        }, "shy")
     }
 };

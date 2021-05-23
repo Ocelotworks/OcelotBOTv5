@@ -6,7 +6,7 @@ module.exports = {
     usage: "spongebob [text]",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["spongebob"],
-    categories: ["image", "text", "memes"],
+    categories: ["text", "memes"],
     run: async function run(message, args, bot) {
         let doSponge = function doSponge(input){
             let output = "";
