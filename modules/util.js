@@ -9,6 +9,7 @@ const twemoji = require('twemoji-parser');
 const config = require('config');
 const Sentry = require('@sentry/node');
 const {crc32} = require('crc');
+const FormData = require('form-data');
 module.exports = {
     name: "Utilities",
     init: function (bot) {
@@ -428,6 +429,43 @@ module.exports = {
             }), 600);
             clearTimeout(loadingMessageDelay)
             span.end();
+            if(response.size && response.size >= 7000000){
+                if(response.size >= 10000000){
+                    await loadingMessage.editLang("IMAGE_PROCESSOR_ERROR_SIZE");
+                    return;
+                }
+                if (loadingMessage && !loadingMessage.deleted) {
+                    span = bot.util.startSpan("Edit loading message");
+                    await loadingMessage.editLang("GENERIC_UPLOADING_IMGUR");
+                    span.end();
+                }
+                let image = await axios.get(response.path, {responseType: "stream"});
+                const imgurData = new FormData();
+                imgurData.append('image', image.data)
+                try {
+                    let imgur = await axios({
+                        method: 'POST',
+                        url: 'https://api.imgur.com/3/image',
+                        headers: {
+                            Authorization: `Client-ID ${config.get("API.imgur.key")}`,
+                            ...imgurData.getHeaders()
+                        },
+                        data: imgurData,
+                        // Buzz lightyear shit
+                        maxBodyLength: Infinity,
+                        maxContentLength: Infinity,
+                    });
+                    if (imgur.data?.data?.link) {
+                        if (loadingMessage && !loadingMessage.deleted)
+                            loadingMessage.delete();
+                        return message.channel.send(imgur.data.data.link);
+                    }
+                    console.log(imgur.data);
+                }catch(e){
+                    console.log(e.response.data);
+                }
+                return message.channel.send("Failed to upload to imgur. Try a smaller image");
+            }
             if (loadingMessage && !loadingMessage.deleted) {
                 span = bot.util.startSpan("Edit loading message");
                 await loadingMessage.editLang("GENERIC_UPLOADING");
@@ -452,6 +490,7 @@ module.exports = {
                     messageResult = await message.channel.send(attachment);
             } catch (e) {
                 bot.raven.captureException(e);
+                message.channel.send("Failed to send: "+e);
             }
             message.channel.stopTyping(true);
             span.end();
