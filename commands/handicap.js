@@ -4,7 +4,7 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["handicap", "handycap", "handicapped"],
-    categories: ["image", "memes"],
+    categories: ["memes"],
     unwholesome: true,
     run:  function(message, args, bot){
         return bot.util.imageProcessor(message, {

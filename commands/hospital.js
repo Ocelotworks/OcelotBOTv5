@@ -4,7 +4,8 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["hospital", "hospitalguysays", "hospitalguy", "patient", "patientsays"],
-    categories: ["image", "memes"],
+    hidden: true,
+    categories: ["memes"],
     run:  function(message, args, bot){
         if(!args[1]){
             message.replyLang("IMAGE_NO_TEXT");

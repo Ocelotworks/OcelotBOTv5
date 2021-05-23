@@ -4,7 +4,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     rateLimit: 10,
     commands: ["opinions", "strongopinions"],
-    categories: ["image", "memes"],
+    categories: ["memes"],
     unwholesome: true,
     run:  function(message, args, bot){
         if(!args[1]){

@@ -9,7 +9,7 @@ module.exports = {
     usage: "mafia <@user1> <@user2>",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["mafia", "mafiaboss"],
-    categories: ["image", "memes"],
+    categories: ["memes"],
     run: async function run(message, args, bot) {
         if (message.mentions.users.size < 2)
             return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);

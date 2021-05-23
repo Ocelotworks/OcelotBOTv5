@@ -4,7 +4,6 @@
  * ╚════ ║   (ocelotbotv5) rule34
  *  ════╝
  */
-const request = require('request');
 const axios = require('axios');
 const Discord = require('discord.js');
 const xml2js = require('xml2js');

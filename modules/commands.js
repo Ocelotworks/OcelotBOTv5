@@ -122,6 +122,8 @@ module.exports = {
 
                 if (message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1) {
                     span.end("NSFW Disabled");
+                    const dm = await message.author.createDM();
+                    dm.send(`NSFW commands are disabled in this server.`);
                     return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
                 }
 

@@ -11,7 +11,7 @@ module.exports = {
     usageExample: "friendship @Big P @Small P",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["friendship", "freindship"],
-    categories: ["image", "memes"],
+    categories: ["memes"],
     unwholesome: true,
     run: async function run(message, args, bot) {
         if(message.mentions.users.size < 2)

@@ -3,8 +3,9 @@ module.exports = {
     usage: "horny <user or url>",
     rateLimit: 10,
     detailedHelp: "License to be Horny",
-    categories: ["image", "memes"],
+    categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],
+    unwholesome: true,
     commands: ["horny"],
     run: async function run(message, args, bot) {
         const url = await bot.util.getImage(message, args);

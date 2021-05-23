@@ -17,7 +17,7 @@ module.exports = {
                     if (bot.drain) return;
                     try {
                         let channel = await bot.client.channels.fetch(reminder.channel);
-                        if (channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES", true)) {
+                        if (channel && channel.permissionsFor && channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES", true)) {
                             console.log("Bot has send message permissions");
                             await channel.send(reminder.message);
                         } else {

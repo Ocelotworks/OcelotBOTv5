@@ -2,7 +2,7 @@ module.exports = {
     name: "Dictator Meme",
     usage: "dictator <user or url>",
     rateLimit: 10,
-    categories: ["image"],
+    categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["dictator", "chairman", "mao"],
     run: async function run(message, args, bot){

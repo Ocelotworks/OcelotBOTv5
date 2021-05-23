@@ -5,7 +5,6 @@
  *  ════╝
  */
 const Discord = require('discord.js');
-const canvas = require('canvas');
 module.exports = {
     name: "Snapchat Text",
     usage: "snapchat [url] [text]",
@@ -13,55 +12,54 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["snapchat", "snap"],
-    init: function(){
-        canvas.registerFont(__dirname+"/../static/DroidSans.ttf", {family: 'DroidSans'});
-    },
     run: async function(message, args, bot){
 
         const url =  await bot.util.getImage(message, args);
 
-        if(!url || !url.startsWith("http") || !args[1])
+        if(!url || !args[1])
             return message.replyLang("GENERIC_NO_IMAGE", module.exports);
 
-        console.log(url);
 
+        // textSize = (ch/24)
+        // barHeight = (ch/12)
+        // barPosition = ch - (ch/3)
 
-        let text;
+        let content = args.slice(1).join(" ").replace(url, "");
 
-        if(args[1].startsWith("http") || args[1].startsWith("<"))
-            text = message.content.substring(args[0].length+args[1].length+2);
-        else
-            text = message.content.substring(args[0].length+1);
+        // This feels wrong but I don't want to deal with doing it the proper way
+        if(url.startsWith("https://cdn.discord") && message.mentions.users.size > 0){
+            content = content.replace(new RegExp(`<@!?(${message.mentions.users.firstKey()})>`), "")
+        }
 
-        if(!text)
-            return message.channel.send(":bangbang: You need to enter some text.");
+        content = Discord.Util.cleanContent(content, message);
 
-        const img = await canvas.loadImage(url);
-
-
-        const cnv = canvas.createCanvas(img.width, img.height);
-        const ctx = cnv.getContext("2d");
-
-        ctx.drawImage(img, 0,0);
-
-        const textSize = img.height/24;
-        const barHeight = textSize*2;
-        const barPosition = img.height-(img.height/3);
-
-        console.log(textSize, barHeight, barPosition);
-
-        ctx.font = textSize+"px DroidSans";
-        ctx.fillStyle = "rgba(0,0,0,0.6)";
-
-
-        ctx.fillRect(0,barPosition-barHeight,img.width, barHeight);
-        ctx.fillStyle = 'white';
-        ctx.textAlign = "center";
-        ctx.fillText(text,img.width/2, barPosition-barHeight*0.4);
-
-        message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "snapchat.png")).catch(function(err){
-            message.channel.send("Error: "+err);
-        });
-
+        return bot.util.imageProcessor(message, {
+            "components": [
+                {
+                    "url": url,
+                    "pos": {"x": 0, "y": 0},
+                    "rot": 0,
+                    "filter": [{
+                        name: "text",
+                        args: {
+                            font: "DroidSans.ttf",
+                            fontSize: "ch/25",
+                            colour: "#ffffff",
+                            background: "#00000099",
+                            bgWidth: "cw",
+                            padding: "ch/15",
+                            content: content,
+                            x: "cw/2",
+                            y: "ch/2",
+                            ax: 0.5,
+                            ay: 0.5,
+                            w: "cw",
+                            spacing: 1.1,
+                            align: 1,
+                        }
+                    }]
+                },
+            ]
+        }, "snapchat")
     }
 };
