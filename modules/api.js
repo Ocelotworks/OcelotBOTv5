@@ -1,5 +1,7 @@
 const express = require('express');
 const os = require("os");
+import * as Sentry from '@sentry/node';
+
 module.exports = {
     name: "HTTP API",
     init: async function (bot) {
@@ -11,6 +13,9 @@ module.exports = {
 
 
         bot.api = express();
+
+        bot.api.use(Sentry.Handlers.requestHandler());
+        bot.api.use(Sentry.Handlers.tracingHandler());
 
         bot.api.use((req, res, next) => {
             res.setHeader("X-Shard", bot.util.shard);
@@ -30,7 +35,6 @@ module.exports = {
         bot.api.get("/commands", (req, res) => {
             res.json(bot.commandObjects);
         })
-
 
         bot.api.get("/metrics", (req, res) => {
             let output = "";
