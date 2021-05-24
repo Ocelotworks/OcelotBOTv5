@@ -85,6 +85,8 @@ function configureSentry(){
         dsn: config.get("Sentry.DSN"),
         serverName: `${os.hostname()}-${process.env.BOT_ID}-${process.env.SHARD}`,
         release: process.env.VERSION,
+        integrations: [new Tracing.Integrations.Express()],
+        tracesSampleRate: 1.0,
     });
     bot.raven = Sentry; //Cheeky backwards compatibility
     init();
