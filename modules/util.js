@@ -460,9 +460,12 @@ module.exports = {
                             loadingMessage.delete();
                         return message.channel.send(imgur.data.data.link);
                     }
-                    console.log(imgur.data);
+                    bot.logger.error(imgur.data);
                 }catch(e){
-                    console.log(e.response.data);
+                    bot.logger.error(e);
+                    if(e.response) {
+                        bot.logger.error(e);
+                    }
                 }
                 return message.channel.send("Failed to upload to imgur. Try a smaller image");
             }

@@ -1,16 +1,10 @@
-const express = require('express');
 const os = require("os");
 module.exports = {
     name: "HTTP API",
     init: async function (bot) {
-
-
         function writeOpenMetric(name, value) {
             return `# TYPE ${name} gauge\n${name}{shard="${bot.util.shard}", dockerHost="${process.env.DOCKER_HOST}", hostname="${os.hostname()}"} ${value}\n`
         }
-
-
-        bot.api = express();
 
         bot.api.use((req, res, next) => {
             res.setHeader("X-Shard", bot.util.shard);
@@ -30,7 +24,6 @@ module.exports = {
         bot.api.get("/commands", (req, res) => {
             res.json(bot.commandObjects);
         })
-
 
         bot.api.get("/metrics", (req, res) => {
             let output = "";

@@ -8,13 +8,13 @@
 const   config          = require('config'),
         EventEmitter    = require('events'),
         Sentry          = require('@sentry/node'),
-        Tracing        = require("@sentry/tracing"),
-        request         = require('request'),
+        Tracing         = require("@sentry/tracing"),
         os              = require('os'),
         dateFormat      = require('dateformat'),
-        colors          = require('colors'),
+        _               = require('colors'),
         caller_id       = require('caller-id'),
         path            = require('path')
+        express         = require('express');
 
 
 //The app object is shared between all modules, it will contain any functions the modules expose and also the event bus.
@@ -78,13 +78,20 @@ function configureSentry(){
     };
 
     bot.version = `stevie5 Build ${process.env.VERSION}`;
+    bot.api = express();
 
+    bot.api.use(Sentry.Handlers.requestHandler());
+    bot.api.use(Sentry.Handlers.tracingHandler());
     Sentry.init({
         captureUnhandledRejections: true,
         autoBreadcrumbs: true,
         dsn: config.get("Sentry.DSN"),
         serverName: `${os.hostname()}-${process.env.BOT_ID}-${process.env.SHARD}`,
-        release: process.env.VERSION,
+        release: `ocelotbot@${process.env.VERSION}`,
+        integrations: [new Tracing.Integrations.Express({
+            app: bot.api
+        })],
+        tracesSampleRate: 1.0,
     });
     bot.raven = Sentry; //Cheeky backwards compatibility
     init();
