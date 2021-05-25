@@ -87,7 +87,7 @@ function configureSentry(){
         autoBreadcrumbs: true,
         dsn: config.get("Sentry.DSN"),
         serverName: `${os.hostname()}-${process.env.BOT_ID}-${process.env.SHARD}`,
-        release: process.env.VERSION,
+        release: `ocelotbot@${process.env.VERSION}`,
         integrations: [new Tracing.Integrations.Express({
             app: bot.api
         })],
