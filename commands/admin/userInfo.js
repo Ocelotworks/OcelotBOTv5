@@ -28,7 +28,7 @@ module.exports = {
 
         if(bot.banCache.user.includes(userId)){
             const banInfo = await bot.database.getBan(userId);
-            output.addField("⚠ User Banned", trim(`${banInfo[0].reason}`));
+            output.addField("⚠ User Banned", trim(banInfo[0].reason || "Not specified"));
         }
 
         if(bot.config.cache[userId]){
