@@ -1,6 +1,3 @@
-const Reattempt = require("reattempt").default;
-
-
 const Discord = require('discord.js');
 const Sentry = require('@sentry/node');
 const presenceMessages = [
@@ -396,7 +393,7 @@ module.exports = {
             let data;
             if (message.payload.name === "channels") {
                 let guild = message.payload.data.server;
-                if (bot.client.guilds.cache.has(guild)) {
+                if (bot.client.guilds.cache.has(guild)) {ocelotbot_ai_conversations
                     let guildObj = bot.client.guilds.cache.get(guild);
                     let channels = guildObj.channels.cache.map(function (channel) {
                         return {name: channel.name, id: channel.id, type: channel.type}
