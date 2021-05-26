@@ -85,10 +85,10 @@ module.exports = {
             try {
                 runningGame.game.move(command);
                 let newMessage = await module.exports.renderBoard(message, bot);
-                if (runningGame.lastMessage) {
+                if (runningGame.lastMessage && !runningGame.lastMessage.deleted) {
                     await runningGame.lastMessage.delete();
-                    runningGame.lastMessage = newMessage;
                 }
+                runningGame.lastMessage = newMessage;
                 runningGame.turn = !runningGame.turn;
             } catch (e) {
                 bot.raven.captureException(e);
