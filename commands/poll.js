@@ -96,16 +96,18 @@ module.exports = {
             draw = true;
         }
 
-        if (!sentMessage.deleted) {
-            bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
-            sentMessage.reactions.removeAll();
-        }
+        try {
+            if (!sentMessage.deleted) {
+                bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
+                sentMessage.reactions.removeAll();
+            }
 
-        if (!draw) {
-            message.channel.send(options[winningOption] + " wins the vote!");
-        } else {
-            message.channel.send("There was a draw!");
-        }
+            if (!draw) {
+                message.channel.send(options[winningOption] + " wins the vote!");
+            } else {
+                message.channel.send("There was a draw!");
+            }
+        }catch(e){}
 
         bot.tasks.endTask("poll", message.id);
     }
