@@ -38,7 +38,7 @@ module.exports = {
             // }
 
 
-            request(`https://www.pornmd.com/api/v1/video-search?orientation=straight&query=${encodeURIComponent(search.replace(/['"]/g, ""))}&start=1&ajax=true&format=json`, async function getPorn(err, resp, body){
+            request(`https://www.pornmd.com/api/v1/video-search?orientation=straight&query=${encodeURIComponent(search.replace(/['"<>\[\]]/g, ""))}&start=1&ajax=true&format=json`, async function getPorn(err, resp, body){
                 if(err)
                     return message.replyLang("GENERIC_ERROR");
                 try{
