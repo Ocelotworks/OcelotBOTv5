@@ -28,11 +28,11 @@ module.exports = {
 
         if(bot.banCache.user.includes(userId)){
             const banInfo = await bot.database.getBan(userId);
-            output.addField("⚠ User Banned", `${banInfo[0].reason}`);
+            output.addField("⚠ User Banned", trim(banInfo[0].reason || "Not specified"));
         }
 
         if(bot.config.cache[userId]){
-            output.addField("Settings Applied", `\`\`\`\n${Object.keys(bot.config.cache[userId]).map((key)=>`${key}: ${bot.config.cache[userId][key]}`).join("\n")}\n\`\`\``);
+            output.addField("Settings Applied", trim(`\`\`\`\n${Object.keys(bot.config.cache[userId]).map((key)=>`${key}: ${bot.config.cache[userId][key]}`).join("\n")}\n\`\`\``));
         }
 
         let guildCollection = (await bot.rabbit.broadcastEval(`
@@ -42,8 +42,12 @@ module.exports = {
 
 
         let lastCommands = await bot.database.getUserCommands(userId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
-        output.addField("Last 5 Commands", `Use **${args[0]} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)
+        output.addField("Last 5 Commands", trim(`Use **${args[0]} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``))
         message.channel.stopTyping(true);
         return message.channel.send(output);
     }
 };
+
+function trim(input){
+    return input.substring(0,1024);
+}

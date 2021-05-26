@@ -839,8 +839,50 @@ module.exports = {
             } else {
                 api.data.embed = content;
             }
+            return message.channel.send(api);
+        }
 
-            message.channel.send(api);
+        bot.util.sendButtons = function sendButtons(channel, content, buttons){
+            let api = new Discord.APIMessage(channel, {});
+            api.data = {
+                content: "",
+                components: [{
+                    type: 1,
+                    components: buttons
+                }]
+            }
+            if (typeof content === "string") {
+                api.data.content = content;
+            } else {
+                api.data.embed = content;
+            }
+            return channel.send(api);
+        }
+
+        bot.util.editButtons = function editButtons(message, content, buttons){
+            let api = new Discord.APIMessage(message.channel, {});
+            api.data = {
+                content: "",
+                components: [{
+                    type: 1,
+                    components: buttons
+                }]
+            }
+            if (typeof content === "string") {
+                api.data.content = content;
+            } else {
+                api.data.embed = content;
+            }
+            return message.edit(api);
+        }
+
+        bot.util.buttonComponent = function buttonComponent(text, style, id){
+            return {
+                type: 2,
+                style,
+                custom_id: id,
+                label: text,
+            }
         }
 
         bot.util.permissionsMap = {
@@ -968,13 +1010,40 @@ module.exports = {
             let sentMessage;
 
 
+            let setIndex = function(delta){
+                return async ()=> {
+                    index += delta;
+                    if(index < 0)index = pages.length - 1;
+                    if(index > pages.length-1)index = 0;
+                    await buildPage();
+                }
+            }
+
+            let buttons = [
+                bot.interactions.addAction("<", 1, setIndex(-1)),
+                bot.interactions.addAction(">", 1, setIndex(+1)),
+            ]
+
+            if(fullReactions) {
+                buttons = [
+                    bot.interactions.addAction("<<", 1, async ()=>{index=0; await buildPage()}),
+                    bot.interactions.addAction("<", 1, setIndex(-1)),
+                    bot.interactions.addAction(">", 1, setIndex(+1)),
+                    bot.interactions.addAction(">>", 1, async ()=>{index=pages.length-1; await buildPage()}),
+                ]
+            }
+
             let buildPage = async function () {
                 let span = bot.util.startSpan("Build page");
                 let output = await formatMessage(pages[index], index);
+                if(channel.getBool && channel.getBool("pagination.disable")) {
+                    span.end();
+                    return channel.send(output);
+                }
                 if (sentMessage)
-                    await sentMessage.edit(output);
+                    await bot.util.editButtons(sentMessage, output, buttons)
                 else
-                    sentMessage = await channel.send(output);
+                    sentMessage = await bot.util.sendButtons(channel, output, buttons)
                 span.end();
             };
 
@@ -985,71 +1054,6 @@ module.exports = {
             if (pages.length === 1 && !reactDict)
                 return;
 
-            if(channel.getBool && channel.getBool("pagination.disable"))
-                return;
-
-            // noinspection ES6MissingAwait
-            (async function () {
-                if (pages.length > 1) {
-                    if (fullReactions)
-                        await sentMessage.react("⏮");
-                    await sentMessage.react("◀");
-                    await sentMessage.react("▶");
-                    if (fullReactions)
-                        await sentMessage.react("⏭");
-                }
-                if (reactDict) {
-                    // noinspection ES6MissingAwait
-                    Object.keys(reactDict).forEach(async function (react) {
-                        await sentMessage.react(react);
-                    });
-                }
-            })();
-
-            await sentMessage.awaitReactions(async function (reaction, user) {
-                if (user.id === bot.client.user.id) return false;
-                if (reactDict) {
-                    bot.tasks.renewTask("standardPagination", sentMessage.id);
-                    if (reactDict[reaction.emoji.name] !== undefined) {
-                        await reactDict[reaction.emoji.name]();
-                        await buildPage();
-
-                    }
-                    if (pages.length === 1) {
-                        if (channel.guild)
-                            reaction.users.remove(user);
-                        return;
-                    }
-                }
-
-                switch (reaction.emoji.name) {
-                    case "⏮":
-                        index = 0;
-                        await buildPage();
-                        break;
-                    case "◀":
-                        if (index > 0)
-                            index--;
-                        else
-                            index = pages.length - 1;
-                        await buildPage();
-                        break;
-                    case "▶":
-                        if (index < pages.length - 1)
-                            index++;
-                        else
-                            index = 0;
-                        await buildPage();
-                        break;
-                    case "⏭":
-                        index = pages.length - 1;
-                        await buildPage();
-                        break;
-                }
-                if (channel.guild)
-                    reaction.users.remove(user);
-
-            }, {idle: reactionTime});
             if (!sentMessage) return;
             if (!sentMessage.deleted) {
                 bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);

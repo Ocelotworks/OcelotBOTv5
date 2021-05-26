@@ -78,10 +78,8 @@ function configureSentry(){
     };
 
     bot.version = `stevie5 Build ${process.env.VERSION}`;
-    bot.api = express();
 
-    bot.api.use(Sentry.Handlers.requestHandler());
-    bot.api.use(Sentry.Handlers.tracingHandler());
+    bot.api = express();
     Sentry.init({
         captureUnhandledRejections: true,
         autoBreadcrumbs: true,
@@ -93,6 +91,9 @@ function configureSentry(){
         })],
         tracesSampleRate: 1.0,
     });
+    bot.api.use(Sentry.Handlers.requestHandler());
+    bot.api.use(Sentry.Handlers.tracingHandler());
+
     bot.raven = Sentry; //Cheeky backwards compatibility
     init();
 }

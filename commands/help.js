@@ -2,9 +2,6 @@
  * Created by Peter on 07/06/2017.
  */
 const Discord = require('discord.js');
-const numbers = [
-    "1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣"
-];
 const alphaRegex = /[a-z]/g;
 module.exports = {
     name: "Help Command",
@@ -39,25 +36,18 @@ module.exports = {
         message.editLang("COMMANDS", output);
     },
     run: async function run(message, args, bot) {
-
         if (!args[1]) {
-            // let output = `\`\`\`python\n#Select a Category\n`;
-            let output = "";
-
+            const embed = new Discord.MessageEmbed();
+            embed.setColor("#03F783");
+            embed.setTitle("OcelotBOT Help");
+            embed.setDescription(`Here is a list of command categories. Type **${args[0]}** followed by a category or a command name to learn more.\nAlternatively, you can view an interactive command list [here](https://ocelotbot.xyz/commands).`);
             for (let i in bot.commandCategories) {
                 if ((message.getSetting("help.hiddenCategories") && message.getSetting("help.hiddenCategories").indexOf(i) > -1) || (i === "nsfw" && (message.getBool("allowNSFW") || message.getBool("wholesome"))))
                     continue;
-                output += `For '${i}' use ${args[0]} ${i}\n`;
+                embed.addField(i[0].toUpperCase()+i.substring(1), `Type \`${args[0]} ${i}\``, true);
             }
-
-            if(message.guild)
-                output += `For 'custom' use ${args[0]} custom\n`;
-
-            //output += "\n```";
-            message.replyLang("COMMANDS_CATEGORIES", {
-                categories: output
-            });
-            return;
+            embed.addField("Custom", `Type \`${args[0]} custom\``, true);
+            return message.channel.send(embed);
         }
         const arg = args[1].toLowerCase();
         if(arg === "custom" && message.guild){
@@ -116,7 +106,7 @@ module.exports = {
             let unique = []; //ahhh..
             let output = "";
             if (arg === "nsfw" && !message.channel.nsfw)
-                output += "# NSFW Commands can only be used in NSFW channels.";
+                output += "# NSFW Commands can only be used in NSFW channels.\n";
             const prefix = message.getSetting("prefix");
             let commandUsages = bot.commandUsages;
             if (args[1] && Object.keys(bot.commandCategories).indexOf(arg) > -1) {

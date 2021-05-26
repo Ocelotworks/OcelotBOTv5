@@ -74,7 +74,8 @@
     "autorespond",
     "botlists",
     "tasks",
-    "featureToggle"
+    "featureToggle",
+    "interactions"
   ],
   "Seasonal": [
     {

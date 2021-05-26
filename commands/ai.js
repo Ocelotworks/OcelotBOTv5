@@ -50,7 +50,7 @@ module.exports = {
             console.log(fakeResponse)
             if(fakeResponse)
                 return message.channel.send(fakeResponse);
-            return message.replyLang("GENERIC_ERROR");
+            return message.channel.send("huh?");
         }
     }
 };

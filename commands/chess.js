@@ -85,13 +85,14 @@ module.exports = {
             try {
                 runningGame.game.move(command);
                 let newMessage = await module.exports.renderBoard(message, bot);
-                if (runningGame.lastMessage) {
+                if (runningGame.lastMessage && !runningGame.lastMessage.deleted) {
                     await runningGame.lastMessage.delete();
-                    runningGame.lastMessage = newMessage;
                 }
+                runningGame.lastMessage = newMessage;
                 runningGame.turn = !runningGame.turn;
             } catch (e) {
-                bot.raven.captureException(e);
+                if(e.message.indexOf("Notation is invalid") === -1)
+                    bot.raven.captureException(e);
                 let status = runningGame.game.getStatus();
                 for (let move in status.notatedMoves) {
                     let moveData = status.notatedMoves[move];

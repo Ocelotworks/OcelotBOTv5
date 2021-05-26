@@ -159,7 +159,11 @@ module.exports = {
             if (span)
                 span.end();
             player.once("error", function playerError(error) {
-                bot.raven.captureException(error);
+                if(error.error){
+                    bot.raven.captureException(error.error);
+                }else{
+                    bot.raven.captureMessage(`Player error: ${error.reason}`);
+                }
                 bot.logger.error("Player Error: " + error.error); //YEs
 
             });
