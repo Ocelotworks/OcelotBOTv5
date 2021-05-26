@@ -7,7 +7,7 @@ module.exports = {
         if(!func)return;
         await bot.database.deleteCustomFunction(message.guild.id, func.id);
 
-        if(bot.customFunctions[func.type][message.guild.id])
+        if(bot.customFunctions[func.type] && bot.customFunctions[func.type][message.guild.id])
             delete bot.customFunctions[func.type][message.guild.id][func.trigger];
 
         if(func.type === "SCHEDULED")
