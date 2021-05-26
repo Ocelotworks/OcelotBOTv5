@@ -91,7 +91,8 @@ module.exports = {
                 runningGame.lastMessage = newMessage;
                 runningGame.turn = !runningGame.turn;
             } catch (e) {
-                bot.raven.captureException(e);
+                if(e.message.indexOf("Notation is invalid") === -1)
+                    bot.raven.captureException(e);
                 let status = runningGame.game.getStatus();
                 for (let move in status.notatedMoves) {
                     let moveData = status.notatedMoves[move];
