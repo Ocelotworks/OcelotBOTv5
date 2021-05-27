@@ -11,7 +11,6 @@ module.exports = {
         embed.setDescription(`Use ID ${func.id} to edit/delete this.`);
         embed.addField("Type", func.type, true);
         embed.addField("Trigger", func.trigger, true);
-        console.log(func.function.length)
         if(func.function.length < 900) {
             embed.addField("Code", `\`\`\`lua\n${func.function}\n\`\`\``);
             return message.channel.send(embed);

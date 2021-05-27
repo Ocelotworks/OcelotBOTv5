@@ -159,6 +159,10 @@ module.exports = {
             if (span)
                 span.end();
             player.once("error", function playerError(error) {
+                bot.raven.addBreadcrumb({
+                    message: "Player Error",
+                    data: error,
+                })
                 if(error.error){
                     bot.raven.captureException(error.error);
                 }else{
