@@ -26,7 +26,11 @@ module.exports = {
                     callback = {type: 4, data: {flags: 64, content: "Sorry, that button is no longer available."}};
                 }
                 await axios.post(`https://discord.com/api/v8/interactions/${interaction.id}/${interaction.token}/callback`, callback);
-                console.log("Interaction: ", interaction)
+                bot.raven.captureBreadcrumb({
+                    message: "Interaction",
+                    data: interaction,
+                })
+                bot.logger.log(interaction);
             }
         })
 
