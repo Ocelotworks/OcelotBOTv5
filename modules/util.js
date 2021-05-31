@@ -1520,6 +1520,12 @@ module.exports = {
             }
         }
 
+        bot.util.serialiseMentions = function serialiseMentions(mentions){
+            const users = mentions.users.map((u)=>bot.util.serialiseUser(u));
+            const channels = mentions.channels.map((c)=>bot.util.serialiseChannel(c));
+            return {users, channels, everyone: mentions.everyone, crosspostedChannels: mentions.crosspostedChannels}
+        }
+
         bot.util.serialiseMessage = function serialiseMessage(message) {
             if(!message)return {}
             return {
@@ -1532,6 +1538,7 @@ module.exports = {
                 timestamp: message.createdTimestamp,
                 attachments: message.attachments.map((a) => a.url),
                 embeds: message.embeds,
+                mentions: bot.util.serialiseMentions(message.mentions)
             }
         }
 

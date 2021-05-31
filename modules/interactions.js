@@ -36,7 +36,7 @@ module.exports = {
                     message: "Interaction",
                     data: interaction,
                 })
-                bot.logger.log(interaction);
+                bot.logger.log({type: "interaction", interaction});
             }
         })
 
