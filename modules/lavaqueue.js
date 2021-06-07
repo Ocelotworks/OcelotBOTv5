@@ -27,7 +27,7 @@ module.exports = {
                         resumeKey,
                     }
                 ];
-                
+
                 bot.lavaqueue.manager = new Manager(bot.client, clients, {
                     user: bot.client.user.id,
                 });
