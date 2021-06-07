@@ -19,14 +19,6 @@ module.exports = {
 
                 const clients = [
                     {
-                        id: "guess",
-                        host: "lavalink-3.ocelotbot.xyz",
-                        port: 80,
-                        password: config.get("Lavalink.password"),
-                        reconnectInterval: 1000,
-                        resumeKey,
-                    },
-                    {
                         id: "germany",
                         host: "45.89.127.53",
                         port: 2333,
@@ -35,8 +27,7 @@ module.exports = {
                         resumeKey,
                     }
                 ];
-
-
+                
                 bot.lavaqueue.manager = new Manager(bot.client, clients, {
                     user: bot.client.user.id,
                 });
