@@ -238,7 +238,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             game.textChannel.stopTyping();
             counter = 10;
             endGame(bot, voiceChannel.guild.id);
-            return game.textChannel.channel.send("Failed to load song. Try again later.")
+            return game.textChannel.send("Failed to load song. Try again later.")
         }
     }
     game.player.once("start", ()=>{
