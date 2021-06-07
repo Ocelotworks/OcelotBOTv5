@@ -155,8 +155,8 @@ module.exports = {
         if(!message.guild.available)
             return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
 
-        if(message.guild.ownerID === message.author.id || message.member.roles.cache.find(function(role){
-            return role.name.toLowerCase() === "bot master" || role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
+        if(message.member.hasPermission("ADMINISTRATOR", {checkAdmin: true, checkOwner: true}) || message.getSetting("settings.role") !== "-" && message.member.roles.cache.find(function(role){
+            return role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
         })){
             let arg =  args[1] && args[1].toLowerCase();
             if(arg && arg === "help" && args[2]){
@@ -169,8 +169,9 @@ module.exports = {
             }else {
                 bot.util.standardNestedCommand(message, args, bot, 'settings', module.exports);
             }
-        }else{
-            message.replyLang("SETTINGS_NO_ROLE", {role: message.getSetting("settings.role")});
         }
+        if(message.getSetting("settings.role") === "-")
+            return message.channel.send("You must have Administrator permissions to use this command.");
+        return message.replyLang("SETTINGS_NO_ROLE", {role: message.getSetting("settings.role")});
     }
 };

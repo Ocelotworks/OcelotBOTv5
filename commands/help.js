@@ -9,6 +9,7 @@ module.exports = {
     detailedHelp: "Get a list of commands here.",
     usageExample: "help",
     commands: ["help", "commands"],
+    requiredPermissions: ["EMBED_LINKS"],
     categories: ["meta"],
     init: function init(bot) {
         bot.bus.on("commandLoadFinished", function commandLoadFinished() {
