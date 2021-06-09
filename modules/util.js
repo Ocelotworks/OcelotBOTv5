@@ -1040,7 +1040,7 @@ module.exports = {
                     span.end();
                     return channel.send(output);
                 }
-                if (sentMessage)
+                if (sentMessage && !sentMessage.deleted)
                     await bot.util.editButtons(sentMessage, output, buttons)
                 else
                     sentMessage = await bot.util.sendButtons(channel, output, buttons)
