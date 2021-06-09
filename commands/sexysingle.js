@@ -98,11 +98,9 @@ module.exports = {
         const url =  await bot.util.getImage(message, args);
         if(!url){
             message.replyLang("CRUSH_NO_USER");
-            message.channel.stopTyping();
-            return;
+            return message.channel.stopTyping();
         }
-        downloadOrGet(url, `${__dirname}/../${config.get("dir")}icon-${encodeURIComponent(url).substring(0, 512)}.png`)
-
+        return downloadOrGet(url, `${__dirname}/../${config.get("dir")}icon-${encodeURIComponent(url).substring(0, 256)}.png`)
     }
 };
 
