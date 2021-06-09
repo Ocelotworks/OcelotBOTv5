@@ -13,6 +13,7 @@ module.exports = {
             let output = "";
             let emojiCount = 0;
             bot.client.emojis.cache.forEach(function (emoji) {
+                if(emoji.guild && (!message.guild || emoji.guild.id !== message.guild.id) && bot.config.getBool(emoji.guild.id, "privacy.serverAnonymous"))return;
                 if (emoji.name.toLowerCase().indexOf(args[1].toLowerCase()) > -1 && output.length <= 1900 && emojiCount < message.getSetting("emoji.count")) {
                     emojiCount++;
                     output += emoji.toString();

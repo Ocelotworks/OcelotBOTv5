@@ -1,15 +1,3 @@
-const bools = {
-    "true": true,
-    "false": false,
-    "1": true,
-    "0": false,
-    "on": true,
-    "off": false,
-    "yes": true,
-    "no": false,
-    "allowed": true,
-    "disallowed": false
-};
 module.exports = {
     name: "Bot Settings",
     usage: "settings help/set/list/enableCommand/disableCommand",
@@ -45,8 +33,8 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(message, args, bot){
-                if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
-                    const bool = bools[args[3].toLowerCase()];
+                if(args[3] && bot.util.bools[args[3].toLowerCase()] !== undefined) {
+                    const bool = bot.util.bools[args[3].toLowerCase()];
                     await bot.config.set(message.guild.id, "wholesome", bool);
                     message.channel.send((bool? "Enabled" : "Disabled")+" wholesome mode.");
                    // message.replyLang(`SETTINGS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
@@ -65,8 +53,8 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(message, args, bot){
-                if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
-                    const bool = bools[args[3].toLowerCase()];
+                if(args[3] && bot.util.bools[args[3].toLowerCase()] !== undefined) {
+                    const bool = bot.util.bools[args[3].toLowerCase()];
                     await bot.config.set(message.guild.id, "allowNSFW", bool);
                     message.replyLang(`SETTINGS_NSFW_${bool ? "DISABLE":"ENABLE"}`);
                 }else{
@@ -83,8 +71,8 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(message, args, bot){
-                if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
-                    const bool = bools[args[3].toLowerCase()];
+                if(args[3] && bot.util.bools[args[3].toLowerCase()] !== undefined) {
+                    const bool = bot.util.bools[args[3].toLowerCase()];
                     await bot.config.set(message.guild.id, "pornsuggest.serious", bool);
                     message.replyLang(`SETTINGS_SERIOUS_PORN_${bool ? "ENABLE":"DISABLE"}`);
                 }else {
@@ -155,9 +143,7 @@ module.exports = {
         if(!message.guild.available)
             return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
 
-        if(message.member.hasPermission("ADMINISTRATOR", {checkAdmin: true, checkOwner: true}) || message.getSetting("settings.role") !== "-" && message.member.roles.cache.find(function(role){
-            return role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
-        })){
+        if(bot.util.canChangeSettings(message)){
             let arg =  args[1] && args[1].toLowerCase();
             if(arg && arg === "help" && args[2]){
                 if(module.exports.settings[args[2].toLowerCase()]){

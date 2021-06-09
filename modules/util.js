@@ -54,6 +54,19 @@ module.exports = {
             "December"
         ];
 
+        bot.util.bools = {
+            "true": true,
+            "false": false,
+            "1": true,
+            "0": false,
+            "on": true,
+            "off": false,
+            "yes": true,
+            "no": false,
+            "allowed": true,
+            "disallowed": false
+        };
+
         bot.util.voteTimeout = 8.64e+7;
 //59640014
         /**
@@ -1600,6 +1613,16 @@ module.exports = {
             }
             return Buffer.from(charCodes).toString("base64");
         }
+
+        bot.util.canChangeSettings = function(message) {
+            return message.member.hasPermission("ADMINISTRATOR", {
+                checkAdmin: true,
+                checkOwner: true
+            }) || message.getSetting("settings.role") !== "-" && message.member.roles.cache.find(function (role) {
+                return role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
+            });
+        }
+
 
         bot.util.parseSchedule = function(schedule){
             let output = ""

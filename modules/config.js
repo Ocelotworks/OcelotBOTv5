@@ -80,6 +80,7 @@ module.exports = {
                 return bot.config.cache[server][property];
             if (bot.config.cache.global && bot.config.cache.global[property])
                 return bot.config.cache.global[property];
+
             return null;
         };
 
