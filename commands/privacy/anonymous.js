@@ -14,8 +14,9 @@ module.exports = {
 - Sending a Feedback
 - Voting for OcelotBOT
 - Owning a premium custom bot
+Your current nickname also has a random chance of being applied to someone else if you use ${message.getSetting("prefix")}newnick
 If you don't want your Discord tag to be displayed anywhere, you can make yourself anonymous with **${args[0]} ${args[1]} on**.
-This does not stop data being associated with your account. If you wish to remove all data associated with you from OcelotBOT refer contact **Big P#1843**
+This does not stop data being associated with your account. If you wish to remove all data associated with you from OcelotBOT forever contact **Big P#1843**
 `)
         }
         const enabled = option === "on"

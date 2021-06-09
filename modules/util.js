@@ -54,6 +54,19 @@ module.exports = {
             "December"
         ];
 
+        bot.util.bools = {
+            "true": true,
+            "false": false,
+            "1": true,
+            "0": false,
+            "on": true,
+            "off": false,
+            "yes": true,
+            "no": false,
+            "allowed": true,
+            "disallowed": false
+        };
+
         bot.util.voteTimeout = 8.64e+7;
 //59640014
         /**
@@ -404,6 +417,7 @@ module.exports = {
 
 
         bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage) {
+
             request.metadata = {
                 s: message.guild ? message.guild.id : null,
                 u: message.author.id,
@@ -429,7 +443,7 @@ module.exports = {
             }), 600);
             clearTimeout(loadingMessageDelay)
             span.end();
-            if(response.size && response.size >= 7000000){
+            if(response.size && response.size >= 7000000 || !message.channel.permissionsFor(bot.client.user.id).has("ATTACH_FILES")){
                 if(response.size >= 10000000){
                     await loadingMessage.editLang("IMAGE_PROCESSOR_ERROR_SIZE");
                     return;
@@ -1040,7 +1054,7 @@ module.exports = {
                     span.end();
                     return channel.send(output);
                 }
-                if (sentMessage)
+                if (sentMessage && !sentMessage.deleted)
                     await bot.util.editButtons(sentMessage, output, buttons)
                 else
                     sentMessage = await bot.util.sendButtons(channel, output, buttons)
@@ -1599,6 +1613,16 @@ module.exports = {
             }
             return Buffer.from(charCodes).toString("base64");
         }
+
+        bot.util.canChangeSettings = function(message) {
+            return message.member.hasPermission("ADMINISTRATOR", {
+                checkAdmin: true,
+                checkOwner: true
+            }) || message.getSetting("settings.role") !== "-" && message.member.roles.cache.find(function (role) {
+                return role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
+            });
+        }
+
 
         bot.util.parseSchedule = function(schedule){
             let output = ""

@@ -19,7 +19,7 @@ module.exports = {
         let mutualGuilds;
 
          let guildCollection = await bot.rabbit.broadcastEval(`
-            this.guilds.cache.filter((guild)=>guild.members.cache.has('${target.id}')).map((guild)=>guild.name);
+            this.guilds.cache.filter((guild)=>guild.members.cache.has('${target.id}') && !this.bot.config.getBool(guild.id, "privacy.serverAnonymous")).map((guild)=>guild.name);
         `);
 
         mutualGuilds = guildCollection.reduce((a,b)=>a.concat(b), []);
@@ -27,7 +27,6 @@ module.exports = {
 
         let mutualGuildsText = mutualGuilds.slice(0, 10).join(", ");
         if(mutualGuilds.length > 10)mutualGuildsText += ` and ${mutualGuilds.length-10} more`;
-
 
 
         let fields = [
@@ -66,10 +65,19 @@ module.exports = {
         }
 
 
-        fields.push({
-            name: `Seen in ${mutualGuilds.length} server${mutualGuilds.length > 1 ? "s" : ""}:`,
-            value: `\`${mutualGuildsText}\``
-        });
+        if(mutualGuilds.length === 0){
+            fields.push({
+                name: `Seen in 0 servers:`,
+                inline: false,
+                value: `:spider_web:`,
+            });
+        }else {
+            fields.push({
+                name: `Seen in ${mutualGuilds.length} server${mutualGuilds.length > 1 ? "s" : ""}:`,
+                inline: false,
+                value: `\`${mutualGuildsText}\``,
+            });
+        }
 
         message.channel.send("", {
             embed: {

@@ -20,6 +20,7 @@ module.exports = {
     usageExample: "chess start @Small P",
     responseExample: "🚨 @Small P, @Big P challenges you to a game of **chess**! Type **!chess accept** to start!",
     commands: ["chess", "playchess"],
+    requiredPermissions: ["ATTACH_FILES"],
     categories: ["games"],
     run: function run(message, args, bot) {
         const subCommand = args[1];
