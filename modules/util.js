@@ -1472,6 +1472,17 @@ module.exports = {
             YEKT: "05"
         };
 
+        bot.util.parseTimeZone = function parseTimeZone(tz){
+            if (bot.util.timezones[tz]) {
+                return parseInt(bot.util.timezones[tz]);
+            }
+            const regexMatch = bot.util.timezoneRegex.exec(tz);
+            if (regexMatch) {
+                return parseInt(regexMatch[2]);
+            }
+            return 0;
+        }
+
         bot.util.drawOutlinedText = function drawOutlinedText(ctx, text, x, y, size, font = "Sans-serif", foreground = "white", background = "black", thickness = 3) {
             ctx.fillStyle = background;
             ctx.font = `${size}px ${font}`;

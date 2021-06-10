@@ -153,6 +153,7 @@ module.exports = {
             if (chronoParse && chronoParse.start)
                 at = chronoParse.start.date();
 
+
             let reminder = null;
             if (!rargs || rargs.length < 3) {
                 if (chronoParse && chronoParse.text) {
@@ -188,46 +189,23 @@ module.exports = {
 
             try {
                 message.replyLang("REMIND_SUCCESS", {
-                    time: bot.util.prettySeconds((offset / 1000) + 1, message.guild && message.guild.id, message.author.id),
+                    time: bot.util.prettySeconds((offset / 1000), message.guild && message.guild.id, message.author.id),
                     date: at.toString()
                 });
-                if (message.getBool("remind.silentQueueTest")) {
-                    bot.rabbit.channel.sendToQueue("newReminder", Buffer.from(JSON.stringify({
-                        username: message.author.id,
-                        server: message.guild ? message.guild.id : null,
-                        channel: message.channel.id,
-                        receiver: bot.client.user.id,
-                        date: now.toString(),
-                        message: reminder,
-                        at: at.getTime(),
-                    })));
-                }
-                if (message.getBool("remind.useQueue")) {
-                    bot.rabbit.channel.sendToQueue("newReminder", Buffer.from(JSON.stringify({
-                        username: message.author.id,
-                        server: message.guild ? message.guild.id : null,
-                        channel: message.channel.id,
-                        receiver: bot.client.user.id,
-                        date: now.toString(),
-                        message: reminder,
-                        at: at.getTime(),
-                    })));
-                } else {
-                    const reminderResponse = await bot.database.addReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, at.getTime(), reminder, message.id);
-                    bot.util.setLongTimeout(async function () {
-                        try {
-                            await message.replyLang("REMIND_REMINDER", {
-                                username: message.author.id,
-                                server: message.guild ? message.guild.id : null,
-                                date: now.toString(),
-                                message: reminder
-                            });
-                            await bot.database.removeReminder(reminderResponse[0])
-                        } catch (e) {
-                            bot.raven.captureException(e);
-                        }
-                    }, offset);
-                }
+                const reminderResponse = await bot.database.addReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, at.getTime(), reminder, message.id);
+                bot.util.setLongTimeout(async function () {
+                    try {
+                        await message.replyLang("REMIND_REMINDER", {
+                            username: message.author.id,
+                            server: message.guild ? message.guild.id : null,
+                            date: now.toString(),
+                            message: reminder
+                        });
+                        await bot.database.removeReminder(reminderResponse[0])
+                    } catch (e) {
+                        bot.raven.captureException(e);
+                    }
+                }, offset);
             } catch (e) {
                 console.log(e);
                 message.replyLang("REMIND_ERROR");
