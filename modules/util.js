@@ -1056,8 +1056,10 @@ module.exports = {
                 }
                 if (sentMessage && !sentMessage.deleted)
                     await bot.util.editButtons(sentMessage, output, buttons)
-                else
+                else if(pages.length > 1)
                     sentMessage = await bot.util.sendButtons(channel, output, buttons)
+                else
+                    sentMessage = channel.send(output)
                 span.end();
             };
 
