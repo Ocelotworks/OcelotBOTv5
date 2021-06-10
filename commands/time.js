@@ -48,7 +48,7 @@ module.exports = {
 
             let twelveHourTime = time.getHours() <= 12 ? time.getHours() : time.getHours() - 12;
 
-            let emoji = `:clock${twelveHourTime}${(time.getMinutes() >= 30) ? "30" : ""}:`;
+            let emoji = `:clock${twelveHourTime === 0 ? 12 : twelveHourTime}${(time.getMinutes() >= 30) ? "30" : ""}:`;
             if (!message.getBool("wholesome")) {
                 if (twelveHourTime === 4 && time.getMinutes() === 20) emoji = "<:weed:478962396296380422>";
                 if (twelveHourTime === 9 && time.getMinutes() === 11) emoji = ":airplane: :office: :office:";
