@@ -443,7 +443,7 @@ module.exports = {
             }), 600);
             clearTimeout(loadingMessageDelay)
             span.end();
-            if(response.size && response.size >= 7000000 || !message.channel.permissionsFor(bot.client.user.id).has("ATTACH_FILES")){
+            if(response.size && response.size >= 7000000 || message.channel.permissionsFor && !message.channel.permissionsFor(bot.client.user.id).has("ATTACH_FILES")){
                 if(response.size >= 10000000){
                     await loadingMessage.editLang("IMAGE_PROCESSOR_ERROR_SIZE");
                     return;
@@ -1056,8 +1056,10 @@ module.exports = {
                 }
                 if (sentMessage && !sentMessage.deleted)
                     await bot.util.editButtons(sentMessage, output, buttons)
-                else
+                else if(pages.length > 1)
                     sentMessage = await bot.util.sendButtons(channel, output, buttons)
+                else
+                    sentMessage = channel.send(output)
                 span.end();
             };
 
@@ -1471,6 +1473,17 @@ module.exports = {
             YAKT: "09",
             YEKT: "05"
         };
+
+        bot.util.parseTimeZone = function parseTimeZone(tz){
+            if (bot.util.timezones[tz]) {
+                return parseInt(bot.util.timezones[tz]);
+            }
+            const regexMatch = bot.util.timezoneRegex.exec(tz);
+            if (regexMatch) {
+                return parseInt(regexMatch[2]);
+            }
+            return 0;
+        }
 
         bot.util.drawOutlinedText = function drawOutlinedText(ctx, text, x, y, size, font = "Sans-serif", foreground = "white", background = "black", thickness = 3) {
             ctx.fillStyle = background;

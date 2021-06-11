@@ -1,4 +1,7 @@
 const Discord = require('discord.js');
+const X = "❌";
+const O = "⭕";
+const buttonStyle = 2;
 module.exports = {
     name: "Tic Tac Toe",
     usage: "tictactoe start <@player>/<grid position>",
@@ -16,26 +19,26 @@ module.exports = {
                 return {type: 4, data: {flags: 64, content: "It's currently the other players turn."}}
 
 
-            const nextTurn = turnType === "X" ? "O" : "X";
+            const nextTurn = turnType === X ? O : X;
             const x = Math.floor(gridPosition/3)
             const y = gridPosition % 3;
 
             // Set the current grid position
             interaction.message.components[x].components[y] = {
                 type: 2,
-                style: 2,
+                style: buttonStyle,
                 disabled: true,
-                label: turnType,
+                emoji: {name: turnType},
                 custom_id: `#${otherUser}|${turnUser}|${gridPosition}|${nextTurn}`
             }
 
-            let content = `X: <@${turnType === "X" ? turnUser : otherUser}>\nO: <@${turnType === "O" ? turnUser : otherUser}>\n`;
+            let content = `${X}: <@${turnType === X ? turnUser : otherUser}>\n${O}: <@${turnType === O ? turnUser : otherUser}>\n`;
 
             // Switch the user and turn type for the rest of the buttons
             interaction.message.components.forEach((c) => c.components.forEach((c) => {
                 console.log(c);
                 const [turnUser, otherUser, gridPosition, turnType] = c.custom_id.substring(1).split("|");
-                c.custom_id = `#${otherUser}|${turnUser}|${gridPosition}|${turnType === "X" ? "O" : "X"}`
+                c.custom_id = `#${otherUser}|${turnUser}|${gridPosition}|${turnType === X ? O : X}`
             }))
 
             const winner = getWin(interaction.message.components);
@@ -68,13 +71,13 @@ module.exports = {
         const opponent = message.mentions.users.first();
         if(opponent.bot)return message.channel.send(`You can't play tic tac toe against a bot.`);
         const row = (r)=>[
-            {type: 2, style: 2, label: " ", custom_id: `#${message.author.id}|${opponent.id}|${r+0}|X`},
-            {type: 2, style: 2, label: " ", custom_id: `#${message.author.id}|${opponent.id}|${r+1}|X`},
-            {type: 2, style: 2, label: " ", custom_id: `#${message.author.id}|${opponent.id}|${r+2}|X`}
+            {type: 2, style: buttonStyle, label: " ", custom_id: `#${message.author.id}|${opponent.id}|${r+0}|${X}`},
+            {type: 2, style: buttonStyle, label: " ", custom_id: `#${message.author.id}|${opponent.id}|${r+1}|${X}`},
+            {type: 2, style: buttonStyle, label: " ", custom_id: `#${message.author.id}|${opponent.id}|${r+2}|${X}`}
         ];
         let api = new Discord.APIMessage(message.channel, {});
         api.data = {
-            content: `X: ${message.author}\nO: ${opponent}\nCurrent Turn: X`,
+            content: `${X}: ${message.author}\n${O}: ${opponent}\nCurrent Turn: ${O}`,
             components: [
                 {type: 1, components: row(0)},
                 {type: 1, components: row(3)},
@@ -109,6 +112,7 @@ function getWin(board){
 }
 
 function getType(button){
-    return button.label;
+    if(!button.emoji)return button.label;
+    return button.emoji.name;
 }
 
