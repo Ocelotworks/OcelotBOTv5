@@ -73,12 +73,17 @@ module.exports = {
         conditionallyAssign(body, botList, "usersCountField", bot.client.users.cache.size);
         conditionallyAssign(body, botList, "voiceConnectionsCountField", voiceConnections);
         conditionallyAssign(body, botList, "tokenField", botList.statsKey);
-        axios[botList.statsMethod](botList.statsUrl, body, {
-            headers: {
-                "Authorization": botList.statsKey,
-                "User-Agent": `OcelotBOT https://ocelotbot.xyz ${bot.version} ${os.hostname()}`
-            }
-        }).then(() => {
+        let method = botList.statsMethod;
+        let headers = {
+            "Authorization": botList.statsKey,
+             "User-Agent": `OcelotBOT https://ocelotbot.xyz ${bot.version} ${os.hostname()}`
+        }
+        if(botList.statsMethod === "postHeader"){ // Another shitty workaround for a bunch of clone botlists that use headers for some ungodly reason
+            method = "post"
+            headers = {...headers, ...body};
+            body = null;
+        }
+        axios[method](botList.statsUrl, body, {headers}).then(() => {
             bot.logger.log(`Posted stats to ${botList.id}`)
             return bot.database.botlistSuccess(botList.id);
         }).catch((e) => {
