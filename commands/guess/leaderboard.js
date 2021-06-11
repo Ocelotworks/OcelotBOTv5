@@ -58,7 +58,7 @@ module.exports = {
             }
             span.end();
 
-            message.channel.send(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total players${timescale === "all" ? " of all time" : ` this ${timescale}`}${server === "global" ? "." : " in this server."}\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
+            message.channel.send(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total ? positionData.total.toLocaleString() : "???"}** total players${timescale === "all" ? " of all time" : ` this ${timescale}`}${server === "global" ? "." : " in this server."}\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
         } catch (e) {
             bot.logger.log(e);
             Sentry.captureException(e);
