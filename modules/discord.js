@@ -124,7 +124,15 @@ module.exports = {
                     name: "Windows XP Startup Tune",
                     type: "LISTENING",
                 }
-            }
+            },
+            intents: [
+                // "GUILD_PRESENCES", // Spooking
+                "GUILDS",
+                "GUILD_MESSAGES",
+                "GUILD_MEMBERS", // Join/leave messages
+                "DIRECT_MESSAGES",
+                "DIRECT_MESSAGE_REACTIONS", // Non-button reaction events e.g trivia, poll
+            ]
         };
 
         if (process.env.GATEWAY) {

@@ -26,6 +26,7 @@
     "@sentry/tracing": "^6.2.3",
     "amqplib": "^0.7.1",
     "axios": "^0.21.1",
+    "bufferutil": "^4.0.3",
     "caller-id": "^0.1.0",
     "canvas": "^2.6.1",
     "cheerio": "^1.0.0-rc.9",
@@ -38,7 +39,7 @@
     "country-list": "^2.2.0",
     "crc": "^3.8.0",
     "dateformat": "^4.5.1",
-    "discord.js": "^12.5.1",
+    "discord.js": "^13.0.0-dev.02693bc02f45980d8165820a103220f0027b96b7",
     "express": "^4.17.1",
     "form-data": "^2.3.3",
     "gifuct-js": "^2.0.0",
@@ -60,8 +61,10 @@
     "sourcequery": "0.0.2",
     "twemoji-parser": "^13.0.0",
     "unleash-client": "^3.4.0",
+    "utf-8-validate": "^5.0.5",
     "uuid": "^8.3.2",
     "word-wrap": "^1.2.3",
-    "ws": "^7.4.3"
+    "ws": "^7.4.3",
+    "zlib-sync": "^0.1.7"
   }
 }

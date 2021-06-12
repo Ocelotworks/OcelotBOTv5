@@ -79,6 +79,6 @@ module.exports = {
         embed.addField(totalUsers, userCount.toLocaleString(), true);
         embed.addField(totalServers, serverCount.toLocaleString(), true);
         embed.addField(totalChannels, channelCount.toLocaleString(), true);
-        return message.channel.send("", embed);
+        return message.channel.send({embeds: [embed]});
     }
 };

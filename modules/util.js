@@ -1525,7 +1525,7 @@ module.exports = {
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
-                roles: member.roles.cache,
+               // roles: member.roles.cache,
             }
         }
 
