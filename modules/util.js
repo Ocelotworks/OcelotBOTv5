@@ -1589,7 +1589,7 @@ module.exports = {
         bot.util.runCustomFunction = async function(code, message, showErrors = true, doOutput = true){
             try {
                 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-                let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "https://ob-custom-commands.d.int.unacc.eu/run", {
+                let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "http://ocelotbot-sat_custom-commands:3000/run", {
                     version: 1,
                     script: code,
                     message: bot.util.serialiseMessage(message),
