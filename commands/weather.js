@@ -54,7 +54,7 @@ module.exports = {
                         ]
                     };
 
-                    message.channel.send("", {embed: attachments});
+                    message.channel.send({embeds: [attachments]});
 
                 } else {
                     message.replyLang("WEATHER_INVALID_PLACE", {place: search});

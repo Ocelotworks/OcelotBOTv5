@@ -30,7 +30,7 @@ module.exports = {
                 embed.setTimestamp(result.pubDate);
             embed.setAuthor(result.author);
             embed.setURL(result.link);
-            output.push(embed);
+            output.push({embeds: [embed]});
         }
         return output;
     }

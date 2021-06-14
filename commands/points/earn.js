@@ -54,6 +54,6 @@ module.exports = {
         embed.setColor("#03F783");
         embed.setAuthor(message.author.username, message.author.avatarURL());
         embed.setFooter((await bot.database.getPoints(message.author.id)).toLocaleString(), "https://cdn.discordapp.com/emojis/817100139603820614.png?v=1");
-        message.channel.send(embed)
+        message.channel.send({embeds: [embed]})
     }
 };

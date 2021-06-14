@@ -89,9 +89,10 @@ module.exports = {
             } else {
                 for (let i = 0; i < stats.length; i++) {
                     const stat = stats[i];
-                    embed.addField(stat.metadata.key, stat.value, true);
+                    console.log(stat)
+                    embed.addField(stat.metadata.key, stat.value.toString(), true);
                 }
-                message.channel.send("", embed);
+                message.channel.send({embeds: [embed]});
             }
         });
 

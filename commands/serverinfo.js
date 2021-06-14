@@ -70,7 +70,7 @@ module.exports = {
                         embed.addField(await bot.lang.getTranslation(guild, "SERVERINFO_PLAYERS"), output);
                         embed.setDescription(`steam://connect/${ip}:${port}`);
 
-                        message.channel.send("", embed);
+                        message.channel.send({embeds: [embed]});
 
                         message.channel.stopTyping();
                         sq.close();

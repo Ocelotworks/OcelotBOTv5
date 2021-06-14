@@ -13,10 +13,9 @@ module.exports = {
         embed.addField("Trigger", func.trigger, true);
         if(func.function.length < 900) {
             embed.addField("Code", `\`\`\`lua\n${func.function}\n\`\`\``);
-            return message.channel.send(embed);
+            return message.channel.send({embeds: [embed]});
         } else {
-            await message.channel.send(embed);
-            return message.channel.send(new Discord.MessageAttachment(Buffer.from(func.function), "code.lua"))
+            return message.channel.send({embeds: [embed], files: [new Discord.MessageAttachment(Buffer.from(func.function), "code.lua")]});
         }
     }
 }

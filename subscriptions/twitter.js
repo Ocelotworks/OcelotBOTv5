@@ -42,7 +42,7 @@ module.exports = {
             embed.setDescription(tweet.text)
             embed.setTimestamp(new Date(tweet.created_at));
             embed.setURL(`https://twitter.com/${user.username}/status/${tweet.id}`);
-            output.push(embed);
+            output.push({embeds: [embed]});
         }
         return output;
     },

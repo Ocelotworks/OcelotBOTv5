@@ -32,7 +32,7 @@ module.exports = {
                     embed.addField(category, categories[category].join(" "));
             }
 
-            message.channel.send("", embed);
+            message.channel.send({embeds: [embed]});
 
         } else {
             let series = args[2].toLowerCase();

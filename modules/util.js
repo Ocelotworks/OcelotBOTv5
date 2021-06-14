@@ -386,7 +386,7 @@ module.exports = {
                         bot.raven.captureException(err);
                     } else {
                         const attachment = new Discord.MessageAttachment(buffer, fileName);
-                        message.channel.send("", attachment);
+                        message.channel.send({files: [attachment]});
                     }
                     bot.tasks.endTask("imageMeme", message.id);
                     message.channel.stopTyping();
@@ -403,7 +403,7 @@ module.exports = {
                 let result = await deepai.callStandardApi(filter, {image: url});
 
                 if (result.output_url) {
-                    message.channel.send("", new Discord.MessageAttachment(result.output_url));
+                    message.channel.send({files: [new Discord.MessageAttachment(result.output_url)]});
                 } else {
                     message.replyLang("ENHANCE_MAXIMUM_RESOLUTION");
                 }
@@ -502,9 +502,9 @@ module.exports = {
             let attachment = new Discord.MessageAttachment(response.path, `${name}.${response.extension}`);
             try {
                 if (sentMessage)
-                    messageResult = await message.channel.send(sentMessage, attachment);
+                    messageResult = await message.channel.send({content: sentMessage, files: [attachment]}); // TODO: what the hell was this line?
                 else
-                    messageResult = await message.channel.send(attachment);
+                    messageResult = await message.channel.send({files: [attachment]});
             } catch (e) {
                 bot.raven.captureException(e);
                 message.channel.send("Failed to send: "+e);
@@ -591,7 +591,7 @@ module.exports = {
                 span = bot.util.startSpan("Upload image");
                 let attachment = new Discord.MessageAttachment(Buffer.from(response.image, 'base64'), response.name);
                 try {
-                    await message.channel.send(attachment);
+                    await message.channel.send({files: [attachment]});
                 } catch (e) {
                     bot.raven.captureException(e);
                 }
@@ -634,7 +634,7 @@ module.exports = {
                                 if (url.indexOf("SPOILER_") > -1)
                                     name = "SPOILER_" + name;
                                 const attachment = new Discord.MessageAttachment(buffer, name);
-                                message.channel.send("", attachment).catch(function sendMessageError(e) {
+                                message.channel.send({files: [attachment]}).catch(function sendMessageError(e) {
                                     console.log(e);
                                     message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                                 });
@@ -851,7 +851,10 @@ module.exports = {
             if (typeof content === "string") {
                 api.data.content = content;
             } else {
-                api.data.embed = content;
+                api.data = {
+                    ...api.data,
+                    ...content
+                }
             }
             return message.channel.send(api);
         }
@@ -864,11 +867,15 @@ module.exports = {
                     type: 1,
                     components: buttons
                 }]
+
             }
             if (typeof content === "string") {
                 api.data.content = content;
             } else {
-                api.data.embed = content;
+                api.data = {
+                    ...api.data,
+                    ...content
+                }
             }
             return channel.send(api);
         }
@@ -885,7 +892,10 @@ module.exports = {
             if (typeof content === "string") {
                 api.data.content = content;
             } else {
-                api.data.embed = content;
+                api.data = {
+                    ...api.data,
+                    ...content
+                }
             }
             return message.edit(api);
         }
@@ -1213,7 +1223,7 @@ module.exports = {
                     if (data.renderLocation) {
                         // TODO: stupid fuck lets encrypt bollocks
                         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-                        message.channel.send("", new Discord.MessageAttachment(data.renderLocation)); // Still eating dicks 2k20
+                        message.channel.send({files: [new Discord.MessageAttachment(data.renderLocation)]}); // Still eating dicks 2k21
                     } else {
                         message.replyLang("GENERIC_ERROR");
                         bot.logger.warn("Invalid Response?");
@@ -1588,6 +1598,7 @@ module.exports = {
 
         bot.util.runCustomFunction = async function(code, message, showErrors = true, doOutput = true){
             try {
+
                 let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "http://ocelotbot-sat_custom-commands:3000/run", {
                     version: 1,
                     script: code,
@@ -1610,7 +1621,7 @@ module.exports = {
                     errorEmbed.setDescription(await message.getLang("CUSTOM_COMMAND_INTERNAL_ERROR"))
                 }
                 if(showErrors)
-                    message.channel.send(errorEmbed);
+                    message.channel.send({embeds: [errorEmbed]});
                 return false
             }
         }
@@ -1635,6 +1646,16 @@ module.exports = {
             });
         }
 
+        bot.util.checkVoiceChannel = function(message){
+            if (!message.guild) return message.replyLang("GENERIC_DM_CHANNEL");
+            if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
+            console.log(message.member.voice);
+            if (!message.member.voice.channel) return message.replyLang("VOICE_NO_CHANNEL");
+            if ( message.member.voice.channel.full) return message.replyLang("VOICE_FULL_CHANNEL");
+            if (!message.member.voice.channel.joinable) return message.replyLang("VOICE_UNJOINABLE_CHANNEL");
+            if (!message.member.voice.channel.speakable) return message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
+
+        }
 
         bot.util.parseSchedule = function(schedule){
             let output = ""

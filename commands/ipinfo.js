@@ -72,7 +72,7 @@ module.exports = {
                         embed.addField("Hostnames", data.hostnames.join("\n"));
                     }
                     console.log("Fucking sending");
-                    message.channel.send("", embed);
+                    message.channel.send({embeds: [embed]});
                 }else{
                     return message.replyLang("IPINFO_INVALID_IP");
                 }

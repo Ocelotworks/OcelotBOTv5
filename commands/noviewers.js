@@ -16,6 +16,6 @@ module.exports = {
         embed.setTimestamp(new Date(result.started_at))
         embed.setFooter("Started Streaming: ");
 
-        message.channel.send(embed);
+        message.channel.send({embeds: [embed]});
     }
 };

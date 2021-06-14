@@ -40,7 +40,7 @@ module.exports = {
                         return;
                     }
                     let attachment = new Discord.MessageAttachment(buffer, "society.png");
-                    message.channel.send("", attachment);
+                    message.channel.send({files: [attachment]});
                     fs.unlinkSync(fileName);
                 });
         }).pipe(fs.createWriteStream(fileName));

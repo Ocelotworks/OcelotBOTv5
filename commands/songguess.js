@@ -337,7 +337,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
             }
             winEmbed.setFooter(`ℹ BETA: Report any bugs with ${game.textChannel.guild.getSetting("prefix")}feedback`);
             bot.bus.emit("onGuessWin", {winner, game})
-            bot.util.replyTo(winner, winEmbed);
+            bot.util.replyTo(winner, {embeds: [winEmbed]});
             game.failures = 0;
         }else {
             game.failures++;

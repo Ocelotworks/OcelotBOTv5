@@ -159,7 +159,7 @@ module.exports = {
                                 }
                             }
 
-                            const sentMessage = await message.channel.send("", embed);
+                            const sentMessage = await message.channel.send({embeds: [embed]});
                             const reactions = isBoolean ? ["❎", "✅"] : ["1⃣", "2⃣", "3⃣", "4⃣"];
                             const correctReaction = reactions[answers.indexOf(correctAnswer)];
 

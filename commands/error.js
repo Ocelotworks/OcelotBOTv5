@@ -18,6 +18,6 @@ module.exports = {
             return message.replyLang("GENERIC_TEXT", {command: args[0]});
         const content = message.cleanContent.substring(args[0].length + 1);
         let attachment = new Discord.MessageAttachment(`http://atom.smasher.org/error/98.png.php?style=98&title=Error&url=&text=${encodeURIComponent(content)}&b1=&b2=OK&b3=`, "error.png");
-        message.channel.send("", attachment);
+        message.channel.send({files: [attachment]});
     }
 };

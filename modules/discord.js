@@ -247,7 +247,7 @@ module.exports = {
                             embed.addField("Administrators", `You can change the bot's settings by typing **${guild.getSetting("prefix")}settings help**`);
                             embed.addField("Stuck?", "If you have issues or suggestions, type **!feedback** or join our [support server](https://discord.gg/7YNHpfF).");
                             embed.addField("Support", "You can support the bot by [voting](https://top.gg/bot/146293573422284800) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
-                            mainChannel.send("", embed);
+                            mainChannel.send({embeds: [embed]});
                         }
                     }
 

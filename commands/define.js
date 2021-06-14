@@ -20,9 +20,10 @@ module.exports = {
         await bot.util.standardPagination(message.channel, data, async function(result){
             const embed = new Discord.MessageEmbed();
 
+            console.log(result.shortdef ? result.shortdef.join("\n") : "Unknown?");
             embed.setTitle(`Definition for "${result.hwi ? result.hwi.hw : term}" (${result.fl}):`);
             embed.setDescription(result.shortdef ? result.shortdef.join("\n") : "Unknown?");
-            return embed;
+            return {embeds: [embed]};
         })
     }
 };

@@ -42,7 +42,7 @@ module.exports = {
                 await message.channel.send(performanceMessage,attachment);
             }else{
                 bot.logger.log(performanceMessage);
-                await message.channel.send(attachment);
+                await message.channel.send({files: [attachment]});
             }
         }catch(e){
             bot.raven.captureException(e);

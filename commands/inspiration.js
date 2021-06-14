@@ -12,7 +12,7 @@ module.exports = {
     run: async function(message, args, bot){
         let result = await axios.get("https://inspirobot.me/api?generate=true");
 
-        return message.channel.send(new Discord.MessageAttachment(result.data))
+        return message.channel.send({files: [new Discord.MessageAttachment(result.data)]})
 
     }
 };

@@ -44,7 +44,7 @@ module.exports = {
         let lastCommands = await bot.database.getUserCommands(userId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
         output.addField("Last 5 Commands", trim(`Use **${args[0]} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``))
         message.channel.stopTyping(true);
-        return bot.util.sendButtons(message.channel, output,  [
+        return bot.util.sendButtons(message.channel, {embeds: [output]},  [
             {type: 2, label: "View in Dashboard", style: 5, url: `https://ocelotbot.xyz/dash-beta/#/admin/user/${userId}`}
         ])
     }

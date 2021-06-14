@@ -31,6 +31,6 @@ module.exports = {
         embed.addField(await message.getLang("MEME_INFO_ADDED_BY"), `<@${meme.addedby}>`);
 
 
-        message.channel.send(embed);
+        message.channel.send({embeds: [embed]});
     }
 };

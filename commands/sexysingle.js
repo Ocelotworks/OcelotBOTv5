@@ -36,7 +36,7 @@ module.exports = {
 
                     let attachment = new Discord.MessageAttachment(outputFile, config.get("filename"));
 
-                    await message.channel.send("", attachment);
+                    await message.channel.send({files: [attachment]});
                     message.channel.stopTyping();
                 }catch(e){
                     fs.unlink(outputFile, function deleteFileCB(err){
@@ -81,7 +81,7 @@ module.exports = {
                     } else {
                         try {
                             let attachment = new Discord.MessageAttachment(buffer, config.get("filename"));
-                            message.channel.send("", attachment);
+                            message.channel.send({files: [attachment]});
                             message.channel.stopTyping();
                         } catch (e) {
                             bot.raven.captureException(e);

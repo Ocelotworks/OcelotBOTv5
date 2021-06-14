@@ -76,7 +76,7 @@ module.exports = {
                 if(notes.length > 0)
                     embed.description = `${embed.description || ""}\n${notes.join(", ")}`
 
-                return embed;
+                return {embeds: [embed]};
             }, true);
         }else{
             console.log(result);

@@ -70,7 +70,7 @@ module.exports = {
             embed.setDescription("Target Message:\n>>> "+target);
             embed.addField("Results", output.join("\n"));
             embed.setColor(bad ? "#ff0000" : "#22aa22");
-            return message.channel.send(embed);
+            return message.channel.send({embeds: [embed]});
         })
     }
 };

@@ -25,7 +25,7 @@ module.exports = {
                 let embed = new Discord.MessageEmbed()
                 embed.setTitle("New Bot List");
                 embed.setDescription(`${list.name} - ${list.url}`);
-                output.push(embed);
+                output.push({embeds: [embed]});
             }
         }
         return output;

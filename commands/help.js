@@ -48,7 +48,7 @@ module.exports = {
                 embed.addField(i[0].toUpperCase()+i.substring(1), `Type \`${args[0]} ${i}\``, true);
             }
             embed.addField("Custom", `Type \`${args[0]} custom\``, true);
-            return message.channel.send(embed);
+            return message.channel.send({embeds: [embed]});
         }
         const arg = args[1].toLowerCase();
         if(arg === "custom" && message.guild){

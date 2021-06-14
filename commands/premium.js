@@ -83,7 +83,7 @@ module.exports = {
             embed.addField("Got a Key?", `Redeem it with ${args[0]} \`key\``);
         }
 
-        message.channel.send(embed);
+        message.channel.send({embeds: [embed]});
     }
 };
 

@@ -17,7 +17,7 @@ module.exports = {
         message.channel.startTyping();
         try {
             let attachment = new Discord.MessageAttachment(`https://www.barcodesinc.com/generator/image.php?code=${encodeURIComponent(message.cleanContent.substring(args[0].length + 1))}&style=197&type=C128B&width=${167+(message.content.length*5)}&height=50&xres=1&font=3`, "barcode.png");
-            message.channel.send("", attachment);
+            message.channel.send({files: [attachment]});
         }catch(e){
             message.channel.send("Error: "+e.message);
             bot.raven.captureException(e);

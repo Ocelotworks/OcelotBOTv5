@@ -34,7 +34,7 @@ module.exports = {
             //     embed.setTitle("Search Blocked");
             //     embed.setDescription("I'm not going to jail for your edgy joke");
             //     embed.setImage("https://i.imgur.com/iHZJOnG.jpg");
-            //     return message.channel.send("", embed);
+            //     return message.channel.send({embeds: [embed]});
             // }
 
 
@@ -56,7 +56,7 @@ module.exports = {
                         embed.setURL(url);
                         embed.setDescription(`Rating: ${page.rating}\nDuration: ${page.duration}\n[Click here to watch](${url})`);
                         embed.setFooter(`Page ${index+1}/${images.length}`);
-                        return embed;
+                        return {embeds: [embed]};
                     }, true);
                 }catch(e){
                     console.log(body);

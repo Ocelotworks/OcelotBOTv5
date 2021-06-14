@@ -85,7 +85,7 @@ module.exports = {
                     const stat = stats[i];
                     embed.addField(stat.key, stat.value, true);
                 }
-                message.channel.send("", embed);
+                message.channel.send({embeds: [embed]});
             }
         });
 

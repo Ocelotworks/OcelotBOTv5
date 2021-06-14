@@ -32,6 +32,6 @@ module.exports = {
         output.addField("Timestamp", command.timestamp.toLocaleString(), true);
         output.addField("Served By","`"+command.server+"`", true);
         message.channel.stopTyping(true);
-        return message.channel.send(output);
+        return message.channel.send({embeds: [output]});
     }
 };

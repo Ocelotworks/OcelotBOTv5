@@ -22,37 +22,24 @@ module.exports = {
     run: async function run(message, args, bot) {
         if (args[1] && args[1].toLowerCase() === "stop") {
             message.channel.send(`(Use ${message.getSetting("prefix")}music stop to stop dooting)\nhttps://i.imgur.com/QA8anth.jpg`);
-        } else if (!message.guild) {
-            message.replyLang("GENERIC_DM_CHANNEL");
-        } else if (!message.guild.available) {
-            message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-        } else if (!message.member.voice.channel) {
-            message.replyLang("VOICE_NO_CHANNEL");
-        } else if (message.member.voice.channel.full) {
-            message.replyLang("VOICE_FULL_CHANNEL");
-        } else if (!message.member.voice.channel.joinable) {
-            message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-        } else if (!message.member.voice.channel.speakable) {
-            message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
-        } else if (await bot.database.hasActiveSession(message.guild.id)) {
-            message.channel.send(`The bot is currently playing music. Please wait for the queue or type ${message.getSetting("prefix")}music stop to end to start dooting`);
-        } else {
-            try {
-                bot.logger.log("Joining voice channel " + message.member.voice.channel.name);
-                let dootNumber = dootCount++ % doots.length;
-                if(args[1] && !isNaN(parseInt(args[1])))dootNumber = parseInt(args[1]) % doots.length;
-                const doot = doots[dootNumber]
-                message.channel.startTyping();
-                let {songData, player} = await bot.lavaqueue.playOneSong(message.member.voice.channel, doot);
-                player.once("start", ()=>{
-                    message.channel.stopTyping();
-                    message.replyLang("DOOT", {doot: dootNumber, arg: args[0], fileName: songData.info.title});
-                });
-            } catch (e) {
-                bot.raven.captureException(e);
-                bot.logger.log(e);
-                message.replyLang("GENERIC_ERROR");
-            }
+        }
+        if (bot.util.checkVoiceChannel(message)) return;
+
+        try {
+            bot.logger.log("Joining voice channel " + message.member.voice.channel.name);
+            let dootNumber = dootCount++ % doots.length;
+            if(args[1] && !isNaN(parseInt(args[1])))dootNumber = parseInt(args[1]) % doots.length;
+            const doot = doots[dootNumber]
+            message.channel.startTyping();
+            let {songData, player} = await bot.lavaqueue.playOneSong(message.member.voice.channel, doot);
+            player.once("start", ()=>{
+                message.channel.stopTyping();
+                message.replyLang("DOOT", {doot: dootNumber, arg: args[0], fileName: songData.info.title});
+            });
+        } catch (e) {
+            bot.raven.captureException(e);
+            bot.logger.log(e);
+            message.replyLang("GENERIC_ERROR");
         }
     }
 };

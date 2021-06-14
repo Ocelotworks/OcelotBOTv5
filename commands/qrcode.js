@@ -15,7 +15,7 @@ module.exports = {
         message.channel.startTyping();
         try {
             let attachment = new Discord.MessageAttachment(`https://chart.googleapis.com/chart?chl=${encodeURIComponent(message.cleanContent.substring(args[0].length + 1))}&chs=200x200&cht=qr&chld=H|0`, "qr.png");
-            message.channel.send("", attachment);
+            message.channel.send({files: [attachment]});
         }catch(e){
             message.channel.send("Error: "+e.message);
             bot.raven.captureException(e);

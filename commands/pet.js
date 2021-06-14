@@ -70,7 +70,7 @@ You can still access this command with ${message.getSetting("prefix")}petpet`);
             bot.logger.log(`Rendering ${promises.length} frames...`);
             await Promise.all(promises);
             bot.logger.log("Uploading...");
-            message.channel.send("", new Discord.MessageAttachment(encoder.end(), "petpet.gif"));
+            message.channel.send({files: [new Discord.MessageAttachment(encoder.end(), "petpet.gif")]});
             message.channel.stopTyping(true);
 
         } catch (e) {

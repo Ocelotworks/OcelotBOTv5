@@ -230,7 +230,7 @@ let music = {
             length = bot.util.prettySeconds(elapsed / 1000, "global") + " elapsed.";
         }
         embed.addField("Length", length);
-        return embed;
+        return {embeds: [embed]};
     },
     updateOrSendMessage: async function (listener, message, resend = true) {
         if (listener.lastMessage && listener.channel.messages.cache.has(listener.lastMessage.id) && !listener.lastMessage.deleted) {

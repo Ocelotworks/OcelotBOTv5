@@ -46,7 +46,7 @@ module.exports = {
                 else
                     embed.setFooter(`Page ${index+1}/${result.posts.post.length}`);
 
-                return embed;
+                return {embeds: [embed]};
             }, true);
         })
     }

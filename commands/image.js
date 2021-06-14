@@ -30,7 +30,7 @@ module.exports = {
                 embed.setTitle(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IMAGE_BLOCKED_QUERY_TITLE", {}, message.author.id));
                 embed.setDescription(await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "IMAGE_BLOCKED_QUERY_DESCRIPTION", {}, message.author.id));
                 embed.setImage("https://i.imgur.com/iHZJOnG.jpg");
-                return message.channel.send("", embed);
+                return message.channel.send({embeds: [embed]});
             }
             message.channel.startTyping();
             try {
@@ -81,7 +81,7 @@ module.exports = {
                         embed.setFooter(`${points} • Page ${index + 1}/${images.length}`, "https://cdn.discordapp.com/emojis/817100139603820614.png?v=1");
                     else
                         embed.setFooter(`Page ${index + 1}/${images.length}`);
-                    return embed;
+                    return {embeds: [embed]};
                 }, true);
             } catch (e) {
                 message.channel.stopTyping(true);

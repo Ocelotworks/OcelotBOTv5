@@ -59,6 +59,6 @@ module.exports = {
         let lastCommands = await bot.database.getServerCommands(serverId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
         output.addField("Last 5 Commands", `Use **${args[0]} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)
         message.channel.stopTyping(true);
-        return message.channel.send(output);
+        return message.channel.send({embeds: [output]});
     }
 };

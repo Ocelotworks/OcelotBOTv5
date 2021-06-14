@@ -75,7 +75,7 @@ module.exports = {
                 embed.setTitle(`You just earned ${badge.name}`);
                 embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
                 embed.setColor("#3ba13b");
-                channel.send(user, embed);
+                channel.send(user, {embeds: [embed]});
             }
             span.end();
         };
@@ -102,7 +102,7 @@ module.exports = {
             embed.setTitle(`You just earned ${badge.name}`);
             embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
             embed.setColor("#3ba13b");
-            await channel.send(output, embed);
+            await channel.send(output, {embeds: [embed]});
         };
 
         bot.badges.updateBadge = async function updateBadge(user, series, value, channel){
@@ -121,7 +121,7 @@ module.exports = {
                     embed.setTitle(`You just earned ${eligibleBadge.name}`);
                     embed.setDescription(`${eligibleBadge.desc}\nNow available on your **${channel.guild ? channel.guild.getSetting("prefix") : bot.config.get("global", "prefix")}profile**`);
                     embed.setColor("#3ba13b");
-                    channel.send(`<@${userID}>`, embed);
+                    channel.send(`<@${userID}>`, {embeds: [embed]});
                 }else{
                     bot.logger.log("No channel was given for sending the award message.");
                 }

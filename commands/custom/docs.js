@@ -9,6 +9,6 @@ module.exports = {
         embed.setDescription(`Custom Functions are written in [Lua](http://www.lua.org/docs.html) and can optionally return a string, which will be sent as a message.`);
         embed.addField("Documentation", `You can view advanced documentation [here](https://docs.ocelotbot.xyz/custom-commands)`);
         embed.addField("Example", `A simple example which mentions the user who did the command:\n\`\`\`lua\nreturn "Hello, <@"..message.author.id..">"\n\`\`\``)
-        return message.channel.send(embed);
+        return message.channel.send({embeds: [embed]});
     }
 }

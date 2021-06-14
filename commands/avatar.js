@@ -11,14 +11,14 @@ module.exports = {
         if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {
             target = message.mentions.users.first();
         }
-        message.channel.send("", {
-            embed: {
+        message.channel.send({
+            embeds: [{
                 title: `${target.username}'s Avatar:`,
+                color: message.mentions.members.size > 0 ? message.mentions.members.first().displayColor : "#efefef",
                 image: {
                     url: target.displayAvatarURL({dynamic: true, format: "png", size: 4096})
                 }
-            }
-
+            }]
         })
     },
 };

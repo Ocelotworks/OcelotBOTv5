@@ -18,6 +18,6 @@ module.exports = {
             embed.addField("What are points?", "Points are a work-in-progress feature that is currently being tested across OcelotBOT. This server is currently not part of the test, but you can still gain points here.")
         }
         embed.setColor("#03F783");
-        return message.channel.send(embed);
+        return message.channel.send({embeds: [embed]});
     }
 };

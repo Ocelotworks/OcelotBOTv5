@@ -185,7 +185,7 @@ module.exports = {
             embed.addField(role.name.toUpperCase(), role.desc.formatUnicorn({spooked: target, spooker, num: required}));
             if (role.image)
                 embed.setThumbnail(role.image);
-            dm.send(embed);
+            dm.send({embeds: [embed]});
         };
 
         bot.spook.checkSpecialRoles = async function checkSpecialRoles(channel, spooker, spooked) {
@@ -228,7 +228,7 @@ module.exports = {
                 }));
                 if (role.image)
                     embed.setThumbnail(role.image);
-                dm.send(embed);
+                dm.send({embeds: [embed]});
                 //: function(role, user, spooked, required, server, spooker){
                 await bot.database.assignSpookRole(role.id, spooker.id, target.id, required, channel.guild.id, role.spooker);
                 return;
@@ -405,7 +405,7 @@ module.exports = {
             embed.addField("Total Spooks", `${spookStats.totalSpooks} spooks. (${Math.floor((spookStats.totalSpooks / spookStats.allSpooks) * 100).toFixed(2)}% of all spooks.)`);
             embed.addField("Most Spooked User", `<@${spookStats.mostSpooked.spooked}> (${spookStats.mostSpooked['COUNT(*)']} times)`, true);
             embed.addField("Longest Spook", `<@${spookStats.longestSpook.spooked}> (Spooked for ${bot.util.prettySeconds(spookStats.longestSpook.diff, targetChannel.guild && targetChannel.guild.id, spookStats.longestSpook.spooked)})`);
-            await targetChannel.send("", embed);
+            await targetChannel.send({embeds: [embed]});
         };
     },
     run: async function (message, args, bot) {
