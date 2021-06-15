@@ -25,6 +25,14 @@ module.exports = {
                         password: config.get("Lavalink.password"),
                         reconnectInterval: 1000,
                         resumeKey,
+                    },
+                    {
+                        id: "lava.link",
+                        host: "lava.link",
+                        port: 80,
+                        password: "ocelotbot.xyz",
+                        reconnectInterval: 1000,
+                        resumeKey,
                     }
                 ];
 
