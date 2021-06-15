@@ -13,6 +13,8 @@ module.exports = {
         let result = await axios.get("https://inspirobot.me/api?generate=true");
 
         return message.channel.send({files: [new Discord.MessageAttachment(result.data)]})
-
+    },
+    runSlash: async function(interaction){
+        return interaction.reply((await axios.get("https://inspirobot.me/api?generate=true")).data);
     }
 };

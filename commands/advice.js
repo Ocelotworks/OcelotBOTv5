@@ -33,31 +33,11 @@ module.exports = {
     responseExample: "📜 `man who fart in church sit in own pew`",
     categories: ["fun"],
     commands: ["advice", "advise", "wise"],
+    slashOptions: [],
     run: function (message, args, bot) {
-        message.channel.send(`:scroll: \`${bot.util.arrayRand(responses)}\``);
+        return message.channel.send(`:scroll: \`${bot.util.arrayRand(responses)}\``);
     },
-    test: function (test) {
-        test('wise', function (t) {
-            const message = {
-                channel: {
-                    send: function (message) {
-                        if (message.startsWith(":scroll"))
-                            t.pass();
-                        else
-                            t.fail();
-                    }
-                },
-            };
-            const bot = {
-                util: {
-                    arrayRand: function (arr) {
-                        t.pass();
-                        return arr[0];
-                    }
-                }
-            };
-            module.exports.run(message, [], bot);
-        });
-
+    runSlash: function(interaction, bot){
+        return interaction.reply(`:scroll: \`${bot.util.arrayRand(responses)}\``);
     }
 };

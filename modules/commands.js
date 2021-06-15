@@ -38,6 +38,17 @@ module.exports = {
             return bot.runCommand(message);
         });
 
+        bot.client.on("interaction", (interaction)=>{
+            if(!interaction.isCommand())return; // Not a command
+            if(!bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
+            const usage = bot.commandUsages[interaction.commandName]
+            const commandID = usage.id;
+            if(!bot.commandObjects[commandID].runSlash)return console.log(interaction.commandName, "is not set up to run slash commands");
+            if(usage.categories.includes("nsfw") && !interaction.channel.nsfw)return interaction.reply("This command can only be used in NSFW channels!", {ephemeral: true})
+            return bot.commandObjects[commandID].runSlash(interaction, bot);
+        })
+
+
         bot.runCommand = async function(message){
             Sentry.configureScope(async function onMessage(scope) {
                 scope.setUser({

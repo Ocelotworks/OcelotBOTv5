@@ -16,7 +16,7 @@ module.exports = {
         });
     },
     run: async function (message, args, bot) {
-        if (!message.member.hasPermission("MANAGE_CHANNELS")) return message.channel.send("You must have the Manage Channels permission to use this command.");
+        if (!message.channel.permissionsFor(message.member).has("MANAGE_CHANNELS", true)) return message.channel.send("You must have the Manage Channels permission to use this command.");
         let target = message.channel.id;
         if (message.mentions.channels.size > 0)
             target = message.mentions.channels.first().id;

@@ -48,6 +48,27 @@ module.exports = {
             return this.channel.send(this.getLang(message, values));
         };
 
+        Discord.CommandInteraction.prototype.getLang = function(message, values){
+            return bot.lang.getTranslation(this.guild?.id || "global", message, values, this.user.id);
+        }
+
+        Discord.CommandInteraction.prototype.replyLang = function(message, values){
+            if(typeof message === "string") {
+                return this.reply({ephemeral: values?.ephemeral, content: this.getLang(message, values)});
+            }
+            if(message.content)
+                message.content = this.getLang(message.content, values);
+            return this.reply(message);
+        }
+
+        Discord.CommandInteraction.prototype.followUpLang = function(message, values){
+            if(typeof message === "string")
+                return this.followUp({ephemeral: values?.ephemeral, content: this.getLang(message, values)});
+            if(message.content)
+                message.content = this.getLang(message.content, values);
+            return this.followUp(message);
+        }
+
         Discord.TextChannel.prototype.sendLang = async function (message, values) {
             if(this.getLang)
                 return this.send(this.getLang(message, values));

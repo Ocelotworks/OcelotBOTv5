@@ -23,7 +23,7 @@ module.exports = {
     run: function run(message, args, bot) {
         if(message.synthetic)return message.replyLang("GENERIC_CUSTOM_COMMAND");
         if(!message.guild)return message.replyLang("GENERIC_DM_CHANNEL");
-        if (!message.getBool("admin") && !message.member.hasPermission("MANAGE_GUILD")) return message.channel.send("You must have the Manage Server permission to use this command.");
+        if (!message.getBool("admin") && !message.channel.permissionsFor(message.member).has("MANAGE_GUILD", true)) return message.channel.send("You must have the Manage Server permission to use this command.");
         bot.util.standardNestedCommand(message, args, bot, "custom", utils);
     },
 };

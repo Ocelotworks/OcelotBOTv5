@@ -18,9 +18,12 @@ module.exports = {
             bot.interactions.prefix[id] = callback;
         }
 
+
+        // Legacy Interaction handling
         bot.client.on("raw", async (packet)=>{
             if(packet.t === "INTERACTION_CREATE"){
                 const interaction = packet.d;
+                if(interaction.type !== 3)return;
                 // Happy path
                 let callback;
                 if(interaction.data.custom_id && bot.interactions.prefix[interaction.data.custom_id[0]]){

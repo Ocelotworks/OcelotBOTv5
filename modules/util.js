@@ -416,8 +416,63 @@ module.exports = {
         };
 
 
-        bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage) {
 
+
+        bot.util.abstractImageProcessor = async function(request, name){
+            bot.logger.log(JSON.stringify(request));
+            let key = crc32(JSON.stringify(request)).toString(32);
+            return bot.redis.cache("imageProcessor/" + key, async () => await bot.rabbit.rpc("imageProcessor", request, 120000, {
+                arguments: {"x-message-ttl": 60000},
+                durable: false
+            }), 600);
+        }
+
+        bot.util.uploadToImgur = async function(response){
+            let image = await axios.get(response.path, {responseType: "stream"});
+            const imgurData = new FormData();
+            imgurData.append('image', image.data)
+            try {
+                let imgur = await axios({
+                    method: 'POST',
+                    url: 'https://api.imgur.com/3/image',
+                    headers: {
+                        Authorization: `Client-ID ${config.get("API.imgur.key")}`,
+                        ...imgurData.getHeaders()
+                    },
+                    data: imgurData,
+                    // Buzz lightyear shit
+                    maxBodyLength: Infinity,
+                    maxContentLength: Infinity,
+                });
+                return imgur.data?.data?.link
+            }catch(e){
+                bot.logger.error(e);
+            }
+        }
+
+        bot.util.slashImageProcessor = async function slashImageProcessor(interaction, request, name){
+            request.metadata = {
+                s: interaction.guild?.id,
+                u: interaction.user.id,
+                c: interaction.channel.id,
+                m: interaction.id,
+            };
+            request.version = 1;
+            interaction.defer();
+            try {
+                let response = await bot.util.abstractImageProcessor(request, name);
+                if(response.size >= 10000000){
+                    return interaction.followUpLang("IMAGE_PROCESSOR_ERROR_SIZE")
+                }
+                let imgurData = await bot.util.uploadToImgur(response);
+                if(!imgurData)return interaction.followUp({content: "Failed to upload to imgur. Try a different image"});
+                return interaction.followUp({content: imgurData});
+            }catch(e){
+                interaction.reply("Failed to process image", {ephemeral: true});
+            }
+        }
+
+        bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage) {
             request.metadata = {
                 s: message.guild ? message.guild.id : null,
                 u: message.author.id,
@@ -453,34 +508,8 @@ module.exports = {
                     await loadingMessage.editLang("GENERIC_UPLOADING_IMGUR");
                     span.end();
                 }
-                let image = await axios.get(response.path, {responseType: "stream"});
-                const imgurData = new FormData();
-                imgurData.append('image', image.data)
-                try {
-                    let imgur = await axios({
-                        method: 'POST',
-                        url: 'https://api.imgur.com/3/image',
-                        headers: {
-                            Authorization: `Client-ID ${config.get("API.imgur.key")}`,
-                            ...imgurData.getHeaders()
-                        },
-                        data: imgurData,
-                        // Buzz lightyear shit
-                        maxBodyLength: Infinity,
-                        maxContentLength: Infinity,
-                    });
-                    if (imgur.data?.data?.link) {
-                        if (loadingMessage && !loadingMessage.deleted)
-                            loadingMessage.delete();
-                        return message.channel.send(imgur.data.data.link);
-                    }
-                    bot.logger.error(imgur.data);
-                }catch(e){
-                    bot.logger.error(e);
-                    if(e.response) {
-                        bot.logger.error(e);
-                    }
-                }
+                let imgurResult = await bot.util.uploadToImgur(response);
+                if(imgurResult)return message.channel.send(imgurResult);
                 return message.channel.send("Failed to upload to imgur. Try a smaller image");
             }
             if (loadingMessage && !loadingMessage.deleted) {
@@ -1638,10 +1667,7 @@ module.exports = {
         }
 
         bot.util.canChangeSettings = function(message) {
-            return message.member.hasPermission("ADMINISTRATOR", {
-                checkAdmin: true,
-                checkOwner: true
-            }) || message.getSetting("settings.role") !== "-" && message.member.roles.cache.find(function (role) {
+            return message.channel.permissionsFor(message.member).has("ADMINISTRATOR", true) || message.getSetting("settings.role") !== "-" && message.member.roles.cache.find(function (role) {
                 return role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
             });
         }

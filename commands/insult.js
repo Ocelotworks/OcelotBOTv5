@@ -22,126 +22,24 @@ module.exports = {
     responseExample: "@Big P I hope you step in a puddle... with socks on.",
     categories: ["fun"],
     unwholesome: true,
-    init: function(bot){
-        bot.usedTopicalInsults = [];
-    },
+    slashOptions: [{type: "STRING", name: "subject", description: "The person or phrase that you want to insult", required: true}],
     run: function run(message, args, bot) {
-        if(!args[1]){
-            message.replyLang("INSULT_NO_PERSON");
-            return;
-        }
+        if(!args[1])
+            return message.replyLang("INSULT_NO_PERSON");
 
         const term = args.slice(1).join(" ");
-
         const mention = bot.util.getUserFromMention(args[1]);
-        if(mention && customInsults[mention.id]){
-            message.channel.send(`<@${mention.id}>, ${bot.util.arrayRand(customInsults[mention.id])}`);
-        }else if(args[1].toLowerCase() === "@everyone"){
-            return message.replyLang("INSULT_EVERYONE");
-        }else if(args[1].toLowerCase() === bot.client.user.username.toLowerCase() ||
-            args[1].indexOf(bot.client.user.id) > -1 ||
-            (message.guild && message.guild.me.nickname && args[1].toLowerCase() === message.guild.me.nickname.toLowerCase())){
-            message.replyLang("INSULT_SELF_INSULT");
-        }else{
-            if(bot.topicalInsult && bot.usedTopicalInsults.indexOf(message.channel.id) === -1){
-                message.channel.send(bot.topicalInsult.formatUnicorn(term));
-                bot.usedTopicalInsults.push(message.channel.id);
-            }else{
-                message.replyLang(`INSULT_${bot.util.intBetween(1,114)}`, {term});
-            }
-        }
-
+        if(customInsults[mention?.id])return message.channel.send(`<@${mention.id}>, ${bot.util.arrayRand(customInsults[mention.id])}`);
+        if(args[1].toLowerCase() === "@everyone")return message.replyLang("INSULT_EVERYONE");
+        if(args[1].toLowerCase() === bot.client.user.username.toLowerCase() || args[1].indexOf(bot.client.user.id) > -1 || (args[1].toLowerCase() === message.guild?.me?.nickname?.toLowerCase()))return message.replyLang("INSULT_SELF_INSULT");
+        return message.replyLang(`INSULT_${bot.util.intBetween(1,114)}`, {term});
     },
-    test: function(test){
-        test('insult no args', function(t){
-            const message = {
-                replyLang: function(message){
-                    t.is(message, "INSULT_NO_PERSON");
-                }
-            };
-            const args = [];
-            module.exports.run(message, args);
-        });
-        test('insult with args', function(t){
-            const message = {
-                replyLang: function(message, data){
-                    t.is(message, "INSULT_0");
-                    t.deepEqual(data, {
-                        term: "of args"
-                    });
-                },
-                guild: {
-                    me: {
-                        nickname: "ocelotbot"
-                    }
-                }
-            };
-            const bot = {
-                util: {
-                    intBetween: function(){
-                        return 0;
-                    },
-                    getUserFromMention: ()=>undefined,
-                },
-                client: {
-                    user: {
-                        username: "ocelotbot"
-                    }
-                }
-            };
-            const args = ["loads", "of", "args"];
-            module.exports.run(message, args, bot);
-        });
-        test('insult @everyone', function(t){
-            const message = {
-                channel: {
-                    send: function(message){
-                        t.is(message, "You are a fucking idiot and you should never @everyone on this discord again and I'm fucking serious. I almost have a feeling you're the only guy making all these @everyone pings because you're a dumbass who likes to be annoying and @everyone for the LULZ and get a reaction out of @everyone . Fuck you, be good at something in YOUR life and then maybe try to troll these fucking idiots on discord, like I give a fuck. It's so easy to spot out your @everyone now, you're a retard. Always doing stupid shit like this. Why don't you try to be a good user? Just for once not @everyone ? For once in your fucking life try not to @everyone on this discord. That's just you, you're always right at getting it wrong. Fuck you. You are nothing.");
-                    }
-                }
-            };
-            const bot = {
-                util: {
-                    intBetween: function(){
-                        return 0;
-                    },
-                    getUserFromMention: ()=>undefined,
-                },
-                client: {
-                    user: {
-                        username: "ocelotbot"
-                    }
-                }
-            };
-            const args = ["!insult", "@everyone"];
-            module.exports.run(message, args, bot);
-        });
-        test('insult self', function(t){
-            const message = {
-                replyLang: function(message, data){
-                    t.is(message, "INSULT_SELF_INSULT");
-                },
-                guild: {
-                    me: {
-                        nickname: "ocelotbot"
-                    }
-                }
-            };
-            const bot = {
-                util: {
-                    intBetween: function(){
-                        return 0;
-                    },
-                    getUserFromMention: ()=>undefined,
-                },
-                client: {
-                    user: {
-                        username: "ocelotbot"
-                    }
-                }
-            };
-            const args = ["insult", "ocelotbot"];
-            module.exports.run(message, args, bot);
-        });
+    runSlash: function(interaction, bot){
+        const input = interaction.options.get("subject").value;
+        const mention = bot.util.getUserFromMention(input);
+        if(customInsults[mention?.id])return interaction.reply(`<@${mention.id}>, ${bot.util.arrayRand(customInsults[mention.id])}`);
+        if(input.toLowerCase() === "@everyone")return interaction.replyLang("INSULT_EVERYONE");
+        if(input.toLowerCase() === bot.client.user.username.toLowerCase() || input.indexOf(bot.client.user.id) > -1 || (input.toLowerCase() === interaction.guild?.me?.nickname?.toLowerCase()))return interaction.replyLang("INSULT_SELF_INSULT");
+        return interaction.replyLang(`INSULT_${bot.util.intBetween(1,114)}`, {term: input});
     }
 };

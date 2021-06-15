@@ -127,7 +127,7 @@ module.exports = {
                 let timezone = args[3];
                 if(bot.util.timezones[timezone] || bot.util.timezoneRegex.exec(timezone)){
                     await bot.config.set(message.guild.id, "time.zone", timezone);
-                    message.replyLang("SETTINGS_TIMEZONE_SET");
+                    message.replyLang("SETTINGS_TIMEZONE_SET", {timezone});
                 }else{
                     message.replyLang("SETTINGS_TIMEZONE_NONE");
                 }
@@ -143,6 +143,7 @@ module.exports = {
         if(!message.guild.available)
             return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
 
+        console.log(message);
         if(bot.util.canChangeSettings(message)){
             let arg =  args[1] && args[1].toLowerCase();
             if(arg && arg === "help" && args[2]){
@@ -155,6 +156,7 @@ module.exports = {
             }else {
                 bot.util.standardNestedCommand(message, args, bot, 'settings', module.exports);
             }
+            return;
         }
         if(message.getSetting("settings.role") === "-")
             return message.channel.send("You must have Administrator permissions to use this command.");
