@@ -151,8 +151,9 @@ module.exports = {
                 "GUILDS",
                 "GUILD_MESSAGES",
                 "GUILD_MEMBERS", // Join/leave messages
+                "GUILD_VOICE_STATES", // Needed for voice commands
                 "DIRECT_MESSAGES",
-                "DIRECT_MESSAGE_REACTIONS", // Non-button reaction events e.g trivia, poll
+                "DIRECT_MESSAGE_REACTIONS" // Non-button reaction events e.g trivia, poll
             ]
         };
 
