@@ -94,16 +94,7 @@ module.exports = {
                         await bot.database.updateLastCheck(subList[i].id);
                         subList[i].lastcheck = new Date();
                        if(chan) {
-                           for(let j = 0; j < results.length; j++) {
-                               let result = results[j];
-                               bot.logger.log(`Sending result for ${sub.type} ID ${sub.id} to ${subList.length} channels.`);
-                                if(j >= 5){
-                                    chan.send(`:warning: **${results.length-5}** more results were omitted.`);
-                                    break;
-                                }else{
-                                    chan.send("", result);
-                                }
-                           }
+                           chan.send({embeds: [results]});
                        }else {
                            bot.logger.warn(`${subList[i].channel} does not exist for sub ${subList[i].id}`);
                        }
