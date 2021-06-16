@@ -37,7 +37,7 @@ const url = "https://public-api.tracker.gg/apex/v1/standard/profile/";
 
 module.exports = {
     name: game + " Stats",
-    usage: game.toLowerCase() + " [platform] <player>",
+    usage: game.toLowerCase() + " :platform[xbl,ps,pc]? :player+",
     detailedHelp: "Apex Legends Stats",
     usageExample: "apex pc unacceptableuse",
     commands: [game.toLowerCase()],

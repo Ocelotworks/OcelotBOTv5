@@ -11,6 +11,37 @@ module.exports = {
     commands: ["premium", "donate", "patreon"],
     rateLimit: 1,
     categories: ["meta"],
+    init: function(bot){
+        this.bot.addCommandMiddleware(async (context)=>{
+            if (context.getBool("points.enabled"))return true;
+            if (context.commandData.vote && context.getBool("voteRestrictions") && !(context.getBool("premium") || context.getBool("serverPremium"))) {
+                if (context.getSetting("restrictionType") === "vote") {
+                    let lastVote = await this.bot.database.getLastVote(context.user.id);
+                    if (lastVote[0])
+                        lastVote = lastVote[0]['MAX(timestamp)'];
+                    let difference = new Date() - lastVote;
+                    console.log("difference is " + difference);
+                    if (difference > this.bot.util.voteTimeout * 2) {
+                        return context.replyLang({content: "COMMAND_VOTE_REQUIRED", ephemeral: true})
+                    }
+                } else {
+                    // This is dumb, but I can't avoid this
+                    try {
+                        await (await this.bot.client.guilds.fetch("322032568558026753")).members.fetch(context.user.id)
+                    } catch (e) {
+                        return context.reply({content: "You must join the support server or purchase premium to enable this command. You can join the support server here: https://discord.gg/PTaXZmE", ephemeral: true})
+                    }
+                }
+            }
+
+            if (context.commandData.premium && !(context.getBool("premium") || context.getBool("serverPremium"))) {
+                return context.reply({
+                    content: `:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${context.getSetting("prefix")}premium_\nAlternatively, you can disable this command using ${context.getSetting("prefix")}settings disableCommand ${context.command}`,
+                    ephemeral: true
+                });
+            }
+        });
+    },
     run: async function run(message, args, bot){
         if(args[1]){
             if(!message.guild.id)

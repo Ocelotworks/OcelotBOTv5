@@ -6,6 +6,7 @@ module.exports = {
     categories: ["image", "tools"],
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["avatar"],
+    slashHidden: true,
     run: function (message) {
         let target = message.author;
         if (message.mentions && message.mentions.users && message.mentions.users.size > 0) {

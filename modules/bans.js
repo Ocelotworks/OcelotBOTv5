@@ -46,7 +46,8 @@ module.exports = {
             bot.logger.info(`${message.author.id} at ${bot.rateLimits[message.author.id]}/${message.getSetting("rateLimit")}`);
         }
 
-        bot.bus.on("commandPerformed", updateRateLimit);
+        // TODO: Context ratelimits
+       // bot.bus.on("commandPerformed", updateRateLimit);
 
         let rateLimitLimits = [];
 
@@ -66,7 +67,8 @@ module.exports = {
             // }else{
             //     rateLimitLimits.push(message.guild.id);
             // }
-            updateRateLimit(command, message);
+            // TODO: Context ratelimits
+            //updateRateLimit(command, message);
         });
 
         bot.isRateLimited = function isRateLimited(user, guild) {

@@ -6,7 +6,7 @@
  */
 module.exports = {
     name: "Birthdays List",
-    usage: "birthday help/@user/add/list",
+    usage: "birthday :subCommand[help,add,list]",
     detailedHelp: "List peoples birthdays and get reminders when it's their birthday ",
     usageExample: "birthday add @Big P 9th February",
     responseExample: "🎉 Birthday added!",

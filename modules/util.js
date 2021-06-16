@@ -9,7 +9,7 @@ const twemoji = require('twemoji-parser');
 const config = require('config');
 const Sentry = require('@sentry/node');
 const {crc32} = require('crc');
-const FormData = require('form-data');
+
 module.exports = {
     name: "Utilities",
     init: function (bot) {
@@ -418,7 +418,7 @@ module.exports = {
 
 
 
-        bot.util.abstractImageProcessor = async function(request, name){
+        bot.util.abstractImageProcessor = async function(request){
             bot.logger.log(JSON.stringify(request));
             let key = crc32(JSON.stringify(request)).toString(32);
             return bot.redis.cache("imageProcessor/" + key, async () => await bot.rabbit.rpc("imageProcessor", request, 120000, {
@@ -427,124 +427,12 @@ module.exports = {
             }), 600);
         }
 
-        bot.util.uploadToImgur = async function(response){
-            let image = await axios.get(response.path, {responseType: "stream"});
-            const imgurData = new FormData();
-            imgurData.append('image', image.data)
-            try {
-                let imgur = await axios({
-                    method: 'POST',
-                    url: 'https://api.imgur.com/3/image',
-                    headers: {
-                        Authorization: `Client-ID ${config.get("API.imgur.key")}`,
-                        ...imgurData.getHeaders()
-                    },
-                    data: imgurData,
-                    // Buzz lightyear shit
-                    maxBodyLength: Infinity,
-                    maxContentLength: Infinity,
-                });
-                return imgur.data?.data?.link
-            }catch(e){
-                bot.logger.error(e);
-            }
-        }
-
-        bot.util.slashImageProcessor = async function slashImageProcessor(interaction, request, name){
-            request.metadata = {
-                s: interaction.guild?.id,
-                u: interaction.user.id,
-                c: interaction.channel.id,
-                m: interaction.id,
-            };
-            request.version = 1;
-            interaction.defer();
-            try {
-                let response = await bot.util.abstractImageProcessor(request, name);
-                if(response.size >= 10000000){
-                    return interaction.followUpLang("IMAGE_PROCESSOR_ERROR_SIZE")
-                }
-                let imgurData = await bot.util.uploadToImgur(response);
-                if(!imgurData)return interaction.followUp({content: "Failed to upload to imgur. Try a different image"});
-                return interaction.followUp({content: imgurData});
-            }catch(e){
-                interaction.reply("Failed to process image", {ephemeral: true});
-            }
+        bot.util.slashImageProcessor = async function slashImageProcessor(interaction, request){
+           return Image.InteractionImageProcessor(bot, interaction, request);
         }
 
         bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage) {
-            request.metadata = {
-                s: message.guild ? message.guild.id : null,
-                u: message.author.id,
-                c: message.channel.id,
-                m: message.id,
-            };
-            if (message.content.indexOf("-debug") > -1)
-                request.debug = true;
-            request.version = 1;
-
-            bot.logger.log(JSON.stringify(request));
-            let span = bot.util.startSpan("Receive from RPC");
-            let loadingMessage;
-            let loadingMessageDelay = setTimeout(async () => {
-                message.channel.stopTyping(true);
-                loadingMessage = await message.replyLang("GENERIC_PROCESSING");
-            }, 3000)
-            message.channel.startTyping();
-            let key = crc32(JSON.stringify(request)).toString(32);
-            let response = await bot.redis.cache("imageProcessor/" + key, async () => await bot.rabbit.rpc("imageProcessor", request, 120000, {
-                arguments: {"x-message-ttl": 60000},
-                durable: false
-            }), 600);
-            clearTimeout(loadingMessageDelay)
-            span.end();
-            if(response.size && response.size >= 7000000 || message.channel.permissionsFor && !message.channel.permissionsFor(bot.client.user.id).has("ATTACH_FILES")){
-                if(response.size >= 10000000){
-                    await loadingMessage.editLang("IMAGE_PROCESSOR_ERROR_SIZE");
-                    return;
-                }
-                if (loadingMessage && !loadingMessage.deleted) {
-                    span = bot.util.startSpan("Edit loading message");
-                    await loadingMessage.editLang("GENERIC_UPLOADING_IMGUR");
-                    span.end();
-                }
-                let imgurResult = await bot.util.uploadToImgur(response);
-                if(imgurResult)return message.channel.send(imgurResult);
-                return message.channel.send("Failed to upload to imgur. Try a smaller image");
-            }
-            if (loadingMessage && !loadingMessage.deleted) {
-                span = bot.util.startSpan("Edit loading message");
-                await loadingMessage.editLang("GENERIC_UPLOADING");
-                span.end();
-            }
-            if (response.err) {
-                span = bot.util.startSpan("Delete processing message");
-                message.channel.stopTyping(true);
-                if (loadingMessage && !loadingMessage.deleted)
-                    await loadingMessage.delete();
-                span.end();
-                return message.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
-            }
-            console.log(response);
-            span = bot.util.startSpan("Upload image");
-            let messageResult;
-            let attachment = new Discord.MessageAttachment(response.path, `${name}.${response.extension}`);
-            try {
-                if (sentMessage)
-                    messageResult = await message.channel.send({content: sentMessage, files: [attachment]}); // TODO: what the hell was this line?
-                else
-                    messageResult = await message.channel.send({files: [attachment]});
-            } catch (e) {
-                bot.raven.captureException(e);
-                message.channel.send("Failed to send: "+e);
-            }
-            message.channel.stopTyping(true);
-            span.end();
-            span = bot.util.startSpan("Delete processing message");
-            if (loadingMessage && !loadingMessage.deleted)
-                await loadingMessage.delete();
-            span.end();
-            return messageResult;
+          return Image.MessageImageProcessor(bot, message, request, name, sentMessage);
         }
 
         bot.util.imageProcessorOutlinedText = function imageProcessorOutlinedText(content, x, y, w, h, fontSize, foregroundColour = "#ffffff", backgroundColour = "#000000", font = "arial.ttf") {

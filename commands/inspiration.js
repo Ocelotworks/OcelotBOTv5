@@ -9,12 +9,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["inspiration", "inspirational", "inspirationalquote", "inspo"],
     unwholesome: true,
-    run: async function(message, args, bot){
-        let result = await axios.get("https://inspirobot.me/api?generate=true");
-
-        return message.channel.send({files: [new Discord.MessageAttachment(result.data)]})
+    run: async function(context){
+        return context.reply((await axios.get("https://inspirobot.me/api?generate=true")).data);
     },
-    runSlash: async function(interaction){
-        return interaction.reply((await axios.get("https://inspirobot.me/api?generate=true")).data);
-    }
 };

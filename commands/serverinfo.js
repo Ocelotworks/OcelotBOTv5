@@ -4,7 +4,7 @@ const sq = new SourceQuery(1000);
 const Discord = require('discord.js');
 module.exports = {
     name: "Source Server Info",
-    usage: "serverinfo <ip:port>",
+    usage: "serverinfo ip port",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["serverinfo", "si"],
     categories: ["stats"],

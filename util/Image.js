@@ -1,0 +1,184 @@
+const {axios} = require('./Http');
+
+const config = require('config');
+const Sentry = require('@sentry/node');
+const Discord = require('discord.js');
+const {crc32} = require('crc');
+const FormData = require('form-data');
+
+module.exports = class Image {
+
+    /**
+     * Uploads a file to Imgur, returns undefined on failure
+     * @param {String} url
+     * @returns {Promise<String | null>}
+     * @constructor
+     */
+    static async UploadToImgur(url){
+        let image = await axios.get(url, {responseType: "stream"});
+        const imgurData = new FormData();
+        imgurData.append('image', image.data)
+        try {
+            let imgur = await axios({
+                method: 'POST',
+                url: 'https://api.imgur.com/3/image',
+                headers: {
+                    Authorization: `Client-ID ${config.get("API.imgur.key")}`,
+                    ...imgurData.getHeaders()
+                },
+                data: imgurData,
+                // Buzz lightyear shit
+                maxBodyLength: Infinity,
+                maxContentLength: Infinity,
+            });
+            return imgur.data?.data?.link
+        }catch(e){
+            Sentry.captureException(e);
+        }
+    }
+
+    /**
+     * Sends an Image Processor request
+     * @param {Object} bot The OcelotBOT instance
+     * @param {Object} request The Request object
+     * @returns {*}
+     * @constructor
+     */
+    static #imageProcessor(bot, request){
+        const requestJson = JSON.stringify(request);
+        bot.logger.log(requestJson);
+        let key = crc32(requestJson).toString(32);
+        return bot.redis.cache("imageProcessor/" + key, async () => await bot.rabbit.rpc("imageProcessor", request, 120000, {
+            arguments: {"x-message-ttl": 60000},
+            durable: false
+        }), 600);
+    }
+
+    /**
+     * Make an Image Processor request
+     * @param bot
+     * @param context
+     * @param request
+     * @param name
+     * @param sentMessage
+     * @constructor
+     */
+    static ImageProcessor(bot, context, request, name, sentMessage){
+        if(context.interaction){
+            return Image.InteractionImageProcessor(bot, context.interaction, request, sentMessage);
+        }
+        return Image.MessageImageProcessor(bot, context.message, request, name, sentMessage)
+    }
+
+    /**
+     * Makes an Image Processor request for Interaction requests
+     * @param {Object} bot OcelotBOT instance
+     * @param {Discord.CommandInteraction} interaction the Interaction
+     * @param {Object} request The request object
+     * @param sentMessage
+     * @returns {Promise<Discord.Message | Discord.RawMessage>}
+     * @constructor
+     */
+    static async InteractionImageProcessor(bot, interaction, request, sentMessage){
+        request.metadata = {
+            s: interaction.guild?.id,
+            u: interaction.user.id,
+            c: interaction.channel.id,
+            m: interaction.id,
+        };
+        request.version = 1;
+        interaction.defer();
+        try {
+            let response = await Image.#imageProcessor(bot, request);
+            if(response.size >= 10000000){
+                return interaction.followUpLang("IMAGE_PROCESSOR_ERROR_SIZE")
+            }
+            let imgurData = await Image.UploadToImgur(response.path);
+            if(!imgurData)return interaction.followUp({content: "Failed to upload to imgur. Try a different image"});
+            if(sentMessage)
+                return interaction.followUp({content: `${sentMessage}\n${imgurData}`})
+            return interaction.followUp({content: imgurData});
+        }catch(e){
+            console.log(e);
+            Sentry.captureException(e);
+            return interaction.reply({content: "Failed to process image", ephemeral: true});
+        }
+    }
+
+    /**
+     * Makes an Image Processor request for Message requests (As opposed to Interactions)
+     * @param {Object} bot OcelotBOT instance
+     * @param {Discord.Message} message The message that initiated the request
+     * @param {Object} request The request object
+     * @param {String} name The name of the uploaded file
+     * @param {String} sentMessage Added as content to the upload message
+     * @constructor
+     */
+     static async MessageImageProcessor(bot, message, request, name, sentMessage){
+        request.metadata = {
+            s: message.guild ? message.guild.id : null,
+            u: message.author.id,
+            c: message.channel.id,
+            m: message.id,
+        };
+        if (message.content.indexOf("-debug") > -1)
+            request.debug = true;
+        request.version = 1;
+
+        bot.logger.log(JSON.stringify(request));
+        let span = bot.util.startSpan("Receive from RPC");
+        let loadingMessage;
+        let loadingMessageDelay = setTimeout(async () => {
+            message.channel.stopTyping(true);
+            loadingMessage = await message.replyLang("GENERIC_PROCESSING");
+        }, 3000)
+        message.channel.startTyping();
+        let response = await Image.#imageProcessor(bot, request);
+        clearTimeout(loadingMessageDelay)
+        span.end();
+        if(response.size && response.size >= 7000000 || message.channel.permissionsFor && !message.channel.permissionsFor(bot.client.user.id).has("ATTACH_FILES")){
+            if(response.size >= 10000000){
+                await loadingMessage.editLang("IMAGE_PROCESSOR_ERROR_SIZE");
+                return;
+            }
+            if (loadingMessage && !loadingMessage.deleted) {
+                span = bot.util.startSpan("Edit loading message");
+                await loadingMessage.editLang("GENERIC_UPLOADING_IMGUR");
+                span.end();
+            }
+            let imgurResult = await Image.UploadToImgur(response.path);
+            if(imgurResult)return message.channel.send(imgurResult);
+            return message.channel.send("Failed to upload to imgur. Try a smaller image");
+        }
+        if (loadingMessage && !loadingMessage.deleted) {
+            span = bot.util.startSpan("Edit loading message");
+            await loadingMessage.editLang("GENERIC_UPLOADING");
+            span.end();
+        }
+        if (response.err) {
+            span = bot.util.startSpan("Delete processing message");
+            message.channel.stopTyping(true);
+            if (loadingMessage && !loadingMessage.deleted)
+                await loadingMessage.delete();
+            span.end();
+            return message.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
+        }
+        span = bot.util.startSpan("Upload image");
+        let messageResult;
+        let attachment = new Discord.MessageAttachment(response.path, `${name}.${response.extension}`);
+        try {
+            messageResult = await message.channel.send({content: sentMessage, files: [attachment]});
+        } catch (e) {
+            Sentry.captureException(e);
+            messageResult = await message.channel.send("Failed to send: "+e);
+        }
+        message.channel.stopTyping(true);
+        span.end();
+        span = bot.util.startSpan("Delete processing message");
+        if (loadingMessage && !loadingMessage.deleted)
+            await loadingMessage.delete();
+        span.end();
+        return messageResult;
+    }
+}
+

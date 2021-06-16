@@ -1,43 +1,34 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Lisa Meme",
-    usage: "lisa <text>",
+    usage: "lisa :input+",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["lisa"],
     categories: ["memes"],
-    slashOptions: [{type: "STRING", name: "input", description: "What Lisa is saying", required: true}],
-    run: function(message, args, bot){
-        if(!args[1])
-            return message.replyLang("IMAGE_NO_TEXT");
-        return bot.util.imageProcessor(message, getTemplate(message.cleanContent.substring(args[0].length)), "lisa")
-    },
-    runSlash: function(interaction, bot){
-        return bot.util.slashImageProcessor(interaction, getTemplate(interaction.options.get("input").value), "lisa")
+    run: function(context, bot){
+        return Image.ImageProcessor(bot, context, {
+            "components": [
+                {
+                    "url": "lisa.png",
+                    "local": true,
+                    "filter": [{
+                        name: "text",
+                        args: {
+                            fontSize: 25,
+                            colour: "#000000",
+                            content: context.options.input,
+                            x: 334,
+                            y: 197,
+                            ax: 0.5,
+                            ay: 0.5,
+                            w: 424,
+                            spacing: 1.1,
+                            align: 1,
+                        }
+                    }]
+                },
+            ]
+        }, "lisa");
     }
 };
-
-function getTemplate(content){
-    return {
-        "components": [
-            {
-                "url": "lisa.png",
-                "local": true,
-                "filter": [{
-                    name: "text",
-                    args: {
-                        fontSize: 25,
-                        colour: "#000000",
-                        content,
-                        x: 334,
-                        y: 197,
-                        ax: 0.5,
-                        ay: 0.5,
-                        w: 424,
-                        spacing: 1.1,
-                        align: 1,
-                    }
-                }]
-            },
-        ]
-    }
-}

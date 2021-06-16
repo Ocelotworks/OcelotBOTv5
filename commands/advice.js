@@ -33,11 +33,7 @@ module.exports = {
     responseExample: "📜 `man who fart in church sit in own pew`",
     categories: ["fun"],
     commands: ["advice", "advise", "wise"],
-    slashOptions: [],
-    run: function (message, args, bot) {
-        return message.channel.send(`:scroll: \`${bot.util.arrayRand(responses)}\``);
+    run: function (context, bot) {
+        return context.send(`:scroll: \`${bot.util.arrayRand(responses)}\``);
     },
-    runSlash: function(interaction, bot){
-        return interaction.reply(`:scroll: \`${bot.util.arrayRand(responses)}\``);
-    }
 };

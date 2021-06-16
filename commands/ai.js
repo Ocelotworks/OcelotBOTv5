@@ -17,7 +17,7 @@ let clev = new Cleverbot({
 
 module.exports = {
     name: "Artificial Intelligence",
-    usage: "ai <message>",
+    usage: "ai :message+",
     detailedHelp: "Ask a question to the Artificial Intelligence",
     usageExample: "ai what is the meaning of life?",
     responseExample: "42.",

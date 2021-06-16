@@ -1,17 +1,14 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Yea Meme",
-    usage: "yea <text>",
+    usage: "yea :input+",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["yea", "yeah"],
     categories: ["memes"],
-    run:  function(message, args, bot){
-        if(!args[1])
-            return message.replyLang("IMAGE_NO_TEXT");
-
-        const content = message.cleanContent.substring(args[0].length);
-
-        return bot.util.imageProcessor(message, {
+    run:  function(context, bot){
+        const content = context.options.content;
+        return Image.ImageProcessor(bot, context, {
             "components": [
                 {
                     "url": "yea.png",
@@ -33,6 +30,6 @@ module.exports = {
                     }]
                 },
             ]
-        }, "lisa")
+        }, "yea")
     }
 };

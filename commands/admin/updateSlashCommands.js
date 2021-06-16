@@ -16,16 +16,16 @@ module.exports = {
             if(!bot.commandObjects.hasOwnProperty(commandID))continue;
             let commandData = bot.commandObjects[commandID];
             if(!commandData.slashOptions)continue;
+            if(commandData.hidden)continue;
             let slashCommand = {
                 name: commandData.commands[0],
                 description: commandData.name,
-                defaultPermission: !commandData.disabled && !commandData.hidden && !bot.config.getBool("global", `${commandData.commands[0]}.disable`),
+                defaultPermission: !commandData.disabled && !bot.config.getBool(server ? server : "global", `${commandData.commands[0]}.disable`),
                 options: commandData.slashOptions
             };
             commandOutput.push(slashCommand);
+            if(commandOutput.length >= 100)break;
         }
-
-        console.log(commandOutput);
         await bot.client.application.commands.set(commandOutput, server);
         if(server)
             return message.channel.send(`Set ${commandOutput.length} slash commands for ${server}`);

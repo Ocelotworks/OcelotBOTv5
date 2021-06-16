@@ -27,20 +27,20 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["stats", "statistics", "info", "about"],
     categories: ["meta"],
-    run: async function run(message, args, bot) {
-        if(args[1] && args[1] === "watson"){
-            return message.channel.send(`${args[2]}|${JSON.stringify({
+    run: async function run(context, bot) {
+        if(context.args && context.args[1] && context.args[1] === "watson"){
+            return context.send(`${context.args[2]}|${JSON.stringify({
                 version: bot.version,
                 podUptime: process.uptime(),
                 shard: bot.util.shard,
             })}`);
         }
-        const title = await message.getLang("STATS_VERSION", {version: bot.version});
-        const tagline = await message.getLang("STATS_MESSAGE", {instance: `Shard ${shardNames[bot.util.shard] ? "'" + shardNames[bot.util.shard] + "'" : "Unnamed"} (${bot.util.shard + 1}/${process.env.SHARD_COUNT})`});
-        const totalUsers = await message.getLang("STATS_TOTAL_USERS");
-        const totalServers = await message.getLang("STATS_TOTAL_SERVERS");
-        const totalChannels = await message.getLang("STATS_TOTAL_CHANNELS");
-        const uptime = await message.getLang("STATS_UPTIME");
+        const title = await context.getLang("STATS_VERSION", {version: bot.version});
+        const tagline = await context.getLang("STATS_MESSAGE", {instance: `Shard ${shardNames[bot.util.shard] ? "'" + shardNames[bot.util.shard] + "'" : "Unnamed"} (${bot.util.shard + 1}/${process.env.SHARD_COUNT})`});
+        const totalUsers = await context.getLang("STATS_TOTAL_USERS");
+        const totalServers = await context.getLang("STATS_TOTAL_SERVERS");
+        const totalChannels = await context.getLang("STATS_TOTAL_CHANNELS");
+        const uptime = await context.getLang("STATS_UPTIME");
         let serverCount = 0;
         let userCount = 0;
         let channelCount = 0;
@@ -79,6 +79,6 @@ module.exports = {
         embed.addField(totalUsers, userCount.toLocaleString(), true);
         embed.addField(totalServers, serverCount.toLocaleString(), true);
         embed.addField(totalChannels, channelCount.toLocaleString(), true);
-        return message.channel.send({embeds: [embed]});
+        return context.send({embeds: [embed]});
     }
 };

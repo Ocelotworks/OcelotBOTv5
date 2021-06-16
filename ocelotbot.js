@@ -129,33 +129,36 @@ async function loadModules(){
         //The module loading is wrapped in a try/catch incase the module fails to load, the server will still run.
         try{
             let loadedModule = require(`.${modulePath}/${fileName}.js`);
-            //Check that the module has `name` and `init` values
-            if(loadedModule.name && loadedModule.init){
-                //Here the module itself starts execution. In the future we might want to do this asynchronously.
-                //The app object is passed to the
-                Sentry.configureScope(function initModule(scope){
-                    scope.addBreadcrumb({
-                        category: 'modules',
-                        message: 'Loading module.',
-                        level: Sentry.Severity.Info,
-                        data: {
-                            name: loadedModule.name,
-                            path: modulePath,
-                            file: fileName,
-                            moduleFiles: moduleFiles
-                        }
-                    });
-                });
-                if(loadedModule.async)
-                    await loadedModule.init(bot);
-                else
-                    loadedModule.init(bot);
-                bot.logger.log(`Loaded module ${loadedModule.name}`);
-            }else{
+            if(loadedModule instanceof Function){
+                bot.logger.log("Detected class-style module "+loadedModule.name);
+                loadedModule = new loadedModule(bot);
+            }else if(!loadedModule.name || !loadedModule.init){
+                console.log(loadedModule);
                 //If the app has not got these. It's not setup properly.
                 //Throw out a warning and skip attempting to load it.
                 bot.logger.warn(`${fileName} is not a valid module. Missing 'name' and/or 'init'`);
+                continue;
             }
+            //Here the module itself starts execution. In the future we might want to do this asynchronously.
+            //The app object is passed to the
+            Sentry.configureScope(function initModule(scope){
+                scope.addBreadcrumb({
+                    category: 'modules',
+                    message: 'Loading module.',
+                    level: Sentry.Severity.Info,
+                    data: {
+                        name: loadedModule.name,
+                        path: modulePath,
+                        file: fileName,
+                        moduleFiles: moduleFiles
+                    }
+                });
+            });
+            if(loadedModule.async)
+                await loadedModule.init(bot);
+            else
+                loadedModule.init(bot);
+            bot.logger.log(`Loaded module ${loadedModule.name}`);
         }catch(e){
             //Spit the error out and continue loading modules.
             //Modules that depend on the failed module's functions will probably also fail too.

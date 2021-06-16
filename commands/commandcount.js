@@ -12,8 +12,9 @@ module.exports = {
     responseExample: "**4,599,546** total commands.",
     categories: ["meta"],
     commands: ["commandcount"],
-    run: async function run(message, args, bot) {
+    slashOptions: [],
+    run: async function run(context, bot) {
         let count = await bot.database.getCommandCount();
-        message.replyLang("COMMANDCOUNT", {count: count[0]['MAX(id)'].toLocaleString()})
+        context.replyLang("COMMANDCOUNT", {count: count[0]['MAX(id)'].toLocaleString()})
     }
 };

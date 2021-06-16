@@ -52,6 +52,7 @@ module.exports = {
             return bot.lang.getTranslation(this.guild?.id || "global", message, values, this.user.id);
         }
 
+
         Discord.CommandInteraction.prototype.replyLang = function(message, values){
             if(typeof message === "string") {
                 return this.reply({ephemeral: values?.ephemeral, content: this.getLang(message, values)});
@@ -423,7 +424,7 @@ module.exports = {
             let data;
             if (message.payload.name === "channels") {
                 let guild = message.payload.data.server;
-                if (bot.client.guilds.cache.has(guild)) {ocelotbot_ai_conversations
+                if (bot.client.guilds.cache.has(guild)) {
                     let guildObj = bot.client.guilds.cache.get(guild);
                     let channels = guildObj.channels.cache.map(function (channel) {
                         return {name: channel.name, id: channel.id, type: channel.type}

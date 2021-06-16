@@ -10,28 +10,9 @@ module.exports = {
         bot.logger.log("Loading admin commands...");
         bot.util.standardNestedCommandInit("admin");
     },
-    run: function (message, args, bot) {
-        if (!message.getBool("admin")) return;
-        bot.util.standardNestedCommand(message, args, bot, "admin");
-    },
-    test: function (test) {
-        test('admin not admin', function (t) {
-            const bot = {
-                admins: ["abc"]
-            };
-            const message = {
-                author: {
-                    id: "def"
-                },
-                channel: {
-                    send: function () {
-                        t.fail();
-                    }
-                }
-            };
-            module.exports.run(message, [], bot);
-            t.pass();
-        });
+    run: function (context, bot) {
+        if (!context.message.getBool("admin")) return;
+        bot.util.standardNestedCommand(context.message, context.args, bot, "admin");
     },
     subCommands: {}
 };
