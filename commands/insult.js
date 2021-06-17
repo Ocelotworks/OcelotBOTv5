@@ -15,31 +15,19 @@ const customInsults = {
 };
 module.exports = {
     name: "Insult Generator",
-    usage: "insult <person>",
+    usage: "insult :person+",
     commands: ["insult"],
     detailedHelp: "Insult someone/something",
     usageExample: "insult @Big P",
     responseExample: "@Big P I hope you step in a puddle... with socks on.",
     categories: ["fun"],
     unwholesome: true,
-    slashOptions: [{type: "STRING", name: "subject", description: "The person or phrase that you want to insult", required: true}],
-    run: function run(message, args, bot) {
-        if(!args[1])
-            return message.replyLang("INSULT_NO_PERSON");
-
-        const term = args.slice(1).join(" ");
-        const mention = bot.util.getUserFromMention(args[1]);
-        if(customInsults[mention?.id])return message.channel.send(`<@${mention.id}>, ${bot.util.arrayRand(customInsults[mention.id])}`);
-        if(args[1].toLowerCase() === "@everyone")return message.replyLang("INSULT_EVERYONE");
-        if(args[1].toLowerCase() === bot.client.user.username.toLowerCase() || args[1].indexOf(bot.client.user.id) > -1 || (args[1].toLowerCase() === message.guild?.me?.nickname?.toLowerCase()))return message.replyLang("INSULT_SELF_INSULT");
-        return message.replyLang(`INSULT_${bot.util.intBetween(1,114)}`, {term});
+    run: function run(context, bot) {
+        const term = context.options.person;
+        const mention = bot.util.getUserFromMention(term);
+        if(customInsults[mention?.id])return context.send(`<@${mention.id}>, ${bot.util.arrayRand(customInsults[mention.id])}`);
+        if(term.toLowerCase() === "@everyone")return context.sendLang("INSULT_EVERYONE");
+        if(term.toLowerCase() === bot.client.user.username.toLowerCase() || term.indexOf(bot.client.user.id) > -1 || (term.toLowerCase() === message.guild?.me?.nickname?.toLowerCase()))return context.sendLang("INSULT_SELF_INSULT");
+        return context.sendLang(`INSULT_${bot.util.intBetween(1,114)}`, {term});
     },
-    runSlash: function(interaction, bot){
-        const input = interaction.options.get("subject").value;
-        const mention = bot.util.getUserFromMention(input);
-        if(customInsults[mention?.id])return interaction.reply(`<@${mention.id}>, ${bot.util.arrayRand(customInsults[mention.id])}`);
-        if(input.toLowerCase() === "@everyone")return interaction.replyLang("INSULT_EVERYONE");
-        if(input.toLowerCase() === bot.client.user.username.toLowerCase() || input.indexOf(bot.client.user.id) > -1 || (input.toLowerCase() === interaction.guild?.me?.nickname?.toLowerCase()))return interaction.replyLang("INSULT_SELF_INSULT");
-        return interaction.replyLang(`INSULT_${bot.util.intBetween(1,114)}`, {term: input});
-    }
 };

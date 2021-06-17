@@ -4,19 +4,18 @@
  * ╚════ ║   (ocelotbotv5) icetext
  *  ════╝
  */
+const Util = require("../util/Util");
 module.exports = {
     name: "Ice Text Generator",
-    usage: "icetext <text>",
+    usage: "icetext :text+",
     categories: ["text"],
     detailedHelp: "Ice text font",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["icetext", "ice"],
-    run:  function(message, args, bot){
-        bot.util.coolTextGenerator(message,args,bot, {
-            LogoID: 1779834160,
-            FontSize: 70,
-            FileFormat: 6,
-            BackgroundColor_color: "#FFFFFF"
-        });
-    }
+    run: Util.CooltextGenerator({
+        LogoID: 1779834160,
+        FontSize: 70,
+        FileFormat: 6,
+        BackgroundColor_color: "#FFFFFF"
+    }),
 };

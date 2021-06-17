@@ -58,7 +58,7 @@ module.exports = class Commands {
             if(context.commandData.pattern) {
                 const parsedInput = commandParser.Parse(args.slice(1).join(" "), {pattern: context.commandData.pattern, id: command});
                 if (parsedInput.error)
-                    return message.channel.sendLang(`ERROR_${parsedInput.error.type.toUpperCase()}`, {data: parsedInput.error.data});
+                    return message.channel.sendLang(`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`, parsedInput.error.data);
                 else
                     context.options = parsedInput.data;
             }

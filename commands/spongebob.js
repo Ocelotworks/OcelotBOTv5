@@ -3,11 +3,11 @@
  */
 module.exports = {
     name: "Spongebob",
-    usage: "spongebob [text]",
+    usage: "spongebob :text?+",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["spongebob"],
     categories: ["text", "memes"],
-    run: async function run(message, args, bot) {
+    run: async function run(context, bot) {
         let doSponge = function doSponge(input){
             let output = "";
             for(let i in input){
@@ -15,25 +15,25 @@ module.exports = {
                     if(Math.random() > 0.5)output+= input[i].toLowerCase();
                     else output+= input[i].toUpperCase();
             }
-            message.channel.send(output, {
+            context.send(output, {
                 embed: {
                     image: {
-                        url: message.getSetting("spongebob.url")
+                        url: context.getSetting("spongebob.url")
                     }
                 }
             });
         };
 
-        if(!args[1]){
-            const messages = await message.channel.messages.fetch({limit: 2});
+        if(!context.options.text){
+            const messages = await context.channel.messages.fetch({limit: 2});
             if(messages.size > 1){
                 const message = messages.last();
                 doSponge(message.content);
             }else{
-                message.replyLang("SPONGEBOB_NO_TEXT")
+                context.replyLang("SPONGEBOB_NO_TEXT")
             }
         }else{
-            doSponge(message.content.substring(args[0].length));
+            doSponge(context.options.text);
         }
 
     }

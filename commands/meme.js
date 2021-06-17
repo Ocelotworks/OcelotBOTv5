@@ -3,10 +3,10 @@
  */
 module.exports = {
     name: "Meme Storage",
-    usage: "meme help",
+    usage: "meme [subcommand:help,add,random,info]",
     commands: ["meme"],
     categories: ["tools"],
-    slashHidden: true,
+    // slashHidden: true,
     init: function init(bot) {
         bot.util.standardNestedCommandInit('meme');
     },

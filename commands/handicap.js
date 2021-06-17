@@ -1,13 +1,14 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Handicapped Meme",
-    usage: "handicap <text>",
+    usage: "handicap :text+",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["handicap", "handycap", "handicapped"],
     categories: ["memes"],
     unwholesome: true,
-    run:  function(message, args, bot){
-        return bot.util.imageProcessor(message, {
+    run: function(context, bot){
+        return Image.ImageProcessor(bot, context,{
             "components": [
                 {
                     "url": "handicap.png",
@@ -18,7 +19,7 @@ module.exports = {
                             font: "arial.ttf",
                             fontSize: 25,
                             colour: "#000000",
-                            content: message.cleanContent.substring(args[0].length),
+                            content: context.options.text,
                             x: 386,
                             y: 341,
                             ax: 0.5,
@@ -32,6 +33,6 @@ module.exports = {
             ],
             "width": 569,
             "height": 721
-        }, "handicap")
+        }, "handicap");
     }
 };

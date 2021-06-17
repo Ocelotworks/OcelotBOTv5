@@ -1,18 +1,15 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Ronald Says",
-    usage: "ronald <text>",
+    usage: "ronald :text+",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["ronald", "ronaldsays", "mcdonald"],
     categories: ["memes"],
     unwholesome: true,
-    run:  function(message, args, bot){
-        if(!args[1]){
-            message.replyLang("IMAGE_NO_TEXT");
-            return;
-        }
-        let content = message.cleanContent.substring(args[0].length);
-        return bot.util.imageProcessor(message, {
+    run:  function(context, bot){
+        let content = context.options.text;
+        return Image.ImageProcessor(bot, context, {
             "components": [
                 {
                     "pos": {"x": 205, "y": 56, "w": 111, "h": 146},

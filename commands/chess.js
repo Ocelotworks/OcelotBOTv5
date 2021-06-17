@@ -14,7 +14,8 @@ const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 module.exports = {
     name: "Chess",
-    usage: "chess start <@player>/<move>",
+    //usage: "chess [subCommand?:start,resign,accept] :@player? :move+?",
+    usage: "chess start @player/resign/accept/<move>",
     accessLevel: 0,
     detailedHelp: "Start a game of chess. If you don't know how to play chess, this game isn't for you.\nIf you do know how to play chess, it's probably also not for you.",
     usageExample: "chess start @Small P",
@@ -23,6 +24,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     categories: ["games"],
     run: function run(message, args, bot) {
+        //return context.reply(JSON.stringify(context.options));
         const subCommand = args[1];
         Sentry.configureScope(function run(scope) {
             scope.addBreadcrumb({

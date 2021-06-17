@@ -1158,8 +1158,6 @@ module.exports = {
             })
         };
 
-
-
         let waitingUsers = {};
         bot.util.getUserInfo = async function getUserInfo(userID) {
             try {

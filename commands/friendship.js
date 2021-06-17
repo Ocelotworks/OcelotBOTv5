@@ -4,29 +4,25 @@
  * ╚════ ║   (ocelotbotv5) friendship
  *  ════╝
  */
+const Image = require('../util/Image');
 module.exports = {
     name: "Friendship ended with",
-    usage: "friendship <@user1> <@user2>",
+    usage: "friendship :@user1 :@user2",
     detailedHelp: "Officially end your friendship with someone.",
     usageExample: "friendship @Big P @Small P",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["friendship", "freindship"],
     categories: ["memes"],
     unwholesome: true,
-    run: async function run(message, args, bot) {
-        if(message.mentions.users.size < 2)
-            return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
+    run: async function run(context, bot) {
 
-        console.log("Loading users");
-
-        const user1 = bot.util.getUserFromMention(args[1]);
-        const user2 = bot.util.getUserFromMention(args[2]);
+        const user1 = context.channel.members.get(context.options.user1).user;
+        const user2 = context.channel.members.get(context.options.user2).user;
 
         if(!user1 || !user2)
-            return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
+            return context.send({content:`:bangbang: You must enter 2 users. e.g ${context.command} ${context.user} ${bot.client.user}`, ephemeral: true});
 
-
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context, {
             "components": [
                 {
                     url: "friendship.png",
@@ -83,6 +79,6 @@ module.exports = {
                     pos: {x: 493, y: 330}
                 }
             ],
-        }, "friendship")
+        }, 'friendship');
     }
 };

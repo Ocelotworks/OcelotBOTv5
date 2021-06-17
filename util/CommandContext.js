@@ -38,9 +38,8 @@ class CommandContext {
      * @param {{content: string}} options The message options
      * @param {Object} values The key/values for the lang string
      * @returns {{content: string}} // The message options with the content formatted correctly
-     * @private
      */
-    _getOptionsOrString(options, values){
+    getOptionsOrString(options, values){
         if(typeof options === "string")
             return {content: this.getLang(options, values)};
         options.content = this.getLang(options.content, values);
@@ -52,15 +51,15 @@ class CommandContext {
     }
 
     sendLang(options, values){
-        return this.send(this._getOptionsOrString(options, values));
+        return this.send(this.getOptionsOrString(options, values));
     }
 
     editLang(options, values){
-        return this.edit(this._getOptionsOrString(options, values));
+        return this.edit(this.getOptionsOrString(options, values));
     }
 
     replyLang(options, values){
-        return this.reply(this._getOptionsOrString(options, values));
+        return this.reply(this.getOptionsOrString(options, values));
     }
 
     /**
@@ -129,8 +128,12 @@ class MessageCommandContext extends CommandContext {
         return this.message.reply(options);
     }
 
-    edit(options){
-        return this.message.edit(options);
+    editLang(options, values, message){
+        return this.edit(this.getOptionsOrString(options, values), message);
+    }
+
+    edit(options, message){
+        return message.edit(options);
     }
 
     defer(options){
@@ -168,19 +171,16 @@ class InteractionCommandContext extends CommandContext {
     }
 
     reply(options){
-        console.log("Reply", options);
         // These are the same thing on interactions
         return this.send(options);
     }
 
     defer(options){
-        console.log("Deferred");
         if(this.interaction.deferred)return; // Don't bother if we've already deferred
         return this.interaction.defer(options);
     }
 
     edit(options){
-        console.log("Edit");
         return this.interaction.editReply(options);
     }
 }

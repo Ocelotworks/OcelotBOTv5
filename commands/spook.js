@@ -4,7 +4,7 @@ const start = new Date("1 October 2021");
 const teaserStart = new Date("1 September 2020");
 module.exports = {
     name: "Spook",
-    usage: "spook <user>",
+    usage: "spook :@user",
     categories: ["fun"],
     requiredPermissions: [],
     commands: ["spook", "spooked"],
@@ -408,40 +408,37 @@ module.exports = {
             await targetChannel.send({embeds: [embed]});
         };
     },
-    run: async function (message, args, bot) {
-        if (!message.guild)
-            return message.replyLang("GENERIC_DM_CHANNEL");
-
+    run: async function (context, bot) {
         const now = new Date();
-        return message.replyLang("SPOOK_TEASER", {
-            time: bot.util.prettySeconds((start - now) / 1000, message.guild && message.guild.id, message.author.id),
+        return context.sendLang("SPOOK_TEASER", {
+            time: bot.util.prettySeconds((start - now) / 1000, context.guild && context.guild.id, context.author.id),
             year: now.getFullYear()
         });
 
         if (end - now <= 0)
-            return bot.sendSpookEnd(message.guild.id, message.channel, await bot.database.getSpooked(message.guild.id));
+            return bot.sendSpookEnd(context.guild.id, context.channel, await bot.database.getSpooked(context.guild.id));
 
         if (args.length > 1) {
             let span = bot.util.startSpan("Check can spook");
-            const canSpook = await bot.database.canSpook(message.author.id, message.guild.id);
+            const canSpook = await bot.database.canSpook(context.author.id, context.guild.id);
             span.end();
             if (!canSpook)
-                return message.replyLang("SPOOK_UNABLE");
+                return context.replyLang("SPOOK_UNABLE");
 
             if (message.content.indexOf("@everyone") > -1 || message.content.indexOf("@here") > -1)
-                return message.replyLang("SPOOK_EVERYONE");
+                return context.replyLang("SPOOK_EVERYONE");
 
             if (!message.mentions || !message.mentions.users || message.mentions.users.size === 0)
-                return message.replyLang("SPOOK_MENTION");
+                return context.replyLang("SPOOK_MENTION");
 
             if (message.mentions.users.size > 1)
-                return message.replyLang("SPOOK_MULTIPLE");
+                return context.replyLang("SPOOK_MULTIPLE");
 
             if (message.mentions.users.first().bot)
-                return message.replyLang("SPOOK_BOT");
+                return context.replyLang("SPOOK_BOT");
 
             if (message.mentions.users.first().presence.status === "offline")
-                return message.replyLang("SPOOK_OFFLINE");
+                return context.replyLang("SPOOK_OFFLINE");
 
             if (message.author.presence.status === "offline")
                 return message.channel.send(":ghost: It's not fair to spook someone whilst pretending to be offline!");
@@ -451,29 +448,29 @@ module.exports = {
             if (target.id === message.author.id)
                 return message.replyLang("SPOOK_SELF");
             span = bot.util.startSpan("Get spook count");
-            const result = await bot.database.getSpookCount(target.id, message.guild.id);
+            const result = await bot.database.getSpookCount(target.id, context.guild.id);
             span.end();
             let count = result[0]['COUNT(*)'] + 1;
-            message.replyLang("SPOOK", {
+            context.replyLang("SPOOK", {
                 count: bot.util.getNumberPrefix(count),
                 spooked: target.id
             });
 
             span = bot.util.startSpan("Create spook");
-            await bot.spook.createSpook(message.channel, message.author, target);
+            await bot.spook.createSpook(context.channel, context.user, target);
             span.end();
         } else {
             const now = new Date();
             let span = bot.util.startSpan("Get current spook");
-            const result = await bot.database.getSpooked(message.guild.id);
+            const result = await bot.database.getSpooked(context.guild.id);
             span.end();
             if (result[0])
-                return message.replyLang("SPOOK_CURRENT", {
+                return context.replyLang("SPOOK_CURRENT", {
                     spooked: result[0].spooked,
-                    time: bot.util.prettySeconds((end - now) / 1000, message.guild && message.guild.id, message.author.id),
-                    server: message.guild.id
+                    time: bot.util.prettySeconds((end - now) / 1000, context.guild && context.guild.id, context.author.id),
+                    server: context.guild.id
                 });
-            message.replyLang("SPOOK_NOBODY");
+            context.replyLang("SPOOK_NOBODY");
         }
     }
 };

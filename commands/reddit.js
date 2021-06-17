@@ -2,14 +2,11 @@ const subredditRegex = new RegExp(/^\/?(r\/)?(.*)/i);
 const Discord = require('discord.js');
 module.exports = {
     name: "Reddit Browser",
-    usage: "reddit <subreddit>",
+    usage: "reddit :subreddit",
     categories: ["image", "search"],
     commands: ["reddit"],
-    run: async function run(message, args, bot) {
-        if(!args[1])
-            return message.channel.send(`:warning: Enter a subreddit to browse, e.g ${args[0]} aww or ${args[0]} all`)
-
-        let exec = subredditRegex.exec(args[1]);
+    run: async function run(context, bot) {
+        let exec = subredditRegex.exec(context.options.subreddit);
         const subreddit = exec[2];
         const result = await bot.util.getJson(`https://reddit.com/r/${subreddit}.json`)
 
@@ -28,14 +25,14 @@ module.exports = {
                 default:
                     output = `Unable to access subreddit. Reddit said: ${result.reason || result.message}`;
             }
-            return message.channel.send(output)
+            return context.send(output)
         }
 
         if(result.data && result.data.children){
-            const posts = !message.guild || message.channel.nsfw ? result.data.children : result.data.children.filter((post)=>!post.data.over_18 && !post.data.quarantine);
+            const posts = !context.guild || context.channel.nsfw ? result.data.children : result.data.children.filter((post)=>!post.data.over_18 && !post.data.quarantine);
             if(posts.length === 0)
-                return message.channel.send(!message.channel.nsfw ? "No Posts Found. If you're looking for NSFW results, use a NSFW channel." : "No Posts Found.");
-            return bot.util.standardPagination(message.channel, posts, async function (post, index) {
+                return context.send(!context.channel.nsfw ? "No Posts Found. If you're looking for NSFW results, use a NSFW channel." : "No Posts Found.");
+            return bot.util.standardPagination(context.channel, posts, async function (post, index) {
                 const postData = post.data;
                 let embed = new Discord.MessageEmbed();
                 embed.setColor("#FF5700")

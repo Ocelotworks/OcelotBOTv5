@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 module.exports = {
     name: "Leave Feedback",
-    usage: "feedback [message]",
+    usage: "feedback :message+",
     accessLevel: 0,
     rateLimit: 30,
     detailedHelp: "Complain/compliment/flirt with the developers",
@@ -25,49 +25,45 @@ module.exports = {
             }
         })
     },
-    run: async function run(message, args, bot) {
-        if(message.getSetting("prefix") === "!" && args[0].indexOf("feedback") > -1 && message.channel.members && message.channel.members.has("507970352501227523"))  //Fast Food Bot
-            return message.replyLang("FEEDBACK_FASTFOOD_BOT");
+    run: async function run(context, bot) {
+        if(context.getSetting("prefix") === "!" && context.command === "feedback" && context.channel?.members?.has("507970352501227523"))  //Fast Food Bot
+            return context.replyLang({content: "FEEDBACK_FASTFOOD_BOT", ephemeral: true});
 
-        if(args[0].indexOf("report") > -1 && message.mentions.users.size > 0) {
-            message.replyLang("FEEDBACK_REPORT_USER");
-            if(args.length <= 2)return;
-        }
-        if(args.length > 1){
-            if(args[1].toLowerCase() === "respond" && (message.getBool("admin") || message.getBool("feedback.responder"))){
-                if(bot.lastFeedbackChannel){
-                    const response = message.content.substring(message.content.indexOf(args[2]));
-                    bot.rabbit.event({type: "feedbackResponse", message: {
-                            channel: bot.lastFeedbackChannel,
-                            response: response,
-                            admin: await bot.util.getUserTag(message.author.id)
+        if(context.command === "report" && context.options.message.indexOf("<@") > -1)
+            return context.replyLang({content: "FEEDBACK_REPORT_USER", ephemeral: true});
+
+        if(context.options.message.toLowerCase().startsWith("respond") && (context.getBool("admin") || context.getBool("feedback.responder"))){
+            if(bot.lastFeedbackChannel){
+                const response = context.options.message.substring("respond ".length);
+                bot.rabbit.event({type: "feedbackResponse", message: {
+                        channel: bot.lastFeedbackChannel,
+                        response: response,
+                        admin: await bot.util.getUserTag(context.user.id)
                     }});
-                    message.channel.send("Responded. (On different shard)");
-                }else{
-                    message.channel.send("The last feedback was sent before this shard last restarted.");
-                }
-                return;
-            }else if(message.channel.id === "344931831151329302"){
-                return message.channel.send("You forgot 'respond'");
+                return context.send("Responded. (On different shard)");
             }
-            if(message.getBool("feedback.banned"))
-                return message.replyLang("FEEDBACK_BANNED");
-            bot.lastFeedbackChannel = message.channel.id;
-            message.replyLang("FEEDBACK_SUCCESS");
-            if(!message.getBool("feedback.shadowbanned")) {
-                bot.rabbit.event({
-                    type: "feedback", message: {
-                        userID: message.author.id,
-                        message: Discord.escapeMarkdown(message.content),
-                        username: `${await bot.util.getUserTag(message.author.id)}`,
-                        guildID: message.guild ? message.guild.id : "DM Channel",
-                        guild: message.guild ? message.guild.name : "DM Channel",
-                        channelID: message.channel.id
-                    }
-                });
-            }
-        }else{
-            message.replyLang("FEEDBACK_ERROR");
+            return context.send("The last feedback was sent before this shard last restarted.");
         }
+
+        if(context.channel.id === "344931831151329302")
+            return context.reply({content: "You forgot 'respond'", ephemeral: true});
+
+        if(context.getBool("feedback.banned"))
+            return context.replyLang({content: "FEEDBACK_BANNED", ephemeral: true});
+
+        bot.lastFeedbackChannel = context.channel.id;
+        context.sendLang("FEEDBACK_SUCCESS");
+        if(context.getBool("feedback.shadowbanned"))return;
+
+        bot.rabbit.event({
+            type: "feedback", message: {
+                userID: context.user.id,
+                message: Discord.escapeMarkdown(context.options.message),
+                username: `${await bot.util.getUserTag(context.user.id)}`,
+                guildID: context.guild?.id || context.channel.id,
+                guild: context.guild?.name || "DM Channel",
+                channelID: context.channel.id,
+            }
+        });
     }
 };

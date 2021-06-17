@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "Coin Flip",
-    usage: "flip :coins?",
+    usage: "flip :0coins?",
     detailedHelp: "Heads or tails",
     usageExample: "flip",
     responseExample: "🌕 TAILS!",

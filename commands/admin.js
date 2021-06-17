@@ -10,9 +10,9 @@ module.exports = {
         bot.logger.log("Loading admin commands...");
         bot.util.standardNestedCommandInit("admin");
     },
-    run: function (context, bot) {
-        if (!context.message.getBool("admin")) return;
-        bot.util.standardNestedCommand(context.message, context.args, bot, "admin");
+    run: function (message, args, bot) {
+        if (!message.getBool("admin")) return;
+        bot.util.standardNestedCommand(message, args, bot, "admin");
     },
     subCommands: {}
 };

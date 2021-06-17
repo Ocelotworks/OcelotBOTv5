@@ -49,7 +49,7 @@ module.exports = {
         if(content.startsWith(message.getSetting("prefix")+"spook"))
             return message.replyLang("IMITATE_SPOOK");
 
-        webhook.send({
+        return webhook.send({
             username: target.displayName,
             avatarURL: target.user.displayAvatarURL({dynamic: 'true'}),
             disableEveryone: true,

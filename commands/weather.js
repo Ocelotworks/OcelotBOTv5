@@ -3,64 +3,50 @@
  */
 const config = require('config');
 const request = require('request');
+const {axios} = require('../util/Http');
 module.exports = {
     name: "Weather",
-    usage: "weather <place>",
+    usage: "weather :place+",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["weather", "forecast"],
     categories: ["tools"],
-    run: async function run(message, args, bot) {
-        if(args.length < 2){
-            message.replyLang("WEATHER_NO_ARGS");
-            return;
-        }
-        const search = message.content.substring(args[0].length+1).trim();
-        request(`http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(search)}&appid=${config.get("API.openweathermap.key")}&units=metric`, function getWeather(err, resp, body) {
-            if (err) {
-                bot.logger.error("Error getting weather information: " + err);
-                message.replyLang("WEATHER_ERROR");
-            } else {
-                const data = JSON.parse(body);
-                if (data && data.weather && data.weather[0] && data.weather[0].main) {
-                    bot.logger.log(`Got weather for ${search}`);
-                    const attachments = {
-                        fallback: `${data.name}: ${data.weather[0].main} - ${data.weather[0].description} ${data.main.temp}C`,
-                        color: module.exports.colourFromTemperature(data.main.temp),
-                        thumbnail: {
-                            url: `http://openweathermap.org/img/w/${data.weather[0].icon}.png`,
-                        },
-                        author: {
-                            name: data.weather[0].main,
-                            icon_url: `http://openweathermap.org/img/w/${data.weather[0].icon}.png`,
-                        },
-                        title: data.name,
-                        description: data.weather[0].description,
-                        fields: [
-                            {
-                                name: "Temperature",
-                                value: data.main.temp + "C",
-                                inline: true
-                            },
-                            {
-                                name: "High/Low",
-                                value: `${data.main.temp_max}C/${data.main.temp_min}C`,
-                                inline: true
-                            },
-                            {
-                                name: "Winds",
-                                value: `${data.wind.speed} mph`,
-                                inline: true
-                            }
-                        ]
-                    };
-
-                    message.channel.send({embeds: [attachments]});
-
-                } else {
-                    message.replyLang("WEATHER_INVALID_PLACE", {place: search});
+    run: async function run(context, bot) {
+        const search = context.options.place;
+        const result = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(search)}&appid=${config.get("API.openweathermap.key")}&units=metric`);
+        const weather = result.data?.weather?.[0]?.main;
+        if (!weather)
+            return context.sendLang({content: "WEATHER_INVALID_PLACE", ephemeral: true}, {place: search});
+        bot.logger.log(`Got weather for ${search}`);
+        const attachments = {
+            color: module.exports.colourFromTemperature(result.data.main.temp),
+            thumbnail: {
+                url: `http://openweathermap.org/img/w/${result.data.weather[0].icon}.png`,
+            },
+            author: {
+                name: result.data.weather[0].main,
+                icon_url: `http://openweathermap.org/img/w/${result.data.weather[0].icon}.png`,
+            },
+            title: result.data.name,
+            description: result.data.weather[0].description,
+            fields: [
+                {
+                    name: "Temperature",
+                    value: result.data.main.temp + "C",
+                    inline: true
+                },
+                {
+                    name: "High/Low",
+                    value: `${result.data.main.temp_max}C/${result.data.main.temp_min}C`,
+                    inline: true
+                },
+                {
+                    name: "Winds",
+                    value: `${result.data.wind.speed} mph`,
+                    inline: true
                 }
-            }
-        });
+            ]
+        };
+        return context.send({embeds: [attachments]});
     },
     colourFromTemperature: function(temperature){
         if(temperature < -10)   return 0xf6fff4;

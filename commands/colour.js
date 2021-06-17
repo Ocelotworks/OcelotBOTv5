@@ -17,20 +17,19 @@ const presets = {
     "neapolitan": ["#efa3f5", "#794b4b", "#f5e6ba"],
     "france": ["#002395", "#ffffff", "#ED2939"]
 }
+const Image = require('../util/Image');
 module.exports = {
     name: "Colour Code",
-    usage: "colour <code> [code] ...",
+    usage: "colour :code+",
     detailedHelp: "Accepts HTML Colour codes e.g #FF0000",
     usageExample: "colour #FF0000",
     categories: ["tools"],
     rateLimit: 40,
     commands: ["colour", "color"],
-    run: function run(message, args, bot) {
-        if (!args[1]) {
-            return message.replyLang("COLOUR_USAGE", {arg: args[0]});
-        }
-        const size = parseInt(message.getSetting("colour.size"));
+    run: function run(context, bot) {
+        const size = parseInt(context.getSetting("colour.size"));
         const colours = [];
+        const args = context.options.code.split(" ");
         for(let i = 1; i < args.length; i++){
             let input = args[i];
             const preset = presets[input.toLowerCase()]
@@ -45,13 +44,13 @@ module.exports = {
             if(input.length !== 7 && input.length !== 9)continue;
             colours.push(input);
         }
-        if(colours.length === 0){
-            return message.channel.send("Please enter a full colour code like #00FF00 or #FF00FFFF");
-        }
+        if(colours.length === 0)
+            return context.reply({content: "Please enter a full colour code like #00FF00 or #FF00FFFF", ephemeral: true});
+
 
         const filter = [];
         const stripWidth = size/colours.length;
-        if(stripWidth < 1)return message.channel.send("Too many colours!");
+        if(stripWidth < 1)return context.reply({content: "Too many colours!", ephemeral: true});
         for(let i = 0; i < colours.length; i++){
             filter.push({
                name: "rectangle",
@@ -65,7 +64,7 @@ module.exports = {
             })
         }
 
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context, {
             components: [{
                 pos: {
                     x: 0,

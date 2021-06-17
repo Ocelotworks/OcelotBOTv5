@@ -7,20 +7,17 @@
 const config = require('config');
 module.exports = {
     name: "Shorten URL",
-    usage: "shorten <url>",
+    usage: "shorten :url",
     commands: ["shorten"],
     categories: ["tools"],
-    run: async function run(message, args, bot){
-       let url = args[1];
-       if(!url)
-           return message.replyLang("SHORTEN_USAGE", {arg: args[0]});
-       const result = await bot.util.getJson(`https://cutt.ly/api/api.php?key=${config.get("API.cuttly.key")}&short=${encodeURIComponent(args[1])}`);
+    run: async function run(context, bot){
+       const result = await bot.util.getJson(`https://cutt.ly/api/api.php?key=${config.get("API.cuttly.key")}&short=${encodeURIComponent(context.options.url)}`);
        if(!result.url)
-           return message.replyLang("GENERIC_ERROR");
+           return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
 
-       if(result.url.shortLink) {
-           return message.channel.send(`<${result.url.shortLink}>`);
-       }
-       return message.replyLang("SHORTEN_ERROR_"+result.status);
+       if(result.url.shortLink)
+           return context.send(`<${result.url.shortLink}>`);
+
+       return context.sendLang({content: "SHORTEN_ERROR_"+result.status, ephemeral: true});
     }
 };

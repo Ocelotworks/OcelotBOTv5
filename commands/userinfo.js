@@ -1,6 +1,6 @@
 module.exports = {
     name: "User Info",
-    usage: "user <@User>",
+    usage: "user :@user?",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["user", "userinfo"],
     categories: ["tools"],

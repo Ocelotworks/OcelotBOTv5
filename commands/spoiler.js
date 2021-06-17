@@ -6,15 +6,11 @@
  */
 module.exports = {
     name: "Spoilerise Text",
-    usage: "spoiler <text>",
+    usage: "spoiler :text+",
     categories: ["text"],
     rateLimit: 10,
     commands: ["spoiler", "spoilerise", "spoilerize"],
-    run: function run(message, args) {
-        if(!args[1]){
-            message.channel.send("You must supply some text.");
-        }else{
-            message.channel.send(`||${[...message.cleanContent.substring(args[0].length+1)].join("||||")}||`)
-        }
+    run: function run(context) {
+        return context.send(`||${[...context.options.text].join("||||")}||`)
     }
 };
