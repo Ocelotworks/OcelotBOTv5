@@ -55,7 +55,7 @@ module.exports = {
                         console.log(embed.title);
                         console.log("-"+embed.description);
 
-                        output.push({embeds: [embed]});
+                        output.push(embed);
                     }
                 }
             }
