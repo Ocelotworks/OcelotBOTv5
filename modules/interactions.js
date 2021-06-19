@@ -8,9 +8,12 @@ module.exports = {
         bot.interactions.waiting = {};
         bot.interactions.prefix = {};
 
-        bot.interactions.addAction = function addAction(text, style, callback){
+        let timeouts = {};
+
+        bot.interactions.addAction = function addAction(text, style, callback, timeout=60000){
             const id = uuid();
             bot.interactions.waiting[id] = callback;
+            timeouts[id] = {timer: setTimeout(clearAction, timeout, id), timeout};
             return bot.util.buttonComponent(text, style, id);
         }
 
@@ -18,6 +21,10 @@ module.exports = {
             bot.interactions.prefix[id] = callback;
         }
 
+        function clearAction(id){
+            bot.logger.log(`Interaction ${id} has timed out`);
+            delete bot.interactions.waiting[id];
+        }
 
         // Legacy Interaction handling
         bot.client.on("raw", async (packet)=>{
@@ -33,6 +40,11 @@ module.exports = {
                     bot.interactions.waiting[interaction.data.custom_id](interaction);
                 }else{
                     callback = {type: 4, data: {flags: 64, content: "Sorry, that button is no longer available."}};
+                }
+                const timeoutData = timeouts[interaction.data.custom_id];
+                if(timeoutData){
+                    clearTimeout(timeoutData.timer)
+                    timeouts[interaction.data.custom_id] = {timer: setTimeout(clearAction, timeoutData.timeout, interaction.data.custom_id), timeout: timeoutData.timeout};
                 }
                 await axios.post(`https://discord.com/api/v8/interactions/${interaction.id}/${interaction.token}/callback`, callback);
                 bot.raven.addBreadcrumb({

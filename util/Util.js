@@ -197,4 +197,64 @@ module.exports = class Util {
 
         return Util.#GetImageFromPrevious(context, offset)
     }
+
+    static async StandardPagination(bot, context, pages, pageFormat, full = false){
+        let index = parseInt(context.getSetting("pagination.page")) || 0;
+        let sentMessage;
+
+        let clearButtons = async ()=>{
+            if(context.interaction || sentMessage){
+                try{
+                    context.edit({content: await pageFormat(pages[index], index), components: []}, sentMessage);
+                }catch(e){
+                    console.error(e);
+                }
+            }
+        }
+
+        let idleTimer = setTimeout(clearButtons, 60000);
+
+        let setIndex = function(delta){
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(clearButtons, 60000);
+            return async ()=> {
+                index += delta;
+                if(index < 0)index = pages.length - 1;
+                if(index > pages.length-1)index = 0;
+                await buildPage();
+            }
+        }
+
+        let buttons = [
+            bot.interactions.addAction("<", 1, setIndex(-1)),
+            bot.interactions.addAction(">", 1, setIndex(+1)),
+        ]
+
+        if(full) {
+            buttons = [
+                bot.interactions.addAction("<<", 1, async ()=>{index=0; await buildPage()}),
+                bot.interactions.addAction("<", 1, setIndex(-1)),
+                bot.interactions.addAction(">", 1, setIndex(+1)),
+                bot.interactions.addAction(">>", 1, async ()=>{index=pages.length-1; await buildPage()}),
+            ]
+        }
+
+        let buildPage = async function () {
+            let output = await pageFormat(pages[index], index);
+            if(context.getBool("pagination.disable"))
+                return context.send(output);
+
+            let payload = {content: output};
+            if(pages.length > 1){
+                payload.components = [{type:1, components: buttons}]
+            }
+
+            if ((context.interaction && context.interaction.replied) || (sentMessage && !sentMessage.deleted))
+                return context.edit(payload, sentMessage)
+
+            sentMessage = await context.send(payload)
+        };
+
+        await buildPage();
+    }
 }
