@@ -8,19 +8,19 @@ const Discord = require('discord.js');
 const request = require('request');
 const gm = require('gm');
 const fs = require('fs');
+const Util = require("../util/Util");
 module.exports = {
     name: "Curse Image",
-    usage: "curse [url]",
+    usage: "curse :image+",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["curse", "cursed"],
-    run: async function (message, args, bot) {
-
-        const url = await bot.util.getImage(message, args);
-
-        if (!url || !url.startsWith("http"))
-            return message.replyLang("GENERIC_NO_IMAGE", module.exports);
+    slashHidden: true,
+    run: async function (context, bot) {
+        let url = await Util.GetImage(bot, context);
+        if(!url)
+            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage: module.exports.usage});
 
         console.log(url);
 
@@ -34,11 +34,11 @@ module.exports = {
                 .quality(50)
                 .toBuffer("JPEG", function (err, buffer) {
                     if (err)
-                        return message.replyLang("GENERIC_ERROR");
+                        return context.replyLang("GENERIC_ERROR");
                     let attachment = new Discord.MessageAttachment(buffer, "jpeg.jpg");
-                    message.channel.send({files: [attachment]}).catch(function (e) {
+                    context.send({files: [attachment]}).catch(function (e) {
                         console.log(e);
-                        message.channel.send("Upload error: " + e);
+                        context.send("Upload error: " + e);
                     });
                     fs.unlink(fileName, function () {
                     });

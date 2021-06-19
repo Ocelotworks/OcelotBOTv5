@@ -8,6 +8,7 @@ module.exports = {
     categories: ["fun"],
     requiredPermissions: [],
     commands: ["spook", "spooked"],
+    slashHidden: true,
     init: async function (bot) {
         let updateInterval;
         bot.spook = {};

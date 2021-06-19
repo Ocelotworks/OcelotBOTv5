@@ -1,3 +1,4 @@
+const Image = require("../util/Image");
 module.exports = {
     name: "Bernie Meme",
     usage: "bernie :input+",

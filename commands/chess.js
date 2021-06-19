@@ -79,7 +79,7 @@ module.exports = {
         if (gameStatus.board.isRepetition)
             output += await bot.lang.getTranslation(message.channel.guild.id, "CHESS_REPETITION");
 
-        return await bot.util.imageProcessor(message, payload, "board", output);
+        return await Image.ImageProcessor(bot, context,  payload, "board", output);
     },
     doGo: async function (message, command, args, bot) {
         const channel = message.channel.id;

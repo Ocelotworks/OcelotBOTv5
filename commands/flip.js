@@ -9,7 +9,7 @@ module.exports = {
     responseExample: "🌕 TAILS!",
     commands: ["flip", "coin"],
     categories: ["tools"],
-    run: function run(context, bot) {
+    run: function run(context) {
         if(context.options.coins && !isNaN(context.options.coins) && context.options.coins > 1 && context.options.coins < 100000){
             const coins = parseInt(context.options.coins);
             let heads = 0;

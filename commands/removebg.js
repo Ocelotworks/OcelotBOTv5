@@ -105,6 +105,10 @@ async function withRembg(message, args, bot){
         method: 'GET',
         url: `https://rbg1.bint.cc/?url=${encodeURIComponent(url)}`,
     }, async function APIResponse(err, resp, body){
+        if(err){
+            message.channel.send(err);
+           return
+        }
         if(body.toString().startsWith("<") || body.toString().startsWith("{")) {
             console.log(body.toString());
             message.channel.stopTyping(true);

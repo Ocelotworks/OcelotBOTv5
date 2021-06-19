@@ -398,7 +398,7 @@ module.exports = {
             }
 
             message.channel.stopTyping();
-            return bot.util.imageProcessor(message, imageRequest, "profile");
+            return Image.ImageProcessor(bot, context,  imageRequest, "profile");
         }else{
             await bot.util.standardNestedCommand(message,args,bot,'profile');
         }

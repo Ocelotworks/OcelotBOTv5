@@ -11,7 +11,7 @@ module.exports = {
         if(!url){
             return message.replyLang("CRUSH_NO_USER");
         }
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
                     "url": url,

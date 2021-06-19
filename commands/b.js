@@ -101,7 +101,7 @@ module.exports = {
                             })
                         }
 
-                        return bot.util.imageProcessor(message, payload, "eyes");
+                        return Image.ImageProcessor(bot, context,  payload, "eyes");
                     } else {
                         message.replyLang("B_NO_TEXT");
                     }

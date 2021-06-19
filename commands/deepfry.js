@@ -8,30 +8,28 @@ const Discord = require('discord.js');
 const request = require('request');
 const gm = require('gm');
 const fs = require('fs');
+const Util = require("../util/Util");
 module.exports = {
     name: "Deepfry",
-    usage: "deepfry [url]",
+    usage: "deepfry :image?",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["deepfry"],
-    run: async function(message, args, bot){
-
-        const url =  await bot.util.getImage(message, args);
-
-        if(!url || !url.startsWith("http"))
-            return message.replyLang("GENERIC_NO_IMAGE", module.exports);
-
-        console.log(url);
+    slashHidden: true,
+    run: async function(context, bot){
+        let url = await Util.GetImage(bot, context);
+        if(!url)
+            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage: module.exports.usage});
 
         const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
         request(url).on("end", ()=>{
             let output = gm(fileName)
-                .modulate(message.getSetting("deepfry.brightness"), message.getSetting("deepfry.saturation"))
-                .noise(message.getSetting("deepfry.noise"))
-                .sharpen(message.getSetting("deepfry.sharpness"))
-                .quality(message.getSetting("deepfry.quality"))
+                .modulate(context.getSetting("deepfry.brightness"), context.getSetting("deepfry.saturation"))
+                .noise(context.getSetting("deepfry.noise"))
+                .sharpen(context.getSetting("deepfry.sharpness"))
+                .quality(context.getSetting("deepfry.quality"))
                 .filesize((err, value)=>{
                     if(!err && value && value.endsWith("Mi") && parseInt(value) > 4){
                         console.log("Resizing image");
@@ -41,11 +39,11 @@ module.exports = {
                 })
             output.toBuffer("JPEG", function(err, buffer){
                 if(err)
-                    return message.replyLang("GENERIC_ERROR");
+                    return context.replyLang("GENERIC_ERROR");
                 let attachment = new Discord.MessageAttachment(buffer, "jpeg.jpg");
-                message.channel.send({files: [attachment]}).catch(function(e){
+                context.send({files: [attachment]}).catch(function(e){
                     console.log(e);
-                    message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
+                    context.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                 });
                 fs.unlink(fileName, function(){});
             });

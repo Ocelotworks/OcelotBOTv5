@@ -1,8 +1,9 @@
-const request = require('request');
 const config = require('config');
+const Util = require("../util/Util");
+const {axios} = require('../util/Http');
 module.exports = {
     name: "Face Recognition",
-    usage: "face [url] or embed",
+    usage: "face :image?",
     accessLevel: 0,
     rateLimit: 10,
     detailedHelp: "Find faces in an image and guess their age.",
@@ -10,39 +11,28 @@ module.exports = {
     responseExample: "🤔 That looks like a 22 year old male.",
     categories: ["tools", "image"],
     commands: ["face", "age"],
-    run: async function run(message, args, bot) {
-        const url = await bot.util.getImage(message, args);
-        bot.logger.log(url);
-        request({
-            method: 'POST',
-            json: true,
-            url: "https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender",
+    run: async function run(context, bot) {
+        let url = await Util.GetImage(bot, context);
+        if(!url)
+            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage: module.exports.usage});
+
+        const result = await axios.post("https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender", {url}, {
             headers: {
                 "Content-Type": "application/json",
                 "Ocp-Apim-Subscription-Key": config.get("API.msFaceDetect.key")
             },
-            body: {
-                url: url
-            }
-        }, async function (err, resp, body) {
-            if (err) {
-                bot.raven.captureException(err);
-            } else if (body.length > 0) {
-                if (body.length === 1) {
-                    message.replyLang("FACE_RESPONSE", body[0].faceAttributes);
-                } else {
-                    let output = "";
-                    for (let i = 0; i < body.length; i++) {
-                        output += await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE", body[i].faceAttributes);
-                        output += "\n";//i < body.length-2 ? ", " : i === body.length-2 ? " and " : "."
-                    }
-                    message.channel.send(await bot.lang.getTranslation(message.guild.id, "FACE_RESPONSE_MULTIPLE", {num: body.length}) + "\n " + output);
-
-                }
-
-            } else {
-                message.replyLang("FACE_NO_FACES");
-            }
         })
+        if (result.data.length <= 0)
+            return context.sendLang({content: "FACE_NO_FACES", ephemeral: true});
+
+        if (result.data.length === 1)
+            return context.sendLang("FACE_RESPONSE", result.data[0].faceAttributes);
+
+        let output = "";
+        for (let i = 0; i < result.data.length; i++) {
+            output += context.getLang("FACE_RESPONSE", result.data[i].faceAttributes)
+            output += "\n";//i < body.length-2 ? ", " : i === body.length-2 ? " and " : "."
+        }
+        return context.send(context.getLang("FACE_RESPONSE_MULTIPLE", {num: result.data.length}) + "\n " + output);
     }
 };

@@ -20,7 +20,7 @@ module.exports = {
             first = split[0].trim();
             second = split[1].trim();
         }
-        return bot.util.imageProcessor(message, getTemplate(first, second), "tradeoffer")
+        return Image.ImageProcessor(bot, context,  getTemplate(first, second), "tradeoffer")
     },
     runSlash: function(interaction, bot){
         return bot.util.slashImageProcessor(interaction, getTemplate(interaction.options.get("first").value, interaction.options.has("second") ? interaction.options.get("second").value : "Nothing"), "tradeoffer")

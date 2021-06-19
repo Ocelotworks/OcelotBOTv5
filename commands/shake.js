@@ -18,7 +18,7 @@ module.exports = {
                 break;
             }
         }
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
                     "url": url,

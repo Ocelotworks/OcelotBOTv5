@@ -63,7 +63,6 @@ const first = [
     "Emotional",
     "Velvet"
 ];
-
 const second = [
     "D",
     "182",

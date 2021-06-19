@@ -21,7 +21,7 @@ module.exports = {
             return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
 
 
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
                     url: user1.avatarURL({dynamic: true, format: "png", size: 512}),

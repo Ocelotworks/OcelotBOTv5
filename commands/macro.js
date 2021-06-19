@@ -22,7 +22,7 @@ module.exports = {
             first = split[0].trim();
             second = split[1].trim();
         }
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
                     "url": url,

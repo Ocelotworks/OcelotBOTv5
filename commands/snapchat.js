@@ -33,7 +33,7 @@ module.exports = {
 
         content = Discord.Util.cleanContent(content, message);
 
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
                     "url": url,

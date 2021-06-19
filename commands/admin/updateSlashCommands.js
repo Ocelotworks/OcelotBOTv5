@@ -26,6 +26,7 @@ module.exports = {
             commandOutput.push(slashCommand);
             if(commandOutput.length >= 100)break;
         }
+        console.log(JSON.stringify(commandOutput));
         await bot.client.application.commands.set(commandOutput, server);
         if(server)
             return message.channel.send(`Set ${commandOutput.length} slash commands for ${server}`);

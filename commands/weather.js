@@ -2,7 +2,6 @@
  * Created by Peter on 02/07/2017.
  */
 const config = require('config');
-const request = require('request');
 const {axios} = require('../util/Http');
 module.exports = {
     name: "Weather",

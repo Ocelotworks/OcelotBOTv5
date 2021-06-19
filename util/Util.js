@@ -50,7 +50,7 @@ module.exports = class Util {
             }
             output.push(option);
         }
-        return output;
+        return output.sort((a,b)=>b.required-a.required);
     }
 
     /**
@@ -147,7 +147,20 @@ module.exports = class Util {
         return null;
     }
 
-    static async GetImage(bot, context, argumentName = "image"){
+    static async #GetImageFromPrevious(context, offset = 0){
+        let messages = (await context.channel.messages.fetch({before: context.message?.id})).sort((a, b)=>b.createdTimestamp - a.createdTimestamp);
+        messages = messages.first(messages.size); // Convert to array;
+        console.log(messages.length, "messages");
+        let currentOffset = 0;
+        for(let i = 0; i < messages.length; i++){
+            const image = Util.#GetImageFromMessage(messages[i]);
+            if(image && (currentOffset++ >= offset))
+                return image;
+        }
+        return null;
+    }
+
+    static async GetImage(bot, context, argumentName = "image", offset = 0){
         // If the argument exists, try and use that first
         if(context.options[argumentName]) {
             const arg = context.options[argumentName];
@@ -173,9 +186,15 @@ module.exports = class Util {
             const emoji = Strings.GetEmojiURLFromMention(arg);
             if(emoji)
                 return emoji;
-
-
         }
 
+        if(context.message?.reference?.messageID){
+            const message = await (await bot.client.channels.fetch(context.message.reference.channelID)).messages.fetch(context.message.reference.messageID);
+            const messageImage = Util.#GetImageFromMessage(message);
+            if(messageImage)
+                return messageImage;
+        }
+
+        return Util.#GetImageFromPrevious(context, offset)
     }
 }

@@ -1,17 +1,17 @@
+const Util = require("../util/Util");
+const Image = require("../util/Image");
 module.exports = {
     name: "Crush",
-    usage: "crush <user or url>",
+    usage: "crush :image?",
     rateLimit: 10,
     categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["crush"],
-    run: async function run(message, args, bot) {
-        const url = await bot.util.getImage(message, args);
-        if (!url) {
-            message.replyLang("CRUSH_NO_USER");
-            return;
-        }
-        return bot.util.imageProcessor(message, {
+    run: async function run(context, bot) {
+        let url = await Util.GetImage(bot, context);
+        if(!url)
+            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage: module.exports.usage});
+        return Image.ImageProcessor(bot, context, {
             "components": [
                 {
                     "url": url,
@@ -31,7 +31,7 @@ module.exports = {
             ],
             "width": 600,
             "height": 875
-        }, 'crush')
+        }, 'crush');
     }
 };
 

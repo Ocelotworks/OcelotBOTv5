@@ -11,7 +11,7 @@ module.exports = {
             return  message.replyLang("IMAGE_NO_TEXT");
         }
 
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
                     "url": "pinnochio.png",
