@@ -1,15 +1,13 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Pinocchio Meme",
-    usage: "pinocchio <text>",
+    usage: "pinocchio :text+",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["pinocchio", "pinnochio", "pinochio"],
     rateLimit: 10,
     categories: ["memes", "nsfw"],
     unwholesome: true,
-    run:  function(message, args, bot){
-        if(!args[1]){
-            return  message.replyLang("IMAGE_NO_TEXT");
-        }
+    run:  function(context, bot){
 
         return Image.ImageProcessor(bot, context,  {
             "components": [
@@ -22,7 +20,7 @@ module.exports = {
                             font: "arial.ttf",
                             fontSize: 25,
                             colour: "#000000",
-                            content: message.cleanContent.substring(args[0].length),
+                            content: context.options.text,
                             x: 114,
                             y: 431,
                             ax: 0.5,

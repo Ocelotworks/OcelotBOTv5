@@ -36,7 +36,5 @@ module.exports = {
             bot.logger.log(e);
             context.send("Unable to set nickname. This could be because you are higher in the role list than OcelotBOT.");
         }
-
-
     }
 };

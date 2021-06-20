@@ -4,14 +4,16 @@
  * ╚════ ║   (ocelotbotv5) sharpen
  *  ════╝
  */
+const Image = require('../util/Image');
 module.exports = {
     name: "Sharpen Image",
-    usage: "sharpen [url]",
+    usage: "sharpen :image?",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["sharpen", "edge"],
-    run: function(message, args, bot){
-        return bot.util.processImageFilter(module, message, args, "edge", [5]);
+    slashHidden: true,
+    run: async function (context, bot) {
+        return Image.ImageFilter(bot, module.exports.usage, context,"edge", [5]);
     }
 };

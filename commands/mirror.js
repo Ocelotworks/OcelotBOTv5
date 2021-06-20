@@ -4,14 +4,16 @@
  * ╚════ ║   (ocelotbotv5) mirror
  *  ════╝
  */
+const Image = require('../util/Image');
 module.exports = {
     name: "Mirror Image",
-    usage: "mirror [url]",
+    usage: "mirror :image?",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["mirror", "flipimage"],
-    run: async function(message, args, bot){
-        return bot.util.processImageFilter(module, message, args, "flop", []);
+    slashHidden: true,
+    run: async function (context, bot) {
+        return Image.ImageFilter(bot, module.exports.usage, context,"flop", []);
     }
 };

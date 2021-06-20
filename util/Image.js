@@ -5,6 +5,7 @@ const Sentry = require('@sentry/node');
 const Discord = require('discord.js');
 const {crc32} = require('crc');
 const FormData = require('form-data');
+const Util = require("./Util");
 
 module.exports = class Image {
 
@@ -54,6 +55,50 @@ module.exports = class Image {
         }), 600);
     }
 
+    static async #imageFilter(bot, url, filter, input, format){
+        return await bot.redis.cache(`imageProcessor/${filter}/${input}/${url}`, async () => await bot.rabbit.rpc("imageFilter", {
+            url,
+            filter,
+            input,
+            format
+        }, 60000, {durable: true}));
+    }
+
+    static async ImageFilter(bot, usage, context, filter, input, format = "PNG"){
+        const url = await Util.GetImage(bot, context);
+        if(!url)
+            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true});
+
+        // Slash commands can't upload files
+        if(!context.message)
+            return context.send({content: "This command is not supported in this context."})
+
+        return Image.#MessageImageFilter(bot, url, context, filter, input, format);
+    }
+
+
+    static async #MessageImageFilter(bot, url,  context, filter, input, format){
+        const loadingMessage = await context.send("<a:ocelotload:537722658742337557> Processing...");
+        const response = Image.#imageFilter(bot, url, filter, input, format);
+        if(response.err){
+            await loadingMessage.delete();
+            return context.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
+        }
+
+        const buf = Buffer.from(response.image, 'base64');
+
+        if(buf.byteLength >= 10000){
+            await loadingMessage.delete();
+            return context.replyLang("IMAGE_PROCESSOR_ERROR_SIZE");
+        }
+
+        if(loadingMessage && !loadingMessage.deleted){
+            await context.edit("<a:ocelotload:537722658742337557> Uploading...", loadingMessage);
+        }
+        const attachment = new Discord.MessageAttachment(buf, response.name);
+        return context.reply({files: [attachment]}).then(()=>loadingMessage.delete());
+    }
+
     /**
      * Make an Image Processor request
      * @param bot
@@ -64,9 +109,8 @@ module.exports = class Image {
      * @constructor
      */
     static ImageProcessor(bot, context, request, name, sentMessage){
-        if(context.interaction){
+        if(context.interaction)
             return Image.InteractionImageProcessor(bot, context.interaction, request, sentMessage);
-        }
         return Image.MessageImageProcessor(bot, context.message, request, name, sentMessage)
     }
 

@@ -3,57 +3,34 @@ const config = require('config');
 const Discord = require('discord.js');
 module.exports = {
     name: "Screenshot Website",
-    usage: "screenshot <URL>",
+    usage: "screenshot :url",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["screenshot", "screencap"],
     categories: ["image", "tools"],
     unwholesome: true,
-    run:  function(message, args, bot){
-        if(!args[1]){
-            message.channel.send(`Usage: ${message.getSetting("prefix")}screenshot <URL> e.g ${message.getSetting("prefix")}screenshot http://google.com`);
-        }else{
-            message.channel.startTyping();
-            request({
-                encoding: null,
-                url: `http://api.screenshotlayer.com/api/capture?access_key=${config.get("API.screenshotLayer.key")}&url=${encodeURIComponent(args[1].startsWith("http") ? args[1] : "http://"+args[1])}&viewport=800x600&width=480`
-            }, function(err, resp, body){
-                if(err){
-                    bot.raven.captureException(err);
-                    message.channel.send("Error getting response. Try again later.");
-                }else if(body.toString().startsWith("{")){
-                   try {
-                       const data = JSON.parse(body.toString());
-                       if(!data.success){
-                           if(data.error){
-                               if(data.error.info){
-                                   if(data.error.info.indexOf("Subscription") > -1){
-                                        message.channel.send(`Screenshot quota has been reached for this month. If you would like to help me raise this quota, consider ${message.getSetting("prefix")}premium`)
-                                   }else {
-                                       message.channel.send(data.error.info);
-                                   }
-                               }else{
-                                   message.channel.send("Error "+data.error.code);
-                               }
-                           }else{
-                               message.channel.send("Unknown Error. Try again later.");
-                           }
-                       }else{
-                           console.log(data);
-                           bot.logger.warn("Unknown response!!");
-                           message.channel.send("Got an unexpected response. Try again later.");
-                       }
-                   }catch(e){
-                       bot.raven.captureException(e);
-                       message.channel.send("Got a malformed response. Try again later.")
-                   }
-                   message.channel.stopTyping(true);
-               }else{
+    slashHidden: true,
+    run: function(context, bot){
+        request({
+            encoding: null,
+            url: `http://api.screenshotlayer.com/api/capture?access_key=${config.get("API.screenshotLayer.key")}&url=${encodeURIComponent(args[1].startsWith("http") ? args[1] : "http://"+args[1])}&viewport=800x600&width=480`
+        }, function(err, resp, body){
+            if(err){
+                bot.raven.captureException(err);
+                return context.send({content: "Error getting response. Try again later.", ephemeral: true});
+            }
+            if(body.toString().startsWith("{")){
+               try {
+                   const data = JSON.parse(body.toString());
+                   if(!data.success)
+                      return context.send({content: "Got an unexpected response. Try again later.", ephemeral: true});
                    let attachment = new Discord.MessageAttachment(body, "website.png");
-                   message.channel.send({files: [attachment]});
-                   message.channel.stopTyping(true);
+                   context.send({files: [attachment]});
+               }catch(e){
+                   bot.raven.captureException(e);
+                   return context.send({content: "Got a malformed response. Try again later.", ephemeral: true});
                }
-            });
-        }
+           }
+        });
     }
 };

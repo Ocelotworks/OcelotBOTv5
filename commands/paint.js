@@ -4,14 +4,16 @@
  * ╚════ ║   (ocelotbotv5) paint
  *  ════╝
  */
+const Image = require('../util/Image');
 module.exports = {
     name: "Oil Painting",
-    usage: "paint [url]",
+    usage: "paint :image?",
     categories: ["image"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["paint", "oil", "oilpaint"],
-    run: async function (message, args, bot) {
-        return bot.util.processImageFilter(module, message, args, "paint", [10]);
+    slashHidden: true,
+    run: async function (context, bot) {
+        return Image.ImageFilter(bot, module.exports.usage, context,"paint", [10]);
     }
 };

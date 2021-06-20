@@ -1,23 +1,18 @@
+const Image = require('../util/Image');
+const Util = require("../util/Util");
 module.exports = {
     name: "Shake Image",
-    usage: "shake <user or url> [2x]",
+    usage: "shake :0times? :image?",
     rateLimit: 10,
     categories: ["image"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["shake", "shook"],
-    run: async function run(message, args, bot) {
-        const url = await bot.util.getImage(message, args);
-        if (!url) {
-            message.replyLang("CRUSH_NO_USER");
-            return;
-        }
-        let shakeAmount = 5;
-        for (let i = 0; i < args.length; i++) {
-            if (args[i].toLowerCase().endsWith("x")) {
-                shakeAmount = 5 * parseInt(args[i])
-                break;
-            }
-        }
+    run: async function run(context, bot) {
+        const url = await Util.GetImage(bot, context);
+        if (!url)
+            return context.sendLang({content: "CRUSH_NO_USER", ephemeral: true});
+
+        let shakeAmount = context.options.times || 5;
         return Image.ImageProcessor(bot, context,  {
             "components": [
                 {

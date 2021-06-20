@@ -4,23 +4,20 @@
  * ╚════ ║   (ocelotbotv5) overlay
  *  ════╝
  */
+const Image = require('../util/Image');
+const Util = require("../util/Util");
 module.exports = {
     name: "Overlay Images",
-    usage: "overlay <image1> <image2>",
+    usage: "overlay :image1? :image2?",
     categories: ["fun", "image"],
     rateLimit: 100,
     commands: ["overlay", "combine"],
-    run: async function run(message, args, bot) {
-        let url1 = await bot.util.getImage(message,  args, 1);
-        let url2 = await bot.util.getImage(message,  args, 2);
+    run: async function run(context, bot) {
+        const url1 = await Util.GetImage(bot, context, "image1", 0);
+        const url2 = await Util.GetImage(bot, context, "image2", 1);
         if(!url1 || !url2)
-            return message.channel.send("You must enter 2 images.");
+            return context.send({content: "You must enter 2 images.", ephemeral: true});
 
-        if(!args[2]){
-            const tempUrl1 = url1;
-            url1 = url2;
-            url2 = tempUrl1;
-        }
 
         return Image.ImageProcessor(bot, context,  {
             "components": [{
