@@ -183,6 +183,14 @@ class InteractionCommandContext extends CommandContext {
     edit(options){
         return this.interaction.editReply(options);
     }
+
+    getLang(key, values) {
+        // Override the prefix for slash commands
+        if(key === "prefix"){
+            return "/";
+        }
+        return super.getLang(key, values);
+    }
 }
 
 class CustomCommandContext extends CommandContext {
