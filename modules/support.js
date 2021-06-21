@@ -21,15 +21,19 @@ module.exports = {
         });
 
         bot.client.on("guildMemberAdd", async (member)=>{
-            if(member.guild.id !== "322032568558026753" && bot.client.user.id == "146293573422284800")return;
-            const commandCount = bot.database.getUserStats(member.id);
-            if(commandCount > 0)return;
-            bot.logger.log("Found suspicious account "+memeber.id);
-            await member.edit({
-                roles: ["856657988629692486"]
-            });
-            let channel = await bot.client.channels.fetch("856658218948624444");
-            await channel.send(`Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.`);
+            if(member.guild.id !== "322032568558026753" || bot.client.user.id !== "146293573422284800")return;
+            try {
+                const commandCount = (await bot.database.getUserStats(member.id))[0].commandCount;
+                if (commandCount > 0) return;
+                bot.logger.log("Found suspicious account " + member.id);
+                await member.edit({
+                    roles: ["856657988629692486"]
+                });
+                let channel = await bot.client.channels.fetch("856658218948624444");
+                await channel.send(`Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.`);
+            }catch(e){
+                bot.raven.captureException(e);
+            }
         })
 
 
