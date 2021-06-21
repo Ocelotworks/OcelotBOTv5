@@ -12,7 +12,7 @@ module.exports = {
     rateLimit: 1,
     categories: ["meta"],
     init: function(bot){
-        this.bot.addCommandMiddleware(async (context)=>{
+        bot.addCommandMiddleware(async (context)=>{
             if (context.getBool("points.enabled"))return true;
             if (context.commandData.vote && context.getBool("voteRestrictions") && !(context.getBool("premium") || context.getBool("serverPremium"))) {
                 if (context.getSetting("restrictionType") === "vote") {

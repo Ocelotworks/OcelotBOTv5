@@ -138,7 +138,7 @@ module.exports = {
         bot.util.standardNestedCommandInit('settings');
 
         // Disable if allowNSFW is turned on
-        this.addCommandMiddleware(async (context)=>{
+        bot.addCommandMiddleware(async (context)=>{
             if (context.getBool("allowNSFW") && context.commandData.categories.indexOf("nsfw") > -1) {
                 if(context.interaction){
                     context.reply({ephemeral: true, content: "NSFW commands are disabled in this server."});
@@ -153,7 +153,7 @@ module.exports = {
         });
 
         // Disable commands that are disabled
-        this.addCommandMiddleware((context)=>{
+        bot.addCommandMiddleware((context)=>{
             if (context.getBool(`${context.command}.disable`)) {
                 bot.logger.log(`${context.command} is disabled in this server: ${context.command}`);
                 return false;
@@ -162,7 +162,7 @@ module.exports = {
         });
 
         // Wholesome mode
-        this.addCommandMiddleware((context)=>{
+        bot.addCommandMiddleware((context)=>{
             if (!context.getBool("wholesome"))return true;
             if (context.commandData.categories.indexOf("nsfw") > -1 || context.commandData.unwholesome) {
                 context.reply({content: ":star:  This command is not allowed in wholesome mode!", ephemeral: true});
@@ -176,7 +176,7 @@ module.exports = {
         });
 
         // Disable/restriction channels
-        this.addCommandMiddleware(async (context)=>{
+        bot.addCommandMiddleware(async (context)=>{
             const channelDisable = context.getSetting(`${context.command}.channelDisable`);
             const channelRestriction = message.getSetting(`${command}.channelRestriction`);
             if (channelDisable?.indexOf(context.channel.id) > -1 || channelRestriction?.indexOf(context.channel.id) === -1) {

@@ -8,7 +8,7 @@ module.exports = {
     commands: ["points"],
     init: function init(bot){
         bot.util.standardNestedCommandInit("points");
-        this.bot.addCommandMiddleware(async (context)=>{
+        bot.addCommandMiddleware(async (context)=>{
             if(!context.getBool("points.enabled"))return true;
             if(!context.commandData.pointsCost)return true;
             const canUse = await this.bot.database.takePoints(context.author.id, context.commandData.pointsCost, context.commandData.id);
