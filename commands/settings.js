@@ -173,12 +173,13 @@ module.exports = {
                 context.reply({content: "No swearing!", ephemeral: true});
                 return false;
             }
+            return true;
         });
 
         // Disable/restriction channels
         bot.addCommandMiddleware(async (context)=>{
             const channelDisable = context.getSetting(`${context.command}.channelDisable`);
-            const channelRestriction = message.getSetting(`${command}.channelRestriction`);
+            const channelRestriction = context.getSetting(`${context.command}.channelRestriction`);
             if (channelDisable?.indexOf(context.channel.id) > -1 || channelRestriction?.indexOf(context.channel.id) === -1) {
                if(context.interaction){
                  context.reply({content: `${context.command} is disabled in that channel`, ephemeral: true});
@@ -190,6 +191,7 @@ module.exports = {
                 }
                 return false;
             }
+            return true;
         });
 
 

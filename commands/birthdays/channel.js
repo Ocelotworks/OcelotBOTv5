@@ -1,6 +1,6 @@
 module.exports = {
     name: "Set Birthday Channel",
-    usage: "channel #name/clear",
+    usage: "channel [clear?:clear] :#name",
     commands: ["setchannel", "channel"],
     init: async function init(bot) {
         bot.client.once("ready", () => {

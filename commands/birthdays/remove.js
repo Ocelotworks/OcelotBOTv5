@@ -6,7 +6,7 @@
  */
 module.exports = {
     name: "Remove Birthday",
-    usage: "remove <user>",
+    usage: "remove :user+",
     commands: ["remove", "delete"],
     run: async function (message, args, bot) {
         let target = message.author;

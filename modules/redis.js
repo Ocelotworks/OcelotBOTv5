@@ -10,10 +10,10 @@ module.exports = {
             retry_strategy: function retry(options) {
                 const reconnect = Math.max(options.attempt * 100, 3000);
                 bot.logger.log(`Redis reconnecting in ${reconnect}ms`)
-                // reconnect after
                 return reconnect;
             },
             enable_offline_queue: false,
+            connect_timeout: 2147483647, // Fuck the man
         });
 
         bot.redis.client.on("ready", () => {

@@ -7,9 +7,10 @@
 const chrono = require('chrono-node');
 module.exports = {
     name: "Add Birthday",
-    usage: "add @user date",
+    usage: "add :@user :date",
     commands: ["add", "new"],
-    run: async function (message, args, bot) {
+    run: async function (context, bot) {
+        return context.reply("Hello subcommand "+JSON.stringify(context.options));
         let target = message.author;
         if (message.mentions.users.size > 0)
             target = message.mentions.users.first();

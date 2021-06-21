@@ -84,7 +84,6 @@ module.exports = class Util {
         }
     }
 
-
     static async #GetImageFromTenorURL(url) {
         try {
             const urlSplit = url.split("-");

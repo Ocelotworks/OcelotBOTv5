@@ -187,7 +187,7 @@ module.exports = class Commands {
         });
     }
 
-    loadCommand(command, reload) {
+    async loadCommand(command, reload) {
         try {
             const module = `${__dirname}/../commands/${command}`;
             if (reload) {
@@ -225,14 +225,17 @@ module.exports = class Commands {
                 }
             }
 
+            if(loadedCommand.nestedDir){
+                loadedCommand = await this.loadSubcommand(loadedCommand);
+            }
+
             loadedCommand.pattern = commandParser.BuildPattern(command, loadedCommand.usage).pattern;
-            //if(!loadedCommand.slashHidden)
-            if(loadedCommand.pattern.length > 0) // TODO
+            if(!loadedCommand.slashHidden)
+            //if(!loadedCommand.pattern.length > 0) // TODO
                 loadedCommand.slashOptions = Util.PatternToOptions(loadedCommand.pattern, loadedCommand.argDescriptions);
 
 
             this.bot.commandObjects[command] = loadedCommand;
-
 
             for (let i in loadedCommand.commands) {
                 if (loadedCommand.commands.hasOwnProperty(i)) {
@@ -261,6 +264,52 @@ module.exports = class Commands {
             Sentry.captureException(e);
         }
     };
+
+    loadSubcommand(loadedCommand, path = "commands"){
+        return new Promise((resolve)=>{
+        this.bot.logger.log(`Loading nested commands for ${loadedCommand.name}`);
+            fs.readdir(`${__dirname}/../${path}/${loadedCommand.nestedDir}`, async (err, files)=>{
+                if(err) {
+                    Sentry.captureException(err);
+                    this.bot.logger.warn(`Unable to load ${loadedCommand.name} nested command dir ${loadedCommand.nestedDir}, ${err}`);
+                    return;
+                }
+                loadedCommand.subCommands = {};
+                for(let i = 0 ; i < files.length; i++){
+                    try {
+                        this.bot.logger.log(`Loading sub-command for ${loadedCommand.name}: ${loadedCommand.nestedDir}/${files[i]}`)
+                        const command = require(`../${path}/${loadedCommand.nestedDir}/${files[i]}`);
+                        if (command.customDisabled && process.env.CUSTOM_BOT) continue;
+                        if (command.init) {
+                            this.bot.logger.log(`Init for ${loadedCommand.name}/${command.name}`);
+                            await command.init(this.bot, loadedCommand);
+                        }
+
+                        command.pattern = commandParser.BuildPattern(command.commands[0], command.usage).pattern;
+
+                        // TODO: Subcommands
+                        loadedCommand.slashHidden = true;
+
+                        for (let i = 0; i < command.commands.length; i++) {
+                            console.log("Loading ", command.commands[i]);
+                            loadedCommand.subCommands[command.commands[i]] = command;
+                        }
+
+                        console.log(loadedCommand.subCommands);
+
+                        // TODO: recurse nesting commands
+                    }catch(e){
+                        console.log(e);
+                        Sentry.captureException(e);
+                        this.bot.logger.error(e);
+                    }
+                }
+                console.log( loadedCommand.subCommands);
+                loadedCommand.usage += " :command?";
+                resolve(loadedCommand);
+            })
+        });
+    }
 
     addCommandMiddleware(func){
         this.commandMiddleware.push(func);
@@ -315,11 +364,31 @@ module.exports = class Commands {
         });
 
         try {
-            if(context.commandData.slashOptions){
-                await this.bot.commands[context.command](context, this.bot);
-            }else{
-                await this.bot.commands[context.command](context.message, context.args, this.bot);
+            if(context.commandData.subCommands){
+                let parsedInput;
+                if(context.options.command && context.commandData.subCommands[context.options.command]){
+                    if(context.args) {
+                        parsedInput = commandParser.Parse(context.args.slice(2).join(" "), {
+                            pattern: context.commandData.subCommands[context.options.command].pattern,
+                            id: context.options.command
+                        });
+
+                        if(parsedInput.data)
+                            context.options = {...parsedInput.data, ...context.options}
+
+                    }
+                    if (!parsedInput || !parsedInput.error)
+                        return await context.commandData.subCommands[context.options.command].run(context, this.bot);
+                }
+                if(!this.bot.commands[context.command]) {
+                    // TODO: nested help
+                    return context.reply("TODO: Nested help");
+                }
             }
+            console.log(context.commandData.subCommands);
+            console.log(context.options.command);
+            console.log("no sub commands");
+            return await this.bot.commands[context.command](context, this.bot);
         } catch (e) {
             console.log(e);
             context.channel.stopTyping(true);
