@@ -19,14 +19,6 @@ module.exports = {
 
                 const clients = [
                     {
-                        id: "germany",
-                        host: "45.89.127.53",
-                        port: 2333,
-                        password: config.get("Lavalink.password"),
-                        reconnectInterval: 1000,
-                        resumeKey,
-                    },
-                    {
                         id: "lava.link",
                         host: "lava.link",
                         port: 80,
