@@ -28,6 +28,8 @@ module.exports = {
             output += "\n```";
             return context.send(output);
         }
+        if(user === "joel")
+            return context.send("The context for this topic is unavailable for legal reasons");
         return context.send({content: "Topic not found in database.", embeds:[{
             embed: {
                 image: {

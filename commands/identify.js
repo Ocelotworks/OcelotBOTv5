@@ -4,23 +4,23 @@
 
 const config = require('config');
 const request = require('request');
-
+const Image = require('../util/Image');
+const Util = require("../util/Util");
 
 module.exports = {
     name: "Identify Image",
-    usage: "identify [URL]",
+    usage: "identify :image?",
     rateLimit: 50,
     detailedHelp: "Tries to identify an image",
     usageExample: "identify @Big P",
     responseExample: "🤔 That looks like a great developer.",
     commands: ["identify", "ident"],
     categories: ["tools", "image"],
-    run: async function run(message, args, bot) {
-        const url =  await bot.util.getImage(message, args);
+    run: async function run(context, bot) {
+        let url = await Util.GetImage(bot, context);
+        if(!url)
+            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage: module.exports.usage});
 
-        if(url === "https://cdn.discordapp.com/emojis/726576223081463939.png?v=1"){
-            return  message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: "the man who touched me as a child"});
-        }
 
         request({
             method: 'POST',
@@ -36,15 +36,15 @@ module.exports = {
         }, async function(err, resp, body){
             if(err){
                 bot.raven.captureException(err);
-                message.replyLang("GENERIC_ERROR");
+                context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
             }else if(body && body.description && body.description.captions && body.description.captions.length > 0) {
                 if(url.indexOf("SPOILER_") > -1){
-                    message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: `||${body.description.captions[0].text}||`});
+                    context.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: `||${body.description.captions[0].text}||`});
                 }else{
-                    message.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: body.description.captions[0].text});
+                    context.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: body.description.captions[0].text});
                 }
             }else{
-                message.replyLang("IDENTIFY_UNKNOWN");
+                context.replyLang({content: "IDENTIFY_UNKNOWN", ephemeral: true});
             }
         })
 

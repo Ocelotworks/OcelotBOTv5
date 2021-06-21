@@ -4,7 +4,6 @@
  * ╚════ ║   (ocelotbotv5) unshorten
  *  ════╝
  */
-const request = require('request');
 const {axios} = require('../util/Http');
 module.exports = {
     name: "Unshorten URL",

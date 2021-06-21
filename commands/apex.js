@@ -37,22 +37,16 @@ const url = "https://public-api.tracker.gg/apex/v1/standard/profile/";
 
 module.exports = {
     name: game + " Stats",
-    usage: game.toLowerCase() + " :platform[xbl,ps,pc]? :player+",
+    usage: game.toLowerCase() + " [platform?:xbl,ps,pc] :player+",
     detailedHelp: "Apex Legends Stats",
     usageExample: "apex pc unacceptableuse",
     commands: [game.toLowerCase()],
     categories: ["stats"],
-    run: function run(message, args, bot) {
-        if (!args[1])
-            return message.channel.send(`:bangbang: Invalid usage. You must enter a ${game} username. For example: ${args[0]} mr. Pink 1880`);
-
-        if (message.mentions.users.size > 0)
-            return message.channel.send(`:bangbang: You must enter the player's ${game} username, not their Discord username.`);
-
+    run: function run(context, bot) {
         const platform = platforms[args[1].toLowerCase()] || 5;
-        const username = message.cleanContent.substring(message.cleanContent.indexOf(args[platforms[args[1].toLowerCase()] ? 2 : 1]));
+        const username = context.options.player;
 
-        message.channel.startTyping();
+        context.defer();
 
         request({
             headers: {
@@ -63,21 +57,20 @@ module.exports = {
             json: true
         }, function (err, resp, body) {
             //console.log(JSON.stringify(body));
-            message.channel.stopTyping(true);
             if (err)
-                return message.replyLang("GENERIC_ERROR");
+                return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
             if (body.errors) {
                 console.log(body.errors);
-                return message.channel.send(`${body.errors[0].message}\nIf you're looking for an xbox or playstation player, try entering the platform. For example for xbox:, ${args[0]} xbl ${username}`);
+                return context.send({content: `${body.errors[0].message}\nIf you're looking for an xbox or playstation player, try entering the platform. For example for xbox: ${context.command} xbl ${username}`, ephemeral: true});
             }
             if (!body.data || !body.data.metadata)
-                return message.channel.send(":warning: No stats found for that user.");
+                return context.send({content: ":warning: No stats found for that user.", ephemeral: true});
 
             let embed = new Discord.MessageEmbed();
 
             embed.setAuthor(`Apex Statistics for ${body.data.metadata.platformUserHandle}`, "https://i.imgur.com/GdYZo08.png");
             embed.setColor("#CD3333");
-            if (body.data.children && body.data.children[0].metadata) {
+            if (body.data.children?.[0].metadata) {
                 embed.setDescription(body.data.children[0].metadata.legend_name);
                 embed.setThumbnail(body.data.children[0].metadata.icon);
             }
@@ -85,14 +78,14 @@ module.exports = {
             //embed.setDescription(`Last match:\n${lastMatch.kills} kills, ${lastMatch.matches} matches.`);
             const stats = body.data.stats;
             if (!stats) {
-                message.channel.send(":warning: No stats found for that user.");
+                return context.send({content: ":warning: No stats found for that user.", ephemeral: true});
             } else {
                 for (let i = 0; i < stats.length; i++) {
                     const stat = stats[i];
                     console.log(stat)
                     embed.addField(stat.metadata.key, stat.value.toString(), true);
                 }
-                message.channel.send({embeds: [embed]});
+                context.send({embeds: [embed]});
             }
         });
 

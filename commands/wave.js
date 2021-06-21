@@ -1,10 +1,12 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Wave Image",
-    usage: "wave [url]",
+    usage: "wave :image?",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["wave", "wavey", "waves"],
     categories: ["image", "filter"],
-    run: async function (message, args, bot) {
-        return bot.util.processImageFilter(module, message, args, "wave", [10, 50]);
+    slashHidden: true,
+    run: async function (context, bot) {
+        return Image.ImageFilter(bot, module.exports.usage, context, "wave", [10, 50]);
     }
 };

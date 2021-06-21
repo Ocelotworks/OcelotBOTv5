@@ -4,28 +4,6 @@
 const config = require('config');
 const Sentry = require('@sentry/node');
 const Discord = require('discord.js');
-const reportCategories = {
-    "3": "Fraud Orders",
-    "4": "DDoS Attack",
-    "5": "FTP Brute Force",
-    "6": "Ping of Death",
-    "7": "Phishing",
-    "8": "Fraud VoIP",
-    "9": "Open Proxy",
-    "10": "Web Spam",
-    "11": "Email Spam",
-    "12": "Blog Spam",
-    "13": "VPN",
-    "14": "Port Scan",
-    "15": "Hacking",
-    "16": "SQL Injection",
-    "17": "E-mail spoof",
-    "18": "Brute Force",
-    "19": "Bad Web Bot",
-    "20": "Exploited Host",
-    "21": "Web App Attack",
-    "22": "SSH",
-    "23": "IoT Targeted"};
 
 module.exports = {
     name: "IP Info",
@@ -44,7 +22,7 @@ module.exports = {
             if (abuseIp && abuseIp.data) {
                 const data = abuseIp.data;
                 if(!data.isPublic)
-                    return message.replyLang("IPINFO_PRIVATE");
+                    return context.sendLang({content: "IPINFO_PRIVATE", ephemeral: true});
 
                 let embed = new Discord.MessageEmbed();
                 embed.setTitle(data.ipAddress);

@@ -4,23 +4,22 @@
  * ╚════ ║   (ocelotbotv5) lovetext
  *  ════╝
  */
+const Util = require("../util/Util");
 module.exports = {
     name: "Love Text Generator",
-    usage: "lovetext <text>",
+    usage: "lovetext :text+",
     categories: ["text"],
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["lovetext", "love"],
-    run:  function(message, args, bot){
-        bot.util.coolTextGenerator(message,args,bot, {
-            "LogoID": 819721038,
-            "FontSize": 70,
-            "Color1_color": "#c31870",
-            "Color2_color": "#FFFFFF",
-            "Color3_color": "#b71268",
-            "Integer9": 0,
-            "Integer13": "on",
-            "Integer12": "on",
-            "BackgroundColor_color": "#FFFFF"
-        });
-    }
+    run: Util.CooltextGenerator({
+        "LogoID": 819721038,
+        "FontSize": 70,
+        "Color1_color": "#c31870",
+        "Color2_color": "#FFFFFF",
+        "Color3_color": "#b71268",
+        "Integer9": 0,
+        "Integer13": "on",
+        "Integer12": "on",
+        "BackgroundColor_color": "#FFFFF"
+    }),
 };
