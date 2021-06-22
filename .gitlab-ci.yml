@@ -28,7 +28,7 @@ build-consumer-image:
       -t $REGISTRY/ocelotbotv5/image-consumer:latest
       --build-arg VERSION=$CI_PIPELINE_IID
     - docker push $REGISTRY/ocelotbotv5/image-consumer:latest
-#    - docker push $REGISTRY_MIRROR/ocelotbotv5/image-consumer:latest
+    #    - docker push $REGISTRY_MIRROR/ocelotbotv5/image-consumer:latest
     - docker image rm $REGISTRY/ocelotbotv5/image-consumer:latest
     - docker image rm $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
 #    - curl -X POST $DEPLOY_WEBHOOK
@@ -44,7 +44,6 @@ build-base-image-master:
     refs:
       - master
   extends: .build-base-image
-
 
 build-base-image-staging:
   environment:
@@ -71,13 +70,13 @@ build-base-image-staging:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
     - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest || true
-    - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest
-      -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest
+    - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+      -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
       --build-arg REGISTRY=$REGISTRY
       --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
       --build-arg VERSION=$CI_PIPELINE_IID
-    - docker push $REGISTRY/ocelotbotv5/ocelotbot-base:latest
-    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot-base:latest
+    - docker push $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
 
 build-shard-staging:
   environment:
@@ -109,8 +108,7 @@ build-shard-master:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
   script:
     - mv $CONFIG config/local.json
-    - docker pull $REGISTRY/ocelotbotv5/ocelotbot:latest-staging || true
-    - docker build . --cache-from $REGISTRY/ocelotbotv5/ocelotbot:latest-staging
+    - docker build .
       -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       --build-arg REGISTRY=$REGISTRY
