@@ -373,8 +373,10 @@ module.exports = class Commands {
                             id: context.options.command
                         });
 
-                        if(parsedInput.data)
+                        if(parsedInput.data) {
+                            console.log(parsedInput.data);
                             context.options = {...parsedInput.data, ...context.options}
+                        }
 
                     }
                     if (!parsedInput || !parsedInput.error)

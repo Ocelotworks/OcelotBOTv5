@@ -8,13 +8,15 @@ module.exports = {
     name: "Remove Birthday",
     usage: "remove :user+",
     commands: ["remove", "delete"],
-    run: async function (message, args, bot) {
-        let target = message.author;
-        if (message.member.hasPermission("MANAGE_CHANNELS")) {
+    run: async function (context, bot) {
+        let target = context.user;
+        if (context.member.hasPermission("MANAGE_CHANNELS")) {
+
+
             if (message.mentions.users.size > 0)
                 target = message.mentions.users.first();
             else if (args.length > 2) {
-                let allBirthdays = await bot.database.getBirthdays(message.guild.id);
+                let allBirthdays = await bot.database.getBirthdays(context.guild.id);
                 let found = false;
                 const search = args.slice(2).join(" ").toLowerCase();
                 for (let i = 0; i < allBirthdays.length; i++) {
@@ -27,13 +29,13 @@ module.exports = {
                     }
                 }
                 if (!found) {
-                    return message.replyLang("BIRTHDAY_REMOVE_NOT_FOUND");
+                    return context.replyLang("BIRTHDAY_REMOVE_NOT_FOUND");
                 }
             }
         } else if (args.length > 2) {
-            return message.replyLang("BIRTHDAY_REMOVE_PERMISSION");
+            return context.replyLang("BIRTHDAY_REMOVE_PERMISSION");
         }
-        await bot.database.removeBirthday(target.id, message.guild.id);
-        return message.replyLang("BIRTHDAY_REMOVE_SUCCESS", {user: target});
+        await bot.database.removeBirthday(target.id, context.guild.id);
+        return context.replyLang("BIRTHDAY_REMOVE_SUCCESS", {user: target});
     }
 };

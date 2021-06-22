@@ -5,18 +5,19 @@
  *  ════╝
  */
 const columnify = require('columnify');
+const Util = require("../../util/Util");
 module.exports = {
     name: "List Birthdays",
     usage: "list",
     commands: ["list", "view"],
-    run: async function (message, args, bot) {
-        let allBirthdays = await bot.database.getBirthdays(message.guild.id);
+    run: async function (context, bot) {
+        let allBirthdays = await bot.database.getBirthdays(context.guild.id);
         if (allBirthdays.length === 0)
-            return message.replyLang("BIRTHDAY_NONE", {command: args[0]});
+            return context.replyLang("BIRTHDAY_NONE", {command: context.command});
 
         const now = new Date();
 
-        let header = await message.getLang(message.getSetting("birthday.channel") ? "BIRTHDAY_CHANNEL" : "BIRTHDAY_CHANNEL_NAG", {channel: message.getSetting("birthday.channel"), arg: args[0]});
+        let header = await context.getLang(context.getSetting("birthday.channel") ? "BIRTHDAY_CHANNEL" : "BIRTHDAY_CHANNEL_NAG", {channel: context.getSetting("birthday.channel"), arg: context.command});
 
         header += "\n```asciidoc\n";
 
@@ -32,7 +33,7 @@ module.exports = {
         }).sort((a, b) => a.days - b.days);
 
         let chunkedBirthdays = allBirthdays.chunk(20);
-        return bot.util.standardPagination(message.channel, chunkedBirthdays, async function (birthdays, index) {
+        return Util.StandardPagination(bot, context, chunkedBirthdays, async function (birthdays, index) {
             let formatted = [];
             for (let i = 0; i < birthdays.length; i++) {
                 const birthday = birthdays[i];
@@ -42,15 +43,15 @@ module.exports = {
                 let d = birthday.birthday; //Yes
                 let days = birthday.days;
                 if (days === 0)
-                    days = await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_TODAY", {}, message.author.id);
+                    days = context.getLang("BIRTHDAY_TODAY");
                 else
-                    days = await bot.lang.getTranslation(message.guild.id, days !== 1 ? "BIRTHDAY_DAYS" : "BIRTHDAY_DAY", {days}, message.author.id);
+                    days = context.getLang(days !== 1 ? "BIRTHDAY_DAYS" : "BIRTHDAY_DAY", {days});
                 formatted.push({
                     "user ::": `${user.username}#${user.discriminator} ::`,
-                    birthday: await bot.lang.getTranslation(message.guild.id, "BIRTHDAY_DATE", {
+                    birthday: await bot.lang.getTranslation(context.guild.id, "BIRTHDAY_DATE", {
                         day: bot.util.getNumberPrefix(d.getDate()),
                         month: bot.util.months[d.getMonth()]
-                    }, message.author.id),
+                    }, context.user.id),
                     in: days
                 });
             }
