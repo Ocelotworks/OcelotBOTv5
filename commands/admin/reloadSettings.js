@@ -6,16 +6,15 @@
  */
 module.exports = {
     name: "Reload Config",
-    usage: "reloadconfig [server]",
+    usage: "reloadconfig :server?",
     commands: ["reloadsettings", "reloadconfig"],
-    run: async function (message, args, bot) {
-        let msg = await message.channel.send("Reloading...");
-        if (args[2]) {
-            await bot.config.reloadCacheForServer(args[2]);
-            msg.edit(`Loaded ${Object.keys(bot.config.cache[args[2]]).length} keys for ${args[2]}`);
-        } else {
-            await bot.config.reloadCache();
-            msg.edit(`Loaded keys for ${Object.keys(bot.config.cache).length} servers.`);
+    run: async function (context, bot) {
+        let msg = await context.send("Reloading...");
+        if (context.options.server) {
+            await bot.config.reloadCacheForServer(context.options.server);
+            return context.edit(`Loaded ${Object.keys(bot.config.cache[context.options.server]).length} keys for ${context.options.server}`, msg);
         }
+        await bot.config.reloadCache();
+       return context.edit(`Loaded keys for ${Object.keys(bot.config.cache).length} servers.`, msg);
     }
 };

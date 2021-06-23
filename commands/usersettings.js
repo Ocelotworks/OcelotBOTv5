@@ -32,7 +32,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 if(args[3] && bot.lang.strings[args[3].toLowerCase()]) {
                     await bot.database.setUserSetting(message.author.id, "lang", args[3]);
                     bot.rabbit.event({type: "reloadUserConfig"});
@@ -49,7 +49,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 let timezone = args[3];
                 if(bot.util.timezones[timezone] || bot.util.timezoneRegex.exec(timezone)){
                     await bot.database.setUserSetting(message.author.id, "time.zone", timezone);
@@ -68,7 +68,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 if(args[3] && bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bools[args[3].toLowerCase()];
                     await bot.database.setUserSetting(message.author.id, "sendDisabledMessage", bool);
@@ -87,7 +87,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 if(!args[3])
                     return message.channel.send("You must enter a number to bulge by.");
                 if(isNaN(args[3]))
@@ -112,7 +112,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 if(!args[3])
                     return message.channel.send("You must enter a number to bulge by.");
                 if(isNaN(args[3]))
@@ -135,7 +135,7 @@ module.exports = {
         //Aren't i the dogs bollocks reusing an entire nested command set
        // bot.util.standardNestedCommandInit('settings');
     },
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         let arg =  args[1] && args[1].toLowerCase();
         if(arg && arg === "help" && args[2]){
             if(module.exports.settings[args[2].toLowerCase()]){

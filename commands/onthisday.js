@@ -6,7 +6,7 @@ module.exports = {
     requiredPermissions: [],
     commands: ["onthisday", "otd"],
     hidden: true,
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         if(!message.getSetting("ocelotworks"))return;
 
         const now = new Date();

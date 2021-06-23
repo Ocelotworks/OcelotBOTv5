@@ -217,7 +217,7 @@ module.exports = class Util {
                 }
             }
         }
-        
+
         let setIndex = function(delta){
             return async ()=> {
                 index += delta;

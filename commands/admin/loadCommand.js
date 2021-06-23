@@ -6,7 +6,7 @@
  */
 module.exports = {
     name: "Load Command",
-    usage: "loadCommand <command>",
+    usage: "loadCommand :command",
     commands: ["loadcommand", "lc", "load", "reload", "reloadcommand", "rc"],
     init: function init(bot) {
         bot.bus.on("loadCommand", (msg) => {
@@ -18,11 +18,9 @@ module.exports = {
             }
         });
     },
-    run: async function (message, args, bot) {
-        if (!args[2])
-            return message.channel.send("You must enter a command file to load.");
-        await bot.rabbit.event({type: "loadCommand", message: args[2]});
+    run: async function (context, bot) {
+        await bot.rabbit.event({type: "loadCommand", message: context.options.command});
         bot.logger.log("Loading Command");
-        message.channel.send("Loading command " + args[2]);
+        context.send("Loading command " +context.options.command);
     }
 };

@@ -1,39 +1,41 @@
 const columnify = require('columnify');
 const axios = require('axios');
+const Util = require("../../util/Util");
 module.exports = {
     name: "Zerotier List",
-    usage: "zerotier [search]/[approve] [id] [name]",
+    usage: "zerotier [approve?:approve] :idOrSearch? :name+?",
     commands: ["zerotier", "zt"],
     noCustom: true,
-    run: async function (message, args, bot) {
-        if (!args[2] || args[2].toLowerCase() !== "approve") {
+    run: async function (context, bot) {
+        if (!context.options.approve) {
             try {
                 let result = await bot.util.getJson("https://ob.bint.cc/api/zt/nodes");
                 let header = Object.keys(result)[0];
-                let nodes = result[header];
-                if (args[2])
-                    nodes = nodes.filter((node) => node.Name.toLowerCase().indexOf(args[2].toLowerCase()) > -1)
+                let nodes = result[header].map((node)=>({...node, Approved: node.Approved === "Y" ? "✅" : "🚫", Status: node.Status === "ONL" ? "✅" : "❌"}));
+                if (context.options.idOrSearch)
+                    nodes = nodes.filter((node) => node.Name.toLowerCase().indexOf(context.options.idOrSearch.toLowerCase()) > -1)
+
                 let hosts = nodes.chunk(20);
-                bot.util.standardPagination(message.channel, hosts, async function (page, index) {
+                return Util.StandardPagination(bot, context, hosts, async function (page, index) {
                     let output;
                     output = `\`\`\`\n${header}\n----\n${columnify(page)}\n----\nPage ${index + 1}/${hosts.length}\n\`\`\``;
                     return output;
-                }, true, message.getSetting("meme.pageTimeout"));
+                }, true, context.getSetting("meme.pageTimeout"));
             } catch (e) {
-                message.channel.send("JSON Parse Error: " + e);
+                context.send("JSON Parse Error: " + e);
             }
             return;
         }
-        if (!args[3] || !args[4]) return message.channel.send("!admin zerotier approve id name");
+        if (!context.options.idOrSearch || !context.options.name) return context.send({content: "!admin zerotier approve id name", ephemeral: true});
         try {
-            let name = message.content.substring(message.content.indexOf(args[4]));
+            let name = context.options.name;
             let result = await axios.post("https://ob.bint.cc/api/zt/nodes", {
                 id: args[3],
                 name
             });
-            message.channel.send(result.data.success || result.data.error)
+            context.send(result.data.success || result.data.error)
         } catch (e) {
-            message.channel.send(e)
+            context.send(e)
         }
     }
 };

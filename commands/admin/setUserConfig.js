@@ -6,18 +6,16 @@
  */
 module.exports = {
     name: "Set User Config Key",
-    usage: "setuserconfig user key value",
+    usage: "setuserconfig :user :key :value+?",
     commands: ["setuserconfig", "suc"],
-    run: async function (message, args, bot) {
-        const user = args[2] === "me" ? message.author.id : args[2];
-        const key = args[3];
-        const value = message.content.substring(args[0].length + args[1].length + args[2].length + args[3].length + 4);
-        if (!user || !key) {
-            message.channel.send("Invalid usage. !admin setuserconfig user key value");
-        } else {
-            await bot.database.setUserSetting(user, key, value);
-            bot.rabbit.event({type: "reloadUserConfig"});
-            message.channel.send("Set setting and reloaded cache.");
-        }
+    run: async function (context, bot) {
+        const user = context.options.user === "me" ? message.author.id : context.options.user;
+        const key = context.options.key;
+        const value = context.options.value;
+        await bot.database.setUserSetting(user, key, value);
+        bot.rabbit.event({type: "reloadUserConfig"});
+        if(!context.options.value)
+            return context.send(`Cleared value \`${key}\` for ${user}`);
+        return context.send(`Set \`${key} = '${value}'\` for ${user}`);
     }
 };

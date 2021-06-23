@@ -139,7 +139,7 @@ module.exports = {
             await bot.badges.updateBadge(user, 'servers', servers);
         };
     },
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         if(args.length === 1 || message.mentions.users && message.mentions.users.size > 0){
             const target = message.mentions.users.size > 0 ? message.mentions.users.first() : message.author;
             message.channel.startTyping();

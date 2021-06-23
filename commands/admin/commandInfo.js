@@ -7,17 +7,16 @@
 const Discord = require('discord.js');
 module.exports = {
     name: "Command  Info",
-    usage: "command <command ID>",
+    usage: "command :0commandID",
     commands: ["command", "commandinfo", "ci"],
-    run: async function (message, args, bot) {
-        const commandId = args[2];
-        if(!commandId || isNaN(commandId))return message.channel.send(`Enter a command ID like: ${args[0]} ${args[1]} 42069`)
-        message.channel.startTyping();
+    run: async function (context, bot) {
+        const commandId = context.options.commandID;
+        context.defer();
         let output = new Discord.MessageEmbed();
         const command = (await bot.database.getCommandById(commandId, process.env.CUSTOM_BOT ? bot.client.user.id : null))[0];
-        if(!command)return message.channel.send(`Couldn't find a command by that ID.`);
+        if(!command)return context.send({content: `Couldn't find a command by that ID.`, ephemeral: true});
         output.setTitle("Command #"+commandId);
-        output.setAuthor(message.author.tag, message.author.avatarURL())
+        output.setAuthor(context.user.tag, context.user.avatarURL())
         output.setDescription("```\n"+command.command+"\n```");
         const [user, server, channel, product] = await Promise.all([
             bot.util.getInfo(bot, "users", command.userID),
@@ -31,7 +30,6 @@ module.exports = {
         output.addField("Bot",product ? `**${product.tag}** (${product.id})` :  command.productID, true);
         output.addField("Timestamp", command.timestamp.toLocaleString(), true);
         output.addField("Served By","`"+command.server+"`", true);
-        message.channel.stopTyping(true);
-        return message.channel.send({embeds: [output]});
+        return context.send({embeds: [output]});
     }
 };

@@ -11,7 +11,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 if(args[3]) {
                     //Idiot guard
                     if(args[3].toLowerCase() === "value")
@@ -32,7 +32,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 if(args[3] && bot.util.bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bot.util.bools[args[3].toLowerCase()];
                     await bot.config.set(message.guild.id, "wholesome", bool);
@@ -52,7 +52,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 if(args[3] && bot.util.bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bot.util.bools[args[3].toLowerCase()];
                     await bot.config.set(message.guild.id, "allowNSFW", bool);
@@ -70,7 +70,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 if(args[3] && bot.util.bools[args[3].toLowerCase()] !== undefined) {
                     const bool = bot.util.bools[args[3].toLowerCase()];
                     await bot.config.set(message.guild.id, "pornsuggest.serious", bool);
@@ -88,7 +88,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 if(args[3] && bot.lang.strings[args[3].toLowerCase()]) {
                     await bot.config.set(message.guild.id, "lang", args[3].toLowerCase());
                     message.replyLang("SETTINGS_LANGUAGE_SET", {code: args[3], name: bot.lang.strings[args[3].toLowerCase()].LANGUAGE_NAME});
@@ -104,7 +104,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 let roleName = args[3];
                 if(message.mentions.roles.size > 0)
                     roleName = message.mentions.roles.first().name;
@@ -123,7 +123,7 @@ module.exports = {
             format: function(input){
                 return `\`${input}\``
             },
-            onSet: async function(message, args, bot){
+            onSet: async function(context, bot){
                 let timezone = args[3];
                 if(bot.util.timezones[timezone] || bot.util.timezoneRegex.exec(timezone)){
                     await bot.config.set(message.guild.id, "time.zone", timezone);
@@ -199,7 +199,7 @@ module.exports = {
 
 
     },
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         if(!message.guild)
             return message.replyLang("GENERIC_DM_CHANNEL");
         if(!message.guild.available)

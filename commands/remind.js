@@ -141,7 +141,7 @@ module.exports = {
             bot.raven.captureException(err);
         }
     },
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         await bot.util.standardNestedCommand(message, args, bot, "remind", module.exports, async function setReminder() {
             //Hacky hack hack
             message.content = message.content.replace(args[0], "in");

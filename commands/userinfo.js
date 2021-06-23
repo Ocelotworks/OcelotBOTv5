@@ -4,7 +4,7 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["user", "userinfo"],
     categories: ["tools"],
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         let target = message.author;
         let targetMember = message.member;
         if(message.mentions && message.mentions.users && message.mentions.users.size > 0){

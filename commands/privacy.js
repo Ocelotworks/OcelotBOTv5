@@ -7,7 +7,7 @@ module.exports = {
     init: function init(bot){
         bot.util.standardNestedCommandInit("privacy");
     },
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         await bot.util.standardNestedCommand(message, args, bot, "privacy")
     }
 };

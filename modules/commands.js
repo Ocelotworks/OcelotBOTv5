@@ -46,13 +46,13 @@ module.exports = class Commands {
         this.bot.client.on("message", (message)=>{
             if (this.bot.drain || (message.author.bot && message.author.id !== "824045686600368189")) return;
             const prefix = message.getSetting("prefix");
-            if (!prefix) return;//Bot hasn't fully loaded
+            if (!prefix) return console.log("No prefix");//Bot hasn't fully loaded
             const prefixLength = prefix.length;
             if (!message.content.startsWith(prefix))
-                return;
+                return console.log("Not prefixed");
             const args = message.content.split(/\s+/g);
             const command = args[0].substring(prefixLength).toLowerCase();
-            if(!this.bot.commandUsages[command])return;
+            if(!this.bot.commandUsages[command])return console.log("No such command");
             const context = new MessageCommandContext(this.bot, message, args, command);
             context.commandData = this.bot.commandUsages[command];
             if(context.commandData.pattern) {
@@ -63,6 +63,7 @@ module.exports = class Commands {
                     context.options = parsedInput.data;
             }
 
+            console.log("running command ", context.command);
             return this.runCommand(context);
         });
 
@@ -78,6 +79,16 @@ module.exports = class Commands {
         this.bot.runCommand = this.runCommand.bind(this);
         this.bot.addCommandMiddleware = this.addCommandMiddleware.bind(this);
 
+
+        // Admin + Guild Channel only commands
+        this.addCommandMiddleware((context)=>{
+            if(context.commandData.guildOnly && !context.guild){
+                context.reply({content: `:warning: This command cannot be used inside a DM channel.`, ephemeral: true});
+                return false;
+            }
+
+            return !(context.commandData.adminOnly && !context.getBool("admin"));
+        })
 
         // Disable in NSFW channels
         this.addCommandMiddleware((context)=>{
@@ -291,11 +302,8 @@ module.exports = class Commands {
                         loadedCommand.slashHidden = true;
 
                         for (let i = 0; i < command.commands.length; i++) {
-                            console.log("Loading ", command.commands[i]);
                             loadedCommand.subCommands[command.commands[i]] = command;
                         }
-
-                        console.log(loadedCommand.subCommands);
 
                         // TODO: recurse nesting commands
                     }catch(e){
@@ -304,7 +312,6 @@ module.exports = class Commands {
                         this.bot.logger.error(e);
                     }
                 }
-                console.log( loadedCommand.subCommands);
                 loadedCommand.usage += " :command?";
                 resolve(loadedCommand);
             })
@@ -334,16 +341,18 @@ module.exports = class Commands {
             id: context.user.id
         }));
 
-        if (!this.bot.commands[context.command]) {
+        console.log("we are here")
+        if (!this.bot.commandUsages[context.command]) {
             if (!context.guild || !this.bot.customFunctions.COMMAND[context.guild.id] || context instanceof CustomCommandContext) return;
             let customCommand = this.bot.customFunctions.COMMAND[context.guild.id][context.command]
             if (!customCommand) return;
             context.logPerformed();
+            console.log("Custom command");
             // todo: custom command context
             return await this.bot.util.runCustomFunction(customCommand, context.message)
         }
 
-
+        console.log("running middleware");
         if(!await this.runCommandMiddleware(context))return console.log("Middleware triggered"); // Middleware triggered
 
         context.logPerformed();
@@ -365,6 +374,7 @@ module.exports = class Commands {
 
         try {
             if(context.commandData.subCommands){
+                console.log("This is a subcommand");
                 let parsedInput;
                 if(context.options.command && context.commandData.subCommands[context.options.command]){
                     if(context.args) {
@@ -387,9 +397,7 @@ module.exports = class Commands {
                     return context.reply("TODO: Nested help");
                 }
             }
-            console.log(context.commandData.subCommands);
-            console.log(context.options.command);
-            console.log("no sub commands");
+            console.log("we are here to run")
             return await this.bot.commands[context.command](context, this.bot);
         } catch (e) {
             console.log(e);

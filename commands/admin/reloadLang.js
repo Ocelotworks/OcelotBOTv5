@@ -8,8 +8,8 @@ module.exports = {
             await bot.lang.loadLanguages();
         })
     },
-    run: async function (message, args, bot) {
+    run: async function (context, bot) {
         await bot.rabbit.event({type: "reloadLang"});
-        message.channel.send(`Loaded ${bot.lang.strings['en-gb'].length} unique keys and ${Object.keys(bot.lang.strings).length} languages.`);
+        context.send(`Loaded ${bot.lang.strings['en-gb'].length} unique keys.`);
     }
 };

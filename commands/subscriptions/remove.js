@@ -8,7 +8,7 @@ module.exports = {
     name: "Remove Sub",
     usage: "remove",
     commands: ["remove", "delete"],
-    run:  async function(message, args, bot, data){
+    run:  async function(context, bot, data){
         if(!args[2] || isNaN(args[2])){
             message.channel.send(`:bangbang: Usage !subscriptions remove **ID**. You can get the ID from ${args[0]} list`);
         }else{

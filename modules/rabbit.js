@@ -7,17 +7,16 @@
 const amqplib = require('amqplib');
 const config = require('config');
 const os = require('os');
+const Util = require("../util/Util");
 module.exports = {
     name: "RabbitMQ",
     init: async function (bot) {
         try {
             bot.drain = false;
             bot.rabbit = {};
-            bot.rabbit.connection = await amqplib.connect(config.get("RabbitMQ.host"));
+            bot.rabbit.connection = await this.getRabbitConnection();
 
-
-
-            bot.rabbit.connection.on("close", function (err) {
+            bot.rabbit.connection.on("close", async function (err) {
                 console.log(err);
                 bot.logger.warn("RabbitMQ connection closed!");
                 process.exit(0);
@@ -248,6 +247,27 @@ module.exports = {
             console.error(e);
             process.exit(63);
         }
+    },
+    getRabbitConnection: async function () {
+        let connection;
+        let retries = 0;
+        do {
+            try {
+                retries++;
+                connection = await amqplib.connect(config.get("RabbitMQ.host"));
+            } catch (e) {
+                console.error(e);
+            }
+            if (retries > 5) {
+                console.error(`Failed to connect to rabbit after ${retries} tries`);
+                os.exit(80);
+            }
+            if (!connection) {
+                console.log("Waiting for ${retires*1000}ms");
+                await Util.Sleep(retries * 1000);
+            }
+        } while (!connection);
+        return connection;
     }
 };
 

@@ -1,20 +1,20 @@
 module.exports = {
     name: "Get Config",
-    usage: "config <key>",
+    usage: "config :key",
     commands: ["getconfig", "config"],
-    run: function (message, args, bot) {
-        let output = `Config Property: \`${args[2]}\`\n`;
-        if (bot.feature && bot.feature.enabled && bot.feature.enabled(args[2].replace(/\./g, "-"), {
-            userId: message.author.id,
-            sessionId: message.guild.id,
+    run: function (context, bot) {
+        let output = `Config Property: \`${context.options.key}\`\n`;
+        if (bot.feature && bot.feature.enabled && bot.feature.enabled(context.options.key.replace(/\./g, "-"), {
+            userId: context.user.id,
+            sessionId: context.guild?.id,
         }))
             output += `**Feature Flag**: \`true\`\n`
-        if (bot.config.cache[message.author.id])
-            output += `**User**: \`${bot.config.cache[message.author.id][args[2]] || "Unset"}\`\n`
-        if (bot.config.cache[message.guild.id])
-            output += `**Guild**: \`${bot.config.cache[message.guild.id][args[2]] || "Unset"}\`\n`
+        if (bot.config.cache[context.user.id])
+            output += `**User**: \`${bot.config.cache[context.user.id][context.options.key] || "Unset"}\`\n`
+        if (bot.config.cache[context.guild?.id])
+            output += `**Guild**: \`${bot.config.cache[context.guild?.id][context.options.key] || "Unset"}\`\n`
         if (bot.config.cache.global)
-            output += `**Global**: \`${bot.config.cache.global[args[2]] || "Unset"}\`\n`
-        message.channel.send(output);
+            output += `**Global**: \`${bot.config.cache.global[context.options.key] || "Unset"}\`\n`
+        context.send(output);
     }
 };

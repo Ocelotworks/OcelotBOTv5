@@ -27,7 +27,7 @@ module.exports = {
         bot.logger.log("Discovering comment analyzer");
         api = await google.discoverAPI("https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1");
     },
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         let target;
         if(args.length > 1){
             target = message.content.substring(args[0].length);

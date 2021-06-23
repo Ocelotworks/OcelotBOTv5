@@ -9,8 +9,8 @@ module.exports = {
     usage: "createpremiumkey",
     commands: ["cpk", "createpremiumkey", "premiumkey"],
     noCustom: true,
-    run: async function (message, args, bot) {
-        let key = await bot.database.createPremiumKey(message.author.id);
-        message.channel.send(`Premium key: \`${key}\``);
+    run: async function (context, bot) {
+        let key = await bot.database.createPremiumKey(context.user.id);
+        context.send(`Premium key: \`${key}\``);
     }
 };

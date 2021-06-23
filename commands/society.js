@@ -9,7 +9,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     rateLimit: 10,
     commands: ["society", "weliveinasociety", "wlias"],
-    run: async function(message, args, bot){
+    run: async function(context, bot){
 
         const url =  await bot.util.getImage(message, args);
 

@@ -8,7 +8,7 @@ module.exports = {
     name: "Add Sub/View Types",
     usage: "add <type> [data]",
     commands: ["add", "types", "new"],
-    run:  async function(message, args, bot, data){
+    run:  async function(context, bot, data){
         if(args[2] && bot.subscriptions[args[2]] && args[3]){
             let content = message.content.substring(args[0].length+args[1].length+args[2].length+3);
             let validation = await bot.subscriptions[args[2]].validate(content);

@@ -4,14 +4,15 @@
  *  ╚════ ║   (ocelotbotv5) ban
  *    ════╝
  */
+const Strings = require("../../util/String");
 module.exports = {
     name: "Ban User",
-    usage: "ban <user>",
+    usage: "ban :user :reason?",
     commands: ["ban"],
     noCustom: true,
-    run: async function (message, args, bot) {
-        const target = message.mentions.users.first() ? message.mentions.users.first().id : args[2];
-        await bot.database.ban(target, "user", "Admin ban");
+    run: async function (context, bot) {
+        const target = Strings.GetUserFromMention(bot, context.options.user) || context.options.user;
+        await bot.database.ban(target, "user", context.options.reason || "Admin ban");
         await bot.rabbit.event({type: "updateBans"});
         bot.banCache.user.push(target);
         message.channel.send(`<@${target}> has been banned!`);

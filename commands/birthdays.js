@@ -13,6 +13,7 @@ module.exports = {
     categories: ["tools"],
     commands: ["birthdays", "birthday"],
     nestedDir: "birthdays",
+    guildOnly: true,
     run: async function(context, bot) {
         if(!context.options.user)
             return context.sendLang({content: "BIRTHDAY_USAGE", ephemeral: true}, {arg: context.command});

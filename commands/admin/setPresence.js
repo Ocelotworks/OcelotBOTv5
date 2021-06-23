@@ -1,9 +1,12 @@
 module.exports = {
     name: "Set Presence",
-    usage: "setPresence [message]",
-    commands: ["setpresence"],
-    run: async function (message, args, bot) {
-        bot.presenceMessage = args[3] === "clear" ? null : message.content.substring(message.content.indexOf(args[2]));
-        return bot.rabbit.event({type: "presence", payload: bot.presenceMessage})
+    usage: "setPresence [clear?:clear] :message+",
+    commands: ["setpresence", "presence"],
+    run: async function (context, bot) {
+        bot.presenceMessage = context.options.message
+        await bot.rabbit.event({type: "presence", payload: bot.presenceMessage})
+        if(context.options.message)
+            return context.send(`Set presence to \`${context.options.message}\``);
+        return context.send("Cleared presence message.");
     }
 };

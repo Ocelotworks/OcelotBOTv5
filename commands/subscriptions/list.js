@@ -9,7 +9,7 @@ module.exports = {
     name: "List Subs",
     usage: "list",
     commands: ["list", "view"],
-    run:  async function(message, args, bot, data){
+    run:  async function(context, bot, data){
         const subs = await bot.database.getSubscriptionsForChannel(message.channel.id);
         if(subs.length > 0){
             let output = `Active subscriptions for **#${message.channel.name}**:\n\`\`\`\n`;

@@ -21,7 +21,7 @@ module.exports = {
         })
 
     },
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         await bot.util.standardNestedCommand(message, args, bot, "points")
     }
 };

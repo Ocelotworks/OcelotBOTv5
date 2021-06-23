@@ -8,16 +8,15 @@ const Discord = require('discord.js');
 const columnify = require('columnify');
 module.exports = {
     name: "User Info",
-    usage: "user <user ID>",
+    usage: "user :user",
     commands: ["user", "userinfo", "ui"],
-    run: async function (message, args, bot) {
-        const userId = args[2];
-        if(!userId || userId.startsWith("<"))return message.channel.send(`Enter a user ID like: ${args[0]} ${args[1]} 139871249567318017`)
-        message.channel.startTyping();
+    run: async function (context, bot) {
+        const userId = context.options.user;
+        context.defer();
         let user = await bot.util.getUserInfo(userId);
         let output = new Discord.MessageEmbed();
 
-        output.setAuthor(message.author.tag, message.author.avatarURL())
+        output.setAuthor(context.user.tag, context.user.avatarURL())
 
         if(user){
             output.setTitle(`Info for ${user.tag} (${userId})`);
@@ -42,9 +41,8 @@ module.exports = {
 
 
         let lastCommands = await bot.database.getUserCommands(userId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
-        output.addField("Last 5 Commands", trim(`Use **${args[0]} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``))
-        message.channel.stopTyping(true);
-        return bot.util.sendButtons(message.channel, {embeds: [output]},  [
+        output.addField("Last 5 Commands", trim(`Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``))
+        return bot.util.sendButtons(context.channel, {embeds: [output]},  [
             {type: 2, label: "View in Dashboard", style: 5, url: `https://ocelotbot.xyz/dash-beta/#/admin/user/${userId}`}
         ])
     }

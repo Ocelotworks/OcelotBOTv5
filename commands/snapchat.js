@@ -12,7 +12,7 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["snapchat", "snap"],
-    run: async function(message, args, bot){
+    run: async function(context, bot){
 
         const url =  await bot.util.getImage(message, args);
 

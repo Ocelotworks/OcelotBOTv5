@@ -1,14 +1,14 @@
 module.exports = {
     name: "Eval Script Locally",
-    usage: "evallocal <script>",
+    usage: "evallocal :script+",
     commands: ["evallocal"],
     noCustom: true,
-    run: async function (message, args, bot) {
+    run: async function (context, bot) {
         try {
-            let output = `\`\`\`\n${eval(message.content.substring(args[0].length + args[1].length + 2))}\n\`\`\``;
-            message.channel.send(output);
+            let output = `\`\`\`\n${eval(context.options.script)}\n\`\`\``;
+            return context.send(output);
         } catch (e) {
-            message.channel.send("Error\n```\n" + e + "\n```");
+            return context.send("Error\n```\n" + e + "\n```");
         }
     }
 };

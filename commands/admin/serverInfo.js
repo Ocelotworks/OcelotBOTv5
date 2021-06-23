@@ -8,17 +8,16 @@ const Discord = require('discord.js');
 const columnify = require('columnify');
 module.exports = {
     name: "Server Info",
-    usage: "server <server ID>",
+    usage: "server :server",
     commands: ["server", "serverinfo", "si", "guild", "guildinfo", "gi"],
     noCustom: true,
-    run: async function (message, args, bot) {
-        const serverId = args[2];
-        if(!serverId)return message.channel.send(`Enter a user ID like: ${args[0]} ${args[1]} 322032568558026753`)
-        message.channel.startTyping();
+    run: async function (context, bot) {
+        const serverId = context.options.server;
+        context.defer();
         let guild = await bot.util.getInfo(bot, "guilds", serverId);
         let output = new Discord.MessageEmbed();
 
-        output.setAuthor(message.author.tag, message.author.avatarURL())
+        output.setAuthor(context.user.tag, context.user.avatarURL())
 
         if(guild){
             output.setTitle(`Info for ${guild.name} (${serverId})`);
@@ -58,7 +57,6 @@ module.exports = {
 
         let lastCommands = await bot.database.getServerCommands(serverId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
         output.addField("Last 5 Commands", `Use **${args[0]} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)
-        message.channel.stopTyping(true);
-        return message.channel.send({embeds: [output]});
+        return context.send({embeds: [output]});
     }
 };

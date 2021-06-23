@@ -8,7 +8,7 @@ module.exports = {
     categories: ["barcodes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["maxi", "maxicode"],
-    run:  function(message, args, bot){
+    run:  function(context, bot){
         if(!args[1]){
             message.channel.send(`:bangbang: You must provide some text! i.e ${args[0]} hello world`);
             return;

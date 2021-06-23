@@ -104,7 +104,7 @@ module.exports = {
                }
            }
     },
-    run: async function(message, args, bot){
+    run: async function(context, bot){
         if(!message.guild)
             return message.channel.send(":bangbang: This can't be used in a DM channel.");
 
