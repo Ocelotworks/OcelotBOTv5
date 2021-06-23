@@ -6,6 +6,11 @@ const Discord = require('discord.js');
 const Strings = require("./String");
 const config = require('config');
 module.exports = class Util {
+
+    static Sleep(milliseconds){
+       return new Promise((fulfill)=>setTimeout(fulfill, milliseconds));
+    }
+
     /**
      * Returns slash command options given an ocelotbot pattern
      * @param pattern
@@ -200,8 +205,10 @@ module.exports = class Util {
     static async StandardPagination(bot, context, pages, pageFormat, full = false){
         let index = parseInt(context.getSetting("pagination.page")) || 0;
         let sentMessage;
+        let idleTimer;
 
         let clearButtons = async ()=>{
+            if(pages.length )
             if(context.interaction || sentMessage){
                 try{
                     context.edit({content: await pageFormat(pages[index], index), components: []}, sentMessage);
@@ -210,12 +217,8 @@ module.exports = class Util {
                 }
             }
         }
-
-        let idleTimer = setTimeout(clearButtons, 60000);
-
+        
         let setIndex = function(delta){
-            clearTimeout(idleTimer);
-            idleTimer = setTimeout(clearButtons, 60000);
             return async ()=> {
                 index += delta;
                 if(index < 0)index = pages.length - 1;
@@ -246,6 +249,10 @@ module.exports = class Util {
             let payload = {content: output};
             if(pages.length > 1){
                 payload.components = [{type:1, components: buttons}]
+            }else{
+                if(idleTimer)
+                    clearTimeout(idleTimer);
+                idleTimer = setTimeout(clearButtons, 60000);
             }
 
             if ((context.interaction && context.interaction.replied) || (sentMessage && !sentMessage.deleted))
