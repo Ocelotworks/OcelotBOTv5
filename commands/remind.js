@@ -16,7 +16,7 @@ module.exports = {
     // This doesn't feel right
     deletedReminders: [],
     recurringReminders: {},
-    nestedDir: "reminder",
+    nestedDir: "remind",
     init: function init(bot){
         // bot.client.on("ready", function () {
         //     bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.util.shard}`, {exclusive: true});

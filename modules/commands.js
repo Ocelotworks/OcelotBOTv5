@@ -51,7 +51,7 @@ module.exports = class Commands {
             if (!message.content.startsWith(prefix))
                 return console.log("Not prefixed");
             const args = message.content.split(/\s+/g);
-            const command = context.command.substring(prefixLength).toLowerCase();
+            const command = args[0].substring(prefixLength).toLowerCase();
             if(!this.bot.commandUsages[command] && !this.bot.customFunctions.COMMAND[message.guild?.id] )return console.log("No such command");
             const context = new MessageCommandContext(this.bot, message, args, command);
             context.commandData = this.bot.commandUsages[command];
