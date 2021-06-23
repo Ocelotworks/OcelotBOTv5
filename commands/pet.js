@@ -24,8 +24,8 @@ module.exports = {
     rateLimit: 100,
     commands: ["pet", "petpet"],
     run: async function run(message, args, bot) {
-        if (message.guild && !args[0].endsWith("petpet") && args[1] && ignoredArgs.includes(args[1].toLowerCase())) {
-            message.channel.send(`:warning: It looks like you're trying to use ${args[0]} with a different bot, I will now temporarily disable the ${args[0]} command on OcelotBOT for you so as not to spam.
+        if (message.guild && !context.command.endsWith("petpet") && args[1] && ignoredArgs.includes(args[1].toLowerCase())) {
+            message.channel.send(`:warning: It looks like you're trying to use ${context.command} with a different bot, I will now temporarily disable the ${context.command} command on OcelotBOT for you so as not to spam.
 To prevent this in the future, consider changing OcelotBOT's prefix with **${message.getSetting("prefix")}settings set prefix** or disabling the pet command with **${message.getSetting("prefix")}settings disableCommand pet**.
 You can still access this command with ${message.getSetting("prefix")}petpet`);
             if (!bot.config.cache[message.guild.id])

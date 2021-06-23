@@ -12,7 +12,7 @@ module.exports = {
         if (!args[2]) {
             message.replyLang("MUSIC_QUEUE_USAGE");
         } else {
-            let query = message.cleanContent.substring(args[0].length + args[1].length + 2).trim();
+            let query = message.cleanContent.substring(context.command.length + args[1].length + 2).trim();
             let guild = message.guild.id;
             if (!music.listeners[guild]) {
                 if (!message.member.voice.channel)

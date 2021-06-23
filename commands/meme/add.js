@@ -25,11 +25,11 @@ module.exports = {
             } else {
                 if (message.mentions.users.size > 0 || message.mentions.roles.size > 0 || message.content.indexOf("@everyone") > -1 && message.getSetting("meme.disallowTags"))
                     return message.replyLang("MEME_ROLE");
-                meme = message.content.substring(args[0].length + args[1].length + args[2].length + 3)
+                meme = message.content.substring(context.command.length + args[1].length + args[2].length + 3)
             }
 
             if (!args[2]) {
-                return message.channel.send(`You need to enter a name. e.g ${args[0]} add ocelotbot`);
+                return message.channel.send(`You need to enter a name. e.g ${context.command} add ocelotbot`);
             }
             const newMemeName = args[2].toLowerCase();
             if (newMemeName.startsWith("http"))

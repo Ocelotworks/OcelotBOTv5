@@ -15,12 +15,12 @@ module.exports = {
                 if(args[3]) {
                     //Idiot guard
                     if(args[3].toLowerCase() === "value")
-                        return message.replyLang("SETTINGS_PREFIX_IDIOT", {arg: args[0]});
+                        return message.replyLang("SETTINGS_PREFIX_IDIOT", {arg: context.command});
 
                     await bot.config.set(message.guild.id, "prefix", args[3]);
                     message.replyLang("SETTINGS_PREFIX_SET", {prefix: args[3]});
                 }else{
-                    message.replyLang("SETTINGS_PREFIX_NONE", {arg: args[0]});
+                    message.replyLang("SETTINGS_PREFIX_NONE", {arg: context.command});
                 }
             }
         },
@@ -40,7 +40,7 @@ module.exports = {
                    // message.replyLang(`SETTINGS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
                 }else{
                     message.channel.send("You must enter a value either true or false.");
-                    //message.replyLang("SETTINGS_NSFW_NONE", {arg: args[0]});
+                    //message.replyLang("SETTINGS_NSFW_NONE", {arg: context.command});
                 }
             }
         },
@@ -58,7 +58,7 @@ module.exports = {
                     await bot.config.set(message.guild.id, "allowNSFW", bool);
                     message.replyLang(`SETTINGS_NSFW_${bool ? "DISABLE":"ENABLE"}`);
                 }else{
-                    message.replyLang("SETTINGS_NSFW_NONE", {arg: args[0]});
+                    message.replyLang("SETTINGS_NSFW_NONE", {arg: context.command});
                 }
             }
         },
@@ -76,7 +76,7 @@ module.exports = {
                     await bot.config.set(message.guild.id, "pornsuggest.serious", bool);
                     message.replyLang(`SETTINGS_SERIOUS_PORN_${bool ? "ENABLE":"DISABLE"}`);
                 }else {
-                    message.replyLang("SETTINGS_SERIOUS_PORN_NONE", {arg: args[0]});
+                    message.replyLang("SETTINGS_SERIOUS_PORN_NONE", {arg: context.command});
                 }
             }
         },
@@ -93,7 +93,7 @@ module.exports = {
                     await bot.config.set(message.guild.id, "lang", args[3].toLowerCase());
                     message.replyLang("SETTINGS_LANGUAGE_SET", {code: args[3], name: bot.lang.strings[args[3].toLowerCase()].LANGUAGE_NAME});
                 }else{
-                    message.replyLang("SETTINGS_LANGUAGE_NONE", {arg: args[0]});
+                    message.replyLang("SETTINGS_LANGUAGE_NONE", {arg: context.command});
                 }
             }
         },

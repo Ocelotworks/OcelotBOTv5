@@ -374,7 +374,7 @@ module.exports = {
             message.channel.startTyping();
             gm(filePath)
                 .font(__dirname + "/../static/arial.ttf", textSize)
-                .drawText(x, y, wrap(message.cleanContent.substring(args[0].length).substring(0, 1010), {
+                .drawText(x, y, wrap(message.cleanContent.substring(context.command.length).substring(0, 1010), {
                     width: textWidth,
                     indent: ''
                 }))
@@ -1068,14 +1068,14 @@ module.exports = {
                     const helpItem = commandType[helpItemName];
                     if (usedAliases.indexOf(helpItem.commands[0]) > -1) continue;
                     if (!helpItem.hidden)
-                        output += `${helpItem.name} :: ${args[0]} ${helpItem.usage}\n`;
+                        output += `${helpItem.name} :: ${context.command} ${helpItem.usage}\n`;
                     usedAliases.push.apply(usedAliases, helpItem.commands);
                 }
                 message.replyLang("COMMANDS", {commands: output});
             } else {
                 if (invalidUsageFunction)
                     return invalidUsageFunction();
-                message.replyLang("GENERIC_INVALID_USAGE", {arg: args[0]});
+                message.replyLang("GENERIC_INVALID_USAGE", {arg: context.command});
             }
         };
 
@@ -1113,10 +1113,10 @@ module.exports = {
 
         bot.util.coolTextGenerator = function (message, args, bot, options) {
             if (!args[1]) {
-                return message.replyLang("GENERIC_TEXT", {command: args[0]});
+                return message.replyLang("GENERIC_TEXT", {command: context.command});
             }
 
-            const text = message.cleanContent.substring(args[0].length + 1);
+            const text = message.cleanContent.substring(context.command.length + 1);
             message.channel.startTyping();
 
             options.text = text;

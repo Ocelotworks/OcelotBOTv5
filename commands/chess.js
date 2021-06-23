@@ -39,7 +39,7 @@ module.exports = {
             } else if (subCommand && runningGames[message.channel.id] && runningGames[message.channel.id].players[+runningGames[message.channel.id].turn].id === message.author.id && subCommand.match(/[a-z]{1,4}[0-9]/gi)) {
                 module.exports.doGo(message, subCommand, args, bot);
             } else {
-                message.replyLang("GAME_INVALID_USAGE", {arg: args[0]});
+                message.replyLang("GAME_INVALID_USAGE", {arg: context.command});
             }
         });
     },
@@ -112,7 +112,7 @@ module.exports = {
             }
 
         } else
-            message.replyLang("GAME_NOT_RUNNING", {arg: args[0]});
+            message.replyLang("GAME_NOT_RUNNING", {arg: context.command});
 
     },
     subCommands: {
@@ -123,9 +123,9 @@ module.exports = {
                 if (authorIndex === -1) {
                     message.replyLang("GAME_ALREADY_RUNNING");
                 } else if (authorIndex === currentGame.turn) {
-                    message.replyLang("CHESS_ALREADY_YOUR_TURN", {arg: args[0]});
+                    message.replyLang("CHESS_ALREADY_YOUR_TURN", {arg: context.command});
                 } else {
-                    message.replyLang("CHESS_ALREADY_THEIR_TURN", {arg: args[0]});
+                    message.replyLang("CHESS_ALREADY_THEIR_TURN", {arg: context.command});
                 }
             } else {
                 if (message.mentions && message.mentions.members && message.mentions.members.size > 0) {
@@ -137,9 +137,9 @@ module.exports = {
                         from: message.author,
                         to: target
                     };
-                    message.replyLang("CHESS_CHALLENGE", {target: target.id, user: message.author.id, arg: args[0]});
+                    message.replyLang("CHESS_CHALLENGE", {target: target.id, user: message.author.id, arg: context.command});
                 } else {
-                    message.replyLang("GAME_CHALLENGE_NO_USER", {arg: args[0]});
+                    message.replyLang("GAME_CHALLENGE_NO_USER", {arg: context.command});
                 }
             }
         },
@@ -154,20 +154,20 @@ module.exports = {
                 runningGames[message.channel.id].lastMessage = await message.replyLang("CHESS_ACCEPTED", {
                     user: request.from.id,
                     board: await module.exports.renderBoard(message, bot),
-                    arg: args[0]
+                    arg: context.command
 
                 });
                 delete gameRequests[message.channel.id];
             } else {
-                message.replyLang("GAME_NO_INVITES", {arg: args[0]});
+                message.replyLang("GAME_NO_INVITES", {arg: context.command});
             }
         },
         resign: function (message, args, bot) {
             const channel = message.channel.id;
             if (!runningGames[channel]) {
-                message.replyLang("GAME_NOT_RUNNING", {arg: args[0]});
+                message.replyLang("GAME_NOT_RUNNING", {arg: context.command});
             } else if (runningGames[channel].players[+runningGames[channel].turn].id !== message.author.id) {
-                message.replyLang("GAME_NO_RESIGN", {arg: args[0]});
+                message.replyLang("GAME_NO_RESIGN", {arg: context.command});
             } else {
                 message.replyLang("GAME_RESIGN", {
                     user: message.author.id,

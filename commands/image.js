@@ -23,7 +23,7 @@ module.exports = {
     categories: ["image", "search"],
     run: async function (message, args, bot) {
         if (args.length > 1) {
-            const query = message.cleanContent.substring(args[0].length + 1);
+            const query = message.cleanContent.substring(context.command.length + 1);
             if (naughtyRegex.test(query)) {
                 bot.logger.warn("Blocking query");
                 let embed = new Discord.MessageEmbed();
@@ -95,7 +95,7 @@ module.exports = {
                 message.channel.stopTyping(true);
             }
         } else {
-            message.channel.send(`:bangbang: You must supply a search query. Try **${args[0]} cute puppies**`)
+            message.channel.send(`:bangbang: You must supply a search query. Try **${context.command} cute puppies**`)
         }
     }
 };

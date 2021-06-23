@@ -15,7 +15,7 @@ module.exports = {
                 let settingInfo = data.settings[setting];
                 output += `+${settingInfo.name}${message.getSetting(settingInfo.setting) ? " (Currently '" + message.getSetting(settingInfo.setting) + "')" : ""}\n`;
                 output += `-${settingInfo.help}\n`;
-                output += ` Set with ${args[0]} set ${setting} ${settingInfo.value || "value"}\n`;
+                output += ` Set with ${context.command} set ${setting} ${settingInfo.value || "value"}\n`;
                 output += "----\n";
             }
         }

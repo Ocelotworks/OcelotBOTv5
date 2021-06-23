@@ -1,16 +1,17 @@
 const columnify = require('columnify');
+const Util = require("../../util/Util");
 module.exports = {
     name: "List Reminders",
     usage: "list",
     commands: ["list", "view", "mine"],
-    run: async function (message, args, bot) {
-        let reminders = await bot.database.getRemindersForUser(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null);
+    run: async function (context, bot) {
+        let reminders = await bot.database.getRemindersForUser(bot.client.user.id, context.user.id,context.guild?.id || null);
         if (reminders.length === 0)
-            return message.channel.send(`You have not got any currently active reminders! To see how to set a reminder, type ${args[0]} help`);
+            return context.send(`You have not got any currently active reminders! To see how to set a reminder, type ${context.command} help`);
 
-        let header = `To remove a reminder, type ${args[0]} remove id\n\`\`\`yaml\n`
+        let header = `To remove a reminder, type ${context.command} remove id\n\`\`\`yaml\n`
         let chunkedReminders = reminders.chunk(5);
-        return bot.util.standardPagination(message.channel, chunkedReminders, async function (reminders, index) {
+        return Util.StandardPagination(bot, context, chunkedReminders, async function (reminders, index) {
             let formatted = [];
             for (let i = 0; i < reminders.length; i++) {
                 let reminder = reminders[i];

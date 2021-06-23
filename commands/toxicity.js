@@ -30,7 +30,7 @@ module.exports = {
     run: async function(context, bot){
         let target;
         if(args.length > 1){
-            target = message.content.substring(args[0].length);
+            target = message.content.substring(context.command.length);
         }else if (message.reference && message.reference.messageID) {
             const reference = await message.channel.messages.fetch(message.reference.messageID);
             target = reference.content;

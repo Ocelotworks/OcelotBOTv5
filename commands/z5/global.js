@@ -12,7 +12,7 @@ module.exports = {
     commands: ["global"],
     run: async function (message, args, bot, data) {
         if (args[3] === undefined) {
-            message.replyLang("GENERIC_INVALID_USAGE", {arg: args[0]});
+            message.replyLang("GENERIC_INVALID_USAGE", {arg: context.command});
             return;
         }
 
@@ -45,7 +45,7 @@ module.exports = {
             });
             message.channel.send(buffer + "```");
         } else {
-            message.replyLang("GENERIC_INVALID_USAGE", {arg: args[0]});
+            message.replyLang("GENERIC_INVALID_USAGE", {arg: context.command});
         }
     }
 };

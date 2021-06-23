@@ -115,7 +115,7 @@ module.exports = {
 
         if(action === "add" || action === "types"){
             if(args[2] && bot.subscriptions[args[2]] && args[3]){
-                let data = message.content.substring(args[0].length+args[1].length+args[2].length+2);
+                let data = message.content.substring(context.command.length+args[1].length+args[2].length+2);
                 let validation = bot.subscriptions[args[2]].validate(data);
                 if(validation)
                     return message.channel.send(validation);
@@ -155,16 +155,16 @@ module.exports = {
                 }
                 message.channel.send(output);
             }else{
-                message.channel.send(`There are no subscriptions in this channel yet! Add one with ${args[0]} add\nor view available subscription types with **${args[0]} types**`);
+                message.channel.send(`There are no subscriptions in this channel yet! Add one with ${context.command} add\nor view available subscription types with **${context.command} types**`);
             }
         }else if(action === "remove"){
             if(!args[3] || isNaN(args[3])){
-                message.channel.send(`:bangbang: Usage !subscriptions remove ID where ID is the number listed on ${args[0]} list`);
+                message.channel.send(`:bangbang: Usage !subscriptions remove ID where ID is the number listed on ${context.command} list`);
             }else{
                 message.channel.send("NYI, shout at peter");
             }
         }else{
-            message.channel.send(`:bangbang: Usage: ${args[0]} add/list/remove`);
+            message.channel.send(`:bangbang: Usage: ${context.command} add/list/remove`);
         }
     }
 };

@@ -10,9 +10,9 @@ module.exports = {
     slashOptions: [{type: "STRING", name: "first", description: "I receive:", required: true}, {type: "STRING", name: "second", description: "You receive: (Defaults to nothing)", required: false}],
     run: function (message, args, bot) {
         if (!args[1]) {
-            return message.channel.send(`Enter one or two things like: **${args[0]} sloppy toppy** or **${args[0]} admin / nothing**`)
+            return message.channel.send(`Enter one or two things like: **${context.command} sloppy toppy** or **${context.command} admin / nothing**`)
         }
-        const fullText = message.cleanContent.substring(args[0].length);
+        const fullText = message.cleanContent.substring(context.command.length);
         let first = fullText
         let second = "nothing";
         if(fullText.indexOf("/") > -1){

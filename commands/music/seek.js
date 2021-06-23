@@ -28,7 +28,7 @@ module.exports = {
 
 
         if (position * 1000 > listener.playing.info.length)
-            return message.channel.send(`:warning: That would seek past the end of the song. To skip, type ${args[0]} skip`);
+            return message.channel.send(`:warning: That would seek past the end of the song. To skip, type ${context.command} skip`);
 
         listener.connection.seek(position * 1000);
         message.channel.send(`Seeked to **${bot.util.shortSeconds(position)}**`);

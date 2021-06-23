@@ -34,7 +34,7 @@ module.exports = {
             let {songData, player} = await bot.lavaqueue.playOneSong(message.member.voice.channel, doot);
             player.once("start", ()=>{
                 message.channel.stopTyping();
-                message.replyLang("DOOT", {doot: dootNumber, arg: args[0], fileName: songData.info.title});
+                message.replyLang("DOOT", {doot: dootNumber, arg: context.command, fileName: songData.info.title});
             });
         } catch (e) {
             bot.raven.captureException(e);

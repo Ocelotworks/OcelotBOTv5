@@ -12,7 +12,7 @@ module.exports = {
         if (args[2] && data.settings[args[2].toLowerCase()]) {
             data.settings[args[2].toLowerCase()].onSet(message, args, bot);
         } else {
-            message.channel.send(`:bangbang: Invalid usage. Try ${args[0]} list`);
+            message.channel.send(`:bangbang: Invalid usage. Try ${context.command} list`);
         }
     }
 };

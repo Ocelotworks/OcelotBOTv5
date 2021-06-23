@@ -15,7 +15,7 @@ module.exports = {
         if (args[2]) {
             memes = await bot.database.searchMeme(args[2], message.guild ? message.guild.id : "global");
             if (memes.length === 0)
-                return message.channel.send(`:warning: No results. To view all memes just do ${args[0]} ${args[1]}`);
+                return message.channel.send(`:warning: No results. To view all memes just do ${context.command} ${args[1]}`);
         } else {
             memes = await bot.database.getMemes(message.guild ? message.guild.id : "global");
         }

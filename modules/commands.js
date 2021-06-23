@@ -51,11 +51,11 @@ module.exports = class Commands {
             if (!message.content.startsWith(prefix))
                 return console.log("Not prefixed");
             const args = message.content.split(/\s+/g);
-            const command = args[0].substring(prefixLength).toLowerCase();
-            if(!this.bot.commandUsages[command])return console.log("No such command");
+            const command = context.command.substring(prefixLength).toLowerCase();
+            if(!this.bot.commandUsages[command] && !this.bot.customFunctions.COMMAND[message.guild?.id] )return console.log("No such command");
             const context = new MessageCommandContext(this.bot, message, args, command);
             context.commandData = this.bot.commandUsages[command];
-            if(context.commandData.pattern) {
+            if(context.commandData?.pattern) {
                 const parsedInput = commandParser.Parse(args.slice(1).join(" "), {pattern: context.commandData.pattern, id: command});
                 if (parsedInput.error)
                     return message.channel.sendLang(`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`, parsedInput.error.data);
@@ -82,12 +82,29 @@ module.exports = class Commands {
 
         // Admin + Guild Channel only commands
         this.addCommandMiddleware((context)=>{
+            // Only allow Guild Only commands to be ran in a Guild
             if(context.commandData.guildOnly && !context.guild){
-                context.reply({content: `:warning: This command cannot be used inside a DM channel.`, ephemeral: true});
+                context.replyLang({content: "GENERIC_DM_CHANNEL", ephemeral: true});
                 return false;
             }
 
-            return !(context.commandData.adminOnly && !context.getBool("admin"));
+            // Don't allow this command inside custom commands
+            if(context.message && context.message.synthetic && context.commandData.noSynthetic){
+                context.replyLang({content: "GENERIC_CUSTOM_COMMAND", ephemeral: true})
+                return false
+            }
+
+            // Override the next checks for admins
+            if(context.getBool("admin"))return true;
+
+            // Check permissions in Guilds
+            if(context.member && context.commandData.userPermissions && !context.channel.permissionsFor(context.member).has(context.commandData.userPermissions)){
+                // TODO: Friendly this
+                context.reply({content: `:warning: This command requires you to have ${context.commandData.userPermissions.join(",")}`, ephemeral: true});
+                return false
+            }
+
+            return !(context.commandData.adminOnly);
         })
 
         // Disable in NSFW channels
@@ -341,18 +358,15 @@ module.exports = class Commands {
             id: context.user.id
         }));
 
-        console.log("we are here")
         if (!this.bot.commandUsages[context.command]) {
             if (!context.guild || !this.bot.customFunctions.COMMAND[context.guild.id] || context instanceof CustomCommandContext) return;
             let customCommand = this.bot.customFunctions.COMMAND[context.guild.id][context.command]
             if (!customCommand) return;
             context.logPerformed();
-            console.log("Custom command");
             // todo: custom command context
             return await this.bot.util.runCustomFunction(customCommand, context.message)
         }
 
-        console.log("running middleware");
         if(!await this.runCommandMiddleware(context))return console.log("Middleware triggered"); // Middleware triggered
 
         context.logPerformed();
@@ -376,8 +390,15 @@ module.exports = class Commands {
             if(context.commandData.subCommands){
                 console.log("This is a subcommand");
                 let parsedInput;
-                if(context.options.command && context.commandData.subCommands[context.options.command]){
+
+                // Default to the help command
+                if(!context.options.command || !context.commandData.subCommands[context.options.command])
+                    context.options.command = "help";
+
+                if(context.commandData.subCommands[context.options.command]){
                     if(context.args) {
+                        console.log(context.args);
+                        console.log(context.commandData.subCommands[context.options.command].pattern);
                         parsedInput = commandParser.Parse(context.args.slice(2).join(" "), {
                             pattern: context.commandData.subCommands[context.options.command].pattern,
                             id: context.options.command

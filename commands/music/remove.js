@@ -20,7 +20,7 @@ module.exports = {
 
 
         if (!args[2] || isNaN(args[2])) {
-            let output = `\`\`\`asciidoc\nEnter ${args[0]} ${args[1]} and then a number below:\n============\n`;
+            let output = `\`\`\`asciidoc\nEnter ${context.command} ${args[1]} and then a number below:\n============\n`;
             for (let i = 0; i < listener.queue.length; i++) {
                 output += `${i + 1} :: ${listener.queue[i].info.title}\n`;
             }
@@ -29,7 +29,7 @@ module.exports = {
         } else {
             let pos = parseInt(args[2]) - 1;
             if (!listener.queue[pos])
-                return message.channel.send(`:warning: There is no item at that position, retrieve the number from **${args[0]} list**`);
+                return message.channel.send(`:warning: There is no item at that position, retrieve the number from **${context.command} list**`);
 
             if (listener.voiceChannel.members.size > 2 && listener.queue[pos].requester !== message.author.id)
                 return message.channel.send(`:bangbang: Only the person who requested the song (<@${listener.queue[pos].requester}>) can remove this song.`);

@@ -75,7 +75,7 @@ module.exports = {
                     bot.rabbit.event({type: "reloadUserConfig"});
                     message.channel.send(`${bool ? "Enabled" : "Disabled"} Disabled Command Messages.`);
                 }else{
-                    message.channel.send(`Try **${args[0]} set disabledmessage false** to turn Disabled Command Messages off.`);
+                    message.channel.send(`Try **${context.command} set disabledmessage false** to turn Disabled Command Messages off.`);
                 }
             }
         },
@@ -142,7 +142,7 @@ module.exports = {
                 const setting = module.exports.settings[args[2].toLowerCase()];
                 message.channel.send(`${setting.name}:\n${setting.help}`);
             }else{
-                message.channel.send(`:bangbang: You must supply a valid setting to get help on. Try ${args[0]} list`);
+                message.channel.send(`:bangbang: You must supply a valid setting to get help on. Try ${context.command} list`);
             }
         }else {
             bot.util.standardNestedCommand(message, args, bot, 'settings', module.exports);

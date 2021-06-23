@@ -26,7 +26,7 @@ module.exports = {
 
             let embed = new Discord.MessageEmbed();
             embed.setTitle("Profile Badges");
-            embed.setDescription(`To see more info about the categories, do **${args[0]} ${args[1]} _category_**\nTo see more info about the badges you currently have, do **${args[0]} ${args[1]} mine**`);
+            embed.setDescription(`To see more info about the categories, do **${context.command} ${args[1]} _category_**\nTo see more info about the badges you currently have, do **${context.command} ${args[1]} mine**`);
             for (let category in categories) {
                 if (categories.hasOwnProperty(category))
                     embed.addField(category, categories[category].join(" "));
@@ -48,8 +48,8 @@ module.exports = {
             }
 
             if (result.length === 0)
-                return message.channel.send(series === "mine" ? `:warning: You don't have any badges! Check out ${args[0]} ${args[1]} to see what badges you can earn.` :
-                    `:warning: No such category. Try ${args[0]} ${args[1]} for a list of categories.`);
+                return message.channel.send(series === "mine" ? `:warning: You don't have any badges! Check out ${context.command} ${args[1]} to see what badges you can earn.` :
+                    `:warning: No such category. Try ${context.command} ${args[1]} for a list of categories.`);
 
             let output = series === "mine" ? "Your Badges:\n" : `Badges in category **'${args[2]}'**:\n`;
             for (let i = 0; i < result.length; i++) {

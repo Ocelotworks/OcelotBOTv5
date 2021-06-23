@@ -6,22 +6,20 @@
  */
 module.exports = {
     name: "Disable Command",
-    usage: "disableCommand <command>",
+    usage: "disableCommand :command",
     commands: ["disablecommand", "dc"],
-    run: async function (message, args, bot) {
-        let command = args[2];
-        if (!command)
-            return message.replyLang("SETTINGS_DISABLE_NONE", {command: args[0], arg: args[1]});
+    run: async function (context, bot) {
+        let command = context.options.command;
 
-        command = command.toLowerCase().replace(message.getSetting("prefix"), "");
+        command = command.toLowerCase().replace(context.getSetting("prefix"), "");
 
         if (!bot.commands[command])
-            return message.replyLang("SETTINGS_ENABLE_INVALID", {command: args[0], arg: args[1]});
+            return context.sendLang("SETTINGS_ENABLE_INVALID", {command: context.command, arg: context.options.command});
 
-        if (message.getBool(`${command}.disable`))
-            return message.replyLang("SETTINGS_DISABLE_DISABLED", {arg: args[0], command});
+        if (context.getBool(`${command}.disable`))
+            return context.sendLang("SETTINGS_DISABLE_DISABLED", {arg: context.command, command});
 
-        await bot.config.set(message.guild.id, command + ".disable", true);
-        message.replyLang("SETTINGS_DISABLE_SUCCESS", {command});
+        await bot.config.set(context.guild.id, command + ".disable", true);
+        return context.sendLang("SETTINGS_DISABLE_SUCCESS", {command});
     }
 };

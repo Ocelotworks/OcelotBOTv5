@@ -13,7 +13,7 @@ module.exports = {
     run: async function run(context, bot) {
         bot.util.standardNestedCommand(context.message, context.args, bot, "meme", null, async function invalidUsage() {
             if (!context.args[1])
-                return context.channel.send(`:bangbang: Invalid Usage. Try ${context.args[0]} help`);
+                return context.channel.send(`:bangbang: Invalid Usage. Try ${context.context.command} help`);
 
             try {
                 const memeResult = await bot.database.getMeme(context.args[1].toLowerCase(), context.message.guild ? context.message.guild.id : "global");

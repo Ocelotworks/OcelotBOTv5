@@ -26,7 +26,7 @@ module.exports = {
                 return message.channel.send(":bangbang: You must enter a search term.");
 
 
-            let search = message.cleanContent.substring(args[0].length+1);
+            let search = message.cleanContent.substring(context.command.length+1);
 
             // if(naughtyRegex.test(search)){
             //     bot.logger.warn("Blocking query");

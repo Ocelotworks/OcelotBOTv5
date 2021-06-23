@@ -1,31 +1,31 @@
 module.exports = {
     name: "Edit Custom Function",
-    usage: "edit <id> <code>",
+    usage: "edit :0id? :name :code+",
     commands: ["edit", "update"],
-    run: async function (message, args, bot, custom) {
-        const func = await custom.getNameOrId(message, args, bot);
+    run: async function (context, bot) {
+        const func = await context.commandData.getNameOrId(context, bot);
         if(!func)return;
-        const code = custom.getCodeBlock(message);
+        const code = context.commandData.getCodeBlock(context);
 
-        if(code.length === 0){
-            return message.channel.send(":warning: Couldn't figure out where your code starts. For the best results, enter your code inside of a codeblock (wrapped in ```)")
-        }
+        if(code.length === 0)
+            return context.send({content: ":warning: Couldn't figure out where your code starts. For the best results, enter your code inside of a codeblock (wrapped in ```)", ephemeral: true})
 
-        let success = await bot.util.runCustomFunction(code, message, true, false);
+        // TODO
+        let success = await bot.util.runCustomFunction(code, context.message, true, false);
         if(!success)return;
 
-        await bot.database.updateCustomFunction(message.guild.id, func.id, code);
+        await bot.database.updateCustomFunction(context.guild.id, func.id, code);
 
-        if(bot.customFunctions[func.type][message.guild.id])
-            bot.customFunctions[func.type][message.guild.id][func.trigger] = code;
+        if(bot.customFunctions[func.type][context.guild.id])
+            bot.customFunctions[func.type][context.guild.id][func.trigger] = code;
         else
-            bot.customFunctions[func.type][message.guild.id] = {[func.trigger]: code}
+            bot.customFunctions[func.type][context.guild.id] = {[func.trigger]: code}
 
         // This is really terrible
         if(func.type === "SCHEDULED"){
-            custom.loadScheduled(bot);
+            context.commandData.loadScheduled(bot);
         }
 
-        return message.channel.send("✅ Function was successfully edited!");
+        return context.send("✅ Function was successfully edited!");
     }
 }

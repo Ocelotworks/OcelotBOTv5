@@ -14,10 +14,10 @@ module.exports = {
         if(subs.length > 0){
             let output = `Active subscriptions for **#${message.channel.name}**:\n\`\`\`\n`;
             output += columnify(subs.map(({id, type, data})=>({id, type, data})));
-            output += `\n\`\`\`\nTo remove a subscription, type **${args[0]} remove id**`;
+            output += `\n\`\`\`\nTo remove a subscription, type **${context.command} remove id**`;
             message.channel.send(output);
         }else{
-            message.channel.send(`There are no subscriptions in this channel yet! Add one with ${args[0]} add\nor view available subscription types with **${args[0]} types**`);
+            message.channel.send(`There are no subscriptions in this channel yet! Add one with ${context.command} add\nor view available subscription types with **${context.command} types**`);
         }
     }
 };

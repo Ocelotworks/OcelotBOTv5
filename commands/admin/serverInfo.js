@@ -56,7 +56,7 @@ module.exports = {
 
 
         let lastCommands = await bot.database.getServerCommands(serverId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
-        output.addField("Last 5 Commands", `Use **${args[0]} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)
+        output.addField("Last 5 Commands", `Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)
         return context.send({embeds: [output]});
     }
 };

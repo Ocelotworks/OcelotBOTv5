@@ -3,33 +3,24 @@ const Sentry = require('@sentry/node')
 let cronIntervals = [];
 module.exports = {
     name: "Custom Functions",
-    usage: "custom add/list",
+    usage: "custom",
     rateLimit: 10,
     detailedHelp: "Add custom commands or autoresponders",
     categories: ["meta"],
     commands: ["custom", "customcommands"],
+    noSynthetic: true,
+    nestedDir: "custom",
+    userPermissions: ["MANAGE_GUILD"],
     init: async function init(bot) {
-        bot.util.standardNestedCommandInit("custom");
         bot.customFunctions = {
             "COMMAND": {},
             "AUTORESPOND": {},
             "SCHEDULED": {},
         };
         bot.client.on("ready", ()=>{
-            utils.loadScheduled(bot);
+            this.loadScheduled(bot);
         })
-
     },
-    run: function run(message, args, bot) {
-        if(message.synthetic)return message.replyLang("GENERIC_CUSTOM_COMMAND");
-        if(!message.guild)return message.replyLang("GENERIC_DM_CHANNEL");
-        if (!message.getBool("admin") && !message.channel.permissionsFor(message.member).has("MANAGE_GUILD", true)) return message.channel.send("You must have the Manage Server permission to use this command.");
-        bot.util.standardNestedCommand(message, args, bot, "custom", utils);
-    },
-};
-
-
-const utils = {
     async loadScheduled(bot){
         cronIntervals.forEach((c)=>c.clear());
         // I've got crons disease ha ha
@@ -71,46 +62,38 @@ const utils = {
             }
         }
     },
-    isValidType(type){
-        return ["COMMAND", "AUTORESPOND", "SCHEDULED"].includes(type)
-    },
-    getCodeBlock(message){
-        let start = message.content.indexOf("```")
-        let end = message.content.length - 4;
+    getCodeBlock(context){
+        let start = context.options.code.indexOf("```")
+        let end = context.options.code.length - 4;
         if (start === -1) {
-            start = args.slice(0, 3).join(" ").length+1;
-            end = message.content.length;
+            start = 0;
+            end = context.options.code.length;
         }else{
             start += 3
         }
-        let code = message.content.substring(start, end);
+        let code = context.options.code.substring(start, end);
 
         if(code.startsWith("lua"))code = code.substring(3); // Remove lua from the start of the codeblock
         return code;
     },
-    async getNameOrId(message, args, bot){
-        if(!args[2]) {
-            message.channel.send(`Enter a custom command to edit in the format **${args[0]} ${args[1]} name**`);
-            return null;
-        }
-
+    async getNameOrId(context, bot){
         let func;
-        if(!isNaN(args[2])){
-            func = (await bot.database.getCustomFunction(message.guild.id, parseInt(args[2])))[0];
+        if(context.options.id){
+            func = (await bot.database.getCustomFunction(context.guild.id, context.options.id))[0];
         }
         if(!func){
-            const funcs = await bot.database.getCustomFunctionByTrigger(message.guild.id, args[2]);
+            const funcs = await bot.database.getCustomFunctionByTrigger(context.guild.id, context.options.id || context.options.name);
             if(funcs.length > 1){
-                message.channel.send(`:thinking: There are multiple functions with that name. Instead, enter the ID from **${args[0]} list** in the format **${args[0]} ${args[1]} id**`);
+                context.send({content: `:thinking: There are multiple functions with that name. Instead, enter the ID from **${context.command} list** in the format **${context.command} ${context.options.command} id**`, ephemeral: true});
                 return null;
             }
             func = funcs[0];
         }
 
         if(!func){
-            message.channel.send(`Couldn't find a function with that trigger or ID. Find the ID with **${args[0]} list**. Then enter **${args[0]} ${args[1]} id**`);
+            context.send({content: `Couldn't find a function with that trigger or ID. Find the ID with **${context.command} list**. Then enter **${context.command} ${context.options.command} id**`, ephemeral: true});
             return null;
         }
         return func;
     }
-}
+};

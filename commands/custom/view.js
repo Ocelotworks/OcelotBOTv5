@@ -1,10 +1,10 @@
 const Discord = require('discord.js');
 module.exports = {
     name: "View Custom Function",
-    usage: "view <id>",
+    usage: "view :0id? :name?+",
     commands: ["view", "get"],
-    run: async function (message, args, bot, custom) {
-        const func = await custom.getNameOrId(message, args, bot);
+    run: async function (context, bot) {
+        const func = await context.commandData.getNameOrId(context, bot);
         if(!func)return;
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`Function #${func.id}: ${func.trigger}`);
@@ -13,9 +13,10 @@ module.exports = {
         embed.addField("Trigger", func.trigger, true);
         if(func.function.length < 900) {
             embed.addField("Code", `\`\`\`lua\n${func.function}\n\`\`\``);
-            return message.channel.send({embeds: [embed]});
+            return context.send({embeds: [embed]});
         } else {
-            return message.channel.send({embeds: [embed], files: [new Discord.MessageAttachment(Buffer.from(func.function), "code.lua")]});
+            // TODO: this won't work as an interaction
+            return context.send({embeds: [embed], files: [new Discord.MessageAttachment(Buffer.from(func.function), "code.lua")]});
         }
     }
 }

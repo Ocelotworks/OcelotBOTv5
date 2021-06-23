@@ -2,7 +2,7 @@ const later = require('later');
 const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
 module.exports = {
     name: "Set Recurring Reminder",
-    usage: "every <time> \"reminder message\"",
+    usage: "every :timeAndMessage+",
     commands: ["every", "everyday"],
     init: async function init(bot, reminderData) {
         bot.client.once("ready", async () => {
@@ -39,33 +39,33 @@ module.exports = {
         })
 
     },
-    run: async function (message, args, bot, reminderData) {
-        if (message.guild && !message.member.hasPermission("MANAGE_CHANNELS")) return message.channel.send("You must have the Manage Channels permission to use this command.");
-        const input = args.slice(1).join(" ");
+    run: async function (context, bot) {
+        if (context.guild && !context.channel.permissionsFor(context.member).has("MANAGE_CHANNELS")) return context.send("You must have the Manage Channels permission to use this command.");
+        const input = context.options.timeAndMessage;
         let parse = later.parse.text(input);
-        const rargs = regex.exec(message.content);
+        const rargs = regex.exec(input);
         let reminder;
         if (!rargs || rargs.length < 3) {
             if (parse.error === -1)
-                return message.replyLang("REMIND_INVALID_MESSAGE");
+                return context.sendLang({content: "REMIND_INVALID_MESSAGE", ephemeral: true});
             reminder = input.substring(parse.error);
         } else {
             if (input.indexOf(rargs[2]) - 1 !== parse.error) {
                 console.log(input.indexOf(rargs[2]), parse.error);
                 if (parse.error === 0)
-                    return message.channel.send(`Invalid time period. Try 'every 5 minutes' or 'every day at 10:15pm'.`);
+                    return context.send(`Invalid time period. Try 'every 5 minutes' or 'every day at 10:15pm'.`);
                 else
-                    return message.channel.send(`Could only understand up to \`${input.substring(0, parse.error)}\`.`);
+                    return context.send(`Could only understand up to \`${input.substring(0, parse.error)}\`.`);
 
             }
             reminder = rargs[2];
         }
 
         if (reminder.length > 1000)
-            return message.channel.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
+            return context.send({content: "Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.", ephemeral: true});
 
         if (parse.schedules.length === 0) {
-            return message.channel.send("Unable to parse time: Try something like 'every 5 minutes' or 'every day at 10:15pm'");
+            return context.send({content: "Unable to parse time: Try something like 'every 5 minutes' or 'every day at 10:15pm'", ephemeral: true});
         }
 
         console.log("parsed time: ", parse.schedules);
@@ -87,9 +87,9 @@ module.exports = {
         }
 
         if (tooShort > occurrences.length / 2)
-            return message.channel.send(":warning: Your message is too frequent. You must have at least 10 seconds between messages.");
+            return context.send({content: ":warning: Your message is too frequent. You must have at least 10 seconds between messages.", ephemeral: true});
 
-        let result = await bot.database.addRecurringReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, reminder, {
+        let result = await bot.database.addRecurringReminder(bot.client.user.id, context.user.id, context.guild?.id || null, context.channel.id, reminder, {
             schedules: parse.schedules,
             exceptions: parse.exceptions
         });
@@ -98,7 +98,7 @@ module.exports = {
         // TODO unduplicate this
         let scheduledReminder = later.setInterval(async () => {
             try {
-                await message.channel.send(reminder);
+                await context.send(reminder);
             } catch (e) {
                 console.log(e);
                 bot.raven.captureException(e);
@@ -106,35 +106,12 @@ module.exports = {
             }
         }, parse);
 
-        reminderData.recurringReminders[result[0]] = scheduledReminder;
+        context.commandData.recurringReminders[result[0]] = scheduledReminder;
 
-        message.channel.send(`:white_check_mark: Successfully set recurring reminder.\nThe message:\n> ${reminder}\nWill be sent ${bot.util.parseSchedule(parse)}\nTo remove the reminder, type **${args[0]} remove ${result[0]}**`)
+        return context.send(`:white_check_mark: Successfully set recurring reminder.\nThe message:\n> ${reminder}\nWill be sent ${bot.util.parseSchedule(parse)}\nTo remove the reminder, type **${context.command} remove ${result[0]}**`)
     }
 }
 
-function parseScheduleArea(scheduleArray, maximum, name, bot) {
-    let output = "";
-    if (scheduleArray) {
-        output += "- ";
-        if (scheduleArray.length === 1)
-            output += `the **${bot.util.getNumberPrefix(scheduleArray[0])}** ${name}`;
-        else if (scheduleArray.length < 5)
-            output += `the **${scheduleArray.map(bot.util.getNumberPrefix)}** ${name}s`;
-        else if (scheduleArray.length >= maximum)
-            output += `every **${name}**`
-        else
-            output += `**${scheduleArray.length} distinct ${name}s** (${scheduleArray.slice(0, 5).map(bot.util.getNumberPrefix)}...)`
-        output += "\n";
-    }
-    return output;
-}
-
-function parseTime(totalSeconds) {
-    let hours = Math.floor(totalSeconds / 60 / 60);
-    let minutes = Math.floor(totalSeconds / 60 % 60);
-    let seconds = Math.floor(totalSeconds % 60);
-    return `${toFixed(hours)}:${toFixed(minutes)}:${toFixed(seconds)}`
-}
 
 function toFixed(time) {
     if (time >= 10)

@@ -16,8 +16,8 @@ module.exports = {
     // This doesn't feel right
     deletedReminders: [],
     recurringReminders: {},
+    nestedDir: "reminder",
     init: function init(bot){
-        bot.util.standardNestedCommandInit('remind', 'remind', module.exports);
         // bot.client.on("ready", function () {
         //     bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.util.shard}`, {exclusive: true});
         //     bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.util.shard}`, function reminderConsumer(message) {
@@ -144,7 +144,7 @@ module.exports = {
     run: async function(context, bot){
         await bot.util.standardNestedCommand(message, args, bot, "remind", module.exports, async function setReminder() {
             //Hacky hack hack
-            message.content = message.content.replace(args[0], "in");
+            message.content = message.content.replace(context.command, "in");
             console.log(message.content);
             const now = new Date();
             const rargs = regex.exec(message.content);

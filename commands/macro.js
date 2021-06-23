@@ -9,12 +9,12 @@ module.exports = {
     categories: ["image", "memes"],
     run: async function (message, args, bot) {
         if (!args[1]) {
-            return message.channel.send(`Enter up to two things like: **${args[0]} top text** or **${args[0]} top text / bottom text**`)
+            return message.channel.send(`Enter up to two things like: **${context.command} top text** or **${context.command} top text / bottom text**`)
         }
         const url = await bot.util.getImage(message, args);
         if (!url)
             return message.replyLang("CRUSH_NO_USER");
-        const fullText = message.cleanContent.substring(args[0].length).replace(url, "").toUpperCase();
+        const fullText = message.cleanContent.substring(context.command.length).replace(url, "").toUpperCase();
         let first = fullText;
         let second = "";
         if(fullText.indexOf("/") > -1){

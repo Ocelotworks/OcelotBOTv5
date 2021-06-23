@@ -32,7 +32,7 @@ module.exports = {
         let fullArgs = Discord.escapeMarkdown(args.slice(1).join(" "));
         let options = fullArgs.split(',');
         if (options.length < 2)
-            return message.channel.send(`:bangbang: You need to enter at least 2 poll items. For example, ${args[0]} Dogs, Cats`);
+            return message.channel.send(`:bangbang: You need to enter at least 2 poll items. For example, ${context.command} Dogs, Cats`);
 
         if (options.length > 20)
             return message.channel.send(":bangbang: You can only enter a maximum of 20 poll options.");

@@ -1,18 +1,18 @@
 module.exports = {
     name: "Delete Custom Function",
-    usage: "delete <id>",
+    usage: "delete :0id? :name?",
     commands: ["delete", "del", "remove"],
-    run: async function (message, args, bot, custom) {
-        const func = await custom.getNameOrId(message, args, bot);
+    run: async function (context, bot) {
+        const func = await context.commandData.getNameOrId(context, bot);
         if(!func)return;
-        await bot.database.deleteCustomFunction(message.guild.id, func.id);
+        await bot.database.deleteCustomFunction(context.guild.id, func.id);
 
-        if(bot.customFunctions[func.type] && bot.customFunctions[func.type][message.guild.id])
-            delete bot.customFunctions[func.type][message.guild.id][func.trigger];
+        if(bot.customFunctions[func.type] && bot.customFunctions[func.type][context.guild.id])
+            delete bot.customFunctions[func.type][context.guild.id][func.trigger];
 
         if(func.type === "SCHEDULED")
-            custom.loadScheduled(bot);
+            context.commandData.loadScheduled(bot);
 
-        return message.channel.send(`✅ Function was successfully deleted.\nHere is the code, in case you want to re-add it:\n\`\`\`lua\n${func.function}\n\`\`\``);
+        return context.send(`✅ Function was successfully deleted.\nHere is the code, in case you want to re-add it:\n\`\`\`lua\n${func.function}\n\`\`\``);
     }
 }

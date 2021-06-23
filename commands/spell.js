@@ -6,7 +6,7 @@ module.exports = {
     equiredPermissions: ["ADD_REACTIONS"],
     run: async function run(message, args, bot) {
         if (!args[1]) {
-            message.channel.send(`Invalid usage: ${args[0]} <sentence>`);
+            message.channel.send(`Invalid usage: ${context.command} <sentence>`);
             return;
         }
 
@@ -94,7 +94,7 @@ module.exports = {
         if (!targetMessage || !targetMessage.react)
             return message.channel.send(":bangbang: Could not find a message to react to...");
 
-        let target = message.cleanContent.substring(args[0].length).trim().toLowerCase();
+        let target = message.cleanContent.substring(context.command.length).trim().toLowerCase();
 
         for (let passes = 0; passes < 20; passes++) {
             let done = true;

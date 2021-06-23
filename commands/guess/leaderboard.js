@@ -31,7 +31,7 @@ module.exports = {
         const timescale = timescales[args[2].toLowerCase()];
 
         if (!timescale)
-            return message.channel.send(`:bangbang: The available leaderboards are: **all, year, month and week** Add **server** to see the leaderboard for this server, for example: **${args[0]} leaderboard year server**`);
+            return message.channel.send(`:bangbang: The available leaderboards are: **all, year, month and week** Add **server** to see the leaderboard for this server, for example: **${context.command} leaderboard year server**`);
 
         message.channel.startTyping();
         try {
@@ -39,7 +39,7 @@ module.exports = {
             let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/${server}/${timescale}`);
             span.end();
             if (!leaderboard.data || leaderboard.data.length === 0) {
-                return message.channel.send(`There is no data for that timeframe. Try **${args[0]} leaderboard all** to see the all time scores.`);
+                return message.channel.send(`There is no data for that timeframe. Try **${context.command} leaderboard all** to see the all time scores.`);
             }
             span = bot.util.startSpan("Get Position");
             let positionData = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/${server}/${timescale}/${message.author.id}`);

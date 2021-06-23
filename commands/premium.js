@@ -45,7 +45,7 @@ module.exports = {
     run: async function run(message, args, bot){
         if(args[1]){
             if(!message.guild.id)
-                return message.replyLang("PREMIUM_DM_CHANNEL", {arg: args[0]});
+                return message.replyLang("PREMIUM_DM_CHANNEL", {arg: context.command});
 
             if(args[1].toLowerCase() === "redeem"){
                 if(bot.config.getBool("global", "premium", message.author.id)) {
@@ -68,7 +68,7 @@ module.exports = {
             let result = await bot.database.getPremiumKey(args[1]);
 
             if(!result[0])
-                return message.replyLang("PREMIUM_INVALID", {arg: args[0]});
+                return message.replyLang("PREMIUM_INVALID", {arg: context.command});
 
             let key = result[0];
             if(key.redeemed)
@@ -107,11 +107,11 @@ module.exports = {
             embed.setColor("#378515");
             embed.setDescription("**[User Premium](https://ocelotbot.xyz/premium)** - You have user premium, so you can enjoy the benefits anywhere!");
             embed.addField("Server Premium", "Upgrade the whole server to premium for just $5 a month at https://ocelotbot.xyz/premium");
-            embed.addField("Got a Key?", `Redeem it with ${args[0]} \`key\``);
+            embed.addField("Got a Key?", `Redeem it with ${context.command} \`key\``);
         }else{
             embed.setColor("#707070");
             embed.setDescription("No premium benefits. Premium starts at $2 a month: https://ocelotbot.xyz/premium");
-            embed.addField("Got a Key?", `Redeem it with ${args[0]} \`key\``);
+            embed.addField("Got a Key?", `Redeem it with ${context.command} \`key\``);
         }
 
         message.channel.send({embeds: [embed]});

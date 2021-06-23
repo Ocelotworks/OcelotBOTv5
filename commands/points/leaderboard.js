@@ -25,7 +25,7 @@ module.exports = {
             let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/points//${timescale}`);
             span.end();
             if (!leaderboard.data || leaderboard.data.length === 0) {
-                return message.channel.send(`There is no data for that timeframe. Try **${args[0]} leaderboard all** to see the all time scores.`);
+                return message.channel.send(`There is no data for that timeframe. Try **${context.command} leaderboard all** to see the all time scores.`);
             }
             span = bot.util.startSpan("Get Position");
             let positionData = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/points/${timescale}/${message.author.id}`);

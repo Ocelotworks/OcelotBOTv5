@@ -63,7 +63,7 @@ module.exports = {
                 let {songData, player} = await bot.lavaqueue.playOneSong(message.member.voice.channel, noot);
                 player.once("start", ()=>{
                     message.channel.stopTyping();
-                    message.channel.send(`<:noot:524657747757891615> Noot #${nootNumber} (${songData.info.title})\nUse \`${args[0]} ${nootNumber}\` to play this again.`);
+                    message.channel.send(`<:noot:524657747757891615> Noot #${nootNumber} (${songData.info.title})\nUse \`${context.command} ${nootNumber}\` to play this again.`);
                 });
             } catch (e) {
                 bot.raven.captureException(e);

@@ -59,9 +59,9 @@ module.exports = {
             }else{
                 return bot.util.standardNestedCommand(message, args, bot, 'guess', runningGames, () => {
                     if (message.member && message.member.voice.channel && runningGames[message.guild.id]) {
-                        message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${args[0]} stop. To see other commands, type ${args[0]} help`)
+                        message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${context.command} stop. To see other commands, type ${context.command} help`)
                     } else {
-                        message.channel.send(`To start a game, just type ${args[0]}. To see other commands, type ${args[0]} help`)
+                        message.channel.send(`To start a game, just type ${context.command}. To see other commands, type ${context.command} help`)
                     }
                 });
             }
@@ -93,7 +93,7 @@ module.exports = {
                     playlistName = message.getSetting("songguess.default");
                 else if(args[1].startsWith("http"))
                     playlistName = "<"+args[1]+">";
-                return message.channel.send(`Switched the playlist to **${playlistName}**\nThe next song will be from this playlist, or to start now type **${args[0]} skip**`);
+                return message.channel.send(`Switched the playlist to **${playlistName}**\nThe next song will be from this playlist, or to start now type **${context.command} skip**`);
             }
             return message.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: runningGames[message.guild.id].voiceChannel.name})
         }
