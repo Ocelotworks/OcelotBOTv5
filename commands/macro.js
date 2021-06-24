@@ -2,7 +2,7 @@ const Image = require('../util/Image');
 const Util = require("../util/Util");
 module.exports = {
     name: "Image Macro",
-    usage: "macro :image? :text+",
+    usage: "macro :image? :text?+",
     rateLimit: 10,
     detailedHelp: "Make an image macro meme like it's 2011 again",
     usageExample: "macro we live in a society / bottom text",
@@ -13,7 +13,10 @@ module.exports = {
         const url = await Util.GetImage(bot, context);
         if (!url)
             return context.sendLang({content: "CRUSH_NO_USER", ephemeral: true});
-        const fullText = (context.options.image+" "+context.options.text).replace(url, "");
+        let fullText = (`${context.options.image || ""} ${context.options.text || ""}`).replace(url, "");
+        if(url.startsWith("https://cdn.discord") && context.message.mentions.users.size > 0){
+            fullText = fullText.replace(new RegExp(`<@!?(${context.message.mentions.users.firstKey()})>`), "")
+        }
         let first = fullText;
         let second = "";
         if(fullText.indexOf("/") > -1){

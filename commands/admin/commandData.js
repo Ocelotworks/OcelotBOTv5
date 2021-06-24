@@ -7,10 +7,10 @@
 const Discord = require('discord.js');
 module.exports = {
     name: "Command Data",
-    usage: "command :commandData :subCommand?",
+    usage: "command :commanddata :subcommand?",
     commands: ["commanddata", "cd"],
     run: async function (context, bot) {
-        const data = bot.commandUsages[context.options.commandData];
+        const data = bot.commandUsages[context.options.commanddata];
         if (!data)
             return context.send("No such command exists");
 
@@ -75,7 +75,7 @@ module.exports = {
         if(data.pattern)
             embed.addField("Parsed Pattern", `\`\`\`json\n${JSON.stringify(data.pattern)}\n\`\`\``);
 
-        if(context.options.subCommand && data.subCommands[context.options.subCommand])
+        if(context.options.subcommand && data.subCommands[context.options.subcommand])
             embed.addField("Sub-command Pattern", `\`\`\`json\n${JSON.stringify(data.subCommands[context.options.subCommand].pattern)}\n\`\`\``);
 
         return context.send({embeds: [embed]});

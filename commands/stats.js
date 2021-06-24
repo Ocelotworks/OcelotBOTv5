@@ -55,7 +55,7 @@ module.exports = {
             }
         }
 
-        let uptimeValue = bot.util.prettySeconds(process.uptime(), message.guild && message.guild.id, message.author.id);
+        let uptimeValue = bot.util.prettySeconds(process.uptime(), context.guild && context.guild.id, context.user.id);
         try{
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
             const watsonResult = await bot.util.getJson("https://ob-watson.d.int.unacc.eu/");
@@ -64,7 +64,7 @@ module.exports = {
                 const downtime = watsonResult.downtimes[bot.client.user.id] || 0;
                 const upSince = watsonResult.lastChanges[bot.client.user.id];
                 const upSeconds = ((new Date())-(new Date(upSince)))/1000
-                uptimeValue = `${bot.util.prettySeconds(upSeconds, message.guild && message.guild.id, message.author.id)} (${((uptime/(uptime+downtime))*100).toFixed(2)}% Uptime)`;
+                uptimeValue = `${bot.util.prettySeconds(upSeconds, context.guild && context.guild.id, context.user.id)} (${((uptime/(uptime+downtime))*100).toFixed(2)}% Uptime)`;
             }
         }catch(e){
             bot.logger.error(e);
