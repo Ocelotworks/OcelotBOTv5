@@ -1,5 +1,5 @@
 const Util = require("../util/Util");
-
+const Image = require('../util/Image');
 module.exports = {
     name: "Monochrome Image",
     usage: "monochrome [url]",

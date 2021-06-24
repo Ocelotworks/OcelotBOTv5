@@ -1,37 +1,28 @@
 module.exports = {
     name: "Give Points",
-    usage: "give @user amount",
+    usage: "give :@user :0amount",
     commands: ["give", "send", "pay"],
-    run: async function (message, args, bot) {
-        if (message.mentions.users.size === 0)
-            return message.channel.send(`You must mention a user to send points to. For example: ${context.command} ${args[1]} ${bot.client.user} 100`);
+    run: async function (context, bot) {
+        let target = context.channel.members.get(context.options.user).user;
 
-        if (!args[3])
-            return message.channel.send(`Enter an amount to send. For example: ${context.command} ${args[1]} ${bot.client.user} 100`)
-        let target = message.mentions.users.first();
-
-        if(target.id === message.author.id)
-            return message.channel.send("You can't send points to yourself. What would that even achieve?");
+        if(target.id === context.user.id)
+            return context.send({content: "You can't send points to yourself. What would that even achieve?", ephemeral: true});
 
         if(target.bot)
-            return message.channel.send("You can't send points to a bot.");
-
-        const amount = parseInt(args[3]);
-
-        if(isNaN(amount))
-            return message.channel.send(`The amount you entered was not a valid number. Enter a whole number, for example: ${context.command} ${args[1]} ${bot.client.user} 100`);
-
+            return context.send({content: "You can't send points to a bot.", ephemeral: true});
+        
+        const amount = context.options.amount;
+        
         if(amount <= 0)
-            return message.channel.send("Nice try, enter a number higher than 0.");
+            return context.send({content: "Nice try, enter a number higher than 0.", ephemeral: true});
 
-        const canSend = await bot.database.takePoints(message.author.id, amount, `given to ${target.id}`);
+        const canSend = await bot.database.takePoints(context.user.id, amount, `given to ${target.id}`);
 
         if(!canSend)
-            return message.channel.send("You don't have enough points to do that.");
+            return context.send({content: "You don't have enough points to do that.", ephemeral: true});
 
-        await bot.database.addPoints(target.id, amount, `received from ${message.author.id}`);
+        await bot.database.addPoints(target.id, amount, `received from ${context.user.id}`);
 
-        message.channel.send(`✅ Sent **<:points:817100139603820614>${amount}** to ${target}!`)
-
+        return context.send(`✅ Sent **<:points:817100139603820614>${amount}** to ${target}!`)
     }
 };

@@ -28,7 +28,6 @@ module.exports = {
             await context.member.setNickname(bot.util.arrayRand(nicknames), "!newnick command");
             context.send("Enjoy your new nickname (:");
             if (oldNickname && nicknames.indexOf(oldNickname) === -1 && !context.getBool("privacy.serverAnonymous")) {
-
                 nicknames.push(oldNickname);
                 bot.logger.log("Adding " + oldNickname + " to the pile");
             }

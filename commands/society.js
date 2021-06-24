@@ -2,19 +2,20 @@ const Discord = require('discord.js');
 const request = require('request');
 const gm = require('gm');
 const fs = require('fs');
+const Util = require("../util/Util");
 module.exports = {
     name: "We live in a society meme",
-    usage: "society [url]",
+    usage: "society :image?",
     categories: ["image", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     rateLimit: 10,
     commands: ["society", "weliveinasociety", "wlias"],
     run: async function(context, bot){
 
-        const url =  await bot.util.getImage(message, args);
+        const url =  await Util.GetImage(bot, context);
 
         if(!url || !url.startsWith("http")){
-            message.channel.send(`:bangbang: No image found. ${message.getSetting("prefix")}${module.exports.usage}`);
+            context.send(`:bangbang: No image found. ${context.getSetting("prefix")}${module.exports.usage}`);
             return;
         }
         console.log(url);
@@ -26,7 +27,7 @@ module.exports = {
 
 
         req.on("error", function(err){
-            message.channel.send(":bangbang: Error getting image: "+err.message);
+            context.send(":bangbang: Error getting image: "+err.message);
         });
 
 
@@ -40,7 +41,7 @@ module.exports = {
                         return;
                     }
                     let attachment = new Discord.MessageAttachment(buffer, "society.png");
-                    message.channel.send({files: [attachment]});
+                    context.send({files: [attachment]});
                     fs.unlinkSync(fileName);
                 });
         }).pipe(fs.createWriteStream(fileName));

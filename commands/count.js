@@ -19,6 +19,6 @@ module.exports = {
         const phrase = context.options.phrase;
         context.defer();
         let result = await bot.database.getPhraseCount(phrase);
-        context.send(`'${phrase}' has been said **${result[0]['COUNT(*)']} times.**`);
+        return context.send(`'${phrase}' has been said **${result[0]['COUNT(*)']} times.**`);
     }
 };

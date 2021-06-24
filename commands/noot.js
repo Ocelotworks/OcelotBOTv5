@@ -30,46 +30,28 @@ const noots = [
 let nootCount = 0;
 module.exports = {
     name: "Noot Noot",
-    usage: "noot",
+    usage: "noot :0id?",
     rateLimit: 50,
     categories: ["memes", "voice"],
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["noot", "pingu"],
     unwholesome: true,
-    run: async function run(message, args, bot) {
-        if (args[1] && args[1].toLowerCase() === "stop") {
-            message.channel.send(`Use ${message.getSetting("prefix")}music stop to stop nooting`);
-        }else if (!message.guild) {
-            message.replyLang("GENERIC_DM_CHANNEL");
-        } else if (!message.guild.available) {
-            message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-        } else if (!message.member.voice.channel) {
-            message.replyLang("VOICE_NO_CHANNEL");
-        } else if (message.member.voice.channel.full) {
-            message.replyLang("VOICE_FULL_CHANNEL");
-        } else if (!message.member.voice.channel.joinable) {
-            message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-        } else if (!message.member.voice.channel.speakable) {
-            message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
-        } else if (await bot.database.hasActiveSession(message.guild.id)) {
-            message.channel.send(`The bot is currently playing music. Please wait for the queue or type ${message.getSetting("prefix")}music stop to end to start nooting`);
-        } else {
-            try {
-                bot.logger.log("Joining voice channel " + message.member.voice.channel.name);
-                let nootNumber = nootCount++ % noots.length;
-                if(args[1] && !isNaN(parseInt(args[1])))nootNumber = parseInt(args[1]) % noots.length;
-                const noot = noots[nootNumber]
-                message.channel.startTyping();
-                let {songData, player} = await bot.lavaqueue.playOneSong(message.member.voice.channel, noot);
-                player.once("start", ()=>{
-                    message.channel.stopTyping();
-                    message.channel.send(`<:noot:524657747757891615> Noot #${nootNumber} (${songData.info.title})\nUse \`${context.command} ${nootNumber}\` to play this again.`);
-                });
-            } catch (e) {
-                bot.raven.captureException(e);
-                bot.logger.log(e);
-                message.replyLang("GENERIC_ERROR");
-            }
+    slashHidden: true,
+    run: async function run(context, bot) {
+        if (bot.util.checkVoiceChannel(context.message)) return;
+        try {
+            bot.logger.log("Joining voice channel " + context.member.voice.channel.name);
+            let nootNumber = (context.options.id || nootCount++) % noots.length;
+            const noot = noots[nootNumber]
+            context.defer();
+            let {songData, player} = await bot.lavaqueue.playOneSong(context.member.voice.channel, noot);
+            player.once("start", ()=>{
+                context.send(`<:noot:524657747757891615> Noot #${nootNumber} (${songData.info.title})\nUse \`${context.command} ${nootNumber}\` to play this again.`);
+            });
+        } catch (e) {
+            bot.raven.captureException(e);
+            bot.logger.log(e);
+            context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
         }
     }
 };

@@ -4,7 +4,6 @@ const Discord = require('discord.js');
 const gm = require('gm');
 const config = require('config').get("Commands.sexysingle");
 let templates = [];
-const Image = require('../util/Image');
 const Util = require("../util/Util");
 module.exports = {
     name: "Sexy Singles",

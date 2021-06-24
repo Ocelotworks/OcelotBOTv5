@@ -1,20 +1,19 @@
+const Image = require('../util/Image');
+const Util = require("../util/Util");
 module.exports = {
     name: "Image Macro",
-    usage: "macro [image] <top text> / <bottom text>",
+    usage: "macro :image? :text+",
     rateLimit: 10,
     detailedHelp: "Make an image macro meme like it's 2011 again",
     usageExample: "macro we live in a society / bottom text",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["imagemacro", "macro"],
     categories: ["image", "memes"],
-    run: async function (message, args, bot) {
-        if (!args[1]) {
-            return message.channel.send(`Enter up to two things like: **${context.command} top text** or **${context.command} top text / bottom text**`)
-        }
-        const url = await bot.util.getImage(message, args);
+    run: async function (context, bot) {
+        const url = await Util.GetImage(bot, context);
         if (!url)
-            return message.replyLang("CRUSH_NO_USER");
-        const fullText = message.cleanContent.substring(context.command.length).replace(url, "").toUpperCase();
+            return context.sendLang({content: "CRUSH_NO_USER", ephemeral: true});
+        const fullText = (context.options.image+" "+context.options.text).replace(url, "");
         let first = fullText;
         let second = "";
         if(fullText.indexOf("/") > -1){

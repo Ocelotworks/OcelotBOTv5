@@ -1,38 +1,39 @@
+const Util = require("../util/Util");
 const validName = /[a-z_]{2,32}/gi
 module.exports = {
     name: "Steal Emoji",
-    usage: "esteal <URL or emoji> [name]",
+    usage: "esteal :image? :name?",
     categories: ["tools"],
     requiredPermissions: ["MANAGE_EMOJIS"],
     commands: ["esteal", "emojisteal", "steal"],
-    run: async function (message, args, bot) {
-        if (!message.guild) return message.replyLang("GENERIC_DM_CHANNEL");
-        if (!message.member.hasPermission("MANAGE_EMOJIS")) return message.channel.send("You must have the Manage Emojis permission to use this command.");
+    guildOnly: true,
+    userPermissions: ["MANAGE_EMOJIS"],
+    run: async function (context, bot) {
         let url, name;
-        if (args[1] && (args[1].startsWith("<a:") || args[1].startsWith("<:"))) {
-            const colonSplit = args[1].split(":");
+        if (context.options.image && (context.options.image.startsWith("<a:") || context.options.image.startsWith("<:"))) {
+            const colonSplit = context.options.image.split(":");
             name = colonSplit[1];
-            const ext = args[1].startsWith("<a:") ? "gif" : "png";
+            const ext = context.options.image.startsWith("<a:") ? "gif" : "png";
             const id = colonSplit[2].substring(0, colonSplit[2].length - 1);
             url = `https://cdn.discordapp.com/emojis/${id}.${ext}`;
         } else {
-            url = await bot.util.getImage(message, args);
-            if (!url) return message.channel.send("Unable to find an image. Try including an emoji in the command or attaching an image.");
+            url = await Util.GetImage(bot, context);
+            if (!url) return context.send("Unable to find an image. Try including an emoji in the command or attaching an image.");
             const urlSplit = url.split("/");
             name = urlSplit[urlSplit.length - 1].split(".")[0];
-            if (!validName.test(name)) name = message.id;
+            if (!validName.test(name)) name = context.message?.id || context.interaction.id;
         }
-        for (let i = 1; i < args.length; i++) {
-            if (args[i].startsWith("http") || args[i].startsWith("<")) continue;
-            name = args[i];
-            break;
+        if(context.options.name && context.options.name !== url){
+            name = context.options.name;
+        }else if(context.options.image && context.options.image !== url){
+            name = context.options.image;
         }
         try {
-            let result = await message.guild.emojis.create(url, name, {reason: "Steal emoji command"});
-            message.channel.send(`Successfully created emoji ${name}: ${result}.`);
+            let result = await context.guild.emojis.create(url, name, {reason: "Steal emoji command"});
+            context.send(`Successfully created emoji ${name}: ${result}.`);
         } catch (e) {
             console.log(e);
-            message.channel.send(`Failed to create emoji. Make sure that you have enough slots available, and that the image isn't too big. (${e.message})`);
+            context.send(`Failed to create emoji. Make sure that you have enough slots available, and that the image isn't too big. (${e.message})`);
         }
 
     }

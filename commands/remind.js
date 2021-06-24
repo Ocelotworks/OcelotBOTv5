@@ -6,7 +6,7 @@ const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『�
 
 module.exports = {
     name: "Reminders",
-    usage: "remind <in/every> \"<message>\"",
+    usage: "remind :command? :args?+",
     accessLevel: 0,
     detailedHelp: "Set one-time reminders or set recurring reminders",
     usageExample: "remind in 5 minutes 'fix reminders'",
@@ -22,7 +22,7 @@ module.exports = {
         //     bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.util.shard}`, {exclusive: true});
         //     bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.util.shard}`, function reminderConsumer(message) {
         //         try {
-        //             let reminder = JSON.parse(message.content);
+        //             let reminder = JSON.parse(input);
         //             if (bot.config.getBool("global", "remind.silentQueueTest")) {
         //                 bot.logger.warn("Silent test: got reminder from reminder worker");
         //                 bot.logger.log(reminder);
@@ -142,77 +142,73 @@ module.exports = {
         }
     },
     run: async function(context, bot){
-        await bot.util.standardNestedCommand(message, args, bot, "remind", module.exports, async function setReminder() {
-            //Hacky hack hack
-            message.content = message.content.replace(context.command, "in");
-            console.log(message.content);
-            const now = new Date();
-            const rargs = regex.exec(message.content);
-            const chronoParse = (chrono.parse(message.content, now, {forwardDate: true}))[0];
-            let at = null;
-            if (chronoParse && chronoParse.start)
-                at = chronoParse.start.date();
+        //Hacky hack hack
+        let input = `in ${context.options.command} ${context.options.args}`;
+        const now = new Date();
+        const rargs = regex.exec(input);
+        const chronoParse = (chrono.parse(input, now, {forwardDate: true}))[0];
+        let at = null;
+        if (chronoParse && chronoParse.start)
+            at = chronoParse.start.date();
 
 
-            let reminder = null;
-            if (!rargs || rargs.length < 3) {
-                if (chronoParse && chronoParse.text) {
-                    const guessedContent = message.content.substring(message.content.indexOf(chronoParse.text) + chronoParse.text.length);
-                    if (guessedContent)
-                        reminder = guessedContent;
-                    else
-                        return message.replyLang("REMIND_INVALID_MESSAGE");
-                } else
-                    return message.replyLang("REMIND_INVALID_MESSAGE");
+        let reminder = null;
+        if (!rargs || rargs.length < 3) {
+            if (chronoParse && chronoParse.text) {
+                const guessedContent = input.substring(input.indexOf(chronoParse.text) + chronoParse.text.length);
+                if (guessedContent)
+                    reminder = guessedContent;
+                else
+                    return context.sendLang("REMIND_INVALID_MESSAGE");
             } else
-                reminder = rargs[2];
+                return context.sendLang("REMIND_INVALID_MESSAGE");
+        } else
+            reminder = rargs[2];
 
 
-            if (!at)
-                return message.replyLang("REMIND_INVALID_TIME");
+        if (!at)
+            return context.sendLang("REMIND_INVALID_TIME");
 
-            if (at.getTime() >= 253370764800000)
-                return message.replyLang("REMIND_LONG_TIME");
+        if (at.getTime() >= 253370764800000)
+            return context.sendLang("REMIND_LONG_TIME");
 
-            if (at.getTime() >= 2147483647000)
-                return message.channel.send(":stopwatch: You can't set a reminder for on or after 19th January 2038");
+        if (at.getTime() >= 2147483647000)
+            return context.send(":stopwatch: You can't set a reminder for on or after 19th January 2038");
 
-            const offset = at - now;
+        const offset = at - now;
 
-            if (offset < 0)
-                return message.channel.send(":stopwatch: The time you entered is in the past. Try being more specific or using exact dates.");
-            if (offset < 1000)
-                return message.replyLang("REMIND_SHORT_TIME");
+        if (offset < 0)
+            return context.send(":stopwatch: The time you entered is in the past. Try being more specific or using exact dates.");
+        if (offset < 1000)
+            return context.sendLang("REMIND_SHORT_TIME");
 
-            if (reminder.length > 1000)
-                return message.channel.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
+        if (reminder.length > 1000)
+            return context.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
 
-            try {
-                message.replyLang("REMIND_SUCCESS", {
-                    time: bot.util.prettySeconds((offset / 1000), message.guild && message.guild.id, message.author.id),
-                    date: at.toString()
-                });
-                const reminderResponse = await bot.database.addReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, at.getTime(), reminder, message.id);
-                bot.util.setLongTimeout(async function () {
-                    try {
-                        await message.replyLang("REMIND_REMINDER", {
-                            username: message.author.id,
-                            server: message.guild ? message.guild.id : null,
-                            date: now.toString(),
-                            message: reminder
-                        });
-                        await bot.database.removeReminder(reminderResponse[0])
-                    } catch (e) {
-                        bot.raven.captureException(e);
-                    }
-                }, offset);
-            } catch (e) {
-                console.log(e);
-                message.replyLang("REMIND_ERROR");
-                bot.raven.captureException(e);
-            }
-        });
-
+        try {
+            context.sendLang("REMIND_SUCCESS", {
+                time: bot.util.prettySeconds((offset / 1000), context.guild && context.guild.id, context.user.id),
+                date: at.toString()
+            });
+            const reminderResponse = await bot.database.addReminder(bot.client.user.id, context.user.id, context.guild ? context.guild.id : null, context.channel.id, at.getTime(), reminder, context.message?.id);
+            bot.util.setLongTimeout(async function () {
+                try {
+                    await context.sendLang("REMIND_REMINDER", {
+                        username: context.user.id,
+                        server: context.guild ? context.guild.id : null,
+                        date: now.toString(),
+                        message: reminder
+                    });
+                    await bot.database.removeReminder(reminderResponse[0])
+                } catch (e) {
+                    bot.raven.captureException(e);
+                }
+            }, offset);
+        } catch (e) {
+            console.log(e);
+            context.sendLang("REMIND_ERROR");
+            bot.raven.captureException(e);
+        }
 
     }
 };

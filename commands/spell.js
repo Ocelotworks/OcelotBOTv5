@@ -1,15 +1,10 @@
 module.exports = {
     name: "Spell with Reactions",
-    usage: "spell [^] <send>",
+    usage: "spell [above?:^] :message+",
     commands: ["spell", "react"],
     categories: ["fun"],
     equiredPermissions: ["ADD_REACTIONS"],
-    run: async function run(message, args, bot) {
-        if (!args[1]) {
-            message.channel.send(`Invalid usage: ${context.command} <sentence>`);
-            return;
-        }
-
+    run: async function run(context, bot) {
         let letters = {
             abcd: ["🔡", "🔠"],
             abc: ["🔤"],
@@ -85,16 +80,16 @@ module.exports = {
         };
 
         let targetMessage;
-        if (message.reference && message.reference.messageID) {
-            targetMessage = await message.channel.messages.fetch(message.reference.messageID);
+        if (context.message?.reference?.messageID) {
+            targetMessage = await context.channel.messages.fetch(context.message.reference.messageID);
         } else {
-            const messageFetch = await message.channel.messages.fetch({limit: 2});
+            const messageFetch = await context.channel.messages.fetch({limit: 1, before: context.message?.id});
             targetMessage = messageFetch.last();
         }
         if (!targetMessage || !targetMessage.react)
-            return message.channel.send(":bangbang: Could not find a message to react to...");
+            return context.send(":bangbang: Could not find a message to react to...");
 
-        let target = message.cleanContent.substring(context.command.length).trim().toLowerCase();
+        let target = context.options.message;
 
         for (let passes = 0; passes < 20; passes++) {
             let done = true;
@@ -125,16 +120,14 @@ module.exports = {
 
             } catch (e) {
                 if (e.message === "Reaction blocked") {
-                    message.replyLang("SPELL_REACTION_BLOCKED");
+                    context.replyLang("SPELL_REACTION_BLOCKED");
                     break;
                 } else if (e.message.startsWith("Maximum number of reactions reached")) {
-                    message.replyLang("SPELL_MAXIMUM_REACHED");
+                    context.replyLang("SPELL_MAXIMUM_REACHED");
                     break;
                 }
                 bot.logger.log(`Invalid emoji ${output[i]} (${e.message})`);
             }
         }
-
-
     }
 };

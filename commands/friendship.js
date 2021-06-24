@@ -53,7 +53,7 @@ module.exports = {
                     }]
                 },
                 {
-                    url: message.author.avatarURL({dynamic: true, format: "png", size: 128}),
+                    url: context.user.avatarURL({dynamic: true, format: "png", size: 128}),
                     pos: {x: 112, y: 47, w: 148, h: 148}
                 },
                 {

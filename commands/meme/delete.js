@@ -6,29 +6,25 @@
  */
 module.exports = {
     name: "Delete Meme",
-    usage: "delete <name>",
+    usage: "delete :name+",
     commands: ["delete", "remove"],
-    run: async function (message, args, bot) {
-        if (!message.guild)
-            return message.replyLang("GENERIC_DM_CHANNEL");
-        if (!args[2])
-            return message.replyLang("MEME_REMOVE_HELP");
+    run: async function (context, bot) {
+        if (!context.guild)
+            return context.sendLang("GENERIC_DM_CHANNEL");
 
-
-        let meme = await bot.database.getMemeInfo(args[2].toLowerCase(), message.guild.id);
+        let meme = await bot.database.getMemeInfo(context.options.name.toLowerCase(), context.guild.id);
 
         if (!meme[0])
-            return message.replyLang("MEME_NOT_FOUND");
+            return context.sendLang("MEME_NOT_FOUND");
 
-        if (meme[0].addedby !== message.author.id && !message.member.hasPermission("MANAGE_MESSAGES"))
-            return message.replyLang("MESSAGE_REMOVE_INVALID_MEME");
+        if (meme[0].addedby !== context.user.id && !context.channel.permissionsFor(context.member).has("MANAGE_MESSAGES"))
+            return context.sendLang("MESSAGE_REMOVE_INVALID_MEME");
 
         try {
-            await bot.database.removeMeme(args[2].toLowerCase(), message.guild.id);
-            message.replyLang("MEME_REMOVE_SUCCESS");
+            await bot.database.removeMeme(context.options.name.toLowerCase(), context.guild.id);
+            return context.sendLang("MEME_REMOVE_SUCCESS");
         } catch (e) {
-            message.replyLang("MESSAGE_REMOVE_ERROR");
+            return context.sendLang("MESSAGE_REMOVE_ERROR");
         }
-
     }
 };

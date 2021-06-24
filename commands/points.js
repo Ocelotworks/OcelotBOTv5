@@ -6,6 +6,7 @@ module.exports = {
     detailedHelp: "View the amount of points you have",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["points"],
+    nestedDir: "points",
     init: function init(bot){
         bot.util.standardNestedCommandInit("points");
         bot.addCommandMiddleware(async (context)=>{
@@ -19,9 +20,5 @@ module.exports = {
                 });
             return canUse;
         })
-
     },
-    run: async function(context, bot){
-        await bot.util.standardNestedCommand(message, args, bot, "points")
-    }
 };

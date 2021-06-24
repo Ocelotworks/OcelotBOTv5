@@ -1,37 +1,19 @@
 const request = require('request'),
     config = require('config');
-
+const Util = require("../util/Util");
+const Image = require('../util/Image');
 module.exports = {
     name: "B-ify",
-    usage: "b <url>",
+    usage: "b :image?",
     rateLimit: 10,
     detailedHelp: "Adds a 🅱 into the image wherever appropriate",
     categories: ["image", "filter", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["b", "bify"],
-    run: async function (message, args, bot) {
-        const url = await bot.util.getImage(message, args);
-        if (!url) {
-            if (args[1]) {
-                let output = "";
-                const line = (message.cleanContent.substring(message.cleanContent.indexOf(args[1]))).split(" ");
-                for (let w = 0; w < line.length; w++) {
-                    const text = line[w];
-                    if (bot.util.vowels.indexOf(text.substring(1, 2)) > -1) {
-                        output += "🅱" + text.substring(1) + " ";
-                    } else {
-                        output += text + " ";
-                    }
-                }
-                message.channel.send(output);
-                return;
-            } else {
-                message.replyLang("CRUSH_NO_USER");
-                message.channel.stopTyping(true);
-                return;
-            }
-        }
-
+    run: async function (context, bot) {
+        const url = await Util.GetImage(bot, context);
+        if (!url)
+            return context.sendLang("CRUSH_NO_USER");
 
         request.post("https://api.ocr.space/parse/image", {
             form: {
@@ -44,11 +26,11 @@ module.exports = {
             if (err) {
                 bot.logger.error(err);
                 if (err.ErrorMessage) {
-                    message.channel.send(err.ErrorMessage.join("\n"));
-                } else {
-                    bot.raven.captureException(err);
-                    message.replyLang("GENERIC_ERROR");
+                    return context.send({content: err.ErrorMessage.join("\n"), ephemeral: true});
                 }
+                bot.raven.captureException(err);
+                return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
+
             } else {
                 try {
                     const payload = {
@@ -60,8 +42,7 @@ module.exports = {
                     const data = JSON.parse(body);
                     if (!data.ParsedResults) {
                         bot.logger.log(data);
-                        message.replyLang("GENERIC_ERROR");
-                        return;
+                        return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
                     }
                     const results = data.ParsedResults[0];
                     if (results && results.TextOverlay && results.TextOverlay.Lines.length > 0) {
@@ -103,18 +84,16 @@ module.exports = {
 
                         return Image.ImageProcessor(bot, context,  payload, "eyes");
                     } else {
-                        message.replyLang("B_NO_TEXT");
+                        return context.sendLang({content: "B_NO_TEXT", ephemeral: true});
                     }
                 } catch (e) {
                     console.log(e);
                     bot.logger.error(e);
                     bot.raven.captureException(e);
-                    message.replyLang("GENERIC_ERROR");
+                    return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
                 }
             }
 
-        });
-
-        message.channel.stopTyping();
+        })
     }
 };

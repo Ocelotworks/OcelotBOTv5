@@ -329,7 +329,8 @@ module.exports = class Commands {
                         this.bot.logger.error(e);
                     }
                 }
-                loadedCommand.usage += " :command?";
+                if(loadedCommand.usage.indexOf("command") < 0)
+                    loadedCommand.usage += " :command?";
                 resolve(loadedCommand);
             })
         });

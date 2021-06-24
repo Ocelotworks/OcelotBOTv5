@@ -23,29 +23,28 @@ const shipLevels = {
 
 module.exports = {
     name: "Ship Generator",
-    usage: "ship <@user1> <@user2> ...",
+    usage: "ship :users+",
     rateLimit: 10,
     detailedHelp: "Ship two or more users together to test their compatibility.",
     usageExample: "ship @OcelotBOT @Big P",
     categories: ["fun"],
     requiredPermissions: [],
     commands: ["ship", "shipname", "relationship", "shipgenerator"],
-    run: async function run(message, args, bot) {
-        if (args.length < 3) {
-            message.channel.send(`Usage: ${context.command} @user1 @user2`);
+    run: async function run(context, bot) {
+        if (context.args.length < 3) {
+            context.send(`Usage: ${context.command} @user1 @user2`);
         } else {
-            let split = message.content.split(" ");
+            let split = context.options.users.split(" ");
             let people;
-            if (message.guild)
-                people = message.mentions.members.map((m) => m.displayName);
+            if (context.guild)
+                people = context.message.mentions.members.map((m) => m.displayName);
             else
-                people = message.mentions.users.map((m) => m.username);
+                people = context.message.mentions.users.map((m) => m.username);
             for (let i = 1; i < split.length; i++) {
                 if (!split[i].startsWith("<")) {
                     people.push(split[i]);
                 }
             }
-
 
             let shipPoints = 0, shipName = people[0];
             for (let i = 1; i < people.length; i++) {
@@ -66,9 +65,9 @@ module.exports = {
                 let output = `**Ship Generator:**\n${shipTags[0]} Compatibility Score: **${Math.round(shipPoints).toLocaleString()}: **_${shipTags[1]}_\n:yellow_heart: Ship Name: \`${shipName}\``;
                 if (people.includes(shipName))
                     output += `\n:thinking: **Wait... that's just the same name**`;
-                message.channel.send(output);
+                context.send(output);
             } else {
-                message.channel.send(":broken_heart: I'm sorry... I couldn't ship these people. It just wouldn't work.");
+                context.send(":broken_heart: I'm sorry... I couldn't ship these people. It just wouldn't work.");
             }
 
         }

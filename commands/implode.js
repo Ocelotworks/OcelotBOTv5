@@ -14,6 +14,6 @@ module.exports = {
     commands: ["implode"],
     slashHidden: true,
     run: async function (context, bot) {
-        return Image.ImageFilter(bot, module.exports.usage, context, "implode", [message.getSetting("implode.amount")]);
+        return Image.ImageFilter(bot, module.exports.usage, context, "implode", [context.getSetting("implode.amount")]);
     }
 };

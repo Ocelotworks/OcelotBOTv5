@@ -1,6 +1,6 @@
 module.exports = {
     name: "Bot Settings",
-    usage: "settings help/set/list/enableCommand/disableCommand",
+    usage: "settings",
     categories: ["meta"],
     commands: ["settings", "config"],
     settings: {
@@ -12,13 +12,13 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(context, bot){
-                if(args[3]) {
+                if(context.options.value) {
                     //Idiot guard
-                    if(args[3].toLowerCase() === "value")
+                    if(context.options.value.toLowerCase() === "value")
                         return message.replyLang("SETTINGS_PREFIX_IDIOT", {arg: context.command});
 
-                    await bot.config.set(message.guild.id, "prefix", args[3]);
-                    message.replyLang("SETTINGS_PREFIX_SET", {prefix: args[3]});
+                    await bot.config.set(message.guild.id, "prefix", context.options.value);
+                    message.replyLang("SETTINGS_PREFIX_SET", {prefix: context.options.value});
                 }else{
                     message.replyLang("SETTINGS_PREFIX_NONE", {arg: context.command});
                 }
@@ -33,8 +33,8 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(context, bot){
-                if(args[3] && bot.util.bools[args[3].toLowerCase()] !== undefined) {
-                    const bool = bot.util.bools[args[3].toLowerCase()];
+                if(context.options.value && bot.util.bools[context.options.value.toLowerCase()] !== undefined) {
+                    const bool = bot.util.bools[context.options.value.toLowerCase()];
                     await bot.config.set(message.guild.id, "wholesome", bool);
                     message.channel.send((bool? "Enabled" : "Disabled")+" wholesome mode.");
                    // message.replyLang(`SETTINGS_NSFW_${bool ? "ENABLE":"DISABLE"}`);
@@ -53,8 +53,8 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(context, bot){
-                if(args[3] && bot.util.bools[args[3].toLowerCase()] !== undefined) {
-                    const bool = bot.util.bools[args[3].toLowerCase()];
+                if(context.options.value && bot.util.bools[context.options.value.toLowerCase()] !== undefined) {
+                    const bool = bot.util.bools[context.options.value.toLowerCase()];
                     await bot.config.set(message.guild.id, "allowNSFW", bool);
                     message.replyLang(`SETTINGS_NSFW_${bool ? "DISABLE":"ENABLE"}`);
                 }else{
@@ -71,8 +71,8 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(context, bot){
-                if(args[3] && bot.util.bools[args[3].toLowerCase()] !== undefined) {
-                    const bool = bot.util.bools[args[3].toLowerCase()];
+                if(context.options.value && bot.util.bools[context.options.value.toLowerCase()] !== undefined) {
+                    const bool = bot.util.bools[context.options.value.toLowerCase()];
                     await bot.config.set(message.guild.id, "pornsuggest.serious", bool);
                     message.replyLang(`SETTINGS_SERIOUS_PORN_${bool ? "ENABLE":"DISABLE"}`);
                 }else {
@@ -89,9 +89,9 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(context, bot){
-                if(args[3] && bot.lang.strings[args[3].toLowerCase()]) {
-                    await bot.config.set(message.guild.id, "lang", args[3].toLowerCase());
-                    message.replyLang("SETTINGS_LANGUAGE_SET", {code: args[3], name: bot.lang.strings[args[3].toLowerCase()].LANGUAGE_NAME});
+                if(context.options.value && bot.lang.strings[context.options.value.toLowerCase()]) {
+                    await bot.config.set(message.guild.id, "lang", context.options.value.toLowerCase());
+                    message.replyLang("SETTINGS_LANGUAGE_SET", {code: context.options.value, name: bot.lang.strings[context.options.value.toLowerCase()].LANGUAGE_NAME});
                 }else{
                     message.replyLang("SETTINGS_LANGUAGE_NONE", {arg: context.command});
                 }
@@ -105,7 +105,7 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(context, bot){
-                let roleName = args[3];
+                let roleName = context.options.value;
                 if(message.mentions.roles.size > 0)
                     roleName = message.mentions.roles.first().name;
 
@@ -124,7 +124,7 @@ module.exports = {
                 return `\`${input}\``
             },
             onSet: async function(context, bot){
-                let timezone = args[3];
+                let timezone = context.options.value;
                 if(bot.util.timezones[timezone] || bot.util.timezoneRegex.exec(timezone)){
                     await bot.config.set(message.guild.id, "time.zone", timezone);
                     message.replyLang("SETTINGS_TIMEZONE_SET", {timezone});
@@ -215,13 +215,11 @@ module.exports = {
                 }else{
                     message.replyLang("SETTINGS_HELP_SETTING");
                 }
-            }else {
-                bot.util.standardNestedCommand(message, args, bot, 'settings', module.exports);
             }
             return;
         }
-        if(message.getSetting("settings.role") === "-")
+        if(context.getSetting("settings.role") === "-")
             return message.channel.send("You must have Administrator permissions to use this command.");
-        return message.replyLang("SETTINGS_NO_ROLE", {role: message.getSetting("settings.role")});
+        return message.replyLang("SETTINGS_NO_ROLE", {role: context.getSetting("settings.role")});
     }
 };

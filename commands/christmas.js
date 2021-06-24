@@ -12,8 +12,7 @@ module.exports = {
        const diff = (christmas-(new Date()))/1000;
        if(diff <= 0){
           return context.replyLang("CHRISTMAS_TODAY");
-       }else {
-          return context.replyLang("CHRISTMAS_COUNTDOWN", {time: bot.util.prettySeconds(diff, context.guild && context.guild.id, context.user.id)})
        }
+       return context.replyLang("CHRISTMAS_COUNTDOWN", {time: bot.util.prettySeconds(diff, context.guild && context.guild.id, context.user.id)})
     }
 };

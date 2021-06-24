@@ -35,67 +35,50 @@ const spotifyPlaylist = /.*\/open\.spotify\.com\/playlist\/(.+?)([\/?#]|$)/gi
 
 module.exports = {
     name: "Guess The Song",
-    usage: "guess [stop/stats/leaderboard]",
+    usage: "guess",
     rateLimit: 25,
     categories: ["games", "voice"],
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["guess", "guesssong", "songguess", "namethattune", "quess", "gues"],
-    init: async function init(bot){
-        bot.util.standardNestedCommandInit("guess");
-    },
-    run:  async function run(message, args, bot) {
-        if (!message.guild) {
-            return message.replyLang("GENERIC_DM_CHANNEL");
-        }
-
+    guildOnly: true,
+    slashHidden: true,
+    nestedDir: "guess",
+    run:  async function run(context, bot) {
         let playlists = null;
-        let playlist = null;
+        let playlist;
         let isCustom = false;
-        if (args[1] && (playlists = await bot.database.getGuessPlaylist(message.guild.id, args[1].toLowerCase())) == null) {
-            let regexResult = spotifyPlaylist.exec(args[1]);
+        if (context.options.command && (playlists = await bot.database.getGuessPlaylist(context.guild.id, context.options.command.toLowerCase())) == null) {
+            let regexResult = spotifyPlaylist.exec(context.options.command);
             if(regexResult && regexResult[1]){
                 isCustom = true;
                 playlists = regexResult[1]
-            }else{
-                return bot.util.standardNestedCommand(message, args, bot, 'guess', runningGames, () => {
-                    if (message.member && message.member.voice.channel && runningGames[message.guild.id]) {
-                        message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${context.command} stop. To see other commands, type ${context.command} help`)
-                    } else {
-                        message.channel.send(`To start a game, just type ${context.command}. To see other commands, type ${context.command} help`)
-                    }
-                });
             }
         }
 
         if(playlists === null) {
-            const playlistId = message.getSetting("songguess.default");
+            const playlistId = context.getSetting("songguess.default");
             bot.logger.log(`Using playlist ID: ${playlistId}`);
-            playlists = await bot.database.getGuessPlaylist(message.guild.id, playlistId);
+            playlists = await bot.database.getGuessPlaylist(context.guild.id, playlistId);
         }
 
         playlist = bot.util.arrayRand(playlists.split(","));
         bot.logger.log(`Using spotify playlist: ${playlist}`);
 
-        if (!bot.lavaqueue)return message.replyLang("SONGGUESS_UNAVAILABLE");
-        if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-        if (!message.member.voice || !message.member.voice.channel) return message.replyLang("VOICE_NO_CHANNEL");
-        if (message.member.voice.channel.full) return message.replyLang("VOICE_FULL_CHANNEL");
-        if (!message.member.voice.channel.joinable) return message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-        if (!message.member.voice.channel.speakable) return message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
-        if (message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voice.channel.id] && message.getSetting("songguess.disallowReguess"))return message.replyLang("SONGGUESS_OCCUPIED");
-        if (await bot.database.hasActiveSession(message.guild.id)) return message.replyLang("SONGGUESS_MUSIC");
+        if (bot.util.checkVoiceChannel(context.message)) return;
+        if (context.guild.voiceConnection && !bot.voiceLeaveTimeouts[context.member.voice.channel.id] && context.getSetting("songguess.disallowReguess"))return context.sendLang("SONGGUESS_OCCUPIED");
 
-        if (runningGames[message.guild.id]) {
-            if(playlist != runningGames[message.guild.id].playlistId){
-                runningGames[message.guild.id].playlistId = playlist;
-                let playlistName = args[1];
-                if(!args[1])
-                    playlistName = message.getSetting("songguess.default");
-                else if(args[1].startsWith("http"))
-                    playlistName = "<"+args[1]+">";
-                return message.channel.send(`Switched the playlist to **${playlistName}**\nThe next song will be from this playlist, or to start now type **${context.command} skip**`);
+
+        if (runningGames[context.guild.id]) {
+            if(playlist != runningGames[context.guild.id].playlistId){
+                runningGames[context.guild.id].playlistId = playlist;
+                let playlistName = context.options.command;
+                if(!context.options.command)
+                    playlistName = context.getSetting("songguess.default");
+                else if(context.options.command.startsWith("http"))
+                    playlistName = "<"+context.options.command+">";
+                return context.send(`Switched the playlist to **${playlistName}**\nThe next song will be from this playlist, or to start now type **${context.command} skip**`);
             }
-            return message.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: runningGames[message.guild.id].voiceChannel.name})
+            return context.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: runningGames[context.guild.id].voiceChannel.name})
         }
 
 
@@ -129,35 +112,35 @@ async function endGame(bot, id){
     delete runningGames[id];
 }
 
-async function startGame(bot, message, playlistId, custom){
-    message.channel.startTyping();
-    const vcId = message.member.voice.channel.id;
+async function startGame(bot, context, playlistId, custom){
+    context.defer();
+    const vcId = context.member.voice.channel.id;
     const player = await bot.lavaqueue.manager.join({
-        guild: message.guild.id,
+        guild: context.guild.id,
         channel: vcId,
         node: bot.util.arrayRand(bot.lavaqueue.manager.idealNodes).id,
     }, {selfdeaf: true})
 
-    runningGames[message.guild.id] = {
-        voiceChannel: message.member.voice.channel,
+    runningGames[context.guild.id] = {
+        voiceChannel: context.member.voice.channel,
         textChannel: message.channel,
         playlistId,
         player,
         custom,
         failures: 0,
-        end: ()=>endGame(bot, message.guild.id),
+        end: ()=>endGame(bot, context.guild.id),
     }
     player.on("error", (e)=>{
         console.error(e);
         if(llErrors[e.type])
-            message.channel.send(llErrors[e.type])
+            context.send(llErrors[e.type])
         else{
             Sentry.captureException(e)
-            message.channel.send("An unknown error happened. If you see Big P, tell him this: "+e.type);
+            context.send("An unknown error happened. If you see Big P, tell him this: "+e.type);
         }
-        endGame(bot, message.guild.id);
+        endGame(bot, context.guild.id);
     });
-    await newGuess(bot, message.member.voice.channel);
+    await newGuess(bot, context.member.voice.channel);
 }
 
 async function newGuess(bot, voiceChannel, retrying = false){

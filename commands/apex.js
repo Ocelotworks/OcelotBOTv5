@@ -43,7 +43,7 @@ module.exports = {
     commands: [game.toLowerCase()],
     categories: ["stats"],
     run: function run(context, bot) {
-        const platform = platforms[args[1].toLowerCase()] || 5;
+        const platform = platforms[context.options.platform] || 5;
         const username = context.options.player;
 
         context.defer();
