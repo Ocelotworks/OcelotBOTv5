@@ -75,7 +75,8 @@
     "botlists",
     "tasks",
     "featureToggle",
-    "interactions"
+    "interactions",
+    "lavalink"
   ],
   "Seasonal": [
     {

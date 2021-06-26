@@ -1552,9 +1552,9 @@ module.exports = {
             return Buffer.from(charCodes).toString("base64");
         }
 
-        bot.util.canChangeSettings = function(message) {
-            return message.channel.permissionsFor(message.member).has("ADMINISTRATOR", true) || message.getSetting("settings.role") !== "-" && message.member.roles.cache.find(function (role) {
-                return role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
+        bot.util.canChangeSettings = function(context) {
+            return context.channel.permissionsFor(context.member).has("ADMINISTRATOR", true) || context.getSetting("settings.role") !== "-" && context.member.roles.cache.find(function (role) {
+                return role.name.toLowerCase() === context.getSetting("settings.role").toLowerCase();
             });
         }
 

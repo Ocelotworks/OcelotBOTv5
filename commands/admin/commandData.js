@@ -30,6 +30,9 @@ module.exports = {
         if (data.vote)
             desc += "\n- Requires Vote";
 
+        if (data.settingsOnly)
+            desc += "\n- Requires Settings Role";
+
         if (data.unwholesome)
             desc += "\n- Unwholesome";
 

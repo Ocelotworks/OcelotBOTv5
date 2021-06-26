@@ -80,7 +80,7 @@ module.exports = class Commands {
         this.bot.addCommandMiddleware = this.addCommandMiddleware.bind(this);
 
 
-        // Admin + Guild Channel only commands
+        // Permissions checks
         this.addCommandMiddleware((context)=>{
             // Only allow Guild Only commands to be ran in a Guild
             if(context.commandData.guildOnly && !context.guild){
@@ -96,6 +96,12 @@ module.exports = class Commands {
 
             // Override the next checks for admins
             if(context.getBool("admin"))return true;
+
+            if(context.commandData.settingsOnly && !this.bot.util.canChangeSettings(context)){
+                if(context.getSetting("settings.role") === "-")
+                    return context.send("You must have Administrator permissions to use this command.");
+                return context.replyLang("SETTINGS_NO_ROLE", {role: context.getSetting("settings.role")});
+            }
 
             // Check permissions in Guilds
             if(context.member && context.commandData.userPermissions && !context.channel.permissionsFor(context.member).has(context.commandData.userPermissions)){

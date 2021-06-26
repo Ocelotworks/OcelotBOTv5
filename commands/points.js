@@ -8,11 +8,10 @@ module.exports = {
     commands: ["points"],
     nestedDir: "points",
     init: function init(bot){
-        bot.util.standardNestedCommandInit("points");
         bot.addCommandMiddleware(async (context)=>{
             if(!context.getBool("points.enabled"))return true;
             if(!context.commandData.pointsCost)return true;
-            const canUse = await this.bot.database.takePoints(context.author.id, context.commandData.pointsCost, context.commandData.id);
+            const canUse = await bot.database.takePoints(context.user.id, context.commandData.pointsCost, context.commandData.id);
             if (!canUse)
                 context.send({
                     content: `This command requires <:points:817100139603820614>**${context.commandData.pointsCost}** points to use. Learn more with ${context.getSetting("prefix")}points`,

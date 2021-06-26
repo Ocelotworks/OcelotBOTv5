@@ -53,6 +53,27 @@ module.exports = {
             })
         }
 
+        bot.redis.get = async function(key){
+            return new Promise((fulfill, reject)=>{
+               bot.redis.client.get(key, (err, data)=>{
+                   if(err)return reject(err);
+                   fulfill(data);
+               })
+            });
+        }
+
+        bot.redis.set = function(key, value, ttl = 3600){
+            return bot.redis.client.set(key, value, "EX", ttl);
+        }
+
+        bot.redis.getJson = async function(key){
+            return bot.redis.get(key).then((r)=>JSON.parse(r));
+        }
+
+        bot.redis.setJson = function(key, value, ttl = 3600){
+            return bot.redis.set(key, JSON.stringify(value), ttl);
+        }
+
         bot.redis.clear = async function(key){
             return new Promise((fulfill)=>{
                 bot.redis.client.del(key, (err)=>{

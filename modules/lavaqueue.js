@@ -8,6 +8,8 @@ const config = require('config');
 const request = require('request');
 const dns = require('dns');
 const {Manager} = require('@lavacord/discord.js');
+
+
 module.exports = {
     name: "LavaQueue",
     init: function (bot) {
