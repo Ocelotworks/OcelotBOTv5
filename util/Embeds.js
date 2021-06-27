@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-
+const Icon = require('../util/Icon');
 
 class LangEmbed extends Discord.MessageEmbed {
     context;
@@ -33,4 +33,30 @@ class AuthorEmbed extends LangEmbed {
     }
 }
 
-module.exports = {LangEmbed, AuthorEmbed}
+
+class PointsEmbed extends AuthorEmbed {
+    bot;
+    points;
+    constructor(context, bot){
+        super(context);
+        this.bot = bot;
+        if(context.getBool("points.enabled"))
+            super.setFooter("PointsEmbed was used without calling init()", Icon.points.url)
+    }
+
+    async init(points){
+        if(!this.context.getBool("points.enabled"))return;
+        if(!points){
+            await this.bot.database.getPoints(this.context.user.id);
+        }
+        this.points = points;
+        super.setFooter(points.toLocaleString(), Icon.points.url);
+    }
+
+    setFooter(text, iconURL ){
+        if(!this.context.getBool("points.enabled"))return super.setFooter(text, iconURL);
+        return super.setFooter(`${this.points.toLocaleString()} • ${text}`, iconURL || Icon.points.url);
+    }
+}
+
+module.exports = {PointsEmbed, LangEmbed, AuthorEmbed}

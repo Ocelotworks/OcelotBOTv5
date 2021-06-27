@@ -2,6 +2,7 @@ const Sentry = require('@sentry/node');
 const {CustomCommandContext, InteractionCommandContext, MessageCommandContext} = require("../util/CommandContext");
 const fs = require('fs');
 const Util = require("../util/Util");
+const Embeds = require("../util/Embeds");
 const {crc32} = require("crc");
 const commandParser = require('command-parser').default;
 module.exports = class Commands {
@@ -425,14 +426,23 @@ module.exports = class Commands {
                     return context.reply("TODO: Nested help");
                 }
             }
-            console.log("we are here to run")
+
             return await this.bot.commands[context.command](context, this.bot);
         } catch (e) {
             console.log(e);
+            let exceptionID = Sentry.captureException(e);
             context.channel.stopTyping(true);
-            context.reply({content: "Something went horribly wrong. Try again later.", ephemeral: true});
+
+            if(context.channel.permissionsFor(this.bot.client.user.id).has("EMBED_LINKS")) {
+                let errorEmbed = new Embeds.LangEmbed(context);
+                errorEmbed.setColor("#ff0000");
+                errorEmbed.setTitle("An Error Occurred");
+                errorEmbed.setDescription(`Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``);
+                context.reply({embeds: [errorEmbed], ephemeral: true});
+            }else {
+                context.reply({content: `Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``, ephemeral: true});
+            }
             this.bot.bus.emit("commandFailed", e);
-            Sentry.captureException(e);
         } finally {
             this.bot.database.logCommand(context.user.id, context.channel.id, context.guild?.id || context.channel.id, context.message ? context.message.id : context.interaction.id, context.command, context.message ? context.message.content : "Interaction", this.bot.client.user.id).catch((e)=>{
                 Sentry.captureException(e);

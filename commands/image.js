@@ -5,9 +5,10 @@
  *  ════╝
  */
 const GoogleImages = require('google-images');
-const axios = require('axios');
+const {axios} = require('../util/Http');
 const config = require('config')
 const Discord = require('discord.js');
+const Embeds = require('../util/Embeds');
 let client = new GoogleImages(config.get("API.googleImages.cse"), config.get("API.googleImages.key"));
 const naughtyRegex = /((sexy|nude|naked)?)( ?)(young( ?)(girl|boy?)|child|kid(die?)|(1?)[0-7]( ?)(year(s?)?)( ?)(old?)|bab(y|ie)|toddler)(s?)( ?)(sexy|porn|sex|naked|nude|fuck(ed?))/gi;
 module.exports = {
@@ -31,7 +32,7 @@ module.exports = {
             embed.setImage("https://i.imgur.com/iHZJOnG.jpg");
             return context.send({embeds: [embed]});
         }
-        context.defer();
+        await context.defer();
         try {
             let images;
             const nsfw = (!context.guild || context.channel.nsfw);
@@ -67,7 +68,8 @@ module.exports = {
             const points = (await bot.database.getPoints(context.user.id)).toLocaleString();
 
             bot.util.standardPagination(context.channel, images, async function (page, index) {
-                let embed = new Discord.MessageEmbed();
+                let embed = new Embeds.PointsEmbed(context, bot);
+                await embed.init(points);
                 embed.setAuthor(context.user.username, context.user.avatarURL({dynamic: true, format: "png"}));
                 embed.setTimestamp(new Date());
                 embed.setTitle(`Image results for '${query.substring(0, 200)}'`);
@@ -76,10 +78,7 @@ module.exports = {
                 else
                     embed.setImage(page.url);
                 embed.setDescription(page.description);
-                if(context.getBool("points.enabled"))
-                    embed.setFooter(`${points} • Page ${index + 1}/${images.length}`, "https://cdn.discordapp.com/emojis/817100139603820614.png?v=1");
-                else
-                    embed.setFooter(`Page ${index + 1}/${images.length}`);
+                embed.setFooter(`Page ${index + 1}/${images.length}`);
                 return {embeds: [embed]};
             }, true);
         } catch (e) {

@@ -118,13 +118,13 @@ class MessageCommandContext extends CommandContext {
         })
     }
 
-    send(options){
-        this.message.channel.stopTyping();
+    async send(options){
+        await this.message.channel.stopTyping();
         return this.message.channel.send(options);
     }
 
-    reply(options){
-        this.message.channel.stopTyping();
+    async reply(options){
+        await this.message.channel.stopTyping();
         return this.message.reply(options);
     }
 
