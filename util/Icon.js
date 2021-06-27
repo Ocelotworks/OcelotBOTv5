@@ -28,7 +28,9 @@ let icons = {
     points: constructIcon("points", "817100139603820614"),
     points_off: constructIcon("points_off", "825695949790904330"),
     points_ending: constructIcon("points_ending", "825704034031501322", true),
-
+    loading: constructIcon("ocelotload", "537722658742337557", true),
+    premium: constructIcon("ocelotbot", "533369578114514945"),
+    supporter_1: constructIcon("supporter_1", "529308223954616322"),
 }
 
 module.exports = icons;

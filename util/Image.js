@@ -6,6 +6,7 @@ const Discord = require('discord.js');
 const {crc32} = require('crc');
 const FormData = require('form-data');
 const Util = require("./Util");
+const Icon = require("./Icon");
 
 module.exports = class Image {
 
@@ -78,7 +79,7 @@ module.exports = class Image {
 
 
     static async #MessageImageFilter(bot, url,  context, filter, input, format){
-        const loadingMessage = await context.send("<a:ocelotload:537722658742337557> Processing...");
+        const loadingMessage = await context.send(`${Icon.loading} Processing...`);
         const response = Image.#imageFilter(bot, url, filter, input, format);
         if(response.err){
             await loadingMessage.delete();
@@ -93,7 +94,7 @@ module.exports = class Image {
         }
 
         if(loadingMessage && !loadingMessage.deleted){
-            await context.edit("<a:ocelotload:537722658742337557> Uploading...", loadingMessage);
+            await context.edit(`${Icon.loading} Uploading...`, loadingMessage);
         }
         const attachment = new Discord.MessageAttachment(buf, response.name);
         return context.reply({files: [attachment]}).then(()=>loadingMessage.delete());

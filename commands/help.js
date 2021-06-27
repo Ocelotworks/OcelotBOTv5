@@ -1,8 +1,8 @@
 /**
  * Created by Peter on 07/06/2017.
  */
-const Discord = require('discord.js');
 const Embeds = require("../util/Embeds");
+const Icon = require("../util/Icon");
 const alphaRegex = /[a-z]/g;
 module.exports = {
     name: "Help Command",
@@ -89,12 +89,12 @@ module.exports = {
             if (command.hidden)
                 output += ":eyes: This command is **hidden**. How did you find it?\n";
             if (command.premium)
-                output += "<:ocelotbot:533369578114514945> This command requires **OcelotBOT Premium**\n";
+                output += `${Icon.premium} This command requires **OcelotBOT Premium**\n`;
             if (command.vote) {
                 if (context.getSetting("restrictionType") === "vote") {
-                    output += "<:supporter_1:529308223954616322> This command requires you to **vote for OcelotBOT** every 24 hours.\n";
+                    output += `${Icon.supporter_1} This command requires you to **vote for OcelotBOT** every 24 hours.\n`;
                 } else {
-                    output += "<:supporter_1:529308223954616322> This command requires you to **join the Support Server**.\n";
+                    output += `${Icon.supporter_1} This command requires you to **join the Support Server**.\n`;
                 }
             }
             if (command.categories.indexOf("nsfw") > -1)

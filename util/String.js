@@ -1,5 +1,4 @@
 const twemoji = require('twemoji-parser');
-const Discord = require('discord.js');
 module.exports = class Strings {
     static Vowels = ["a", "e", "i", "o", "u",
         "ａ", "ｅ", "ｉ", "ｏ", "ｕ",

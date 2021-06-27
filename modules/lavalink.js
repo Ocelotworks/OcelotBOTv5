@@ -5,19 +5,13 @@ const {Manager} = require('@lavacord/discord.js');
 module.exports = class Lavalink {
     name = "Lavalink";
 
+    bot;
     resumeKey;
     clients = [];
     manager;
     lastSync = 0;
     state = {
-        players: [{
-            node: "a",
-            guild: "",
-            text: "",
-            voice: "",
-            track: {id: "", source: "", title: "", artist: "", position: 0, owner: ""},
-            queue: [],
-        }]
+        players: {"vcid": {}}
     }
 
     constructor(bot){
@@ -92,7 +86,6 @@ module.exports = class Lavalink {
                 console.error(e);
         }
     }
-
     async syncState(){
         const key = `lavalink/${this.bot.client.user.id}/${this.bot.util.shard}`;
 
@@ -115,6 +108,20 @@ module.exports = class Lavalink {
         }catch(e){
             console.error(e);
         }
+    }
+
+    createPlayer(audioContext){
+        if(this.state.players[audioContext.voiceChannel.id])
+            return this.state.players[audioContext.voiceChannel.id];
+        return this.state.players[audioContext.voiceChannel.id] = this.manager.join({
+            node: this.getNode().id,
+            channel: audioContext.voiceChannel.id,
+            guild: audioContext.voiceChannel.guild.id,
+        }, {selfdeaf: true});
+    }
+
+    getNode() {
+        return this.bot.util.arrayRand(this.manager.idealNodes);
     }
 
 }
