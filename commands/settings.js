@@ -6,6 +6,7 @@ module.exports = {
     nestedDir: "settings",
     guildOnly: true,
     settingsOnly: true,
+    requiredPermissions: ["EMBED_LINKS"],
     init: function(bot){
         // Disable if allowNSFW is turned on
         bot.addCommandMiddleware(async (context)=>{

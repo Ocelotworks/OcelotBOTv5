@@ -2,6 +2,7 @@
  * Created by Peter on 07/06/2017.
  */
 const Discord = require('discord.js');
+const Embeds = require("../util/Embeds");
 const alphaRegex = /[a-z]/g;
 module.exports = {
     name: "Help Command",
@@ -9,7 +10,6 @@ module.exports = {
     detailedHelp: "Get a list of commands here.",
     usageExample: "help",
     commands: ["help", "commands"],
-    requiredPermissions: ["EMBED_LINKS"],
     categories: ["meta"],
     init: function init(bot) {
         bot.bus.on("commandLoadFinished", function commandLoadFinished() {
@@ -30,17 +30,28 @@ module.exports = {
     },
     run: async function run(context, bot) {
         if (!context.options.command) {
-            const embed = new Discord.MessageEmbed();
-            embed.setColor("#03F783");
-            embed.setTitle("OcelotBOT Help");
-            embed.setDescription(`Here is a list of command categories. Type **${context.command}** followed by a category or a command name to learn more.\nAlternatively, you can view an interactive command list [here](https://ocelotbot.xyz/commands).`);
+            if(context.channel.permissionsFor(bot.client.user.id).has("EMBED_LINKS")) {
+                const embed = new Embeds.AuthorEmbed(context);
+                embed.setTitle("OcelotBOT Help");
+                embed.setDescription(`Here is a list of command categories. Type **${context.command}** followed by a category or a command name to learn more.\nAlternatively, you can view an interactive command list [here](https://ocelotbot.xyz/commands).`);
+                for (let i in bot.commandCategories) {
+                    if(!bot.commandCategories.hasOwnProperty(i))continue;
+                    if ((context.getSetting("help.hiddenCategories") && context.getSetting("help.hiddenCategories").indexOf(i) > -1) || (i === "nsfw" && (context.getBool("allowNSFW") || context.getBool("wholesome"))))
+                        continue;
+                    embed.addField(i[0].toUpperCase() + i.substring(1), `Type \`${context.command} ${i}\``, true);
+                }
+                embed.addField("Custom", `Type \`${context.command} custom\``, true);
+                return context.send({embeds: [embed], ephemeral: true});
+            }
+            let output = "OcelotBOT Help:\n```python\n"
             for (let i in bot.commandCategories) {
+                if(!bot.commandCategories.hasOwnProperty(i))continue;
                 if ((context.getSetting("help.hiddenCategories") && context.getSetting("help.hiddenCategories").indexOf(i) > -1) || (i === "nsfw" && (context.getBool("allowNSFW") || context.getBool("wholesome"))))
                     continue;
-                embed.addField(i[0].toUpperCase()+i.substring(1), `Type \`${context.command} ${i}\``, true);
+                output += `For ${i[0].toUpperCase() + i.substring(1)}: type ${context.getSetting("prefix")}${context.command} ${i}\n`
             }
-            embed.addField("Custom", `Type \`${context.command} custom\``, true);
-            return context.send({embeds: [embed], ephemeral: true});
+            output += "```";
+            return context.send({content: output, ephemeral: true});
         }
         if(context.options.command === "custom" && context.guild){
             if(bot.customFunctions.COMMAND[context.guild.id]) {
