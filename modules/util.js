@@ -576,7 +576,7 @@ module.exports = {
                     format
                 }, 60000, {durable: true}));
                 span.end();
-                if (loadingMessage) {
+                if (loadingMessage && !loadingMessage.deleted) {
                     span = bot.util.startSpan("Edit loading message");
                     await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
                     span.end();
@@ -584,7 +584,7 @@ module.exports = {
                 if (response.err) {
                     console.log(response);
                     span = bot.util.startSpan("Delete processing message");
-                    await loadingMessage.delete();
+                    await loadingMessage.delete().catch(bot.logger.error);
                     span.end();
                     return message.channel.send(response.err);
                 }
@@ -597,7 +597,7 @@ module.exports = {
                 }
                 span.end();
                 span = bot.util.startSpan("Delete processing message");
-                await loadingMessage.delete();
+                await loadingMessage.delete().catch(bot.logger.error);
                 span.end();
                 bot.tasks.endTask("imageFilter", message.id);
             } else {
