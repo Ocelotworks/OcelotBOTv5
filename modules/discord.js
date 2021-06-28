@@ -141,19 +141,22 @@ module.exports = {
             allowedMentions: {parse: ["users"]},
             messageCacheLifetime: 3600,
             messageSweepInterval: 3600,
-            messageEditHistoryMaxSize: 2,
+            invalidRequestWarningInterval: 500,
+            retryLimit: 3,
             presence: {
                 activity: {
                     name: "Windows XP Startup Tune",
                     type: "LISTENING",
                 }
             },
+            partials: ["CHANNEL"],
             intents: [
                 // "GUILD_PRESENCES", // Spooking
                 "GUILDS",
                 "GUILD_MESSAGES",
                 "GUILD_MEMBERS", // Join/leave messages
                 "GUILD_VOICE_STATES", // Needed for voice commands
+                "GUILD_MESSAGE_REACTIONS", // Non-button reaction events
                 "DIRECT_MESSAGES",
                 "DIRECT_MESSAGE_REACTIONS" // Non-button reaction events e.g trivia, poll
             ]

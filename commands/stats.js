@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const Util = require("../util/Util");
 const shardNames = [
     "Remo.tv",
     "shart",
@@ -45,7 +46,7 @@ module.exports = {
         let userCount = 0;
         let channelCount = 0;
         try {
-            serverCount = (await bot.rabbit.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
+            serverCount = await Util.GetServerCount(bot);
             userCount = (await bot.rabbit.fetchClientValues("users.cache.size")).reduce((prev, val) => prev + val, 0);
             channelCount = (await bot.rabbit.fetchClientValues("channels.cache.size")).reduce((prev, val) => prev + val, 0);
         } catch (e) {

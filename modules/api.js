@@ -35,7 +35,7 @@ module.exports = {
 
             output += writeOpenMetric("wsPing", bot.client.ws.shards.first().ping);
             output += writeOpenMetric("wsStatus", bot.client.ws.shards.first().status);
-            output += writeOpenMetric("guilds", bot.client.guilds.cache.size);
+            output += writeOpenMetric("guilds", bot.client.guilds.cache);
             output += writeOpenMetric("channels", bot.client.channels.cache.size);
             output += writeOpenMetric("users", bot.client.users.cache.size);
             output += writeOpenMetric("uptime", bot.client.uptime);
