@@ -1048,6 +1048,7 @@ module.exports = {
             }
 
             let buildPage = async function () {
+                if(!channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES"))return bot.logger.warn("Permissions have been taken away");
                 let span = bot.util.startSpan("Build page");
                 let output = await formatMessage(pages[index], index);
                 if(channel.getBool && channel.getBool("pagination.disable")) {
@@ -1055,7 +1056,7 @@ module.exports = {
                     return channel.send(output);
                 }
                 if (sentMessage && !sentMessage.deleted)
-                    await bot.util.editButtons(sentMessage, output, buttons)
+                    await bot.util.editButtons(sentMessage, output, buttons).catch(()=>sentMessage.delete())
                 else if(pages.length > 1)
                     sentMessage = await bot.util.sendButtons(channel, output, buttons)
                 else
