@@ -358,7 +358,7 @@ let music = {
                         bot.logger.log("Checking for inactivity");
                         if (listener.voiceChannel.members.size === 1) {
                             bot.logger.log("Channel is inactive");
-                            await listener.channel.sendLang("MUSIC_PLAY_INACTIVE");
+                            await listener.channel.sendLang("MUSIC_PLAY_INACTIVE").catch((e)=>bot.logger.log(e));
                             if (listener && listener.connection) {
                                 bot.logger.log("Listener connection exists, so leave");
                                 await bot.lavaqueue.manager.leave(listener.server);
@@ -373,7 +373,7 @@ let music = {
                     category: "Music",
                     data: {
                         track: listener.connection.track,
-                        server: listener.servert
+                        server: listener.server
                     }
                 });
 
