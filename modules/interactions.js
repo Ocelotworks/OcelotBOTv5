@@ -23,6 +23,10 @@ module.exports = {
                 const interaction = packet.d;
                 // Happy path
                 let callback;
+
+                if(!bot.client.guilds.cache.has(interaction.guild_id) || bot.client.guilds.cache.get(interaction.guild_id).unavailable)
+                    return bot.logger.warn(`Interaction ${interaction.data.custom_id} belongs to a guild that's no longer available.`);
+
                 if(interaction.data.custom_id && bot.interactions.prefix[interaction.data.custom_id[0]]){
                     callback = await bot.interactions.prefix[interaction.data.custom_id[0]](interaction);
                 }else if(bot.interactions.waiting[interaction.data.custom_id]) {
