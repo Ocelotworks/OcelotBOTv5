@@ -176,10 +176,10 @@ module.exports = {
                 const serverCount = (await bot.rabbit.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
                 let randPresence = bot.util.arrayRand(presenceMessages);
                 await bot.client.user.setPresence({
-                    activity: {
+                    activities: [{
                         name: `${bot.presenceMessage ? bot.presenceMessage : randPresence.message} | ${serverCount.toLocaleString()} servers.`,
-                        type: randPresence.type
-                    }
+                        type: randPresence.type,
+                    }]
                 });
             } else {
                 bot.logger.log("Not updating presence as last update was too recent.");

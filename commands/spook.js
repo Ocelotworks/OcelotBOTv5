@@ -29,10 +29,10 @@ module.exports = {
                     bot.lastPresenceUpdate = now;
                     const result = await bot.database.getSpookedServers();
                     bot.client.user.setPresence({
-                        activity: {
+                        activities: [{
                             name: `👻 !spook ~ ${result.total[0]['COUNT(*)'].toLocaleString()} SPOOKED.`,
                             type: "WATCHING"
-                        }
+                        }]
                     });
                 }
             };
@@ -369,10 +369,10 @@ module.exports = {
                     bot.lastPresenceUpdate = now;
                     const serverCount = (await bot.rabbit.fetchClientValues("guilds.size")).reduce((prev, val) => prev + val, 0);
                     await bot.client.user.setPresence({
-                        activity: {
+                        activities: [{
                             name: `Thank you for playing! | in ${serverCount} servers.`,
                             type: "WATCHING"
-                        }
+                        }]
                     });
                 }
             }

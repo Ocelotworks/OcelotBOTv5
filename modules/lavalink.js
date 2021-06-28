@@ -38,10 +38,10 @@ module.exports = class Lavalink {
 
             this.manager.connect();
             this.updateDockerContainers();
-            this.syncState();
+           // this.syncState();
             setInterval(this.reconnectNodes.bind(this), 60000);
             setInterval(this.updateDockerContainers.bind(this), 10000);
-            setInterval(this.syncState.bind(this), 1000);
+            //setInterval(this.syncState.bind(this), 1000);
         });
     }
     reconnectNodes(){
