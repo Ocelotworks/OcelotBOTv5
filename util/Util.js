@@ -263,4 +263,10 @@ module.exports = class Util {
 
         await buildPage();
     }
+
+    static GetServerCount(bot){
+        return bot.rabbit.broadcastEval(`
+            this.guilds.cache.filter((guild)=>guild.available).size;
+        `).then((c)=>c.reduce((a, b)=>a+b, 0));
+    }
 }

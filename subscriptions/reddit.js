@@ -37,6 +37,8 @@ module.exports = {
                         embed.setTimestamp(new Date(post.created_utc*1000));
                         if(post.selftext)
                             embed.setDescription(post.selftext.substring(0,1024));
+                        else
+                            embed.setDescription("Image Post")
 
                         if(post.preview && post.preview.images && post.preview.images[0] && post.preview.images[0].source) {
                             console.log("Setting preview image");

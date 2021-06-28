@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const Sentry = require('@sentry/node');
+const Util = require("../util/Util");
 const presenceMessages = [
     {message: "!help", type: 'LISTENING'},
     {message: "!profile", type: 'LISTENING'},
@@ -173,7 +174,7 @@ module.exports = {
             const now = new Date();
             if (now - bot.lastPresenceUpdate > 100000) {
                 bot.lastPresenceUpdate = now;
-                const serverCount = (await bot.rabbit.fetchClientValues("guilds.cache.size")).reduce((prev, val) => prev + val, 0);
+                const serverCount = await Util.GetServerCount(bot);
                 let randPresence = bot.util.arrayRand(presenceMessages);
                 await bot.client.user.setPresence({
                     activities: [{
