@@ -9,7 +9,7 @@ module.exports = {
     usage: "add <name> <url>",
     commands: ["add"],
     run: async function (message, args, bot) {
-        if (!message.guild.id)
+        if (!message.guild)
             return message.replyLang("GENERIC_DM_CHANNEL");
         if (message.getSetting("meme.disallowAdding"))
             return message.replyLang("MEME_DISABLED");
