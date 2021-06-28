@@ -16,7 +16,6 @@ RUN mkdir temp
 COPY package.json package.json
 COPY package-lock.json package-lock.json
 
-RUN npm install redis --registry=http://192.168.1.145/
 RUN npm install --registry=http://192.168.1.145/
 RUN npm install redis --registry=http://192.168.1.145/
 RUN npm install googleapis cheerio --registry=http://192.168.1.145/

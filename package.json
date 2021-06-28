@@ -18,7 +18,6 @@
   "bugs": {
     "url": "https://github.com/Ocelotworks/OcelotBOTv5/issues"
   },
-
   "homepage": "https://github.com/Ocelotworks/OcelotBOTv5#readme",
   "dependencies": {
     "@lavacord/discord.js": "^0.0.7",
