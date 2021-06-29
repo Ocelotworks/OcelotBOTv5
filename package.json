@@ -41,7 +41,7 @@
     "country-list": "^2.2.0",
     "crc": "^3.8.0",
     "dateformat": "^4.5.1",
-    "discord.js": "^13.0.0-dev.918921e8211fc16e9b12d2502f3168264246ea22",
+    "discord.js": "^13.0.0-dev.5ad83a6a65e5944ceb3a41fee2df40ba1f5b03e4",
     "express": "^4.17.1",
     "form-data": "^2.3.3",
     "gifuct-js": "^2.0.0",

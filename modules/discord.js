@@ -170,6 +170,7 @@ module.exports = {
         }
 
         bot.client = new Discord.Client(clientOpts);
+
         bot.client.bot = bot; //:hornywaste:
         bot.client.setMaxListeners(100);
         bot.lastPresenceUpdate = 0;

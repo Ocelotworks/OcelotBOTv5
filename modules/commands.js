@@ -350,7 +350,10 @@ module.exports = class Commands {
     async runCommandMiddleware(context){
         for(let i = 0; i < this.commandMiddleware.length; i++){
             const middlewareResult = await this.commandMiddleware[i](context);
-            if(!middlewareResult)return false;
+
+            if(!middlewareResult){
+                return false;
+            }
         }
         return true;
     }
@@ -433,7 +436,7 @@ module.exports = class Commands {
             let exceptionID = Sentry.captureException(e);
             context.channel.stopTyping(true);
 
-            if(context.channel.permissionsFor(this.bot.client.user.id).has("EMBED_LINKS")) {
+            if(context.channel.permissionsFor && context.channel.permissionsFor(this.bot.client.user.id).has("EMBED_LINKS")) {
                 let errorEmbed = new Embeds.LangEmbed(context);
                 errorEmbed.setColor("#ff0000");
                 errorEmbed.setTitle("An Error Occurred");
