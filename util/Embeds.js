@@ -24,6 +24,10 @@ class LangEmbed extends Discord.MessageEmbed {
     addFieldLang(nameKey, valueKey, inline, values) {
         return super.addField(this.context.getLang(nameKey, values), this.context.getLang(valueKey, values), inline);
     }
+
+    setAuthorLang(nameKey, values, iconURL, url) {
+        return super.setAuthor(this.context.getLang(nameKey, values), iconURL, url);
+    }
 }
 
 class AuthorEmbed extends LangEmbed {

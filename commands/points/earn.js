@@ -1,10 +1,12 @@
 const Discord = require('discord.js');
+const Embeds = require("../../util/Embeds");
 module.exports = {
     name: "Earn Points",
     usage: "earn",
     commands: ["earn", "get", "daily"],
     run: async function (context, bot) {
-        let embed = new Discord.MessageEmbed();
+        let embed = new Embeds.PointsEmbed(context, bot);
+        await embed.init();
         embed.setTitle("Earn Points");
         const now = new Date();
         embed.setDescription("Stuck for points? Here are some ways you can earn:");
@@ -50,10 +52,8 @@ module.exports = {
             embed.addField(challenges.length > 1 ? "Weekly Challenges" : "Weekly Challenge", challengeOutput)
         }
 
-
         embed.setColor("#03F783");
         embed.setAuthor(context.user.username, context.user.avatarURL());
-        embed.setFooter((await bot.database.getPoints(context.user.id)).toLocaleString(), "https://cdn.discordapp.com/emojis/817100139603820614.png?v=1");
         context.send({embeds: [embed]})
     }
 };

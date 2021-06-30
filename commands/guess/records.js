@@ -1,5 +1,6 @@
 const columnify = require('columnify');
 const Sentry = require('@sentry/node');
+const Util = require("../../util/Util");
 const timescales = {
     all: "all",
     month: "month",
@@ -15,18 +16,14 @@ const timescales = {
 
 module.exports = {
     name: "Records Leaderboard",
-    usage: "records mine/all/monthly/weekly/yearly",
+    usage: "records [timescale?:mine,all,monthly,weekly,yearly]",
     commands: ["records", "rlb", "record"],
-    run: async function (message, args, bot) {
-        const timescale = args[2] ? timescales[args[2].toLowerCase()] : "all";
-
-        if (!timescale)
-            return message.channel.send(`:bangbang: The available records leaderboards are: **all, year, month, week** Alternatively, see a list of your own records with 'mine', for example: **${context.command} records mine**`);
-
+    run: async function (context, bot) {
+        const timescale = context.options.timescale || "all";
 
         try {
             if (timescale !== "mine") {
-                message.channel.startTyping();
+                context.defer();
                 let span = bot.util.startSpan("Get Translation Key");
                 const unknownUserKey = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "TRIVIA_UNKNOWN_USER");
                 span.end();
@@ -56,17 +53,17 @@ module.exports = {
                     });
                 }
                 span.end();
-                message.reply(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total record holders${timescale === "all" ? " of all time" : ` this ${timescale}`}.\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
+                context.reply(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total record holders${timescale === "all" ? " of all time" : ` this ${timescale}`}.\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
             } else {
-                let targetUser = message.author.id;
+                let targetUser = context.user.id;
                 let span = bot.util.startSpan("Get Records");
                 let records = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${targetUser}/list?items=500`);
                 span.end();
-                if (records.data.length === 0) {
-                    return message.channel.send(":stopwatch: You have no records!");
-                }
+                if (records.data.length === 0)
+                    return context.send({content: ":stopwatch: You have no records!", ephemeral: true});
+
                 const pages = records.data.chunk(10);
-                await bot.util.standardPagination(message.channel, pages, async function (records, index) {
+                return Util.StandardPagination(bot, context, pages, async function (records, index) {
                     let output = "```autohotkey\n";
                     let rows = [];
                     for (let i = 0; i < records.length; i++) {
@@ -85,9 +82,7 @@ module.exports = {
         } catch (e) {
             bot.logger.log(e);
             Sentry.captureException(e);
-            message.replyLang("GENERIC_ERROR");
-        } finally {
-            message.channel.stopTyping(true);
+            context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
         }
 
     }

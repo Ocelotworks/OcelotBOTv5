@@ -12,7 +12,7 @@ module.exports = {
         bot.addCommandMiddleware(async (context)=>{
             if (context.getBool("allowNSFW") && context.commandData.categories.indexOf("nsfw") > -1) {
                 if(context.interaction){
-                    context.reply({ephemeral: true, content: "NSFW commands are disabled in this server."});
+                    context.replyLang({ephemeral: true, content: "GENERIC_CHANNEL_DISABLED"}, {command: context.command});
                     return false;
                 }
                 const dm = await context.author.createDM();
@@ -36,7 +36,7 @@ module.exports = {
         bot.addCommandMiddleware((context)=>{
             if (!context.getBool("wholesome"))return true;
             if (context.commandData.categories.indexOf("nsfw") > -1 || context.commandData.unwholesome) {
-                context.reply({content: ":star:  This command is not allowed in wholesome mode!", ephemeral: true});
+                context.replyLang({content: "GENERIC_WHOLESOME", ephemeral: true});
                 return false;
             }
             let content = context.message ? context.message.content : context.interaction.options.map((o)=>o.value).join(" ");
@@ -53,7 +53,7 @@ module.exports = {
             const channelRestriction = context.getSetting(`${context.command}.channelRestriction`);
             if (channelDisable?.indexOf(context.channel.id) > -1 || channelRestriction?.indexOf(context.channel.id) === -1) {
                if(context.interaction){
-                 context.reply({content: `${context.command} is disabled in that channel`, ephemeral: true});
+                   context.replyLang({ephemeral: true, content: "GENERIC_CHANNEL_DISABLED"}, {command: context.command});
                } else if (context.getBool("sendDisabledMessage")) {
                     const dm = await context.author.createDM();
                     dm.send(`${context.command} is disabled in that channel`);

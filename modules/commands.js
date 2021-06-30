@@ -100,14 +100,14 @@ module.exports = class Commands {
 
             if(context.commandData.settingsOnly && !this.bot.util.canChangeSettings(context)){
                 if(context.getSetting("settings.role") === "-")
-                    return context.send("You must have Administrator permissions to use this command.");
+                    return context.replyLang({content: "GENERIC_ADMINISTRATOR", ephemeral: true});
                 return context.replyLang("SETTINGS_NO_ROLE", {role: context.getSetting("settings.role")});
             }
 
             // Check permissions in Guilds
             if(context.member && context.commandData.userPermissions && !context.channel.permissionsFor(context.member).has(context.commandData.userPermissions)){
                 // TODO: Friendly this
-                context.reply({content: `:warning: This command requires you to have ${context.commandData.userPermissions.join(",")}`, ephemeral: true});
+                context.replyLang({content: "GENERIC_USER_PERMISSIONS", ephemeral: true}, {permissions: context.commandData.userPermissions.join(",")})
                 return false
             }
 
@@ -117,7 +117,7 @@ module.exports = class Commands {
         // Disable in NSFW channels
         this.addCommandMiddleware((context)=>{
             if (!context.channel?.nsfw && context.commandData.categories.indexOf("nsfw") > -1) {
-                context.reply({content: `:warning: This command can only be used in NSFW channels.`, ephemeral: true});
+                context.replyLang({content: "GENERIC_NSFW_CHANNEL", ephemeral: true});
                 return false;
             }
             return true;
@@ -187,7 +187,7 @@ module.exports = class Commands {
 
                 if (context.commandData.requiredPermissions && !permissions.has(context.commandData.requiredPermissions)) {
                     let permission = context.commandData.requiredPermissions.map((p)=>this.bot.util.permissionsMap[p]).join();
-                    context.replyLang({content: "ERROR_NEEDS_PERMISSION", ephemeral: true}, {permission});
+                    context.replyLang({content: "GENERIC_BOT_PERMISSIONS", ephemeral: true}, {permission});
                     return false;
                 }
             }

@@ -13,10 +13,7 @@ module.exports = {
             if(!context.commandData.pointsCost)return true;
             const canUse = await bot.database.takePoints(context.user.id, context.commandData.pointsCost, context.commandData.id);
             if (!canUse)
-                context.send({
-                    content: `This command requires <:points:817100139603820614>**${context.commandData.pointsCost}** points to use. Learn more with ${context.getSetting("prefix")}points`,
-                    ephemeral: true,
-                });
+                context.replyLang({content: "POINTS_REQUIRED", ephemeral: true}, {points: context.commandData.pointsCost})
             return canUse;
         })
     },

@@ -84,14 +84,14 @@ module.exports = {
         if(!func){
             const funcs = await bot.database.getCustomFunctionByTrigger(context.guild.id, context.options.id || context.options.name);
             if(funcs.length > 1){
-                context.send({content: `:thinking: There are multiple functions with that name. Instead, enter the ID from **${context.command} list** in the format **${context.command} ${context.options.command} id**`, ephemeral: true});
+                context.sendLang({content: "CUSTOM_SEARCH_AMBIGUOUS", ephemeral: true}, {command: context.command, subCommand: context.options.command});
                 return null;
             }
             func = funcs[0];
         }
 
         if(!func){
-            context.send({content: `Couldn't find a function with that trigger or ID. Find the ID with **${context.command} list**. Then enter **${context.command} ${context.options.command} id**`, ephemeral: true});
+            context.sendLang({content: "CUSTOM_SEARCH_NOT_FOUND", ephemeral: true}, {command: context.command, subCommand: context.options.command});
             return null;
         }
         return func;

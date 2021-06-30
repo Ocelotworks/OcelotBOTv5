@@ -6,7 +6,7 @@ module.exports = {
     commands: ["list"],
     run: async function (context, bot) {
         let functions = await bot.database.getCustomFunctions(context.guild.id);
-        if(functions.length === 0)return context.send(`You have no custom functions set up! To create one, type ${context.command} add`);
+        if(functions.length === 0)return context.send("CUSTOM_LIST_NONE");
 
         let header = `Use the 'id' field below to view/edit/delete functions.\n\`\`\`yaml\n`
         let chunkedFunctions = functions.chunk(5);

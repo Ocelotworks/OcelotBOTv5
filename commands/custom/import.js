@@ -17,7 +17,7 @@ module.exports = {
         if(publishedFunction.type === "SCHEDULED"){
             let parse = later.parse.text(trigger);
             if(parse.schedules.length === 0)
-                return context.send({content: "Unable to parse time. Try 'every 5 minutes' or 'every 1 day at 9:55pm'", ephemeral: true});
+                return context.sendLang({content: "CUSTOM_SCHEDULE_ERROR", ephemeral: true});
             let occurrences = later.schedule(parse).next(10);
             let tooShort = 0;
 
@@ -33,7 +33,7 @@ module.exports = {
             }
 
             if (tooShort > occurrences.length / 2)
-                return context.send({content: ":warning: Your schedule is too frequent. You must have at least 10 seconds between runs.", ephemeral: true});
+                return context.sendLang({content: "CUSTOM_SCHEDULE_FREQUENCY", ephemeral: true});
             schedule = bot.util.parseSchedule(parse);
 
             // This is awful, we need to store the channel ID and the schedule, but we also need it to be deduplicated so store the message ID as a key

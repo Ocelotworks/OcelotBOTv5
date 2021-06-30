@@ -8,7 +8,7 @@ module.exports = {
         const code = context.commandData.getCodeBlock(context);
 
         if(code.length === 0)
-            return context.send({content: ":warning: Couldn't figure out where your code starts. For the best results, enter your code inside of a codeblock (wrapped in ```)", ephemeral: true})
+            return context.sendLang({content: "CUSTOM_CODE_AMBIGUOUS", ephemeral: true})
 
         // TODO
         let success = await bot.util.runCustomFunction(code, context.message, true, false);
@@ -26,6 +26,6 @@ module.exports = {
             context.commandData.loadScheduled(bot);
         }
 
-        return context.send("✅ Function was successfully edited!");
+        return context.sendLang({content: "CUSTOM_EDIT_SUCCESS"});
     }
 }

@@ -13,6 +13,6 @@ module.exports = {
         if(func.type === "SCHEDULED")
             context.commandData.loadScheduled(bot);
 
-        return context.send(`✅ Function was successfully deleted.\nHere is the code, in case you want to re-add it:\n\`\`\`lua\n${func.function}\n\`\`\``);
+        return context.sendLang({content: "CUSTOM_DELETE_SUCCESS"});
     }
 }

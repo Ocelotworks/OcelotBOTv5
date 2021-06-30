@@ -1,3 +1,4 @@
+const Embeds = require("../util/Embeds");
 module.exports = {
     name: "User Avatar",
     usage: "avatar :@user?",
@@ -8,15 +9,11 @@ module.exports = {
     commands: ["avatar"],
     slashHidden: true,
     run: async function (context) {
-        let target = context.options.user ? context.channel.members.get(context.options.user) :  context.member;
-        return context.send({
-            embeds: [{
-                title: `${target.displayName}'s Avatar:`,
-                color: target.displayColor,
-                image: {
-                    url: target.user.displayAvatarURL({dynamic: true, format: "png", size: 4096})
-                }
-            }]
-        })
-    },
+        let target = context.options.user ? context.channel.members.get(context.options.user) : context.member;
+        const embed = new Embeds.LangEmbed(context);
+        embed.setColor(target.displayColor);
+        embed.setImage(target.user.displayAvatarURL({dynamic: true, format: "png", size: 4096}))
+        embed.setTitleLang("AVATAR", {username: target.displayName});
+        return context.send({embeds: [embed]});
+    }
 };

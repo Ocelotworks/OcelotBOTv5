@@ -1,10 +1,10 @@
 const Discord = require('discord.js');
 const Util = require("../util/Util");
+const Embeds = require("../util/Embeds");
 const shardNames = [
     "Remo.tv",
     "shart",
     "Sexy Trap Wife",
-    "Autistic",
     "Wankish",
     "Wiking",
     "cursed_shard",
@@ -21,6 +21,9 @@ const shardNames = [
     "Prince Ali, Fabulous He",
     "Seegee",
     "Scotty",
+    "Fay",
+    "crybaby",
+    "nicole",
 ];
 module.exports = {
     name: "Stats",
@@ -36,12 +39,6 @@ module.exports = {
                 shard: bot.util.shard,
             })}`);
         }
-        const title = await context.getLang("STATS_VERSION", {version: bot.version});
-        const tagline = await context.getLang("STATS_MESSAGE", {instance: `Shard ${shardNames[bot.util.shard] ? "'" + shardNames[bot.util.shard] + "'" : "Unnamed"} (${bot.util.shard + 1}/${process.env.SHARD_COUNT})`});
-        const totalUsers = await context.getLang("STATS_TOTAL_USERS");
-        const totalServers = await context.getLang("STATS_TOTAL_SERVERS");
-        const totalChannels = await context.getLang("STATS_TOTAL_CHANNELS");
-        const uptime = await context.getLang("STATS_UPTIME");
         let serverCount = 0;
         let userCount = 0;
         let channelCount = 0;
@@ -71,15 +68,20 @@ module.exports = {
             bot.logger.error(e);
         }
 
-        let embed = new Discord.MessageEmbed();
+        let embed = new Embeds.LangEmbed(context)
         embed.setColor(0x189F06);
-        embed.setAuthor(title, bot.client.user.displayAvatarURL({dynamic: true, format: "png"}));
-        embed.setDescription(tagline);
-        embed.addField("Sponsor a Shard", "Give this shard a name with [OcelotBOT Premium](https://ocelotbot.xyz/premium)");
-        embed.addField(uptime, uptimeValue);
-        embed.addField(totalUsers, userCount.toLocaleString(), true);
-        embed.addField(totalServers, serverCount.toLocaleString(), true);
-        embed.addField(totalChannels, channelCount.toLocaleString(), true);
+        embed.setAuthorLang("STATS_VERSION", {version: bot.version}, bot.client.user.displayAvatarURL({dynamic: true, format: "png"}))
+        embed.setDescriptionLang("STATS_MESSAGE", {
+            name: shardNames[bot.util.shard] || context.getLang("STATS_SHARD_UNNAMED"),
+            id: bot.util.shard + 1,
+            total: process.env.SHARD_COUNT,
+            instance: `${bot.util.shard + 1}/${process.env.SHARD_COUNT}` // Backwards compatibility with other languages
+        });
+        embed.addFieldLang("STATS_SPONSOR_TITLE", "STATS_SPONSOR_VALUE");
+        embed.addFieldLang("STATS_UPTIME", "STATS_UPTIME_VALUE", {uptime: uptimeValue});
+        embed.addFieldLang("STATS_TOTAL_USERS", "STATS_TOTAL_USERS_VALUE", {users: userCount.toLocaleString()}, true);
+        embed.addFieldLang("STATS_TOTAL_SERVERS", "STATS_TOTAL_SERVERS_VALUE", {servers: serverCount.toLocaleString()}, true);
+        embed.addFieldLang("STATS_TOTAL_CHANNELS", "STATS_TOTAL_CHANNEL_VALUE", {channel: channelCount.toLocaleString()}, true);
         return context.send({embeds: [embed]});
     }
 };
