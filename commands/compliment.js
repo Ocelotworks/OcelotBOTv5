@@ -1,7 +1,7 @@
 module.exports = {
     name: "Compliment",
     usage: "compliment :person+",
-    categories: ["nsfw", "fun"],
+    categories: ["fun"],
     rateLimit: 10,
     detailedHelp: "Give someone a nice, if not occasionally creepy compliment.",
     usageExample: "compliment @Big P",
