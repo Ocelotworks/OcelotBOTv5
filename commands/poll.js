@@ -1,114 +1,124 @@
-const Discord = require('discord.js');
-const emojis = [
-    "1⃣",
-    "2⃣",
-    "3⃣",
-    "4⃣",
-    "5⃣",
-    "6⃣",
-    "7⃣",
-    "8⃣",
-    "9⃣",
-    "🔟",
-    "🇦",
-    "🇧",
-    "🇨",
-    "🇩",
-    "🇪",
-    "🇫",
-    "🇬",
-    "🇭",
-    "🇮",
-    "🇯"
-];
-
+const chrono = require('chrono-node');
+const Embeds = require("../util/Embeds");
+const Strings = require("../util/String");
+const titleRegex = /\[(.*)]/i
 module.exports = {
     name: "Poll",
-    usage: "poll <option 1, option 2, option 3...>",
-    detailedHelp: "Separate each option in the poll with a comma",
+    usage: "poll :options+",
+    detailedHelp: "Separate each option in the poll with a comma. Optionally, you can specify a title with [brackets], or a time frame, or forever.",
     categories: ["tools"],
     commands: ["poll"],
-    run: async function (message, args, bot) {
-        let fullArgs = Discord.escapeMarkdown(args.slice(1).join(" "));
-        let options = fullArgs.split(',');
+    init: function(bot){
+        if(bot.util.shard === 0){
+            setInterval(async ()=>{
+                let expiredPolls = await bot.database.getExpiredPolls();
+                if(expiredPolls.length === 0)return;
+                bot.logger.log(`${expiredPolls.length} polls expired.`);
+                await bot.database.deleteExpiredPolls();
+                for(let i = 0; i < expiredPolls.length; i++){
+                    try {
+                        const poll = expiredPolls[i];
+                        let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
+                        if(!message)continue;
+                        let embed = message.embeds[0];
+                        embed.setColor("#ff0000");
+                        embed.setFooter("Poll Expired");
+                        await message.edit({embeds: [embed], components: []}).catch(console.error);
+                    }catch(e){
+                        bot.logger.log(e);
+                    }
+                }
+            }, 60000);
+        }
+
+        bot.interactions.addHandler("P", async (interaction)=>{
+            try {
+                const [answer, pollID] = interaction.data.custom_id.substring(1).split("/");
+                let poll = await bot.database.getPoll(pollID);
+                if (!poll) {
+                    return {type: 4, data: {flags: 64, content: "The poll has expired or is invalid."}};
+                }
+                let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
+                if(poll.expires && poll.expires < new Date()){
+                    let embed = message.embeds[0];
+                    embed.setColor("#ff0000");
+                    embed.setFooter("Poll Expired");
+                    message.edit({embeds: [embed], components: []}).catch(console.error);
+                    return {type: 4, data: {flags: 64, content: "That poll has expired."}};
+                }
+                await bot.database.setPollAnswer(poll.id, interaction.member.user.id, answer);
+                let answers = await bot.database.getPollAnswers(poll.id);
+                let totalAnswers = 0;
+                const keys = Object.keys(answers);
+                for(let i = 0; i < keys.length; i++){
+                    totalAnswers += answers[keys[i]];
+                }
+                let embed = message.embeds[0];
+                embed.description = totalAnswers === 1 ? "1 Response" : `${totalAnswers} Responses`;
+                let inline = embed.fields.length > 10;
+                for(let i = 0; i < embed.fields.length; i++){
+                    const count = answers[i] || 0;
+                    embed.fields[i] = {
+                        name: embed.fields[i].name,
+                        value: `${Strings.ProgressBar(count, totalAnswers, inline ? 5 : 10)} ${Math.floor(((count/totalAnswers)*100))}%`,
+                        inline,
+                    }
+                }
+                await message.edit({embeds: [embed]})
+            }catch(e){
+                console.error(e);
+                return {type: 4, data: {flags: 64, content: "Something went wrong recording your poll answer."}};
+            }
+            return {type: 6};
+        })
+    },
+    run: async function (context, bot) {
+        let options = context.options.options.split(',');
         if (options.length < 2)
-            return message.channel.send(`:bangbang: You need to enter at least 2 poll items. For example, ${context.command} Dogs, Cats`);
+            return context.send({content:`:bangbang: You need to enter at least 2 poll items. For example, ${context.command} Dogs, Cats`, ephemeral: true});
 
-        if (options.length > 20)
-            return message.channel.send(":bangbang: You can only enter a maximum of 20 poll options.");
+        if (options.length > 25)
+            return context.send(":bangbang: You can only enter a maximum of 25 poll options.");
 
-        bot.tasks.startTask("poll", message.id);
-
-        let count = 0;
-        let output = "Poll (30 Seconds):\n";
-        let votes = [];
-        let voters = [];
-        let currentVotes = {};
-        let voteReactions = {};
-
-
-        //write line for each entry
-        options.forEach(function (item) {
-            output += `${emojis[count]} - ${item.trim()}\n`;
-            votes[count] = 0;
-            count++
-        });
-
-        //send the message and add reactions
-        let sentMessage = await message.channel.send(output);
-        for (let i = 0; i < count; i++) {
-            console.log(emojis[i]);
-            await sentMessage.react(emojis[i]);
+        const now = new Date();
+        let title = titleRegex.exec(options[0])?.[1] || "Poll";
+        options[0] = options[0].replace(titleRegex, "").trim();
+        if(options[0].length === 0)
+            options.splice(0,1);
+        options = options.map((o)=>o.trim())
+        const time = chrono.parse(options[0], now, {forwardDate: true})[0]
+        console.log(time);
+        let expires = time?.start?.date();
+        if(expires) {
+            options[0] = options[0].substring(time.index+time.text.length).trim();
+        }else if(options[0].toLowerCase().startsWith("forever")){
+            expires = null;
+            options[0] = options[0].substring(7).trim();
+        }else{
+            expires = new Date()
+            expires.setMinutes(expires.getMinutes()+1);
         }
 
+        const pollID = (await bot.database.createPoll(expires, context.guild.id, context.channel.id, context.user.id))[0]
 
-        await sentMessage.awaitReactions(async function (reaction, user) {
-            if (user.id === bot.client.user.id) return false;
-            let vote = reaction.emoji.name.substr(0, 1) - 1;
-
-            //Have they voted before?
-            if (voters.indexOf(user.id) !== -1) {
-                //remove their vote and reaction
-                votes[currentVotes[user.id]]--;
-                if (voteReactions[user].emoji.name !== reaction.emoji.name)
-                    voteReactions[user].users.remove(user);
-            }
-
-            //add them to the voting table, set their vote, record reaction, add vote
-            voters.push(user.id);
-            currentVotes[user.id] = vote;
-            voteReactions[user] = reaction;
-            votes[vote]++;
-
-        }, {time: 30000});
-
-
-        //Count which option wins
-        let winningOption = 0;
-        let draw = false;
-
-        for (let i = 0; i < votes.length; i++) {
-            if (votes[i] > votes[winningOption])
-                winningOption = i;
+        let embed = new Embeds.AuthorEmbed(context);
+        embed.setTitle(title);
+        embed.setDescription("0 Responses");
+        if(expires) {
+            embed.setFooter("Poll ends: ");
+            embed.setTimestamp(expires);
         }
 
-        if (votes.indexOf(winningOption) > 1) {
-            draw = true;
+        options = options.filter(o=>o.length);
+        let buttons = options
+            .map((o,i)=>({type: 2, style: 1, label: Strings.Truncate(o, 80), custom_id: `P${i}/${pollID}`}))
+            .chunk(5)
+            .map((bGroup)=>({type: 1, components: bGroup}));
+        let inline = options.length > 10;
+        for(let i = 0; i < options.length; i++){
+            embed.addField(options[i], `${Strings.ProgressBar(0, 0, inline ? 5 : 10)} 0%`, inline);
         }
-
-        try {
-            if (!sentMessage.deleted) {
-                bot.logger.info(`Reactions on ${sentMessage.id} have expired.`);
-                sentMessage.reactions.removeAll();
-            }
-
-            if (!draw) {
-                message.channel.send(options[winningOption] + " wins the vote!");
-            } else {
-                message.channel.send("There was a draw!");
-            }
-        }catch(e){}
-
-        bot.tasks.endTask("poll", message.id);
+        let message = await context.send({embeds: [embed], components: buttons})
+        return bot.database.updatePoll(pollID, message.id);
     }
 };

@@ -8,7 +8,7 @@ module.exports = {
         bot.client.once("ready", async () => {
             let servers = bot.client.guilds.cache.keyArray();
             let reminders = await bot.database.getRecurringRemindersForShard(bot.client.user.id, servers);
-            if (bot.util.shard == "0")
+            if (bot.util.shard == 0)
                 reminders.push(...(await bot.database.getRecurringRemindersForDMs(bot.client.user.id)));
             bot.logger.log(`Got ${reminders.length} recurring reminders.`);
             for (let i = 0; i < reminders.length; i++) {
@@ -53,7 +53,7 @@ module.exports = {
             if (input.indexOf(rargs[2]) - 1 !== parse.error) {
                 console.log(input.indexOf(rargs[2]), parse.error);
                 if (parse.error === 0)
-                    return context.send(`Invalid time period. Try 'every 5 minutes' or 'every day at 10:15pm'.`);
+                    return context.send(`Invalid time period. Try 'every 5 minutes' or 'every 1 day at 10:15pm'.`);
                 else
                     return context.send(`Could only understand up to \`${input.substring(0, parse.error)}\`.`);
 
@@ -65,7 +65,7 @@ module.exports = {
             return context.send({content: "Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.", ephemeral: true});
 
         if (parse.schedules.length === 0) {
-            return context.send({content: "Unable to parse time: Try something like 'every 5 minutes' or 'every day at 10:15pm'", ephemeral: true});
+            return context.send({content: "Unable to parse time: Try something like 'every 5 minutes' or 'every 1 day at 10:15pm'", ephemeral: true});
         }
 
         console.log("parsed time: ", parse.schedules);

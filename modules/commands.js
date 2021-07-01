@@ -435,7 +435,10 @@ module.exports = class Commands {
             console.log(e);
             let exceptionID = Sentry.captureException(e);
             context.channel.stopTyping(true);
-
+            // Show the actual error indev
+            if(process.env.VERSION === "indev"){
+                exceptionID = e.message;
+            }
             if(context.channel.permissionsFor && context.channel.permissionsFor(this.bot.client.user.id).has("EMBED_LINKS")) {
                 let errorEmbed = new Embeds.LangEmbed(context);
                 errorEmbed.setColor("#ff0000");

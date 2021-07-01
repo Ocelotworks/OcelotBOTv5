@@ -1243,7 +1243,36 @@ module.exports = {
             },
             incrementPublishedFunctionImports(id){
                 return knex("ocelotbot_published_custom_functions").increment("imports").where({id}).limit(1);
+            },
+            createPoll(expires, serverID, channelID, creatorID){
+                return knex.insert({expires, serverID, channelID, creatorID}).into("ocelotbot_polls");
+            },
+            async getPoll(id){
+                return (await knex.select().where({id}).from("ocelotbot_polls").limit(1))[0];
+            },
+            async updatePoll(id, messageID){
+              return knex("ocelotbot_polls").update({messageID}).where({id})
+            },
+            async getPollAnswer(poll, userID){
+                return (await knex.select().where({poll, userID}).from("ocelotbot_poll_answers").limit(1))[0];
+            },
+            async getPollAnswers(poll){
+                return (await knex.select("choice", knex.raw("COUNT(*) as count")).from("ocelotbot_poll_answers").where({poll}).groupBy("choice"))
+                    .reduce((o,a)=>{o[a.choice]=a.count;return o;},{});
+            },
+            async setPollAnswer(poll, userID, choice){
+                let currentAnswer = await bot.database.getPollAnswer(poll, userID);
+                if(!currentAnswer)
+                    return knex.insert({poll, userID, choice}).into("ocelotbot_poll_answers");
+                return knex("ocelotbot_poll_answers").update({choice}).where({poll, userID});
+            },
+            getExpiredPolls(){
+                return knex.select().from("ocelotbot_polls").whereNotNull("expires").andWhere("expires", "<", new Date());
+            },
+            deleteExpiredPolls(){
+                return knex.delete().from("ocelotbot_polls").whereNotNull("expires").andWhere("expires", "<", new Date());
             }
+
         };
     }
 };
