@@ -1056,11 +1056,11 @@ module.exports = {
                     return channel.send(output);
                 }
                 if (sentMessage && !sentMessage.deleted)
-                    await bot.util.editButtons(sentMessage, output, buttons).catch(()=>sentMessage.delete())
+                    await bot.util.editButtons(sentMessage, output, buttons);
                 else if(pages.length > 1)
-                    sentMessage = await bot.util.sendButtons(channel, output, buttons)
+                    sentMessage = await bot.util.sendButtons(channel, output, buttons);
                 else
-                    sentMessage = channel.send(output)
+                    sentMessage = await channel.send(output);
                 span.end();
             };
 
@@ -1243,9 +1243,9 @@ module.exports = {
             }
         };
 
-        bot.util.getChannelInfo = function getChannelInfo(channelID) {
+        bot.util.getChannelInfo = async function getChannelInfo(channelID) {
             try {
-                return bot.client.channels.fetch(channelID)
+                return await bot.client.channels.fetch(channelID)
             } catch (e) {
                 return null;
             }
