@@ -21,7 +21,7 @@ module.exports = {
                         let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
                         if(!message)continue;
                         let embed = message.embeds[0];
-                        embed.setDescription(embed.description.split("\n"));
+                        embed.setDescription(embed.description.split("\n")[0]);
                         embed.setColor("#ff0000");
                         embed.setFooter("Poll Expired");
                         await message.edit({embeds: [embed], components: []}).catch(console.error);
