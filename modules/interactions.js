@@ -31,9 +31,9 @@ module.exports = {
             if(packet.t === "INTERACTION_CREATE"){
                 const interaction = packet.d;
                 if(interaction.type !== 3)return;
-                // Happy path
                 let callback;
                 if(interaction.data.custom_id && bot.interactions.prefix[interaction.data.custom_id[0]]){
+                    if(bot.drain)return;
                     callback = await bot.interactions.prefix[interaction.data.custom_id[0]](interaction);
                 }else if(bot.interactions.waiting[interaction.data.custom_id]) {
                     callback = {type: 6}
