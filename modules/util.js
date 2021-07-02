@@ -1265,6 +1265,12 @@ module.exports = {
             return user ? user.tag : "Unknown User "+userID;
         }
 
+        bot.util.getServerCount = function(){
+            return bot.rabbit.broadcastEval(`
+                this.guilds.cache.filter((guild)=>guild.available).size;
+            `).then((c)=>c.reduce((a, b)=>a+b, 0));
+        }
+
         bot.bus.on("getUserInfoResponse", (message) => {
             const waitingUser = waitingUsers[message.payload.id];
             if (waitingUser) {

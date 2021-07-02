@@ -69,7 +69,7 @@ module.exports = {
         conditionallyAssign(body, botList, "shardCountField", parseInt(process.env.SHARD_COUNT));
         conditionallyAssign(body, botList, "serverCountField", bot.client.guilds.cache.size);
         conditionallyAssign(body, botList, "shardIdField", bot.util.shard);
-        conditionallyAssign(body, botList, "totalServerCountField", serverCount);
+        conditionallyAssign(body, botList, "totalServerCountField",  await bot.util.getServerCount());
         conditionallyAssign(body, botList, "usersCountField", bot.client.users.cache.size);
         conditionallyAssign(body, botList, "voiceConnectionsCountField", voiceConnections);
         conditionallyAssign(body, botList, "tokenField", botList.statsKey);
