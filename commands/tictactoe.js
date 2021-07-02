@@ -58,7 +58,7 @@ module.exports = {
 
             // Send the message
             const channel = await bot.client.channels.fetch(interaction.message.channel_id);
-            let api = new Discord.APIMessage(channel, {});
+            let api = new Discord.MessagePayload(channel, {});
             api.data = {content, components: interaction.message.components};
             let message = await channel.messages.fetch(interaction.message.id);
             message.edit(api);
@@ -73,7 +73,7 @@ module.exports = {
             {type: 2, style: buttonStyle, label: " ", custom_id: `#${context.user.id}|${opponent.id}|${r+1}|${X}`},
             {type: 2, style: buttonStyle, label: " ", custom_id: `#${context.user.id}|${opponent.id}|${r+2}|${X}`}
         ];
-        let api = new Discord.APIMessage(context.channel, {});
+        let api = new Discord.MessagePayload(context.channel, {});
         api.data = {
             content: `${X}: ${context.user}\n${O}: ${opponent}\nCurrent Turn: ${O}`,
             components: [

@@ -65,12 +65,11 @@ module.exports = {
     updateList: async function(botList, bot){
         // TODO
         const voiceConnections = 0;//bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.reduce((acc, n)=>acc+n.stats.players, 0);
-        const serverCount = (await Util.GetServerCount(bot));
         let body = {};
         conditionallyAssign(body, botList, "shardCountField", parseInt(process.env.SHARD_COUNT));
         conditionallyAssign(body, botList, "serverCountField", await Util.GetServerCount(bot));
         conditionallyAssign(body, botList, "shardIdField", bot.util.shard);
-        conditionallyAssign(body, botList, "totalServerCountField", serverCount);
+        conditionallyAssign(body, botList, "totalServerCountField", await Util.GetServerCount(bot));
         conditionallyAssign(body, botList, "usersCountField", bot.client.users.cache.size);
         conditionallyAssign(body, botList, "voiceConnectionsCountField", voiceConnections);
         conditionallyAssign(body, botList, "tokenField", botList.statsKey);

@@ -756,7 +756,7 @@ module.exports = {
         };
 
         bot.util.replyTo = function replyTo(message, content) {
-            let api = new Discord.APIMessage(message.channel, {});
+            let api = new Discord.MessagePayload(message.channel, {});
             api.data = {
                 content: "",
                 message_reference: {
@@ -777,7 +777,7 @@ module.exports = {
         }
 
         bot.util.sendButtons = function sendButtons(channel, content, buttons){
-            let api = new Discord.APIMessage(channel, {});
+            let api = new Discord.MessagePayload(channel, {});
             api.data = {
                 content: "",
                 components: [{
@@ -798,7 +798,7 @@ module.exports = {
         }
 
         bot.util.editButtons = function editButtons(message, content, buttons){
-            let api = new Discord.APIMessage(message.channel, {});
+            let api = new Discord.MessagePayload(message.channel, {});
             api.data = {
                 content: "",
                 components: [{
@@ -1167,9 +1167,9 @@ module.exports = {
             }
         };
 
-        bot.util.getChannelInfo = function getChannelInfo(channelID) {
+        bot.util.getChannelInfo = async function getChannelInfo(channelID) {
             try {
-                return bot.client.channels.fetch(channelID)
+                return await bot.client.channels.fetch(channelID)
             } catch (e) {
                 return null;
             }
