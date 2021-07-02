@@ -138,7 +138,10 @@ module.exports = {
         //bot.presenceMessage = null;
 
         const clientOpts = {
-            allowedMentions: {parse: ["users"]},
+            allowedMentions: {
+                parse: ["users"],
+                repliedUser: true,
+            },
             messageCacheLifetime: 3600,
             messageSweepInterval: 3600,
             invalidRequestWarningInterval: 500,

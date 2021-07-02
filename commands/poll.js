@@ -21,6 +21,7 @@ module.exports = {
                         let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
                         if(!message)continue;
                         let embed = message.embeds[0];
+                        embed.setDescription(embed.description.split("\n"));
                         embed.setColor("#ff0000");
                         embed.setFooter("Poll Expired");
                         await message.edit({embeds: [embed], components: []}).catch(console.error);
@@ -41,6 +42,7 @@ module.exports = {
                 let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
                 if(poll.expires && poll.expires < new Date()){
                     let embed = message.embeds[0];
+                    embed.setDescription(embed.description.split("\n"));
                     embed.setColor("#ff0000");
                     embed.setFooter("Poll Expired");
                     message.edit({embeds: [embed], components: []}).catch(console.error);
@@ -55,6 +57,8 @@ module.exports = {
                 }
                 let embed = message.embeds[0];
                 embed.description = totalAnswers === 1 ? "1 Response" : `${totalAnswers} Responses`;
+                if(poll.expires)
+                    embed.description += `\nExpires <t:${Math.floor(poll.expires.getTime() / 1000)}:R>`
                 let inline = embed.fields.length > 10;
                 for(let i = 0; i < embed.fields.length; i++){
                     const count = answers[i] || 0;
@@ -103,7 +107,10 @@ module.exports = {
 
         let embed = new Embeds.AuthorEmbed(context);
         embed.setTitle(title);
-        embed.setDescription("0 Responses");
+        if(expires)
+            embed.setDescription(`0 Responses\nExpires <t:${Math.floor(expires.getTime()/1000)}:R>`);
+        else
+            embed.setDescription(`0 Responses`);
         if(expires) {
             embed.setFooter("Poll ends: ");
             embed.setTimestamp(expires);
