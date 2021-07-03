@@ -340,6 +340,7 @@ module.exports = class Commands {
                             await command.init(this.bot, loadedCommand);
                         }
 
+                        command.id = files[i];
                         command.pattern = commandParser.BuildPattern(command.commands[0], command.usage).pattern;
 
                         // TODO: Subcommands
@@ -445,8 +446,7 @@ module.exports = class Commands {
                         return await context.commandData.subCommands[context.options.command].run(context, this.bot);
                 }
                 if(!this.bot.commands[context.command]) {
-                    // TODO: nested help
-                    return context.reply("TODO: Nested help");
+                    return await this.bot.commands["nestedCommandHelp"](context, this.bot);
                 }
             }
 
