@@ -50,7 +50,7 @@ module.exports = class Commands {
             const parse = this.parseCommand(message);
             if(!parse)return;
 
-            const context = this.preprocessCommand(new MessageCommandContext(this.bot, message, parse.args, parse.command));
+            const context = this.initContext(new MessageCommandContext(this.bot, message, parse.args, parse.command));
             if(!context)return;
             return this.runCommand(context);
         });
@@ -61,7 +61,7 @@ module.exports = class Commands {
             if(oldMessage.response?.deleted)return console.log("Response was deleted");
             const parse = this.parseCommand(newMessage);
             if(!parse)return console.log("did not parse");
-            const context = this.preprocessCommand(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
+            const context = this.initContext(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
             if(!context)return console.log("did not process");
             return this.runCommand(context);
         })
@@ -81,14 +81,22 @@ module.exports = class Commands {
 
         // Permissions checks
         this.addCommandMiddleware((context)=>{
+            const subCommandData = context.commandData.subCommands?.[context.options.command];
+            const commandData = context.commandData;
+            // This feels wrong but I need to get the
+            const guildOnly = commandData.guildOnly || subCommandData.guildOnly;
+            const noSynthetic = commandData.noSynthetic || subCommandData.noSynthetic;
+            const settingsOnly = commandData.settingsOnly || subCommandData.settingsOnly;
+            const userPermissions = commandData.userPermissions ? commandData.userPermissions.concat(subCommandData.userPermissions) : subCommandData.userPermissions;
+            const adminOnly = commandData.adminOnly || subCommandData.adminOnly;
             // Only allow Guild Only commands to be ran in a Guild
-            if(context.commandData.guildOnly && !context.guild){
+            if(guildOnly && !context.guild){
                 context.replyLang({content: "GENERIC_DM_CHANNEL", ephemeral: true});
                 return false;
             }
 
             // Don't allow this command inside custom commands
-            if(context.message && context.message.synthetic && context.commandData.noSynthetic){
+            if(context.message && context.message.synthetic && noSynthetic){
                 context.replyLang({content: "GENERIC_CUSTOM_COMMAND", ephemeral: true})
                 return false
             }
@@ -96,19 +104,19 @@ module.exports = class Commands {
             // Override the next checks for admins
             if(context.getBool("admin"))return true;
 
-            if(context.commandData.settingsOnly && !this.bot.util.canChangeSettings(context)){
+            if(settingsOnly && !this.bot.util.canChangeSettings(context)){
                 if(context.getSetting("settings.role") === "-")
                     return context.replyLang({content: "GENERIC_ADMINISTRATOR", ephemeral: true});
                 return context.replyLang("SETTINGS_NO_ROLE", {role: context.getSetting("settings.role")});
             }
 
             // Check permissions in Guilds
-            if(context.member && context.commandData.userPermissions && !context.channel.permissionsFor(context.member).has(context.commandData.userPermissions)){
-                context.replyLang({content: "GENERIC_USER_PERMISSIONS", ephemeral: true}, {permissions: context.commandData.userPermissions.map((p)=>Strings.Permissions[p]).join(",")})
+            if(context.member && userPermissions && !context.channel.permissionsFor(context.member).has(userPermissions)){
+                context.replyLang({content: "GENERIC_USER_PERMISSIONS", ephemeral: true}, {permissions: userPermissions.map((p)=>Strings.Permissions[p]).join(",")})
                 return false
             }
 
-            return !(context.commandData.adminOnly);
+            return !(adminOnly);
         })
 
         // Disable in NSFW channels
@@ -204,7 +212,12 @@ module.exports = class Commands {
         return {args, command};
     }
 
-    preprocessCommand(context){
+    /**
+     * Fills the data into a MessageCommandContext
+     * @param {MessageCommandContext} context
+     * @returns {null|MessageCommandContext}
+     */
+    initContext(context){
         context.commandData = this.bot.commandUsages[context.command];
         if(context.commandData?.pattern) {
             const parsedInput = commandParser.Parse(context.args.slice(1).join(" "), {pattern: context.commandData.pattern, id: context.command});
@@ -215,8 +228,9 @@ module.exports = class Commands {
                 }
                 context.sendLang(`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`, parsedInput.error.data);
                 return null;
-            } else
+            } else {
                 context.options = parsedInput.data;
+            }
         }
         return context;
     }
@@ -424,7 +438,6 @@ module.exports = class Commands {
 
         try {
             if(context.commandData.subCommands){
-                console.log("This is a subcommand");
                 let parsedInput;
 
                 // Default to the help command
