@@ -77,7 +77,12 @@ module.exports = class Strings {
         MANAGE_NICKNAMES: "Manage Nicknames",
         MANAGE_ROLES_OR_PERMISSIONS: "Manage Roles",
         MANAGE_WEBHOOKS: "Manage Webhooks",
-        MANAGE_EMOJIS: "Manage Emojis"
+        MANAGE_EMOJIS: "Manage Emojis",
+        USE_APPLICATION_COMMANDS: "Use Slash Commands",
+        REQUEST_TO_SPEAK: "Request to Speak",
+        MANAGE_THREADS: "Manage Threads",
+        USE_PUBLIC_THREADS: "Use Public Threads",
+        USE_PRIVATE_THREADS: "Use Private Threads",
     }
     static Timezones = {
         ACDT: "10.5",

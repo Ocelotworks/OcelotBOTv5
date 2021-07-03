@@ -31,10 +31,10 @@ module.exports = {
             bot.lastRatelimitRefresh = new Date();
         }, 60000);
 
-        bot.checkBan = function checkBan(message) {
-            if (message.guild && bot.banCache.server.indexOf(message.guild.id) > -1) return true;
-            if (message.channel && bot.banCache.channel.indexOf(message.channel.id) > -1) return true;
-            return bot.banCache.user.indexOf(message.author.id) > -1;
+        bot.checkBan = function checkBan(context) {
+            if (context.guild && bot.banCache.server.indexOf(context.guild.id) > -1) return true;
+            if (context.channel && bot.banCache.channel.indexOf(context.channel.id) > -1) return true;
+            return bot.banCache.user.indexOf(context.user.id) > -1;
         };
 
         function updateRateLimit(command, message) {

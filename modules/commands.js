@@ -3,6 +3,7 @@ const {CustomCommandContext, InteractionCommandContext, MessageCommandContext, M
 const fs = require('fs');
 const Util = require("../util/Util");
 const Embeds = require("../util/Embeds");
+const Strings = require("../util/String");
 const {crc32} = require("crc");
 const commandParser = require('command-parser').default;
 module.exports = class Commands {
@@ -103,8 +104,7 @@ module.exports = class Commands {
 
             // Check permissions in Guilds
             if(context.member && context.commandData.userPermissions && !context.channel.permissionsFor(context.member).has(context.commandData.userPermissions)){
-                // TODO: Friendly this
-                context.replyLang({content: "GENERIC_USER_PERMISSIONS", ephemeral: true}, {permissions: context.commandData.userPermissions.join(",")})
+                context.replyLang({content: "GENERIC_USER_PERMISSIONS", ephemeral: true}, {permissions: context.commandData.userPermissions.map((p)=>Strings.Permissions[p]).join(",")})
                 return false
             }
 
@@ -130,8 +130,7 @@ module.exports = class Commands {
         });
 
         this.addCommandMiddleware((context)=>{
-            if(!context.message)return true; // TODO: interaction ban
-            return !this.bot.checkBan(context.message)
+            return !this.bot.checkBan(context)
         });
 
         // Ratelimits
