@@ -26,7 +26,11 @@ module.exports = {
         // Disable commands that are disabled
         bot.addCommandMiddleware((context)=>{
             if (context.getBool(`${context.command}.disable`)) {
-                bot.logger.log(`${context.command} is disabled in this server: ${context.command}`);
+                bot.logger.log(`${context.command} is disabled in this server`);
+                return false;
+            }
+            if(context.commandData.subCommands && context.options.command && context.getBool(`${context.command}.${context.options.command}.disable`)) {
+                bot.logger.log(`${context.command} ${context.options.command} is disabled in this server`);
                 return false;
             }
             return true;

@@ -19,6 +19,7 @@ module.exports = {
             if(!subCommands.hasOwnProperty(id))continue;
             const subCommand = subCommands[id];
             if(subCommand.hidden)continue;
+            if(context.getBool(`${context.command}.${subCommand.aliases[0]}.disable`))continue;
             output += `${subCommand.name} :: ${context.getSetting("prefix")}${context.command} ${subCommand.usage}\n`
         }
         output += "\n```";
