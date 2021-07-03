@@ -4,24 +4,25 @@
  * ╚════ ║   (ocelotbotv5) listqueue
  *  ════╝
  */
+const Util = require("../../util/Util");
 module.exports = {
     name: "List Queue",
     usage: "listqueue",
     commands: ["list", "lq", "upnext", "vq", "viewqueue", "listqueue", "ql"],
-    run: async function (message, args, bot, music) {
-        const guild = message.guild.id;
-        if (!music.listeners[guild])
-            return message.replyLang("MUSIC_NOTHING_PLAYING");
+    run: async function (context, bot) {
+        const guild = context.guild.id;
+        if (!bot.music.listeners[guild])
+            return context.sendLang("MUSIC_NOTHING_PLAYING");
 
-        const listener = music.listeners[guild];
+        const listener = bot.music.listeners[guild];
 
         if (listener.queue.length === 0)
-            return message.replyLang("MUSIC_QUEUE_EMPTY");
+            return context.sendLang("MUSIC_QUEUE_EMPTY");
 
-        let header = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000, message.guild && message.guild.id, message.author.id)})\n============\n`;
+        let header = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000, context.guild && context.guild.id, context.user.id)})\n============\n`;
 
         let chunkedQueue = listener.queue.chunk(20);
-        bot.util.standardPagination(message.channel, chunkedQueue, async function (page, index) {
+        return Util.StandardPagination(bot, context, chunkedQueue, async function (page, index) {
             let output = "";
             output += header;
             for (let i = 0; i < page.length; i++) {

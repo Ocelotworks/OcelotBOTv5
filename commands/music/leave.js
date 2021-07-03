@@ -8,17 +8,17 @@ module.exports = {
     name: "Leave Channel",
     usage: "leave",
     commands: ["leave", "quit", "stop"],
-    run: async function (message, args, bot, music) {
-        const guild = message.guild.id;
+    run: async function (context, bot) {
+        const guild = context.guild.id;
         await bot.lavaqueue.manager.leave(guild);
-        await music.deconstructListener(guild);
+        await bot.music.deconstructListener(guild);
 
-        if (!music.listeners[guild])
-            return message.replyLang("MUSIC_NOTHING_PLAYING");
+        if (!bot.music.listeners[guild])
+            return context.sendLang("MUSIC_NOTHING_PLAYING");
 
         //if(listener.playing && listener.voiceChannel.members.size > 2)
-        //   return message.channel.send(`:bangbang: You can only use this command if you're the only one listening.`);
+        //   return context.send(`:bangbang: You can only use this command if you're the only one listening.`);
 
-        message.channel.send(":wave: Goodbye.");
+        return context.send(":wave: Goodbye.");
     }
 };

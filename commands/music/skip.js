@@ -8,12 +8,12 @@ module.exports = {
     name: "Skip Song",
     usage: "skip",
     commands: ["skip", "next", "s", "n"],
-    run: async function (message, args, bot, music) {
-        const guild = message.guild.id;
-        if (!music.listeners[guild] || !music.listeners[guild].playing)
-            return message.replyLang("MUSIC_NOTHING_PLAYING");
+    run: async function (context, bot) {
+        const guild = context.guild.id;
+        if (!bot.music.listeners[guild] || !bot.music.listeners[guild].playing)
+            return context.sendLang("MUSIC_NOTHING_PLAYING");
 
-        const listener = music.listeners[guild];
+        const listener = bot.music.listeners[guild];
         const members = listener.voiceChannel.members.size - 1;
         let skipsNeeded;
         if (members === 1)
@@ -25,15 +25,15 @@ module.exports = {
         else
             skipsNeeded = Math.round(members * 0.3);
 
-        if (listener.voteSkips.indexOf(message.author.id) === -1)
-            listener.voteSkips.push(message.author.id);
+        if (listener.voteSkips.indexOf(context.user.id) === -1)
+            listener.voteSkips.push(context.user.id);
 
         console.log(listener.voteSkips.length, skipsNeeded);
         if (listener.voteSkips.length >= skipsNeeded) {
-            await message.replyLang("MUSIC_SKIPPED");
-            music.playNextInQueue(guild);
+            await context.sendLang("MUSIC_SKIPPED");
+            return bot.music.playNextInQueue(guild);
         } else
-            message.replyLang("MUSIC_SKIP_VOTES", {votes: listener.voteSkips.length, needed: skipsNeeded});
+            context.sendLang("MUSIC_SKIP_VOTES", {votes: listener.voteSkips.length, needed: skipsNeeded});
 
     }
 };

@@ -55,14 +55,13 @@ module.exports = class Commands {
         });
 
         this.bot.client.on("messageUpdate", (oldMessage, newMessage)=>{
+            if (this.bot.drain || newMessage.author.bot) return;
             if(oldMessage.content == newMessage.content)return console.log("Content is identical");
             if(oldMessage.response?.deleted)return console.log("Response was deleted");
             const parse = this.parseCommand(newMessage);
             if(!parse)return console.log("did not parse");
             const context = this.preprocessCommand(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
             if(!context)return console.log("did not process");
-            console.log("running edit");
-            console.log(context);
             return this.runCommand(context);
         })
 
