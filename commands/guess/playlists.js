@@ -4,7 +4,7 @@ module.exports = {
     usage: "playlists",
     commands: ["playlists", "pl", "list", "playlist"],
     run: async function (context, bot) {
-        const playlists = await bot.database.getGuessPlaylists(message.guild.id);
+        const playlists = await bot.database.getGuessPlaylists(context.guild.id);
         const chunkedPlaylists = playlists.chunk(12);
         let spaceLength = 0;
         for(let i = 0; i < playlists.length; i++){

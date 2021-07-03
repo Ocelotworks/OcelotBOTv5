@@ -1561,12 +1561,10 @@ module.exports = {
         bot.util.checkVoiceChannel = function(message){
             if (!message.guild) return message.replyLang("GENERIC_DM_CHANNEL");
             if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-            console.log(message.member.voice);
             if (!message.member.voice.channel) return message.replyLang("VOICE_NO_CHANNEL");
             if ( message.member.voice.channel.full) return message.replyLang("VOICE_FULL_CHANNEL");
             if (!message.member.voice.channel.joinable) return message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-            if (!message.member.voice.channel.speakable) return message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
-
+            if (message.member.voice.channel.type !== "stage" && !message.member.voice.channel.speakable) return message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
         }
 
         bot.util.parseSchedule = function(schedule){

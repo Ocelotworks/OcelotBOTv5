@@ -6,24 +6,13 @@
  */
 
 const Discord = require('discord.js');
-const axios = require('axios');
+const {axios} = require('../util/Http');
 const config = require('config');
 const Sentry = require('@sentry/node');
 const cheerio = require('cheerio');
 // Start a random position in the playlist on startup, mostly for my sanity during testing
 let counter = Math.round(Math.random()*1000);
-let runningGames = {"":{
-    voiceChannel: {},
-    textChannel: {},
-    currentTrack: {},
-    currentTrackStarted: new Date(),
-    playlistId: '',
-    lastGuessTime: 0,
-    custom: false,
-    collector: {},
-    ending: false,
-    failures: 0,
-}};
+
 
 
 const llErrors = {
@@ -43,6 +32,7 @@ module.exports = {
     guildOnly: true,
     slashHidden: true,
     nestedDir: "guess",
+    runningGames: {},
     run:  async function run(context, bot) {
         let playlists = null;
         let playlist;
@@ -68,9 +58,10 @@ module.exports = {
         if (context.guild.voiceConnection && !bot.voiceLeaveTimeouts[context.member.voice.channel.id] && context.getSetting("songguess.disallowReguess"))return context.sendLang("SONGGUESS_OCCUPIED");
 
 
-        if (runningGames[context.guild.id]) {
-            if(playlist != runningGames[context.guild.id].playlistId){
-                runningGames[context.guild.id].playlistId = playlist;
+
+        if (module.exports.runningGames[context.guild.id]) {
+            if(playlist != module.exports.runningGames[context.guild.id].playlistId){
+                module.exports.runningGames[context.guild.id].playlistId = playlist;
                 let playlistName = context.options.command;
                 if(!context.options.command)
                     playlistName = context.getSetting("songguess.default");
@@ -78,19 +69,21 @@ module.exports = {
                     playlistName = "<"+context.options.command+">";
                 return context.send(`Switched the playlist to **${playlistName}**\nThe next song will be from this playlist, or to start now type **${context.command} skip**`);
             }
-            return context.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: runningGames[context.guild.id].voiceChannel.name})
+            return context.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: module.exports.runningGames[context.guild.id].voiceChannel.name})
         }
 
 
-        return startGame(bot, message, playlist, isCustom);
+        return startGame(bot, context, playlist, isCustom);
     }
 
 };
 
 async function endGame(bot, id){
     bot.logger.log("Ending game ", id)
-    const game = runningGames[id];
-    if(!game || game.ending)return;
+    const game = module.exports.runningGames[id];
+    if(!game)return;
+    await bot.lavaqueue.manager.leave(game.voiceChannel.guild.id);
+    if(game.ending) return;
     game.ending = true;
     if(game.timeout){
         clearTimeout(game.timeout);
@@ -108,8 +101,8 @@ async function endGame(bot, id){
     if(game.player) {
         await game.player.stop();
     }
-    await bot.lavaqueue.manager.leave(game.voiceChannel.guild.id);
-    delete runningGames[id];
+
+    delete module.exports.runningGames[id];
 }
 
 async function startGame(bot, context, playlistId, custom){
@@ -121,9 +114,13 @@ async function startGame(bot, context, playlistId, custom){
         node: bot.util.arrayRand(bot.lavaqueue.manager.idealNodes).id,
     }, {selfdeaf: true})
 
-    runningGames[context.guild.id] = {
+    if(context.member.voice.channel.type === "stage"){
+        context.send(":warning: You need to promote me to speaker in order to listen!");
+    }
+
+    module.exports.runningGames[context.guild.id] = {
         voiceChannel: context.member.voice.channel,
-        textChannel: message.channel,
+        textChannel: context.channel,
         playlistId,
         player,
         custom,
@@ -132,6 +129,7 @@ async function startGame(bot, context, playlistId, custom){
     }
     player.on("error", (e)=>{
         console.error(e);
+
         if(llErrors[e.type])
             context.send(llErrors[e.type])
         else{
@@ -144,7 +142,7 @@ async function startGame(bot, context, playlistId, custom){
 }
 
 async function newGuess(bot, voiceChannel, retrying = false){
-    const game = runningGames[voiceChannel.guild.id];
+    const game = module.exports.runningGames[voiceChannel.guild.id];
     if(!game)return; // Game has disappeared somehow
     const playlistLength = await getPlaylistLength(bot, game.playlistId);
     const index = counter++ % playlistLength;
@@ -235,41 +233,57 @@ async function newGuess(bot, voiceChannel, retrying = false){
 
 
 async function doGuess(bot, player, textChannel, song, voiceChannel){
-    const game = runningGames[voiceChannel.guild.id];
+    console.log("Guess is starting")
+    const game = module.exports.runningGames[voiceChannel.guild.id];
     const guessStarted = new Date();
-    const loggedTrackName = `${song.track.artists[0].name} - ${song.track.name}`;
-    const normalisedName = normalise(song.track.name)
+    let trackName = song.track.name;
+    // try {
+    //     console.log("Waiting for track name...");
+    //     let result = await axios.get(`https://demaster.hankapi.com/demaster?long_track_name=${encodeURIComponent(trackName)}`, {timeout: 3000});
+    //     console.log("got track name!");
+    //     trackName = result.data;
+    // }catch(e){
+    //     Sentry.captureException(e);
+    //     bot.logger.error(e);
+    // }
+    const loggedTrackName = `${song.track.artists[0].name} - ${trackName}`;
+    const normalisedName = normalise(trackName);
+    console.log(`Title is ${loggedTrackName}`);
     const artistNames = song.track.artists.map((a)=>normalise(a.name));
     let artistsVisited = [];
     bot.logger.log(`Track is ${artistNames} - ${normalisedName}`);
-    const collector = textChannel.createMessageCollector((m)=>{
-        if(m.author.bot)return false;
-        game.lastGuessTime = new Date();
-        bot.logger.log(bot.util.serialiseMessage(m));
-        let elapsed = new Date()-guessStarted;
-        const normalisedContent = normalise(m.cleanContent);
-        const partialLength = normalisedName.indexOf(normalisedContent) > -1 ? normalisedContent.length : 0;
-        // If the message contains the entire title, or the message is more than 30% of the title
-        if(normalisedContent.indexOf(normalisedName) > -1 || partialLength >= normalisedName.length/3){
-            bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, normalisedContent, loggedTrackName, 1, elapsed, game.custom);
-            return true;
-        }
-
-        // If the message has 40% of the title give them a little reaction
-        if(partialLength >= normalisedName.length/4)
-            m.react("👀")
-
-        // If they mention one of the artists, send them a message the first time
-        for(let i = 0; i < artistNames.length; i++){
-            if(normalisedContent.indexOf(artistNames[i]) > -1 && !artistsVisited[i]){
-                bot.util.replyTo(m, `${song.track.artists[i].name} is ${artistNames.length > 1 ? "one of the artists" : "the artist"}, but what's the song title?.`);
-                artistsVisited[i] = true;
-                break
+    const collector = textChannel.createMessageCollector({
+        max: 1,
+        time: 30000,
+        filter: (m)=>{
+            if(m.author.bot)return false;
+            game.lastGuessTime = new Date();
+            bot.logger.log(bot.util.serialiseMessage(m));
+            let elapsed = new Date()-guessStarted;
+            const normalisedContent = normalise(m.cleanContent);
+            const partialLength = normalisedName.indexOf(normalisedContent) > -1 ? normalisedContent.length : 0;
+            // If the message contains the entire title, or the message is more than 30% of the title
+            if(normalisedContent.indexOf(normalisedName) > -1 || partialLength >= normalisedName.length/3){
+                bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, normalisedContent, loggedTrackName, 1, elapsed, game.custom);
+                return true;
             }
+
+            // If the message has 40% of the title give them a little reaction
+            if(partialLength >= normalisedName.length/4)
+                m.react("👀")
+
+            // If they mention one of the artists, send them a message the first time
+            for(let i = 0; i < artistNames.length; i++){
+                if(normalisedContent.indexOf(artistNames[i]) > -1 && !artistsVisited[i]){
+                    bot.util.replyTo(m, `${song.track.artists[i].name} is ${artistNames.length > 1 ? "one of the artists" : "the artist"}, but what's the song title?`);
+                    artistsVisited[i] = true;
+                    break
+                }
+            }
+            bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, "", loggedTrackName, 0, elapsed, game.custom);
+            return false;
         }
-        bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, "", loggedTrackName, 0, elapsed, game.custom);
-        return false;
-    }, {max: 1, time: 30000})
+    })
 
     game.collector = collector;
 

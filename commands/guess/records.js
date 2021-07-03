@@ -1,18 +1,6 @@
 const columnify = require('columnify');
 const Sentry = require('@sentry/node');
 const Util = require("../../util/Util");
-const timescales = {
-    all: "all",
-    month: "month",
-    monthly: "month",
-    week: "week",
-    weekly: "week",
-    year: "year",
-    yearly: "year",
-    mine: "mine",
-    my: "mine",
-    me: "mine",
-}
 
 module.exports = {
     name: "Records Leaderboard",
@@ -25,7 +13,7 @@ module.exports = {
             if (timescale !== "mine") {
                 context.defer();
                 let span = bot.util.startSpan("Get Translation Key");
-                const unknownUserKey = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "TRIVIA_UNKNOWN_USER");
+                const unknownUserKey = context.getLang("TRIVIA_UNKNOWN_USER");
                 span.end();
                 span = bot.util.startSpan("Get Leaderboard");
                 let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${timescale}`);
@@ -34,7 +22,7 @@ module.exports = {
                     return message.channel.send(`There is no data for that timeframe. Try **${context.command} records all** to see the all time scores.`);
                 }
                 span = bot.util.startSpan("Get Position");
-                let positionData = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${timescale}/${message.author.id}`);
+                let positionData = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${timescale}/${context.user.id}`);
                 span.end();
                 let outputData = [];
 
