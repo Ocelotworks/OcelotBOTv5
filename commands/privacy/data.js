@@ -54,7 +54,6 @@ function objectToCsv(obj){
                 output += `"${data.replace(/"/g, `""`)}"`;
             else
                 output += data;
-            if (o < obj.length - 1) output += ",";
         }
         output += "\n";
     }
