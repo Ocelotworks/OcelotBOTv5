@@ -120,12 +120,16 @@ class MessageCommandContext extends CommandContext {
 
     async send(options){
         await this.message.channel.stopTyping();
-        return this.message.channel.send(options);
+        const message = await this.message.channel.send(options);
+        this.message.response = message;
+        return message;
     }
 
     async reply(options){
         await this.message.channel.stopTyping();
-        return this.message.reply(options);
+        const message = await this.message.reply(options);
+        this.message.response = message;
+        return message;
     }
 
     editLang(options, values, message){
@@ -138,6 +142,27 @@ class MessageCommandContext extends CommandContext {
 
     defer(options){
         return this.message.channel.startTyping();
+    }
+}
+
+class MessageEditCommandContext extends MessageCommandContext {
+    response;
+
+    constructor(bot, message, response, args, command){
+        super(bot, message, args, command);
+        this.response = response;
+    }
+
+    async send(options){
+        if(this.response)
+            return this.response.edit(options);
+        return super.reply(options);
+    }
+
+    async reply(options){
+        if(this.response)
+            return this.response.edit(options);
+        return super.reply(options);
     }
 }
 
@@ -200,6 +225,7 @@ class CustomCommandContext extends CommandContext {
 module.exports = {
     CommandContext,
     CustomCommandContext,
+    MessageEditCommandContext,
     MessageCommandContext,
     InteractionCommandContext
 }

@@ -396,7 +396,6 @@ module.exports = {
     usage: "music help/play/skip",
     rateLimit: 10,
     categories: ["voice"],
-    //requiredPermissions: ["CONNECT", "SPEAK"],
     premium: false,
     commands: ["music", "m"],
 
@@ -413,36 +412,6 @@ module.exports = {
                 bot.logger.log("Ending music session "+session.id);
                 await bot.database.endMusicSession(session.id);
             }
-            return;
-            bot.lavaqueue.manager.on("ready", async function () {
-                let activeSessions = await bot.database.getActiveSessions();
-                for (let i = 0; i < activeSessions.length; i++) {
-                    const session = activeSessions[i];
-                    try {
-                        if (bot.client.guilds.cache.has(session.server)) {
-                            bot.logger.log(`Resuming session ${session.id}`);
-                            const listener = await music.constructListener(bot.client.guilds.cache.get(session.server), bot.client.channels.cache.get(session.voiceChannel), bot.client.channels.cache.get(session.textChannel), session.id);
-                            listener.playing = await bot.lavaqueue.getSong(session.playing, listener.connection);
-                            listener.autodj = session.autodj;
-                            if (session.lastMessage) {
-                                if (!listener.channel) return await bot.database.endMusicSession(session.id);
-                                listener.lastMessage = await listener.channel.messages.fetch(session.lastMessage);
-                                await music.updateOrSendMessage(listener, music.createNowPlayingEmbed(listener), true);
-                                if (listener.channel.guild.getBool("music.updateNowPlaying")) {
-                                    listener.editInterval = setInterval(function updateNowPlaying() {
-                                        if (music.updateOrSendMessage(listener, music.createNowPlayingEmbed(listener), false))
-                                            clearInterval(listener.editInterval);
-                                    }, parseInt(listener.channel.guild.getSetting("music.updateFrequency")));
-                                }
-                            }
-                            await music.requeue(session, await bot.database.getQueueForSession(session.id));
-                        }
-                    } catch (e) {
-                        Sentry.captureException(e);
-                        await bot.database.endMusicSession(session.id);
-                    }
-                }
-            })
         });
         bot.music = music;
     },

@@ -1,5 +1,5 @@
 const Sentry = require('@sentry/node');
-const {CustomCommandContext, InteractionCommandContext, MessageCommandContext} = require("../util/CommandContext");
+const {CustomCommandContext, InteractionCommandContext, MessageCommandContext, MessageEditCommandContext} = require("../util/CommandContext");
 const fs = require('fs');
 const Util = require("../util/Util");
 const Embeds = require("../util/Embeds");
@@ -46,27 +46,25 @@ module.exports = class Commands {
 
         this.bot.client.on("message", (message)=>{
             if (this.bot.drain || (message.author.bot && message.author.id !== "824045686600368189")) return;
-            const prefix = message.getSetting("prefix");
-            if (!prefix) return console.log("No prefix");//Bot hasn't fully loaded
-            const prefixLength = prefix.length;
-            if (!message.content.startsWith(prefix))
-                return console.log("Not prefixed");
-            const args = message.content.split(/\s+/g);
-            const command = args[0].substring(prefixLength).toLowerCase();
-            if(!this.bot.commandUsages[command] && !this.bot.customFunctions.COMMAND[message.guild?.id] )return console.log("No such command");
-            const context = new MessageCommandContext(this.bot, message, args, command);
-            context.commandData = this.bot.commandUsages[command];
-            if(context.commandData?.pattern) {
-                const parsedInput = commandParser.Parse(args.slice(1).join(" "), {pattern: context.commandData.pattern, id: command});
-                if (parsedInput.error)
-                    return message.channel.sendLang(`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`, parsedInput.error.data);
-                else
-                    context.options = parsedInput.data;
-            }
+            const parse = this.parseCommand(message);
+            if(!parse)return;
 
-            console.log("running command ", context.command);
+            const context = this.preprocessCommand(new MessageCommandContext(this.bot, message, parse.args, parse.command));
+            if(!context)return;
             return this.runCommand(context);
         });
+
+        this.bot.client.on("messageUpdate", (oldMessage, newMessage)=>{
+            if(oldMessage.content == newMessage.content)return console.log("Content is identical");
+            if(oldMessage.response?.deleted)return console.log("Response was deleted");
+            const parse = this.parseCommand(newMessage);
+            if(!parse)return console.log("did not parse");
+            const context = this.preprocessCommand(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
+            if(!context)return console.log("did not process");
+            console.log("running edit");
+            console.log(context);
+            return this.runCommand(context);
+        })
 
         this.bot.client.on("interaction", (interaction)=>{
             if(!interaction.isCommand())return; // Not a command
@@ -195,6 +193,30 @@ module.exports = class Commands {
         })
 
         this.loadCommands();
+    }
+
+    parseCommand(message){
+        const prefix = message.getSetting("prefix");
+        if (!prefix) return;//Bot hasn't fully loaded
+        const prefixLength = prefix.length;
+        if (!message.content.startsWith(prefix))return;
+        const args = message.content.split(/\s+/g);
+        const command = args[0].substring(prefixLength).toLowerCase();
+        if(!this.bot.commandUsages[command] && !this.bot.customFunctions.COMMAND[message.guild?.id] )return;
+        return {args, command};
+    }
+
+    preprocessCommand(context){
+        context.commandData = this.bot.commandUsages[context.command];
+        if(context.commandData?.pattern) {
+            const parsedInput = commandParser.Parse(context.args.slice(1).join(" "), {pattern: context.commandData.pattern, id: context.command});
+            if (parsedInput.error) {
+                context.sendLang(`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`, parsedInput.error.data);
+                return null;
+            } else
+                context.options = parsedInput.data;
+        }
+        return context;
     }
 
     loadCommands () {
