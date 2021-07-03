@@ -84,11 +84,11 @@ module.exports = class Commands {
             const subCommandData = context.commandData.subCommands?.[context.options.command];
             const commandData = context.commandData;
             // This feels wrong but I need to get the
-            const guildOnly = commandData.guildOnly || subCommandData.guildOnly;
-            const noSynthetic = commandData.noSynthetic || subCommandData.noSynthetic;
-            const settingsOnly = commandData.settingsOnly || subCommandData.settingsOnly;
-            const userPermissions = commandData.userPermissions ? commandData.userPermissions.concat(subCommandData.userPermissions) : subCommandData.userPermissions;
-            const adminOnly = commandData.adminOnly || subCommandData.adminOnly;
+            const guildOnly = commandData.guildOnly || subCommandData?.guildOnly;
+            const noSynthetic = commandData.noSynthetic || subCommandData?.noSynthetic;
+            const settingsOnly = commandData.settingsOnly || subCommandData?.settingsOnly;
+            const userPermissions = commandData.userPermissions ? commandData.userPermissions.concat(subCommandData?.userPermissions) : subCommandData?.userPermissions;
+            const adminOnly = commandData.adminOnly || subCommandData?.adminOnly;
             // Only allow Guild Only commands to be ran in a Guild
             if(guildOnly && !context.guild){
                 context.replyLang({content: "GENERIC_DM_CHANNEL", ephemeral: true});
