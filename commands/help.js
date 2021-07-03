@@ -30,7 +30,7 @@ module.exports = {
     },
     run: async function run(context, bot) {
         if (!context.options.command) {
-            if(context.channel.permissionsFor(bot.client.user.id).has("EMBED_LINKS")) {
+            if(!context.guild || context.channel.permissionsFor(bot.client.user.id).has("EMBED_LINKS")) {
                 const embed = new Embeds.AuthorEmbed(context);
                 embed.setTitle("OcelotBOT Help");
                 embed.setDescription(`Here is a list of command categories. Type **${context.command}** followed by a category or a command name to learn more.\nAlternatively, you can view an interactive command list [here](https://ocelotbot.xyz/commands).`);
