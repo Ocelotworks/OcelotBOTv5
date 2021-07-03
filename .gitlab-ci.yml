@@ -131,7 +131,7 @@ sentry-master:
   only:
     - master
   environment:
-    name: master
+    name: production
   extends: .sentry
 
 .sentry:
