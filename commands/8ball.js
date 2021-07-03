@@ -9,6 +9,9 @@ module.exports = {
     categories: ["fun"],
     commands: ["8ball", "magic8ball"],
     argDescriptions: {question: "The question to ask the Magic 8-ball"},
+    handleError: function(context){
+      return context.sendLang("8BALL_NO_QUESTION");
+    },
     run: function run(context) {
         let question = context.options.question;
         let firstWord = context.options.question.split(" ")[0];

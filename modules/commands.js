@@ -209,6 +209,10 @@ module.exports = class Commands {
         if(context.commandData?.pattern) {
             const parsedInput = commandParser.Parse(context.args.slice(1).join(" "), {pattern: context.commandData.pattern, id: context.command});
             if (parsedInput.error) {
+                if(context.commandData.handleError){
+                    context.commandData.handleError(context, this.bot, parsedInput);
+                    return null;
+                }
                 context.sendLang(`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`, parsedInput.error.data);
                 return null;
             } else
