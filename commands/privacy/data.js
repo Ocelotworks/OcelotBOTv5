@@ -30,6 +30,7 @@ module.exports = {
             const exportNames = Object.keys(data);
             for(let i = 0; i < exportNames.length; i++){
                 const name = exportNames[i];
+                if(data[name].length === 0)continue;
                 bot.logger.log(`Converting ${name} to csv...`);
                 archive.append(objectToCsv(data[name]), {name: `${name}.csv`});
             }
@@ -54,6 +55,7 @@ function objectToCsv(obj){
                 output += `"${data.replace(/"/g, `""`)}"`;
             else
                 output += data;
+            output += ",";
         }
         output += "\n";
     }
