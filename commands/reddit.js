@@ -1,5 +1,7 @@
 const subredditRegex = new RegExp(/^\/?(r\/)?(.*)/i);
 const Discord = require('discord.js');
+const Util = require("../util/Util");
+const Strings = require("../util/String");
 module.exports = {
     name: "Reddit Browser",
     usage: "reddit :subreddit",
@@ -32,7 +34,7 @@ module.exports = {
             const posts = !context.guild || context.channel.nsfw ? result.data.children : result.data.children.filter((post)=>!post.data.over_18 && !post.data.quarantine);
             if(posts.length === 0)
                 return context.send(!context.channel.nsfw ? "No Posts Found. If you're looking for NSFW results, use a NSFW channel." : "No Posts Found.");
-            return bot.util.standardPagination(context.channel, posts, async function (post, index) {
+            return Util.StandardPagination(bot, context, posts, async function (post, index) {
                 const postData = post.data;
                 let embed = new Discord.MessageEmbed();
                 embed.setColor("#FF5700")
@@ -74,7 +76,11 @@ module.exports = {
                     embed.description = `${embed.description || ""}\n${notes.join(", ")}`
 
                 return {embeds: [embed]};
-            }, true);
+            }, true, posts.slice(0, 25).map((p,i)=>({
+                label: p.data.spoiler ? "[Spoiler]" : Strings.Truncate(p.data.title, 25),
+                description: p.data.spoiler ? "Spoiler..." : Strings.Truncate(p.data.selftext || p.data.url, 50),
+                value: `${i}`
+            })));
         }else{
             console.log(result);
         }

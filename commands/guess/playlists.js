@@ -19,7 +19,7 @@ module.exports = {
                 output += `${name}${((i+1)/4) % 1 ? " ".repeat(spaceLength-name.length) : "\n"}`;
             }
             output += "\n```";
-            return output;
+            return {content: output};
         });
     }
 }

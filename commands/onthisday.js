@@ -23,7 +23,7 @@ module.exports = {
                 output += `[${dateformat(new Date(row.time), 'UTC:dd/mm/yy HH:MM:ss Z')}] <${row.user}> ${row.message}\n`;
             }
             output += "\n```";
-            return output;
+            return {content: output};
         }, true)
     }
 };

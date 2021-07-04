@@ -20,7 +20,7 @@ module.exports = {
                     trigger: func.type === "SCHEDULED" ? func.trigger.split("/")[1] : func.trigger,
                 });
             }
-            return header + columnify(formatted) + "\n```";
+            return {content: header + columnify(formatted) + "\n```"};
         });
 
     }

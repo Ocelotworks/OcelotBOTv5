@@ -19,7 +19,7 @@ module.exports = {
                 return Util.StandardPagination(bot, context, hosts, async function (page, index) {
                     let output;
                     output = `\`\`\`\n${header}\n----\n${columnify(page)}\n----\nPage ${index + 1}/${hosts.length}\n\`\`\``;
-                    return output;
+                    return {content: output};
                 }, true, context.getSetting("meme.pageTimeout"));
             } catch (e) {
                 context.send("JSON Parse Error: " + e);

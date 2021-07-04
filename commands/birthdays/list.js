@@ -56,7 +56,7 @@ module.exports = {
                 });
             }
 
-            return header + columnify(formatted) + "\n```";
+            return {content: header + columnify(formatted) + "\n```"};
         });
     }
 };

@@ -428,10 +428,11 @@ module.exports = class Strings {
      * Adds ellipses to the end of a string if it's too long
      * @param {string} string
      * @param {number} maxWidth
-     * @returns {string}
+     * @returns {string|null}
      * @constructor
      */
     static Truncate(string, maxWidth){
+        if(!string)return null;
         if(string.length > maxWidth)
             return string.substring(0, maxWidth-3)+"...";
         return string;

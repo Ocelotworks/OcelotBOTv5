@@ -17,6 +17,13 @@ module.exports = {
             return bot.util.buttonComponent(text, style, id);
         }
 
+        bot.interactions.addDropdown = function addDropdown(placeholder, options, callback, min = 1, max = 3,timeout = 60000){
+            const id = uuid();
+            bot.interactions.waiting[id] = callback;
+            timeouts[id] = {timer: setTimeout(clearAction, timeout, id), timeout};
+            return {type: 3, custom_id: id, options, placeholder, min_values: min, max_values: max}
+        }
+
         bot.interactions.addHandler = function addHandler(id, callback){
             bot.interactions.prefix[id] = callback;
         }

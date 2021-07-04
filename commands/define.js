@@ -1,5 +1,6 @@
 const key = require('config').get("API.dictionary.key");
 const Discord = require('discord.js');
+const Util = require("../util/Util");
 module.exports = {
     name:  "Dictionary Lookup",
     usage: "define :term+",
@@ -14,7 +15,7 @@ module.exports = {
         let data = await bot.util.getJson(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${encodeURIComponent(term)}?key=${key}`);
         if(!data || data.length === 0)
             return context.replyLang("DEFINE_NO_DEFINITION");
-        await bot.util.standardPagination(context.channel, data, async function(result){
+        await Util.StandardPagination(bot, context, data, async function(result){
             const embed = new Discord.MessageEmbed();
 
             console.log(result.shortdef ? result.shortdef.join("\n") : "Unknown?");

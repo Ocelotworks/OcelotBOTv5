@@ -45,7 +45,7 @@ module.exports = class Commands {
             }
         })
 
-        this.bot.client.on("message", (message)=>{
+        this.bot.client.on("messageCreate", (message)=>{
             if (this.bot.drain || (message.author.bot && message.author.id !== "824045686600368189")) return;
             const parse = this.parseCommand(message);
             if(!parse)return;
@@ -66,7 +66,7 @@ module.exports = class Commands {
             return this.runCommand(context);
         })
 
-        this.bot.client.on("interaction", (interaction)=>{
+        this.bot.client.on("interactionCreate", (interaction)=>{
             if(!interaction.isCommand())return; // Not a command
             if(!this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
             const context = new InteractionCommandContext(this.bot, interaction);

@@ -9,6 +9,8 @@ const {axios} = require('../util/Http');
 const config = require('config')
 const Discord = require('discord.js');
 const Embeds = require('../util/Embeds');
+const Util = require("../util/Util");
+const Strings = require("../util/String");
 let client = new GoogleImages(config.get("API.googleImages.cse"), config.get("API.googleImages.key"));
 const naughtyRegex = /((sexy|nude|naked)?)( ?)(young( ?)(girl|boy?)|child|kid(die?)|(1?)[0-7]( ?)(year(s?)?)( ?)(old?)|bab(y|ie)|toddler)(s?)( ?)(sexy|porn|sex|naked|nude|fuck(ed?))/gi;
 module.exports = {
@@ -67,7 +69,7 @@ module.exports = {
 
             const points = (await bot.database.getPoints(context.user.id)).toLocaleString();
 
-            bot.util.standardPagination(context.channel, images, async function (page, index) {
+            return Util.StandardPagination(bot, context, images, async function (page, index) {
                 let embed = new Embeds.PointsEmbed(context, bot);
                 await embed.init(points);
                 embed.setAuthor(context.user.username, context.user.avatarURL({dynamic: true, format: "png"}));
@@ -80,7 +82,11 @@ module.exports = {
                 embed.setDescription(page.description);
                 embed.setFooter(`Page ${index + 1}/${images.length}`);
                 return {embeds: [embed]};
-            }, true);
+            }, true, images.map((im,i)=>({
+                label: `Page ${i+1}`,
+                description: Strings.Truncate(im.description, 25),
+                value: `${i}`
+            })));
         } catch (e) {
             context.channel.stopTyping(true);
             if (e.message === "Response code 403 (Forbidden)")

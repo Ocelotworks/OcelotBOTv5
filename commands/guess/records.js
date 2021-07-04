@@ -64,7 +64,7 @@ module.exports = {
                     }
                     output += `\n${columnify(rows)}\n`
                     output += `Page ${index + 1}/${pages.length}\n\`\`\``;
-                    return output
+                    return {content: output}
                 })
             }
         } catch (e) {

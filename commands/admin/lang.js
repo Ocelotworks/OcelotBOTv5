@@ -21,7 +21,7 @@ module.exports = {
                         }
                     }
                 });
-                return (`Page ${index + 1}/${pages.length}\n\`\`\`\n${data}\n\`\`\``);
+                return {content:`Page ${index + 1}/${pages.length}\n\`\`\`\n${data}\n\`\`\``};
             }, true);
         }
         context.sendLang(context.options.key);

@@ -7,6 +7,7 @@
 const axios = require('axios');
 const Discord = require('discord.js');
 const xml2js = require('xml2js');
+const Util = require("../util/Util");
 module.exports = {
     name: "Rule34 Search",
     usage: "rule34 :search+",
@@ -29,7 +30,7 @@ module.exports = {
             if(!result.posts || !result.posts.post || result.posts.post.length === 0)
                 return context.send({content: ":warning: No results", ephemeral: true});
 
-            bot.util.standardPagination(context.channel, result.posts.post, async function(page, index){
+            return Util.StandardPagination(bot, context, result.posts.post, async function(page, index){
                 page = page["$"];
                 let embed = new Discord.MessageEmbed();
 

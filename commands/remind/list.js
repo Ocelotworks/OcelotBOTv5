@@ -24,7 +24,7 @@ module.exports = {
                     message: reminder.message.substring(0, 100),
                 });
             }
-            return header + columnify(formatted) + "\n```";
+            return {content: header + columnify(formatted) + "\n```"};
         });
     }
 };

@@ -20,7 +20,7 @@ module.exports = {
             return Util.StandardPagination(bot, context, data.list, async function (page) {
                 page.definition = page.definition.substring(0, 800);
                 page.example = page.example.substring(0, 800);
-                return context.getLang("UD_DEFINITION", page);
+                return {content: context.getLang("UD_DEFINITION", page)};
             }, true);
         }
 

@@ -54,7 +54,7 @@ module.exports = {
             output = `Page ${index + 1}/${pages.length}\n**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ \n\`\`\`\n${globalMemes === "" ? "No global memes found." : globalMemes}\n\`\`\``;
             if (context.guild)
                 output += `\n__:house_with_garden:${memeServer}__\n\`\`\`\n${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}\n\`\`\``;
-            return output;
+            return {content: output};
         }, true, context.getSetting("meme.pageTimeout"));
     }
 };

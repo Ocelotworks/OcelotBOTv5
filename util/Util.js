@@ -202,7 +202,7 @@ module.exports = class Util {
         return Util.#GetImageFromPrevious(context, offset)
     }
 
-    static async StandardPagination(bot, context, pages, pageFormat, full = false){
+    static async StandardPagination(bot, context, pages, pageFormat, full = false, dropdownItems){
         let index = parseInt(context.getSetting("pagination.page")) || 0;
         let sentMessage;
         let idleTimer;
@@ -211,7 +211,7 @@ module.exports = class Util {
             if(pages.length )
             if(context.interaction || sentMessage){
                 try{
-                    context.edit({content: await pageFormat(pages[index], index), components: []}, sentMessage);
+                    context.edit({...await pageFormat(pages[index], index), components: []}, sentMessage);
                 }catch(e){
                     console.error(e);
                 }
@@ -233,23 +233,47 @@ module.exports = class Util {
         ]
 
         if(full) {
-            buttons = [
-                bot.interactions.addAction("<<", 1, async ()=>{index=0; await buildPage()}),
-                bot.interactions.addAction("<", 1, setIndex(-1)),
-                bot.interactions.addAction(">", 1, setIndex(+1)),
-                bot.interactions.addAction(">>", 1, async ()=>{index=pages.length-1; await buildPage()}),
-            ]
+            if(pages > 2) {
+                buttons = [
+                    bot.interactions.addAction("<<", 1, async () => {
+                        index = 0;
+                        await buildPage()
+                    }),
+                    bot.interactions.addAction("<", 1, setIndex(-1)),
+                    bot.interactions.addAction(">", 1, setIndex(+1)),
+                    bot.interactions.addAction(">>", 1, async () => {
+                        index = pages.length - 1;
+                        await buildPage()
+                    }),
+                ]
+            }
         }
+
+        let dropdown;
+        if((!full && pages.length > 4) || pages.length > 8){
+            if(!dropdownItems)
+                dropdownItems = Array(Math.min(pages.length, 25)).fill(1).map((_,i)=>({label: `Page ${i+1}`, value: `${i}`}));
+            dropdown = bot.interactions.addDropdown("Go to page...", dropdownItems, (interaction)=>{
+                index = parseInt(interaction.data.values[0]);
+                buildPage();
+            }, 0, 1);
+        }
+
+        console.log(buttons);
 
         let buildPage = async function () {
             let output = await pageFormat(pages[index], index);
             if(context.getBool("pagination.disable"))
                 return context.send(output);
 
-            let payload = {content: output};
+            let payload = output;
             if(pages.length > 1){
-                payload.components = [{type:1, components: buttons}]
-            }else{
+                if(dropdown){
+                    payload.components = [{type: 1, components: [dropdown]}, {type:1, components: buttons}]
+                }else{
+                    payload.components = [{type:1, components: buttons}]
+                }
+
                 if(idleTimer)
                     clearTimeout(idleTimer);
                 idleTimer = setTimeout(clearButtons, 60000);

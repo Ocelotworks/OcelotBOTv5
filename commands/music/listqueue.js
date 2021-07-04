@@ -31,7 +31,7 @@ module.exports = {
             if (chunkedQueue.length > 1)
                 output += `\nPage ${index + 1}/${chunkedQueue.length}`;
             output += "\n```";
-            return output;
+            return {content: output};
         });
 
     }
