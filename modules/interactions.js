@@ -46,6 +46,7 @@ module.exports = {
                     callback = {type: 6}
                     bot.interactions.waiting[interaction.data.custom_id](interaction);
                 }else{
+                    if(bot.drain)return;
                     callback = {type: 4, data: {flags: 64, content: "Sorry, that button is no longer available."}};
                 }
                 const timeoutData = timeouts[interaction.data.custom_id];
