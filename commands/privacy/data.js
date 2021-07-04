@@ -20,7 +20,7 @@ module.exports = {
 
             archive.on("end", async ()=>{
                 bot.logger.log(`Uploading data export...`);
-                await dm.send({content: `📥 The Data Export you requested in <#${context.channel.id}> has finished processing. It is available below:`, files:[new Discord.MessageAttachment(path, "export.zip")]}).catch(console.error);
+                await dm.send({content: `📥 The Data Export you requested in <#${context.channel.id}> has finished processing.\nIf you have any questions about the contents of the export, or wish to permanently delete your data, contact Big P#1843`, files:[new Discord.MessageAttachment(path, "export.zip")]}).catch(console.error);
                 bot.logger.log(`Sent successfully!`);
                 fs.unlink(path, console.log);
             })

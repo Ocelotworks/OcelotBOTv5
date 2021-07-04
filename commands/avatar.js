@@ -10,7 +10,7 @@ module.exports = {
     slashHidden: true,
     run: async function (context) {
         let target = context.options.user ? context.channel.members.get(context.options.user) : context.member;
-        const embed = new Embeds.LangEmbed(context);
+        const embed = new Embeds.AuthorEmbed(context);
         embed.setColor(target.displayColor);
         embed.setImage(target.user.displayAvatarURL({dynamic: true, format: "png", size: 4096}))
         embed.setTitleLang("AVATAR", {username: target.displayName});
