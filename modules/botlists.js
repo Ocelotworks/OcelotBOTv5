@@ -4,12 +4,11 @@
  * ╚════ ║   (ocelotbotv5) botlists
  *  ════╝
  */
-const axios = require('axios');
-const os = require('os');
+const {axios} = require('../util/Http');
 const Util = require("../util/Util");
 
 function setDeep(obj, path, value, setRecursively = false) {
-    path.reduce((a, b, level) => {
+    return path.reduce((a, b, level) => {
         if (setRecursively && typeof a[b] === "undefined" && level !== path.length - 1) {
             a[b] = {};
             return a[b];
@@ -31,52 +30,49 @@ function conditionallyAssign(body, botList, fieldName, value) {
 
 let counter = 0;
 
-module.exports = {
-    name: "Bot List Management",
-    enabled: true,
-    init: function init(bot) {
-        // bot.client.on("guildCreate", async function (guild) {
-        //     if (bot.client.user.id !== "146293573422284800") return;
-        //     if (!guild.available) return;
-        //     return module.exports.updateBotLists(bot)
-        // });
-
-        bot.client.on("ready", ()=>{
-            if (bot.client.user.id !== "146293573422284800" || bot.util.shard > 0) return;
-            bot.logger.log("Doing botlist updates");
+module.exports = class Botlists {
+    bot;
+    name = "Bot List Management";
+    constructor(bot){
+        this.bot = bot;
+        bot.lists = this;
+    }
+    init(){
+        this.bot.client.on("ready", ()=>{
+            if (this.bot.client.user.id !== "146293573422284800" || this.bot.util.shard > 0) return;
+            this.bot.logger.log("Doing botlist updates");
             setInterval(async ()=>{
-                let botList = await bot.database.getSingleBotlist(counter++);
+                let botList = await this.bot.database.getSingleBotlist(counter++);
                 if(!botList)return counter = 0;
-                await module.exports.updateList(botList, bot);
+                await this.updateList(botList);
             }, 60000)
         })
 
-        bot.bus.on("commandLoadFinished", async function () {
-            return axios.post("https://api.discordservices.net/bot/146293573422284800/commands", Object.keys(bot.commandObjects).map((key) => {
-                const cmd = bot.commandObjects[key]
+        this.bot.bus.on("commandLoadFinished", async ()=>{
+            return axios.post("https://api.discordservices.net/bot/146293573422284800/commands", Object.keys(this.bot.commandObjects).map((key) => {
+                const cmd = this.bot.commandObjects[key]
                 return {
                     command: "!" + cmd.commands[0],
                     desc: cmd.name,
                     category: cmd.categories[0],
                 }
-            }), {headers: {authorization: (await bot.database.getBotlist("services"))[0].statsKey}})
+            }), {headers: {authorization: (await this.bot.database.getBotlist("services"))[0].statsKey}})
         })
-    },
-    updateList: async function(botList, bot){
+    }
+    async updateList(botList){
         // TODO
         const voiceConnections = 0;//bot.lavaqueue && bot.lavaqueue.manager && bot.lavaqueue.manager.nodes.reduce((acc, n)=>acc+n.stats.players, 0);
         let body = {};
         conditionallyAssign(body, botList, "shardCountField", parseInt(process.env.SHARD_COUNT));
-        conditionallyAssign(body, botList, "serverCountField", await Util.GetServerCount(bot));
-        conditionallyAssign(body, botList, "shardIdField", bot.util.shard);
-        conditionallyAssign(body, botList, "totalServerCountField", await Util.GetServerCount(bot));
-        conditionallyAssign(body, botList, "usersCountField", bot.client.users.cache.size);
+        conditionallyAssign(body, botList, "serverCountField", await Util.GetServerCount(this.bot));
+        conditionallyAssign(body, botList, "shardIdField", this.bot.util.shard);
+        conditionallyAssign(body, botList, "totalServerCountField", await Util.GetServerCount(this.bot));
+        conditionallyAssign(body, botList, "usersCountField", this.bot.client.users.cache.size);
         conditionallyAssign(body, botList, "voiceConnectionsCountField", voiceConnections);
         conditionallyAssign(body, botList, "tokenField", botList.statsKey);
         let method = botList.statsMethod;
         let headers = {
             "Authorization": botList.statsKey,
-             "User-Agent": `OcelotBOT https://ocelotbot.xyz ${bot.version} ${os.hostname()}`
         }
         if(botList.statsMethod === "postHeader"){ // Another shitty workaround for a bunch of clone botlists that use headers for some ungodly reason
             method = "post"
@@ -84,19 +80,18 @@ module.exports = {
             body = null;
         }
         axios[method](botList.statsUrl, body, {headers}).then(() => {
-            bot.logger.log(`Posted stats to ${botList.id}`)
-            return bot.database.botlistSuccess(botList.id);
+            this.bot.logger.log(`Posted stats to ${botList.id}`)
+            return this.bot.database.botlistSuccess(botList.id);
         }).catch((e) => {
-            bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
+            this.bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
             if (e.response && e.response.data)
                 console.log(JSON.stringify(e.response.data).substring(0, 500));
         })
-    },
-    updateBotLists: async function updateBotLists(bot) {
-        let botLists = await bot.database.getBotlistsWithStats();
+    }
+    async updateBotLists() {
+        let botLists = await this.bot.database.getBotlistsWithStats();
         for (let i = 0; i < botLists.length; i++) {
-            await module.exports.updateList(botLists[i], bot);
+            await this.updateList(botLists[i]);
         }
     }
-};
-
+}
