@@ -4,15 +4,13 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["user", "userinfo"],
     categories: ["tools"],
+    guildOnly: true,
     run: async function(context, bot){
-        let target = message.author;
-        let targetMember = message.member;
-        if(message.mentions && message.mentions.users && message.mentions.users.size > 0){
-            target = message.mentions.users.first();
-            targetMember = message.mentions.members.first();
-        }else if(args[1] && bot.client.users.cache.has(args[1])){
-            target = bot.client.users.cache.get(args[1]);
-            targetMember = message.guild.members.cache.get(args[1]) || null;
+        let target = context.user;
+        let targetMember = context.member;
+        if(context.options.user && context.channel.members.has(context.options.user)){
+            targetMember = context.channel.members.get(context.options.user);
+            target = targetMember.user;
         }
         const now = new Date();
 
@@ -32,7 +30,7 @@ module.exports = {
         let fields = [
             {
                 name: "Joined Discord",
-                value: `${target.createdAt.toDateString()}\n(${bot.util.prettySeconds((now-target.createdAt)/1000, message.guild && message.guild.id, message.author.id)} ago.)`,
+                value: `${target.createdAt.toDateString()}\n(${bot.util.prettySeconds((now-target.createdAt)/1000, context.guild?.id, context.user.id)} ago.)`,
                 inline: true
             },
         ];
@@ -40,7 +38,7 @@ module.exports = {
         if(targetMember){
             fields.push({
                 name: "Joined Guild",
-                    value: `${targetMember.joinedAt.toDateString()}\n(${bot.util.prettySeconds((now-targetMember.joinedAt)/1000, message.guild && message.guild.id, message.author.id)} ago.)`,
+                    value: `${targetMember.joinedAt.toDateString()}\n(${bot.util.prettySeconds((now-targetMember.joinedAt)/1000, context.guild?.id, context.user.id)} ago.)`,
                 inline: true
             });
         }
@@ -50,7 +48,7 @@ module.exports = {
             fields.push({
                 name: "Last Message",
                 inline: true,
-                value: `${target.lastMessage.createdAt.toDateString()}\n(${ago > 0 ? bot.util.prettySeconds(ago, message.guild && message.guild.id, message.author.id) : "Just Now."})`
+                value: `${target.lastMessage.createdAt.toDateString()}\n(${ago > 0 ? bot.util.prettySeconds(ago, context.guild?.id, context.user.id) : "Just Now."})`
             });
         }
 
@@ -60,7 +58,7 @@ module.exports = {
             fields.push({
                 name: "Nitro Booster",
                 inline: true,
-                value: `${target.lastMessage.createdAt.toDateString()}\n(${ago > 0 ? bot.util.prettySeconds(ago, message.guild && message.guild.id, message.author.id) : "Just Now."})`
+                value: `${target.lastMessage.createdAt.toDateString()}\n(${ago > 0 ? bot.util.prettySeconds(ago, context.guild?.id, context.user.id) : "Just Now."})`
             });
         }
 
@@ -79,7 +77,7 @@ module.exports = {
             });
         }
 
-        message.channel.send("", {
+        return context.send("", {
             embed: {
                 color: 2437587,
                 thumbnail: {
