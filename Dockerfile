@@ -8,6 +8,7 @@ ENV VERSION=$VERSION
 COPY . .
 
 RUN rm -r consumers
+RUN mkdir temp
 
 EXPOSE 8006/tcp
 HEALTHCHECK --interval=30s --start-period=1m --retries=5 \
