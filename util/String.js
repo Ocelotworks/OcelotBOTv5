@@ -1,4 +1,5 @@
 const twemoji = require('twemoji-parser');
+const Icons = require('./Icon')
 module.exports = class Strings {
     static Vowels = ["a", "e", "i", "o", "u",
         "ａ", "ｅ", "ｉ", "ｏ", "ｕ",
@@ -438,6 +439,44 @@ module.exports = class Strings {
         return string;
     }
 
+
+    static Format(string, values = {}){
+        return string.toString().replace(/{{(.*?)}}/g, (match, reference)=>{
+            const split = reference.split(":");
+            if(split.length === 1) {
+                return Strings.GetReference(values, reference).toString();
+            }
+            const output = Strings.GetReference(values, split[1]);
+            switch(split[0]){
+                case "shortSeconds":
+                    return Strings.ShortSeconds(output);
+                case "memory":
+                    return Strings.PrettyMemory(output);
+                case "icon":
+                    return Icons[output];
+                case "number":
+                    return parseInt(output).toLocaleString(values.locale)
+                case "date":
+                    return output.toLocaleDateString(values.locale, {timeZone: values.timezone});
+                case "time":
+                    return output.toLocaleTimeString(values.locale, {timeZone: values.timezone});
+                case "datetime":
+                    return output.toLocaleString(values.locale, {timeZone: values.timezone});
+                default:
+                    return output;
+            }
+        });
+    }
+
+    /**
+     *
+     * @param {Object} obj The object to retrieve from
+     * @param {string} reference The reference
+     * @constructor
+     */
+    static GetReference(obj, reference){
+        return reference.split('.').reduce((o,i)=>o[i], obj) || reference;
+    }
 
 
 }

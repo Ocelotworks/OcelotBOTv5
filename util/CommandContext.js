@@ -47,7 +47,7 @@ class CommandContext {
     }
 
     getLang(key, values){
-        return this.bot.lang.getTranslation(this.guild?.id || "global", key, values, this.user?.id);
+        return this.bot.lang.getForContext(this, key, values);
     }
 
     sendLang(options, values){

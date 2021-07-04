@@ -15,6 +15,6 @@ module.exports = {
     slashOptions: [],
     run: async function run(context, bot) {
         let count = await bot.database.getCommandCount();
-        return context.replyLang("COMMANDCOUNT", {count: count[0]['MAX(id)'].toLocaleString()})
+        return context.sendLang("COMMANDCOUNT", {count: count[0]['MAX(id)']})
     }
 };

@@ -78,10 +78,10 @@ module.exports = {
             instance: `${bot.util.shard + 1}/${process.env.SHARD_COUNT}` // Backwards compatibility with other languages
         });
         embed.addFieldLang("STATS_SPONSOR_TITLE", "STATS_SPONSOR_VALUE");
-        embed.addFieldLang("STATS_UPTIME", "STATS_UPTIME_VALUE", {uptime: uptimeValue});
-        embed.addFieldLang("STATS_TOTAL_USERS", "STATS_TOTAL_USERS_VALUE", {users: userCount.toLocaleString()}, true);
-        embed.addFieldLang("STATS_TOTAL_SERVERS", "STATS_TOTAL_SERVERS_VALUE", {servers: serverCount.toLocaleString()}, true);
-        embed.addFieldLang("STATS_TOTAL_CHANNELS", "STATS_TOTAL_CHANNEL_VALUE", {channel: channelCount.toLocaleString()}, true);
+        embed.addFieldLang("STATS_UPTIME", "STATS_UPTIME_VALUE", false, {uptime: uptimeValue});
+        embed.addFieldLang("STATS_TOTAL_USERS", "STATS_TOTAL_USERS_VALUE", true, {users: userCount});
+        embed.addFieldLang("STATS_TOTAL_SERVERS", "STATS_TOTAL_SERVERS_VALUE", true,{servers: serverCount});
+        embed.addFieldLang("STATS_TOTAL_CHANNELS", "STATS_TOTAL_CHANNELS_VALUE", true,{channel: channelCount});
         return context.send({embeds: [embed]});
     }
 };
