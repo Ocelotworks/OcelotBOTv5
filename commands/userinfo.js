@@ -77,7 +77,7 @@ module.exports = {
             });
         }
 
-        return context.send("", {
+        return context.send({
             embed: {
                 color: 2437587,
                 thumbnail: {
