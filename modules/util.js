@@ -776,6 +776,13 @@ module.exports = {
             return message.channel.send(api);
         }
 
+        bot.util.actionRow = function actionRow(...buttons){
+            return {
+                type: 1,
+                components: buttons
+            }
+        }
+
         bot.util.sendButtons = function sendButtons(channel, content, buttons){
             let api = new Discord.MessagePayload(channel, {});
             api.data = {

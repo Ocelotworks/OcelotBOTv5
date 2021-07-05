@@ -5,10 +5,18 @@ module.exports = {
     run: async function (context, bot) {
         let reminder = await bot.database.getReminderById(context.options.id);
         if (!reminder[0])
-            return context.send({content: `Couldn't find a reminder by that ID. Check the ID at **${context.command} list** and then try again.`, ephemeral: true});
+            return context.send({
+                content: `Couldn't find a reminder by that ID. Check the ID at **${context.command} list** and then try again.`,
+                ephemeral: true,
+                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
+            });
 
         if (reminder[0].user !== context.user.id)
-            return context.send({content: `That reminder doesn't belong to you. Check the ID at **${context.command} list** and then try again.`, ephemeral: true});
+            return context.send({
+                content: `That reminder doesn't belong to you. Check the ID at **${context.command} list** and then try again.`,
+                ephemeral: true,
+                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
+            });
 
         if (reminder[0].receiver !== bot.client.user.id)
             return context.send(`That reminder doesn't belong to this bot. To prevent mistakes, please use the bot that created the reminder to remove it.`);

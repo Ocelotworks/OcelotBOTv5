@@ -23,9 +23,12 @@ module.exports = {
 
 
         if (position * 1000 > listener.playing.info.length)
-            return context.send(`:warning: That would seek past the end of the song. To skip, type ${context.command} skip`);
+            return context.send({
+                content: `:warning: That would seek past the end of the song. To skip, type ${context.command} skip`,
+                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "skip"))]
+            });
 
         listener.connection.seek(position * 1000);
-        context.send(`Seeked to **${bot.util.shortSeconds(position)}**`);
+        return context.send(`Seeked to **${bot.util.shortSeconds(position)}**`);
     }
 };

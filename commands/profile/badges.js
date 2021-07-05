@@ -46,10 +46,13 @@ module.exports = {
             } else {
                 result = await bot.database.getBadgesInSeries(series);
             }
-
-            if (result.length === 0)
-                return context.send(series === "mine" ? `:warning: You don't have any badges! Check out ${context.command} ${context.options.command} to see what badges you can earn.` :
-                    `:warning: No such category. Try ${context.command} ${context.options.command} for a list of categories.`);
+            if (result.length === 0){
+                return context.send({
+                    content: series === "mine" ? `:warning: You don't have any badges! Check out ${context.command} ${context.options.command} to see what badges you can earn.` :
+                        `:warning: No such category. Try ${context.command} ${context.options.command} for a list of categories.`,
+                    components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, context.options.command))]
+                })
+            }
 
             let output = series === "mine" ? "Your Badges:\n" : `Badges in category **'${context.options.category}'**:\n`;
             for (let i = 0; i < result.length; i++) {

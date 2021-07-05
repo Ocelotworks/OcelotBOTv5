@@ -30,7 +30,11 @@ ${subs}
             return context.send(output);
         }
         if(!bot.subscriptions[context.options.type])
-            return context.sendLang({content: "SUBSCRIPTION_INVALID_TYPE", ephemeral: true});
+            return context.sendLang({
+                content: "SUBSCRIPTION_INVALID_TYPE",
+                ephemeral: true,
+                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "types"))]
+            });
 
         const subscription = bot.subscriptions[context.options.type];
         const embed = new Embeds.AuthorEmbed(context);

@@ -14,6 +14,7 @@ module.exports = class Commands {
     
     constructor(bot){
         this.bot = bot;
+        bot.command = this;
     }
 
     init() {

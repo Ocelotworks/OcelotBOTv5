@@ -13,7 +13,7 @@ module.exports = {
     noCustom: true,
     run: async function (context, bot) {
         const serverId = context.options.server;
-        context.defer();
+        await context.defer();
         let guild = await bot.util.getInfo(bot, "guilds", serverId);
         let output = new Discord.MessageEmbed();
 
@@ -57,6 +57,6 @@ module.exports = {
 
         let lastCommands = await bot.database.getServerCommands(serverId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
         output.addField("Last 5 Commands", `Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)
-        return context.send({embeds: [output]});
+        return context.send({embeds: [output], components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, `ci ${lastCommands[0].id}`))]});
     }
 };

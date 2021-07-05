@@ -10,7 +10,11 @@ module.exports = {
     commands: ["add",  "new"],
     run:  async function(context, bot){
         if(!bot.subscriptions[context.options.type])
-            return context.sendLang({content: "SUBSCRIPTION_INVALID_TYPE", ephemeral: true});
+            return context.sendLang({
+                content: "SUBSCRIPTION_INVALID_TYPE",
+                ephemeral: true,
+                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "types"))]
+            });
             let content = context.options.data;
             let validation = await bot.subscriptions[context.options.type].validate(content, context);
             if(validation.error)

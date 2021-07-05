@@ -29,7 +29,10 @@ module.exports = {
         } else {
             let pos = context.options.pos-1
             if (!listener.queue[pos])
-                return context.send(`:warning: There is no item at that position, retrieve the number from **${context.command} list**`);
+                return context.send({
+                    content: `:warning: There is no item at that position, retrieve the number from **${context.command} list**`,
+                    components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
+                });
 
             if (listener.voiceChannel.members.size > 2 && listener.queue[pos].requester !== context.user.id)
                 return context.send(`:bangbang: Only the person who requested the song (<@${listener.queue[pos].requester}>) can remove this song.`);

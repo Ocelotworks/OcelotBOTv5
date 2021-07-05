@@ -11,7 +11,11 @@ module.exports = {
     run:  async function(context, bot){
         const removed = await bot.database.removeSubscription(context.guild.id, context.channel.id, context.options.id);
         if(removed === 0)
-            return context.sendLang({content: "SUBSCRIPTION_NOT_FOUND", ephemeral: true});
+            return context.sendLang({
+                content: "SUBSCRIPTION_NOT_FOUND",
+                ephemeral: true,
+                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
+            });
         context.commandData.removedSubs.push(context.options.id);
         return context.sendLang({content: "SUBSCRIPTION_REMOVED"});
     }

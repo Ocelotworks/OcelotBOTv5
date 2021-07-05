@@ -11,7 +11,11 @@ module.exports = {
     commands: ["set"],
     run: async function (context, bot, data) {
         let setting = await bot.database.getSettingAssoc(context.options.setting);
-        if(!setting)return context.send({content: "Couldn't find a setting by that name. Try !settings list", ephemeral: true});
+        if(!setting)return context.send({
+            content: `Couldn't find a setting by that name. Try ${context.getSetting("prefix")}settings list`,
+            ephemeral: true,
+            components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
+        });
         let cleanValue;
         switch(setting.type){
             case "boolean":

@@ -11,7 +11,7 @@ module.exports = {
     commands: ["command", "commandinfo", "ci"],
     run: async function (context, bot) {
         const commandId = context.options.commandID;
-        context.defer();
+        await context.defer();
         let output = new Discord.MessageEmbed();
         const command = (await bot.database.getCommandById(commandId, process.env.CUSTOM_BOT ? bot.client.user.id : null))[0];
         if(!command)return context.send({content: `Couldn't find a command by that ID.`, ephemeral: true});
@@ -30,6 +30,13 @@ module.exports = {
         output.addField("Bot",product ? `**${product.tag}** (${product.id})` :  command.productID, true);
         output.addField("Timestamp", command.timestamp.toLocaleString(), true);
         output.addField("Served By","`"+command.server+"`", true);
-        return context.send({embeds: [output]});
+        const buttons = [];
+        if(user) buttons.push(bot.interactions.suggestedCommand(context, `ui ${user.id}`));
+        if(server) buttons.push(bot.interactions.suggestedCommand(context, `ci ${server.id}`));
+        if(server) buttons.push(bot.interactions.suggestedCommand(context, `cd ${command.commandID}`));
+        return context.send({
+            embeds: [output],
+            components: [bot.util.actionRow(...buttons)]
+        });
     }
 };
