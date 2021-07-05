@@ -6,19 +6,13 @@
  */
 module.exports = {
     name: "Remove Sub",
-    usage: "remove",
+    usage: "remove :0id",
     commands: ["remove", "delete"],
-    run:  async function(context, bot, data){
-        if(!args[2] || isNaN(args[2])){
-            message.channel.send(`:bangbang: Usage !subscriptions remove **ID**. You can get the ID from ${context.command} list`);
-        }else{
-            const removed = await bot.database.removeSubscription(message.guild.id, message.channel.id, args[2]);
-            if(removed === 0)
-                return message.channel.send(`:bangbang: That subscription could not be found. The ID can be found at ${context.command} list`);
-
-            data.removedSubs.push(args[2]);
-            message.channel.send(":white_check_mark: Subscription removed!");
-
-        }
+    run:  async function(context, bot){
+        const removed = await bot.database.removeSubscription(context.guild.id, context.channel.id, context.options.id);
+        if(removed === 0)
+            return context.sendLang({content: "SUBSCRIPTION_NOT_FOUND", ephemeral: true});
+        context.commandData.removedSubs.push(context.options.id);
+        return context.sendLang({content: "SUBSCRIPTION_REMOVED"});
     }
 };

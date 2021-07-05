@@ -777,25 +777,19 @@ module.exports = {
             getFirstSeen: function (user) {
                 return knex.select(knex.raw("MIN(timestamp)")).from(COMMANDLOG_TABLE).where({userID: user})
             },
-            addSubscription: function (server, channel, user, type, url) {
-                return knex.insert({
-                    server: server,
-                    channel: channel,
-                    user: user,
-                    type: type,
-                    data: url
-                }).into("ocelotbot_subscriptions");
+            addSubscription: function (server, channel, user, type, data, productID) {
+                return knex.insert({server, channel, user, type, data, productID}).into("ocelotbot_subscriptions");
             },
-            getSubscriptionsForChannel: function (channel) {
+            getSubscriptionsForChannel: function (channel, productID) {
                 return knex.select().from("ocelotbot_subscriptions").where({
-                    channel: channel
+                    channel, productID
                 });
             },
-            getAllSubscriptions: function () {
-                return knex.select().from("ocelotbot_subscriptions");
+            getAllSubscriptions: function (productID) {
+                return knex.select().from("ocelotbot_subscriptions").where({productID});
             },
-            getSubscriptionsForShard: function (servers) {
-                return knex.select().from("ocelotbot_subscriptions").whereIn("server", servers);
+            getSubscriptionsForShard: function (servers, productID) {
+                return knex.select().from("ocelotbot_subscriptions").whereIn("server", servers).andWhere({productID});
             },
             updateLastCheck: function (id) {
                 return knex("ocelotbot_subscriptions").update({lastcheck: new Date()}).where({id}).limit(1);
@@ -807,8 +801,8 @@ module.exports = {
                     id: id
                 }).limit(1);
             },
-            removeSubscriptionsForChannel: function (server, channel) {
-                return knex("ocelotbot_subscriptions").delete().where({server, channel});
+            removeSubscriptionsForChannel: function (server, channel, productID) {
+                return knex("ocelotbot_subscriptions").delete().where({server, channel, productID});
             },
             addLangKey: function (lang, key, message) {
                 return knex.insert({

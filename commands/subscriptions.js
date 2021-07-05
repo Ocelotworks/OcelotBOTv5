@@ -43,7 +43,7 @@ module.exports = {
         });
         bot.client.once("ready", async function discordReady(){
             bot.logger.log("Loading active subscriptions...");
-            const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.cache.keyArray());
+            const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.cache.keyArray(), bot.client.user.id);
             bot.logger.log(`Loaded ${rawSubs.length} subs`);
             for(let i = 0; i < rawSubs.length; i++){
                 const sub = rawSubs[i];
@@ -63,7 +63,7 @@ module.exports = {
 
         bot.client.on("channelDelete", async function channelDeleted(channel){
             if(!channel.guild)return;
-            await bot.database.removeSubscriptionsForChannel(channel.guild.id, channel.id);
+            await bot.database.removeSubscriptionsForChannel(channel.guild.id, channel.id, bot.client.user.id);
             for(let subType in bot.subscriptions){
                 if(bot.subscriptions.hasOwnProperty(subType)) {
                     for (let i = 0; i < bot.subscriptions[subType].length; i++) {

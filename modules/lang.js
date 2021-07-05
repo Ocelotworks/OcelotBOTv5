@@ -56,6 +56,10 @@ module.exports = class Lang {
 
     getForContext(context, key, format = {}) {
         format.command = context.command;
+        format.commandWithPrefix = `${context.getSetting("prefix")}${context.command}`;
+        format.fullCommandWithPrefix = format.commandWithPrefix;
+        if(context.options.command)
+            format.fullCommandWithPrefix += ` ${context.options.command}`
         format.options = context.options;
         format.locale = context.getSetting("lang");
         //format.timezone = context.getSetting("time.zone"); // TODO: Convert timezones
