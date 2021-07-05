@@ -162,7 +162,7 @@ module.exports = {
                 if (value > 1 || value < -1)
                     unit += 'S';
 
-                data.push(bot.lang.getTranslation(server, unit, value, user))
+                data.push(bot.lang.getTranslation(server, unit, {0: value}, user)) //TODO: change this to a proper thing
             }
 
             return data;

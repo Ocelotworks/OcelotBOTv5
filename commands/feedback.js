@@ -58,7 +58,7 @@ module.exports = {
         bot.rabbit.event({
             type: "feedback", message: {
                 userID: context.user.id,
-                message: Discord.escapeMarkdown(context.options.message),
+                message: Discord.Util.escapeMarkdown(context.options.message),
                 username: `${await bot.util.getUserTag(context.user.id)}`,
                 guildID: context.guild?.id || context.channel.id,
                 guild: context.guild?.name || "DM Channel",

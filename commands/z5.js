@@ -20,7 +20,7 @@ module.exports = {
             admin: context.getBool("admin")
         }, 300000, {durable: false});
 
-        let text = Discord.escapeMarkdown(decodeURIComponent(result.text));
+        let text = Discord.Util.escapeMarkdown(decodeURIComponent(result.text));
         let channelMessage = "";
 
         if (result.loaded) {

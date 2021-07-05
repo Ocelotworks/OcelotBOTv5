@@ -29,7 +29,7 @@ module.exports = {
             let expression = context.options.sum;
             expression.replace(/×/g, "*");
             expression.replace(/÷/g, "/");
-            context.send(Discord.escapeMarkdown(limitedEval(expression, scope).toString()).replace(/[@!#]/gi, ""));
+            context.send(Discord.Util.escapeMarkdown(limitedEval(expression, scope).toString()).replace(/[@!#]/gi, ""));
         } catch (e) {
             context.send({content: e.toString()});
         }
