@@ -145,7 +145,7 @@ module.exports = class Util {
             const targetEmbed = targetMessage.embeds.find(function (embed) {
                 return embed.image && (embed.image.url || embed.image.proxyURL)
             });
-            return targetEmbed.image.url || targetEmbed.image.proxyURL;
+            return targetEmbed?.image?.url || targetEmbed?.image?.proxyURL;
         }
 
         return null;
