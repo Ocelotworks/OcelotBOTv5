@@ -21,7 +21,7 @@ module.exports = {
 
         let header = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000, context.guild && context.guild.id, context.user.id)})\n============\n`;
 
-        let chunkedQueue = listener.queue.chunk(20);
+        let chunkedQueue = listener.queue.chunk(10);
         return Util.StandardPagination(bot, context, chunkedQueue, async function (page, index) {
             let output = "";
             output += header;
