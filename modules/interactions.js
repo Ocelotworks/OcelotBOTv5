@@ -12,6 +12,7 @@ module.exports = class Interactions{
     constructor(bot){
         this.bot = bot;
         bot.interactions = this;
+        this.clearAction = this.clearAction.bind(this);
     }
 
     init(){
@@ -73,14 +74,16 @@ module.exports = class Interactions{
     }
 
     suggestedCommand(context, command){
+        return this.fullSuggestedCommand(context, `${context.command} ${command}`);
+    }
+
+    fullSuggestedCommand(context, command){
         if(context.interaction)return null;
-        return this.bot.util.buttonComponent(`${context.getSetting("prefix")}${context.command} ${command}`, 2, `!${context.message.id}!${context.command} ${command}`);
+        return this.bot.util.buttonComponent(`${context.getSetting("prefix")}${command}`, 2, `!${context.message.id}!${command}`);
     }
 
     async handleSuggestedCommand(interaction){
         const [messageId, command] = interaction.data.custom_id.substring(1).split("!",2);
-
-
         const channel = await this.bot.client.channels.fetch(interaction.message.channel_id);
         const message = await channel.messages.fetch(interaction.message.id);
         const userMessage = await channel.messages.fetch(messageId).catch(()=>null);

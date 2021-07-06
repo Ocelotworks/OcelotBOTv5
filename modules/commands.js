@@ -227,7 +227,12 @@ module.exports = class Commands {
                     context.commandData.handleError(context, this.bot, parsedInput);
                     return null;
                 }
-                context.sendLang(`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`, parsedInput.error.data);
+                console.log(parsedInput.error.data);
+                context.sendLang({
+                    content:`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`,
+                    ephemeral: true,
+                    components: [this.bot.util.actionRow(this.bot.interactions.fullSuggestedCommand(context, `help ${context.command}`))]
+                }, parsedInput.error.data);
                 return null;
             } else {
                 context.options = parsedInput.data;
@@ -305,7 +310,6 @@ module.exports = class Commands {
 
             loadedCommand.pattern = commandParser.BuildPattern(command, loadedCommand.usage).pattern;
             if(!loadedCommand.slashHidden)
-            //if(!loadedCommand.pattern.length > 0) // TODO
                 loadedCommand.slashOptions = Util.PatternToOptions(loadedCommand.pattern, loadedCommand.argDescriptions);
 
 
@@ -441,29 +445,31 @@ module.exports = class Commands {
             if(context.commandData.subCommands){
                 let parsedInput;
 
+                if(context.options.command)
+                    context.options.command = context.options.command.toLowerCase();
+
+                let organic = true;
                 // Default to the help command
-                if(!context.options.command || !context.commandData.subCommands[context.options.command])
+                if(!context.options.command || (context.options.command !== "help" && !context.commandData.subCommands[context.options.command])){
                     context.options.command = "help";
+                    organic = false;
+                }
+
 
                 if(context.commandData.subCommands[context.options.command]){
                     if(context.args) {
-                        console.log(context.args);
-                        console.log(context.commandData.subCommands[context.options.command].pattern);
                         parsedInput = commandParser.Parse(context.args.slice(2).join(" "), {
                             pattern: context.commandData.subCommands[context.options.command].pattern,
                             id: context.options.command
                         });
 
-                        if(parsedInput.data) {
-                            console.log(parsedInput.data);
+                        if(parsedInput.data)
                             context.options = {...parsedInput.data, ...context.options}
-                        }
-
                     }
                     if (!parsedInput || !parsedInput.error)
                         return await context.commandData.subCommands[context.options.command].run(context, this.bot);
                 }
-                if(!this.bot.commands[context.command]) {
+                if(!this.bot.commands[context.command] || (context.options.command === "help" && organic)) {
                     return await this.bot.commands["nestedCommandHelp"](context, this.bot);
                 }
             }

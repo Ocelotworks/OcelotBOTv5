@@ -103,7 +103,7 @@ module.exports = {
                 output += "⭐ This command can't be used in **Wholesome Mode**\n";
             output += `**Usage:** ${context.getSetting("prefix")}${command.usage}\n`;
             if (command.usageExample)
-                output += `**Example:** ${command.usageExample}\n`;
+                output += `**Example:** ${context.getSetting("prefix")}${command.usageExample}\n`;
 
             return context.send({content: output, ephemeral: true});
         }

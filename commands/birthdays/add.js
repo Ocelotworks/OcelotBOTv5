@@ -12,7 +12,7 @@ module.exports = {
     run: async function (context, bot) {
         let target = context.user;
         if (context.options.addUser)
-            target = context.channel.members.get(context.options.addUser);
+            target = context.channel.members.get(context.options.addUser).user;
         let date = chrono.parseDate(context.options.date);
         if (!date)
             return context.sendLang({content: "BIRTHDAY_ADD_DATE", ephemeral: true}, {command: context.command, arg: context.options.command, user: bot.client.user});
@@ -31,7 +31,10 @@ module.exports = {
 
             return context.sendLang("BIRTHDAY_ADD_SUCCESS");
         } catch (e) {
-            return context.sendLang({content: "BIRTHDAY_ADD_EXISTS", ephemeral: true}, {command: context.command, target});
+            const message = {content: "BIRTHDAY_ADD_EXISTS", ephemeral: true};
+            if(target.id === context.user.id || context.channel.permissionsFor(context.user.id).has("MANAGE_CHANNELS"))
+                message.components = [bot.util.actionRow(bot.interactions.suggestedCommand(context, `remove ${target.username}`))]
+            return context.sendLang(message, {command: context.command, target});
         }
     }
 };

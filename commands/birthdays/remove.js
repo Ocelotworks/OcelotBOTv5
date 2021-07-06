@@ -6,11 +6,11 @@
  */
 module.exports = {
     name: "Remove Birthday",
-    usage: "remove :user+",
+    usage: "remove :user?+",
     commands: ["remove", "delete"],
     run: async function (context, bot) {
         let target = context.user;
-        if (context.member.hasPermission("MANAGE_CHANNELS")) {
+        if (context.channel.permissionsFor(context.user.id).has("MANAGE_CHANNELS")) {
 
 
             if (message.mentions.users.size > 0)

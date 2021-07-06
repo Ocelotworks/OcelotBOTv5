@@ -16,7 +16,11 @@ module.exports = {
     guildOnly: true,
     run: async function(context, bot) {
         if(!context.options.user)
-            return context.sendLang({content: "BIRTHDAY_USAGE", ephemeral: true}, {arg: context.command});
+            return context.sendLang({
+                content: "BIRTHDAY_USAGE",
+                ephemeral: true,
+                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "help"))]
+            });
         const target = await context.channel.members.get(context.options.user);
         let birthday = await bot.database.getBirthday(target.id, context.guild.id);
         if (!birthday)

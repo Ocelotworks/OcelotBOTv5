@@ -34,15 +34,14 @@ module.exports = {
             contexts[context.channel.id] = response.cs;
 
             if (response.output) {
-                context.reply(response.output);
-                let messageID = await bot.database.logAiConversation(context.author.id, context.guild ? context.guild.id : "dm", contextIDs[context.channel.id], input, response.output);
+                let messageID = await bot.database.logAiConversation(context.user.id, context.guild ? context.guild.id : "dm", contextIDs[context.channel.id], input, response.output);
                 contextIDs[context.channel.id] = messageID[0];
+                return context.reply(response.output);
             }
             return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
         } catch (e) {
             console.log(e);
             let fakeResponse = await bot.database.getAiResponse(input);
-            console.log(fakeResponse)
             if(fakeResponse)
                 return context.reply(fakeResponse);
             return context.reply(bot.util.arrayRand(genericResponses));
