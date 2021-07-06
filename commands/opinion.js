@@ -51,9 +51,9 @@ Fuck, my fucking mum caught me with the neighbors cat. I'd painted her eyes gree
             }
             context.defer();
             if (comments.length > 0) {
-                context.send(comments[commentIndex++].data.body);
                 if (commentIndex >= comments.length - 3)
                     module.exports.downloadComments(bot);
+                return context.send(comments[commentIndex++].data.body);
             }
             return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
         }catch(e){

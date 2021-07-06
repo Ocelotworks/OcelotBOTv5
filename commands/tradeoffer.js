@@ -1,18 +1,16 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Trade Offer",
-    usage: "tradeoffer <text> / <text>",
+    usage: "tradeoffer :input+",
     rateLimit: 10,
     detailedHelp: "I Receive: Votes You Receive: nothing",
-    usageExample: "tradeoffer server admin / amogus meme",
+    usageExample: "tradeoffer server admin / bans",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["tradeoffer"],
     categories: ["memes"],
     slashOptions: [{type: "STRING", name: "first", description: "I receive:", required: true}, {type: "STRING", name: "second", description: "You receive: (Defaults to nothing)", required: false}],
-    run: function (message, args, bot) {
-        if (!args[1]) {
-            return message.channel.send(`Enter one or two things like: **${context.command} sloppy toppy** or **${context.command} admin / nothing**`)
-        }
-        const fullText = message.cleanContent.substring(context.command.length);
+    run: function (context, bot) {
+        const fullText = context.options.input;
         let first = fullText
         let second = "nothing";
         if(fullText.indexOf("/") > -1){
@@ -22,9 +20,6 @@ module.exports = {
         }
         return Image.ImageProcessor(bot, context,  getTemplate(first, second), "tradeoffer")
     },
-    runSlash: function(interaction, bot){
-        return bot.util.slashImageProcessor(interaction, getTemplate(interaction.options.get("first").value, interaction.options.has("second") ? interaction.options.get("second").value : "Nothing"), "tradeoffer")
-    }
 };
 
 function getTemplate(first, second){

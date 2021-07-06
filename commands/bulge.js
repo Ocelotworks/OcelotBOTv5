@@ -9,6 +9,6 @@ module.exports = {
     commands: ["bulge", "explode", "buldge"],
     slashHidden: true,
     run: async function (context, bot) {
-        return Image.ImageFilter(bot, module.exports.usage, context, "implode", [message.getSetting("bulge.amount")]);
+        return Image.ImageFilter(bot, module.exports.usage, context, "implode", [context.getSetting("bulge.amount")]);
     }
 };

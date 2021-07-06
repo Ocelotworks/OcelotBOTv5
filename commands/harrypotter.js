@@ -4,16 +4,16 @@
  * ╚════ ║   (ocelotbotv5) harrypotter
  *  ════╝
  */
-const Util = require("../util/Util");
+const Image = require("../util/Image");
 module.exports = {
     name: "Harry Potter Text Generator",
-    usage: "potter <text>",
+    usage: "potter :text+",
     categories: ["text"],
     detailedHelp: "Make harry potter text",
     usageExample: "harrypotter Hotel Porter",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["potter", "harrypotter"],
-    run: Util.CooltextGenerator({
+    run: Image.CooltextGenerator({
         "LogoID": 38,
         "FontSize": 70,
         "Boolean2": "on",

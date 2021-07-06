@@ -1269,6 +1269,9 @@ module.exports = {
             deleteExpiredPolls(){
                 return knex.delete().from("ocelotbot_polls").whereNotNull("expires").andWhere("expires", "<", new Date());
             },
+            deletePoll(serverID, id){
+                return knex.delete().from("ocelotbot_polls").where({serverID, id}).limit(1);
+            },
             // This should probably be a worker
             async dataExport(userID){
                 bot.logger.log("Starting data export...");

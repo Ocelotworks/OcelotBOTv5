@@ -49,10 +49,13 @@ function configureSentry(){
         if(typeof message === "object" && message.type){
             switch(message.type){
                 case "messageSend":
-                    consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) -> ${message.message.content}`;
+                    // TODO: interactions
+                    if(message.message)
+                        consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) -> ${message.message.content}`;
                     break;
                 case "commandPerformed":
-                    consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) ${message.message.author?.username} (${message.message.author.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) performed command ${message.command.name}: ${message.message.content}`;
+                    if(message.message)
+                        consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) ${message.message.author?.username} (${message.message.author?.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) performed command ${message.command.name}: ${message.message.content}`;
                     break;
             }
         }

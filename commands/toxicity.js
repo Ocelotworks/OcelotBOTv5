@@ -17,7 +17,7 @@ const typeMap = {
 
 module.exports = {
     name: "Toxicity Checker",
-    usage: "toxicity [text]",
+    usage: "toxicity :text?+",
     categories: ["text"],
     detailedHelp: "Checks how toxic a message is",
     usageExample: "toxicity Ocelotbot is are bad",
@@ -29,18 +29,18 @@ module.exports = {
     },
     run: async function(context, bot){
         let target;
-        if(args.length > 1){
-            target = message.content.substring(context.command.length);
-        }else if (message.reference && message.reference.messageID) {
-            const reference = await message.channel.messages.fetch(message.reference.messageID);
+        if(context.options.text){
+            target = context.options.text;
+        }else if (context.message?.reference?.messageID) {
+            const reference = await context.channel.messages.fetch(context.message.reference.messageID);
             target = reference.content;
         }else{
-            const messages = await message.channel.messages.fetch({limit: 2});
+            const messages = await context.channel.messages.fetch({limit: 2});
             if (messages.size > 1 && messages.last().content.length > 1) {
                 const message = messages.last();
                 target = message.content;
             } else {
-                return message.replyLang("SPONGEBOB_NO_TEXT")
+                return context.replyLang({content: "SPONGEBOB_NO_TEXT", ephemeral: true})
             }
         }
 
@@ -54,7 +54,7 @@ module.exports = {
         }}, (err, resp)=>{
             if(err || !resp.data.attributeScores){
                 console.log(err);
-                return message.replyLang("GENERIC_ERROR");
+                return context.replyLang({content: "GENERIC_ERROR", epemeral: true});
             }
             const scores = resp.data.attributeScores;
             let bad = false;
@@ -70,7 +70,7 @@ module.exports = {
             embed.setDescription("Target Message:\n>>> "+target);
             embed.addField("Results", output.join("\n"));
             embed.setColor(bad ? "#ff0000" : "#22aa22");
-            return message.channel.send({embeds: [embed]});
+            return context.send({embeds: [embed]});
         })
     }
 };

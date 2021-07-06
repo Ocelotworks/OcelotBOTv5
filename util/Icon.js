@@ -31,6 +31,7 @@ let icons = {
     loading: constructIcon("ocelotload", "537722658742337557", true),
     premium: constructIcon("ocelotbot", "533369578114514945"),
     supporter_1: constructIcon("supporter_1", "529308223954616322"),
+    ocelotbot: constructIcon("ocelotbot", "533369578114514945"),
 }
 
 module.exports = icons;

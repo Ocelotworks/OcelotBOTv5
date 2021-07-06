@@ -4,14 +4,15 @@
  * ╚════ ║   (ocelotbotv5) swirl
  *  ════╝
  */
+const Image = require('../util/Image');
 module.exports = {
     name: "Swirl Image",
-    usage: "swirl [url]",
+    usage: "swirl :image?",
     rateLimit: 10,
     categories: ["image", "filter"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["swirl", "spiral"],
-    run: async function (message, args, bot) {
-        return bot.util.processImageFilter(module, message, args, "swirl", [message.getSetting("swirl.amount")]);
+    run: async function (context, bot) {
+        return Image.ImageFilter(bot, module.exports.usage, context,"swirl", [context.getSetting("swirl.amount")]);
     }
 };

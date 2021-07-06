@@ -824,12 +824,13 @@ module.exports = {
             return message.edit(api);
         }
 
-        bot.util.buttonComponent = function buttonComponent(text, style, id){
+        bot.util.buttonComponent = function buttonComponent(text, style, id, emoji){
             return {
                 type: 2,
                 style,
                 custom_id: id,
                 label: text,
+                emoji,
             }
         }
 

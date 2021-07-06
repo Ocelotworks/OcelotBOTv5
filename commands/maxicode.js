@@ -12,7 +12,7 @@ module.exports = {
     run:  function(context, bot){
         context.defer();
         try {
-            let attachment = new Discord.MessageAttachment(`https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(message.cleanContent.substring(context.command.length + 1))}&code=MaxiCode&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=396&imagetype=gif&rotation=0&color=%23000000&bgcolor=%23ffffff&qunit=Mm&quiet=0`, "qr.png");
+            let attachment = new Discord.MessageAttachment(`https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(context.options.text)}&code=MaxiCode&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=396&imagetype=gif&rotation=0&color=%23000000&bgcolor=%23ffffff&qunit=Mm&quiet=0`, "qr.png");
             context.send({files: [attachment]});
         }catch(e){
             context.send({content: "Error: "+e.message, ephemeral: true});

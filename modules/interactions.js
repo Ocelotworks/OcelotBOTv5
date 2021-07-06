@@ -29,8 +29,7 @@ module.exports = class Interactions{
                     if(this.bot.drain)return;
                     callback = await this.prefix[interaction.data.custom_id[0]](interaction);
                 }else if(this.waiting[interaction.data.custom_id]) {
-                    callback = {type: 6}
-                    this.waiting[interaction.data.custom_id](interaction);
+                    callback = (await this.waiting[interaction.data.custom_id](interaction)) || {type: 6};
                 }else{
                     if(this.bot.drain)return;
                     callback = {type: 4, data: {flags: 64, content: "Sorry, that button is no longer available."}};
@@ -55,7 +54,7 @@ module.exports = class Interactions{
         delete this.bot.interactions.waiting[id];
     }
 
-    addAction(text, style, callback, timeout=60000){
+    addAction(text, style, callback, timeout = 60000, emoji){
         const id = uuid();
         this.waiting[id] = callback;
         this.timeouts[id] = {timer: setTimeout(this.clearAction, timeout, id), timeout};

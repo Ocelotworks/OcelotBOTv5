@@ -9,6 +9,6 @@ module.exports = {
     commands: ["inspiration", "inspirational", "inspirationalquote", "inspo"],
     unwholesome: true,
     run: async function(context){
-        return context.reply((await axios.get("https://inspirobot.me/api?generate=true")).data);
+        return context.send((await axios.get("https://inspirobot.me/api?generate=true")).data);
     },
 };

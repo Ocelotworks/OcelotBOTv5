@@ -37,7 +37,7 @@ module.exports = {
                 .append(__dirname+"/../static/society.png")
                 .toBuffer("PNG", function(err, buffer){
                     if(err){
-                        message.replyLang("GENERIC_ERROR");
+                        context.sendLang("GENERIC_ERROR");
                         return;
                     }
                     let attachment = new Discord.MessageAttachment(buffer, "society.png");

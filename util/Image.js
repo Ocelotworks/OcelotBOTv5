@@ -68,7 +68,7 @@ module.exports = class Image {
     static async ImageFilter(bot, usage, context, filter, input, format = "PNG"){
         const url = await Util.GetImage(bot, context);
         if(!url)
-            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true});
+            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage});
 
         // Slash commands can't upload files
         if(!context.message)
@@ -80,10 +80,12 @@ module.exports = class Image {
 
     static async #MessageImageFilter(bot, url,  context, filter, input, format){
         const loadingMessage = await context.send(`${Icon.loading} Processing...`);
-        const response = Image.#imageFilter(bot, url, filter, input, format);
+        const response = await Image.#imageFilter(bot, url, filter, input, format);
         if(response.err){
             await loadingMessage.delete();
             return context.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
+        }else if(!response.image){
+            return context.replyLang("GENERIC_ERROR")
         }
 
         const buf = Buffer.from(response.image, 'base64');
@@ -224,6 +226,38 @@ module.exports = class Image {
             await loadingMessage.delete();
         span.end();
         return messageResult;
+    }
+
+    /**
+     * Generate a Cooltext thing
+     * @param options
+     * @returns {(function(*): Promise<*>)}
+     * @constructor
+     */
+    static CooltextGenerator(options){
+        return async (context)=> {
+            try {
+                context.defer();
+                options.text = context.options.text;
+                const formData = new FormData();
+                Object.keys(options).forEach((key) =>formData.append(key, options[key]))
+                let result = await axios.post("https://cooltext.com/PostChange", formData, {
+                    headers: {
+                        ...formData.getHeaders()
+                    }
+                });
+                if (result.data.renderLocation) {
+                    if(context.message){
+                        return context.send({files: [new Discord.MessageAttachment(result.data.renderLocation)]})
+                    }
+                    return context.send(await Image.UploadToImgur(result.data.renderLocation));
+                }
+            }catch(e){
+                console.log(e);
+                Sentry.captureException(e);
+            }
+            return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
+        }
     }
 }
 

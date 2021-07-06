@@ -27,7 +27,7 @@ module.exports = {
         const mention = bot.util.getUserFromMention(term);
         if(customInsults[mention?.id])return context.send(`<@${mention.id}>, ${bot.util.arrayRand(customInsults[mention.id])}`);
         if(term.toLowerCase() === "@everyone")return context.sendLang("INSULT_EVERYONE");
-        if(term.toLowerCase() === bot.client.user.username.toLowerCase() || term.indexOf(bot.client.user.id) > -1 || (term.toLowerCase() === message.guild?.me?.nickname?.toLowerCase()))return context.sendLang("INSULT_SELF_INSULT");
+        if(term.toLowerCase() === bot.client.user.username.toLowerCase() || term.indexOf(bot.client.user.id) > -1 || (term.toLowerCase() === context.guild?.me?.nickname?.toLowerCase()))return context.sendLang("INSULT_SELF_INSULT");
         return context.sendLang(`INSULT_${bot.util.intBetween(1,114)}`, {term});
     },
 };

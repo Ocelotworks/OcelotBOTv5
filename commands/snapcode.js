@@ -20,7 +20,7 @@ module.exports = {
         if(context.interaction)
             return context.send(url);
         try {
-            let attachment = new Discord.MessageAttachment(`url`, "snapcode.png");
+            let attachment = new Discord.MessageAttachment(url, "snapcode.png");
             context.send({files: [attachment]});
         }catch(e) {
             context.send({content: "Error: " + e.message, ephemeral: true});

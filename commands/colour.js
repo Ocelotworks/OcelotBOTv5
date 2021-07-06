@@ -30,7 +30,7 @@ module.exports = {
         const size = parseInt(context.getSetting("colour.size"));
         const colours = [];
         const args = context.options.code.split(" ");
-        for(let i = 1; i < args.length; i++){
+        for(let i = 0; i < args.length; i++){
             let input = args[i];
             const preset = presets[input.toLowerCase()]
             if(preset){

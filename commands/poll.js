@@ -39,13 +39,19 @@ module.exports = {
                 if (!poll) {
                     return {type: 4, data: {flags: 64, content: "The poll has expired or is invalid."}};
                 }
+                if(answer === "END" && poll.creatorID !== interaction.member.user.id)
+                    return {type: 4, data: {flags: 64, content: "Only the creator of the poll can end it."}};
                 let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
-                if(poll.expires && poll.expires < new Date()){
+                const now = new Date();
+                if((poll.expires && poll.expires < now) || answer === "END"){
                     let embed = message.embeds[0];
-                    embed.setDescription(embed.description.split("\n"));
+                    embed.setDescription(embed.description.split("\n")[0]);
                     embed.setColor("#ff0000");
                     embed.setFooter("Poll Expired");
                     message.edit({embeds: [embed], components: []}).catch(console.error);
+                    bot.database.deletePoll(message.guild.id, pollID);
+                    if(answer === "END")
+                        return {type: 6};
                     return {type: 4, data: {flags: 64, content: "That poll has expired."}};
                 }
                 await bot.database.setPollAnswer(poll.id, interaction.member.user.id, answer);
@@ -121,6 +127,10 @@ module.exports = {
             .map((o,i)=>({type: 2, style: 1, label: Strings.Truncate(o, 80), custom_id: `P${i}/${pollID}`}))
             .chunk(5)
             .map((bGroup)=>({type: 1, components: bGroup}));
+
+        if(options.length < 25)
+            buttons[buttons.length-1].components.push({type: 2, style: 4, label: "End", custom_id: `PEND/${pollID}`});
+
         let inline = options.length > 10;
         for(let i = 0; i < options.length; i++){
             embed.addField(options[i], `${Strings.ProgressBar(0, 0, inline ? 5 : 10)} 0%`, inline);

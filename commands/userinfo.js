@@ -78,7 +78,7 @@ module.exports = {
         }
 
         return context.send({
-            embed: {
+            embeds: [{
                 color: 2437587,
                 thumbnail: {
                     url: target.avatarURL({dynamic: true})
@@ -88,7 +88,7 @@ module.exports = {
                     icon_url: target.avatarURL({dynamic: true})
                 },
                 fields: fields
-            }
+            }]
         })
     }
 };

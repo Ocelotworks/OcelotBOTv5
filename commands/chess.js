@@ -98,7 +98,10 @@ module.exports = {
                 for (let move in status.notatedMoves) {
                     let moveData = status.notatedMoves[move];
                     if (moveData.src.piece.side.name === runningGame.turn ? "white" : "black") {
-                        context.sendLang("CHESS_INVALID_NOTATION" + (moveData.dest.piece ? "_TAKE" : ""), {
+                        context.sendLang({
+                            content: "CHESS_INVALID_NOTATION" + (moveData.dest.piece ? "_TAKE" : ""),
+                            components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, move))]
+                        }, {
                             move,
                             piece: moveData.src.piece.type,
                             file: moveData.dest.file,

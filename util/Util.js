@@ -1,8 +1,5 @@
 const {axios} = require('./Http');
-const Image = require('./Image');
-const FormData = require('form-data');
 const Sentry = require('@sentry/node');
-const Discord = require('discord.js');
 const Strings = require("./String");
 const config = require('config');
 module.exports = class Util {
@@ -56,37 +53,6 @@ module.exports = class Util {
             output.push(option);
         }
         return output.sort((a,b)=>b.required-a.required);
-    }
-
-    /**
-     * Generate a Cooltext thing
-     * @param options
-     * @returns {(function(*): Promise<*>)}
-     * @constructor
-     */
-    static CooltextGenerator(options){
-        return async (context)=> {
-            try {
-                context.defer();
-                options.text = context.options.text;
-                const formData = new FormData();
-                Object.keys(options).forEach((key) => formData.append(key, options[key]))
-                let result = await axios.post("https://cooltext.com/PostChange", formData, {
-                    headers: {
-                        ...formData.getHeaders()
-                    }
-                });
-                if (result.data.renderLocation) {
-                    if(context.message){
-                        return context.send({files: [new Discord.MessageAttachment(result.data.renderLocation)]})
-                    }
-                    return context.send(await Image.UploadToImgur(result.data.renderLocation));
-                }
-            }catch(e){
-                Sentry.captureException(e);
-            }
-            return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
-        }
     }
 
     static async #GetImageFromTenorURL(url) {

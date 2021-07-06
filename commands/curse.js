@@ -11,7 +11,7 @@ const fs = require('fs');
 const Util = require("../util/Util");
 module.exports = {
     name: "Curse Image",
-    usage: "curse :image+",
+    usage: "curse :image?+",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],

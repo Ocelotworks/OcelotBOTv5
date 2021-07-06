@@ -4,14 +4,14 @@
  * ╚════ ║   (ocelotbotv5) lovetext
  *  ════╝
  */
-const Util = require("../util/Util");
+const Image = require("../util/Image");
 module.exports = {
     name: "Love Text Generator",
     usage: "lovetext :text+",
     categories: ["text"],
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["lovetext", "love"],
-    run: Util.CooltextGenerator({
+    run: Image.CooltextGenerator({
         "LogoID": 819721038,
         "FontSize": 70,
         "Color1_color": "#c31870",

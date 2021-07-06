@@ -11,9 +11,10 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["mafia", "mafiaboss"],
     categories: ["memes"],
+    guildOnly: true,
     run: async function run(context, bot) {
-        const user1 =  await context.guild.members.fetch(context.options.user1);
-        const user2 =  await context.guild.members.fetch(context.options.user2);
+        const user1 =  (await context.guild.members.fetch(context.options.user1))?.user;
+        const user2 =  (await context.guild.members.fetch(context.options.user2))?.user;
 
         if (!user1 || !user2)
             return context.send({content:`:bangbang: You must enter 2 users. e.g ${context.command} ${context.user} ${bot.client.user}`, ephemeral: true});

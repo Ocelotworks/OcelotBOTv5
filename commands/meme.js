@@ -9,11 +9,9 @@ module.exports = {
     slashHidden: true,
     nestedDir: "meme",
     run: async function run(context, bot) {
-        if (!context.args[1])
-            return context.channel.send(`:bangbang: Invalid Usage. Try ${context.context.command} help`);
-
         try {
-            const memeResult = await bot.database.getMeme(context.args[1].toLowerCase(), context.message.guild ? context.message.guild.id : "global");
+            console.log(context.options.command);
+            const memeResult = await bot.database.getMeme(context.options.command?.toLowerCase(), context.message.guild ? context.message.guild.id : "global");
             if (memeResult[0]) {
                 return context.message.channel.send(memeResult[0].meme);
             }

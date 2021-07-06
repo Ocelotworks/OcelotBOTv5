@@ -25,7 +25,7 @@ module.exports = {
 
         embed.setTitle(context.getLang("MEME_INFO_HEADER", {meme: meme.name}));
         embed.addField(context.getLang("MEME_INFO_CONTENT"), meme.meme);
-        embed.addField(context.getLang("MEME_INFO_ADDED_ON"), meme.addedon);
+        embed.addField(await context.getLang("MEME_INFO_ADDED_ON"), `<t:${Math.floor(meme.addedon)/1000}:f>`);
         embed.addField(context.getLang("MEME_INFO_ADDED_BY"), `<@${meme.addedby}>`);
 
         return context.send({embeds: [embed]});

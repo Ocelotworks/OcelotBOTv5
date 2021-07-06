@@ -15,6 +15,6 @@ module.exports = {
     commands: ["jpeg", "jpg"],
     slashHidden: true,
     run: async function (context, bot) {
-        return Image.ImageFilter(bot, module.exports.usage, context,  "quality", [message.getSetting("jpeg.quality")], "JPEG");
+        return Image.ImageFilter(bot, module.exports.usage, context,  "quality", [context.getSetting("jpeg.quality")], "JPEG");
     }
 };

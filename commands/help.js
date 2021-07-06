@@ -38,7 +38,7 @@ module.exports = {
                     if(!bot.commandCategories.hasOwnProperty(i))continue;
                     if ((context.getSetting("help.hiddenCategories") && context.getSetting("help.hiddenCategories").indexOf(i) > -1) || (i === "nsfw" && (context.getBool("allowNSFW") || context.getBool("wholesome"))))
                         continue;
-                    embed.addField(i[0].toUpperCase() + i.substring(1), `Type \`${context.command} ${i}\``, true);
+                    embed.addField(i[0].toUpperCase() + i.substring(1), `Type \`${context.getSetting("prefix")}${context.command} ${i}\``, true);
                 }
                 embed.addField("Custom", `Type \`${context.command} custom\``, true);
                 return context.send({embeds: [embed], ephemeral: true});
@@ -101,6 +101,15 @@ module.exports = {
                 output += "🔞 This command is **Not Safe For Work**\n";
             if (command.unwholesome)
                 output += "⭐ This command can't be used in **Wholesome Mode**\n";
+            if (command.adminOnly)
+                output += `${Icon.ocelotbot} This command is for **Admins Only**\n`;
+            if (command.guildOnly)
+                output += `🚫 This command **cannot be used in a DM Channel**\n`;
+            if (command.noSynthetic)
+                output += `🚫 This command **cannot be used inside a custom command**\n`;
+            if (command.settingsOnly)
+                output += `🔒 This command **can only be used by people with the configured settings role**\n`;
+
             output += `**Usage:** ${context.getSetting("prefix")}${command.usage}\n`;
             if (command.usageExample)
                 output += `**Example:** ${context.getSetting("prefix")}${command.usageExample}\n`;

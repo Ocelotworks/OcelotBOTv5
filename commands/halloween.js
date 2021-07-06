@@ -15,7 +15,7 @@ module.exports = {
     commands: ["halloween"],
     run: function run(context, bot) {
         const diff = (halloween-(new Date()))/1000;
-        return context.replyLang("HALLOWEEN", {time: bot.util.prettySeconds(diff, context.guild?.id, context.author.id)});
+        return context.replyLang("HALLOWEEN", {time: bot.util.prettySeconds(diff, context.guild?.id, context.user.id)});
     }
 
 };

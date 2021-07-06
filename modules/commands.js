@@ -445,21 +445,17 @@ module.exports = class Commands {
             if(context.commandData.subCommands){
                 let parsedInput;
 
-                if(context.options.command)
-                    context.options.command = context.options.command.toLowerCase();
-
-                let organic = true;
+                let trueCommand = context.options.command?.toLowerCase();
                 // Default to the help command
-                if(!context.options.command || (context.options.command !== "help" && !context.commandData.subCommands[context.options.command])){
-                    context.options.command = "help";
-                    organic = false;
+                if(!trueCommand || (trueCommand !== "help" && !context.commandData.subCommands[trueCommand])){
+                    trueCommand = "help";
                 }
 
 
-                if(context.commandData.subCommands[context.options.command]){
+                if(context.commandData.subCommands[trueCommand]){
                     if(context.args) {
                         parsedInput = commandParser.Parse(context.args.slice(2).join(" "), {
-                            pattern: context.commandData.subCommands[context.options.command].pattern,
+                            pattern: context.commandData.subCommands[trueCommand].pattern,
                             id: context.options.command
                         });
 
@@ -467,9 +463,9 @@ module.exports = class Commands {
                             context.options = {...parsedInput.data, ...context.options}
                     }
                     if (!parsedInput || !parsedInput.error)
-                        return await context.commandData.subCommands[context.options.command].run(context, this.bot);
+                        return await context.commandData.subCommands[trueCommand].run(context, this.bot);
                 }
-                if(!this.bot.commands[context.command] || (context.options.command === "help" && organic)) {
+                if(!this.bot.commands[context.command] || (context.options.command === "help")) {
                     return await this.bot.commands["nestedCommandHelp"](context, this.bot);
                 }
             }

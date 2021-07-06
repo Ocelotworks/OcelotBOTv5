@@ -4,7 +4,7 @@
  * ╚════ ║   (ocelotbotv5) icetext
  *  ════╝
  */
-const Util = require("../util/Util");
+const Image = require("../util/Image");
 module.exports = {
     name: "Ice Text Generator",
     usage: "icetext :text+",
@@ -12,7 +12,7 @@ module.exports = {
     detailedHelp: "Ice text font",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["icetext", "ice"],
-    run: Util.CooltextGenerator({
+    run: Image.CooltextGenerator({
         LogoID: 1779834160,
         FontSize: 70,
         FileFormat: 6,

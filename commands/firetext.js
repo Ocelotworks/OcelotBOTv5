@@ -4,7 +4,7 @@
  * ╚════ ║   (ocelotbotv5) firetext
  *  ════╝
  */
-const Util = require("../util/Util");
+const Image = require("../util/Image");
 module.exports = {
     name: "Fire Text Generator",
     usage: "firetext :text+",
@@ -13,7 +13,7 @@ module.exports = {
     usageExample: "fire Epic cool",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["firetext", "fire"],
-    run: Util.CooltextGenerator({
+    run: Image.CooltextGenerator({
         LogoID: 4,
         FontSize: 70,
         Color1_color: "#FF0000",

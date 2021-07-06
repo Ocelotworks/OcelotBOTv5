@@ -36,15 +36,15 @@ module.exports = {
         }, async function(err, resp, body){
             if(err){
                 bot.raven.captureException(err);
-                context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
+                context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
             }else if(body && body.description && body.description.captions && body.description.captions.length > 0) {
                 if(url.indexOf("SPOILER_") > -1){
-                    context.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: `||${body.description.captions[0].text}||`});
+                    context.sendLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: `||${body.description.captions[0].text}||`});
                 }else{
-                    context.replyLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: body.description.captions[0].text});
+                    context.sendLang(`IDENTIFY_RESPONSE_${bot.util.intBetween(0, 8)}`, {object: body.description.captions[0].text});
                 }
             }else{
-                context.replyLang({content: "IDENTIFY_UNKNOWN", ephemeral: true});
+                context.sendLang({content: "IDENTIFY_UNKNOWN", ephemeral: true});
             }
         })
 
