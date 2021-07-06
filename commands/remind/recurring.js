@@ -47,7 +47,7 @@ module.exports = {
             ephemeral: true,
             components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
         })
-        const input = context.options.timeAndMessage;
+        const input = `${context.options.command} ${context.options.timeAndMessage}`;
         let parse = later.parse.text(input);
         const rargs = regex.exec(input);
         let reminder;
