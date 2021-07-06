@@ -4,6 +4,7 @@
  * ╚════ ║   (ocelotbotv5) remove
  *  ════╝
  */
+const Strings = require("../../util/String");
 module.exports = {
     name: "Remove Birthday",
     usage: "remove :user?+",
@@ -11,14 +12,13 @@ module.exports = {
     run: async function (context, bot) {
         let target = context.user;
         if (context.channel.permissionsFor(context.user.id).has("MANAGE_CHANNELS")) {
-
-
-            if (message.mentions.users.size > 0)
-                target = message.mentions.users.first();
-            else if (args.length > 2) {
+            const mention = Strings.GetUserFromMention(bot, context.options.user);
+            if(mention){
+                target = mention;
+            } else if (context.options.user) {
                 let allBirthdays = await bot.database.getBirthdays(context.guild.id);
                 let found = false;
-                const search = args.slice(2).join(" ").toLowerCase();
+                const search = context.options.user;
                 for (let i = 0; i < allBirthdays.length; i++) {
                     let user = await bot.util.getUserInfo(allBirthdays[i].user);
                     if (!user) continue;
