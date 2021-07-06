@@ -58,7 +58,7 @@ module.exports = class Lang {
         format.command = context.command;
         format.commandWithPrefix = `${context.getSetting("prefix")}${context.command}`;
         format.fullCommandWithPrefix = format.commandWithPrefix;
-        if(context.options.command)
+        if(context.options?.command)
             format.fullCommandWithPrefix += ` ${context.options.command}`
         format.options = context.options;
         format.locale = context.getSetting("lang");
