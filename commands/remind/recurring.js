@@ -4,6 +4,7 @@ module.exports = {
     name: "Set Recurring Reminder",
     usage: "every :timeAndMessage+",
     commands: ["every", "everyday"],
+    userPermissions: ['MANAGE_CHANNELS'],
     init: async function init(bot, reminderData) {
         bot.client.once("ready", async () => {
             let servers = bot.client.guilds.cache.keyArray();
@@ -40,7 +41,12 @@ module.exports = {
 
     },
     run: async function (context, bot) {
-        if (context.guild && !context.channel.permissionsFor(context.member).has("MANAGE_CHANNELS")) return context.send("You must have the Manage Channels permission to use this command.");
+        const currentTotal = await bot.database.getRecurringReminderCountForChannel(bot.client.user.id, context.channel.id);
+        if(currentTotal > 10)return context.send({
+            content: "There are too many recurring reminders set in this channel already. Delete some before adding more.",
+            ephemeral: true,
+            components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
+        })
         const input = context.options.timeAndMessage;
         let parse = later.parse.text(input);
         const rargs = regex.exec(input);
@@ -80,14 +86,14 @@ module.exports = {
                 let first = occurrences[i];
                 let second = occurrences[i + 1];
 
-                if (!second || second - first < 10000) {
+                if (!second || second - first < 30000) {
                     tooShort++;
                 }
             }
         }
 
         if (tooShort > occurrences.length / 2)
-            return context.send({content: ":warning: Your message is too frequent. You must have at least 10 seconds between messages.", ephemeral: true});
+            return context.send({content: ":warning: Your message is too frequent. You must have at least 30 seconds between messages.", ephemeral: true});
 
         let result = await bot.database.addRecurringReminder(bot.client.user.id, context.user.id, context.guild?.id || null, context.channel.id, reminder, {
             schedules: parse.schedules,

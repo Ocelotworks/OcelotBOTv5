@@ -1153,6 +1153,9 @@ module.exports = {
             getRecurringRemindersForDMs(receiver) {
                 return knex.select().from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({receiver}).whereNull("server");
             },
+            async getRecurringReminderCountForChannel(receiver, channel){
+                return (await knex.select(knex.raw("COUNT(*) AS count")).from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({channel}))[0].count;
+            },
             async getPoints(user) {
                 let result = await knex.select().from("ocelotbot_points").where({user}).limit(1);
                 if (result[0])
