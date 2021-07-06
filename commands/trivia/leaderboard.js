@@ -29,8 +29,8 @@ module.exports = {
                 outputData.push({
                     "#": i + 1,
                     "user": await bot.util.getUserTag(entry.user),
-                    "Correct": entry.points.toLocaleString(),
-                    "Total": entry.score.toLocaleString(),
+                    "Correct": entry.score.toLocaleString(),
+                    "Points": entry.points.toLocaleString(),
                 });
             }
             span.end();
