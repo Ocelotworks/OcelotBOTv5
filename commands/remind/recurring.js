@@ -16,6 +16,7 @@ module.exports = {
                 let reminder = reminders[i];
                 let scheduledReminder = later.setInterval(async () => {
                     if (bot.drain) return;
+                    if(!bot.config.getBool(reminder.server || "global", "remind.recurring"))return bot.logger.log("Recurring reminders disabled by setting");
                     try {
                         let channel = await bot.client.channels.fetch(reminder.channel);
                         if (channel && channel.permissionsFor && channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES", true)) {

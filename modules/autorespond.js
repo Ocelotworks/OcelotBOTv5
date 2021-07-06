@@ -18,7 +18,7 @@ module.exports = {
             }
         })
 
-        bot.client.on("message", async function onMessage(message) {
+        bot.client.on("messageCreate", async function onMessage(message) {
             if (bot.drain) return;
             Sentry.configureScope(async function onMessage(scope) {
                 scope.setTags({
@@ -31,6 +31,7 @@ module.exports = {
                     username: message.author.username
                 });
                 if(message.guild && !message.author.bot && bot.customFunctions.AUTORESPOND[message.guild.id]){
+                    if(!bot.config.getBool(message.guild?.id || "global", "custom.autorespond"))return bot.logger.log("Custom autoresponds disabled by setting");
                     const keys = Object.keys(bot.customFunctions.AUTORESPOND[message.guild.id]);
                     const match = message.content.toLowerCase()
                     for(let i = 0; i < keys.length; i++)

@@ -33,6 +33,8 @@ module.exports = {
                 const trigger = later.parse.text(triggerSplit[1]);
                 const channel = await bot.client.channels.fetch(triggerSplit[0]);
                 const interval = later.setInterval(async () => {
+                    if(bot.drain)return;
+                    if(!bot.config.getBool(channel.guild?.id || "global", "custom.scheduled"))return bot.logger.log("Scheduled custom commands disabled by setting");
                     try {
                         Sentry.addBreadcrumb({
                             message: "Running custom cron",
