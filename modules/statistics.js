@@ -30,7 +30,7 @@ module.exports = {
             res.json(bot.stats)
         })
 
-        bot.client.on("message", function () {
+        bot.client.on("messageCreate", function () {
             currentStats.messagesPerMinute++;
             bot.stats.messagesTotal++;
         });

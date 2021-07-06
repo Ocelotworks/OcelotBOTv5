@@ -32,7 +32,7 @@ module.exports = {
         context.defer();
         sq.open(ip, port);
         sq.getInfo(function sourceQueryInfo(err, info){
-            bot.logger.log("Retrieved server info for "+args[1]);
+            bot.logger.log("Retrieved server info for "+context.options.address);
             if(err){
                 context.send({content: ":warning: Error retrieving server information: "+err, ephemeral: true});
             }else{

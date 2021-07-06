@@ -35,16 +35,28 @@ function configureSentry(){
         let shard = bot.util ? bot.util.shard : "??";
         if(shard < 10)
             shard = "0"+shard;
-        console[error?"error":"log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, message);
         if(bot.rabbit && bot.rabbit.emit){
             bot.rabbit.emit("log", {
                 message,
                 caller,
+                error,
                 timestamp: new Date(),
                 shard: bot.util.shard,
                 hostname: os.hostname(),
             });
         }
+        let consoleMessage = message;
+        if(typeof message === "object" && message.type){
+            switch(message.type){
+                case "messageSend":
+                    consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) -> ${message.message.content}`;
+                    break;
+                case "commandPerformed":
+                    consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) ${message.message.author?.username} (${message.message.author.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) performed command ${message.command.name}: ${message.message.content}`;
+                    break;
+            }
+        }
+        console[error?"error":"log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, consoleMessage);
     };
 
     bot.logger.error = function error(message){
