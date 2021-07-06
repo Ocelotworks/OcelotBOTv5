@@ -59,7 +59,7 @@ module.exports = {
                     server: context.guild.id,
                     id: reminderResponse[0],
                     user: context.user.id,
-                    timestamp: new Date(),
+                    timestamp: now,
                     message: reminder,
                     at: at,
                 }, bot);
