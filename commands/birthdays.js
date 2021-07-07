@@ -15,6 +15,8 @@ module.exports = {
     nestedDir: "birthdays",
     guildOnly: true,
     run: async function(context, bot) {
+        if(!context.options.command)
+            return bot.commands["nestedCommandHelp"](context, bot);
         if(!context.options.user)
             return context.sendLang({
                 content: "BIRTHDAY_USAGE",

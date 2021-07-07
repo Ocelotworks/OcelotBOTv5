@@ -348,12 +348,12 @@ module.exports = class Strings {
         return null;
     }
 
-    static #quantify(data, unit, value, server, user) {
+    static #quantify(data, unit, value, server, user, bot) {
         if (value && value >= 1) {
             if (value > 1 || value < -1)
                 unit += 'S';
 
-            data.push(bot.lang.getTranslation(server, unit, value, user))
+            data.push(bot.lang.getTranslation(server, unit, {0:value}, user))
         }
 
         return data;
@@ -379,16 +379,16 @@ module.exports = class Strings {
     }
 
     static PrettySeconds(bot, seconds, server = "global", user) {
-        if (seconds < 1) return bot.lang.getTranslation(server, "TIME_SECONDS", seconds.toFixed(2), user);
+        if (seconds < 1) return bot.lang.getTranslation(server, "TIME_SECONDS", {0:seconds.toFixed(2)}, user);
         seconds = Math.round(seconds);
 
         let prettyString = '', data = [];
 
         if (typeof seconds === 'number') {
-            data = String.#quantify(data, 'TIME_DAY', Math.floor((seconds) / 86400), server, user);
-            data = String.#quantify(data, 'TIME_HOUR', Math.floor((seconds % 86400) / 3600), server, user);
-            data = String.#quantify(data, 'TIME_MINUTE', Math.floor((seconds % 3600) / 60), server, user);
-            data = String.#quantify(data, 'TIME_SECOND', Math.floor(seconds % 60), server, user);
+            data = Strings.#quantify(data, 'TIME_DAY', Math.floor((seconds) / 86400), server, user, bot);
+            data = Strings.#quantify(data, 'TIME_HOUR', Math.floor((seconds % 86400) / 3600), server, user, bot);
+            data = Strings.#quantify(data, 'TIME_MINUTE', Math.floor((seconds % 3600) / 60), server, user, bot);
+            data = Strings.#quantify(data, 'TIME_SECOND', Math.floor(seconds % 60), server, user, bot);
 
             let length = data.length, i;
 
