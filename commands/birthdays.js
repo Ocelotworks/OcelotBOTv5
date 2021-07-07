@@ -31,7 +31,7 @@ module.exports = {
         if(d <= now)
             d.setYear(now.getFullYear()+1);
 
-        context.replyLang("BIRTHDAY", {
+        return context.replyLang("BIRTHDAY", {
             target, day: bot.util.getNumberPrefix(d.getDate()),
             month: bot.util.months[d.getMonth()],
             time: bot.util.prettySeconds((d - now) / 1000, context.guild.id, context.user.id)

@@ -1212,7 +1212,7 @@ module.exports = {
                 return knex("ocelotbot_custom_functions").update({"function": code}).where({id, server}).limit(1);
             },
             getCustomFunctions(server){
-                return knex.select("id", "trigger", "type").from("ocelotbot_custom_functions").where({server});
+                return knex.select("id", "trigger", "type").from("ocelotbot_custom_functions").where({server}).orderBy("id", "asc");
             },
             getCustomFunction(server, id){
                 return knex.select().from("ocelotbot_custom_functions").where({server, id}).limit(1);

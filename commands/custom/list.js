@@ -9,7 +9,7 @@ module.exports = {
         if(functions.length === 0)return context.send("CUSTOM_LIST_NONE");
 
         let header = `Use the 'id' field below to view/edit/delete functions.\n\`\`\`yaml\n`
-        let chunkedFunctions = functions.chunk(5);
+        let chunkedFunctions = functions.chunk(10);
         return Util.StandardPagination(bot, context, chunkedFunctions, async function (functions, index) {
             let formatted = [];
             for (let i = 0; i < functions.length; i++) {
