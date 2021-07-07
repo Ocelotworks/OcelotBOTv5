@@ -1,3 +1,4 @@
+const Strings = require("../util/String");
 module.exports = {
     name: "User Info",
     usage: "user :@user?",
@@ -30,7 +31,7 @@ module.exports = {
         let fields = [
             {
                 name: "Joined Discord",
-                value: `${target.createdAt.toDateString()}\n(${bot.util.prettySeconds((now-target.createdAt)/1000, context.guild?.id, context.user.id)} ago.)`,
+                value: `${target.createdAt.toDateString()}\n(${Strings.PrettySeconds(bot, (now-target.createdAt)/1000, context.guild?.id, context.user.id)} ago.)`,
                 inline: true
             },
         ];
@@ -38,7 +39,7 @@ module.exports = {
         if(targetMember){
             fields.push({
                 name: "Joined Guild",
-                    value: `${targetMember.joinedAt.toDateString()}\n(${bot.util.prettySeconds((now-targetMember.joinedAt)/1000, context.guild?.id, context.user.id)} ago.)`,
+                    value: `${targetMember.joinedAt.toDateString()}\n(${Strings.PrettySeconds(bot, (now-targetMember.joinedAt)/1000, context.guild?.id, context.user.id)} ago.)`,
                 inline: true
             });
         }
@@ -48,7 +49,7 @@ module.exports = {
             fields.push({
                 name: "Last Message",
                 inline: true,
-                value: `${target.lastMessage.createdAt.toDateString()}\n(${ago > 0 ? bot.util.prettySeconds(ago, context.guild?.id, context.user.id) : "Just Now."})`
+                value: `${target.lastMessage.createdAt.toDateString()}\n(${Strings.PrettySeconds(bot, ago, context.guild?.id, context.user.id)} ago)`
             });
         }
 
@@ -58,7 +59,7 @@ module.exports = {
             fields.push({
                 name: "Nitro Booster",
                 inline: true,
-                value: `${target.lastMessage.createdAt.toDateString()}\n(${ago > 0 ? bot.util.prettySeconds(ago, context.guild?.id, context.user.id) : "Just Now."})`
+                value: `${target.lastMessage.createdAt.toDateString()}\n(${Strings.PrettySeconds(bot, ago, context.guild?.id, context.user.id)} ago)`
             });
         }
 
