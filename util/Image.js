@@ -237,6 +237,7 @@ module.exports = class Image {
     static CooltextGenerator(options){
         return async (context)=> {
             try {
+                process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
                 context.defer();
                 options.text = context.options.text;
                 const formData = new FormData();
