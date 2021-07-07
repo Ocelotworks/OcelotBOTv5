@@ -3,6 +3,7 @@
  */
 
 const Util = require("../util/Util");
+const Strings = require("../util/String");
 module.exports = {
     name: "Urban Dictionary",
     usage: "defineud :term+",
@@ -18,10 +19,14 @@ module.exports = {
 
         if(data?.list?.length > 0) {
             return Util.StandardPagination(bot, context, data.list, async function (page) {
-                page.definition = page.definition.substring(0, 800);
-                page.example = page.example.substring(0, 800);
+                page.definition = Strings.Truncate(page.definition, 800);
+                page.example = Strings.Truncate(page.example, 800);
                 return {content: context.getLang("UD_DEFINITION", page)};
-            }, true);
+            }, true, data.list.map((p,i)=>({
+                label: Strings.Truncate(p.word, 25),
+                description: Strings.Truncate(p.definition, 50),
+                value: `${i}`
+            })));
         }
 
         return context.sendLang({content: "UD_NO_DEFINITIONS", ephemeral: true});

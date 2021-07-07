@@ -9,6 +9,9 @@ module.exports = {
     commands: ["tradeoffer"],
     categories: ["memes"],
     slashOptions: [{type: "STRING", name: "first", description: "I receive:", required: true}, {type: "STRING", name: "second", description: "You receive: (Defaults to nothing)", required: false}],
+    handleError: function(context){
+        return context.sendLang({content: "TRADEOFFER_INPUT", ephemeral: true});
+    },
     run: function (context, bot) {
         const fullText = context.options.input;
         let first = fullText

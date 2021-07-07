@@ -5,6 +5,7 @@ const Discord = require('discord.js');
 
 const request = require('request');
 const Util = require("../util/Util");
+const Strings = require("../util/String");
 let naughtyRegex = /child|kid|baby|babies|toddler|1[0-7]|/gi;
 module.exports = {
     name: "Porn Suggest",
@@ -46,7 +47,11 @@ module.exports = {
                     embed.setDescription(`Rating: ${page.rating}\nDuration: ${page.duration}\n[Click here to watch](${url})`);
                     embed.setFooter(`Page ${index+1}/${images.length}`);
                     return {embeds: [embed]};
-                }, true);
+                }, true, images.map((p,i)=>({
+                    label: Strings.Truncate(p.title, 25),
+                    description: Strings.Truncate(p.source, 50),
+                    value: `${i}`
+                })));
             }catch(e){
                 console.log(body);
                 bot.raven.captureException(e);

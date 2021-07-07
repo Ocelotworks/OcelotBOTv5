@@ -9,6 +9,9 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["bigtext", "big"],
     slashHidden: true,
+    handleError: function(context){
+        return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
+    },
     run:  async function(context, bot) {
         // As slash commands can't upload files, this command can't be done yet as
         // it doesn't use the image processor so can't upload to imgur.

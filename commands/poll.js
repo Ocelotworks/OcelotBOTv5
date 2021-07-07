@@ -82,13 +82,16 @@ module.exports = {
             return {type: 6};
         })
     },
+    handleError: function(context){
+        return context.sendLang({content: "POLL_HELP", ephemeral: true});
+    },
     run: async function (context, bot) {
         let options = context.options.options.split(',');
         if (options.length < 2)
-            return context.send({content:`:bangbang: You need to enter at least 2 poll items. For example, ${context.command} Dogs, Cats`, ephemeral: true});
+            return context.sendLang({content: "POLL_MINIMUM", ephemeral: true});
 
         if (options.length > 25)
-            return context.send(":bangbang: You can only enter a maximum of 25 poll options.");
+            return context.send({content: "POLL_MAXIMUM", ephemeral: true});
 
         const now = new Date();
         let title = titleRegex.exec(options[0])?.[1] || "Poll";
@@ -113,12 +116,13 @@ module.exports = {
 
         let embed = new Embeds.AuthorEmbed(context);
         embed.setTitle(title);
-        if(expires)
-            embed.setDescription(`0 Responses\nExpires <t:${Math.floor(expires.getTime()/1000)}:R>`);
-        else
-            embed.setDescription(`0 Responses`);
+        embed.setDescriptionLang(expires ? "POLL_RESPONSES_EXPIRY" : "POLL_RESPONSES", {
+            num: 0,
+            timestamp: Math.floor(expires?.getTime()/1000)
+        })
+
         if(expires) {
-            embed.setFooter("Poll ends: ");
+            embed.setFooterLang("POLL_ENDS");
             embed.setTimestamp(expires);
         }
 
@@ -133,7 +137,7 @@ module.exports = {
 
         let inline = options.length > 10;
         for(let i = 0; i < options.length; i++){
-            embed.addField(options[i], `${Strings.ProgressBar(0, 0, inline ? 5 : 10)} 0%`, inline);
+            embed.addField(Strings.Truncate(options[i], 256), `${Strings.ProgressBar(0, 0, inline ? 5 : 10)} 0%`, inline);
         }
         let message = await context.send({embeds: [embed], components: buttons})
         return bot.database.updatePoll(pollID, message.id);

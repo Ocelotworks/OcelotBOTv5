@@ -7,6 +7,9 @@ module.exports = {
     rateLimit: 10,
     categories: ["memes"],
     argDescriptions: {input: "The contents of the speech bubble"},
+    handleError: function(context){
+        return context.sendLang("GENERIC_TEXT");
+    },
     run: function (context, bot) {
         return Image.ImageProcessor(bot, context, {
             "components": [

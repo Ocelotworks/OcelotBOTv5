@@ -7,8 +7,10 @@ module.exports = {
     rateLimit: 10,
     categories: ["memes", "nsfw"],
     unwholesome: true,
-    run:  function(context, bot){
-
+    handleError: function(context){
+        return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
+    },
+    run: function(context, bot){
         return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
