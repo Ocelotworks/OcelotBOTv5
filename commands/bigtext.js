@@ -13,7 +13,7 @@ module.exports = {
         // As slash commands can't upload files, this command can't be done yet as
         // it doesn't use the image processor so can't upload to imgur.
         if(!context.message)
-            return context.sendLang({content: "This command does not support slash commands", ephemeral: true})
+            return context.send({content: "This command does not support slash commands", ephemeral: true})
 
         let mention = Strings.GetEmojiURLFromMention(context.options.text);
         if(mention)
@@ -26,12 +26,12 @@ module.exports = {
         let response = await bot.rabbit.rpc("imageFilter", {url: term, filter: "bigtext"});
 
         if(loadingMessage)
-            context.editLang("GENERIC_UPLOADING", null, loadingMessage);
+            context.editLang("GENERIC_UPLOADING", {}, loadingMessage);
 
         if (response.err) {
             console.log(response);
             await loadingMessage.delete();
-            return context.send(response.err, null);
+            return context.send(response.err);
         }
 
 
