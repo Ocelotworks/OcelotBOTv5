@@ -177,7 +177,7 @@ module.exports = {
          * @returns {String}
          */
         bot.util.prettySeconds = function prettySeconds(seconds, server = "global", user) {
-            if (seconds < 1) return bot.lang.getTranslation(server, "TIME_SECONDS", seconds.toFixed(2), user);
+            if (seconds < 1) return bot.lang.getTranslation(server, "TIME_SECONDS", {0:seconds.toFixed(2)}, user);
             seconds = Math.round(seconds);
 
             let prettyString = '', data = [];
