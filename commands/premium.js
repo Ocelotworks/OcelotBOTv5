@@ -16,19 +16,19 @@ module.exports = {
             if (context.getBool("points.enabled"))return true;
             if (context.commandData.vote && context.getBool("voteRestrictions") && !(context.getBool("premium") || context.getBool("serverPremium"))) {
                 if (context.getSetting("restrictionType") === "vote") {
-                    let lastVote = await this.bot.database.getLastVote(context.user.id);
+                    let lastVote = await bot.database.getLastVote(context.user.id);
                     if (lastVote[0])
                         lastVote = lastVote[0]['MAX(timestamp)'];
                     let difference = new Date() - lastVote;
                     console.log("difference is " + difference);
-                    if (difference > this.bot.util.voteTimeout * 2) {
+                    if (difference > bot.util.voteTimeout * 2) {
                         context.replyLang({content: "COMMAND_VOTE_REQUIRED", ephemeral: true})
                         return false;
                     }
                 } else {
                     // This is dumb, but I can't avoid this
                     try {
-                        await (await this.bot.client.guilds.fetch("322032568558026753")).members.fetch(context.user.id)
+                        await (await bot.client.guilds.fetch("322032568558026753")).members.fetch(context.user.id)
                     } catch (e) {
                         context.reply({content: "You must join the support server or purchase premium to enable this command. You can join the support server here: https://discord.gg/PTaXZmE", ephemeral: true})
                         return false;

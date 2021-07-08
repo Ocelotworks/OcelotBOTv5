@@ -25,7 +25,7 @@ module.exports = {
                 commandOutput.push(slashCommand);
                 if (commandOutput.length >= 90) break;
             }
-            console.log(JSON.stringify(commandOutput));
+            await context.send(`Putting ${commandOutput.length} slash commands...`);
             await bot.client.application.commands.set(commandOutput, server);
             if (server)
                 return context.send(`Set ${commandOutput.length} slash commands for ${server}`);
