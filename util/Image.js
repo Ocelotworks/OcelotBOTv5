@@ -92,10 +92,11 @@ module.exports = class Image {
         const buf = Buffer.from(response.image, 'base64');
 
         bot.logger.log(`Buffer size: ${buf.byteLength}`)
-        // if(buf.byteLength >= 10000){
-        //     await loadingMessage.delete();
-        //     return context.replyLang("IMAGE_PROCESSOR_ERROR_SIZE");
-        // }
+
+        if(buf.byteLength >= 10000000){
+            await loadingMessage.delete();
+            return context.replyLang("IMAGE_PROCESSOR_ERROR_SIZE");
+        }
 
         if(loadingMessage && !loadingMessage.deleted){
             await context.edit(`${Icon.loading} Uploading...`, loadingMessage);
