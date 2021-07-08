@@ -8,6 +8,7 @@ module.exports = {
     detailedHelp: "Separate each option in the poll with a comma. Optionally, you can specify a title with [brackets], or a time frame, or forever.",
     categories: ["tools"],
     commands: ["poll"],
+    slashHidden: true,
     init: function(bot){
         if(bot.util.shard === 0){
             setInterval(async ()=>{
