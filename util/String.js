@@ -475,7 +475,9 @@ module.exports = class Strings {
      * @constructor
      */
     static GetReference(obj, reference){
-        return reference.split('.').reduce((o,i)=>o[i], obj) || reference;
+        let result =  reference.split('.').reduce((o,i)=>o[i], obj);
+        if(result === undefined)return reference;
+        return result;
     }
 
 

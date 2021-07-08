@@ -1,7 +1,7 @@
 #! /bin/node
 /**
  *  OcelotBOT Version 5 (Discord)
- *  Copyright 2018 Ocelotworks
+ *  Copyright 2018-2021 Ocelotworks
  */
 
 

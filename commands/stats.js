@@ -81,7 +81,7 @@ module.exports = {
         embed.addFieldLang("STATS_UPTIME", "STATS_UPTIME_VALUE", false, {uptime: uptimeValue});
         embed.addFieldLang("STATS_TOTAL_USERS", "STATS_TOTAL_USERS_VALUE", true, {users: userCount});
         embed.addFieldLang("STATS_TOTAL_SERVERS", "STATS_TOTAL_SERVERS_VALUE", true,{servers: serverCount});
-        embed.addFieldLang("STATS_TOTAL_CHANNELS", "STATS_TOTAL_CHANNELS_VALUE", true,{channel: channelCount});
+        embed.addFieldLang("STATS_TOTAL_CHANNELS", "STATS_TOTAL_CHANNELS_VALUE", true,{channels: channelCount});
         return context.send({embeds: [embed]});
     }
 };

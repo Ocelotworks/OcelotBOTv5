@@ -31,7 +31,7 @@ module.exports = {
             bot.topicCounter = 0;
             bot.logger.log("Changing topic");
             const topicResult = await bot.database.getRandomTopic();
-            const topic = topicResult[0];
+            const topic = topicResult[0].substring(0,1000);
             const topicOutput = `<${topic.username}> ${topic.topic}`;
             await message.channel.setTopic(topicOutput, `Topic ID: ${topic.id}`);
             await message.channel.send(`${emojiMaps[topic.username] || ""} _Set topic: ${topicOutput}_`);
