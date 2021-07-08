@@ -7,7 +7,7 @@ module.exports = {
     commands: ["yea", "yeah"],
     categories: ["memes"],
     run:  function(context, bot){
-        const content = context.options.content;
+        const content = context.options.input;
         return Image.ImageProcessor(bot, context, {
             "components": [
                 {
