@@ -3,7 +3,7 @@ module.exports = {
     hidden: true,
     usage: "prefix",
     commands: ["prefix", "setprefix", "prefixset"],
-    run: async function (message, args) {
-        message.channel.send(`To set the prefix, type **${context.command} set prefix %**, where % is the prefix that you want.`)
+    run: async function (context, bot) {
+        return context.send({content: `To set the prefix, type **${context.command} set prefix %**, where % is the prefix that you want.`, ephemeral: true})
     }
 };
