@@ -1,5 +1,5 @@
-let dootCount = 0;
-const doots = [
+let nootCount = 0;
+const noots = [
     "https://www.youtube.com/watch?v=4UlR1sWybQo",
     "https://www.youtube.com/watch?v=NyKVXmKEsIc",
     "https://www.youtube.com/watch?v=0hcFghzGR9Q",
@@ -13,33 +13,28 @@ const doots = [
 ]
 module.exports = {
     name: "Doot Doot",
-    usage: "doot",
+    usage: "doot :0num?",
     rateLimit: 50,
     categories: ["voice", "memes"],
     detailedHelp: "Doot Doot\nPlays a random doot remix in the voice channel you're in",
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["doot", "toot"],
-    run: async function run(message, args, bot) {
-        if (args[1] && args[1].toLowerCase() === "stop") {
-            message.channel.send(`(Use ${message.getSetting("prefix")}music stop to stop dooting)\nhttps://i.imgur.com/QA8anth.jpg`);
-        }
-        if (bot.util.checkVoiceChannel(message)) return;
-
+    slashHidden: true,
+    run: async function run(context, bot) {
+        if (bot.util.checkVoiceChannel(context.message)) return;
         try {
-            bot.logger.log("Joining voice channel " + message.member.voice.channel.name);
-            let dootNumber = dootCount++ % doots.length;
-            if(args[1] && !isNaN(parseInt(args[1])))dootNumber = parseInt(args[1]) % doots.length;
-            const doot = doots[dootNumber]
-            message.channel.startTyping();
-            let {songData, player} = await bot.lavaqueue.playOneSong(message.member.voice.channel, doot);
+            bot.logger.log("Joining voice channel " + context.member.voice.channel.name);
+            let nootNumber = (context.options.id || nootCount++) % noots.length;
+            const noot = noots[nootNumber]
+            context.defer();
+            let {songData, player} = await bot.lavaqueue.playOneSong(context.member.voice.channel, noot);
             player.once("start", ()=>{
-                message.channel.stopTyping();
-                message.replyLang("DOOT", {doot: dootNumber, arg: context.command, fileName: songData.info.title});
+                context.sendLang("DOOT", {doot: nootNumber, arg: context.command, fileName: songData.info.title});
             });
         } catch (e) {
             bot.raven.captureException(e);
             bot.logger.log(e);
-            message.replyLang("GENERIC_ERROR");
+            context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
         }
     }
 };
