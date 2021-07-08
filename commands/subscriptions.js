@@ -93,7 +93,7 @@ module.exports = {
                         subList[i].lastcheck = new Date();
                        if(chan) {
                            console.log(JSON.stringify(results))
-                           chan.send({embeds: [results]});
+                           chan.send({embeds:results});
                        }else {
                            bot.logger.warn(`${subList[i].channel} does not exist for sub ${subList[i].id}`);
                        }
