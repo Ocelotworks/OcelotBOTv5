@@ -11,7 +11,7 @@ module.exports = {
     categories: ["tools"],
     run: async function run(context, bot) {
         const search = context.options.place;
-        const result = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(search)}&appid=${config.get("API.openweathermap.key")}&units=metric`);
+        const result = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(search)}&appid=${config.get("API.openweathermap.key")}&units=metric`).catch(()=>null);
         const weather = result.data?.weather?.[0]?.main;
         if (!weather)
             return context.sendLang({content: "WEATHER_INVALID_PLACE", ephemeral: true}, {place: search});
