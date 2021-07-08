@@ -1458,7 +1458,17 @@ module.exports = {
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
-               // roles: member.roles.cache,
+                roles: member.roles.cache.map(bot.util.serialiseRole),
+            }
+        }
+
+        bot.util.serialiseRole = function serialiseRole(role){
+            return {
+                id: role.id,
+                hoist: role.hoist,
+                color: role.color,
+                name: role.name,
+                permissions: role.permissions,
             }
         }
 
