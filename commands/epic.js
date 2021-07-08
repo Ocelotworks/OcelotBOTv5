@@ -2,23 +2,20 @@ const Discord = require('discord.js');
 const request = require('request');
 const gm = require('gm');
 const fs = require('fs');
+const Util = require("../util/Util");
 module.exports = {
     name: "This is epic meme",
-    usage: "epic [url]",
+    usage: "epic :image?",
     rateLimit: 30,
     detailedHelp: "Okay, now THIS is epic.",
     categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["epic", "thisisepic", "okaythisisepic", "tis"],
-    run: async function (message, args, bot) {
-
-        const url = await bot.util.getImage(message, args);
-
-        if (!url || !url.startsWith("http"))
-            return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
-
-        console.log(url);
-
+    slashHidden: true,
+    run: async function (context, bot) {
+        let url = await Util.GetImage(bot, context);
+        if(!url)
+            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage: module.exports.usage});
 
         const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
@@ -28,11 +25,11 @@ module.exports = {
                 .append(__dirname + "/../static/epic.png")
                 .toBuffer("PNG", function (err, buffer) {
                     if (err) {
-                        message.replyLang("GENERIC_ERROR");
+                        context.replyLang("GENERIC_ERROR");
                         return;
                     }
                     let attachment = new Discord.MessageAttachment(buffer, "epic.png");
-                    message.channel.send("", attachment);
+                    context.send({files: [attachment]});
                     fs.unlink(fileName, function unlink(err) {
                         console.log(err);
                     });

@@ -35,16 +35,31 @@ function configureSentry(){
         let shard = bot.util ? bot.util.shard : "??";
         if(shard < 10)
             shard = "0"+shard;
-        console[error?"error":"log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, message);
         if(bot.rabbit && bot.rabbit.emit){
             bot.rabbit.emit("log", {
                 message,
                 caller,
+                error,
                 timestamp: new Date(),
                 shard: bot.util.shard,
                 hostname: os.hostname(),
             });
         }
+        let consoleMessage = message;
+        if(typeof message === "object" && message.type){
+            switch(message.type){
+                case "messageSend":
+                    // TODO: interactions
+                    if(message.message)
+                        consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) -> ${message.message.content}`;
+                    break;
+                case "commandPerformed":
+                    if(message.message)
+                        consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) ${message.message.author?.username} (${message.message.author?.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) performed command ${message.command.name}: ${message.message.content}`;
+                    break;
+            }
+        }
+        console[error?"error":"log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, consoleMessage);
     };
 
     bot.logger.error = function error(message){
@@ -129,33 +144,36 @@ async function loadModules(){
         //The module loading is wrapped in a try/catch incase the module fails to load, the server will still run.
         try{
             let loadedModule = require(`.${modulePath}/${fileName}.js`);
-            //Check that the module has `name` and `init` values
-            if(loadedModule.name && loadedModule.init){
-                //Here the module itself starts execution. In the future we might want to do this asynchronously.
-                //The app object is passed to the
-                Sentry.configureScope(function initModule(scope){
-                    scope.addBreadcrumb({
-                        category: 'modules',
-                        message: 'Loading module.',
-                        level: Sentry.Severity.Info,
-                        data: {
-                            name: loadedModule.name,
-                            path: modulePath,
-                            file: fileName,
-                            moduleFiles: moduleFiles
-                        }
-                    });
-                });
-                if(loadedModule.async)
-                    await loadedModule.init(bot);
-                else
-                    loadedModule.init(bot);
-                bot.logger.log(`Loaded module ${loadedModule.name}`);
-            }else{
+            if(loadedModule instanceof Function){
+                bot.logger.log("Detected class-style module "+loadedModule.name);
+                loadedModule = new loadedModule(bot);
+            }else if(!loadedModule.name || !loadedModule.init){
+                console.log(loadedModule);
                 //If the app has not got these. It's not setup properly.
                 //Throw out a warning and skip attempting to load it.
                 bot.logger.warn(`${fileName} is not a valid module. Missing 'name' and/or 'init'`);
+                continue;
             }
+            //Here the module itself starts execution. In the future we might want to do this asynchronously.
+            //The app object is passed to the
+            Sentry.configureScope(function initModule(scope){
+                scope.addBreadcrumb({
+                    category: 'modules',
+                    message: 'Loading module.',
+                    level: Sentry.Severity.Info,
+                    data: {
+                        name: loadedModule.name,
+                        path: modulePath,
+                        file: fileName,
+                        moduleFiles: moduleFiles
+                    }
+                });
+            });
+            if(loadedModule.async)
+                await loadedModule.init(bot);
+            else
+                loadedModule.init(bot);
+            bot.logger.log(`Loaded module ${loadedModule.name}`);
         }catch(e){
             //Spit the error out and continue loading modules.
             //Modules that depend on the failed module's functions will probably also fail too.

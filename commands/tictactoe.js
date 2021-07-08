@@ -4,7 +4,7 @@ const O = "⭕";
 const buttonStyle = 2;
 module.exports = {
     name: "Tic Tac Toe",
-    usage: "tictactoe start <@player>/<grid position>",
+    usage: "tictactoe :@user",
     accessLevel: 0,
     commands: ["tictactoe", "noughtsandcrosses", "ttt"],
     categories: ["games", "fun"],
@@ -58,33 +58,31 @@ module.exports = {
 
             // Send the message
             const channel = await bot.client.channels.fetch(interaction.message.channel_id);
-            let api = new Discord.APIMessage(channel, {});
+            let api = new Discord.MessagePayload(channel, {});
             api.data = {content, components: interaction.message.components};
             let message = await channel.messages.fetch(interaction.message.id);
             message.edit(api);
             return {type: 6};
         })
     },
-    run: function run(message, args, bot){
-        if(message.mentions?.users?.size == 0)
-            return message.channel.send(`You need to @ a user to play tic tac toe with. e.g **${args[0]} ${message.author}**`);
-        const opponent = message.mentions.users.first();
-        if(opponent.bot)return message.channel.send(`You can't play tic tac toe against a bot.`);
+    run: function run(context){
+        const opponent = context.channel.members.get(context.options.user)
+        if(opponent.bot)return context.send({content: `You can't play tic tac toe against a bot.`, ephemeral: true});
         const row = (r)=>[
-            {type: 2, style: buttonStyle, label: " ", custom_id: `#${message.author.id}|${opponent.id}|${r+0}|${X}`},
-            {type: 2, style: buttonStyle, label: " ", custom_id: `#${message.author.id}|${opponent.id}|${r+1}|${X}`},
-            {type: 2, style: buttonStyle, label: " ", custom_id: `#${message.author.id}|${opponent.id}|${r+2}|${X}`}
+            {type: 2, style: buttonStyle, label: " ", custom_id: `#${context.user.id}|${opponent.id}|${r+0}|${X}`},
+            {type: 2, style: buttonStyle, label: " ", custom_id: `#${context.user.id}|${opponent.id}|${r+1}|${X}`},
+            {type: 2, style: buttonStyle, label: " ", custom_id: `#${context.user.id}|${opponent.id}|${r+2}|${X}`}
         ];
-        let api = new Discord.APIMessage(message.channel, {});
+        let api = new Discord.MessagePayload(context.channel, {});
         api.data = {
-            content: `${X}: ${message.author}\n${O}: ${opponent}\nCurrent Turn: ${O}`,
+            content: `${X}: ${context.user}\n${O}: ${opponent}\nCurrent Turn: ${O}`,
             components: [
                 {type: 1, components: row(0)},
                 {type: 1, components: row(3)},
                 {type: 1, components: row(6),}
             ]
         }
-        return message.channel.send(api);
+        return context.send(api);
     },
 };
 

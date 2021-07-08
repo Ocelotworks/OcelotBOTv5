@@ -1,20 +1,22 @@
+const Image = require('../util/Image');
+const Util = require("../util/Util");
 module.exports = {
     name: "Image Macro",
-    usage: "macro [image] <top text> / <bottom text>",
+    usage: "macro :image? :text?+",
     rateLimit: 10,
     detailedHelp: "Make an image macro meme like it's 2011 again",
     usageExample: "macro we live in a society / bottom text",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["imagemacro", "macro"],
     categories: ["image", "memes"],
-    run: async function (message, args, bot) {
-        if (!args[1]) {
-            return message.channel.send(`Enter up to two things like: **${args[0]} top text** or **${args[0]} top text / bottom text**`)
-        }
-        const url = await bot.util.getImage(message, args);
+    run: async function (context, bot) {
+        const url = await Util.GetImage(bot, context);
         if (!url)
-            return message.replyLang("CRUSH_NO_USER");
-        const fullText = message.cleanContent.substring(args[0].length).replace(url, "").toUpperCase();
+            return context.sendLang({content: "CRUSH_NO_USER", ephemeral: true});
+        let fullText = (`${context.options.image || ""} ${context.options.text || ""}`).replace(url, "");
+        if(url.startsWith("https://cdn.discord") && context.message.mentions.users.size > 0){
+            fullText = fullText.replace(new RegExp(`<@!?(${context.message.mentions.users.firstKey()})>`), "")
+        }
         let first = fullText;
         let second = "";
         if(fullText.indexOf("/") > -1){
@@ -22,7 +24,7 @@ module.exports = {
             first = split[0].trim();
             second = split[1].trim();
         }
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
                     "url": url,

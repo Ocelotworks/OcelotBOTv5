@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const Sentry = require('@sentry/node');
+const Util = require("../util/Util");
 const presenceMessages = [
     {message: "!help", type: 'LISTENING'},
     {message: "!profile", type: 'LISTENING'},
@@ -47,6 +48,28 @@ module.exports = {
         Discord.Message.prototype.replyLang = async function (message, values) {
             return this.channel.send(this.getLang(message, values));
         };
+
+        Discord.CommandInteraction.prototype.getLang = function(message, values){
+            return bot.lang.getTranslation(this.guild?.id || "global", message, values, this.user.id);
+        }
+
+
+        Discord.CommandInteraction.prototype.replyLang = function(message, values){
+            if(typeof message === "string") {
+                return this.reply({ephemeral: values?.ephemeral, content: this.getLang(message, values)});
+            }
+            if(message.content)
+                message.content = this.getLang(message.content, values);
+            return this.reply(message);
+        }
+
+        Discord.CommandInteraction.prototype.followUpLang = function(message, values){
+            if(typeof message === "string")
+                return this.followUp({ephemeral: values?.ephemeral, content: this.getLang(message, values)});
+            if(message.content)
+                message.content = this.getLang(message.content, values);
+            return this.followUp(message);
+        }
 
         Discord.TextChannel.prototype.sendLang = async function (message, values) {
             if(this.getLang)
@@ -115,16 +138,31 @@ module.exports = {
         //bot.presenceMessage = null;
 
         const clientOpts = {
-            allowedMentions: {parse: ["users"]},
+            allowedMentions: {
+                parse: ["users"],
+                repliedUser: true,
+            },
             messageCacheLifetime: 3600,
             messageSweepInterval: 3600,
-            messageEditHistoryMaxSize: 2,
+            invalidRequestWarningInterval: 500,
+            retryLimit: 3,
             presence: {
                 activity: {
                     name: "Windows XP Startup Tune",
                     type: "LISTENING",
                 }
-            }
+            },
+            partials: ["CHANNEL"],
+            intents: [
+                // "GUILD_PRESENCES", // Spooking
+                "GUILDS",
+                "GUILD_MESSAGES",
+                "GUILD_MEMBERS", // Join/leave messages
+                "GUILD_VOICE_STATES", // Needed for voice commands
+                "GUILD_MESSAGE_REACTIONS", // Non-button reaction events
+                "DIRECT_MESSAGES",
+                "DIRECT_MESSAGE_REACTIONS" // Non-button reaction events e.g trivia, poll
+            ]
         };
 
         if (process.env.GATEWAY) {
@@ -135,6 +173,7 @@ module.exports = {
         }
 
         bot.client = new Discord.Client(clientOpts);
+
         bot.client.bot = bot; //:hornywaste:
         bot.client.setMaxListeners(100);
         bot.lastPresenceUpdate = 0;
@@ -142,13 +181,13 @@ module.exports = {
             const now = new Date();
             if (now - bot.lastPresenceUpdate > 100000) {
                 bot.lastPresenceUpdate = now;
-                const serverCount = await bot.util.getServerCount();
+                const serverCount = await Util.GetServerCount(bot);
                 let randPresence = bot.util.arrayRand(presenceMessages);
                 await bot.client.user.setPresence({
-                    activity: {
+                    activities: [{
                         name: `${bot.presenceMessage ? bot.presenceMessage : randPresence.message} | ${serverCount.toLocaleString()} servers.`,
-                        type: randPresence.type
-                    }
+                        type: randPresence.type,
+                    }]
                 });
             } else {
                 bot.logger.log("Not updating presence as last update was too recent.");
@@ -239,7 +278,7 @@ module.exports = {
                             embed.addField("Administrators", `You can change the bot's settings by typing **${guild.getSetting("prefix")}settings help**`);
                             embed.addField("Stuck?", "If you have issues or suggestions, type **!feedback** or join our [support server](https://discord.gg/7YNHpfF).");
                             embed.addField("Support", "You can support the bot by [voting](https://top.gg/bot/146293573422284800) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
-                            mainChannel.send("", embed);
+                            mainChannel.send({embeds: [embed]});
                         }
                     }
 
@@ -393,7 +432,7 @@ module.exports = {
             let data;
             if (message.payload.name === "channels") {
                 let guild = message.payload.data.server;
-                if (bot.client.guilds.cache.has(guild)) {ocelotbot_ai_conversations
+                if (bot.client.guilds.cache.has(guild)) {
                     let guildObj = bot.client.guilds.cache.get(guild);
                     let channels = guildObj.channels.cache.map(function (channel) {
                         return {name: channel.name, id: channel.id, type: channel.type}

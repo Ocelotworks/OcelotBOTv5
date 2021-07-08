@@ -7,7 +7,7 @@ module.exports = {
     nsfw: true,
     commands: ["sexydice", "sexdice", "lovedice"],
     categories: ["nsfw", "fun"],
-    run: function run(message, args, bot){
-        message.channel.send(`:game_die: \`${bot.util.arrayRand(dice1)}\` :game_die: \`${bot.util.arrayRand(dice2)}\``);
+    run: function run(context, bot) {
+        return context.send(`:game_die: \`${bot.util.arrayRand(dice1)}\` :game_die: \`${bot.util.arrayRand(dice2)}\``);
     }
 };

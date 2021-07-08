@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const dateFormat = require('dateformat');
-
+const Image = require('../util/Image');
 
 //Something tells me theres better ways to do this, but I'm doing it this way
 const PROFILE_WIDTH     = 1024;
@@ -55,15 +55,13 @@ const STATS_PADDING     = 5;
 
 module.exports = {
     name: "User Profile",
-    usage: "profile help",
+    usage: "profile :@user?",
     categories: ["image"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["profile", "userprofile"],
+    nestedDir: "profile",
     init: async function(bot){
-
-        bot.util.standardNestedCommandInit("profile");
-
         bot.badges = {};
         bot.badges.giveBadge = async function(user, channel, id){
             let span = bot.util.startSpan("Give badge");
@@ -75,7 +73,7 @@ module.exports = {
                 embed.setTitle(`You just earned ${badge.name}`);
                 embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
                 embed.setColor("#3ba13b");
-                channel.send(user, embed);
+                channel.send(user, {embeds: [embed]});
             }
             span.end();
         };
@@ -102,7 +100,7 @@ module.exports = {
             embed.setTitle(`You just earned ${badge.name}`);
             embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
             embed.setColor("#3ba13b");
-            await channel.send(output, embed);
+            await channel.send(output, {embeds: [embed]});
         };
 
         bot.badges.updateBadge = async function updateBadge(user, series, value, channel){
@@ -121,7 +119,7 @@ module.exports = {
                     embed.setTitle(`You just earned ${eligibleBadge.name}`);
                     embed.setDescription(`${eligibleBadge.desc}\nNow available on your **${channel.guild ? channel.guild.getSetting("prefix") : bot.config.get("global", "prefix")}profile**`);
                     embed.setColor("#3ba13b");
-                    channel.send(`<@${userID}>`, embed);
+                    channel.send(`<@${userID}>`, {embeds: [embed]});
                 }else{
                     bot.logger.log("No channel was given for sending the award message.");
                 }
@@ -139,269 +137,265 @@ module.exports = {
             await bot.badges.updateBadge(user, 'servers', servers);
         };
     },
-    run: async function(message, args, bot){
-        if(args.length === 1 || message.mentions.users && message.mentions.users.size > 0){
-            const target = message.mentions.users.size > 0 ? message.mentions.users.first() : message.author;
-            message.channel.startTyping();
+    run: async function(context, bot){
+        const target = context.options.user ? context.channel.members.get(context.options.user).user : context.user;
+        context.defer();
 
-            let imageRequest = {
-                components: [],
-                width: PROFILE_WIDTH,
-                height: PROFILE_HEIGHT,
+        let imageRequest = {
+            components: [],
+            width: PROFILE_WIDTH,
+            height: PROFILE_HEIGHT,
+        };
+
+        let profileInfo = (await bot.database.getProfile(target.id))[0];
+        if (!profileInfo) {
+            bot.logger.log("Creating profile for " + target.id);
+            bot.database.createProfile(target.id).then(()=>bot.logger.log("Created profile"));
+            console.log("Created profile");
+            profileInfo = {
+                caption: "I should do\n!profile help",
+                background: 0,
+                frames: 2,
+                board: 3,
+                font: 33
             };
+        }
 
-            let profileInfo = (await bot.database.getProfile(target.id))[0];
-            if (!profileInfo) {
-                bot.logger.log("Creating profile for " + target.id);
-                bot.database.createProfile(target.id).then(()=>bot.logger.log("Created profile"));
-                console.log("Created profile");
-                profileInfo = {
-                    caption: "I should do\n!profile help",
-                    background: 0,
-                    frames: 2,
-                    board: 3,
-                    font: 33
-                };
+        const backgroundInfo  = (await bot.database.getProfileOption(profileInfo.background))[0];
+
+        // Profile Background
+        imageRequest.components.push({
+            url: `profile/new/backgrounds/${backgroundInfo.path}`,
+            local: true,
+            pos: {
+                x: 0,
+                y: 0,
+                w: PROFILE_WIDTH,
+                h: PROFILE_HEIGHT
             }
+        })
 
-            const backgroundInfo  = (await bot.database.getProfileOption(profileInfo.background))[0];
-
-            // Profile Background
-            imageRequest.components.push({
-                url: `profile/new/backgrounds/${backgroundInfo.path}`,
-                local: true,
-                pos: {
+        // Avatar
+        imageRequest.components.push({
+            url: target.avatarURL({dynamic: true, format: "png"}),
+            background: "#191919AA",
+            pos: {
+                x: AVATAR_OFFSET,
+                y: AVATAR_OFFSET,
+                w: AVATAR_SIZE,
+                h: AVATAR_SIZE
+            },
+            filter: [{
+                name: "rectangle",
+                args: {
                     x: 0,
                     y: 0,
-                    w: PROFILE_WIDTH,
-                    h: PROFILE_HEIGHT
-                }
-            })
-
-            // Avatar
-            imageRequest.components.push({
-                url: target.avatarURL({dynamic: true, format: "png"}),
-                background: "#191919AA",
-                pos: {
-                    x: AVATAR_OFFSET,
-                    y: AVATAR_OFFSET,
-                    w: AVATAR_SIZE,
-                    h: AVATAR_SIZE
+                    w: AVATAR_SIZE/2,
+                    h: AVATAR_SIZE/2,
+                    colour: "#000000",
+                    fill: false,
                 },
-                filter: [{
-                    name: "rectangle",
-                    args: {
-                        x: 0,
-                        y: 0,
-                        w: AVATAR_SIZE/2,
-                        h: AVATAR_SIZE/2,
-                        colour: "#000000",
-                        fill: false,
-                    },
-                }]
-            })
+            }]
+        })
 
 
-            // Username
-            imageRequest.components.push(bot.util.imageProcessorOutlinedText(target.tag, USERNAME_X, USERNAME_Y, PROFILE_WIDTH-USERNAME_X, USERNAME_SIZE, USERNAME_SIZE))
+        // Username
+        imageRequest.components.push(bot.util.imageProcessorOutlinedText(target.tag, USERNAME_X, USERNAME_Y, PROFILE_WIDTH-USERNAME_X, USERNAME_SIZE, USERNAME_SIZE))
 
-            // Tagline
-            imageRequest.components.push(bot.util.imageProcessorOutlinedText(profileInfo.caption, TAGLINE_X, TAGLINE_Y, PROFILE_WIDTH-TAGLINE_X, PROFILE_HEIGHT-BODY_X, TAGLINE_SIZE))
-
-
-            const [guildCounts, userStats, voteStats, guessStats, triviaStats, points] = await Promise.all([
-                bot.rabbit.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${target.id}')).size`),
-                bot.database.getUserStats(target.id),
-                bot.database.getVoteCount(target.id),
-                bot.database.getTotalCorrectGuesses(target.id),
-                bot.database.getTriviaCorrectCount(target.id),
-                bot.database.getPoints(target.id)
-            ]);
+        // Tagline
+        imageRequest.components.push(bot.util.imageProcessorOutlinedText(profileInfo.caption, TAGLINE_X, TAGLINE_Y, PROFILE_WIDTH-TAGLINE_X, PROFILE_HEIGHT-BODY_X, TAGLINE_SIZE))
 
 
-            const mutualGuilds = guildCounts.reduce((a,b)=>a+b, 0);
-
-            if(profileInfo.firstSeen)
-                await bot.badges.updateBadge(target, "year", parseInt((new Date()-profileInfo.firstSeen) / 3.154e+10));
-            await bot.updateServersBadge(target, mutualGuilds);
-
-            if(message.guild && bot.config.get(message.guild.id, "profile.complimentaryBadge", target.id))
-                await bot.badges.giveBadgeOnce(target, null, bot.config.get(target.id, "profile.complimentaryBadge", target.id));
-
-            let valuesContent = "";
-            let labelsContent = "";
-
-            function drawStat(stat, label){
-                if(typeof stat === "number")
-                    stat = stat.toLocaleString();
-                valuesContent += `${stat}\n`;
-                labelsContent += `${stat} ${label.toUpperCase()}\n`;
-            }
+        const [guildCounts, userStats, voteStats, guessStats, triviaStats, points] = await Promise.all([
+            bot.rabbit.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${target.id}')).size`),
+            bot.database.getUserStats(target.id),
+            bot.database.getVoteCount(target.id),
+            bot.database.getTotalCorrectGuesses(target.id),
+            bot.database.getTriviaCorrectCount(target.id),
+            bot.database.getPoints(target.id)
+        ]);
 
 
-            drawStat(mutualGuilds, "servers");
-            drawStat(userStats[0].commandCount.toLocaleString(), "commands");
-            drawStat(voteStats[0] && voteStats[0]['COUNT(*)'] ? voteStats[0]['COUNT(*)'] : 0, "votes");
-            drawStat(guessStats[0] && guessStats[0]['COUNT(*)'] ? guessStats[0]['COUNT(*)'] : 0, "songs guessed");
-            drawStat(triviaStats[0] && triviaStats[0]['count(*)'] ? triviaStats[0]['count(*)'] : 0, "trivia correct");
-            drawStat(dateFormat(profileInfo.firstSeen, "dd/mm/yy"), "first command");
-            if(message.getBool("points.enabled"))
-                drawStat("1 "+points.toLocaleString(), "points");
+        const mutualGuilds = guildCounts.reduce((a,b)=>a+b, 0);
 
-            imageRequest.components.push({
-                pos: {
-                    x: BODY_X,
-                    y: BODY_Y,
+        if(profileInfo.firstSeen)
+            await bot.badges.updateBadge(target, "year", parseInt((new Date()-profileInfo.firstSeen) / 3.154e+10));
+        await bot.updateServersBadge(target, mutualGuilds);
+
+        if(context.guild && bot.config.get(context.guild.id, "profile.complimentaryBadge", target.id))
+            await bot.badges.giveBadgeOnce(target, null, bot.config.get(target.id, "profile.complimentaryBadge", target.id));
+
+        let valuesContent = "";
+        let labelsContent = "";
+
+        function drawStat(stat, label){
+            if(typeof stat === "number")
+                stat = stat.toLocaleString();
+            valuesContent += `${stat}\n`;
+            labelsContent += `${stat} ${label.toUpperCase()}\n`;
+        }
+
+
+        drawStat(mutualGuilds, "servers");
+        drawStat(userStats[0].commandCount.toLocaleString(), "commands");
+        drawStat(voteStats[0] && voteStats[0]['COUNT(*)'] ? voteStats[0]['COUNT(*)'] : 0, "votes");
+        drawStat(guessStats[0] && guessStats[0]['COUNT(*)'] ? guessStats[0]['COUNT(*)'] : 0, "songs guessed");
+        drawStat(triviaStats[0] && triviaStats[0]['count(*)'] ? triviaStats[0]['count(*)'] : 0, "trivia correct");
+        drawStat(dateFormat(profileInfo.firstSeen, "dd/mm/yy"), "first command");
+        if(context.getBool("points.enabled"))
+            drawStat("1 "+points.toLocaleString(), "points");
+
+        imageRequest.components.push({
+            pos: {
+                x: BODY_X,
+                y: BODY_Y,
+                w: BODY_WIDTH,
+                h: BODY_HEIGHT,
+            },
+            filter: [{
+                name: "rectangle",
+                args: {
+                    x: 0,
+                    y: 0,
                     w: BODY_WIDTH,
                     h: BODY_HEIGHT,
+                    colour: "#ffffff55"
                 },
-                filter: [{
-                    name: "rectangle",
-                    args: {
-                        x: 0,
-                        y: 0,
-                        w: BODY_WIDTH,
-                        h: BODY_HEIGHT,
-                        colour: "#ffffff55"
-                    },
+            },
+            {
+                name: "rectangle",
+                args: {
+                    x: (BODY_WIDTH/2)-1,
+                    y: 0,
+                    w: 2,
+                    h: BODY_HEIGHT,
+                    colour: "#00000055"
+                }
+            },
+            {
+                name: "text",
+                args: {
+                    x: BODY_WIDTH/2 + BODY_PADDING,
+                    y: BODY_PADDING,
+                    w: BODY_WIDTH/2,
+                    ax: 0,
+                    ay: 0,
+                    spacing: 1.5,
+                    align: 0,
+                    font: "BITDUST1.TTF",
+                    content: labelsContent,
+                    fontSize: 30,
+                    colour: "#000000"
+                }
+            },
+            {
+                name: "text",
+                args: {
+                    x: BODY_WIDTH/2 + BODY_PADDING,
+                    y: BODY_PADDING,
+                    w: BODY_WIDTH/2,
+                    ax: 0,
+                    ay: 0,
+                    spacing: 1.5,
+                    align: 0,
+                    font: "BITDUST1.TTF",
+                    content: valuesContent,
+                    fontSize: 30,
+                    colour: "#03f783"
+                }
+            }]
+        })
+
+        if(context.getBool("points.enabled"))
+            imageRequest.components.push({
+                pos: {
+                    x: BODY_X + (BODY_WIDTH/2) + 3,
+                    y: BODY_Y + (35)*6,
+                    w: 32,
+                    h: 32,
                 },
-                {
-                    name: "rectangle",
-                    args: {
-                        x: (BODY_WIDTH/2)-1,
-                        y: 0,
-                        w: 2,
-                        h: BODY_HEIGHT,
-                        colour: "#00000055"
-                    }
-                },
-                {
-                    name: "text",
-                    args: {
-                        x: BODY_WIDTH/2 + BODY_PADDING,
-                        y: BODY_PADDING,
-                        w: BODY_WIDTH/2,
-                        ax: 0,
-                        ay: 0,
-                        spacing: 1.5,
-                        align: 0,
-                        font: "BITDUST1.TTF",
-                        content: labelsContent,
-                        fontSize: 30,
-                        colour: "#000000"
-                    }
-                },
-                {
-                    name: "text",
-                    args: {
-                        x: BODY_WIDTH/2 + BODY_PADDING,
-                        y: BODY_PADDING,
-                        w: BODY_WIDTH/2,
-                        ax: 0,
-                        ay: 0,
-                        spacing: 1.5,
-                        align: 0,
-                        font: "BITDUST1.TTF",
-                        content: valuesContent,
-                        fontSize: 30,
-                        colour: "#03f783"
-                    }
-                }]
+                url: "coin.png",
+                local: true,
             })
 
-            if(message.getBool("points.enabled"))
+        const badges = await bot.database.getProfileBadges(target.id);
+        for(let i = 0; i < badges.length; i++){
+            const badge = badges[i];
+            if(i === 0 || badges.length <= 4){
+                const y = FEAT_BADGE_Y + (FEAT_BADGE_HEIGHT * i) + (5 * i);
                 imageRequest.components.push({
                     pos: {
-                        x: BODY_X + (BODY_WIDTH/2) + 3,
-                        y: BODY_Y + (35)*6,
-                        w: 32,
-                        h: 32,
+                        x: FEAT_BADGE_X,
+                        y,
+                        w: FEAT_BADGE_WIDTH,
+                        h: FEAT_BADGE_HEIGHT,
                     },
-                    url: "coin.png",
-                    local: true,
-                })
-
-            const badges = await bot.database.getProfileBadges(target.id);
-            for(let i = 0; i < badges.length; i++){
-                const badge = badges[i];
-                if(i === 0 || badges.length <= 4){
-                    const y = FEAT_BADGE_Y + (FEAT_BADGE_HEIGHT * i) + (5 * i);
-                    imageRequest.components.push({
-                        pos: {
-                            x: FEAT_BADGE_X,
-                            y,
+                    filter: [{
+                        name: "rectangle",
+                        args: {
+                            x: 0,
+                            y: 0,
                             w: FEAT_BADGE_WIDTH,
                             h: FEAT_BADGE_HEIGHT,
-                        },
-                        filter: [{
-                            name: "rectangle",
-                            args: {
-                                x: 0,
-                                y: 0,
-                                w: FEAT_BADGE_WIDTH,
-                                h: FEAT_BADGE_HEIGHT,
-                                colour: "#ffffff55"
-                            }
-                        },{
-                            name: "text",
-                            args: {
-                                x: FEAT_BADGE_SIZE+FEAT_BADGE_PADDING*2,
-                                y: FEAT_BADGE_PADDING,
-                                w: FEAT_BADGE_WIDTH,
-                                ax: 0,
-                                ay: 0,
-                                spacing: 1.5,
-                                align: 0,
-                                font: "arial.ttf",
-                                content: badge.name,
-                                fontSize: FEAT_BADGE_TEXT,
-                                colour: "#000000"
-                            }
-                        },{
-                            name: "text",
-                            args: {
-                                x: FEAT_BADGE_SIZE+(FEAT_BADGE_PADDING*2) + 5,
-                                y: FEAT_BADGE_TEXT + FEAT_BADGE_PADDING + 5 ,
-                                w: FEAT_BADGE_WIDTH,
-                                ax: 0,
-                                ay: 0,
-                                spacing: 1.5,
-                                align: 0,
-                                font: "arial.ttf",
-                                content: badge.desc,
-                                fontSize: FEAT_BADGE_CAPTION,
-                                colour: "#000000"
-                            }
-                        }]
-                    }, {
-                        url: `profile/new/badges/${badge.image}`,
-                        local: true,
-                        pos: {
-                            x:  FEAT_BADGE_X + FEAT_BADGE_PADDING,
-                            y: y + FEAT_BADGE_PADDING,
-                            w: FEAT_BADGE_SIZE,
-                            h: FEAT_BADGE_SIZE,
+                            colour: "#ffffff55"
                         }
-                    })
-                }else{
-                    imageRequest.components.push({
-                        url: `profile/new/badges/${badge.image}`,
-                        local: true,
-                        pos: {
-                            x: REG_BADGE_X + 1 + ((REG_BADGE_PADDING + REG_BADGE_SIZE) * ((i-1) % REG_BADGE_ROW_NUM)),
-                            y: REG_BADGE_Y + ((REG_BADGE_PADDING + REG_BADGE_SIZE) * Math.floor((i-1) / REG_BADGE_ROW_NUM)),
-                            w: REG_BADGE_SIZE,
-                            h: REG_BADGE_SIZE,
+                    },{
+                        name: "text",
+                        args: {
+                            x: FEAT_BADGE_SIZE+FEAT_BADGE_PADDING*2,
+                            y: FEAT_BADGE_PADDING,
+                            w: FEAT_BADGE_WIDTH,
+                            ax: 0,
+                            ay: 0,
+                            spacing: 1.5,
+                            align: 0,
+                            font: "arial.ttf",
+                            content: badge.name,
+                            fontSize: FEAT_BADGE_TEXT,
+                            colour: "#000000"
                         }
-                    })
-                }
+                    },{
+                        name: "text",
+                        args: {
+                            x: FEAT_BADGE_SIZE+(FEAT_BADGE_PADDING*2) + 5,
+                            y: FEAT_BADGE_TEXT + FEAT_BADGE_PADDING + 5 ,
+                            w: FEAT_BADGE_WIDTH,
+                            ax: 0,
+                            ay: 0,
+                            spacing: 1.5,
+                            align: 0,
+                            font: "arial.ttf",
+                            content: badge.desc,
+                            fontSize: FEAT_BADGE_CAPTION,
+                            colour: "#000000"
+                        }
+                    }]
+                }, {
+                    url: `profile/new/badges/${badge.image}`,
+                    local: true,
+                    pos: {
+                        x:  FEAT_BADGE_X + FEAT_BADGE_PADDING,
+                        y: y + FEAT_BADGE_PADDING,
+                        w: FEAT_BADGE_SIZE,
+                        h: FEAT_BADGE_SIZE,
+                    }
+                })
+            }else{
+                imageRequest.components.push({
+                    url: `profile/new/badges/${badge.image}`,
+                    local: true,
+                    pos: {
+                        x: REG_BADGE_X + 1 + ((REG_BADGE_PADDING + REG_BADGE_SIZE) * ((i-1) % REG_BADGE_ROW_NUM)),
+                        y: REG_BADGE_Y + ((REG_BADGE_PADDING + REG_BADGE_SIZE) * Math.floor((i-1) / REG_BADGE_ROW_NUM)),
+                        w: REG_BADGE_SIZE,
+                        h: REG_BADGE_SIZE,
+                    }
+                })
             }
-
-            message.channel.stopTyping();
-            return bot.util.imageProcessor(message, imageRequest, "profile");
-        }else{
-            await bot.util.standardNestedCommand(message,args,bot,'profile');
         }
+
+        return Image.ImageProcessor(bot, context,  imageRequest, "profile");
+
     }
 
 };

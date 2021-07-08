@@ -12,23 +12,19 @@
  */
 const Discord = require('discord.js');
 const canvas = require('canvas');
+const Util = require("../util/Util");
 module.exports = {
     name: "Tile Images",
-    usage: "tile <image1> <image2>",
+    usage: "tile :image1? :image2?",
     categories: ["image", "tools"],
     rateLimit: 100,
     commands: ["tile"],
-    run: async function run(message, args, bot) {
-        let url1 = await bot.util.getImage(message, args, 1);
-        let url2 = await bot.util.getImage(message, args, 2);
+    slashHidden: true,
+    run: async function run(context, bot) {
+        const url1 = await Util.GetImage(bot, context, "image1", 0);
+        const url2 = await Util.GetImage(bot, context, "image2", 1);
         if (!url1 || !url2)
-            return message.channel.send("You must enter 2 images.");
-
-        if (!args[2]) {
-            const tempUrl1 = url1;
-            url1 = url2;
-            url2 = tempUrl1;
-        }
+            return context.send("You must enter 2 images.");
 
         const image1 = await canvas.loadImage(url1);
         const image2 = await canvas.loadImage(url2);
@@ -40,6 +36,6 @@ module.exports = {
         ctx.drawImage(image2, image1.width, 0, image2.width, image1.height);
 
 
-        message.channel.send("", new Discord.MessageAttachment(cnv.toBuffer("image/png"), "tile.png"));
+        return context.send({files: [new Discord.MessageAttachment(cnv.toBuffer("image/png"), "tile.png")]});
     },
 };

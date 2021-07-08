@@ -4,10 +4,5 @@ module.exports = {
     categories: ["meta"],
     detailedHelp: "Manage what data OcelotBOT has on you",
     commands: ["privacy", "mydata", "gdpr"],
-    init: function init(bot){
-        bot.util.standardNestedCommandInit("privacy");
-    },
-    run: async function(message, args, bot){
-        await bot.util.standardNestedCommand(message, args, bot, "privacy")
-    }
+    nestedDir: "privacy",
 };

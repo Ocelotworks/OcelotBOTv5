@@ -4,7 +4,7 @@ module.exports = {
     usage: "pve",
     commands: ["proxmox", "pve"],
     noCustom: true,
-    run: async function (message, args, bot) {
+    run: async function (context, bot) {
         try {
             let result = await bot.util.getJson("https://ob.bint.cc/api/pve/nodes");
             console.log(result);
@@ -16,12 +16,12 @@ module.exports = {
                     output += columnify(result.success[keys[i]]);
                     output += "\n\`\`\`\n"
                 }
-                message.channel.send(output)
+                context.send(output)
             } else {
-                message.channel.send("Error: " + result.error);
+                context.send("Error: " + result.error);
             }
         } catch (e) {
-            message.channel.send("JSON Parse Error: " + e);
+            context.send("JSON Parse Error: " + e);
         }
     }
 };

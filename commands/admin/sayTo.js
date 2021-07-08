@@ -1,13 +1,14 @@
 module.exports = {
     name: "Say To",
-    usage: "say channel <message>",
+    usage: "say :channel :message+",
     commands: ["sayto"],
-    run: async function (message, args, bot) {
-        const content = message.content.substring(args[0].length + args[1].length + args[2].length + 3);
-        const target = await bot.client.channels.fetch(args[2]);
+    run: async function (context, bot) {
+        const content = context.options.message
+        const target = await bot.client.channels.fetch(context.options.channel);
         if (target) {
             await target.send(content);
+            return context.send("Sent");
         }
-        message.channel.send("Sent");
+        return context.send("Could not find target.");
     }
 };

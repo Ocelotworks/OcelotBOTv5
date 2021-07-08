@@ -1,17 +1,14 @@
+const Image = require("../util/Image");
 module.exports = {
     name: "Bernie Meme",
-    usage: "bernie <text>",
+    usage: "bernie :input+",
     rateLimit: 10,
     usageExample: "bernie I am not related to colonel sanders",
     categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bernie", "sanders"],
-    run: function (message, args, bot) {
-        if (!args[1]) {
-            message.replyLang("IMAGE_NO_TEXT");
-            return;
-        }
-        return bot.util.imageProcessor(message, {
+    run: function (context, bot) {
+        return Image.ImageProcessor(bot, context, {
             "components": [
                 {
                     "pos": {"x": 290, "y": 86, "w": 360, "h": 290},
@@ -23,7 +20,7 @@ module.exports = {
                             font: "arial.ttf",
                             fontSize: 40,
                             colour: "#000000",
-                            content: message.cleanContent.substring(args[0].length),
+                            content: context.options.input,
                             x: 20,
                             y: 20,
                             ax: 0,
@@ -44,6 +41,6 @@ module.exports = {
             ],
             "width": 764,
             "height": 500
-        }, "bernie")
-    }
+        }, "bernie");
+    },
 };

@@ -4,14 +4,12 @@
  * ╚════ ║   (ocelotbotv5) giveBadge
  *  ════╝
  */
-const Discord = require('discord.js');
 module.exports = {
     name: "Give Badge",
-    usage: "giveBadge <user> <id>",
+    usage: "giveBadge :@user :0id",
     commands: ["givebadge"],
-    run: async function (message, args, bot) {
-        let id = args[3];
-        let user = message.mentions.users.first();
-        bot.badges.giveBadge(user, message.channel, id);
+    run: async function (context, bot) {
+        let user = await bot.client.users.fetch(context.options.id);
+        bot.badges.giveBadge(user, context.channel, context.options.id);
     }
 };

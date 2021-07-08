@@ -29,9 +29,9 @@ module.exports = {
             })
         }
     },
-    run: async function run(message, args, bot) {
-        let referralCode = await bot.database.generateReferralCode(message.id, message.guild ? message.guild.id : "dm", message.author.id);
-        message.replyLang("INVITE", {
+    run: async function run(context, bot) {
+        let referralCode = await bot.database.generateReferralCode(context.message?.id || context.interaction.id, context.guild?.id || "dm", context.user.id);
+        context.sendLang("INVITE", {
             code: encodeURIComponent(referralCode)
         });
     }

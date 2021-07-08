@@ -6,24 +6,13 @@
  */
 
 const Discord = require('discord.js');
-const axios = require('axios');
+const {axios} = require('../util/Http');
 const config = require('config');
 const Sentry = require('@sentry/node');
 const cheerio = require('cheerio');
 // Start a random position in the playlist on startup, mostly for my sanity during testing
 let counter = Math.round(Math.random()*1000);
-let runningGames = {"":{
-    voiceChannel: {},
-    textChannel: {},
-    currentTrack: {},
-    currentTrackStarted: new Date(),
-    playlistId: '',
-    lastGuessTime: 0,
-    custom: false,
-    collector: {},
-    ending: false,
-    failures: 0,
-}};
+
 
 
 const llErrors = {
@@ -35,79 +24,66 @@ const spotifyPlaylist = /.*\/open\.spotify\.com\/playlist\/(.+?)([\/?#]|$)/gi
 
 module.exports = {
     name: "Guess The Song",
-    usage: "guess [stop/stats/leaderboard]",
+    usage: "guess",
     rateLimit: 25,
     categories: ["games", "voice"],
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["guess", "guesssong", "songguess", "namethattune", "quess", "gues"],
-    init: async function init(bot){
-        bot.util.standardNestedCommandInit("guess");
-    },
-    run:  async function run(message, args, bot) {
-        if (!message.guild) {
-            return message.replyLang("GENERIC_DM_CHANNEL");
-        }
-
+    guildOnly: true,
+    slashHidden: true,
+    nestedDir: "guess",
+    runningGames: {},
+    run:  async function run(context, bot) {
         let playlists = null;
-        let playlist = null;
+        let playlist;
         let isCustom = false;
-        if (args[1] && (playlists = await bot.database.getGuessPlaylist(message.guild.id, args[1].toLowerCase())) == null) {
-            let regexResult = spotifyPlaylist.exec(args[1]);
+        if (context.options.command && (playlists = await bot.database.getGuessPlaylist(context.guild.id, context.options.command.toLowerCase())) == null) {
+            let regexResult = spotifyPlaylist.exec(context.options.command);
             if(regexResult && regexResult[1]){
                 isCustom = true;
                 playlists = regexResult[1]
-            }else{
-                return bot.util.standardNestedCommand(message, args, bot, 'guess', runningGames, () => {
-                    if (message.member && message.member.voice.channel && runningGames[message.guild.id]) {
-                        message.channel.send(`To guess the name of the song, just type the answer with no command. To stop, type ${args[0]} stop. To see other commands, type ${args[0]} help`)
-                    } else {
-                        message.channel.send(`To start a game, just type ${args[0]}. To see other commands, type ${args[0]} help`)
-                    }
-                });
             }
         }
 
         if(playlists === null) {
-            const playlistId = message.getSetting("songguess.default");
+            const playlistId = context.getSetting("songguess.default");
             bot.logger.log(`Using playlist ID: ${playlistId}`);
-            playlists = await bot.database.getGuessPlaylist(message.guild.id, playlistId);
+            playlists = await bot.database.getGuessPlaylist(context.guild.id, playlistId);
         }
 
         playlist = bot.util.arrayRand(playlists.split(","));
         bot.logger.log(`Using spotify playlist: ${playlist}`);
 
-        if (!bot.lavaqueue)return message.replyLang("SONGGUESS_UNAVAILABLE");
-        if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
-        if (!message.member.voice || !message.member.voice.channel) return message.replyLang("VOICE_NO_CHANNEL");
-        if (message.member.voice.channel.full) return message.replyLang("VOICE_FULL_CHANNEL");
-        if (!message.member.voice.channel.joinable) return message.replyLang("VOICE_UNJOINABLE_CHANNEL");
-        if (!message.member.voice.channel.speakable) return message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
-        if (message.guild.voiceConnection && !bot.voiceLeaveTimeouts[message.member.voice.channel.id] && message.getSetting("songguess.disallowReguess"))return message.replyLang("SONGGUESS_OCCUPIED");
-        if (await bot.database.hasActiveSession(message.guild.id)) return message.replyLang("SONGGUESS_MUSIC");
+        if (bot.util.checkVoiceChannel(context.message)) return;
+        if (context.guild.voiceConnection && !bot.voiceLeaveTimeouts[context.member.voice.channel.id] && context.getSetting("songguess.disallowReguess"))return context.sendLang("SONGGUESS_OCCUPIED");
 
-        if (runningGames[message.guild.id]) {
-            if(playlist != runningGames[message.guild.id].playlistId){
-                runningGames[message.guild.id].playlistId = playlist;
-                let playlistName = args[1];
-                if(!args[1])
-                    playlistName = message.getSetting("songguess.default");
-                else if(args[1].startsWith("http"))
-                    playlistName = "<"+args[1]+">";
-                return message.channel.send(`Switched the playlist to **${playlistName}**\nThe next song will be from this playlist, or to start now type **${args[0]} skip**`);
+
+
+        if (module.exports.runningGames[context.guild.id]) {
+            if(playlist != module.exports.runningGames[context.guild.id].playlistId){
+                module.exports.runningGames[context.guild.id].playlistId = playlist;
+                let playlistName = context.options.command;
+                if(!context.options.command)
+                    playlistName = context.getSetting("songguess.default");
+                else if(context.options.command.startsWith("http"))
+                    playlistName = "<"+context.options.command+">";
+                return context.send(`Switched the playlist to **${playlistName}**\nThe next song will be from this playlist, or to start now type **${context.command} skip**`);
             }
-            return message.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: runningGames[message.guild.id].voiceChannel.name})
+            return context.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: module.exports.runningGames[context.guild.id].voiceChannel.name})
         }
 
 
-        return startGame(bot, message, playlist, isCustom);
+        return startGame(bot, context, playlist, isCustom);
     }
 
 };
 
 async function endGame(bot, id){
     bot.logger.log("Ending game ", id)
-    const game = runningGames[id];
-    if(!game || game.ending)return;
+    const game = module.exports.runningGames[id];
+    if(!game)return;
+    await bot.lavaqueue.manager.leave(game.voiceChannel.guild.id);
+    if(game.ending) return;
     game.ending = true;
     if(game.timeout){
         clearTimeout(game.timeout);
@@ -125,43 +101,48 @@ async function endGame(bot, id){
     if(game.player) {
         await game.player.stop();
     }
-    await bot.lavaqueue.manager.leave(game.voiceChannel.guild.id);
-    delete runningGames[id];
+
+    delete module.exports.runningGames[id];
 }
 
-async function startGame(bot, message, playlistId, custom){
-    message.channel.startTyping();
-    const vcId = message.member.voice.channel.id;
+async function startGame(bot, context, playlistId, custom){
+    context.defer();
+    const vcId = context.member.voice.channel.id;
     const player = await bot.lavaqueue.manager.join({
-        guild: message.guild.id,
+        guild: context.guild.id,
         channel: vcId,
         node: bot.util.arrayRand(bot.lavaqueue.manager.idealNodes).id,
     }, {selfdeaf: true})
 
-    runningGames[message.guild.id] = {
-        voiceChannel: message.member.voice.channel,
-        textChannel: message.channel,
+    if(context.member.voice.channel.type === "stage"){
+        context.send(":warning: You need to promote me to speaker in order to listen!");
+    }
+
+    module.exports.runningGames[context.guild.id] = {
+        voiceChannel: context.member.voice.channel,
+        textChannel: context.channel,
         playlistId,
         player,
         custom,
         failures: 0,
-        end: ()=>endGame(bot, message.guild.id),
+        end: ()=>endGame(bot, context.guild.id),
     }
     player.on("error", (e)=>{
         console.error(e);
+
         if(llErrors[e.type])
-            message.channel.send(llErrors[e.type])
+            context.send(llErrors[e.type])
         else{
             Sentry.captureException(e)
-            message.channel.send("An unknown error happened. If you see Big P, tell him this: "+e.type);
+            context.send("An unknown error happened. If you see Big P, tell him this: "+e.type);
         }
-        endGame(bot, message.guild.id);
+        endGame(bot, context.guild.id);
     });
-    await newGuess(bot, message.member.voice.channel);
+    await newGuess(bot, context.member.voice.channel);
 }
 
 async function newGuess(bot, voiceChannel, retrying = false){
-    const game = runningGames[voiceChannel.guild.id];
+    const game = module.exports.runningGames[voiceChannel.guild.id];
     if(!game)return; // Game has disappeared somehow
     const playlistLength = await getPlaylistLength(bot, game.playlistId);
     const index = counter++ % playlistLength;
@@ -252,41 +233,57 @@ async function newGuess(bot, voiceChannel, retrying = false){
 
 
 async function doGuess(bot, player, textChannel, song, voiceChannel){
-    const game = runningGames[voiceChannel.guild.id];
+    console.log("Guess is starting")
+    const game = module.exports.runningGames[voiceChannel.guild.id];
     const guessStarted = new Date();
-    const loggedTrackName = `${song.track.artists[0].name} - ${song.track.name}`;
-    const normalisedName = normalise(song.track.name)
+    let trackName = song.track.name;
+    // try {
+    //     console.log("Waiting for track name...");
+    //     let result = await axios.get(`https://demaster.hankapi.com/demaster?long_track_name=${encodeURIComponent(trackName)}`, {timeout: 3000});
+    //     console.log("got track name!");
+    //     trackName = result.data;
+    // }catch(e){
+    //     Sentry.captureException(e);
+    //     bot.logger.error(e);
+    // }
+    const loggedTrackName = `${song.track.artists[0].name} - ${trackName}`;
+    const normalisedName = normalise(trackName);
+    console.log(`Title is ${loggedTrackName}`);
     const artistNames = song.track.artists.map((a)=>normalise(a.name));
     let artistsVisited = [];
     bot.logger.log(`Track is ${artistNames} - ${normalisedName}`);
-    const collector = textChannel.createMessageCollector((m)=>{
-        if(m.author.bot)return false;
-        game.lastGuessTime = new Date();
-        bot.logger.log(bot.util.serialiseMessage(m));
-        let elapsed = new Date()-guessStarted;
-        const normalisedContent = normalise(m.cleanContent);
-        const partialLength = normalisedName.indexOf(normalisedContent) > -1 ? normalisedContent.length : 0;
-        // If the message contains the entire title, or the message is more than 30% of the title
-        if(normalisedContent.indexOf(normalisedName) > -1 || partialLength >= normalisedName.length/3){
-            bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, normalisedContent, loggedTrackName, 1, elapsed, game.custom);
-            return true;
-        }
-
-        // If the message has 40% of the title give them a little reaction
-        if(partialLength >= normalisedName.length/4)
-            m.react("👀")
-
-        // If they mention one of the artists, send them a message the first time
-        for(let i = 0; i < artistNames.length; i++){
-            if(normalisedContent.indexOf(artistNames[i]) > -1 && !artistsVisited[i]){
-                bot.util.replyTo(m, `${song.track.artists[i].name} is ${artistNames.length > 1 ? "one of the artists" : "the artist"}, but what's the song title?.`);
-                artistsVisited[i] = true;
-                break
+    const collector = textChannel.createMessageCollector({
+        max: 1,
+        time: 30000,
+        filter: (m)=>{
+            if(m.author.bot)return false;
+            game.lastGuessTime = new Date();
+            bot.logger.log(bot.util.serialiseMessage(m));
+            let elapsed = new Date()-guessStarted;
+            const normalisedContent = normalise(m.cleanContent);
+            const partialLength = normalisedName.indexOf(normalisedContent) > -1 ? normalisedContent.length : 0;
+            // If the message contains the entire title, or the message is more than 30% of the title
+            if(normalisedContent.indexOf(normalisedName) > -1 || partialLength >= normalisedName.length/3){
+                bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, normalisedContent, loggedTrackName, 1, elapsed, game.custom);
+                return true;
             }
+
+            // If the message has 40% of the title give them a little reaction
+            if(partialLength >= normalisedName.length/4)
+                m.react("👀")
+
+            // If they mention one of the artists, send them a message the first time
+            for(let i = 0; i < artistNames.length; i++){
+                if(normalisedContent.indexOf(artistNames[i]) > -1 && !artistsVisited[i]){
+                    bot.util.replyTo(m, `${song.track.artists[i].name} is ${artistNames.length > 1 ? "one of the artists" : "the artist"}, but what's the song title?`);
+                    artistsVisited[i] = true;
+                    break
+                }
+            }
+            bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, "", loggedTrackName, 0, elapsed, game.custom);
+            return false;
         }
-        bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, "", loggedTrackName, 0, elapsed, game.custom);
-        return false;
-    }, {max: 1, time: 30000})
+    })
 
     game.collector = collector;
 
@@ -337,7 +334,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
             }
             winEmbed.setFooter(`ℹ BETA: Report any bugs with ${game.textChannel.guild.getSetting("prefix")}feedback`);
             bot.bus.emit("onGuessWin", {winner, game})
-            bot.util.replyTo(winner, winEmbed);
+            bot.util.replyTo(winner, {embeds: [winEmbed]});
             game.failures = 0;
         }else {
             game.failures++;

@@ -1,34 +1,38 @@
 module.exports = {
-    name: "List Reminders",
-    usage: "list",
+    name: "Remove Reminder",
+    usage: "remove :0id",
     commands: ["remove", "delete", "del", "cancel"],
-    run: async function (message, args, bot, reminderObject) {
-        if (!args[2] || isNaN(args[2]))
-            return message.channel.send(`To remove a reminder, find it's ID from **${args[0]} list** and enter it here, e.g ${args[0]} remove 420`);
-
-
-        let reminder = await bot.database.getReminderById(args[2]);
+    run: async function (context, bot) {
+        let reminder = await bot.database.getReminderById(context.options.id);
         if (!reminder[0])
-            return message.channel.send(`Couldn't find a reminder by that ID. Check the ID at **${args[0]} list** and then try again.`);
+            return context.send({
+                content: `Couldn't find a reminder by that ID. Check the ID at **${context.command} list** and then try again.`,
+                ephemeral: true,
+                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
+            });
 
-        if (reminder[0].user !== message.author.id)
-            return message.channel.send(`That reminder doesn't belong to you. Check the ID at **${args[0]} list** and then try again.`);
+        if (reminder[0].user !== context.user.id)
+            return context.send({
+                content: `That reminder doesn't belong to you. Check the ID at **${context.command} list** and then try again.`,
+                ephemeral: true,
+                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
+            });
 
         if (reminder[0].receiver !== bot.client.user.id)
-            return message.channel.send(`That reminder doesn't belong to this bot. To prevent mistakes, please use the bot that created the reminder to remove it.`);
+            return context.send(`That reminder doesn't belong to this bot. To prevent mistakes, please use the bot that created the reminder to remove it.`);
 
-        if (reminder[0].server !== (message.guild ? message.guild.id : null))
-            return message.channel.send(`That reminder doesn't belong to this server. To prevent mistakes, please use the server that created the reminder to remove it.`);
+        if (reminder[0].server != context.guild?.id)
+            return context.send(`That reminder doesn't belong to this server. To prevent mistakes, please use the server that created the reminder to remove it.`);
 
         // Trying to prevent another birthdays situation
         if (reminder.length > 1)
-            return message.channel.send("Something terrible happened.");
+            return context.send("Something terrible happened.");
 
-        await bot.database.removeReminderByUser(args[2], message.author.id);
-        reminderObject.deletedReminders.push(args[2]);
-        if (reminderObject.recurringReminders[args[2]]) {
-            reminderObject.recurringReminders[args[2]].clear();
+        await bot.database.removeReminderByUser(context.options.id, context.user.id);
+        context.commandData.deletedReminders.push(context.options.id);
+        if (context.commandData.recurringReminders[context.options.id]) {
+            context.commandData.recurringReminders[context.options.id].clear();
         }
-        message.channel.send("Successfully removed reminder " + args[2]);
+        return context.send("Successfully removed reminder " + context.options.id);
     }
 };

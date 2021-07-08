@@ -1,13 +1,21 @@
-const Ector = require('ector');
-let FileConceptNetwork = require('file-concept-network').FileConceptNetwork;
-
-// let ector = new Ector("OcelotBOT", "Peter");
-
-let fcn = new FileConceptNetwork();
+const brain = require('brain.js');
+const config = require('config');
+const knex = require('knex')(config.get("Database"));
 
 
-fcn.addLink(fcn.addNode("hello").id, fcn.addNode("suck my balls").id)
+async function getTrainingData(){
+    let databaseData = await knex.select("message", "response").from("ocelotbot_ai_conversations").limit(1000);
+    return databaseData.map((row)=>({input: row.message, output: row.response}));
+}
 
-fcn.addLink(fcn.addNode("hi").id, fcn.addNode("eat my ass").id)
 
-fcn.save('test.json', console.log)
+async function run(){
+    let data = await getTrainingData();
+    const net = new brain.recurrent.LSTM();
+    console.log(`Training with ${data.length} rows...`);
+    net.train(data);
+    console.log("Training done");
+    console.log(net.run('hello'));
+}
+
+run();

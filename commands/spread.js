@@ -4,14 +4,16 @@
  * ╚════ ║   (ocelotbotv5) mirror
  *  ════╝
  */
+const Image = require('../util/Image');
 module.exports = {
     name: "Spread Image",
-    usage: "spread [url]",
+    usage: "spread :image?",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["spread"],
-    run: async function (message, args, bot) {
-        return bot.util.processImageFilter(module, message, args, "spread", [message.getSetting("spread.amount")]);
+    slashHidden: true,
+    run: async function (context, bot) {
+        return Image.ImageFilter(bot, module.exports.usage, context, "spread", [message.getSetting("spread.amount")]);
     }
 };

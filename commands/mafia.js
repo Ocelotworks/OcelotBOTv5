@@ -4,24 +4,22 @@
  * ╚════ ║   (ocelotbotv5) mafia
  *  ════╝
  */
+const Image = require('../util/Image');
 module.exports = {
     name: "Mafia Boss",
-    usage: "mafia <@user1> <@user2>",
+    usage: "mafia :@user1 :@user2",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["mafia", "mafiaboss"],
     categories: ["memes"],
-    run: async function run(message, args, bot) {
-        if (message.mentions.users.size < 2)
-            return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
-
-        const user1 = bot.util.getUserFromMention(args[1]);
-        const user2 = bot.util.getUserFromMention(args[2]);
+    guildOnly: true,
+    run: async function run(context, bot) {
+        const user1 =  (await context.guild.members.fetch(context.options.user1))?.user;
+        const user2 =  (await context.guild.members.fetch(context.options.user2))?.user;
 
         if (!user1 || !user2)
-            return message.channel.send(`:bangbang: You must enter 2 users. e.g ${args[0]} ${message.author} ${bot.client.user}`);
+            return context.send({content:`:bangbang: You must enter 2 users. e.g ${context.command} ${context.user} ${bot.client.user}`, ephemeral: true});
 
-
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
                     url: user1.avatarURL({dynamic: true, format: "png", size: 512}),

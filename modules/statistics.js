@@ -18,20 +18,19 @@ module.exports = {
             commandsFailed: 0,
             cacheHits: 0,
             cacheMisses: 0,
-        };
+        }
+
         let currentStats = {
             messagesPerMinute: 0,
             messagesSentPerMinute: 0,
             commandsPerMinute: 0,
         };
 
-
         bot.api.get('/stats', (req, res) => {
             res.json(bot.stats)
         })
 
-
-        bot.client.on("message", function () {
+        bot.client.on("messageCreate", function () {
             currentStats.messagesPerMinute++;
             bot.stats.messagesTotal++;
         });

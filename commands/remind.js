@@ -1,12 +1,10 @@
 /**
  * Created by Peter on 01/07/2017.
  */
-const chrono = require('chrono-node');
-const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
-
+const Discord = require('discord.js');
 module.exports = {
     name: "Reminders",
-    usage: "remind <in/every> \"<message>\"",
+    usage: "remind :command? :args?+",
     accessLevel: 0,
     detailedHelp: "Set one-time reminders or set recurring reminders",
     usageExample: "remind in 5 minutes 'fix reminders'",
@@ -16,28 +14,8 @@ module.exports = {
     // This doesn't feel right
     deletedReminders: [],
     recurringReminders: {},
+    nestedDir: "remind",
     init: function init(bot){
-        bot.util.standardNestedCommandInit('remind', 'remind', module.exports);
-        // bot.client.on("ready", function () {
-        //     bot.rabbit.channel.assertQueue(`reminder-${bot.client.user.id}-${bot.util.shard}`, {exclusive: true});
-        //     bot.rabbit.channel.consume(`reminder-${bot.client.user.id}-${bot.util.shard}`, function reminderConsumer(message) {
-        //         try {
-        //             let reminder = JSON.parse(message.content);
-        //             if (bot.config.getBool("global", "remind.silentQueueTest")) {
-        //                 bot.logger.warn("Silent test: got reminder from reminder worker");
-        //                 bot.logger.log(reminder);
-        //             } else {
-        //                 module.exports.sendReminder(reminder, bot);
-        //             }
-        //             bot.rabbit.channel.ack(message);
-        //         } catch (e) {
-        //             bot.raven.captureException(e);
-        //             bot.logger.error(e);
-        //         }
-        //     });
-        // });
-
-
         bot.client.once("ready", async function discordReady(){
             bot.logger.log("Loading reminders...");
             const reminderResult = await bot.database.getReminders(bot.client.user.id);
@@ -95,33 +73,49 @@ module.exports = {
 
         }
     },
-    sendReminder: async function(reminder, bot){
-        if(bot.drain)return;
-        if(!module.exports.deletedReminders.includes(reminder.id)) {
+    buildEmbed(reminder){
+        const embed = new Discord.MessageEmbed();
+        embed.setColor("#6868f5")
+        embed.setTitle(":stopwatch: Reminder");
+        embed.setDescription(`<t:${Math.floor(reminder.timestamp/1000)}:R> you told me to remind you of this:\n>>> \n${reminder.message}\n\u200B`);
+        embed.setTimestamp(reminder.at);
+        return embed;
+    },
+    sendReminder: async function (reminder, bot) {
+        if (bot.drain) return;
+        if (!module.exports.deletedReminders.includes(reminder.id)) {
             bot.logger.log(`Reminding ${reminder.id}: ${reminder.user}: ${reminder.message}`);
             try {
-                if(!reminder.server)throw new Error("DM reminder");
+                if (!reminder.server) throw new Error("DM reminder");
                 const channel = await bot.client.channels.fetch(reminder.channel);
-                await channel.send(await bot.lang.getTranslation(channel.guild.id, "REMIND_REMINDER", {
-                    username: reminder.user,
-                    date: new Date(reminder.timestamp).toString(),
-                    message: reminder.message
-                }));
-            } catch (e) {
-                if(reminder.server) {
-                    bot.logger.log("Reminder channel no longer exists, attempting to send it to the user instead...");
-                }else{
-                    bot.logger.log("DM Reminder, finding user...");
-                }
+                let embed = module.exports.buildEmbed(reminder);
                 try {
+                    await channel.send({
+                        embeds: [module.exports.buildEmbed(reminder)],
+                        reply: {messageReference: reminder.messageID},
+                    });
+                }catch(e){
+                    await channel.send({
+                        content: `<@${reminder.user}>`,
+                        embeds: [module.exports.buildEmbed(reminder)],
+                    });
+                }
+                if(!channel.members.has(reminder.user)){
+                    embed.addField(":warning: Note", "You are receiving this reminder because you are no longer in the channel in which the reminder was set.");
+                    const targetUser = await bot.client.users.fetch(reminder.user);
+                    const dm = await targetUser.createDM();
+                    await dm.send({embeds: [embed]});
+                }
+            } catch (e) {
+                try{
+                    bot.logger.log("Reminder channel no longer exists or is DM, attempting to send it to the user instead...");
                     const targetUser = await bot.client.users.fetch(reminder.user);
                     if (targetUser) {
                         const dm = await targetUser.createDM();
-                        await dm.send(await bot.lang.getTranslation(reminder.channel, "REMIND_REMINDER", {
-                            username: reminder.user,
-                            date: new Date(reminder.timestamp).toString(),
-                            message: reminder.message
-                        }));
+                        let embed = module.exports.buildEmbed(reminder);
+                        if(reminder.server)
+                            embed.addField(":warning: Note", `This reminder was supposed to go to <#${reminder.channel}>, but I couldn't access it. It could be deleted, or I could have been kicked from that server.`);
+                        await dm.send({content: `<@${reminder.user}>`, embeds: [module.exports.buildEmbed(reminder)]});
                     } else {
                         bot.logger.log("Couldn't retrieve the user.");
                     }
@@ -130,89 +124,16 @@ module.exports = {
                     bot.raven.captureException(e);
                 }
             }
-        }else{
+        } else {
             bot.logger.log(`Reminder ${reminder.id} was deleted.`);
         }
-        try{
+        try {
+            if(!reminder.id)return bot.logger.warn("Reminder had no ID");
             await bot.database.removeReminder(reminder.id);
             bot.logger.log(`Removed reminder ${reminder.id}`);
-        }catch(err){
+        } catch (err) {
             bot.logger.error(`Error removing reminder!!! This is bad!!! ${err.stack}`);
             bot.raven.captureException(err);
         }
-    },
-    run: async function(message, args, bot){
-        await bot.util.standardNestedCommand(message, args, bot, "remind", module.exports, async function setReminder() {
-            //Hacky hack hack
-            message.content = message.content.replace(args[0], "in");
-            console.log(message.content);
-            const now = new Date();
-            const rargs = regex.exec(message.content);
-            const chronoParse = (chrono.parse(message.content, now, {forwardDate: true}))[0];
-            let at = null;
-            if (chronoParse && chronoParse.start)
-                at = chronoParse.start.date();
-
-
-            let reminder = null;
-            if (!rargs || rargs.length < 3) {
-                if (chronoParse && chronoParse.text) {
-                    const guessedContent = message.content.substring(message.content.indexOf(chronoParse.text) + chronoParse.text.length);
-                    if (guessedContent)
-                        reminder = guessedContent;
-                    else
-                        return message.replyLang("REMIND_INVALID_MESSAGE");
-                } else
-                    return message.replyLang("REMIND_INVALID_MESSAGE");
-            } else
-                reminder = rargs[2];
-
-
-            if (!at)
-                return message.replyLang("REMIND_INVALID_TIME");
-
-            if (at.getTime() >= 253370764800000)
-                return message.replyLang("REMIND_LONG_TIME");
-
-            if (at.getTime() >= 2147483647000)
-                return message.channel.send(":stopwatch: You can't set a reminder for on or after 19th January 2038");
-
-            const offset = at - now;
-
-            if (offset < 0)
-                return message.channel.send(":stopwatch: The time you entered is in the past. Try being more specific or using exact dates.");
-            if (offset < 1000)
-                return message.replyLang("REMIND_SHORT_TIME");
-
-            if (reminder.length > 1000)
-                return message.channel.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
-
-            try {
-                message.replyLang("REMIND_SUCCESS", {
-                    time: bot.util.prettySeconds((offset / 1000), message.guild && message.guild.id, message.author.id),
-                    date: at.toString()
-                });
-                const reminderResponse = await bot.database.addReminder(bot.client.user.id, message.author.id, message.guild ? message.guild.id : null, message.channel.id, at.getTime(), reminder, message.id);
-                bot.util.setLongTimeout(async function () {
-                    try {
-                        await message.replyLang("REMIND_REMINDER", {
-                            username: message.author.id,
-                            server: message.guild ? message.guild.id : null,
-                            date: now.toString(),
-                            message: reminder
-                        });
-                        await bot.database.removeReminder(reminderResponse[0])
-                    } catch (e) {
-                        bot.raven.captureException(e);
-                    }
-                }, offset);
-            } catch (e) {
-                console.log(e);
-                message.replyLang("REMIND_ERROR");
-                bot.raven.captureException(e);
-            }
-        });
-
-
     }
 };

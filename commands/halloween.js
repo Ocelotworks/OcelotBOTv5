@@ -13,9 +13,9 @@ module.exports = {
     responseExample: "👻 251 days, 11 hours, 7 minutes and 41 seconds until halloween!",
     categories: ["tools"],
     commands: ["halloween"],
-    run: function run(message, args, bot) {
+    run: function run(context, bot) {
         const diff = (halloween-(new Date()))/1000;
-        message.replyLang("HALLOWEEN", {time: bot.util.prettySeconds(diff, message.guild && message.guild.id, message.author.id)});
+        return context.sendLang("HALLOWEEN", {time: bot.util.prettySeconds(diff, context.guild?.id, context.user.id)});
     }
 
 };

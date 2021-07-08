@@ -1,17 +1,17 @@
-const botlist = require('../../modules/botlists');
+
 module.exports = {
     name: "Update Bot Lists",
-    usage: "updatebotlists [id]",
+    usage: "updatebotlists :id?",
     commands: ["updatebotlists", "ubl", "updatebotlist"],
     noCustom: true,
-    run: async function (message, args, bot) {
-        if (!args[2]){
-            return botlist.updateBotLists(bot);
+    run: async function (context, bot) {
+        if (!context.options.id){
+            return bot.lists.updateBotLists(bot);
         }else{
-            let list = await bot.database.getBotlist(args[2]);
-            if(!list[0])return message.channel.send("Couldn't find a botlist with that ID");
-            await botlist.updateList(list, bot);
-            return message.channel.send("Updated "+list.id);
+            let list = await bot.database.getBotlist(context.options.id);
+            if(!list[0])return context.send("Couldn't find a botlist with that ID");
+            await bot.lists.updateList(list[0], bot);
+            return context.send("Updated "+list[0].name);
         }
 
     }

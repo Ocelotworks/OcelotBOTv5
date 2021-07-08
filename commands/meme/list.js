@@ -5,32 +5,32 @@
  *  ════╝
  */
 const columnify = require('columnify');
+const Util = require("../../util/Util");
 module.exports = {
     name: "List/Search Memes",
-    usage: "list [search term]",
+    usage: "list :search?+",
     commands: ["list", "search"],
-    run: async function (message, args, bot) {
-        const arg = args[1].toLowerCase();
+    run: async function (context, bot) {
         let memes;
-        if (args[2]) {
-            memes = await bot.database.searchMeme(args[2], message.guild ? message.guild.id : "global");
+        if (context.options.search) {
+            memes = await bot.database.searchMeme(context.options.search, context.guild?.id || "global");
             if (memes.length === 0)
-                return message.channel.send(`:warning: No results. To view all memes just do ${args[0]} ${args[1]}`);
+                return context.send(`:warning: No results. To view all memes just do ${context.command} ${context.options.command}`);
         } else {
-            memes = await bot.database.getMemes(message.guild ? message.guild.id : "global");
+            memes = await bot.database.getMemes(context.guild?.id || "global");
         }
 
         let pages = memes.chunk(30);//parseInt(message.getSetting("meme.pageSize")));
 
-        const availableMemes = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_AVAILABLE_MEMES");
-        const availableGlobalMemes = await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_GLOBAL_MEMES");
-        const memeServer = message.guild ? await bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "MEME_SERVER", {serverName: message.guild.name}) : "You should never see this.";
+        const availableMemes = context.getLang("MEME_AVAILABLE_MEMES");
+        const availableGlobalMemes = context.getLang("MEME_GLOBAL_MEMES");
+        const memeServer = context.guild ? context.getLang("MEME_SERVER", {serverName: context.guild.name}) : "You should never see this.";
 
         if (pages == null || pages.length === 0) {
-            return message.channel.send("No memes yet. Add them with !meme add");
+            return context.send("No memes yet. Add them with !meme add");
         }
 
-        bot.util.standardPagination(message.channel, pages, async function (page, index) {
+        return Util.StandardPagination(bot, context, pages, async function (page, index) {
             //If you can't stand the heat get out of the kitchen
             let globalColumns = [[], [], [], [], []];
             let serverColumns = [[], [], [], [], []];
@@ -52,9 +52,9 @@ module.exports = {
             let output;
 
             output = `Page ${index + 1}/${pages.length}\n**${availableMemes}**\n__:earth_americas: **${availableGlobalMemes}**__ \n\`\`\`\n${globalMemes === "" ? "No global memes found." : globalMemes}\n\`\`\``;
-            if (message.guild)
+            if (context.guild)
                 output += `\n__:house_with_garden:${memeServer}__\n\`\`\`\n${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}\n\`\`\``;
-            return output;
-        }, true, message.getSetting("meme.pageTimeout"));
+            return {content: output};
+        }, true, context.getSetting("meme.pageTimeout"));
     }
 };

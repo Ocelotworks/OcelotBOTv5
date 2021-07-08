@@ -3,30 +3,23 @@
  */
 module.exports = {
     name: "Meme Storage",
-    usage: "meme help",
+    usage: "meme",
     commands: ["meme"],
     categories: ["tools"],
-    init: function init(bot) {
-        bot.util.standardNestedCommandInit('meme');
-    },
-    run: async function run(message, args, bot) {
-        bot.util.standardNestedCommand(message, args, bot, "meme", null, async function invalidUsage() {
-            if (!args[1])
-                return message.channel.send(`:bangbang: Invalid Usage. Try ${args[0]} help`);
-
-            try {
-                const memeResult = await bot.database.getMeme(args[1].toLowerCase(), message.guild ? message.guild.id : "global");
-
-                if (memeResult[0]) {
-                    message.channel.send(memeResult[0].meme);
-                } else {
-                    message.replyLang("MEME_NOT_FOUND");
-                }
-            } catch (e) {
-                message.replyLang("MEME_ERROR");
-                bot.raven.captureException(e);
+    slashHidden: true,
+    nestedDir: "meme",
+    run: async function run(context, bot) {
+        if(!context.options.command)
+            return bot.commands["nestedCommandHelp"](context, bot);
+        try {
+            const memeResult = await bot.database.getMeme(context.options.command?.toLowerCase(), context.message.guild ? context.message.guild.id : "global");
+            if (memeResult[0]) {
+                return context.message.channel.send(memeResult[0].meme);
             }
-        });
-
+            return context.message.replyLang("MEME_NOT_FOUND");
+        } catch (e) {
+            bot.raven.captureException(e);
+            return context.message.replyLang("MEME_ERROR");
+        }
     }
 };

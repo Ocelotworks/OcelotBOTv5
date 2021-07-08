@@ -9,11 +9,11 @@ module.exports = {
     name: "Restart",
     usage: "restart",
     commands: ["restart", "respawn"],
-    run: async function (message, args, bot) {
+    run: async function (context, bot) {
         let embed = new Discord.MessageEmbed();
         embed.setTitle(`Respawning ${process.env.SHARD_COUNT} shards...`);
         embed.setColor(0xff0000);
-        message.channel.send(embed);
+        context.send({embeds: [embed]});
         bot.rabbit.event({type: "respawn"});
     }
 };

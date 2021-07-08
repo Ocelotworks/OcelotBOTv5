@@ -1,385 +1,612 @@
-const fs = require('fs');
 const Sentry = require('@sentry/node');
-const {crc32} = require('crc');
+const {CustomCommandContext, InteractionCommandContext, MessageCommandContext, MessageEditCommandContext} = require("../util/CommandContext");
+const fs = require('fs');
+const Util = require("../util/Util");
+const Embeds = require("../util/Embeds");
+const Strings = require("../util/String");
+const {crc32} = require("crc");
+const commandParser = require('command-parser').default;
+module.exports = class Commands {
 
-module.exports = {
-    name: "Commands",
-    init: function (bot) {
+    bot;
+    commandMiddleware = [];
+    name = "Commands";
+    
+    constructor(bot){
+        this.bot = bot;
+        bot.command = this;
+    }
 
-        bot.commandObjects = {};
-        bot.commandUsages = {};
-        bot.commands = {};
+    init() {
+        this.bot.commandObjects = {};
+        this.bot.commandUsages = {};
+        this.bot.commands = {};
+        this.bot.prefixCache = {};
 
-        bot.prefixCache = {};
+
         process.on('exit', async (code) => {
-            bot.logger.log("Process close requested", code);
-            bot.drain = true;
-            for (let command in bot.commandObjects) {
-                if (bot.commandObjects.hasOwnProperty(command) && bot.commandObjects[command].shutdown) {
-                    bot.logger.log("Shutting down ", command);
-                    await bot.commandObjects[command].shutdown(bot);
+            this.bot.logger.log("Process close requested", code);
+            this.bot.drain = true;
+            for (let command in this.bot.commandObjects) {
+                if (this.bot.commandObjects.hasOwnProperty(command) && this.bot.commandObjects[command].shutdown) {
+                    this.bot.logger.log("Shutting down ", command);
+                    await this.bot.commandObjects[command].shutdown(this.bot);
                 }
             }
         })
 
-        bot.client.on("ready", async ()=>{
-            let commands = await bot.database.getCustomFunctionsForShard("COMMAND", bot.client.guilds.cache.keyArray());
+        this.bot.client.on("ready", async ()=>{
+            let commands = await this.bot.database.getCustomFunctionsForShard("COMMAND", this.bot.client.guilds.cache.keyArray());
             for(let i = 0; i < commands.length; i++){
                 const command = commands[i];
-                if(bot.customFunctions.COMMAND[command.server])
-                    bot.customFunctions.COMMAND[command.server][command.trigger] = command.function;
+                if(this.bot.customFunctions.COMMAND[command.server])
+                    this.bot.customFunctions.COMMAND[command.server][command.trigger] = command.function;
                 else
-                    bot.customFunctions.COMMAND[command.server] = {[command.trigger]: command.function};
+                    this.bot.customFunctions.COMMAND[command.server] = {[command.trigger]: command.function};
             }
         })
 
-        bot.client.on("message", function onMessage(message) {
-            if (bot.drain || (message.author.bot && message.author.id !== "824045686600368189")) return;
-            return bot.runCommand(message);
+        this.bot.client.on("messageCreate", (message)=>{
+            if (this.bot.drain || (message.author.bot && message.author.id !== "824045686600368189")) return;
+            const parse = this.parseCommand(message);
+            if(!parse)return;
+
+            const context = this.initContext(new MessageCommandContext(this.bot, message, parse.args, parse.command));
+            if(!context)return;
+            return this.runCommand(context);
         });
 
-        bot.runCommand = async function(message){
-            Sentry.configureScope(async function onMessage(scope) {
-                scope.setUser({
-                    username: message.author.username,
-                    id: message.author.id
-                });
-                const prefix = message.getSetting("prefix");
-                if (!prefix) return;//Bot hasn't fully loaded
-                const prefixLength = prefix.length;
-                if (!message.content.startsWith(prefix))
-                    return;
-                const args = message.content.split(/\s+/g);
-                const command = args[0].substring(prefixLength).toLowerCase();
-                if (!bot.commands[command]) {
-                    if (!message.guild || !bot.customFunctions.COMMAND[message.guild.id] || message.synthetic) return;
-                    let customCommand = bot.customFunctions.COMMAND[message.guild.id][command]
-                    if(!customCommand)return;
-                    bot.logger.log({
-                        type: "commandPerformed",
-                        command: {
-                            name: command,
-                            id: "custom-" + command,
-                            content: message.content,
-                        },
-                        message: bot.util.serialiseMessage(message),
-                    })
-                    return await bot.util.runCustomFunction(customCommand, message)
-                }
+        this.bot.client.on("messageUpdate", (oldMessage, newMessage)=>{
+            if (this.bot.drain || newMessage.author.bot) return;
+            if(oldMessage.content == newMessage.content)return console.log("Content is identical");
+            if(oldMessage.response?.deleted)return console.log("Response was deleted");
+            const parse = this.parseCommand(newMessage);
+            if(!parse)return console.log("did not parse");
+            const context = this.initContext(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
+            if(!context)return console.log("did not process");
+            return this.runCommand(context);
+        })
 
-                bot.logger.log({
-                    type: "commandPerformed",
-                    command: {
-                        name: command,
-                        id: bot.commandUsages[command].id,
-                        content: message.content,
-                    },
-                    message: bot.util.serialiseMessage(message),
-                })
-                //bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM Channel"} (${message.guild ? message.guild.id : "DM Channel"}) ${message.channel.name} (${message.channel.id}) performed command ${command}: ${message.content}`);
-                let span = bot.util.startSpan("Fetch Command Usage")
-                let commandUsage = bot.commandUsages[command];
-                span.end();
-
-                message.channel.stopTyping();
-                if(!message.getBool("points.enabled")) {
-                    if (commandUsage.vote && message.getBool("voteRestrictions") && !(message.getBool("premium") || message.getBool("serverPremium"))) {
-                        if (message.getSetting("restrictionType") === "vote") {
-                            span = bot.util.startSpan("Get last vote time")
-                            let lastVote = await bot.database.getLastVote(message.author.id);
-                            if (lastVote[0])
-                                lastVote = lastVote[0]['MAX(timestamp)'];
-
-                            let difference = new Date() - lastVote;
-                            console.log("difference is " + difference);
-                            if (difference > bot.util.voteTimeout * 2) {
-                                span.end("Vote Required");
-                                return message.replyLang("COMMAND_VOTE_REQUIRED")
-                            }
-                            span.end();
-                        } else {
-                            span = bot.util.startSpan("Fetch user in support server");
-                            // This is dumb, but I can't avoid this
-                            try {
-                                await (await bot.client.guilds.fetch("322032568558026753")).members.fetch(message.author.id)
-                                span.end();
-                            } catch (e) {
-                                span.end("Not in support server");
-                                return message.channel.send("You must join the support server or purchase premium to enable this command. You can join the support server here: https://discord.gg/PTaXZmE")
-                            }
-                        }
-                    }
-
-                    if (commandUsage.premium && !(message.getBool("premium") || message.getBool("serverPremium"))) {
-                        span.end("Requires premium");
-                        return message.channel.send(`:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${message.getSetting("prefix")}premium_\nAlternatively, you can disable this command using ${message.getSetting("prefix")}settings disableCommand ${command}`);
-                    }
-                }else if(commandUsage.pointsCost){
-                    const canUse = await bot.database.takePoints(message.author.id, commandUsage.pointsCost, commandUsage.id);
-                    if(!canUse)
-                        return message.channel.send(`This command requires <:points:817100139603820614>**${commandUsage}** points to use. Learn more with ${message.getSetting("prefix")}points`);
-                }
-
-                if (message.getBool("allowNSFW") && commandUsage.categories.indexOf("nsfw") > -1) {
-                    span.end("NSFW Disabled");
-                    const dm = await message.author.createDM();
-                    dm.send(`NSFW commands are disabled in this server.`);
-                    return bot.logger.log(`NSFW commands are disabled in this server (${message.guild.id}): ${message}`);
-                }
-
-                if (message.guild && !message.channel.nsfw && commandUsage.categories.indexOf("nsfw") > -1) {
-                    span.end("NSFW Channel required")
-                    return message.channel.send(`:warning: This command can only be used in NSFW channels.`);
-                }
-
-                if (message.getBool(`${command}.disable`)) {
-                    span.end("Command disabled");
-                    return bot.logger.log(`${command} is disabled in this server: ${message}`);
-                }
-
-                if (message.getSetting(`${command}.override`)) {
-                    span.end("Command override")
-                    return message.channel.send(message.getSetting(`${command}.override`));
-                }
-
-                if (message.getBool("wholesome")) {
-                    if (commandUsage.categories.indexOf("nsfw") > -1 || commandUsage.unwholesome) {
-                        span.end("Wholesome mode enabled - unwholesome command")
-                        return message.channel.send(":star:  This command is not allowed in wholesome mode!");
-                    }
-                    if (bot.util.swearRegex.exec(message.content)) {
-                        span.end("Wholesome mode enabled - swearing")
-                        return message.channel.send("No swearing!");
-                    }
-                }
-
-                const channelDisable = message.getSetting(`${command}.channelDisable`);
-                if (channelDisable && channelDisable.indexOf(message.channel.id) > -1) {
-                    span.end("Channel disabled")
-                    if (message.getBool("sendDisabledMessage")) {
-                        const dm = await message.author.createDM();
-                        dm.send(`${command} is disabled in that channel`);
-                        //TODO: COMMAND_DISABLED_CHANNEL
-                        bot.logger.log(`${command} is disabled in that channel (${message.channel.id})`);
-                    }
-                    return;
-                }
-                const channelRestriction = message.getSetting(`${command}.channelRestriction`);
-                if (channelRestriction && channelRestriction.indexOf(message.channel.id) === -1) {
-                    span.end("Channel restricted")
-                    if (message.getBool("sendDisabledMessage")) {
-                        const dm = await message.author.createDM();
-                        dm.send(`${command} is disabled in that channel`);
-                        //TODO: COMMAND_DISABLED_CHANNEL
-                        bot.logger.log(`${command} is disabled in that channel (${message.channel.id})`);
-                    }
-                    return;
-                }
-                if (bot.checkBan(message)) {
-                    span.end("User banned")
-                    return bot.logger.log(`${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id}) attempted command but is banned: ${command}: ${message.content}`);
-                }
-
-                if (bot.isRateLimited(message.author.id, message.guild ? message.guild.id : "global")) {
-                    bot.bus.emit("commandRatelimited", command, message);
-                    if (bot.rateLimits[message.author.id] < message.getSetting("rateLimit.threshold")) {
-                        console.log(bot.rateLimits[message.author.id]);
-                        bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM"} (${message.guild ? message.guild.id : message.channel.id}) was ratelimited`);
-                        const now = new Date();
-                        const timeDifference = now - bot.lastRatelimitRefresh;
-                        let timeLeft = 60000 - timeDifference;
-                        message.replyLang("COMMAND_RATELIMIT", {timeLeft: bot.util.prettySeconds(timeLeft / 1000, message.guild && message.guild.id, message.author.id)});
-                        bot.rateLimits[message.author.id] += bot.commandUsages[command].rateLimit || 1;
-                    } else {
-                        console.log(bot.rateLimits[message.author.id]);
-                        bot.logger.warn(`${message.author.username} (${message.author.id}) in ${message.guild ? message.guild.name : "DM"} (${message.guild ? message.guild.id : message.channel.id}) was ratelimited`);
-                    }
-                    span.end("Ratelimited")
-                    return;
-                }
-
-                span = bot.util.startSpan("Metrics tracking");
-                bot.bus.emit("commandPerformed", command, message);
-                scope.addBreadcrumb({
-                    category: "Command",
-                    level: Sentry.Severity.Info,
-                    message: message.content,
-                    data: {
-                        username: message.author.username,
-                        id: message.author.id,
-                        message: message.content,
-                        channel: message.channel.id,
-                        server: message.guild ? message.guild.id : "DM Channel"
-                    }
-                });
-                span.end();
-
-                try {
-                    span = bot.util.startSpan("Send notice")
-                    if (message.getSetting("notice")) {
-                        message.channel.send(message.getSetting("notice"));
-                        bot.database.deleteSetting(message.guild.id, "notice");
-                        if (bot.config.cache[message.guild.id])
-                            bot.config.cache[message.guild.id].notice = null;
-                    }
-                    span.end();
-
-                    if (message.channel.permissionsFor) {
-                        span = bot.util.startSpan("Get channel permissions");
-                        const permissions = await message.channel.permissionsFor(bot.client.user);
-                        span.end();
-
-                        if (!permissions || !permissions.has("SEND_MESSAGES")) {
-                            bot.logger.log({
-                                type: "commandPerformed",
-                                success: false,
-                                outcome: "No Permissions"
-                            })
-                            span = bot.util.startSpan("Create DM Channel");
-                            const dm = await message.author.createDM();
-                            span.end();
-                            dm.send(":warning: I don't have permission to send messages in that channel.");
-                            //TODO: COMMAND_NO_PERMS lang key
-                            span.end("No permissions");
-                            return;
-                        }
-
-                        span = bot.util.startSpan("Calculate permissions");
-                        if (bot.commandUsages[command].requiredPermissions && !permissions.has(bot.commandUsages[command].requiredPermissions)) {
-                            let permission = "";
-                            for (let i = 0; i < bot.commandUsages[command].requiredPermissions.length; i++) {
-                                permission += bot.util.permissionsMap[bot.commandUsages[command].requiredPermissions[i]];
-                                if (i < bot.commandUsages[command].requiredPermissions.length - 1)
-                                    permission += ", ";
-                            }
-                            span.end();
-                            span.end("Missing permission");
-                            return message.replyLang("ERROR_NEEDS_PERMISSION", {permission});
-                        }
-                        span.end();
-                    }
-
-                    span = bot.util.startSpan("Run command logic");
-                    await bot.commands[command](message, args, bot);
-                    span.end();
-                    span.end("Success");
-                } catch (e) {
-                    message.channel.stopTyping(true);
-                    message.channel.send("Something went horribly wrong. Try again later.");
-                    console.log(e);
-                    bot.bus.emit("commandFailed", e);
-                    bot.raven.captureException(e);
-                    span.end("Exception");
-                } finally {
-                    bot.database.logCommand(message.author.id, message.channel.id, message.guild ? message.guild.id : message.channel.id, message.id, command, message.content, bot.client.user.id).catch(function (e) {
-                        Sentry.captureException(e);
-                        bot.logger.error(e);
-                    })
-                }
-            });
-        }
+        this.bot.client.on("interactionCreate", (interaction)=>{
+            if(!interaction.isCommand())return; // Not a command
+            if(!this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
+            const context = new InteractionCommandContext(this.bot, interaction);
+            context.commandData = this.bot.commandUsages[context.command];
+            return this.runCommand(context);
+        })
 
 
-        bot.loadCommand = function loadCommand(command, reload) {
-            try {
-                const module = `${__dirname}/../commands/${command}`;
-                if (reload) {
-                    delete require.cache[require.resolve(module)];
-                }
-                let crc = crc32(fs.readFileSync(module, 'utf8')).toString(16);
-                let loadedCommand = require(module);
-                if (loadedCommand.init && !reload) {
-                    try {
-                        loadedCommand.init(bot);
-                    } catch (e) {
-                        Sentry.captureException(e);
-                        bot.logger.error(e);
-                        if (bot.client && bot.client.shard) {
-                            bot.rabbit.event({
-                                type: "warning", payload: {
-                                    id: "badInit-" + command,
-                                    message: `Couldn't initialise command ${command}:\n${e.message}`
-                                }
-                            });
-                        }
-                    }
-                } else if (loadedCommand.init) {
-                    bot.logger.warn(`Command ${command} was reloaded, but init was not run.`);
-                }
-                bot.logger.log(`Loaded command ${loadedCommand.name} ${`(${crc})`.gray}`);
+        this.bot.runCommand = this.runCommand.bind(this);
+        this.bot.addCommandMiddleware = this.addCommandMiddleware.bind(this);
 
-                if (reload) {
-                    if (bot.commandUsages[loadedCommand.commands[0]]) {
-                        let oldCrc = bot.commandUsages[loadedCommand.commands[0]].crc;
-                        if (oldCrc !== crc)
-                            bot.logger.log(`Command ${command} version has changed from ${oldCrc} to ${crc}.`);
-                        else
-                            bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
-                    }
-                }
 
-                bot.commandObjects[command] = loadedCommand;
-
-                for (let i in loadedCommand.commands) {
-                    if (loadedCommand.commands.hasOwnProperty(i)) {
-                        const commandName = loadedCommand.commands[i];
-                        if (bot.commands[commandName] && !reload) {
-                            bot.rabbit.event({
-                                type: "warning",
-                                payload: {
-                                    id: "commandOverwritten-" + commandName,
-                                    message: `Command ${commandName} already exists as '${bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`
-                                }
-                            })
-                        }
-                        bot.commands[commandName] = bot.commandObjects[command].run;
-                        bot.commandUsages[commandName] = {
-                            id: command,
-                            crc,
-                            ...loadedCommand,
-                        };
-                    }
-                }
-            } catch (e) {
-                bot.logger.error("failed to load command");
-                bot.logger.error(e);
-                Sentry.captureException(e);
+        // Permissions checks
+        this.addCommandMiddleware((context)=>{
+            const subCommandData = context.commandData.subCommands?.[context.options.command];
+            const commandData = context.commandData;
+            // This feels wrong but I need to get the
+            const guildOnly = commandData.guildOnly || subCommandData?.guildOnly;
+            const noSynthetic = commandData.noSynthetic || subCommandData?.noSynthetic;
+            const settingsOnly = commandData.settingsOnly || subCommandData?.settingsOnly;
+            const userPermissions = commandData.userPermissions ? commandData.userPermissions.concat(subCommandData?.userPermissions) : subCommandData?.userPermissions;
+            const adminOnly = commandData.adminOnly || subCommandData?.adminOnly;
+            // Only allow Guild Only commands to be ran in a Guild
+            if(guildOnly && !context.guild){
+                context.replyLang({content: "GENERIC_DM_CHANNEL", ephemeral: true});
+                return false;
             }
-        };
 
-        // module.exports.loadPrefixCache(bot);
-        module.exports.loadCommands(bot);
-    },
-    loadPrefixCache: async function (bot) {
-        const prefixes = await bot.database.getPrefixes();
-        for (let i = 0; i < prefixes.length; i++) {
-            const prefix = prefixes[i];
-            bot.prefixCache[prefix.server] = prefix.prefix;
+            // Don't allow this command inside custom commands
+            if(context.message && context.message.synthetic && noSynthetic){
+                context.replyLang({content: "GENERIC_CUSTOM_COMMAND", ephemeral: true})
+                return false
+            }
+
+            // Override the next checks for admins
+            if(context.getBool("admin"))return true;
+
+            if(settingsOnly && !this.bot.util.canChangeSettings(context)){
+                if(context.getSetting("settings.role") === "-")
+                    return context.replyLang({content: "GENERIC_ADMINISTRATOR", ephemeral: true});
+                return context.replyLang("SETTINGS_NO_ROLE", {role: context.getSetting("settings.role")});
+            }
+
+            // Check permissions in Guilds
+            if(context.member && userPermissions && !context.channel.permissionsFor(context.member).has(userPermissions)){
+                context.replyLang({content: "GENERIC_USER_PERMISSIONS", ephemeral: true}, {permissions: userPermissions.map((p)=>Strings.Permissions[p]).join(",")})
+                return false
+            }
+
+            return !(adminOnly);
+        })
+
+        // Disable in NSFW channels
+        this.addCommandMiddleware((context)=>{
+            if (!context.channel?.nsfw && context.commandData.categories.indexOf("nsfw") > -1) {
+                context.replyLang({content: "GENERIC_NSFW_CHANNEL", ephemeral: true});
+                return false;
+            }
+            return true;
+        });
+
+        // Override commands
+        this.addCommandMiddleware((context)=> {
+            if (context.getSetting(`${context.command}.override`)) {
+                context.send(context.getSetting(`${context.command}.override`));
+                return false;
+            }
+            return true;
+        });
+
+        this.addCommandMiddleware((context)=>{
+            return !this.bot.checkBan(context)
+        });
+
+        // Ratelimits
+        this.addCommandMiddleware((context)=>{
+            if (!this.bot.isRateLimited(context.author?.id, context.guild?.id || "global")) return true;
+            this.bot.bus.emit("commandRatelimited", context);
+            this.bot.logger.warn(`${context.user.username} (${context.user.id}) in ${context.guild?.name || "DM"} (${context.guild?.id || context.channel?.id}) was ratelimited`);
+            if (this.bot.rateLimits[context.user.id] < context.getSetting("rateLimit.threshold")) {
+                const now = new Date();
+                const timeDifference = now - this.bot.lastRatelimitRefresh;
+                let timeLeft = 60000 - timeDifference;
+                context.replyLang({
+                    content: "COMMAND_RATELIMIT",
+                    ephemeral: true
+                }, {timeLeft: this.bot.util.prettySeconds(timeLeft / 1000, context.guild?.id, context.author?.id)});
+                this.bot.rateLimits[context.user.id] += context.commandData.rateLimit || 1;
+            }
+            return false;
+        })
+
+
+        // Notices
+        this.addCommandMiddleware((context)=>{
+            if(!context.guild)return true;
+            if (context.getSetting("notice")) {
+                context.send(context.getSetting("notice"));
+                this.bot.database.deleteSetting(context.guild.id, "notice");
+                if (this.bot.config.cache[context.guild.id])
+                    this.bot.config.cache[context.guild.id].notice = null;
+            }
+            return true;
+        })
+
+        // Message permissions
+        this.addCommandMiddleware(async (context)=>{
+            if (context.channel.permissionsFor) {
+                const permissions = await context.channel.permissionsFor(this.bot.client.user);
+
+                if (!permissions || !permissions.has("SEND_MESSAGES")) {
+                    this.bot.logger.log({
+                        type: "commandPerformed",
+                        success: false,
+                        outcome: "No Permissions"
+                    })
+                    const dm = await context.user.createDM();
+                    dm.send(":warning: I don't have permission to send messages in that channel.");
+                    //TODO: COMMAND_NO_PERMS lang key
+                    return false;
+                }
+
+                if (context.commandData.requiredPermissions && !permissions.has(context.commandData.requiredPermissions)) {
+                    let permission = context.commandData.requiredPermissions.map((p)=>this.bot.util.permissionsMap[p]).join();
+                    context.replyLang({content: "GENERIC_BOT_PERMISSIONS", ephemeral: true}, {permission});
+                    return false;
+                }
+            }
+            return true;
+        })
+
+        this.loadCommands();
+    }
+
+    parseCommand(message){
+        const prefix = message.getSetting("prefix");
+        if (!prefix) return;//Bot hasn't fully loaded
+        const prefixLength = prefix.length;
+        if (!message.content.startsWith(prefix))return;
+        const args = message.content.split(/\s+/g);
+        const command = args[0].substring(prefixLength).toLowerCase();
+        if(!this.bot.commandUsages[command] && !this.bot.customFunctions.COMMAND[message.guild?.id] )return;
+        return {args, command};
+    }
+
+    /**
+     * Fills the data into a MessageCommandContext
+     * @param {MessageCommandContext} context
+     * @returns {null|MessageCommandContext}
+     */
+    initContext(context){
+        context.commandData = this.bot.commandUsages[context.command];
+        if(context.commandData?.pattern) {
+            const parsedInput = commandParser.Parse(context.args.slice(1).join(" "), {pattern: context.commandData.pattern, id: context.command});
+            if (parsedInput.error) {
+                if(context.commandData.handleError){
+                    context.commandData.handleError(context, this.bot, parsedInput);
+                    return null;
+                }
+                console.log(parsedInput.error.data);
+                context.sendLang({
+                    content:`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`,
+                    ephemeral: true,
+                    components: [this.bot.util.actionRow(this.bot.interactions.fullSuggestedCommand(context, `help ${context.command}`))]
+                }, parsedInput.error.data);
+                return null;
+            } else {
+                context.options = parsedInput.data;
+            }
         }
-        bot.logger.log("Populated prefix cache with " + Object.keys(bot.prefixCache).length + " servers");
-    },
-    loadCommands: function (bot) {
-        fs.readdir(`${__dirname}/../commands`, function readCommands(err, files) {
+        return context;
+    }
+
+    loadCommands () {
+        fs.readdir(`${__dirname}/../commands`, (err, files)=>{
             if (err) {
-                bot.logger.error("Error reading from commands directory");
+                this.bot.logger.error("Error reading from commands directory");
                 console.error(err);
                 Sentry.captureException(err);
             } else {
                 for (const command of files) {
                     if (!fs.lstatSync(`${__dirname}/../commands/${command}`).isDirectory()) {
-                        bot.loadCommand(command);
+                        this.loadCommand(command);
                     }
                 }
-                bot.bus.emit("commandLoadFinished");
-                bot.logger.log("Finished loading commands.");
+                this.bot.bus.emit("commandLoadFinished");
+                this.bot.logger.log("Finished loading commands.");
 
-                bot.client.once("ready", () => {
-                    bot.rabbit.event({
+                this.bot.client.once("ready", () => {
+                    this.bot.rabbit.event({
                         type: "commandList",
-                        payload: bot.commandUsages
+                        payload: this.bot.commandUsages
                     })
                 })
             }
         });
     }
-};
+
+    async loadCommand(command, reload) {
+        try {
+            const module = `${__dirname}/../commands/${command}`;
+            if (reload) {
+                delete require.cache[require.resolve(module)];
+            }
+            let crc = crc32(fs.readFileSync(module, 'utf8')).toString(16);
+            let loadedCommand = require(module);
+            if (loadedCommand.init && !reload) {
+                try {
+                    loadedCommand.init(this.bot);
+                } catch (e) {
+                    Sentry.captureException(e);
+                    this.bot.logger.error(e);
+                    if (this.bot.client && this.bot.client.shard) {
+                        this.bot.rabbit.event({
+                            type: "warning", payload: {
+                                id: "badInit-" + command,
+                                message: `Couldn't initialise command ${command}:\n${e.message}`
+                            }
+                        });
+                    }
+                }
+            } else if (loadedCommand.init) {
+                this.bot.logger.warn(`Command ${command} was reloaded, but init was not run.`);
+            }
+            this.bot.logger.log(`Loaded command ${loadedCommand.name} ${`(${crc})`.gray}`);
+
+            if (reload) {
+                if (this.bot.commandUsages[loadedCommand.commands[0]]) {
+                    let oldCrc = this.bot.commandUsages[loadedCommand.commands[0]].crc;
+                    if (oldCrc !== crc)
+                        this.bot.logger.log(`Command ${command} version has changed from ${oldCrc} to ${crc}.`);
+                    else
+                        this.bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
+                }
+            }
+
+            if(loadedCommand.nestedDir){
+                loadedCommand = await this.loadSubcommand(loadedCommand);
+            }
+
+            loadedCommand.pattern = commandParser.BuildPattern(command, loadedCommand.usage).pattern;
+            if(!loadedCommand.slashHidden)
+                loadedCommand.slashOptions = Util.PatternToOptions(loadedCommand.pattern, loadedCommand.argDescriptions);
+
+
+            this.bot.commandObjects[command] = loadedCommand;
+
+            for (let i in loadedCommand.commands) {
+                if (loadedCommand.commands.hasOwnProperty(i)) {
+                    const commandName = loadedCommand.commands[i];
+                    if (this.bot.commands[commandName] && !reload) {
+                        this.bot.rabbit.event({
+                            type: "warning",
+                            payload: {
+                                id: "commandOverwritten-" + commandName,
+                                message: `Command ${commandName} already exists as '${this.bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`
+                            }
+                        })
+                    }
+                    this.bot.commands[commandName] = this.bot.commandObjects[command].run;
+                    this.bot.commandUsages[commandName] = {
+                        id: command,
+                        crc,
+                        ...loadedCommand,
+                    };
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            this.bot.logger.error("failed to load command");
+            this.bot.logger.error(e);
+            Sentry.captureException(e);
+        }
+    };
+
+    loadSubcommand(loadedCommand, path = "commands"){
+        return new Promise((resolve)=>{
+        this.bot.logger.log(`Loading nested commands for ${loadedCommand.name}`);
+            fs.readdir(`${__dirname}/../${path}/${loadedCommand.nestedDir}`, async (err, files)=>{
+                if(err) {
+                    Sentry.captureException(err);
+                    this.bot.logger.warn(`Unable to load ${loadedCommand.name} nested command dir ${loadedCommand.nestedDir}, ${err}`);
+                    return;
+                }
+                loadedCommand.subCommands = {};
+                for(let i = 0 ; i < files.length; i++){
+                    try {
+                        this.bot.logger.log(`Loading sub-command for ${loadedCommand.name}: ${loadedCommand.nestedDir}/${files[i]}`)
+                        const command = require(`../${path}/${loadedCommand.nestedDir}/${files[i]}`);
+                        if (command.customDisabled && process.env.CUSTOM_BOT) continue;
+                        if (command.init) {
+                            this.bot.logger.log(`Init for ${loadedCommand.name}/${command.name}`);
+                            await command.init(this.bot, loadedCommand);
+                        }
+
+                        command.id = files[i];
+                        command.pattern = commandParser.BuildPattern(command.commands[0], command.usage).pattern;
+
+                        // TODO: Subcommands
+                        loadedCommand.slashHidden = true;
+
+                        for (let i = 0; i < command.commands.length; i++) {
+                            loadedCommand.subCommands[command.commands[i]] = command;
+                        }
+
+                        // TODO: recurse nesting commands
+                    }catch(e){
+                        console.log(e);
+                        Sentry.captureException(e);
+                        this.bot.logger.error(e);
+                    }
+                }
+                if(loadedCommand.usage.indexOf("command") < 0)
+                    loadedCommand.usage += " :command?";
+                resolve(loadedCommand);
+            })
+        });
+    }
+
+    addCommandMiddleware(func){
+        this.commandMiddleware.push(func);
+    }
+
+    async runCommandMiddleware(context){
+        for(let i = 0; i < this.commandMiddleware.length; i++){
+            const middlewareResult = await this.commandMiddleware[i](context);
+
+            if(!middlewareResult){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Runs a command
+     * @param {CommandContext} context
+     * @returns {Promise<*|void|*>}
+     */
+    async runCommand(context) {
+        Sentry.configureScope((scope) => scope.setUser({
+            username: context.user.username,
+            id: context.user.id
+        }));
+
+        if (!this.bot.commandUsages[context.command]) {
+            if (!context.guild || !this.bot.customFunctions.COMMAND[context.guild.id] || context instanceof CustomCommandContext) return;
+            let customCommand = this.bot.customFunctions.COMMAND[context.guild.id][context.command]
+            if (!customCommand) return;
+            context.logPerformed();
+            // todo: custom command context
+            return await this.bot.util.runCustomFunction(customCommand, context.message)
+        }
+
+        if(!await this.runCommandMiddleware(context))return console.log("Middleware triggered"); // Middleware triggered
+
+        context.logPerformed();
+
+        // TODO: This event
+        //this.bot.bus.emit("commandPerformed", context);
+        Sentry.addBreadcrumb({
+            category: "Command",
+            level: Sentry.Severity.Info,
+            message: context.command,
+            data: {
+                username: context.user.username,
+                id: context.user.id,
+                // message: message.content,
+                channel: context.channel.id,
+                server:  context.guild?.id || "DM Channel"
+            }
+        });
+
+        try {
+            if(context.commandData.subCommands){
+                let parsedInput;
+
+                let trueCommand = context.options.command?.toLowerCase();
+                // Default to the help command
+                if(!trueCommand || (trueCommand !== "help" && !context.commandData.subCommands[trueCommand])){
+                    trueCommand = "help";
+                }
+
+
+                if(context.commandData.subCommands[trueCommand]){
+                    if(context.args) {
+                        parsedInput = commandParser.Parse(context.args.slice(2).join(" "), {
+                            pattern: context.commandData.subCommands[trueCommand].pattern,
+                            id: context.options.command
+                        });
+
+                        if(parsedInput.data)
+                            context.options = {...parsedInput.data, ...context.options}
+                    }
+                    if (!parsedInput || !parsedInput.error)
+                        return await context.commandData.subCommands[trueCommand].run(context, this.bot);
+                }
+                if(!this.bot.commands[context.command] || (context.options.command === "help")) {
+                    return await this.bot.commands["nestedCommandHelp"](context, this.bot);
+                }
+            }
+
+            return await this.bot.commands[context.command](context, this.bot);
+        } catch (e) {
+            console.log(e);
+            let exceptionID = Sentry.captureException(e);
+            context.channel.stopTyping(true);
+            // Show the actual error indev
+            if(process.env.VERSION === "indev"){
+                exceptionID = e.message;
+            }
+            if(context.channel.permissionsFor && context.channel.permissionsFor(this.bot.client.user.id).has("EMBED_LINKS")) {
+                let errorEmbed = new Embeds.LangEmbed(context);
+                errorEmbed.setColor("#ff0000");
+                errorEmbed.setTitle("An Error Occurred");
+                errorEmbed.setDescription(`Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``);
+                context.reply({embeds: [errorEmbed], ephemeral: true});
+            }else {
+                context.reply({content: `Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``, ephemeral: true});
+            }
+            this.bot.bus.emit("commandFailed", e);
+        } finally {
+            this.bot.database.logCommand(context.user.id, context.channel.id, context.guild?.id || context.channel.id, context.message ? context.message.id : context.interaction.id, context.command, context.message ? context.message.content : "Interaction", this.bot.client.user.id).catch((e)=>{
+                Sentry.captureException(e);
+                this.bot.logger.error(e);
+            })
+        }
+    }
+}
+
+//
+// module.exports = {
+//     name: "Commands",
+//     init: function (bot) {
+//
+//    
+//         }
+//
+//
+//         this.bot.loadCommand = function loadCommand(command, reload) {
+//             try {
+//                 const module = `${__dirname}/../commands/${command}`;
+//                 if (reload) {
+//                     delete require.cache[require.resolve(module)];
+//                 }
+//                 let crc = crc32(fs.readFileSync(module, 'utf8')).toString(16);
+//                 let loadedCommand = require(module);
+//                 if (loadedCommand.init && !reload) {
+//                     try {
+//                         loadedCommand.init(bot);
+//                     } catch (e) {
+//                         Sentry.captureException(e);
+//                         this.bot.logger.error(e);
+//                         if (this.bot.client && this.bot.client.shard) {
+//                             this.bot.rabbit.event({
+//                                 type: "warning", payload: {
+//                                     id: "badInit-" + command,
+//                                     message: `Couldn't initialise command ${command}:\n${e.message}`
+//                                 }
+//                             });
+//                         }
+//                     }
+//                 } else if (loadedCommand.init) {
+//                     this.bot.logger.warn(`Command ${command} was reloaded, but init was not run.`);
+//                 }
+//                 this.bot.logger.log(`Loaded command ${loadedCommand.name} ${`(${crc})`.gray}`);
+//
+//                 if (reload) {
+//                     if (this.bot.commandUsages[loadedCommand.commands[0]]) {
+//                         let oldCrc = this.bot.commandUsages[loadedCommand.commands[0]].crc;
+//                         if (oldCrc !== crc)
+//                             this.bot.logger.log(`Command ${command} version has changed from ${oldCrc} to ${crc}.`);
+//                         else
+//                             this.bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
+//                     }
+//                 }
+//
+//                 this.bot.commandObjects[command] = loadedCommand;
+//
+//                 for (let i in loadedCommand.commands) {
+//                     if (loadedCommand.commands.hasOwnProperty(i)) {
+//                         const commandName = loadedCommand.commands[i];
+//                         if (this.bot.commands[commandName] && !reload) {
+//                             this.bot.rabbit.event({
+//                                 type: "warning",
+//                                 payload: {
+//                                     id: "commandOverwritten-" + commandName,
+//                                     message: `Command ${commandName} already exists as '${this.bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`
+//                                 }
+//                             })
+//                         }
+//                         this.bot.commands[commandName] = this.bot.commandObjects[command].run;
+//                         this.bot.commandUsages[commandName] = {
+//                             id: command,
+//                             crc,
+//                             ...loadedCommand,
+//                         };
+//                     }
+//                 }
+//             } catch (e) {
+//                 this.bot.logger.error("failed to load command");
+//                 this.bot.logger.error(e);
+//                 Sentry.captureException(e);
+//             }
+//         };
+//
+//         // module.exports.loadPrefixCache(bot);
+//         module.exports.loadCommands(bot);
+//     },
+//     loadPrefixCache: async function (bot) {
+//         const prefixes = await this.bot.database.getPrefixes();
+//         for (let i = 0; i < prefixes.length; i++) {
+//             const prefix = prefixes[i];
+//             this.bot.prefixCache[prefix.server] = prefix.prefix;
+//         }
+//         this.bot.logger.log("Populated prefix cache with " + Object.keys(this.bot.prefixCache).length + " servers");
+//     },
+//     loadCommands: function (bot) {
+//         fs.readdir(`${__dirname}/../commands`, function readCommands(err, files) {
+//             if (err) {
+//                 this.bot.logger.error("Error reading from commands directory");
+//                 console.error(err);
+//                 Sentry.captureException(err);
+//             } else {
+//                 for (const command of files) {
+//                     if (!fs.lstatSync(`${__dirname}/../commands/${command}`).isDirectory()) {
+//                         this.bot.loadCommand(command);
+//                     }
+//                 }
+//                 this.bot.bus.emit("commandLoadFinished");
+//                 this.bot.logger.log("Finished loading commands.");
+//
+//                 this.bot.client.once("ready", () => {
+//                     this.bot.rabbit.event({
+//                         type: "commandList",
+//                         payload: this.bot.commandUsages
+//                     })
+//                 })
+//             }
+//         });
+//     }
+//};

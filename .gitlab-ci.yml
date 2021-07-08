@@ -28,7 +28,7 @@ build-consumer-image:
       -t $REGISTRY/ocelotbotv5/image-consumer:latest
       --build-arg VERSION=$CI_PIPELINE_IID
     - docker push $REGISTRY/ocelotbotv5/image-consumer:latest
-#    - docker push $REGISTRY_MIRROR/ocelotbotv5/image-consumer:latest
+    #    - docker push $REGISTRY_MIRROR/ocelotbotv5/image-consumer:latest
     - docker image rm $REGISTRY/ocelotbotv5/image-consumer:latest
     - docker image rm $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
 #    - curl -X POST $DEPLOY_WEBHOOK
@@ -69,7 +69,8 @@ build-base-image-staging:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
-    - docker build -f BaseImage.Dockerfile .
+    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest || true
+    - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
       --build-arg REGISTRY=$REGISTRY
       --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
@@ -130,7 +131,7 @@ sentry-master:
   only:
     - master
   environment:
-    name: master
+    name: production
   extends: .sentry
 
 .sentry:

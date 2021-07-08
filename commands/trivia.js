@@ -1,277 +1,119 @@
-const columnify = require('columnify');
-const pasync = require('promise-async');
-const request = require('request');
-const Discord = require('discord.js');
 const Sentry = require('@sentry/node');
+const Embeds = require("../util/Embeds");
+
 const difficulties = [
     "easy",
     "medium",
     "hard"
 ];
-
 const difficultyColours = {
     easy: "#51ff81",
     medium: "#ff7d2d",
     hard: "#ff150e"
 };
 
-const numbers = [
-    ":one:",
-    ":two:",
-    ":three:",
-    ":four:"
-];
-
 const runningGames = [];
+
+const sessionTokens = {};
+
+const {axios} = require('../util/Http');
 
 module.exports = {
     name: "Trivia",
-    usage: "trivia leaderboard monthly",
+    usage: "trivia :0category?",
     rateLimit: 2,
     commands: ["trivia"],
     categories: ["fun", "games"],
     requiredPermissions: ["EMBED_LINKS", "ADD_REACTIONS"],
-    init: function(bot){
-       //TODO destruct!
-    },
-    run: function run(message, args, bot) {
-        Sentry.configureScope(async function run(scope){
-            if(args[1]){
-                if(args[1].toLowerCase().startsWith("leaderboard")){
-                    message.channel.startTyping();
+    nestedDir: "trivia",
+    run: async function run(context, bot) {
+        if(runningGames.includes(context.channel.id))
+            return context.sendLang({content: "TRIVIA_SINGLE", ephemeral: true});
 
-                    let leaderboardData;
-                    if(args[2] && args[2].toLowerCase() === "monthly"){
-                        leaderboardData = await bot.database.getMonthlyTriviaLeaderboard();
-                    }else if(args[2] && args[2].toLowerCase() === "server" && message.guild) {
-                        leaderboardData = await bot.database.getServerTriviaLeaderboard(message.guild.members.cache.keyArray());
-                    }else{
-                        leaderboardData = await bot.database.getTriviaLeaderboard();
-                    }
+        try {
+            runningGames.push(context.channel.id);
+            const token = await getSessionToken(context.channel.id)
 
-                    const userKey = await message.getLang( "TRIVIA_USER");
-                    const scoreKey = await message.getLang( "TRIVIA_SCORE");
-                    const correctKey = await message.getLang( "TRIVIA_CORRECT");
-                    const unknownUserKey = await message.getLang("TRIVIA_UNKNOWN_USER");
+            const result = await axios.get(`https://opentdb.com/api.php?amount=1&category=${context.options.category || ""}&encode=url3986&token=${token}`);
+            if(!result.data?.results?.length)
+                return context.sendLang({content: "TRIVIA_UNKNOWN_CATEGORY", ephemeral: true, components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "categories"))]});
 
-                    let i = 0;
-                    let data = [];
-                    let position = -1;
+            const question = result.data.results[0];
+            const embed = new Embeds.LangEmbed(context);
+            embed.setColor(difficultyColours[question.difficulty]);
+            embed.setTitleLang(question.type === "boolean" ? "TRIVIA_TRUE_FALSE" : "TRIVIA_MULTIPLE_CHOICE");
+            let category = decodeURIComponent(question.category);
+            if(context.options.category)
+                category += ` (ID: ${context.options.category})`;
+            embed.setAuthorLang("TRIVIA_CATEGORY",{category});
+            embed.setDescription(decodeURIComponent(question.question));
+            embed.setFooterLang("TRIVIA_SECONDS", null, {seconds: 30});
+            const answers = question.type === "boolean" ? [{text: "True", emoji: "✅", style: 3}, {text: "False", emoji: "❌", style: 4}] :
+                question.incorrect_answers.concat(question.correct_answer).map((a)=>({text: decodeURIComponent(a), style: 1}));
 
-                    await pasync.eachSeries(leaderboardData, async function processLeaderboard(entry, cb){
-                        i++;
-                        if(entry.user === message.author.id){
-                            position = "#"+i;
-                            if(i > 10){
-                                cb();
-                                return;
-                            }
-                        }
-                        if(i <= 10)
-                            try {
-                                let user = await bot.util.getUserInfo(entry.user);
-                                data.push({
-                                    "#": i,
-                                    [userKey]: user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,
-                                    [scoreKey]: entry.Score,
-                                    [correctKey]: entry.correct,
-                                });
-                            }catch(e){
-                                bot.logger.error("Error processing leaderboard entry");
-                                bot.logger.error(e);
-                            }finally{
-                                cb();
-                            }
-                        else cb();
-                    });
-                    if(args[2] && args[2].toLowerCase() === "daily"){
-                        return message.replyLang("TRIVIA_LEADERBOARD_DAILY");
-                    }else {
-                        message.replyLang("TRIVIA_LEADERBOARD_LIST" + (args[2] ? "_MONTHLY" : ""), {
-                            user: message.author.id,
-                            position: position,
-                            total: leaderboardData.length,
-                            list: columnify(data)
-                        });
-                    }
-
-                    message.channel.stopTyping();
-
-                }else{
-                    message.replyLang("TRIVIA_INVALID_USAGE");
-                }
-            }else{
-                if(!message.guild){
-                    message.replyLang("GENERIC_DM_CHANNEL");
-                    return;
-                }
-                if(message.getSetting("trivia.singleOnly") && runningGames.indexOf(message.channel.id) > -1){
-                    return message.replyLang("TRIVIA_SINGLE");
-                }
-                bot.tasks.startTask("trivia", message.id);
-                message.channel.startTyping();
-                runningGames.push(message.channel.id);
-                request(message.guild.getSetting("trivia.url"), async function triviaResponse(err, resp, body){
-                    if(err){
-                        Sentry.captureException(err);
-                        message.replyLang("TRIVIA_ERROR");
-                        if(runningGames.indexOf(message.channel.id) > -1)
-                            runningGames.splice(runningGames.indexOf(message.channel.id), 1); //Is this right?
-                        message.channel.stopTyping();
-                        bot.tasks.endTask("trivia", message.id);
-                        return;
-                    }
-                    scope.addBreadcrumb({
-                        message: "Got Trivia message",
-                        level: Sentry.Severity.Info,
-                        category: "Trivia",
-                        data: {body}
-                    });
-                    try{
-                        const data = JSON.parse(body);
-                        const question = data.results[0];
-                        if(question){
-                            const correctAnswer = question.correct_answer;
-                            let answers = question.incorrect_answers;
-                            answers.push(correctAnswer);
-                            bot.util.shuffle(answers);
-                            const isBoolean = question.type === "boolean";
-
-                            let embed = new Discord.MessageEmbed();
-
-                            embed.setTitle(await message.getLang("TRIVIA_SECONDS", {seconds: message.getSetting("trivia.seconds")}));
-                            embed.setDescription(decodeURIComponent(question.question));
-                            embed.setAuthor(await message.getLang("TRIVIA_CATEGORY", {category: decodeURIComponent(question.category)}));
-                            embed.setColor(difficultyColours[question.difficulty]);
-
-                            if(isBoolean){
-                                embed.addField(
-                                     await message.getLang("TRIVIA_FOR", {answer: "TRUE"}),
-                                     await message.getLang("TRIVIA_REACT", {reaction: ":white_check_mark:"}), true);
-                                embed.addField(
-                                     await message.getLang("TRIVIA_FOR", {answer: "FALSE"}),
-                                     await message.getLang("TRIVIA_REACT", {reaction: ":negative_squared_cross_mark:"}), true)
-                            }else{
-                                for(let i = 0; i < answers.length; i++){
-                                    embed.addField(
-                                        await message.getLang("TRIVIA_FOR", {answer: decodeURIComponent(answers[i])}),
-                                        await message.getLang("TRIVIA_REACT", {reaction: numbers[i]}), true)
-                                }
-                            }
-
-                            const sentMessage = await message.channel.send("", embed);
-                            const reactions = isBoolean ? ["❎", "✅"] : ["1⃣", "2⃣", "3⃣", "4⃣"];
-                            const correctReaction = reactions[answers.indexOf(correctAnswer)];
-
-                            sentMessage.awaitReactions((reaction, user) => reactions.indexOf(reaction.emoji.name) > -1 && user.id === bot.client.user.id, {time: message.getSetting("trivia.seconds")*1000})
-                                .then(async function triviaEnded(reactionResult){
-                                    message.channel.startTyping();
-                                    const permissions = await message.channel.permissionsFor(bot.client.user);
-                                    if(!permissions) {
-                                        bot.tasks.endTask("trivia", message.id);
-                                        return bot.logger.log("Left server before trivia ended");
-                                    }
-
-                                    if(permissions.has("MANAGE_MESSAGES"))
-                                        sentMessage.reactions.removeAll();
-
-                                    let answered = [];
-                                    let cheaters = [];
-                                    let correct = [];
-
-                                    const reactionArray = reactionResult.array();
-
-                                    for (const reaction of reactionArray) {
-                                        const userArray = reaction.users.cache.array();
-                                        for (const user of userArray) {
-                                            if(user.id === bot.client.user.id)
-                                                continue;
-                                            if (cheaters.indexOf(user.id) > -1)
-                                                continue;
-
-                                            if (answered.indexOf(user.id) > -1) {
-                                                cheaters.push(user.id);
-                                                continue;
-                                            }
-                                            answered.push(user.id);
-                                            if(reaction.emoji.name === correctReaction)
-                                                correct.push(user.id);
-                                        }
-                                    }
-
-                                    message.channel.stopTyping();
-                                    if(runningGames.indexOf(message.channel.id) > -1)
-                                        runningGames.splice(runningGames.indexOf(message.channel.id), 1);
-
-                                    const points = difficulties.indexOf(question.difficulty) + 2;
-                                    let output = await bot.lang.getTranslation(message.guild.id, "TRIVIA_TIME_END", {answer: decodeURIComponent(correctAnswer)})+"\n";
-
-                                    if(correct.length === 0){
-                                        output += await bot.lang.getTranslation(message.guild.id, "TRIVIA_WIN_NONE")+"\n";
-                                    }else{
-                                        for(let i = 0; i < correct.length; i++){
-                                            if(cheaters.indexOf(correct[i]) > -1)continue;
-                                            output +=  `<@${correct[i]}> `;
-                                            let streak = await bot.database.incrementStreak(correct[i], "trivia");
-                                            if(streak > 1)
-                                                output += `(🔥 **${streak}**) `;
-
-                                            bot.database.addPoints(message.author.id, 1+points, `trivia win`);
-
-                                            bot.database.logTrivia(correct[i], 1, points, message.guild.id).then(async function(){
-                                                let count = (await bot.database.getTriviaCorrectCount(correct[i]))[0]['count(*)'];
-                                                await bot.badges.updateBadge(await bot.client.users.fetch(correct[i]), 'trivia', count, message.channel);
-                                                await bot.badges.updateBadge(await bot.client.users.fetch(correct[i]), 'streak', streak, message.channel);
-                                            });
-                                        }
-
-                                        output += "\n";
-
-                                        if(message.getBool("points.enabled")){
-                                            output += `+<:points:817100139603820614>${1+points}\n`
-                                        }
-
-                                        output += await bot.lang.getTranslation(message.guild.id, "TRIVIA_WIN"+ (correct.length === 1 ? "_SINGLE" : ""), {points});
-                                    }
-
-                                    for(let i = 0; i < answered.length; i++){
-                                        let user = answered[i];
-                                        if(correct.indexOf(user) > -1)continue;
-                                        bot.logger.log("Ended the streak of "+user);
-                                        bot.database.resetStreak(user, "trivia");
-                                    }
-
-                                    if(cheaters.length > 0)
-                                        output += `\n${await message.getLang(cheaters.length > 1 ? "TRIVIA_CHEAT_MULTIPLE" : "TRIVIA_CHEAT_SINGLE", {count: cheaters.length})}`
-
-                                    message.channel.send(output);
-                                    bot.tasks.endTask("trivia", message.id);
-                                });
-
-                            for(let i = 0; i < reactions.length; i++)
-                                await sentMessage.react(reactions[i]);
-                        }else{
-                            bot.tasks.endTask("trivia", message.id);
-                            message.replyLang("TRIVIA_ERROR");
-                            bot.logger.error("Trivia service gave back no questions!");
-                            message.channel.stopTyping();
-                            if(runningGames.indexOf(message.channel.id) > -1)
-                                runningGames.splice(runningGames.indexOf(message.channel.id), 1);
-                        }
-                    }catch(e){
-                        message.replyLang("TRIVIA_ERROR");
-                        bot.logger.error("Trivia service gave unexpected response:");
-                        console.log(e);
-                        console.log(body);
-                        bot.logger.error(e);
-                        Sentry.captureException(e);
-                    }finally{
-                        if(runningGames.indexOf(message.channel.id) > -1)
-                            runningGames.splice(runningGames.indexOf(message.channel.id), 1);
-                        message.channel.stopTyping();
-                    }
-                });
+            let answerMap = {};
+            let userAnswers = {};
+            function recordAnswer(interaction){
+                userAnswers[interaction.member.user.id] = answerMap[interaction.data.custom_id];
+                return {type: 4, data: {flags: 64, content: `✅ You have selected: ${answerMap[interaction.data.custom_id]}`}};
             }
-        });
+
+            let output = {components: [bot.util.actionRow()]};
+            for(let i = 0; i < answers.length; i++){
+                const answer = answers[i];
+                embed.addField(`Option ${i+1}`, answer.text, true);
+                const answerButton = bot.interactions.addAction(answer.text, answer.style, recordAnswer, 32000, answer.emoji);
+                answerMap[answerButton.custom_id] = answer.text;
+                output.components[0].components.push(answerButton);
+            }
+            output.embeds = [embed];
+            let sentMessage = await context.send(output);
+
+            setTimeout(()=>{
+                removeGame(context.channel.id);
+                let correct = [];
+                context.edit({components: []}, sentMessage);
+                const users = Object.keys(userAnswers);
+                const difficulty = difficulties.indexOf(question.difficulty)+1;
+                const correctAnswer = decodeURIComponent(question.correct_answer);
+                for(let i = 0; i < users.length; i++){
+                    if(!userAnswers.hasOwnProperty(users[i]))continue
+                    bot.database.logTrivia(users[i], userAnswers[users[i]] === correctAnswer, difficulty, context.guild?.id || context.channel.id)
+                    if(userAnswers[users[i]] === correctAnswer)
+                        correct.push(users[i]);
+
+                }
+
+                console.log(correct);
+                console.log(userAnswers);
+                let output = `${context.getLang("TRIVIA_TIME_END", {answer: correctAnswer})}\n`;
+                if(correct.length === 0)
+                    output += context.getLang("TRIVIA_WIN_NONE");
+                else if(correct.length === 1)
+                    output += context.getLang("TRIVIA_WIN_SINGLE", {user: `<@${correct[0]}>`, points: difficulty});
+                else
+                    output += context.getLang("TRIVIA_WIN", {users: correct.map((u)=>`<@${u}>`).join(", "), points: difficulty})
+                let suggestedButton = bot.interactions.fullSuggestedCommand(context, `trivia ${context.options.category}`);
+                suggestedButton.label = "Play Again";
+                suggestedButton.style = 1;
+                return context.send({content: output, components: [bot.util.actionRow(suggestedButton)]})
+            }, 30000);
+        }catch(e){
+            console.log(e);
+            Sentry.captureException(e);
+            removeGame(context.channel.id);
+            return context.sendLang({content: "TRIVIA_ERROR", ephemeral: true});
+        }
     }
 };
+
+function removeGame(channel){
+    runningGames.splice(runningGames.indexOf(channel), 1)
+}
+
+async function getSessionToken(channel){
+    if(sessionTokens[channel])return sessionTokens[channel];
+    let result = await axios.get("https://opentdb.com/api_token.php?command=request");
+    sessionTokens[channel] = result.data.token;
+    return result.data.token;
+}

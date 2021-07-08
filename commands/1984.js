@@ -1,15 +1,17 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "1984 Meme",
-    usage: "1984 <text>",
+    usage: "1984 :input+",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["1984", "984"],
     rateLimit: 10,
     categories: ["memes"],
-    run: function (message, args, bot) {
-        if (!args[1])
-            return message.replyLang("IMAGE_NO_TEXT");
-
-        return bot.util.imageProcessor(message, {
+    argDescriptions: {input: "The contents of the speech bubble"},
+    handleError: function(context){
+        return context.sendLang("GENERIC_TEXT");
+    },
+    run: function (context, bot) {
+        return Image.ImageProcessor(bot, context, {
             "components": [
                 {
                     "url": "1984.png",
@@ -20,7 +22,7 @@ module.exports = {
                             font: "arial.ttf",
                             fontSize: 25,
                             colour: "#000000",
-                            content: message.cleanContent.substring(args[0].length),
+                            content: context.options.input,
                             x: 210,
                             y: 69,
                             ax: 0.5,
@@ -32,6 +34,6 @@ module.exports = {
                     }]
                 },
             ]
-        }, "shy")
-    }
+        }, "shy");
+    },
 };

@@ -7,83 +7,115 @@
 const Discord = require('discord.js');
 module.exports = {
     name: "Ocelot Premium",
-    usage: "premium",
+    usage: "premium :key?",
     commands: ["premium", "donate", "patreon"],
     rateLimit: 1,
     categories: ["meta"],
-    run: async function run(message, args, bot){
-        if(args[1]){
-            if(!message.guild.id)
-                return message.replyLang("PREMIUM_DM_CHANNEL", {arg: args[0]});
-
-            if(args[1].toLowerCase() === "redeem"){
-                if(bot.config.getBool("global", "premium", message.author.id)) {
-                    message.delete();
-                    let dm = await message.author.createDM();
-                    return dm.send("You already have premium. If you have changed your premium plan, please contact Big P#1843");
-                }else if(message.channel.id === message.getSetting("premium.redeemChannel")){
-                    message.delete();
-                    return redeemPremium(bot, message.author);
-                }else if(message.channel.id === message.getSetting("premium.server.redeemChannel")){
-                    message.delete();
-                    return redeemServerPremium(bot, message.author);
+    init: function(bot){
+        bot.addCommandMiddleware(async (context)=>{
+            if (context.getBool("points.enabled"))return true;
+            if (context.commandData.vote && context.getBool("voteRestrictions") && !(context.getBool("premium") || context.getBool("serverPremium"))) {
+                if (context.getSetting("restrictionType") === "vote") {
+                    let lastVote = await this.bot.database.getLastVote(context.user.id);
+                    if (lastVote[0])
+                        lastVote = lastVote[0]['MAX(timestamp)'];
+                    let difference = new Date() - lastVote;
+                    console.log("difference is " + difference);
+                    if (difference > this.bot.util.voteTimeout * 2) {
+                        context.replyLang({content: "COMMAND_VOTE_REQUIRED", ephemeral: true})
+                        return false;
+                    }
+                } else {
+                    // This is dumb, but I can't avoid this
+                    try {
+                        await (await this.bot.client.guilds.fetch("322032568558026753")).members.fetch(context.user.id)
+                    } catch (e) {
+                        context.reply({content: "You must join the support server or purchase premium to enable this command. You can join the support server here: https://discord.gg/PTaXZmE", ephemeral: true})
+                        return false;
+                    }
                 }
-                return message.channel.send("This command can only be used in the specific support server channels for your premium type. If you have purchased premium, please use them there.")
             }
 
-            if(message.getBool("serverPremium"))
-                return message.replyLang("PREMIUM_ALREADY_HAS");
+            if (context.commandData.premium && !(context.getBool("premium") || context.getBool("serverPremium"))) {
+                context.reply({
+                    content: `:warning: This command requires **<:ocelotbot:533369578114514945> OcelotBOT Premium**\n_To learn more about premium, type ${context.getSetting("prefix")}premium_\nAlternatively, you can disable this command using ${context.getSetting("prefix")}settings disableCommand ${context.command}`,
+                    ephemeral: true
+                });
+                return false;
+            }
+            return true;
+        });
+    },
+    run: async function run(context, bot){
+        if(context.options.key){
+            if(!context.guild.id)
+                return context.sendLang("PREMIUM_DM_CHANNEL", {arg: context.command});
 
-            let result = await bot.database.getPremiumKey(args[1]);
+            if(context.options.key.toLowerCase() === "redeem"){
+                if(bot.config.getBool("global", "premium", context.user.id)) {
+                    context.message?.delete();
+                    let dm = await context.user.createDM();
+                    return dm.send("You already have premium. If you have changed your premium plan, please contact Big P#1843");
+                }else if(message.channel.id === context.getSetting("premium.redeemChannel")){
+                    context.message?.delete();
+                    return redeemPremium(bot, context.user);
+                }else if(message.channel.id === context.getSetting("premium.server.redeemChannel")){
+                    context.message?.delete();
+                    return redeemServerPremium(bot, context.user);
+                }
+                return context.send({content: "This command can only be used in the specific support server channels for your premium type. If you have purchased premium, please use them there.", ephemeral: true})
+            }
+
+            if(context.getBool("serverPremium"))
+                return context.sendLang("PREMIUM_ALREADY_HAS");
+
+            let result = await bot.database.getPremiumKey(context.options.key);
 
             if(!result[0])
-                return message.replyLang("PREMIUM_INVALID", {arg: args[0]});
+                return context.sendLang("PREMIUM_INVALID", {arg: context.command});
 
             let key = result[0];
             if(key.redeemed)
-                return message.replyLang("PREMIUM_KEY_ALREADY_REDEEMED");
+                return context.sendLang("PREMIUM_KEY_ALREADY_REDEEMED");
 
-            await bot.database.redeemPremiumKey(args[1], message.guild.id);
-            await bot.config.set(message.guild.id, "serverPremium", true);
-            if(key.owner !== message.author.id){
+            await bot.database.redeemPremiumKey(context.options.key, context.guild.id);
+            await bot.config.set(context.guild.id, "serverPremium", true);
+            if(key.owner !== context.user.id){
                 let owner = await bot.client.users.fetch(key.owner);
                 bot.logger.warn("Key was redeemed by someone other than the owner.");
                 if(owner){
                     let dm = await owner.createDM();
                     //KEY_REDEEMED_DM
-                    dm.send(`Your Ocelot Premium key has been redeemed by **${await bot.util.getUserTag(message.author.id)}** for server **${message.guild.name}**. If you didn't authorize this, contact Big P#1843`);
+                    dm.send(`Your Ocelot Premium key has been redeemed by **${await bot.util.getUserTag(context.user.id)}** for server **${context.guild.name}**. If you didn't authorize this, contact Big P#1843`);
                 }
             }
-
-            message.replyLang("PREMIUM_KEY_REDEEMED");
-            return;
+            return context.sendLang("PREMIUM_KEY_REDEEMED");
         }
 
         let embed = new Discord.MessageEmbed();
         embed.setTitle("Premium Status");
         embed.setURL("https://ocelotbot.xyz/premium");
         embed.setThumbnail("https://ocelotbot.xyz/badge.php?id=52");
-        if(message.getBool("serverPremium")) {
+        if(context.getBool("serverPremium")) {
             embed.setDescription("**[Server Premium](https://ocelotbot.xyz/premium)** - You can enjoy premium commands in this server.");
-            if(message.getBool("premium")) {
+            if(context.getBool("premium")) {
                 embed.setColor("#378515");
                 embed.addField("User Premium", "You also have premium, so you can enjoy all the benefits!");
             } else {
                 embed.setColor("#c07012");
                 embed.addField("User Premium", "Enjoy extra benefits from $2 a month with user premium: https://ocelotbot.xyz/premium")
             }
-        }else if(message.getBool("premium")){
+        }else if(context.getBool("premium")){
             embed.setColor("#378515");
             embed.setDescription("**[User Premium](https://ocelotbot.xyz/premium)** - You have user premium, so you can enjoy the benefits anywhere!");
             embed.addField("Server Premium", "Upgrade the whole server to premium for just $5 a month at https://ocelotbot.xyz/premium");
-            embed.addField("Got a Key?", `Redeem it with ${args[0]} \`key\``);
+            embed.addField("Got a Key?", `Redeem it with ${context.command} \`key\``);
         }else{
             embed.setColor("#707070");
             embed.setDescription("No premium benefits. Premium starts at $2 a month: https://ocelotbot.xyz/premium");
-            embed.addField("Got a Key?", `Redeem it with ${args[0]} \`key\``);
+            embed.addField("Got a Key?", `Redeem it with ${context.command} \`key\``);
         }
-
-        message.channel.send(embed);
+        return context.send({embeds: [embed]});
     }
 };
 

@@ -1,19 +1,19 @@
 const fs = require('fs');
 
-let subs = {
-};
 
-let removedSubs = [];
 let checkTimer;
 
 module.exports = {
     name: "Subscriptions",
-    usage: "subscriptions add/list/remove/types",
+    usage: "subscriptions",
     rateLimit: 10,
     categories: ["tools"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["subscriptions", "subscription", "subscribe", "sub", "subs"],
     hidden: true,
+    subs: {},
+    removedSubs: [],
+    nestedDir: "subscriptions",
     init: async function(bot){
         bot.logger.log("Loading subscriptions...");
         bot.subscriptions = {};
@@ -43,14 +43,14 @@ module.exports = {
         });
         bot.client.once("ready", async function discordReady(){
             bot.logger.log("Loading active subscriptions...");
-            const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.cache.keyArray());
+            const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.cache.keyArray(), bot.client.user.id);
             bot.logger.log(`Loaded ${rawSubs.length} subs`);
             for(let i = 0; i < rawSubs.length; i++){
                 const sub = rawSubs[i];
-                if(subs[sub.data])
-                    subs[sub.data].push(sub);
+                if(module.exports.subs[sub.data])
+                    module.exports.subs[sub.data].push(sub);
                 else
-                    subs[sub.data] = [sub];
+                    module.exports.subs[sub.data] = [sub];
 
                 if(bot.subscriptions[sub.type] && bot.subscriptions[sub.type].added)
                     bot.subscriptions[sub.type].added(sub, bot);
@@ -63,7 +63,7 @@ module.exports = {
 
         bot.client.on("channelDelete", async function channelDeleted(channel){
             if(!channel.guild)return;
-            await bot.database.removeSubscriptionsForChannel(channel.guild.id, channel.id);
+            await bot.database.removeSubscriptionsForChannel(channel.guild.id, channel.id, bot.client.user.id);
             for(let subType in bot.subscriptions){
                 if(bot.subscriptions.hasOwnProperty(subType)) {
                     for (let i = 0; i < bot.subscriptions[subType].length; i++) {
@@ -75,16 +75,14 @@ module.exports = {
                 }
             }
         })
-
-        bot.util.standardNestedCommandInit("subscriptions");
     },
     check: async function check(bot){
         if(bot.drain)return;
-        for(let data in subs)
-           if(subs.hasOwnProperty(data)){
-               const subList = subs[data];
+        for(let data in module.exports.subs)
+           if(module.exports.subs.hasOwnProperty(data)){
+               const subList = module.exports.subs[data];
                const sub = subList[0];
-               if(removedSubs.includes(sub.id))continue;
+               if(module.exports.removedSubs.includes(sub.id))continue;
                if(bot.subscriptions[sub.type]){
                    if(!bot.subscriptions[sub.type].check)continue;
                     let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
@@ -94,16 +92,8 @@ module.exports = {
                         await bot.database.updateLastCheck(subList[i].id);
                         subList[i].lastcheck = new Date();
                        if(chan) {
-                           for(let j = 0; j < results.length; j++) {
-                               let result = results[j];
-                               bot.logger.log(`Sending result for ${sub.type} ID ${sub.id} to ${subList.length} channels.`);
-                                if(j >= 5){
-                                    chan.send(`:warning: **${results.length-5}** more results were omitted.`);
-                                    break;
-                                }else{
-                                    chan.send("", result);
-                                }
-                           }
+                           console.log(JSON.stringify(results))
+                           chan.send({embeds: [results]});
                        }else {
                            bot.logger.warn(`${subList[i].channel} does not exist for sub ${subList[i].id}`);
                        }
@@ -113,67 +103,4 @@ module.exports = {
                }
            }
     },
-    run: async function(message, args, bot){
-        if(!message.guild)
-            return message.channel.send(":bangbang: This can't be used in a DM channel.");
-
-        bot.util.standardNestedCommand(message, args, bot, "subscriptions", {subs, removedSubs});
-        return;
-
-        const action = args[1].toLowerCase();
-
-        if(action === "add" || action === "types"){
-            if(args[2] && bot.subscriptions[args[2]] && args[3]){
-                let data = message.content.substring(args[0].length+args[1].length+args[2].length+2);
-                let validation = bot.subscriptions[args[2]].validate(data);
-                if(validation)
-                    return message.channel.send(validation);
-                let res = await bot.database.addSubscription(message.guild.id, message.channel.id, message.author.id, args[2], args[3]);
-                let subObject = {
-                    server: message.guild.id,
-                    channel: message.channel.id,
-                    user: message.author.id,
-                    type: args[2],
-                    data: args[3],
-                    lastcheck: new Date().getTime(),
-                    id: res[0]
-                };
-                if(subs[subObject.data]){
-                    subs[subObject.data].push(subObject);
-                }else{
-                    subs[subObject.data] = [subObject];
-                }
-                message.channel.send(":white_check_mark: Your subscription has been added! You will receive messages in this channel whenever there are updates.");
-                if(bot.subscriptions[args[2]].added)
-                    bot.subscriptions[args[2]].added(subObject, bot);
-
-            }else{
-                let output = "Usage: !subscription add name URL\nAvailable Subscriptions:\n";
-                for(let sub in bot.subscriptions){
-                    output += sub+" - "+bot.subscriptions[sub].name+"\n";
-                }
-                message.channel.send(output);
-            }
-        }else if(action === "list"){
-            const subs = await bot.database.getSubscriptionsForChannel(message.channel.id);
-            if(subs.length > 0){
-                let output = `Active subscriptions for **#${message.channel.name}**:\n`;
-                for(let i = 0; i < subs.length; i++){
-                    const sub = subs[i];
-                    output += `${sub.id}: ${sub.type} - ${sub.data}\n`
-                }
-                message.channel.send(output);
-            }else{
-                message.channel.send(`There are no subscriptions in this channel yet! Add one with ${args[0]} add\nor view available subscription types with **${args[0]} types**`);
-            }
-        }else if(action === "remove"){
-            if(!args[3] || isNaN(args[3])){
-                message.channel.send(`:bangbang: Usage !subscriptions remove ID where ID is the number listed on ${args[0]} list`);
-            }else{
-                message.channel.send("NYI, shout at peter");
-            }
-        }else{
-            message.channel.send(`:bangbang: Usage: ${args[0]} add/list/remove`);
-        }
-    }
 };

@@ -7,6 +7,7 @@
 const CanvasGifEncoder = require('../lib/canvas-gif-encoder');
 const Discord = require('discord.js');
 const canvas = require('canvas');
+const Util = require("../util/Util");
 const size = 112;
 const frames = [{"x": 18, "y": 18, "w": 98, "h": 98}, {"x": 14, "y": 30, "w": 102, "h": 86}, {
     "x": 6,
@@ -19,24 +20,24 @@ const ignoredArgs = ["play", "explore", "stats", "walk", "feed", "clean", "train
 
 module.exports = {
     name: "Pet Pet",
-    usage: "pet [url or @user]",
+    usage: "pet :image?",
     categories: ["image", "filter"],
     rateLimit: 100,
     commands: ["pet", "petpet"],
-    run: async function run(message, args, bot) {
-        if (message.guild && !args[0].endsWith("petpet") && args[1] && ignoredArgs.includes(args[1].toLowerCase())) {
-            message.channel.send(`:warning: It looks like you're trying to use ${args[0]} with a different bot, I will now temporarily disable the ${args[0]} command on OcelotBOT for you so as not to spam.
-To prevent this in the future, consider changing OcelotBOT's prefix with **${message.getSetting("prefix")}settings set prefix** or disabling the pet command with **${message.getSetting("prefix")}settings disableCommand pet**.
-You can still access this command with ${message.getSetting("prefix")}petpet`);
-            if (!bot.config.cache[message.guild.id])
-                bot.config.cache[message.guild.id] = {};
-            bot.config.cache[message.guild.id]["pet.disable"] = "1";
+    run: async function run(context, bot) {
+        if (context.guild && !context.command.endsWith("petpet") && ignoredArgs.includes(context.image?.toLowerCase())) {
+            context.send(`:warning: It looks like you're trying to use ${context.command} with a different bot, I will now temporarily disable the ${context.command} command on OcelotBOT for you so as not to spam.
+To prevent this in the future, consider changing OcelotBOT's prefix with **${context.getSetting("prefix")}settings set prefix** or disabling the pet command with **${context.getSetting("prefix")}settings disableCommand pet**.
+You can still access this command with ${context.getSetting("prefix")}petpet`);
+            if (!bot.config.cache[context.guild.id])
+                bot.config.cache[context.guild.id] = {};
+            bot.config.cache[context.guild.id]["pet.disable"] = "1";
             return
         }
-        let avatarURL = await bot.util.getImage(message, args);
+        let avatarURL = await Util.GetImage(bot, context);
         if (!avatarURL)
-            return message.channel.send("You must enter an image URL or mention a user");
-        message.channel.startTyping();
+            return context.send({content: "You must enter an image URL or mention a user", ephemeral: true});
+        context.defer();
         try {
             let span = bot.util.startSpan("Load avatar");
             const avatar = await canvas.loadImage(avatarURL);
@@ -70,14 +71,10 @@ You can still access this command with ${message.getSetting("prefix")}petpet`);
             bot.logger.log(`Rendering ${promises.length} frames...`);
             await Promise.all(promises);
             bot.logger.log("Uploading...");
-            message.channel.send("", new Discord.MessageAttachment(encoder.end(), "petpet.gif"));
-            message.channel.stopTyping(true);
-
+            context.send({files: [new Discord.MessageAttachment(encoder.end(), "petpet.gif")]});
         } catch (e) {
             bot.raven.captureException(e);
-            message.replyLang("GENERIC_ERROR");
-        } finally {
-            message.channel.stopTyping(true);
-        }
+            context.replyLang("GENERIC_ERROR");
+        } 
     },
 };

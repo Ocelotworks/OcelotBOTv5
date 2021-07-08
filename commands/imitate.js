@@ -4,10 +4,9 @@
  * ╚════ ║   (ocelotbotv5) imitate
  *  ════╝
  */
-const Discord = require('discord.js');
 module.exports = {
     name: "Imitate User",
-    usage: "imitate <@user> <message>",
+    usage: "imitate :@user :message+",
     rateLimit: 100,
     detailedHelp: "Send a message as if you're another user",
     usageExample: "imitate @Ned Flanders I'm a big stupid four eyed lamo and I wear the same stupid sweater every day",
@@ -16,43 +15,42 @@ module.exports = {
     commands: ["imitate", "imatate"],
     categories: ["fun"],
     unwholesome: true,
-    run: async function run(message, args, bot) {
-        if(!message.guild)
-            return message.replyLang("GENERIC_DM_CHANNEL");
+    slashHidden: true,
+    run: async function run(context, bot) {
+        if(!context.guild)
+            return context.sendLang({content: "GENERIC_DM_CHANNEL", ephemeral: true});
 
-        if(args.length < 3)
-            return message.replyLang("IMITATE_NO_MESSAGE", {author: message.author});
-
-        const targetUser = bot.util.getUserFromMention(args[1]);
-        if(!targetUser)
-            return message.replyLang("IMITATE_NO_USER");
-
-        const target = message.guild.members.cache.get(targetUser.id);
-
+        const target = await context.guild.members.fetch(context.options.user);
         if(!target)
-            return message.channel.send(":thinking: That user isn't in this server...");
+            return context.sendLang({content: "IMITATE_NO_USER", ephemeral: true});
 
-        if(message.getSetting("imitate.blockedUsers") && message.getSetting("imitate.blockedUsers").indexOf(target.id) > -1)
-            return message.replyLang("IMITATE_BLOCKED");
+
+        if(context.getSetting("imitate.blockedUsers") && context.getSetting("imitate.blockedUsers").indexOf(target.id) > -1)
+            return context.sendLang({content: "IMITATE_BLOCKED", ephemeral: true});
 
         if(target.id === bot.client.user.id)
-            return message.channel.send("https://78.media.tumblr.com/80918f5b6f4ccf8d3a82dced9ec63561/tumblr_pfg0xmvLMz1qb3quho1_500.gif");
+            return context.send("https://78.media.tumblr.com/80918f5b6f4ccf8d3a82dced9ec63561/tumblr_pfg0xmvLMz1qb3quho1_500.gif");
 
-        const webhooks = await message.channel.fetchWebhooks();
+        const webhooks = await context.channel.fetchWebhooks();
         let webhook = webhooks.filter((w)=>w.type === "Incoming").first();
         if(!webhook){
-            webhook = await message.channel.createWebhook(bot.client.user.username, bot.client.user.displayAvatarURL({dynamic: true, format: "png"}));
+            webhook = await context.channel.createWebhook(bot.client.user.username, bot.client.user.displayAvatarURL({dynamic: true, format: "png"}));
         }
 
-        const content = message.content.substring(args[0].length+args[1].length+2);
+        if(!webhook){
+            return context.send({content: "Couldn't find or create a valid webhook.", ephemeral: true});
+        }
 
-        if(content.startsWith(message.getSetting("prefix")+"spook"))
-            return message.replyLang("IMITATE_SPOOK");
+        const content = context.options.message;
 
-        webhook.send(content, {
+        if(content.startsWith(context.getSetting("prefix")+"spook"))
+            return context.replyLang({content: "IMITATE_SPOOK", ephemeral: true});
+
+        return webhook.send({
             username: target.displayName,
             avatarURL: target.user.displayAvatarURL({dynamic: 'true'}),
-            disableEveryone: true
+            disableEveryone: true,
+            content: content,
         });
 
     }

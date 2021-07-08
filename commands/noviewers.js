@@ -5,7 +5,7 @@ module.exports = {
     detailedHelp: "Returns a random twitch live stream with no viewers",
     categories: ["fun"],
     commands: ["noviews", "zeroviews", "noviewers"],
-    run: async function run(message, args, bot) {
+    run: async function run(context, bot) {
         let result = await bot.util.getJson("https://nobody.live/stream");
         let embed = new Discord.MessageEmbed();
         embed.setTitle(result.title);
@@ -15,7 +15,6 @@ module.exports = {
         embed.setDescription(`${result.user_name} is streaming ${result.game_name} to ${result.viewer_count} viewers. [Watch](https://twitch.tv/${result.user_name})`);
         embed.setTimestamp(new Date(result.started_at))
         embed.setFooter("Started Streaming: ");
-
-        message.channel.send(embed);
+        return context.send({embeds: [embed]});
     }
 };

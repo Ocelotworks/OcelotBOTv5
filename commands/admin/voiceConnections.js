@@ -10,7 +10,7 @@ module.exports = {
     name: "Voice Connections",
     usage: "voiceConnections",
     commands: ["vcs", "voiceconnections"],
-    run: async function (message, args, bot) {
+    run: async function (context, bot) {
         let nodes = [];
         let players = [];
         bot.lavaqueue.manager.nodes.forEach(function (node, host) {
@@ -34,6 +34,6 @@ module.exports = {
                 track: track ? track.source === 'local' ? track.uri : track.title : "",
             })
         });
-        message.channel.send(`Nodes:\n\`\`\`asciidoc\n${columnify(nodes)}\n\`\`\`\nThis shard:\n\`\`\`asciidoc\n${players.length ? columnify(players) : "Nothing playing."}\n\`\`\``);
+        context.send(`Nodes:\n\`\`\`asciidoc\n${columnify(nodes)}\n\`\`\`\nThis shard:\n\`\`\`asciidoc\n${players.length ? columnify(players) : "Nothing playing."}\n\`\`\``);
     }
 };

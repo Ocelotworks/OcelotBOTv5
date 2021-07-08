@@ -1,11 +1,13 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Zoom Image",
-    usage: "zoom [url]",
+    usage: "zoom :image?",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["zoom", "blur"],
-    run: async function (message, args, bot) {
-        return bot.util.processImageFilter(module, message, args, "motionBlur", [message.getSetting("zoom.radius"), message.getSetting("zoom.sigma")]);
+    slashHidden: true,
+    run: async function (context, bot) {
+        return Image.ImageFilter(bot, module.exports.usage, context,"motionBlur", [context.getSetting("zoom.radius"), context.getSetting("zoom.sigma")] )
     }
 };

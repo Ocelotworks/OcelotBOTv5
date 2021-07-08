@@ -4,22 +4,21 @@
  * ╚════ ║   (ocelotbotv5) list
  *  ════╝
  */
+const Embeds = require("../../util/Embeds");
 module.exports = {
     name: "View Settings",
     usage: "list",
     commands: ["list", "view"],
-    run: async function (message, args, bot, data) {
-        let output = "```diff\nAvailable Settings:\n";
-        for (let setting in data.settings) {
-            if (data.settings.hasOwnProperty(setting)) {
-                let settingInfo = data.settings[setting];
-                output += `+${settingInfo.name}${message.getSetting(settingInfo.setting) ? " (Currently '" + message.getSetting(settingInfo.setting) + "')" : ""}\n`;
-                output += `-${settingInfo.help}\n`;
-                output += ` Set with ${args[0]} set ${setting} ${settingInfo.value || "value"}\n`;
-                output += "----\n";
-            }
+    run: async function (context, bot, data) {
+        let settings = await bot.database.getSettingsAssoc();
+        let embed = new Embeds.AuthorEmbed(context);
+        embed.setTitle("Available Settings");
+        embed.setDescription("You can set specific values for certain OcelotBOT commands here.");
+        for(let i = 0; i < settings.length; i++) {
+            const setting = settings[i];
+            const value = context.getSetting(setting.setting);
+            embed.addField(`${setting.name} ${value ? ` (Currently '${value}')` : ""}`, `${setting.desc}\n\`${context.getSetting("prefix")}setting set ${setting.setting} ${setting.type}\``);
         }
-        output += "\n```";
-        message.channel.send(output);
+        return context.send({embeds: [embed]});
     }
 };

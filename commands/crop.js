@@ -5,37 +5,38 @@
  *  ════╝
  */
 const config = require('config');
-const request = require('request');
+const Util = require("../util/Util");
+const Image = require("../util/Image");
+const {axios} = require('../util/Http');
 module.exports = {
     name: "Crop Image",
-    usage: "crop [URL]",
+    usage: "crop :image?",
     rateLimit: 50,
     detailedHelp: "Attempts to crop an image into a square in the best way possible",
     commands: ["crop"],
     categories: ["image"],
-    run: async function run(message, args, bot) {
-        const url = await bot.util.getImage(message, args);
+    run: async function run(context, bot) {
+        let url = await Util.GetImage(bot, context);
+        if(!url)
+            return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage: module.exports.usage});
 
-        request({
-            method: 'POST',
-            json: true,
-            url: "https://westeurope.api.cognitive.microsoft.com/vision/v2.0/areaOfInterest",
+        let result = await axios.post("https://westeurope.api.cognitive.microsoft.com/vision/v2.0/areaOfInterest", {url}, {
             headers: {
                 "Content-Type": "application/json",
                 "Ocp-Apim-Subscription-Key": config.get("API.msVision.key")
-            },
-            body: {
-                url: url
             }
-        }, async function (err, resp, body) {
-            if (err)
-                return message.replyLang("GENERIC_ERROR");
-            if (body.areaOfInterest)
-                return bot.util.processImageFilter(module, message, args, "crop", [body.areaOfInterest.w, body.areaOfInterest.h, body.areaOfInterest.x, body.areaOfInterest.y]);
-            else
-                message.replyLang("CROP_NO_AOI");
-        })
+        });
 
+        if(!result.data.areaOfInterest)
+            return context.sendLang({content: "CROP_NO_AOI", ephemeral: true})
 
+        return Image.ImageProcessor(bot, context, {
+            components: [{url, pos: {
+                    x: -result.data.areaOfInterest.x, // Invert the X/Y
+                    y: -result.data.areaOfInterest.y,
+                    w:  result.data.areaOfInterest.w,
+                    h:  result.data.areaOfInterest.h
+            }}]
+        }, 'crop');
     }
 };

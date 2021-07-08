@@ -7,30 +7,27 @@
 const Discord = require('discord.js');
 module.exports = {
     name: "Meme Info",
-    usage: "info <name>",
+    usage: "info :name+",
     commands: ["info"],
-    run: async function (message, args, bot) {
-        if (!message.guild)
-            return message.replyLang("GENERIC_DM_CHANNEL");
-        if (!args[2])
-            return message.replyLang("MEME_INFO_HELP");
+    run: async function (context, bot) {
+        if (!context.guild)
+            return context.sendLang("GENERIC_DM_CHANNEL");
 
-        let meme = (await bot.database.getMemeInfo(args[2].toLowerCase(), message.guild.id))[0];
+        let meme = (await bot.database.getMemeInfo(context.options.name, context.guild.id))[0];
 
         if (!meme)
-            return message.replyLang("MEME_NOT_FOUND");
+            return context.sendLang("MEME_NOT_FOUND");
 
         let embed = new Discord.MessageEmbed();
 
         if (meme.meme.startsWith("http"))
             embed.setThumbnail(meme.meme);
 
-        embed.setTitle(await message.getLang("MEME_INFO_HEADER", {meme: meme.name}));
-        embed.addField(await message.getLang("MEME_INFO_CONTENT"), meme.meme);
-        embed.addField(await message.getLang("MEME_INFO_ADDED_ON"), meme.addedon);
-        embed.addField(await message.getLang("MEME_INFO_ADDED_BY"), `<@${meme.addedby}>`);
+        embed.setTitle(context.getLang("MEME_INFO_HEADER", {meme: meme.name}));
+        embed.addField(context.getLang("MEME_INFO_CONTENT"), meme.meme);
+        embed.addField(await context.getLang("MEME_INFO_ADDED_ON"), `<t:${Math.floor(meme.addedon)/1000}:f>`);
+        embed.addField(context.getLang("MEME_INFO_ADDED_BY"), `<@${meme.addedby}>`);
 
-
-        message.channel.send(embed);
+        return context.send({embeds: [embed]});
     }
 };

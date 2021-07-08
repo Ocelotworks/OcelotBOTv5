@@ -7,44 +7,38 @@
 const Sentry = require('@sentry/node');
 module.exports = {
     name: "Queue Song",
-    usage: "queue <url/next>",
+    usage: "queue :url+",
     commands: ["queue", "play", "add", "q"],
-    run: async function (message, args, bot, music) {
-        if (!args[2])
-            return message.replyLang("MUSIC_QUEUE_USAGE");
-
-        let query = message.cleanContent.substring(args[0].length + args[1].length + 2).trim();
-        let guild = message.guild.id;
-        if (!music.listeners[guild]) {
-            if (!message.member.voice || !message.member.voice.channel)
-                return message.channel.send(":warning: You have to be in a voice channel to use this command.");
+    run: async function (context, bot) {
+        let query = context.options.url;
+        let guild = context.guild.id;
+        if (!bot.music.listeners[guild]) {
+            if (!context.member.voice || !context.member.voice.channel)
+                return context.send(":warning: You have to be in a voice channel to use this command.");
             bot.logger.log("Constructing listener");
-            await music.constructListener(message.guild, message.member.voice.channel, message.channel);
+            await bot.music.constructListener(context.guild, context.member.voice.channel, context.channel);
         }
 
-        // await message.channel.startTyping();
+        // await context.channel.startTyping();
         try {
             bot.logger.log("Adding song to queue");
-            let song = await music.addToQueue(guild, query, message.author.id);
+            let song = await bot.music.addToQueue(guild, query, context.user.id);
             bot.logger.log("Added song to queue successfully");
-            if (!music.listeners[guild])
-                return message.channel.send(":thinking: Something went horribly wrong whilst queueing this song. Please try again.");
+            if (!bot.music.listeners[guild])
+                return context.send(":thinking: Something went horribly wrong whilst queueing this song. Please try again.");
             if (!song)
-                return message.channel.send(":warning: No results.");
+                return context.send(":warning: No results.");
             if (song.count)
-                return message.channel.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000, message.guild && message.guild.id, message.author.id)})`);
+                return context.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000, context.guild && context.guild.id, context.user.id)})`);
             if (song.title.indexOf("-") > -1)
-                return message.channel.send(`:white_check_mark: Added **${song.title}** to the queue.`);
-            if (music.listeners[guild].queue.length > 0) {
-                return message.channel.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
+                return context.send(`:white_check_mark: Added **${song.title}** to the queue.`);
+            if (bot.music.listeners[guild].queue.length > 0) {
+                return context.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
             }
-            message.channel.send(`:white_check_mark: Playing **${song.author} - ${song.title}**.`);
+            return context.send(`:white_check_mark: Playing **${song.author} - ${song.title}**.`);
         } catch (e) {
-            message.replyLang("GENERIC_ERROR");
+            context.sendLang("GENERIC_ERROR");
             Sentry.captureException(e);
-        } finally {
-            //message.channel.stopTyping(true);
         }
-
     }
 };

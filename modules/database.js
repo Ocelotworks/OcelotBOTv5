@@ -777,25 +777,19 @@ module.exports = {
             getFirstSeen: function (user) {
                 return knex.select(knex.raw("MIN(timestamp)")).from(COMMANDLOG_TABLE).where({userID: user})
             },
-            addSubscription: function (server, channel, user, type, url) {
-                return knex.insert({
-                    server: server,
-                    channel: channel,
-                    user: user,
-                    type: type,
-                    data: url
-                }).into("ocelotbot_subscriptions");
+            addSubscription: function (server, channel, user, type, data, productID) {
+                return knex.insert({server, channel, user, type, data, productID}).into("ocelotbot_subscriptions");
             },
-            getSubscriptionsForChannel: function (channel) {
+            getSubscriptionsForChannel: function (channel, productID) {
                 return knex.select().from("ocelotbot_subscriptions").where({
-                    channel: channel
+                    channel, productID
                 });
             },
-            getAllSubscriptions: function () {
-                return knex.select().from("ocelotbot_subscriptions");
+            getAllSubscriptions: function (productID) {
+                return knex.select().from("ocelotbot_subscriptions").where({productID});
             },
-            getSubscriptionsForShard: function (servers) {
-                return knex.select().from("ocelotbot_subscriptions").whereIn("server", servers);
+            getSubscriptionsForShard: function (servers, productID) {
+                return knex.select().from("ocelotbot_subscriptions").whereIn("server", servers).andWhere({productID});
             },
             updateLastCheck: function (id) {
                 return knex("ocelotbot_subscriptions").update({lastcheck: new Date()}).where({id}).limit(1);
@@ -807,8 +801,8 @@ module.exports = {
                     id: id
                 }).limit(1);
             },
-            removeSubscriptionsForChannel: function (server, channel) {
-                return knex("ocelotbot_subscriptions").delete().where({server, channel});
+            removeSubscriptionsForChannel: function (server, channel, productID) {
+                return knex("ocelotbot_subscriptions").delete().where({server, channel, productID});
             },
             addLangKey: function (lang, key, message) {
                 return knex.insert({
@@ -862,6 +856,13 @@ module.exports = {
             },
             deleteSetting: async function (server, setting, bot) {
                 await knex.delete().from(SERVER_SETTINGS_TABLE).where({server, setting, bot}).limit(1);
+            },
+            getSettingsAssoc: function(){
+                return knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, chat_settable: 1}).orderBy("order");
+            },
+            getSettingAssoc: async function(setting){
+                let value = await knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, chat_settable: 1, setting}).limit(1);
+                return value[0];
             },
             addSongGuess: async function (user, channel, server, guess, song, correct, elapsed, custom = false) {
                 await knex.insert({user, channel, server, guess, song, correct, elapsed, custom}).into("ocelotbot_song_guess");
@@ -1152,6 +1153,9 @@ module.exports = {
             getRecurringRemindersForDMs(receiver) {
                 return knex.select().from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({receiver}).whereNull("server");
             },
+            async getRecurringReminderCountForChannel(receiver, channel){
+                return (await knex.select(knex.raw("COUNT(*) AS count")).from(REMINDERS_TABLE).whereNotNull("recurrence").andWhere({channel}))[0].count;
+            },
             async getPoints(user) {
                 let result = await knex.select().from("ocelotbot_points").where({user}).limit(1);
                 if (result[0])
@@ -1208,7 +1212,7 @@ module.exports = {
                 return knex("ocelotbot_custom_functions").update({"function": code}).where({id, server}).limit(1);
             },
             getCustomFunctions(server){
-                return knex.select("id", "trigger", "type").from("ocelotbot_custom_functions").where({server});
+                return knex.select("id", "trigger", "type").from("ocelotbot_custom_functions").where({server}).orderBy("id", "asc");
             },
             getCustomFunction(server, id){
                 return knex.select().from("ocelotbot_custom_functions").where({server, id}).limit(1);
@@ -1236,7 +1240,120 @@ module.exports = {
             },
             incrementPublishedFunctionImports(id){
                 return knex("ocelotbot_published_custom_functions").increment("imports").where({id}).limit(1);
+            },
+            createPoll(expires, serverID, channelID, creatorID){
+                return knex.insert({expires, serverID, channelID, creatorID}).into("ocelotbot_polls");
+            },
+            async getPoll(id){
+                return (await knex.select().where({id}).from("ocelotbot_polls").limit(1))[0];
+            },
+            async updatePoll(id, messageID){
+              return knex("ocelotbot_polls").update({messageID}).where({id})
+            },
+            async getPollAnswer(poll, userID){
+                return (await knex.select().where({poll, userID}).from("ocelotbot_poll_answers").limit(1))[0];
+            },
+            async getPollAnswers(poll){
+                return (await knex.select("choice", knex.raw("COUNT(*) as count")).from("ocelotbot_poll_answers").where({poll}).groupBy("choice"))
+                    .reduce((o,a)=>{o[a.choice]=a.count;return o;},{});
+            },
+            async setPollAnswer(poll, userID, choice){
+                let currentAnswer = await bot.database.getPollAnswer(poll, userID);
+                if(!currentAnswer)
+                    return knex.insert({poll, userID, choice}).into("ocelotbot_poll_answers");
+                return knex("ocelotbot_poll_answers").update({choice}).where({poll, userID});
+            },
+            getExpiredPolls(){
+                return knex.select().from("ocelotbot_polls").whereNotNull("expires").andWhere("expires", "<", new Date());
+            },
+            deleteExpiredPolls(){
+                return knex.delete().from("ocelotbot_polls").whereNotNull("expires").andWhere("expires", "<", new Date());
+            },
+            deletePoll(serverID, id){
+                return knex.delete().from("ocelotbot_polls").where({serverID, id}).limit(1);
+            },
+            // This should probably be a worker
+            async dataExport(userID){
+                bot.logger.log("Starting data export...");
+                bot.logger.log("Exporting Commands...");
+                let commands = await knex.select().from("commandlog").where({userID});
+                bot.logger.log("Exporting AI Conversations...");
+                let aiConversations = await knex.select().from("ocelotbot_ai_conversations").where({userID});
+                bot.logger.log("Exporting Audit Logs...");
+                let audit = await knex.select().from("ocelotbot_audit_log").where({user: userID});
+                bot.logger.log("Exporting Badge Assignments...");
+                let badgeAssignments = await knex.select().from("ocelotbot_badge_assignments").where({user: userID});
+                bot.logger.log("Exporting Birthdays...");
+                let birthdays = await knex.select().from("ocelotbot_birthdays").where({user: userID});
+                bot.logger.log("Exporting Functions...");
+                let functions = await knex.select().from("ocelotbot_custom_functions").where({user: userID});
+                bot.logger.log("Exporting Published Functions...");
+                let publishedFunctions = await knex.select().from("ocelotbot_published_custom_functions").where({user: userID});
+                bot.logger.log("Exporting Points...");
+                let points = await knex.select().from("ocelotbot_points").where({user: userID});
+                bot.logger.log("Exporting Points Transactions...");
+                let pointsTransactions = await knex.select().from("ocelotbot_points_transactions").where({user: userID});
+                bot.logger.log("Exporting Poll Answers...");
+                let pollAnswers = await knex.select().from("ocelotbot_poll_answers").where({userID});
+                bot.logger.log("Exporting Polls...");
+                let polls = await knex.select().from("ocelotbot_polls").where({creatorID: userID});
+                bot.logger.log("Exporting Premium Keys...");
+                let premiumKeys = await knex.select().from("ocelotbot_premium_keys").where({owner: userID});
+                bot.logger.log("Exporting Profile...");
+                let profile = await knex.select().from("ocelotbot_profile").where({id: userID});
+                bot.logger.log("Exporting Referral Codes...");
+                let referralCodes = await knex.select().from("ocelotbot_referral_codes").where({user: userID});
+                bot.logger.log("Exporting Reminders...");
+                let reminders = await knex.select().from("ocelotbot_reminders").where({user: userID});
+                bot.logger.log("Exporting Servers...");
+                let servers = await knex.select().from("ocelotbot_servers").where({owner: userID});
+                bot.logger.log("Exporting Guesses...");
+                let guesses = await knex.select().from("ocelotbot_song_guess").where({user: userID});
+                bot.logger.log("Exporting Guess Records...");
+                let guessRecords = await knex.select().from("ocelotbot_song_guess_records").where({user: userID});
+                bot.logger.log("Exporting Spook Roles...");
+                let spookRoles = await knex.select().from("ocelotbot_spook_role_assignments").where({user: userID});
+                bot.logger.log("Exporting Spooks...");
+                let spooks = await knex.select().from("ocelotbot_spooks").where({spooker: userID}).orWhere({spooked: userID});
+                bot.logger.log("Exporting Streaks...");
+                let streaks = await knex.select().from("ocelotbot_streaks").where({user: userID});
+                bot.logger.log("Exporting Subscriptions...");
+                let subscriptions = await knex.select().from("ocelotbot_subscriptions").where({user: userID});
+                bot.logger.log("Exporting Settings...");
+                let settings = await knex.select().from("ocelotbot_user_settings").where({user: userID});
+                bot.logger.log("Exporting Votes...");
+                let votes = await knex.select().from("ocelotbot_votes").where({user: userID});
+                bot.logger.log("Exporting Trivia...");
+                let trivia = await knex.select().from("trivia").where({user: userID});
+                return {
+                    commands,
+                    aiConversations,
+                    audit,
+                    badgeAssignments,
+                    birthdays,
+                    functions,
+                    publishedFunctions,
+                    points,
+                    pointsTransactions,
+                    pollAnswers,
+                    polls,
+                    premiumKeys,
+                    profile,
+                    referralCodes,
+                    reminders,
+                    servers,
+                    guesses,
+                    guessRecords,
+                    spookRoles,
+                    spooks,
+                    streaks,
+                    subscriptions,
+                    settings,
+                    votes,
+                    trivia,
+                }
             }
+
         };
     }
 };

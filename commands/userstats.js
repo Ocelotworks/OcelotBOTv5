@@ -17,7 +17,7 @@ const COST_PER_FACERECOG = 0.746;
 
 module.exports = {
     name: "User Stats",
-    usage: "userstats <user>",
+    usage: "userstats :@user?",
     commands: ["userstats"],
     categories: ["stats", "meta"],
     init: function init(bot){
@@ -64,13 +64,13 @@ module.exports = {
         //         bot.logger.log(`${newMember.user.username} is now playing ${newMember.presence.game.name}`);
         // });
     },
-    run: async function run(message, args, bot) {
-        if (message.getBool("ocelotworks")) {
-            await module.exports.ocelotStats(message, args, bot);
+    run: async function run(context, bot) {
+        if (context.getBool("ocelotworks") && !context.interaction) {
+            await module.exports.ocelotStats(context, bot);
         }else{
-            const target = message.mentions.users.size > 0 ? message.mentions.users.firstKey() : message.author.id;
+            const target = context.options.user || context.user.id;
             try {
-                message.channel.startTyping();
+                context.defer();
                 let commandResult = (await bot.database.getUserStats(target))[0];
                 let voteResult =(await bot.database.getVoteCount(target))[0];
                 let guessResult =(await bot.database.getTotalCorrectGuesses(target))[0];
@@ -102,7 +102,7 @@ module.exports = {
                 if(countPerCommand['ai'])
                     cost += countPerCommand['ai']*COST_PER_AI;
 
-                message.replyLang("USERSTATS_MESSAGE", {
+                return context.replyLang("USERSTATS_MESSAGE", {
                     target,
                     commandCount,
                     voteCount,
@@ -110,23 +110,19 @@ module.exports = {
                     triviaCount,
                     cost: cost.toFixed(2),
                 });
-
-                message.channel.stopTyping();
-
             } catch (e) {
                 bot.raven.captureException(e);
                 console.log(e);
-                message.replyLang("GENERIC_ERROR");
+                return context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
             }
         }
     },
-    ocelotStats: async function(message, args, bot){
-        let target = args[1] ? args[1].toLowerCase() : null;
-        if(target && target.startsWith("<")){
-            message.channel.send("You can't mention people, you have to use their actual name i.e !userstats peter");
-            return;
-        }
-        let sentMessage     = await message.channel.send("Generating stats [Getting messages from server]..."),
+    ocelotStats: async function(context, bot){
+        let target = context.args[1] ? context.args[1].toLowerCase() : null;
+        if(target && target.startsWith("<"))
+            return context.send("You can't mention people, you have to use their actual name i.e !userstats peter");
+
+        let sentMessage     = await context.message.channel.send("Generating stats [Getting messages from server]..."),
             output          = [`**Overview for ${target || "everyone"}**:`],
             totalChars      = 0,
             totalWords      = 0,
@@ -198,6 +194,7 @@ module.exports = {
 
         await sentMessage.edit("Generating stats [Generating output]...");
 
+        // Why is this a timeout
         setTimeout(async function(){
             output.push(`- **${totalMessages.toLocaleString()}** total messages.`);
             output.push(`- **${totalWords.toLocaleString()}** total words. (**${Object.keys(uniqueWords).length.toLocaleString()}** unique)`);
@@ -222,9 +219,7 @@ module.exports = {
 
             output.push(`- Their favourite channel is **'${lastChannel}'** with **${channels[lastChannel].toLocaleString()}** messages.`);
 
-
             await sentMessage.edit(output.join('\n'));
-
         }, 2000);
     }
 };

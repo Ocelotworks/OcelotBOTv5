@@ -4,15 +4,16 @@ const Discord = require('discord.js');
 const gm = require('gm');
 const config = require('config').get("Commands.sexysingle");
 let templates = [];
-
+const Util = require("../util/Util");
 module.exports = {
     name: "Sexy Singles",
-    usage: "sexysingle <@user or url>",
+    usage: "sexysingle :image?",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["sexysingle", "sexy", "single"],
     categories: ["memes"],
     unwholesome: true,
+    slashHidden: true,
     init: function init(bot){
         bot.logger.log("Loading sexysingle templates");
          fs.readdir(__dirname+"/../static/sexysingle", function readDir(err, files){
@@ -21,14 +22,7 @@ module.exports = {
          });
 
     },
-    run: async function run(message, args, bot){
-        //It's sad to me that I have to do this
-        //And completely indicative of the user base of OcelotBOT
-        if(args[1] && args[1].toLowerCase() === "dice")
-            return bot.commands["sexydice"](message, args, bot);
-
-
-        message.channel.startTyping();
+    run: async function run(context, bot){
         async function downloadOrGet(url, fileName, outputFile){
             if(fs.existsSync(outputFile)) {
                 try {
@@ -36,8 +30,7 @@ module.exports = {
 
                     let attachment = new Discord.MessageAttachment(outputFile, config.get("filename"));
 
-                    await message.channel.send("", attachment);
-                    message.channel.stopTyping();
+                    await context.send({files: [attachment]});
                 }catch(e){
                     fs.unlink(outputFile, function deleteFileCB(err){
                         if(err){
@@ -46,8 +39,7 @@ module.exports = {
                             bot.logger.log(`Deleted ${outputFile}`);
                         }
                     });
-                    message.replyLang("GENERIC_ERROR");
-                    message.channel.stopTyping();
+                    context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
                 }
             }else if(fs.existsSync(fileName)){
                 bot.logger.log("Using cached avatar file");
@@ -56,8 +48,7 @@ module.exports = {
 
                 request(url).on("end", ()=>makeMeme(fileName, outputFile)).on("error", (err)=>{
                     bot.raven.captureException(err);
-                    message.replyLang("GENERIC_ERROR");
-                    message.channel.stopTyping();
+                    context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
                     fs.unlink(outputFile, function deleteFileCB(err){
                         if(err){
                             bot.logger.error(`There was an error trying to delete ${outputFile}: ${err}`);
@@ -75,19 +66,16 @@ module.exports = {
                 .append(__dirname + "/../static/sexysingle/" +bot.util.arrayRand(templates), true)
                 .toBuffer('PNG', async function crushToBuffer(err, buffer) {
                     if (err) {
-                        message.replyLang("CRUSH_ERROR");
-                        message.channel.stopTyping();
+                        context.replyLang({content: "CRUSH_ERROR", ephemeral: true});
                         bot.logger.error(`Error during composite stage of !crush: ${err.stack}`);
                     } else {
                         try {
                             let attachment = new Discord.MessageAttachment(buffer, config.get("filename"));
-                            message.channel.send("", attachment);
-                            message.channel.stopTyping();
+                            context.send({files: [attachment]});
                         } catch (e) {
                             bot.raven.captureException(e);
                             bot.logger.error("Error uploading crush file");
-                            message.channel.stopTyping();
-                            message.replyLang("GENERIC_ERROR");
+                            context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
                             console.log(e);
                         }
                     }
@@ -95,11 +83,11 @@ module.exports = {
 
         }
 
-        const url =  await bot.util.getImage(message, args);
-        if(!url){
-            message.replyLang("CRUSH_NO_USER");
-            return message.channel.stopTyping();
-        }
+        const url = await Util.GetImage(bot, context);
+        if (!url)
+            return context.sendLang({content: "CRUSH_NO_USER", ephemeral: true});
+
+        context.defer();
         return downloadOrGet(url, `${__dirname}/../${config.get("dir")}icon-${encodeURIComponent(url).substring(0, 256)}.png`)
     }
 };

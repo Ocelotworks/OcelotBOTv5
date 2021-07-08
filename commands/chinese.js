@@ -29,7 +29,7 @@ const subs = {
 
 module.exports = {
     name: "Chinese Text",
-    usage: "chinese <text>",
+    usage: "chinese :text+",
     accessLevel: 0,
     rateLimit: 10,
     detailedHelp: "This command does NOT translate things into chinese. It transforms the input text into chinese characters that kinda look like their english counterpart.\nDon't use these for your Chinese exam.",
@@ -37,67 +37,14 @@ module.exports = {
     responseExample: "九乇丨丨口 山曰广丨刀",
     categories: ["text"],
     commands: ["chinese", "chin"],
-    run: function run(message, args, bot) {
-        if(!args[1]){
-            message.replyLang("CHINESE_NO_TEXT");
-            return;
-        }
-        const sentence = message.cleanContent.substring(args[0].length+1).toLowerCase();
+    run: function run(context, bot) {
+        const sentence = context.options.text;
         const letters = [...sentence];
         let output = "";
         for(let i in letters)
             output += (subs[letters[i]]) ? bot.util.arrayRand(subs[letters[i]]) : letters[i];
 
-
-        message.channel.send(output);
+        return context.send(output);
     },
-    test: function(test){
-        test('chinese no text', function(t){
-            const message = {
-                replyLang: function(message){
-                    t.is(message, "CHINESE_NO_TEXT")
-                }
-            };
-            module.exports.run(message, []);
-        });
 
-        test('chinese with working letters', function(t){
-            const message = {
-                channel: {
-                    send: function(message){
-                        t.is(message, "卂阝匚")
-                    }
-                },
-                cleanContent: "!chinese abc"
-            };
-            const args = ["!chinese", "abc"];
-            const bot = {
-                util: {
-                    arrayRand: function(array){
-                        return array[0]
-                    }
-                }
-            };
-            module.exports.run(message, args, bot);
-        });
-        test('chinese with not undefined letters', function(t){
-            const message = {
-                channel: {
-                    send: function(message){
-                        t.is(message, "!?")
-                    }
-                },
-                cleanContent: "!chinese !?"
-            };
-            const args = ["!chinese", "!?"];
-            const bot = {
-                util: {
-                    arrayRand: function(array){
-                        return array[0]
-                    }
-                }
-            };
-            module.exports.run(message, args, bot);
-        });
-    }
 };

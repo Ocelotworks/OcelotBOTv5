@@ -9,7 +9,7 @@ const twemoji = require('twemoji-parser');
 const config = require('config');
 const Sentry = require('@sentry/node');
 const {crc32} = require('crc');
-const FormData = require('form-data');
+
 module.exports = {
     name: "Utilities",
     init: function (bot) {
@@ -162,7 +162,7 @@ module.exports = {
                 if (value > 1 || value < -1)
                     unit += 'S';
 
-                data.push(bot.lang.getTranslation(server, unit, value, user))
+                data.push(bot.lang.getTranslation(server, unit, {0: value}, user)) //TODO: change this to a proper thing
             }
 
             return data;
@@ -374,7 +374,7 @@ module.exports = {
             message.channel.startTyping();
             gm(filePath)
                 .font(__dirname + "/../static/arial.ttf", textSize)
-                .drawText(x, y, wrap(message.cleanContent.substring(args[0].length).substring(0, 1010), {
+                .drawText(x, y, wrap(message.cleanContent.substring(context.command.length).substring(0, 1010), {
                     width: textWidth,
                     indent: ''
                 }))
@@ -386,7 +386,7 @@ module.exports = {
                         bot.raven.captureException(err);
                     } else {
                         const attachment = new Discord.MessageAttachment(buffer, fileName);
-                        message.channel.send("", attachment);
+                        message.channel.send({files: [attachment]});
                     }
                     bot.tasks.endTask("imageMeme", message.id);
                     message.channel.stopTyping();
@@ -403,7 +403,7 @@ module.exports = {
                 let result = await deepai.callStandardApi(filter, {image: url});
 
                 if (result.output_url) {
-                    message.channel.send("", new Discord.MessageAttachment(result.output_url));
+                    message.channel.send({files: [new Discord.MessageAttachment(result.output_url)]});
                 } else {
                     message.replyLang("ENHANCE_MAXIMUM_RESOLUTION");
                 }
@@ -416,106 +416,23 @@ module.exports = {
         };
 
 
-        bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage) {
 
-            request.metadata = {
-                s: message.guild ? message.guild.id : null,
-                u: message.author.id,
-                c: message.channel.id,
-                m: message.id,
-            };
-            if (message.content.indexOf("-debug") > -1)
-                request.debug = true;
-            request.version = 1;
 
+        bot.util.abstractImageProcessor = async function(request){
             bot.logger.log(JSON.stringify(request));
-            let span = bot.util.startSpan("Receive from RPC");
-            let loadingMessage;
-            let loadingMessageDelay = setTimeout(async () => {
-                message.channel.stopTyping(true);
-                loadingMessage = await message.replyLang("GENERIC_PROCESSING");
-            }, 3000)
-            message.channel.startTyping();
             let key = crc32(JSON.stringify(request)).toString(32);
-            let response = await bot.redis.cache("imageProcessor/" + key, async () => await bot.rabbit.rpc("imageProcessor", request, 120000, {
+            return bot.redis.cache("imageProcessor/" + key, async () => await bot.rabbit.rpc("imageProcessor", request, 120000, {
                 arguments: {"x-message-ttl": 60000},
                 durable: false
             }), 600);
-            clearTimeout(loadingMessageDelay)
-            span.end();
-            if(response.size && response.size >= 7000000 || message.channel.permissionsFor && !message.channel.permissionsFor(bot.client.user.id).has("ATTACH_FILES")){
-                if(response.size >= 10000000){
-                    await loadingMessage.editLang("IMAGE_PROCESSOR_ERROR_SIZE");
-                    return;
-                }
-                if (loadingMessage && !loadingMessage.deleted) {
-                    span = bot.util.startSpan("Edit loading message");
-                    await loadingMessage.editLang("GENERIC_UPLOADING_IMGUR");
-                    span.end();
-                }
-                let image = await axios.get(response.path, {responseType: "stream"});
-                const imgurData = new FormData();
-                imgurData.append('image', image.data)
-                try {
-                    let imgur = await axios({
-                        method: 'POST',
-                        url: 'https://api.imgur.com/3/image',
-                        headers: {
-                            Authorization: `Client-ID ${config.get("API.imgur.key")}`,
-                            ...imgurData.getHeaders()
-                        },
-                        data: imgurData,
-                        // Buzz lightyear shit
-                        maxBodyLength: Infinity,
-                        maxContentLength: Infinity,
-                    });
-                    if (imgur.data?.data?.link) {
-                        if (loadingMessage && !loadingMessage.deleted)
-                            loadingMessage.delete();
-                        return message.channel.send(imgur.data.data.link);
-                    }
-                    bot.logger.error(imgur.data);
-                }catch(e){
-                    bot.logger.error(e);
-                    if(e.response) {
-                        bot.logger.error(e);
-                    }
-                }
-                return message.channel.send("Failed to upload to imgur. Try a smaller image");
-            }
-            if (loadingMessage && !loadingMessage.deleted) {
-                span = bot.util.startSpan("Edit loading message");
-                await loadingMessage.editLang("GENERIC_UPLOADING");
-                span.end();
-            }
-            if (response.err) {
-                span = bot.util.startSpan("Delete processing message");
-                message.channel.stopTyping(true);
-                if (loadingMessage && !loadingMessage.deleted)
-                    await loadingMessage.delete();
-                span.end();
-                return message.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
-            }
-            console.log(response);
-            span = bot.util.startSpan("Upload image");
-            let messageResult;
-            let attachment = new Discord.MessageAttachment(response.path, `${name}.${response.extension}`);
-            try {
-                if (sentMessage)
-                    messageResult = await message.channel.send(sentMessage, attachment);
-                else
-                    messageResult = await message.channel.send(attachment);
-            } catch (e) {
-                bot.raven.captureException(e);
-                message.channel.send("Failed to send: "+e);
-            }
-            message.channel.stopTyping(true);
-            span.end();
-            span = bot.util.startSpan("Delete processing message");
-            if (loadingMessage && !loadingMessage.deleted)
-                await loadingMessage.delete();
-            span.end();
-            return messageResult;
+        }
+
+        bot.util.slashImageProcessor = async function slashImageProcessor(interaction, request){
+           return Image.InteractionImageProcessor(bot, interaction, request);
+        }
+
+        bot.util.imageProcessor = async function imageProcessor(message, request, name, sentMessage) {
+          return Image.MessageImageProcessor(bot, message, request, name, sentMessage);
         }
 
         bot.util.imageProcessorOutlinedText = function imageProcessorOutlinedText(content, x, y, w, h, fontSize, foregroundColour = "#ffffff", backgroundColour = "#000000", font = "arial.ttf") {
@@ -576,7 +493,7 @@ module.exports = {
                     format
                 }, 60000, {durable: true}));
                 span.end();
-                if (loadingMessage && !loadingMessage.deleted) {
+                if (loadingMessage) {
                     span = bot.util.startSpan("Edit loading message");
                     await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
                     span.end();
@@ -584,20 +501,20 @@ module.exports = {
                 if (response.err) {
                     console.log(response);
                     span = bot.util.startSpan("Delete processing message");
-                    await loadingMessage.delete().catch(bot.logger.error);
+                    await loadingMessage.delete();
                     span.end();
                     return message.channel.send(response.err);
                 }
                 span = bot.util.startSpan("Upload image");
                 let attachment = new Discord.MessageAttachment(Buffer.from(response.image, 'base64'), response.name);
                 try {
-                    await message.channel.send(attachment);
+                    await message.channel.send({files: [attachment]});
                 } catch (e) {
                     bot.raven.captureException(e);
                 }
                 span.end();
                 span = bot.util.startSpan("Delete processing message");
-                await loadingMessage.delete().catch(bot.logger.error);
+                await loadingMessage.delete();
                 span.end();
                 bot.tasks.endTask("imageFilter", message.id);
             } else {
@@ -634,7 +551,7 @@ module.exports = {
                                 if (url.indexOf("SPOILER_") > -1)
                                     name = "SPOILER_" + name;
                                 const attachment = new Discord.MessageAttachment(buffer, name);
-                                message.channel.send("", attachment).catch(function sendMessageError(e) {
+                                message.channel.send({files: [attachment]}).catch(function sendMessageError(e) {
                                     console.log(e);
                                     message.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                                 });
@@ -839,7 +756,7 @@ module.exports = {
         };
 
         bot.util.replyTo = function replyTo(message, content) {
-            let api = new Discord.APIMessage(message.channel, {});
+            let api = new Discord.MessagePayload(message.channel, {});
             api.data = {
                 content: "",
                 message_reference: {
@@ -851,30 +768,44 @@ module.exports = {
             if (typeof content === "string") {
                 api.data.content = content;
             } else {
-                api.data.embed = content;
+                api.data = {
+                    ...api.data,
+                    ...content
+                }
             }
             return message.channel.send(api);
         }
 
+        bot.util.actionRow = function actionRow(...buttons){
+            return {
+                type: 1,
+                components: buttons
+            }
+        }
+
         bot.util.sendButtons = function sendButtons(channel, content, buttons){
-            let api = new Discord.APIMessage(channel, {});
+            let api = new Discord.MessagePayload(channel, {});
             api.data = {
                 content: "",
                 components: [{
                     type: 1,
                     components: buttons
                 }]
+
             }
             if (typeof content === "string") {
                 api.data.content = content;
             } else {
-                api.data.embed = content;
+                api.data = {
+                    ...api.data,
+                    ...content
+                }
             }
             return channel.send(api);
         }
 
         bot.util.editButtons = function editButtons(message, content, buttons){
-            let api = new Discord.APIMessage(message.channel, {});
+            let api = new Discord.MessagePayload(message.channel, {});
             api.data = {
                 content: "",
                 components: [{
@@ -885,17 +816,21 @@ module.exports = {
             if (typeof content === "string") {
                 api.data.content = content;
             } else {
-                api.data.embed = content;
+                api.data = {
+                    ...api.data,
+                    ...content
+                }
             }
             return message.edit(api);
         }
 
-        bot.util.buttonComponent = function buttonComponent(text, style, id){
+        bot.util.buttonComponent = function buttonComponent(text, style, id, emoji){
             return {
                 type: 2,
                 style,
                 custom_id: id,
                 label: text,
+                emoji,
             }
         }
 
@@ -1048,7 +983,6 @@ module.exports = {
             }
 
             let buildPage = async function () {
-                if(!channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES"))return bot.logger.warn("Permissions have been taken away");
                 let span = bot.util.startSpan("Build page");
                 let output = await formatMessage(pages[index], index);
                 if(channel.getBool && channel.getBool("pagination.disable")) {
@@ -1056,11 +990,11 @@ module.exports = {
                     return channel.send(output);
                 }
                 if (sentMessage && !sentMessage.deleted)
-                    await bot.util.editButtons(sentMessage, output, buttons);
+                    await bot.util.editButtons(sentMessage, output, buttons)
                 else if(pages.length > 1)
-                    sentMessage = await bot.util.sendButtons(channel, output, buttons);
+                    sentMessage = await bot.util.sendButtons(channel, output, buttons)
                 else
-                    sentMessage = await channel.send(output);
+                    sentMessage = channel.send(output)
                 span.end();
             };
 
@@ -1142,14 +1076,14 @@ module.exports = {
                     const helpItem = commandType[helpItemName];
                     if (usedAliases.indexOf(helpItem.commands[0]) > -1) continue;
                     if (!helpItem.hidden)
-                        output += `${helpItem.name} :: ${args[0]} ${helpItem.usage}\n`;
+                        output += `${helpItem.name} :: ${context.command} ${helpItem.usage}\n`;
                     usedAliases.push.apply(usedAliases, helpItem.commands);
                 }
                 message.replyLang("COMMANDS", {commands: output});
             } else {
                 if (invalidUsageFunction)
                     return invalidUsageFunction();
-                message.replyLang("GENERIC_INVALID_USAGE", {arg: args[0]});
+                message.replyLang("GENERIC_INVALID_USAGE", {arg: context.command});
             }
         };
 
@@ -1187,10 +1121,10 @@ module.exports = {
 
         bot.util.coolTextGenerator = function (message, args, bot, options) {
             if (!args[1]) {
-                return message.replyLang("GENERIC_TEXT", {command: args[0]});
+                return message.replyLang("GENERIC_TEXT", {command: context.command});
             }
 
-            const text = message.cleanContent.substring(args[0].length + 1);
+            const text = message.cleanContent.substring(context.command.length + 1);
             message.channel.startTyping();
 
             options.text = text;
@@ -1214,7 +1148,7 @@ module.exports = {
                     if (data.renderLocation) {
                         // TODO: stupid fuck lets encrypt bollocks
                         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-                        message.channel.send("", new Discord.MessageAttachment(data.renderLocation)); // Still eating dicks 2k20
+                        message.channel.send({files: [new Discord.MessageAttachment(data.renderLocation)]}); // Still eating dicks 2k21
                     } else {
                         message.replyLang("GENERIC_ERROR");
                         bot.logger.warn("Invalid Response?");
@@ -1231,8 +1165,6 @@ module.exports = {
                 }
             })
         };
-
-
 
         let waitingUsers = {};
         bot.util.getUserInfo = async function getUserInfo(userID) {
@@ -1263,12 +1195,6 @@ module.exports = {
             if(bot.config.getBool("global", "privacy.anonymous", userID))return "Anonymous";
             let user = await bot.util.getUserInfo(userID);
             return user ? user.tag : "Unknown User "+userID;
-        }
-
-        bot.util.getServerCount = function(){
-            return bot.rabbit.broadcastEval(`
-                this.guilds.cache.filter((guild)=>guild.available).size;
-            `).then((c)=>c.reduce((a, b)=>a+b, 0));
         }
 
         bot.bus.on("getUserInfoResponse", (message) => {
@@ -1532,7 +1458,7 @@ module.exports = {
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
-                roles: member.roles.cache,
+               // roles: member.roles.cache,
             }
         }
 
@@ -1595,7 +1521,7 @@ module.exports = {
 
         bot.util.runCustomFunction = async function(code, message, showErrors = true, doOutput = true){
             try {
-                process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
                 let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "http://ocelotbot-sat_custom-commands:3000/run", {
                     version: 1,
                     script: code,
@@ -1618,7 +1544,7 @@ module.exports = {
                     errorEmbed.setDescription(await message.getLang("CUSTOM_COMMAND_INTERNAL_ERROR"))
                 }
                 if(showErrors)
-                    message.channel.send(errorEmbed);
+                    message.channel.send({embeds: [errorEmbed]});
                 return false
             }
         }
@@ -1634,15 +1560,20 @@ module.exports = {
             return Buffer.from(charCodes).toString("base64");
         }
 
-        bot.util.canChangeSettings = function(message) {
-            return message.member.hasPermission("ADMINISTRATOR", {
-                checkAdmin: true,
-                checkOwner: true
-            }) || message.getSetting("settings.role") !== "-" && message.member.roles.cache.find(function (role) {
-                return role.name.toLowerCase() === message.getSetting("settings.role").toLowerCase();
+        bot.util.canChangeSettings = function(context) {
+            return context.channel.permissionsFor(context.member).has("ADMINISTRATOR", true) || context.getSetting("settings.role") !== "-" && context.member.roles.cache.find(function (role) {
+                return role.name.toLowerCase() === context.getSetting("settings.role").toLowerCase();
             });
         }
 
+        bot.util.checkVoiceChannel = function(message){
+            if (!message.guild) return message.replyLang("GENERIC_DM_CHANNEL");
+            if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
+            if (!message.member.voice.channel) return message.replyLang("VOICE_NO_CHANNEL");
+            if ( message.member.voice.channel.full) return message.replyLang("VOICE_FULL_CHANNEL");
+            if (!message.member.voice.channel.joinable) return message.replyLang("VOICE_UNJOINABLE_CHANNEL");
+            if (message.member.voice.channel.type !== "stage" && !message.member.voice.channel.speakable) return message.replyLang("VOICE_UNSPEAKABLE_CHANNEL");
+        }
 
         bot.util.parseSchedule = function(schedule){
             let output = ""

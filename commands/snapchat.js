@@ -5,35 +5,36 @@
  *  ════╝
  */
 const Discord = require('discord.js');
+const Util = require("../util/Util");
+const Image = require('../util/Image');
 module.exports = {
     name: "Snapchat Text",
-    usage: "snapchat [url] [text]",
+    usage: "snapchat :image :text+",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["snapchat", "snap"],
-    run: async function(message, args, bot){
+    slashHidden: true,
+    run: async function(context, bot){
+        const url =  await Util.GetImage(bot, context);
 
-        const url =  await bot.util.getImage(message, args);
-
-        if(!url || !args[1])
-            return message.replyLang("GENERIC_NO_IMAGE", module.exports);
-
+        if(!url)
+            return context.replyLang("GENERIC_NO_IMAGE", module.exports);
 
         // textSize = (ch/24)
         // barHeight = (ch/12)
         // barPosition = ch - (ch/3)
 
-        let content = args.slice(1).join(" ").replace(url, "");
+        let content = `${context.options.image} ${context.options.text}`
 
         // This feels wrong but I don't want to deal with doing it the proper way
-        if(url.startsWith("https://cdn.discord") && message.mentions.users.size > 0){
-            content = content.replace(new RegExp(`<@!?(${message.mentions.users.firstKey()})>`), "")
+        if(url.startsWith("https://cdn.discord") && context.message.mentions.users.size > 0){
+            content = content.replace(new RegExp(`<@!?(${context.message.mentions.users.firstKey()})>`), "")
         }
 
-        content = Discord.Util.cleanContent(content, message);
+        content = Discord.Util.cleanContent(content, context.channel);
 
-        return bot.util.imageProcessor(message, {
+        return Image.ImageProcessor(bot, context,  {
             "components": [
                 {
                     "url": url,

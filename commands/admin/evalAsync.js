@@ -6,15 +6,15 @@
  */
 module.exports = {
     name: "Eval Local Async",
-    usage: "evalasync <script>",
+    usage: "evalasync :script+",
     commands: ["evalasync"],
     noCustom: true,
-    run: async function (message, args, bot) {
+    run: async function (context, bot) {
         try {
-            let output = `\`\`\`\n${eval("(async function(){" + message.content.substring(args[0].length + args[1].length + 2) + "})()")}\n\`\`\``;
-            message.channel.send(output);
+            let output = `\`\`\`\n${await eval(`(async function(){${context.options.script}})`)()}\n\`\`\``;
+            return context.send(output);
         } catch (e) {
-            message.channel.send("Error\n```\n" + e + "\n```");
+            return context.send("Error\n```\n" + e + "\n```");
         }
     }
 };

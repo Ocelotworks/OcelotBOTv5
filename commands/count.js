@@ -7,21 +7,18 @@
 
 module.exports = {
     name: "Count",
-    usage: "count",
+    usage: "count :phrase+",
     categories: ["tools"],
     commands: ["count"],
     hidden: true,
-    run: async function run(message, args, bot) {
-        if (!message.getSetting("ocelotworks")) return;
-        if (!args[1]) {
-            message.channel.send("You must enter a search term");
-            return;
-        }
-        const phrase = message.content.substring(args[0].length + 1).trim();
-        message.channel.startTyping();
-        let result = await bot.database.getPhraseCount(phrase);
-        message.channel.send(`'${phrase}' has been said **${result[0]['COUNT(*)']} times.**`);
-        message.channel.stopTyping(true);
-    }
+    run: async function run(context, bot) {
+        if (!context.getSetting("ocelotworks")) return;
+        if (context.args && !context.args[1])
+            return context.send({content: "You must enter a search term"})
 
+        const phrase = context.options.phrase;
+        context.defer();
+        let result = await bot.database.getPhraseCount(phrase);
+        return context.send(`'${phrase}' has been said **${result[0]['COUNT(*)']} times.**`);
+    }
 };

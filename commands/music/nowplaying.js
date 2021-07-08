@@ -8,19 +8,19 @@ module.exports = {
     name: "Now Playing",
     usage: "nowplaying",
     commands: ["nowplaying", "np", "playing"],
-    run: async function (message, args, bot, music) {
-        const guild = message.guild.id;
-        if (!music.listeners[guild] || !music.listeners[guild].playing)
-            return message.replyLang("MUSIC_NOTHING_PLAYING");
+    run: async function (context, bot) {
+        const guild = context.guild.id;
+        if (!bot.music.listeners[guild] || !bot.music.listeners[guild].playing)
+            return context.sendLang("MUSIC_NOTHING_PLAYING");
 
-        const listener = music.listeners[guild];
+        const listener = bot.music.listeners[guild];
 
         // if(!listener.connection.playing) {
         //     bot.logger.warn("Caught an uh-oh");
-        //     return music.playNextInQueue(guild);
+        //     return bot.music.playNextInQueue(guild);
         // }
 
-        listener.lastMessage = await message.channel.send(music.createNowPlayingEmbed(listener));
+        listener.lastMessage = await context.send(bot.music.createNowPlayingEmbed(listener));
         await bot.database.updateLastMessage(listener.id, listener.lastMessage.id);
     }
 };

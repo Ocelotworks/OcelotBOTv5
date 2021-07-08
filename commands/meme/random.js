@@ -9,26 +9,26 @@ module.exports = {
     name: "Random Meme",
     usage: "random",
     commands: ["random", "rand"],
-    run: async function (message, args, bot) {
-        if (!message.guild)
-            return message.replyLang("GENERIC_DM_CHANNEL");
+    run: async function (context, bot) {
+        if (!context.guild)
+            return context.sendLang("GENERIC_DM_CHANNEL");
 
-        let meme = (await bot.database.getRandomMeme(message.guild.id))[0];
+        let meme = (await bot.database.getRandomMeme(context.guild.id))[0];
 
         if (!meme)
-            return message.replyLang("MEME_NOT_FOUND");
+            return context.sendLang("MEME_NOT_FOUND");
 
         let embed = new Discord.MessageEmbed();
 
         if (meme.meme.startsWith("http"))
             embed.setImage(meme.meme);
 
-        embed.setTitle(await message.getLang("MEME_INFO_HEADER", {meme: meme.name}));
-        embed.addField(await message.getLang("MEME_INFO_CONTENT"), meme.meme);
-        embed.addField(await message.getLang("MEME_INFO_ADDED_ON"), meme.addedon);
-        embed.addField(await message.getLang("MEME_INFO_ADDED_BY"), `<@${meme.addedby}>`);
+        embed.setTitle(await context.getLang("MEME_INFO_HEADER", {meme: meme.name}));
+        embed.addField(await context.getLang("MEME_INFO_CONTENT"), meme.meme);
+        embed.addField(await context.getLang("MEME_INFO_ADDED_ON"), `<t:${Math.floor(meme.addedon)/1000}:f>`);
+        embed.addField(await context.getLang("MEME_INFO_ADDED_BY"), `<@${meme.addedby}>`);
 
-        message.channel.send(embed);
+        return context.send({embeds: [embed]});
 
     }
 };

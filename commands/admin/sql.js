@@ -7,11 +7,12 @@
 const columnify = require('columnify');
 module.exports = {
     name: "Run SQL",
-    usage: "sql <sql>",
+    usage: "sql :sql+",
     commands: ["sql"],
     noCustom: true,
-    run: async function (message, args, bot) {
-        let sql = message.content.substring(args[0].length + args[1].length + 2);
+    run: async function (context, bot) {
+        let sql = context.options.sql;
+        context.defer();
         try {
             let result = await bot.database.knex.raw(sql);
 
@@ -21,9 +22,9 @@ module.exports = {
                 }
             }
 
-            message.channel.send(`\`\`\`\n${columnify(result[0])}\n\`\`\``);
+            return context.send(`\`\`\`\n${columnify(result[0])}\n\`\`\``);
         } catch (e) {
-            message.channel.send(`Error:\n\`\`\`\n${e}\n\`\`\``);
+            return context.send(`Error:\n\`\`\`\n${e}\n\`\`\``);
         }
     }
 };

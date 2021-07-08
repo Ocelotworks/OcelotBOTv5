@@ -8,22 +8,19 @@ const Discord = require('discord.js');
 
 module.exports = {
     name: "Zork",
-    usage: "zork <text>",
+    usage: "zork :input?+",
     categories: ["games"],
     commands: ["zork", "z5"],
-    run: async function run(message, args, bot) {
-        let input = message.cleanContent //get the input string, split it into a space separated array, slice the first entry ("!zork"), join the rest and then filter out any weird special characters
-            .split(" ")
-            .slice(1)
-            .join(" ");
+    run: async function run(context, bot) {
+        let input = context.options.input;
         let result = await bot.rabbit.rpc("z5", {
             name: "gameData",
             data: input,
-            server: message.guild ? message.guild.id : message.channel.id, player: message.author.id,
-            admin: message.getBool("admin")
+            server: context.guild ? context.guild.id : context.channel.id, player: context.author.id,
+            admin: context.getBool("admin")
         }, 300000, {durable: false});
 
-        let text = Discord.escapeMarkdown(decodeURIComponent(result.text));
+        let text = Discord.Util.escapeMarkdown(decodeURIComponent(result.text));
         let channelMessage = "";
 
         if (result.loaded) {
@@ -38,7 +35,7 @@ module.exports = {
         channelMessage += "```yaml\n" + body + "\n```";
 
         if (result.text !== undefined) {
-            message.channel.send(channelMessage);
+            return context.send(channelMessage);
         }
 
         // if(headerLines[0].indexOf("Barrow") !== -1){

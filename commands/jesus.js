@@ -1,30 +1,25 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Jesus Meme",
-    usage: "jesus <text>",
+    usage: "jesus :text+",
     rateLimit: 10,
     detailedHelp: "Jesus knows the truth",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jesus", "truth"],
     categories: ["memes"],
-    run: function (message, args, bot) {
-        if (!args[1]) {
-            message.replyLang("IMAGE_NO_TEXT");
-            return;
-        }
-        return bot.util.imageProcessor(message, {
+    run: function (context, bot) {
+        return Image.ImageProcessor(bot, context,{
             "components": [
                 {
                     "url": "jesus.png",
                     "local": true,
-                    "pos": {"x": 0, "y": 0},
-                    "rot": 0,
                     "filter": [{
                         name: "text",
                         args: {
                             font: "arial.ttf",
                             fontSize: 25,
                             colour: "#000000",
-                            content: message.cleanContent.substring(args[0].length),
+                            content: context.options.text,
                             x: 171,
                             y: 146,
                             ax: 0.5,

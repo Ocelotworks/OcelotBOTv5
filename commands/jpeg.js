@@ -4,15 +4,17 @@
  * ╚════ ║   (ocelotbotv5) jpeg
  *  ════╝
  */
+const Image = require('../util/Image');
 module.exports = {
     name: "JPEG-ify",
-    usage: "jpeg [url]",
+    usage: "jpeg :image?",
     categories: ["image", "filter"],
     rateLimit: 10,
     detailedHelp: "JPEG-Ify an image",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jpeg", "jpg"],
-    run: async function (message, args, bot) {
-        return bot.util.processImageFilter(module, message, args, "quality", [message.getSetting("jpeg.quality")], "JPEG");
+    slashHidden: true,
+    run: async function (context, bot) {
+        return Image.ImageFilter(bot, module.exports.usage, context,  "quality", [context.getSetting("jpeg.quality")], "JPEG");
     }
 };

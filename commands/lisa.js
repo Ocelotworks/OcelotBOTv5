@@ -1,15 +1,16 @@
+const Image = require('../util/Image');
 module.exports = {
     name: "Lisa Meme",
-    usage: "lisa <text>",
+    usage: "lisa :input+",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["lisa"],
     categories: ["memes"],
-    run:  function(message, args, bot){
-        if(!args[1])
-            return message.replyLang("IMAGE_NO_TEXT");
-
-        return bot.util.imageProcessor(message, {
+    handleError: function(context){
+        return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
+    },
+    run: function(context, bot){
+        return Image.ImageProcessor(bot, context, {
             "components": [
                 {
                     "url": "lisa.png",
@@ -19,7 +20,7 @@ module.exports = {
                         args: {
                             fontSize: 25,
                             colour: "#000000",
-                            content: message.cleanContent.substring(args[0].length),
+                            content: context.options.input,
                             x: 334,
                             y: 197,
                             ax: 0.5,
@@ -31,6 +32,6 @@ module.exports = {
                     }]
                 },
             ]
-        }, "lisa")
+        }, "lisa");
     }
 };

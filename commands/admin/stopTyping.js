@@ -2,7 +2,7 @@ module.exports = {
     name: "Force Stop Typing",
     usage: "stoptyping",
     commands: ["stoptyping"],
-    run: function (message, args, bot) {
-        message.channel.stopTyping(true);
+    run: function (context, bot) {
+        context.channel.stopTyping(true);
     }
 };

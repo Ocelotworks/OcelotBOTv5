@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 const axios = require('axios');
 module.exports = {
     name: "Inspriational Quote",
@@ -9,10 +8,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["inspiration", "inspirational", "inspirationalquote", "inspo"],
     unwholesome: true,
-    run: async function(message, args, bot){
-        let result = await axios.get("https://inspirobot.me/api?generate=true");
-
-        return message.channel.send(new Discord.MessageAttachment(result.data))
-
-    }
+    run: async function(context){
+        return context.send((await axios.get("https://inspirobot.me/api?generate=true")).data);
+    },
 };

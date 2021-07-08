@@ -2,46 +2,33 @@
  * Created by Peter on 01/07/2017.
  */
 
+const Util = require("../util/Util");
+const Strings = require("../util/String");
 module.exports = {
     name: "Urban Dictionary",
-    usage: "defineud <word>",
+    usage: "defineud :term+",
     categories: ["tools", "fun"],
     detailedHelp: "Find the urban definition of a word",
     usageExample: "defineud peng",
     responseExample: "Definition for **peng**: \nA very [positive] word used casualy [to show] how [attracted] etc you are to something/someone",
     commands: ["defineud", "ud", "urban", "urbandictionary"],
-    run: async function run(message, args, bot) {
-        if(!args[1]){
-            message.channel.send(`Usage: ${message.getSetting("prefix")}defineud <term>`);
-            return;
-        }
-        const term = encodeURIComponent(args.slice(1).join(" "));
+    run: async function run(context, bot) {
+        const term = context.options.term;
+        context.defer();
         let data = await bot.util.getJson(`http://api.urbandictionary.com/v0/define?term=${term}`);
-        if(data && data.list && data.list.length > 0) {
-            let hasPermission;
-            if (!message.guild)
-                hasPermission = true;
-            else {
-                const permissions = await message.channel.permissionsFor(bot.client.user);
-                hasPermission = permissions.has(["ADD_REACTIONS", "MANAGE_MESSAGES"])
-            }
-            if (hasPermission) {
-                await bot.util.standardPagination(message.channel, data.list, async function (page) {
-                    page.definition = page.definition.substring(0, 800);
-                    page.example = page.example.substring(0, 800);
-                    return bot.lang.getTranslation(message.guild ? message.guild.id : "322032568558026753", "UD_DEFINITION", page);
-                }, true);
-            } else {
-                bot.logger.log(`Channel ${message.channel.id} (${message.channel.name} in ${message.channel.guild.name}) doesn't allow MANAGE_MESSAGES or ADD_REACTIONS`);
-                const entry = data.list[0];
-                message.replyLang("UD_DEFINITION", {
-                    word: entry.word,
-                    definition: entry.definition.substring(0, 800),
-                    example: entry.example.substring(0, 800)
-                });
-            }
-        }else{
-            message.replyLang("UD_NO_DEFINITIONS");
+
+        if(data?.list?.length > 0) {
+            return Util.StandardPagination(bot, context, data.list, async function (page) {
+                page.definition = Strings.Truncate(page.definition, 800);
+                page.example = Strings.Truncate(page.example, 800);
+                return {content: context.getLang("UD_DEFINITION", page)};
+            }, true, data.list.map((p,i)=>({
+                label: Strings.Truncate(p.word, 25),
+                description: Strings.Truncate(p.definition, 50),
+                value: `${i}`
+            })));
         }
+
+        return context.sendLang({content: "UD_NO_DEFINITIONS", ephemeral: true});
     }
 };

@@ -7,32 +7,34 @@
 const chrono = require('chrono-node');
 module.exports = {
     name: "Add Birthday",
-    usage: "add @user date",
+    usage: "add :@addUser? :date+",
     commands: ["add", "new"],
-    run: async function (message, args, bot) {
-        let target = message.author;
-        if (message.mentions.users.size > 0)
-            target = message.mentions.users.first();
-        let date = chrono.parseDate(message.content);
+    run: async function (context, bot) {
+        let target = context.user;
+        if (context.options.addUser)
+            target = context.channel.members.get(context.options.addUser).user;
+        let date = chrono.parseDate(context.options.date);
         if (!date)
-            return message.replyLang("BIRTHDAY_ADD_DATE", {command: args[0], arg: args[1], user: bot.client.user});
+            return context.sendLang({content: "BIRTHDAY_ADD_DATE", ephemeral: true}, {command: context.command, arg: context.options.command, user: bot.client.user});
         const age = (new Date().getFullYear() - date.getFullYear());
-        if (age > 2 && age < 13) {
-            return message.replyLang("BIRTHDAY_AGE");
-        }
+        if (age > 2 && age < 13)
+            return context.sendLang({content: "BIRTHDAY_AGE", ephemeral: true});
+
         try {
-            await bot.database.addBirthday(target.id, message.guild.id, date);
-            if (target.username.startsWith("Deleted User ")) {
-                message.replyLang("BIRTHDAY_DELETED_USER");
-            }
+            await bot.database.addBirthday(target.id, context.guild.id, date);
+            if (target.username.startsWith("Deleted User "))
+                context.sendLang("BIRTHDAY_DELETED_USER");
 
-            if(target.id === bot.client.user.id && date.getFullYear() !== 2013 && date.getMonth() !== 6 && date.getDate() !== 15){
-                return message.channel.send(":tada: Birthday added! My birthday is actually **15th July 2013**, by the way.");
-            }
 
-            message.replyLang("BIRTHDAY_ADD_SUCCESS");
+            if(target.id === bot.client.user.id && date.getFullYear() !== 2013 && date.getMonth() !== 6 && date.getDate() !== 15)
+                return context.send(":tada: Birthday added! My birthday is actually **15th July 2013**, by the way.");
+
+            return context.sendLang("BIRTHDAY_ADD_SUCCESS");
         } catch (e) {
-            message.replyLang("BIRTHDAY_ADD_EXISTS", {command: args[0], target});
+            const message = {content: "BIRTHDAY_ADD_EXISTS", ephemeral: true};
+            if(target.id === context.user.id || context.channel.permissionsFor(context.user.id).has("MANAGE_CHANNELS"))
+                message.components = [bot.util.actionRow(bot.interactions.suggestedCommand(context, `remove ${target.username}`))]
+            return context.sendLang(message, {command: context.command, target});
         }
     }
 };

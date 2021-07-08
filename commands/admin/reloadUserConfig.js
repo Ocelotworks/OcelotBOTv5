@@ -8,8 +8,8 @@ module.exports = {
     name: "Reload User Config",
     usage: "reloaduserconfig",
     commands: ["reloaduserconfig", "ruc"],
-    run: async function (message, args, bot) {
-        message.channel.send("Reloading...");
+    run: async function (context, bot) {
+        context.send("Reloading...");
         bot.rabbit.event({type: "reloadUserConfig"});
     }
 };

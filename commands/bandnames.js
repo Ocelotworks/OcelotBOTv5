@@ -63,7 +63,6 @@ const first = [
     "Emotional",
     "Velvet"
 ];
-
 const second = [
     "D",
     "182",
@@ -153,26 +152,7 @@ module.exports = {
     categories: ["fun"],
     requiredPermissions: [],
     commands: ["bandname", "bandnames", "bn", "bands"],
-    run: async function(message, args, bot){
-        message.replyLang("BANDNAME", {first: bot.util.arrayRand(first), second: bot.util.arrayRand(second)});
+    run: async function(context, bot){
+        return context.sendLang("BANDNAME", {first: bot.util.arrayRand(first), second: bot.util.arrayRand(second)});
     },
-    test: function(test){
-        test('band name generator', function(t){
-            const bot = {
-                util: {
-                    arrayRand: function(array){
-                        return array[0];
-                    }
-                }
-            };
-            const message = {
-                replyLang: function(key){
-                      t.is(key, "BANDNAME");
-                      return "";
-                }
-            };
-            module.exports.run(message, [], bot);
-
-        })
-    }
 };

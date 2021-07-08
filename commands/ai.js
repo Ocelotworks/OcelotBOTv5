@@ -15,42 +15,36 @@ let clev = new Cleverbot({
     key: config.get("API.cleverbot.key")
 });
 
+const genericResponses = ["huh?", "huh", "what?", "idk", "wdym", "what do you mean?", "i don't get it"];
+
 module.exports = {
     name: "Artificial Intelligence",
-    usage: "ai <message>",
+    usage: "ai :message+",
     detailedHelp: "Ask a question to the Artificial Intelligence",
     usageExample: "ai what is the meaning of life?",
     responseExample: "42.",
     categories: ["fun"],
     rateLimit: 20,
     commands: ["ai", "cleverbot"],
-    run: async function run(message, args, bot) {
-        if (args.length < 2)
-            return message.replyLang("8BALL_NO_QUESTION");
-
-        let input = message.cleanContent.substring(args[0].length + 1);
+    run: async function run(context, bot) {
+        let input = context.options.message;
         try {
-            message.channel.startTyping();
-            let response = await bot.redis.cache(`ai/${input}`, async () => await clev.query(encodeURIComponent(input), {cs: contexts[message.channel.id]}), 3600);
-            contexts[message.channel.id] = response.cs;
+            context.defer();
+            let response = await bot.redis.cache(`ai/${input}`, async () => await clev.query(encodeURIComponent(input), {cs: contexts[context.channel.id]}), 3600);
+            contexts[context.channel.id] = response.cs;
 
             if (response.output) {
-                message.channel.send(response.output);
-                let messageID = await bot.database.logAiConversation(message.author.id, message.guild ? message.guild.id : "dm", contextIDs[message.channel.id], message.cleanContent.substring(args[0].length + 1), response.output);
-                contextIDs[message.channel.id] = messageID[0];
-            } else {
-                message.replyLang("GENERIC_ERROR");
+                let messageID = await bot.database.logAiConversation(context.user.id, context.guild ? context.guild.id : "dm", contextIDs[context.channel.id], input, response.output);
+                contextIDs[context.channel.id] = messageID[0];
+                return context.reply(response.output);
             }
-            message.channel.stopTyping();
-
+            return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
         } catch (e) {
             console.log(e);
-            message.channel.stopTyping();
             let fakeResponse = await bot.database.getAiResponse(input);
-            console.log(fakeResponse)
             if(fakeResponse)
-                return message.channel.send(fakeResponse);
-            return message.channel.send("huh?");
+                return context.reply(fakeResponse);
+            return context.reply(bot.util.arrayRand(genericResponses));
         }
     }
 };

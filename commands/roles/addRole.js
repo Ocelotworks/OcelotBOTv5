@@ -4,7 +4,7 @@ module.exports = {
     usage: "addRole <colour> <emoji> or <@role> <emoji>",
     commands: ["addrole", "ar"],
     run: async function (message, args, bot, roleData) {
-        if (!roleData[message.guild.id]) return message.channel.send(`You have not set a message yet, use ${args[0]} setMessage to create a role message.`);
+        if (!roleData[message.guild.id]) return message.channel.send(`You have not set a message yet, use ${context.command} setMessage to create a role message.`);
         if (args.length < 3 && message.mentions.roles.size === 0) return message.channel.send("You need to supply a role colour and an emoji or @ a role ");
         let role;
         const emoji = args[3];

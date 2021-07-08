@@ -1,6 +1,6 @@
 module.exports = {
     name: "Set Birthday Channel",
-    usage: "channel #name/clear",
+    usage: "channel [clear?:clear] :#name?",
     commands: ["setchannel", "channel"],
     init: async function init(bot) {
         bot.client.once("ready", () => {
@@ -15,20 +15,18 @@ module.exports = {
             setTimeout(processChannels, initialTimer, bot);
         });
     },
-    run: async function (message, args, bot) {
-        if (!message.member.hasPermission("MANAGE_CHANNELS")) return message.channel.send("You must have the Manage Channels permission to use this command.");
-        let target = message.channel.id;
-        if (message.mentions.channels.size > 0)
-            target = message.mentions.channels.first().id;
+    run: async function (context, bot) {
+        if (!context.permissionsFor(context.user).has("MANAGE_CHANNELS", true)) return context.send({content: "You must have the Manage Channels permission to use this command.", ephemeral: true});
+        let target = context.channel.id;
+        if (context.options.name > 0)
+            target = context.options.name;
 
-        if (args[2] && args[2].toLowerCase() === "clear") {
-            await bot.config.set(message.guild.id, "birthday.channel", null);
-            message.replyLang("BIRTHDAY_CHANNEL_DISABLED");
-            message.channel.send("The Birthdays channel has been disabled.");
-        } else {
-            await bot.config.set(message.guild.id, "birthday.channel", target);
-            message.replyLang("BIRTHDAY_CHANNEL_SET", {target, command: args[0], arg: args[1]})
+        if (context.options.clear) {
+            await bot.config.set(context.guild.id, "birthday.channel", null);
+            return context.replyLang("BIRTHDAY_CHANNEL_DISABLED");
         }
+        await bot.config.set(context.guild.id, "birthday.channel", target);
+        return context.replyLang("BIRTHDAY_CHANNEL_SET", {target, command: context.command, arg: context.options.command})
     }
 };
 

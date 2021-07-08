@@ -1,49 +1,46 @@
 const Discord = require('discord.js');
+const Strings = require("../util/String");
 module.exports = {
     name: "Big Text Generator",
-    usage: "bigtext <text>",
+    usage: "bigtext :text+",
     categories: ["text"],
     detailedHelp: "Make text, but bigger.",
     usageExample: "bigtext this is really big",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["bigtext", "big"],
-    run:  async function(message, args, bot) {
-        if (!args[1]) {
-            message.replyLang("GENERIC_TEXT", {command: args[0]});
-            return;
-        }
+    slashHidden: true,
+    handleError: function(context){
+        return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
+    },
+    run:  async function(context, bot) {
+        // As slash commands can't upload files, this command can't be done yet as
+        // it doesn't use the image processor so can't upload to imgur.
+        if(!context.message)
+            return context.send({content: "This command does not support slash commands", ephemeral: true})
 
-        if(args.length === 2){
-            let mention = bot.util.getEmojiURLFromMention(args[1]);
-            if(mention){
-                return message.channel.send(mention);
-            }
-        }
+        let mention = Strings.GetEmojiURLFromMention(context.options.text);
+        if(mention)
+            return context.send(mention);
 
-        const term = args.slice(1).join(" ");
-        let loadingMessage = await message.replyLang("GENERIC_PROCESSING");
+
+
+        const term = context.options.text;
+        let loadingMessage = await context.sendLang("GENERIC_PROCESSING");
         let response = await bot.rabbit.rpc("imageFilter", {url: term, filter: "bigtext"});
 
-        if(loadingMessage) {
-            await loadingMessage.editLang("GENERIC_UPLOADING");
-        }
+        if(loadingMessage)
+            context.editLang("GENERIC_UPLOADING", {}, loadingMessage);
 
         if (response.err) {
             console.log(response);
             await loadingMessage.delete();
-            return message.channel.send(response.err);
+            return context.send(response.err);
         }
 
 
         let attachment = new Discord.MessageAttachment(Buffer.from(response.image, 'base64'), response.performance ?"bigtext.gif" : "bigtext.png");
         try {
-            const performanceMessage = response.performance ? `Frame Count: ${response.performance.frameCount} | Rendering Time: ${bot.util.prettySeconds(response.performance.frameTimeTotal/1000, message.guild ? message.guild.id : "global", message.author.id)} | ${Math.round(response.performance.frameTimeTotal/response.performance.frameCount)}ms/frame` : "No Perf Metrics";
-            if(message.author.id === "139871249567318017") {
-                await message.channel.send(performanceMessage,attachment);
-            }else{
-                bot.logger.log(performanceMessage);
-                await message.channel.send(attachment);
-            }
+            await context.send({files: [attachment]});
         }catch(e){
             bot.raven.captureException(e);
         }

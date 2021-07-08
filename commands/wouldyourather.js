@@ -5,7 +5,7 @@ module.exports = {
     detailedHelp: "Gives you a 'would you rather' question.",
     categories: ["games", "fun"],
     commands: ["wouldyourather", "wyr"],
-    run: async function run(message, args, bot) {
+    run: async function run(context, bot) {
       let questionResult = await bot.util.getJson("http://either.io/questions/next/1");
       const question = questionResult.questions[0];
       let embed = new Discord.MessageEmbed();
@@ -14,6 +14,6 @@ module.exports = {
       console.log(question);
       embed.addField(question.option_1, "OR");
       embed.addField(question.option_2, question.moreinfo ? `_${question.moreinfo}_` : "(No description)");
-      message.channel.send(embed);
+      context.send({embeds: [embed]});
     }
 };
