@@ -25,6 +25,7 @@ module.exports = {
 
         // Disable commands that are disabled
         bot.addCommandMiddleware((context)=>{
+            console.log(`${context.command}.disable`, context.getBool(`${context.command}.disable`));
             if (context.getBool(`${context.command}.disable`)) {
                 bot.logger.log(`${context.command} is disabled in this server`);
                 return false;

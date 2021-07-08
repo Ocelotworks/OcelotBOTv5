@@ -9,6 +9,7 @@ class CommandContext {
     command;
     commandData;
     options = {};
+    error;
 
     constructor(bot, member, user, channel, guild, command){
         this.bot = bot;

@@ -30,6 +30,7 @@ module.exports = {
     categories: ["fun"],
     requiredPermissions: [],
     commands: ["ship", "shipname", "relationship", "shipgenerator"],
+    slashHidden: true,
     run: async function run(context, bot) {
         if (context.args.length < 3) {
             context.send(`Usage: ${context.command} @user1 @user2`);

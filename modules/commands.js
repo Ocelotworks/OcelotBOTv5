@@ -50,7 +50,6 @@ module.exports = class Commands {
             if (this.bot.drain || (message.author.bot && message.author.id !== "824045686600368189")) return;
             const parse = this.parseCommand(message);
             if(!parse)return;
-
             const context = this.initContext(new MessageCommandContext(this.bot, message, parse.args, parse.command));
             if(!context)return;
             return this.runCommand(context);
@@ -223,17 +222,7 @@ module.exports = class Commands {
         if(context.commandData?.pattern) {
             const parsedInput = commandParser.Parse(context.args.slice(1).join(" "), {pattern: context.commandData.pattern, id: context.command});
             if (parsedInput.error) {
-                if(context.commandData.handleError){
-                    context.commandData.handleError(context, this.bot, parsedInput);
-                    return null;
-                }
-                console.log(parsedInput.error.data);
-                context.sendLang({
-                    content:`COMMAND_ERROR_${parsedInput.error.type.toUpperCase()}`,
-                    ephemeral: true,
-                    components: [this.bot.util.actionRow(this.bot.interactions.fullSuggestedCommand(context, `help ${context.command}`))]
-                }, parsedInput.error.data);
-                return null;
+                context.error = parsedInput.error;
             } else {
                 context.options = parsedInput.data;
             }
@@ -392,6 +381,7 @@ module.exports = class Commands {
     }
 
     async runCommandMiddleware(context){
+        console.log("running middleware");
         for(let i = 0; i < this.commandMiddleware.length; i++){
             const middlewareResult = await this.commandMiddleware[i](context);
 
@@ -424,6 +414,18 @@ module.exports = class Commands {
 
         if(!await this.runCommandMiddleware(context))return console.log("Middleware triggered"); // Middleware triggered
 
+        if(context.error) {
+            if (context.commandData.handleError) {
+                context.commandData.handleError(context, this.bot);
+                return null;
+            }
+            context.sendLang({
+                content: `COMMAND_ERROR_${context.error.type.toUpperCase()}`,
+                ephemeral: true,
+                components: [this.bot.util.actionRow(this.bot.interactions.fullSuggestedCommand(context, `help ${context.command}`))]
+            }, context.error.data);
+
+        }
         context.logPerformed();
 
         // TODO: This event

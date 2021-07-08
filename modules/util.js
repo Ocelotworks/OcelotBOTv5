@@ -177,7 +177,7 @@ module.exports = {
          * @returns {String}
          */
         bot.util.prettySeconds = function prettySeconds(seconds, server = "global", user) {
-            if (seconds < 1) return bot.lang.getTranslation(server, "TIME_SECONDS", seconds.toFixed(2), user);
+            if (seconds < 1) return bot.lang.getTranslation(server, "TIME_SECONDS", {0:seconds.toFixed(2)}, user);
             seconds = Math.round(seconds);
 
             let prettyString = '', data = [];
@@ -1458,7 +1458,17 @@ module.exports = {
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
-               // roles: member.roles.cache,
+                roles: member.roles.cache.map(bot.util.serialiseRole),
+            }
+        }
+
+        bot.util.serialiseRole = function serialiseRole(role){
+            return {
+                id: role.id,
+                hoist: role.hoist,
+                color: role.color,
+                name: role.name,
+                permissions: role.permissions,
             }
         }
 

@@ -573,7 +573,7 @@ module.exports = {
         bot.api.get('/guild/:id/roles', async (req, res) => {
             try {
                 const guild = await bot.client.guilds.fetch(req.params.id);
-                res.json((await guild.roles.fetch()).cache);
+                res.json((await guild.roles.fetch()).cache.map(bot.util.serialiseRole));
             } catch (err) {
                 console.log(err);
                 return res.json({err})
