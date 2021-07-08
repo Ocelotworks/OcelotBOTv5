@@ -416,15 +416,13 @@ module.exports = class Commands {
 
         if(context.error) {
             if (context.commandData.handleError) {
-                context.commandData.handleError(context, this.bot);
-                return null;
+                return context.commandData.handleError(context, this.bot);
             }
-            context.sendLang({
+            return context.sendLang({
                 content: `COMMAND_ERROR_${context.error.type.toUpperCase()}`,
                 ephemeral: true,
                 components: [this.bot.util.actionRow(this.bot.interactions.fullSuggestedCommand(context, `help ${context.command}`))]
             }, context.error.data);
-
         }
         context.logPerformed();
 
