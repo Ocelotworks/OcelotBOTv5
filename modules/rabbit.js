@@ -230,10 +230,11 @@ module.exports = {
                 }
             }
 
-            bot.bus.on("commandPerformed", function (command, message) {
+            bot.bus.on("commandPerformed", function (context) {
+                if(!context.message)return; // TODO
                 bot.rabbit.emit("commandPerformed", {
-                    command,
-                    message: getSafeMessage(message),
+                    command: context.command,
+                    message: getSafeMessage(context.message),
                 });
             });
 

@@ -27,8 +27,8 @@ module.exports = {
         const milestones = [69, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10];
         bot.commandCache = {};
 
-        bot.bus.on("commandPerformed", async function commandPerformed(command, message){
-            const user = message.author.id;
+        bot.bus.on("commandPerformed", async function commandPerformed(context){
+            const user = context.user.id;
             if(bot.commandCache[user]){
                 bot.commandCache[user]++;
             }else{
@@ -41,10 +41,10 @@ module.exports = {
                 bot.bus.emit("cacheUser", user, bot.commandCache[user]);
                 bot.logger.warn(`Populated command cache for ${user} at ${bot.commandCache[user]}`);
             }
-            const eligbleBadge = await bot.badges.updateBadge(message.author, 'commands', bot.commandCache[user], message.channel);
+            const eligbleBadge = await bot.badges.updateBadge(context.user, 'commands', bot.commandCache[user], context.channel);
             if(milestones.indexOf(bot.commandCache[user]) > -1){
                 bot.logger.log(`Sending congrats to ${user} for ${bot.commandCache[user]} commands`);
-                message.channel.send(`:tada: **Congratulations! You just performed your __${bot.commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting. **Type: ${message.getSetting("prefix")}vote**\n**Voting also gets you a special <:supporter_1:529308223954616322> supporter badge on your ${message.getSetting("prefix")}profile**`);
+                context.send(`:tada: **Congratulations! You just performed your __${bot.commandCache[user]}th__ command with OcelotBOT!**\n\nIf you enjoy OcelotBOT consider voting. **Type: ${context.getSetting("prefix")}vote**\n**Voting also gets you a special <:supporter_1:529308223954616322> supporter badge on your ${context.getSetting("prefix")}profile**`);
                 bot.rabbit.event({type: "clearCommandCache"});
             }else if(eligbleBadge && bot.client.shard) {
                 bot.rabbit.event({type: "clearCommandCache"});

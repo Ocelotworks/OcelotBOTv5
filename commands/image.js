@@ -79,7 +79,7 @@ module.exports = {
                     embed.setImage(page.thumbnail.url);
                 else
                     embed.setImage(page.url);
-                embed.setDescription(page.description);
+                embed.setDescription(page.description || "No Description");
                 embed.setFooter(`Page ${index + 1}/${images.length}`);
                 return {embeds: [embed]};
             }, true, images.map((im,i)=>({

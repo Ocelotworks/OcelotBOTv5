@@ -122,6 +122,7 @@ class MessageCommandContext extends CommandContext {
         await this.message.channel.stopTyping();
         const message = await this.message.channel.send(options);
         this.message.response = message;
+        this.bot.bus.emit("messageSent", message);
         return message;
     }
 
@@ -129,6 +130,7 @@ class MessageCommandContext extends CommandContext {
         await this.message.channel.stopTyping();
         const message = await this.message.reply(options);
         this.message.response = message;
+        this.bot.bus.emit("messageSent", message);
         return message;
     }
 
@@ -189,7 +191,7 @@ class InteractionCommandContext extends CommandContext {
     }
 
     send(options){
-        console.log("Sending message");
+        this.bot.bus.emit("messageSent", options);
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
         return this.interaction.reply(options);

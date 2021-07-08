@@ -427,7 +427,7 @@ module.exports = class Commands {
         context.logPerformed();
 
         // TODO: This event
-        //this.bot.bus.emit("commandPerformed", context);
+        this.bot.bus.emit("commandPerformed", context);
         Sentry.addBreadcrumb({
             category: "Command",
             level: Sentry.Severity.Info,
