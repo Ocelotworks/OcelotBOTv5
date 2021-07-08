@@ -82,6 +82,7 @@ module.exports = class Image {
         const loadingMessage = await context.send(`${Icon.loading} Processing...`);
         const response = await Image.#imageFilter(bot, url, filter, input, format);
         if(response.err){
+            bot.logger.log("Response error: "+response.err);
             await loadingMessage.delete();
             return context.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
         }else if(!response.image){
