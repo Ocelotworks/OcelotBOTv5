@@ -133,8 +133,13 @@ module.exports = {
             .chunk(5)
             .map((bGroup)=>({type: 1, components: bGroup}));
 
-        if(options.length < 25)
-            buttons[buttons.length-1].components.push({type: 2, style: 4, label: "End", custom_id: `PEND/${pollID}`});
+        if(options.length < 25) {
+            const end = {type: 2, style: 4, label: "End", custom_id: `PEND/${pollID}`};
+            if(buttons[buttons.length-1].components.length < 4)
+                buttons[buttons.length-1].components.push(end);
+            else
+                buttons.push({type: 1, components: [end]});
+        }
 
         let inline = options.length > 10;
         for(let i = 0; i < options.length; i++){
