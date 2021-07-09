@@ -42,8 +42,10 @@ module.exports = {
             ]);
 
             if (joinedServer[0]) {
-                const owner = await bot.util.getUserInfo(joinedServer[0].owner);
-                output.addField("Owner", owner ? `${owner.tag} (${owner.id})` : joinedServer[0].owner);
+                if(joinedServer[0].owner) {
+                    const owner = await bot.util.getUserInfo(joinedServer[0].owner);
+                    output.addField("Owner", owner ? `${owner.tag} (${owner.id})` : joinedServer[0].owner);
+                }
                 output.addField("First Joined", joinedServer[0].timestamp.toLocaleString(), true);
             } else {
                 output.addField("‼ Error", "Server is not in servers table!",);
