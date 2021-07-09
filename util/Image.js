@@ -140,6 +140,9 @@ module.exports = class Image {
         interaction.defer();
         try {
             let response = await Image.#imageProcessor(bot, request);
+            if (response.err) {
+                return interaction.followUpLang({content: "IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase()});
+            }
             if(response.size >= 10000000){
                 return interaction.followUpLang("IMAGE_PROCESSOR_ERROR_SIZE")
             }
