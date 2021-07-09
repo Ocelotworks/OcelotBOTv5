@@ -18,11 +18,12 @@ module.exports = {
                     if (bot.drain) return;
                     if(!bot.config.getBool(reminder.server || "global", "remind.recurring"))return bot.logger.log("Recurring reminders disabled by setting");
                     try {
-                        let channel = await bot.client.channels.fetch(reminder.channel);
-                        if (channel && channel.permissionsFor && channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES", true)) {
+                        let channel = await bot.client.channels.fetch(reminder.channel).catch(()=>null);
+                        if (channel?.permissionsFor?.(bot.client.user.id).has("SEND_MESSAGES", true)) {
                             console.log("Bot has send message permissions");
                             await channel.send(reminder.message);
                         } else {
+                            bot.logger.warn("Deleting reminder "+reminder.id+" because the channel is no longer accessible.");
                             scheduledReminder.clear();
                             await bot.database.removeReminderByUser(reminder.id, reminder.user);
                             const userDM = await (await bot.client.users.fetch(reminder.user)).createDM();
@@ -32,7 +33,8 @@ module.exports = {
                     } catch (e) {
                         console.log(e);
                         bot.raven.captureException(e);
-                        scheduledReminder.clear();
+                        if(scheduledReminder)
+                            scheduledReminder.clear();
                     }
                 }, JSON.parse(reminder.recurrence));
                 reminderData.recurringReminders[reminder.id] = scheduledReminder;
