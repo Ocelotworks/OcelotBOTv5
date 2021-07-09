@@ -140,6 +140,7 @@ class MessageCommandContext extends CommandContext {
     }
 
     edit(options, message){
+        if(!message || message.deleted)return this.send(options);
         return message.edit(options);
     }
 
