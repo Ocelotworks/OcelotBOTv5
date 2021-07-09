@@ -16,7 +16,7 @@ module.exports = {
         let result = await bot.rabbit.rpc("z5", {
             name: "gameData",
             data: input,
-            server: context.guild ? context.guild.id : context.channel.id, player: context.author.id,
+            server: context.guild ? context.guild.id : context.channel.id, player: context.user.id,
             admin: context.getBool("admin")
         }, 300000, {durable: false});
 
