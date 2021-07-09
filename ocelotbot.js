@@ -37,7 +37,13 @@ function configureSentry(){
             shard = "0"+shard;
         if(bot.rabbit && bot.rabbit.emit){
             bot.rabbit.emit("log", {
-                message,
+                message: message instanceof Error ? {
+                    type: "exception",
+                    ...message,
+                    name: message.name,
+                    message: message.message,
+                    stack: message.stack,
+                } : message,
                 caller,
                 error,
                 timestamp: new Date(),
@@ -63,11 +69,11 @@ function configureSentry(){
     };
 
     bot.logger.error = function error(message){
-        if(!message) {
+        if(message) {
             if(typeof message == "object")
-                message.type = "error"
+                message.level = "error"
             else
-                message = message.red;
+                message = {type: "text", message, level: "error"};
             bot.logger.log(message, caller_id.getData(), true);
         }
     };
@@ -75,19 +81,19 @@ function configureSentry(){
     bot.logger.warn = function warn(message){
         if(message) {
             if(typeof message == "object")
-                message.type = "warn"
+                message.level = "warn"
             else
-                message = message.yellow;
+                message = {type: "text", message, level: "warn"};
             bot.logger.log(message, caller_id.getData());
         }
     };
 
     bot.logger.info = function info(message){
-        if(!message) {
+        if(message) {
             if(typeof message == "object")
-                message.type = "info"
+                message.level = "info"
             else
-                message = message.grey;
+                message = {type: "text", message, level: "info"};
             bot.logger.log(message, caller_id.getData());
         }
     };
