@@ -12,7 +12,7 @@ const difficultyColours = {
     hard: "#ff150e"
 };
 
-const runningGames = [];
+let runningGames = [];
 
 const sessionTokens = {};
 
@@ -35,8 +35,14 @@ module.exports = {
             const token = await getSessionToken(context.channel.id)
 
             const result = await axios.get(`https://opentdb.com/api.php?amount=1&category=${context.options.category || ""}&encode=url3986&token=${token}`);
-            if(!result.data?.results?.length)
-                return context.sendLang({content: "TRIVIA_UNKNOWN_CATEGORY", ephemeral: true, components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "categories"))]});
+            if(!result.data?.results?.length) {
+                removeGame(context.channel.id);
+                return context.sendLang({
+                    content: "TRIVIA_UNKNOWN_CATEGORY",
+                    ephemeral: true,
+                    components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "categories"))]
+                });
+            }
 
             const question = result.data.results[0];
             const embed = new Embeds.LangEmbed(context);
@@ -106,6 +112,10 @@ module.exports = {
         }
     }
 };
+
+setInterval(()=>{
+    runningGames = [];
+}, 30000)
 
 function removeGame(channel){
     runningGames.splice(runningGames.indexOf(channel), 1)

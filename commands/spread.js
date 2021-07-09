@@ -14,6 +14,6 @@ module.exports = {
     commands: ["spread"],
     slashHidden: true,
     run: async function (context, bot) {
-        return Image.ImageFilter(bot, module.exports.usage, context, "spread", [message.getSetting("spread.amount")]);
+        return Image.ImageFilter(bot, module.exports.usage, context, "spread", [context.getSetting("spread.amount")]);
     }
 };

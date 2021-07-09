@@ -84,9 +84,9 @@ module.exports = class Image {
         if(response.err){
             bot.logger.log("Response error: "+response.err);
             await loadingMessage.delete();
-            return context.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
+            return context.sendLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
         }else if(!response.image){
-            return context.replyLang("GENERIC_ERROR")
+            return context.sendLang("GENERIC_ERROR")
         }
 
         const buf = Buffer.from(response.image, 'base64');
@@ -95,14 +95,14 @@ module.exports = class Image {
 
         if(buf.byteLength >= 10000000){
             await loadingMessage.delete();
-            return context.replyLang("IMAGE_PROCESSOR_ERROR_SIZE");
+            return context.sendLang("IMAGE_PROCESSOR_ERROR_SIZE");
         }
 
         if(loadingMessage && !loadingMessage.deleted){
             await context.edit(`${Icon.loading} Uploading...`, loadingMessage);
         }
         const attachment = new Discord.MessageAttachment(buf, response.name);
-        return context.reply({files: [attachment]}).then(()=>loadingMessage.delete());
+        return context.send({files: [attachment]}).then(()=>loadingMessage.delete());
     }
 
     /**
@@ -140,6 +140,9 @@ module.exports = class Image {
         interaction.defer();
         try {
             let response = await Image.#imageProcessor(bot, request);
+            if (response.err) {
+                return interaction.followUpLang({content: "IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase()});
+            }
             if(response.size >= 10000000){
                 return interaction.followUpLang("IMAGE_PROCESSOR_ERROR_SIZE")
             }

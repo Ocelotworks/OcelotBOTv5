@@ -1,3 +1,4 @@
+const Strings = require("../util/String");
 const emojiMaps = {
     alex: "<:alex:478962386578047000>",
     joel: "<:joel_high:478962387995852804>",
@@ -31,8 +32,8 @@ module.exports = {
             bot.topicCounter = 0;
             bot.logger.log("Changing topic");
             const topicResult = await bot.database.getRandomTopic();
-            const topic = topicResult[0].substring(0,1000);
-            const topicOutput = `<${topic.username}> ${topic.topic}`;
+            const topic = topicResult[0];
+            const topicOutput = `<${topic.username}> ${Strings.Truncate(topic.topic, 800)}`;
             await message.channel.setTopic(topicOutput, `Topic ID: ${topic.id}`);
             await message.channel.send(`${emojiMaps[topic.username] || ""} _Set topic: ${topicOutput}_`);
         };

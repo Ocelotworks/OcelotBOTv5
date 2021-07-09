@@ -87,7 +87,7 @@ module.exports = class Commands {
             const guildOnly = commandData.guildOnly || subCommandData?.guildOnly;
             const noSynthetic = commandData.noSynthetic || subCommandData?.noSynthetic;
             const settingsOnly = commandData.settingsOnly || subCommandData?.settingsOnly;
-            const userPermissions = commandData.userPermissions ? commandData.userPermissions.concat(subCommandData?.userPermissions) : subCommandData?.userPermissions;
+            const userPermissions = commandData.userPermissions ? subCommandData?.userPermissions ? commandData.userPermissions.concat(subCommandData?.userPermissions) : commandData.userPermissions : subCommandData?.userPermissions;
             const adminOnly = commandData.adminOnly || subCommandData?.adminOnly;
             // Only allow Guild Only commands to be ran in a Guild
             if(guildOnly && !context.guild){
@@ -381,7 +381,6 @@ module.exports = class Commands {
     }
 
     async runCommandMiddleware(context){
-        console.log("running middleware");
         for(let i = 0; i < this.commandMiddleware.length; i++){
             const middlewareResult = await this.commandMiddleware[i](context);
 

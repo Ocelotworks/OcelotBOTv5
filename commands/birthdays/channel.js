@@ -2,6 +2,7 @@ module.exports = {
     name: "Set Birthday Channel",
     usage: "channel [clear?:clear] :#name?",
     commands: ["setchannel", "channel"],
+    userPermissions: ["MANAGE_CHANNELS"],
     init: async function init(bot) {
         bot.client.once("ready", () => {
             const now = new Date();
@@ -16,7 +17,6 @@ module.exports = {
         });
     },
     run: async function (context, bot) {
-        if (!context.permissionsFor(context.user).has("MANAGE_CHANNELS", true)) return context.send({content: "You must have the Manage Channels permission to use this command.", ephemeral: true});
         let target = context.channel.id;
         if (context.options.name > 0)
             target = context.options.name;

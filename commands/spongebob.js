@@ -25,12 +25,12 @@ module.exports = {
         };
 
         if(!context.options.text){
-            const messages = await context.channel.messages.fetch({limit: 2});
-            if(messages.size > 1){
+            const messages = (await context.channel.messages.fetch({limit: 2}));
+            if(messages.size > 1 && messages.last().content.length > 0){
                 const message = messages.last();
                 doSponge(message.content);
             }else{
-                context.replyLang("SPONGEBOB_NO_TEXT")
+                context.sendLang("SPONGEBOB_NO_TEXT")
             }
         }else{
             doSponge(context.options.text);
