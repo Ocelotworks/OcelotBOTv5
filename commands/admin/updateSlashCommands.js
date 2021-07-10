@@ -23,7 +23,7 @@ module.exports = {
                     options: commandData.slashOptions
                 };
                 commandOutput.push(slashCommand);
-                if (commandOutput.length >= 90) break;
+                if (commandOutput.length >= 99) break;
             }
             await context.send(`Putting ${commandOutput.length} slash commands...`);
             await bot.client.application.commands.set(commandOutput, server);
