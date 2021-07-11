@@ -114,7 +114,7 @@ module.exports = class Lang {
     getTranslationFor(lang, key) {
         if(!this.strings){
             try {
-                this.bot.logger.log("Languages are not loaded for some reason!");
+                this.bot.logger.warn("Languages are not loaded for some reason!");
                 this.loadLanguages();
             }catch(e){
                 this.bot.logger.log(e);
@@ -122,19 +122,26 @@ module.exports = class Lang {
             }
             return key;
         }
-        if (this.strings[lang] && this.strings[lang][key]) {
+        if (this.strings[lang] && this.strings[lang][key])
             return this.strings[lang][key];
-        } else if (this.strings.default[key]) {
-            return this.strings.default[key];
-        } else {
-            this.bot.logger.warn("Tried to translate unknown key: " + key);
-            this.bot.rabbit.event({
-                type: "warning", payload: {
-                    id: "langKey-" + key,
-                    message: `Tried to translate unknown lang key ${key}`
-                }
-            });
+
+        if(!this.strings.default){
+            this.bot.logger.log("Languages are not loaded for some reason!");
+            this.loadLanguages();
             return key;
         }
+
+        if (this.strings.default[key])
+            return this.strings.default[key];
+
+        this.bot.logger.warn("Tried to translate unknown key: " + key);
+        this.bot.rabbit.event({
+            type: "warning", payload: {
+                id: "langKey-" + key,
+                message: `Tried to translate unknown lang key ${key}`
+            }
+        });
+        return key;
+
     }
 }
