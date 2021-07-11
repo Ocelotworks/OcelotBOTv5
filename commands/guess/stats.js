@@ -10,8 +10,8 @@ module.exports = {
             span.end();
 
             stats.totalCorrectPercent = Math.round((stats.totalCorrect / stats.totalGuesses) * 100);
-            stats.averageTimeParsed = bot.util.prettySeconds(stats.averageTime / 1000, context.guild && context.guild.id, context.author.id);
-            stats.totalTimeParsed = bot.util.prettySeconds(stats.totalTime / 1000, context.guild && context.guild.id, context.author.id);
+            stats.averageTimeParsed = bot.util.prettySeconds(stats.averageTime / 1000, context.guild && context.guild.id, context.user.id);
+            stats.totalTimeParsed = bot.util.prettySeconds(stats.totalTime / 1000, context.guild && context.guild.id, context.user.id);
             return context.replyLang("SONGGUESS_STATS", stats)
         } catch (e) {
             bot.raven.captureException(e);
