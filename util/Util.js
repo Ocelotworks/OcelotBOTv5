@@ -158,6 +158,11 @@ module.exports = class Util {
                 return emoji;
         }
 
+        if(!context.channel.permissionsFor(bot.client.user.id).has("READ_MESSAGE_HISTORY")) {
+            context.send(":warning: I need Read Message History permissions to look for images.");
+            return null;
+        }
+
         if(context.message?.reference?.messageID){
             const message = await (await bot.client.channels.fetch(context.message.reference.channelID)).messages.fetch(context.message.reference.messageID);
             const messageImage = Util.#GetImageFromMessage(message);
