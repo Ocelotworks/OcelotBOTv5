@@ -107,6 +107,10 @@ module.exports = {
 
         const oldedit = Discord.Message.prototype.edit;
         Discord.Message.prototype.edit = async function edit(content, options) {
+            Sentry.addBreadcrumb({
+                message: "Editing Message",
+                data: {content, options}
+            });
             bot.bus.emit("messageSent", content);
 
             let editedMessage = await oldedit.apply(this, [content, options]);
@@ -126,6 +130,10 @@ module.exports = {
 
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = async function send(content, options) {
+            Sentry.addBreadcrumb({
+                message: "Sending message",
+                data: {content, options}
+            });
             bot.bus.emit("messageSent", content);
 
             let sentMessage = await oldsend.apply(this, [content, options]);

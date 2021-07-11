@@ -397,50 +397,61 @@ module.exports = class Commands {
      * @returns {Promise<*|void|*>}
      */
     async runCommand(context) {
-        Sentry.configureScope((scope) => scope.setUser({
-            username: context.user.username,
-            id: context.user.id
-        }));
-
-        if (!this.bot.commandUsages[context.command]) {
-            if (!context.guild || !this.bot.customFunctions.COMMAND[context.guild.id] || context instanceof CustomCommandContext) return;
-            let customCommand = this.bot.customFunctions.COMMAND[context.guild.id][context.command]
-            if (!customCommand) return;
-            context.logPerformed();
-            // todo: custom command context
-            return await this.bot.util.runCustomFunction(customCommand, context.message)
-        }
-
-        if(!await this.runCommandMiddleware(context))return console.log("Middleware triggered"); // Middleware triggered
-
-        if(context.error) {
-            if (context.commandData.handleError) {
-                return context.commandData.handleError(context, this.bot);
-            }
-            return context.sendLang({
-                content: `COMMAND_ERROR_${context.error.type.toUpperCase()}`,
-                ephemeral: true,
-                components: [this.bot.util.actionRow(this.bot.interactions.fullSuggestedCommand(context, `help ${context.command}`))]
-            }, context.error.data);
-        }
-        context.logPerformed();
-
-        // TODO: This event
-        this.bot.bus.emit("commandPerformed", context);
-        Sentry.addBreadcrumb({
-            category: "Command",
-            level: Sentry.Severity.Info,
-            message: context.command,
-            data: {
+        Sentry.configureScope((scope) => {
+            scope.setUser({
                 username: context.user.username,
-                id: context.user.id,
-                // message: message.content,
-                channel: context.channel.id,
-                server:  context.guild?.id || "DM Channel"
-            }
+                id: context.user.id
+            });
+            scope.setTag("command", context.command);
         });
 
+        const tx = Sentry.startTransaction({
+            name: `Command ${context.command}`,
+            sampled: true,
+            data: {
+                options: context.options,
+            }
+        })
         try {
+            if (!this.bot.commandUsages[context.command]) {
+                if (!context.guild || !this.bot.customFunctions.COMMAND[context.guild.id] || context instanceof CustomCommandContext) return;
+                let customCommand = this.bot.customFunctions.COMMAND[context.guild.id][context.command]
+                if (!customCommand) return;
+                context.logPerformed();
+                // todo: custom command context
+                return await this.bot.util.runCustomFunction(customCommand, context.message)
+            }
+
+            if(!await this.runCommandMiddleware(context))return console.log("Middleware triggered"); // Middleware triggered
+
+            if(context.error) {
+                if (context.commandData.handleError) {
+                    return context.commandData.handleError(context, this.bot);
+                }
+                return context.sendLang({
+                    content: `COMMAND_ERROR_${context.error.type.toUpperCase()}`,
+                    ephemeral: true,
+                    components: [this.bot.util.actionRow(this.bot.interactions.fullSuggestedCommand(context, `help ${context.command}`))]
+                }, context.error.data);
+            }
+            context.logPerformed();
+
+            // TODO: This event
+            this.bot.bus.emit("commandPerformed", context);
+            Sentry.addBreadcrumb({
+                category: "Command",
+                level: Sentry.Severity.Info,
+                message: context.command,
+                data: {
+                    username: context.user.username,
+                    id: context.user.id,
+                    message: context.message?.content,
+                    options: context.options,
+                    channel: context.channel.id,
+                    server:  context.guild?.id
+                }
+            });
+
             if(context.commandData.subCommands){
                 let parsedInput;
 
@@ -489,6 +500,9 @@ module.exports = class Commands {
             }
             this.bot.bus.emit("commandFailed", e);
         } finally {
+            if(tx){
+                tx.finish();
+            }
             this.bot.database.logCommand(context.user.id, context.channel.id, context.guild?.id || context.channel.id, context.message ? context.message.id : context.interaction.id, context.command, context.message ? context.message.content : "Interaction", this.bot.client.user.id).catch((e)=>{
                 Sentry.captureException(e);
                 this.bot.logger.error(e);

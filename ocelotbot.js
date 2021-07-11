@@ -112,6 +112,13 @@ function configureSentry(){
         })],
         tracesSampleRate: 1.0,
     });
+
+    Sentry.setContext("ocelotbot", {
+        host: process.env.DOCKER_HOST,
+        shard: process.env.SHARD,
+        bot: process.env.BOT_ID,
+        version: process.env.VERSION,
+    })
     bot.api.use(Sentry.Handlers.requestHandler());
     bot.api.use(Sentry.Handlers.tracingHandler());
 
