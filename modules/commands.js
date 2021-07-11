@@ -422,6 +422,8 @@ module.exports = class Commands {
                 return await this.bot.util.runCustomFunction(customCommand, context.message)
             }
 
+            context.logPerformed();
+
             if(!await this.runCommandMiddleware(context))return console.log("Middleware triggered"); // Middleware triggered
 
             if(context.error) {
@@ -434,7 +436,7 @@ module.exports = class Commands {
                     components: [this.bot.util.actionRow(this.bot.interactions.fullSuggestedCommand(context, `help ${context.command}`))]
                 }, context.error.data);
             }
-            context.logPerformed();
+
 
             // TODO: This event
             this.bot.bus.emit("commandPerformed", context);
