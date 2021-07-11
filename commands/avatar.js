@@ -8,8 +8,9 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["avatar"],
     slashHidden: true,
+    guildOnly: true,
     run: async function (context) {
-        let target = context.options.user ? context.channel.members.get(context.options.user) : context.member;
+        let target = context.options.user ? await context.guild.members.fetch(context.options.user) : context.member;
         const embed = new Embeds.AuthorEmbed(context);
         embed.setColor(target.displayColor);
         embed.setImage(target.user.displayAvatarURL({dynamic: true, format: "png", size: 4096}))

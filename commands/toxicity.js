@@ -21,7 +21,7 @@ module.exports = {
     categories: ["text"],
     detailedHelp: "Checks how toxic a message is",
     usageExample: "toxicity Ocelotbot is are bad",
-    requiredPermissions: ["EMBED_LINKS"],
+    requiredPermissions: ["EMBED_LINKS", "READ_MESSAGE_HISTORY"],
     commands: ["toxicity", "toxic"],
     init: async function(bot){
         bot.logger.log("Discovering comment analyzer");

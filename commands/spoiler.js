@@ -11,6 +11,6 @@ module.exports = {
     rateLimit: 10,
     commands: ["spoiler", "spoilerise", "spoilerize"],
     run: function run(context) {
-        return context.send(`||${[...context.options.text].join("||||")}||`)
+        return context.send(`||${[...(context.options.text.substring(0, 900))].join("||||")}||`)
     }
 };

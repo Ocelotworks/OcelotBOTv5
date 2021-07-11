@@ -444,7 +444,7 @@ module.exports = class Strings {
         return string.toString().replace(/{{(.*?)}}/g, (match, reference)=>{
             const split = reference.split(":");
             if(split.length === 1) {
-                return Strings.GetReference(values, reference).toString();
+                return Strings.GetReference(values, reference)?.toString();
             }
             const output = Strings.GetReference(values, split[1]);
             switch(split[0]){
@@ -476,7 +476,7 @@ module.exports = class Strings {
      */
     static GetReference(obj, reference){
         let result =  reference.split('.').reduce((o,i)=>o[i], obj);
-        if(result === undefined)return reference;
+        if(result === undefined || result === null)return reference;
         return result;
     }
 

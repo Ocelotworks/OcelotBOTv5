@@ -4,7 +4,8 @@ const emojiMaps = {
     joel: "<:joel_high:478962387995852804>",
     peter: "<:peter:478962397281779713>",
     neil: "<:neilpoop:478962395692269570>",
-    jake: "<:jake_dino:478962396749103106>"
+    jake: "<:jake_dino:478962396749103106>",
+    holly: "<:holly_swim:863438919177076746>",
 };
 
 const userMaps = {

@@ -38,10 +38,14 @@ module.exports = {
                 const postData = post.data;
                 let embed = new Discord.MessageEmbed();
                 embed.setColor("#FF5700")
-                embed.setTitle( postData.spoiler ? `||${postData.title.substring(0,256)}||` : postData.title.substring(0,256));
-                embed.setAuthor(postData.author, "https://www.shareicon.net/data/64x64/2016/11/03/849484_reddit_512x512.png", `https://reddit.com/u/${postData.author}`);
-                embed.setURL(`https://reddit.com${postData.permalink}`);
-                embed.setFooter(`${postData.ups} points on r/${postData.subreddit} • Page ${index+1}/${posts.length}`);
+                embed.setTitle( postData.spoiler ? `||${Strings.Truncate(postData.title, 252)}||` : Strings.Truncate(postData.title, 256));
+                if(postData.author)
+                    embed.setAuthor(postData.author, "https://www.shareicon.net/data/64x64/2016/11/03/849484_reddit_512x512.png", `https://reddit.com/u/${postData.author}`);
+                embed.setURL(postData.permalink ? `https://reddit.com${postData.permalink}` : `https://reddit.com${postData.url}`);
+                if(postData.ups)
+                    embed.setFooter(`${postData.ups} points on r/${postData.subreddit} • Page ${index+1}/${posts.length}`);
+                else
+                    embed.setFooter(`Search Results`);
                 embed.setTimestamp(new Date(postData.created_utc*1000));
                 if(postData.selftext)
                     embed.setDescription(postData.spoiler ?  `||${postData.selftext.substring(0, 1024)}||`: postData.selftext.substring(0, 1024));
