@@ -47,7 +47,7 @@ ${context.command} set background <background>`;
                 context.send(`:bangbang: This requires **<:ocelotbot:533369578114514945> Ocelot Premium**. To find out more, type ${context.getSetting("prefix")}premium`);
             } else {
                 let keyType = keyTypes[key] || "";
-                if (!context.options.name) return context.send(`:bangbang: Usage: ${context.command} ${args[1]} ${context.options.type} <${keyType}>. To find a ${keyType}, type **${context.command} ${keyType}s**`);
+                if (!context.options.name) return context.send(`:bangbang: Usage: ${context.getSetting("prefix")}${context.command} ${context.options.type} <${keyType}>. To find a ${keyType}, type **${context.command} ${keyType}s**`);
                 const item = (await bot.database.getProfileOptionByKey(context.options.name, keyType))[0];
                 if (item) {
                     if (keyType === "frame") keyType += "s"; //Fuck myself
