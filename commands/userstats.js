@@ -39,7 +39,7 @@ module.exports = {
                     bot.commandCache[user] = 1;
 
                 bot.bus.emit("cacheUser", user, bot.commandCache[user]);
-                bot.logger.warn(`Populated command cache for ${user} at ${bot.commandCache[user]}`);
+                bot.logger.info(`Populated command cache for ${user} at ${bot.commandCache[user]}`);
             }
             const eligbleBadge = await bot.badges.updateBadge(context.user, 'commands', bot.commandCache[user], context.channel);
             if(milestones.indexOf(bot.commandCache[user]) > -1){
