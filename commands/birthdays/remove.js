@@ -32,7 +32,7 @@ module.exports = {
                     return context.replyLang("BIRTHDAY_REMOVE_NOT_FOUND");
                 }
             }
-        } else if (args.length > 2) {
+        } else if (context.user) {
             return context.replyLang("BIRTHDAY_REMOVE_PERMISSION");
         }
         await bot.database.removeBirthday(target.id, context.guild.id);
