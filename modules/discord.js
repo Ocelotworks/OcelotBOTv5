@@ -383,7 +383,7 @@ module.exports = {
                         name: newGuild.name
                     }
                 });
-                bot.logger.warn(`Guild ${oldGuild.name} (${oldGuild.id}) has changed it's name to ${newGuild.name}`);
+                bot.logger.info(`Guild ${oldGuild.name} (${oldGuild.id}) has changed it's name to ${newGuild.name}`);
                 await bot.database.updateServer(oldGuild.id, {name: newGuild.name});
             }
         });
