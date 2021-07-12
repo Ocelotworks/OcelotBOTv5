@@ -160,7 +160,7 @@ module.exports = {
                     type: "LISTENING",
                 }
             },
-            partials: ["CHANNEL"],
+            partials: ["REACTION"],
             intents: [
                 // "GUILD_PRESENCES", // Spooking
                 "GUILDS",
