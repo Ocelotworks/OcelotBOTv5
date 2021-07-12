@@ -17,10 +17,10 @@ module.exports = {
         const messageID = await bot.database.getMessageID(user, topicMessage);
         console.log(user, topicMessage);
         if(messageID[0]){
-            const context = await bot.database.getMessageContext(messageID[0].id);
+            const messageContext = await bot.database.getMessageContext(messageID[0].id);
             let output = "```markdown\n";
-            for(let i = 0; i < context.length; i++){
-                const msg = context[i];
+            for(let i = 0; i < messageContext.length; i++){
+                const msg = messageContext[i];
                  const date = dateformat(new Date(msg.time), 'UTC:dd/mm/yy HH:MM:ss Z');
                 output+= `${msg.message===topicMessage ? "#":" "}[${date}] <${msg.user}> ${msg.message}\n`;
                 if(output.length >= 1998)break;
