@@ -129,8 +129,9 @@ class MessageCommandContext extends CommandContext {
 
     async reply(options){
         await this.message.channel.stopTyping();
-        if(this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id).has("READ_MESSAGE_HISTORY"))
+        if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id).has("READ_MESSAGE_HISTORY"))
             return this.send(options);
+
         const message = await this.message.reply(options);
         this.message.response = message;
         this.bot.bus.emit("messageSent", message);
