@@ -1,3 +1,4 @@
+const Strings = require("../util/String");
 module.exports = {
     name: "Suggest a command",
     usage: "suggest",
@@ -23,6 +24,6 @@ module.exports = {
             output += `**Example:**\n${context.getSetting("prefix")}${command.usageExample}`;
         }
 
-        return context.send({content: output, components: [bot.util.actionRow(bot.interactions.fullSuggestedCommand(context, command.usageExample || command.commands[0]))]});
+        return context.send({content: output, components: [bot.util.actionRow(bot.interactions.fullSuggestedCommand(context, Strings.Truncate(command.usageExample || command.commands[0], 80)))]});
     }
 }
