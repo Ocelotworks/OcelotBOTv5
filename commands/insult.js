@@ -22,6 +22,9 @@ module.exports = {
     responseExample: "@Big P I hope you step in a puddle... with socks on.",
     categories: ["fun"],
     unwholesome: true,
+    handleError: function(context){
+        return context.sendLang("INSULT_NO_PERSON");
+    },
     run: function run(context, bot) {
         const term = context.options.person;
         const mention = bot.util.getUserFromMention(term);

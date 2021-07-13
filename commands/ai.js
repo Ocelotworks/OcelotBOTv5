@@ -26,6 +26,9 @@ module.exports = {
     categories: ["fun"],
     rateLimit: 20,
     commands: ["ai", "cleverbot"],
+    handleError: function(context){
+        return context.sendLang("8BALL_NO_QUESTION");
+    },
     run: async function run(context, bot) {
         let input = context.options.message;
         try {

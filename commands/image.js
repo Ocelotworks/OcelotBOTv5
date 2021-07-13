@@ -24,6 +24,9 @@ module.exports = {
     vote: true,
     pointsCost: 2,
     categories: ["image", "search"],
+    handleError: function(context){
+        return context.sendLang("IMAGE_NO_TEXT");
+    },
     run: async function (context, bot) {
         const query = context.options.text;
         if (naughtyRegex.test(query)) {

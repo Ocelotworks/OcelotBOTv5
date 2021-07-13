@@ -7,6 +7,9 @@ module.exports = {
     commands: ["opinions", "strongopinions"],
     categories: ["memes"],
     unwholesome: true,
+    handleError: function(context){
+        return context.sendLang("GENERIC_TEXT");
+    },
     run: function(context, bot){
         return Image.ImageProcessor(bot, context,{
             "components": [

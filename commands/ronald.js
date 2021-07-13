@@ -7,7 +7,10 @@ module.exports = {
     commands: ["ronald", "ronaldsays", "mcdonald"],
     categories: ["memes"],
     unwholesome: true,
-    run:  function(context, bot){
+    handleError: function(context){
+        return context.sendLang("GENERIC_TEXT");
+    },
+    run: function(context, bot){
         let content = context.options.text;
         return Image.ImageProcessor(bot, context, {
             "components": [

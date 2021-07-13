@@ -43,6 +43,9 @@ module.exports = {
     init: function (bot){
         module.exports.downloadComments(bot);
     },
+    handleError: function(context){
+        return context.sendLang("OPINION_HELP");
+    },
     run: function run(context, bot) {
         try {
             if(context.options.person.indexOf(bot.client.user.id) > -1){
