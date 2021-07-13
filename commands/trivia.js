@@ -14,7 +14,7 @@ const difficultyColours = {
 
 let runningGames = [];
 
-const sessionTokens = {};
+let sessionTokens = {};
 
 const {axios} = require('../util/Http');
 
@@ -116,6 +116,10 @@ module.exports = {
 setInterval(()=>{
     runningGames = [];
 }, 30000)
+
+setInterval(()=>{
+    sessionTokens = {};
+}, 7200000)
 
 function removeGame(channel){
     runningGames.splice(runningGames.indexOf(channel), 1)
