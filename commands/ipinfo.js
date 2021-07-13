@@ -13,6 +13,9 @@ module.exports = {
     usageExample: "ipinfo 8.8.8.8",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["ipinfo", "ip"],
+    handleError: function(context){
+        return context.sendLang("IPINFO_NO_IP");
+    },
     run: async function run(context, bot) {
         try {
             let abuseIp = await bot.util.getJson(`https://api.abuseipdb.com/api/v2/check?ipAddress=${context.options.ip}&days=31`, null, {

@@ -158,7 +158,13 @@ module.exports = class Util {
                 return emoji;
         }
 
-        if(!context.channel.permissionsFor(bot.client.user.id).has("READ_MESSAGE_HISTORY")) {
+        const attachedImage = context.message?.attachments?.filter((a)=>a.data?.content_type?.startsWith("image/") || a.proxyURL).first();
+
+        if(attachedImage)
+            return attachedImage.proxyURL;
+
+
+        if(!context.channel?.permissionsFor?.(bot.client.user.id).has("READ_MESSAGE_HISTORY")) {
             context.send(":warning: I need Read Message History permissions to look for images.");
             return null;
         }

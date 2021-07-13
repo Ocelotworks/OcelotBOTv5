@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const Sentry = require('@sentry/node');
 const Util = require("../util/Util");
+const caller_id = require('caller-id');
 const presenceMessages = [
     {message: "!help", type: 'LISTENING'},
     {message: "!profile", type: 'LISTENING'},
@@ -132,8 +133,12 @@ module.exports = {
         Discord.TextChannel.prototype.send = async function send(content, options) {
             Sentry.addBreadcrumb({
                 message: "Sending message",
-                data: {content, options}
+                data: {content, options: JSON.stringify(options)}
             });
+
+            try {
+                Sentry.setExtra("caller", caller_id.getData())
+            }catch(e){}
             bot.bus.emit("messageSent", content);
 
             let sentMessage = await oldsend.apply(this, [content, options]);
@@ -160,7 +165,7 @@ module.exports = {
                     type: "LISTENING",
                 }
             },
-            partials: ["CHANNEL"],
+            partials: ["REACTION"],
             intents: [
                 // "GUILD_PRESENCES", // Spooking
                 "GUILDS",

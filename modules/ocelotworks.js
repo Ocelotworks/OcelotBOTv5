@@ -39,7 +39,7 @@ module.exports = {
             await message.channel.send(`${emojiMaps[topic.username] || ""} _Set topic: ${topicOutput}_`);
         };
 
-        bot.client.on("message", async function onMessage(message) {
+        bot.client.on("messageCreate", async function onMessage(message) {
             // noinspection EqualityComparisonWithCoercionJS
             if (message.guild && message.guild.id == "478950156654346292") {
                 bot.topicCounter++;
@@ -47,19 +47,17 @@ module.exports = {
                 if (bot.topicCounter >= 100) {
                     bot.changeTopic(message);
                 }
-                // if (message.content.toLowerCase() === "too hot") {
-                //     bot.util.replyTo(message, "_hot damn_");
-                // } else if (message.content.toLowerCase() === "shitpost") {
-                //     message.channel.send("A days power in half an hour");
-                // } else if (message.content.toLowerCase() === "test") {
-                //     bot.util.replyTo(message, "icles");
-                // } else if (thatsTrue.test(message.content)) {
-                //     message.channel.send("thAts trUE");
-                // }
             }
         });
 
         bot.client.on("messageReactionAdd", async (reaction, user) => {
+            if(reaction.partial){
+                bot.logger.log(reaction);
+                await reaction.fetch();
+            }
+            if(reaction.message?.partial){
+                await reaction.message.fetch();
+            }
             if (!reaction.message.guild) return;
             if (reaction.message.guild.id !== "478950156654346292") return;
             if (reaction.emoji.toString() !== "🍞" && reaction.emoji.id !== "812259123864272906") return;

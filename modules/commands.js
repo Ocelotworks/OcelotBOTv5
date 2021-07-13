@@ -174,7 +174,7 @@ module.exports = class Commands {
 
         // Message permissions
         this.addCommandMiddleware(async (context)=>{
-            if (context.channel.permissionsFor) {
+            if (context.channel?.permissionsFor) {
                 const permissions = await context.channel.permissionsFor(this.bot.client.user);
 
                 if (!permissions || !permissions.has("SEND_MESSAGES")) {
@@ -422,6 +422,8 @@ module.exports = class Commands {
                 return await this.bot.util.runCustomFunction(customCommand, context.message)
             }
 
+            context.logPerformed();
+
             if(!await this.runCommandMiddleware(context))return console.log("Middleware triggered"); // Middleware triggered
 
             if(context.error) {
@@ -434,7 +436,7 @@ module.exports = class Commands {
                     components: [this.bot.util.actionRow(this.bot.interactions.fullSuggestedCommand(context, `help ${context.command}`))]
                 }, context.error.data);
             }
-            context.logPerformed();
+
 
             // TODO: This event
             this.bot.bus.emit("commandPerformed", context);
@@ -503,7 +505,7 @@ module.exports = class Commands {
             if(tx){
                 tx.finish();
             }
-            this.bot.database.logCommand(context.user.id, context.channel.id, context.guild?.id || context.channel.id, context.message ? context.message.id : context.interaction.id, context.command, context.message ? context.message.content : "Interaction", this.bot.client.user.id).catch((e)=>{
+            this.bot.database.logCommand(context.user.id, context.channel?.id, context.guild?.id || context.channel?.id, context.message ? context.message.id : context.interaction.id, context.command, context.message ? context.message.content : "Interaction", this.bot.client.user.id).catch((e)=>{
                 Sentry.captureException(e);
                 this.bot.logger.error(e);
             })

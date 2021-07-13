@@ -7,6 +7,9 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jesus", "truth"],
     categories: ["memes"],
+    handleError: function(context){
+        return context.sendLang("GENERIC_TEXT");
+    },
     run: function (context, bot) {
         return Image.ImageProcessor(bot, context,{
             "components": [

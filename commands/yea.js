@@ -6,6 +6,9 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["yea", "yeah"],
     categories: ["memes"],
+    handleError: function(context){
+        return context.sendLang("GENERIC_TEXT");
+    },
     run:  function(context, bot){
         const content = context.options.input;
         return Image.ImageProcessor(bot, context, {

@@ -16,6 +16,11 @@ module.exports = {
     categories: ["fun"],
     unwholesome: true,
     slashHidden: true,
+    handleError: function(context){
+        if(!context.options.user)
+            return context.sendLang("IMITATE_NO_USER");
+        return context.sendLang("IMITATE_NO_MESSAGE");
+    },
     run: async function run(context, bot) {
         if(!context.guild)
             return context.sendLang({content: "GENERIC_DM_CHANNEL", ephemeral: true});
