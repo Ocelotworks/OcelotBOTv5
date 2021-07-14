@@ -14,7 +14,7 @@ module.exports = {
         if (!url)
             return context.sendLang({content: "CRUSH_NO_USER", ephemeral: true});
         let fullText = (`${context.options.image || ""} ${context.options.text || ""}`).replace(url, "");
-        if(url.startsWith("https://cdn.discord") && context.message.mentions.users.size > 0){
+        if(url.startsWith("https://cdn.discord") && context.message?.mentions.users.size > 0){
             fullText = fullText.replace(new RegExp(`<@!?(${context.message.mentions.users.firstKey()})>`), "")
         }
         let first = fullText;
