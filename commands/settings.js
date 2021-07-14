@@ -59,7 +59,7 @@ module.exports = {
                if(context.interaction){
                    context.replyLang({ephemeral: true, content: "GENERIC_CHANNEL_DISABLED"}, {command: context.command});
                } else if (context.getBool("sendDisabledMessage")) {
-                    const dm = await context.author.createDM();
+                    const dm = await context.user.createDM();
                     dm.send(`${context.command} is disabled in that channel`);
                     //TODO: COMMAND_DISABLED_CHANNEL
                     this.bot.logger.log(`${context.command} is disabled in that channel (${context.channel.id})`);
