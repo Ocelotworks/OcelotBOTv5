@@ -1,14 +1,17 @@
 module.exports = {
     name: "Available Languages",
-    usage: "languages [contribute?:contribute]",
+    usage: "languages [contribute?:contribute] :option?",
     usageExample: "languages",
     detailedHelp: "View the available OcelotBOT languages",
     commands: ["lang", "languages", "language"],
     categories: ["meta"],
     run: async function(context, bot){
-        if(context.options.contribute){
-            return context.send(`If you'd like to contribute, send a DM to **Big P#1843** with the language you want to translate to. For contribution, you get a ${context.getSetting("prefix")}profile badge.`);
-        }
+        if(context.options.contribute)
+            return context.sendLang({ephemeral: true, content: "LANGUAGE_CONTRIBUTE"})
+
+        if(context.options.option)
+            return context.sendLang({ephemeral: true, content: "LANGUAGE_USAGE"});
+
         let output = await bot.lang.getTranslation(context.guild ? context.guild.id : "322032568558026753", "LANGUAGE_AVAILABLE")+"\n";
         const totalStrings = Object.keys(bot.lang.strings.default).length;
         for(let i in bot.lang.strings){

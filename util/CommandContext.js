@@ -1,3 +1,4 @@
+const Sentry = require('@sentry/node');
 class CommandContext {
 
     bot;
@@ -120,6 +121,7 @@ class MessageCommandContext extends CommandContext {
     }
 
     async send(options){
+        Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         await this.message.channel.stopTyping();
         const message = await this.message.channel.send(options);
         this.message.response = message;
@@ -128,6 +130,7 @@ class MessageCommandContext extends CommandContext {
     }
 
     async reply(options){
+        Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         await this.message.channel.stopTyping();
         if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id).has("READ_MESSAGE_HISTORY"))
             return this.send(options);
@@ -143,6 +146,7 @@ class MessageCommandContext extends CommandContext {
     }
 
     edit(options, message){
+        Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         if(!message || message.deleted)return this.send(options);
         return message.edit(options);
     }
@@ -161,12 +165,14 @@ class MessageEditCommandContext extends MessageCommandContext {
     }
 
     async send(options){
+        Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
         if(this.response)
             return this.response.edit(options);
         return super.reply(options);
     }
 
     async reply(options){
+        Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
         if(this.response)
             return this.response.edit(options);
         return super.reply(options);
@@ -196,6 +202,7 @@ class InteractionCommandContext extends CommandContext {
     }
 
     send(options){
+        Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         this.bot.bus.emit("messageSent", options);
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
@@ -208,11 +215,13 @@ class InteractionCommandContext extends CommandContext {
     }
 
     defer(options){
+        Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         if(this.interaction.deferred)return; // Don't bother if we've already deferred
         return this.interaction.defer(options);
     }
 
     edit(options){
+        Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         return this.interaction.editReply(options);
     }
 

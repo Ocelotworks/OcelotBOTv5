@@ -24,6 +24,12 @@ module.exports = {
             output += `**Example:**\n${context.getSetting("prefix")}${command.usageExample}`;
         }
 
-        return context.send({content: output, components: [bot.util.actionRow(bot.interactions.fullSuggestedCommand(context, Strings.Truncate(command.usageExample || command.commands[0], 80)))]});
+        if(command.usageExample && command.usageExample.length < 80) {
+            return context.send({
+                content: output,
+                components: [bot.util.actionRow(bot.interactions.fullSuggestedCommand(context, command.usageExample))]
+            });
+        }
+        return context.send({content: output});
     }
 }

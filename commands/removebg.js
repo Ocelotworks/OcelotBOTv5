@@ -88,7 +88,7 @@ async function withRembg(url, context, bot){
     request({
         encoding: null,
         method: 'GET',
-        url: `https://rbg1.bint.cc/?url=${encodeURIComponent(url)}`,
+        url: `https://ob-prod-rembg.d.int.unacc.eu/?url=${encodeURIComponent(url)}`,
     }, async function APIResponse(err, resp, body){
         if(err)
            return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});

@@ -111,6 +111,7 @@ function configureSentry(){
             app: bot.api
         })],
         tracesSampleRate: 1.0,
+        attachStacktrace: true,
     });
 
     Sentry.setContext("ocelotbot", {

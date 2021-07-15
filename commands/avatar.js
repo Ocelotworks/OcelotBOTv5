@@ -10,7 +10,9 @@ module.exports = {
     slashHidden: true,
     guildOnly: true,
     run: async function (context) {
-        let target = context.options.user ? await context.guild.members.fetch(context.options.user) : context.member;
+        let target = context.options.user ? await context.guild.members.fetch(context.options.user).catch(()=>null) : context.member;
+        if(!target)
+            return context.replyLang({ephemeral: true, content: "AVATAR_NOT_FOUND"});
         const embed = new Embeds.AuthorEmbed(context);
         embed.setColor(target.displayColor);
         embed.setImage(target.user.displayAvatarURL({dynamic: true, format: "png", size: 4096}))

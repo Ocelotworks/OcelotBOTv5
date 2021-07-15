@@ -41,11 +41,11 @@ module.exports = {
 
 
         let lastCommands = await bot.database.getUserCommands(userId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
-        output.addField("Last 5 Commands", trim(`Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``))
-        return bot.util.sendButtons(context.channel, {embeds: [output]},  [
-            {type: 2, label: "View in Dashboard", style: 5, url: `https://ocelotbot.xyz/dash-beta/#/admin/user/${userId}`},
-            bot.interactions.suggestedCommand(context, `ci ${lastCommands[0].id}`),
-        ])
+        output.addField("Last 5 Commands", trim(`Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``));
+        let buttons = [{type: 2, label: "View in Dashboard", style: 5, url: `https://ocelotbot.xyz/dash-beta/#/admin/user/${userId}`}]
+        if(lastCommands[0])
+            buttons.push(bot.interactions.suggestedCommand(context, `ci ${lastCommands[0].id}`))
+        return bot.util.sendButtons(context.channel, {embeds: [output]},  buttons);
     }
 };
 
