@@ -79,7 +79,7 @@ module.exports = {
             embed.addField("Parsed Pattern", `\`\`\`json\n${JSON.stringify(data.pattern)}\n\`\`\``);
 
         if(context.options.subcommand && data.subCommands[context.options.subcommand])
-            embed.addField("Sub-command Pattern", `\`\`\`json\n${JSON.stringify(data.subCommands[context.options.subCommand].pattern)}\n\`\`\``);
+            embed.addField("Sub-command Pattern", `\`\`\`json\n${JSON.stringify(data.subCommands[context.options.subcommand].pattern)}\n\`\`\``);
 
         return context.send({embeds: [embed]});
     }
