@@ -32,7 +32,7 @@ module.exports = {
     run: async function run(context, bot) {
         let input = context.options.message;
         try {
-            context.defer();
+            await context.defer();
             let response = await bot.redis.cache(`ai/${input}`, async () => await clev.query(encodeURIComponent(input), {cs: contexts[context.channel.id]}), 3600);
             contexts[context.channel.id] = response.cs;
 
