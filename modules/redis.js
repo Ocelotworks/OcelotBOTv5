@@ -45,8 +45,6 @@ module.exports = {
                             bot.stats.cacheHits++;
                         }
                     } catch (e) {
-                        bot.logger.error(e);
-                        bot.raven.captureException(e);
                         reject(e);
                     }
                 })
