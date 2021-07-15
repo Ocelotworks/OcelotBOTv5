@@ -186,7 +186,7 @@ module.exports = class Util {
 
         let clearButtons = async ()=>{
             if(pages.length )
-            if(context.interaction || sentMessage){
+            if(context.interaction || (sentMessage && !sentMessage.deleted)){
                 try{
                     context.edit({...await pageFormat(pages[index], index), components: []}, sentMessage);
                 }catch(e){
