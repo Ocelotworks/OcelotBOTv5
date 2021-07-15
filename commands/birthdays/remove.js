@@ -7,18 +7,20 @@
 const Strings = require("../../util/String");
 module.exports = {
     name: "Remove Birthday",
-    usage: "remove :user?+",
+    usage: "remove :userToRemove?+",
     commands: ["remove", "delete"],
     run: async function (context, bot) {
         let target = context.user;
         if (context.channel.permissionsFor(context.user.id).has("MANAGE_CHANNELS")) {
-            const mention = Strings.GetUserFromMention(bot, context.options.user);
+            console.log("User: ",context.options);
+            const mention = Strings.GetUserFromMention(bot, context.options.userToRemove);
+            console.log("Mention:",mention);
             if(mention){
                 target = mention;
             } else if (context.options.user) {
                 let allBirthdays = await bot.database.getBirthdays(context.guild.id);
                 let found = false;
-                const search = context.options.user;
+                const search = context.options.userToRemove;
                 for (let i = 0; i < allBirthdays.length; i++) {
                     let user = await bot.util.getUserInfo(allBirthdays[i].user);
                     if (!user) continue;
@@ -32,7 +34,7 @@ module.exports = {
                     return context.replyLang("BIRTHDAY_REMOVE_NOT_FOUND");
                 }
             }
-        } else if (context.user) {
+        } else if (context.options.userToRemove) {
             return context.replyLang("BIRTHDAY_REMOVE_PERMISSION");
         }
         await bot.database.removeBirthday(target.id, context.guild.id);
