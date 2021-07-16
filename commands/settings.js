@@ -62,7 +62,7 @@ module.exports = {
                     const dm = await context.user.createDM();
                     dm.send(`${context.command} is disabled in that channel`);
                     //TODO: COMMAND_DISABLED_CHANNEL
-                    this.bot.logger.log(`${context.command} is disabled in that channel (${context.channel.id})`);
+                    bot.logger.log(`${context.command} is disabled in that channel (${context.channel.id})`);
                 }
                 return false;
             }

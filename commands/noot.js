@@ -46,7 +46,7 @@ module.exports = {
             context.defer();
             let {songData, player} = await bot.lavaqueue.playOneSong(context.member.voice.channel, noot);
             player.once("start", ()=>{
-                context.send(`<:noot:524657747757891615> Noot #${nootNumber} (${songData.info.title})\nUse \`${context.command} ${nootNumber}\` to play this again.`);
+                context.send(`<:noot:524657747757891615> Noot #${nootNumber} (${songData.info.title})\nUse \`${context.getSetting("prefix")}${context.command} ${nootNumber}\` to play this again.`);
             });
         } catch (e) {
             bot.raven.captureException(e);
