@@ -17,7 +17,7 @@ module.exports = {
             console.log("Mention:",mention);
             if(mention){
                 target = mention;
-            } else if (context.options.user) {
+            } else if (context.options.userToRemove) {
                 let allBirthdays = await bot.database.getBirthdays(context.guild.id);
                 let found = false;
                 const search = context.options.userToRemove;
