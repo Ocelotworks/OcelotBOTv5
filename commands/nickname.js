@@ -11,11 +11,11 @@ const nicknames = [
     "butt", "ecksdee", "Grinch", "ho ho ho", "everyone", "here", "Ed, Edd & Eddy", "several people", "is typing", "vore my ass", "daddy",
     "better than ocelotbot", "spook", "gods mistake", "sexy and i know it", "forkknife", "owl city", "lady pickle", "(:", ":)", "ocelotbot number 1 fan",
     "spooky", "big chungus", "[Object object]", "Pussy Poppin Pirate", "Peter Griffin", "Stooey", "Post-nut Clarity", "Engorged", "Asshole First Class", "Cyberspunk 2069", "Something Went Wrong.",
-    "banned", "ban me", "Eating Ass Masterclass", "Welcome to the Cum Zone", "In Love with Pain", "bottom boy", "Elon's Musk", "sans undertale",
+    "banned", "Eating Ass Masterclass", "Welcome to the Cum Zone", "In Love with Pain", "bottom boy", "Elon's Musk", "sans undertale", "nicole", "simp", "baby whale", "womb raider", "Bingus",
     [["Mr", "Mrs", "Sir", "Sgt", "", "Big"], ["", "poopy", "pee-pee", "big","fart","small","ass"], ["ass","butthole", "hole", "bash", "basher", "smasher", "thiccboi", "chungus", "P"]],
     [["the", ""], ["cardboard","living","binary","enraged","chief","","iron","bronze","gold","silver","shit","fart"], ["box","house","room","chungus","vegetable","thief","king","chief"]],
     [["not","", "ban"], ["username", "randUsername", "Big P", "OcelotBOT", "Dank Memer", "Peter Griffin"]],
-    [["username", "randUsername", "Big P", "OcelotBOT", "Dank Memer", "Peter Griffin"], ["lover", "hater", "stalker", "bitch", "in disguise"]],
+    [["username", "randUsername", "Big P", "OcelotBOT", "Dank Memer", "Peter Griffin"], ["simp", "lover", "hater", "stalker", "bitch", "in disguise", "alt"]],
     ["Welcome to the", ["cum","fart","dick","gay","weirdo","normie"], "zone"],
     [["Substantial", "Large", "Big", "Massive", "Tiny", "Small"], ["Homie", "Chungus", "Lad", "Lass", "Homeboy", "Kid", "Dude", "Sad", "Happy"]],
     ["Only",["cum", "jizz", "spunk","jerk"],["inside", "to", "onto"], ["anime girls", "anime boys", "myself"]],
@@ -26,7 +26,12 @@ const nicknames = [
     [["My Dick is", "My Mind is", "I am"], ["in love with", "experiencing"], ["pain", "pleasure"]],
     ["There's a", ["snake", "horse", "foot", "stash", "cock"], "in my", ["ass", "stomach", "boot", "hat", "basement"]],
     ["oh", ["no", "yes"]],
-    ["lvl", ["100", "0", "50", "69", "420"], "mafia boss"]
+    ["lvl", ["100", "0", "50", "69", "420"], "mafia boss"],
+    [["spermicidal", "suicidal"], "maniac"],
+    [["Cum", "Piss"], ["Guzzling", "Drinking", "Hoarding"], ["Gutter", "Sewer", ""], ["Slut", "Goblin", "Whore"]],
+    [["Booty", "Ass"], ["Kisser", "Licker", "Eater"]],
+    [["Penis", "Hymen", "Cervix", "Womb", "Pee-pee"], ["Tickler", "Toucher", "Destroyer", "Lover"]],
+    [["kick", "ban", "mute"], "me"]
 
 ]
 module.exports = {

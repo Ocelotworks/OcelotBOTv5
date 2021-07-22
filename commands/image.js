@@ -19,7 +19,7 @@ module.exports = {
     rateLimit: 80,
     detailedHelp: "Search Google Images",
     usageExample: "image cute puppies",
-    requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
+    requiredPermissions: ["EMBED_LINKS"],
     commands: ["image", "images", "im", "googleimage"],
     vote: true,
     pointsCost: 2,
