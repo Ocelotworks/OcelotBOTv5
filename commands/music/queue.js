@@ -19,7 +19,7 @@ module.exports = {
             await bot.music.constructListener(context.guild, context.member.voice.channel, context.channel);
         }
 
-        // await context.channel.startTyping();
+        // await context.channel.sendTyping();
         try {
             bot.logger.log("Adding song to queue");
             let song = await bot.music.addToQueue(guild, query, context.user.id);

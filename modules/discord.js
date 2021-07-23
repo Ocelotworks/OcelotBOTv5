@@ -121,14 +121,6 @@ module.exports = {
             return editedMessage;
         };
 
-        const oldStartTyping = Discord.TextChannel.prototype.startTyping;
-        Discord.TextChannel.prototype.startTyping = function startTyping() {
-            oldStartTyping.apply(this, arguments);
-            setTimeout(() => {
-                this.stopTyping();
-            }, 60000);
-        }
-
         const oldsend = Discord.TextChannel.prototype.send;
         Discord.TextChannel.prototype.send = async function send(content, options) {
             Sentry.addBreadcrumb({

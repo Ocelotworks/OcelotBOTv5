@@ -1,5 +1,6 @@
 stages:
   - build-base
+  - release
   - build
   - sentry
 
@@ -84,6 +85,10 @@ build-shard-staging:
   only:
     - staging
   extends: .build-shard
+  before_script:
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
+    - export VERSION=$CI_PIPELINE_IID
 
 build-shard-master:
   environment:
@@ -91,6 +96,10 @@ build-shard-master:
   only:
     - master
   extends: .build-shard
+  before_script:
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
+    - export VERSION=(cat .next-version)
 
 .build-shard:
   stage: build
@@ -103,9 +112,6 @@ build-shard-master:
   retry:
     max: 2
     when: runner_system_failure
-  before_script:
-    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
-    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
   script:
     - mv $CONFIG config/local.json
     - docker build .
@@ -113,7 +119,7 @@ build-shard-master:
       -t $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       --build-arg REGISTRY=$REGISTRY
       --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
-      --build-arg VERSION=$CI_PIPELINE_IID
+      --build-arg VERSION=$VERSION
     - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
     - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
@@ -126,12 +132,16 @@ sentry-staging:
   environment:
     name: staging
   extends: .sentry
+  before_script:
+    - export VERSION=$CI_PIPELINE_IID
 
 sentry-master:
   only:
     - master
   environment:
     name: production
+  before_script:
+    - export VERSION=(cat .next-version)
   extends: .sentry
 
 .sentry:
@@ -146,8 +156,22 @@ sentry-master:
       - $STAGE_SENTRY_DEPLOY == "false"
       - $STAGE_DEPLOY == "false"
   script:
-    - export VERSION=$CI_PIPELINE_IID
     - sentry-cli releases new "$VERSION"
     - sentry-cli releases set-commits "$VERSION" --auto || true
     - sentry-cli releases finalize "$VERSION"
     - sentry-cli releases deploys "$VERSION" new -e $CI_ENVIRONMENT_NAME
+
+
+version:
+  stage: release
+  image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.21.1
+  interruptible: true
+  script:
+    - release next-version --allow-current > .next-version
+    - cat .next-version
+    - release changelog || true
+    - release tag || true
+  only:
+    - master
+  except:
+    - tags

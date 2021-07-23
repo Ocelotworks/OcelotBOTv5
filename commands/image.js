@@ -91,7 +91,6 @@ module.exports = {
                 value: `${i}`
             })));
         } catch (e) {
-            context.channel.stopTyping(true);
             if (e.message === "Response code 403 (Forbidden)")
                 context.sendLang("REMOVEBG_QUOTA");
             else

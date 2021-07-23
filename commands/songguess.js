@@ -185,7 +185,6 @@ async function newGuess(bot, voiceChannel, retrying = false){
             counter = bot.util.intBetween(0, playlistLength);
             return newGuess(bot, voiceChannel, true);
         } else if(counter === 0){
-            game.textChannel.stopTyping();
             Sentry.captureMessage("Failed to load song")
             counter = 0;
             endGame(bot, voiceChannel.guild.id);
@@ -216,14 +215,12 @@ async function newGuess(bot, voiceChannel, retrying = false){
             console.log("retrying...");
             return newGuess(bot, voiceChannel, true);
         }else{
-            game.textChannel.stopTyping();
             counter = 10;
             endGame(bot, voiceChannel.guild.id);
             return game.textChannel.send("Failed to load song. Try again later.")
         }
     }
     game.player.once("start", ()=>{
-        game.textChannel.stopTyping();
         game.textChannel.send("Guess the name of this song, you have 30 seconds.");
         doGuess(bot, game.player, game.textChannel, song, game.voiceChannel);
     });

@@ -371,7 +371,7 @@ module.exports = {
 
             filePath = __dirname + "/../" + filePath;
 
-            message.channel.startTyping();
+            message.channel.sendTyping();
             gm(filePath)
                 .font(__dirname + "/../static/arial.ttf", textSize)
                 .drawText(x, y, wrap(message.cleanContent.substring(context.command.length).substring(0, 1010), {
@@ -389,7 +389,6 @@ module.exports = {
                         message.channel.send({files: [attachment]});
                     }
                     bot.tasks.endTask("imageMeme", message.id);
-                    message.channel.stopTyping();
                 });
         };
 
@@ -397,7 +396,7 @@ module.exports = {
             const url = await bot.util.getImage(message, args);
             if (!url || !url.startsWith("http"))
                 return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
-            message.channel.startTyping();
+            message.channel.sendTyping();
 
             try {
                 let result = await deepai.callStandardApi(filter, {image: url});
@@ -410,8 +409,6 @@ module.exports = {
             } catch (e) {
                 message.replyLang("GENERIC_ERROR");
                 Sentry.captureException(e)
-            } finally {
-                message.channel.stopTyping(true);
             }
         };
 
@@ -624,9 +621,8 @@ module.exports = {
                 } else if (args[2] && bot.util.getEmojiURLFromMention(args[2])) {
                     return bot.util.getEmojiURLFromMention(args[2]);
                 } else {
-                    message.channel.startTyping();
+                    message.channel.sendTyping();
                     const result = bot.util.getImageFromPrevious(message, argument);
-                    message.channel.stopTyping();
                     return result;
                 }
             } catch (e) {
@@ -1125,7 +1121,7 @@ module.exports = {
             }
 
             const text = message.cleanContent.substring(context.command.length + 1);
-            message.channel.startTyping();
+            message.channel.sendTyping();
 
             options.text = text;
 
@@ -1140,7 +1136,6 @@ module.exports = {
                 if (err) {
                     console.log(err);
                     bot.raven.captureException(err);
-                    message.channel.stopTyping(true);
                     return message.replyLang("GENERIC_ERROR");
                 }
                 try {
@@ -1160,8 +1155,6 @@ module.exports = {
                     console.log(e);
                     console.log("Body:", body);
                     message.replyLang("GENERIC_ERROR");
-                } finally {
-                    message.channel.stopTyping();
                 }
             })
         };
