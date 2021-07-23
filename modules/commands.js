@@ -449,7 +449,7 @@ module.exports = class Commands {
                     id: context.user.id,
                     message: context.message?.content,
                     options: context.options,
-                    channel: context.channel.id,
+                    channel: context.channel?.id,
                     server:  context.guild?.id
                 }
             });
