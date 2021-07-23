@@ -190,5 +190,5 @@ release_monitor:
   stage: post-release
   script:
     - export TARGET_VERSION=$(cat .next-version)
-    - npm install axios --registry=http://192.168.1.145/
+    - npm install axios --production --registry=http://192.168.1.145/
     - node update.js
