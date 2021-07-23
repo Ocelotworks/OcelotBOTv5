@@ -99,7 +99,7 @@ build-shard-master:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
-    - export VERSION=(cat .next-version)
+    - export VERSION=$(cat .next-version)
 
 .build-shard:
   stage: build
@@ -141,7 +141,7 @@ sentry-master:
   environment:
     name: production
   before_script:
-    - export VERSION=(cat .next-version)
+    - export VERSION=$(cat .next-version)
   extends: .sentry
 
 .sentry:
