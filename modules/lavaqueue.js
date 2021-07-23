@@ -97,7 +97,7 @@ module.exports = {
         };
 
         bot.lavaqueue.getSong = async function getSong(search, player) {
-            return (await bot.lavaqueue.getSongs(search, player)).tracks[0];
+            return (await bot.lavaqueue.getSongs(search, player)).tracks?.[0];
         };
 
         bot.lavaqueue.leaveTimeouts = [];
