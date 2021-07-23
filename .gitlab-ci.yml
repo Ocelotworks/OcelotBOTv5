@@ -2,7 +2,7 @@ stages:
   - build-base
   - release
   - build
-  - sentry
+  - post-release
 
 build-consumer-image:
   stage: build
@@ -145,7 +145,7 @@ sentry-master:
   extends: .sentry
 
 .sentry:
-  stage: sentry
+  stage: post-release
   image: getsentry/sentry-cli
   only:
     refs:
@@ -178,3 +178,17 @@ version:
     - master
   except:
     - tags
+
+
+release_monitor:
+  only:
+    - master
+  except:
+    - tags
+  interruptible: true
+  image: node:lts-alpine3.12
+  stage: post-release
+  script:
+    - export TARGET_VERSION=$(cat .next-version)
+    - npm install axios --registry=http://192.168.1.145/
+    - node update.js

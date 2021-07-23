@@ -4,10 +4,10 @@ module.exports = {
     name: "Steal Emoji",
     usage: "esteal :image? :name?",
     categories: ["tools"],
-    requiredPermissions: ["MANAGE_EMOJIS"],
+    requiredPermissions: ["MANAGE_EMOJIS_AND_STICKERS"],
     commands: ["esteal", "emojisteal", "steal"],
     guildOnly: true,
-    userPermissions: ["MANAGE_EMOJIS"],
+    userPermissions: ["MANAGE_EMOJIS_AND_STICKERS"],
     run: async function (context, bot) {
         let url, name;
         let isEmoji = false;

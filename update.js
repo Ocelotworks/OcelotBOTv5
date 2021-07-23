@@ -1,5 +1,5 @@
 const targetVersion = process.env.TARGET_VERSION;
-const webhook = process.env.WEBHOOK_URL;
+const webhook = process.env.RELEASE_WEBHOOK_URL;
 const axios = require('axios');
 
 
@@ -47,7 +47,7 @@ async function check(){
         return;
     }
 
-    if(interval > 3600000){
+    if(count > 3600000){
         return sendWebhookMessage({
             "content": null,
             "embeds": [

@@ -1263,11 +1263,11 @@ module.exports = {
                     return knex.insert({poll, userID, choice}).into("ocelotbot_poll_answers");
                 return knex("ocelotbot_poll_answers").update({choice}).where({poll, userID});
             },
-            getExpiredPolls(){
-                return knex.select().from("ocelotbot_polls").whereNotNull("expires").andWhere("expires", "<", new Date());
+            getExpiredPolls(servers){
+                return knex.select().from("ocelotbot_polls").whereIn("serverID", servers).whereNotNull("expires").andWhere("expires", "<", new Date());
             },
-            deleteExpiredPolls(){
-                return knex.delete().from("ocelotbot_polls").whereNotNull("expires").andWhere("expires", "<", new Date());
+            deleteExpiredPolls(servers){
+                return knex.delete().from("ocelotbot_polls").whereIn("serverID", servers).whereNotNull("expires").andWhere("expires", "<", new Date());
             },
             deletePoll(serverID, id){
                 return knex.delete().from("ocelotbot_polls").where({serverID, id}).limit(1);

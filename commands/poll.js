@@ -11,28 +11,28 @@ module.exports = {
     requiredPermissions: ["READ_MESSAGE_HISTORY", "EMBED_LINKS"],
     slashHidden: true,
     init: function(bot){
-        if(bot.util.shard === 0){
-            setInterval(async ()=>{
-                let expiredPolls = await bot.database.getExpiredPolls();
-                if(expiredPolls.length === 0)return;
-                bot.logger.log(`${expiredPolls.length} polls expired.`);
-                await bot.database.deleteExpiredPolls();
-                for(let i = 0; i < expiredPolls.length; i++){
-                    try {
-                        const poll = expiredPolls[i];
-                        let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
-                        if(!message)continue;
-                        let embed = message.embeds[0];
-                        embed.setDescription(embed.description.split("\n")[0]);
-                        embed.setColor("#ff0000");
-                        embed.setFooter("Poll Expired");
-                        await message.edit({embeds: [embed], components: []}).catch(console.error);
-                    }catch(e){
-                        bot.logger.log(e);
-                    }
+        setInterval(async ()=>{
+            let expiredPolls = await bot.database.getExpiredPolls(bot.client.guilds.cache.keyArray());
+            if(expiredPolls.length === 0)return;
+            bot.logger.log(`${expiredPolls.length} polls expired.`);
+            await bot.database.deleteExpiredPolls(bot.client.guilds.cache.keyArray());
+            for(let i = 0; i < expiredPolls.length; i++){
+                try {
+                    const poll = expiredPolls[i];
+                    let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
+                    if(!message)continue;
+                    if(message.author.id !== bot.client.user.id)continue;
+                    let embed = message.embeds[0];
+                    embed.setDescription(embed.description.split("\n")[0]);
+                    embed.setColor("#ff0000");
+                    embed.setFooter("Poll Expired");
+                    await message.edit({embeds: [embed], components: []}).catch(console.error);
+                }catch(e){
+                    bot.logger.log(e);
                 }
-            }, 60000);
-        }
+            }
+        }, 60000);
+
 
         bot.interactions.addHandler("P", async (interaction)=>{
             try {
