@@ -187,6 +187,7 @@ release_monitor:
     - tags
   interruptible: true
   image: node:lts-alpine3.12
+  stage: post-release
   script:
     - export TARGET_VERSION=$(cat .next-version)
     - npm install axios --registry=http://192.168.1.145/
