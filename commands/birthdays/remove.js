@@ -22,6 +22,11 @@ module.exports = {
                 let found = false;
                 const search = context.options.userToRemove;
                 for (let i = 0; i < allBirthdays.length; i++) {
+                    if(search === allBirthdays[i].user){
+                        found = true;
+                        target = user;
+                        break;
+                    }
                     let user = await bot.util.getUserInfo(allBirthdays[i].user);
                     if (!user) continue;
                     if (user.username.toLowerCase().includes(search)) {
