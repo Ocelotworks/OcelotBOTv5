@@ -7,6 +7,7 @@ class CommandContext {
     channel;
     guild;
 
+    content;
     command;
     commandData;
     options = {};
@@ -106,6 +107,7 @@ class MessageCommandContext extends CommandContext {
         this.message = message;
         this.args = args;
         this.command = command;
+        this.content = message.content;
     }
 
     logPerformed(){
@@ -122,7 +124,6 @@ class MessageCommandContext extends CommandContext {
 
     async send(options){
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
-        await this.message.channel.stopTyping();
         const message = await this.message.channel.send(options);
         this.message.response = message;
         this.bot.bus.emit("messageSent", message);
@@ -131,7 +132,6 @@ class MessageCommandContext extends CommandContext {
 
     async reply(options){
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
-        await this.message.channel.stopTyping();
         if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id).has("READ_MESSAGE_HISTORY"))
             return this.send(options);
 
@@ -152,7 +152,7 @@ class MessageCommandContext extends CommandContext {
     }
 
     defer(options){
-        return this.message.channel.startTyping();
+        return this.message.channel.sendTyping();
     }
 }
 
@@ -186,7 +186,11 @@ class InteractionCommandContext extends CommandContext {
         super(bot, interaction.member, interaction.user, interaction.channel, interaction.guild);
         this.interaction = interaction;
         this.command = interaction.commandName;
-        interaction.options.each((val)=>this.options[val.name]=val.value);
+        this.content = `/${interaction.commandName}`
+        interaction.options.data.forEach((val)=>{
+            this.options[val.name]=val.value;
+            this.content += ` ${val.name}:${val.value}`
+        });
     }
 
     logPerformed(){
@@ -195,9 +199,9 @@ class InteractionCommandContext extends CommandContext {
             command: {
                 name: this.command,
                 id: this.command,
-                content: "interaction",
+                content: this.content,
             },
-            message: "Interaction"
+            interaction: this.interaction,
         })
     }
 

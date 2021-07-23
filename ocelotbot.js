@@ -62,6 +62,8 @@ function configureSentry(){
                 case "commandPerformed":
                     if(message.message)
                         consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) ${message.message.author?.username} (${message.message.author?.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) performed command ${message.command.name}: ${message.message.content}`;
+                    if(message.interaction)
+                        consoleMessage = `[${message.interaction.guild?.name || "DM"}] (${message.interaction.guild?.id}) ${message.interaction.user?.username} (${message.interaction.user?.id}) #${message.interaction.channel?.name || "DM"} (${message.interaction.channel?.id}) (INTERACTION) performed command ${message.command.name}: ${message.command.content}`;
                     break;
             }
         }

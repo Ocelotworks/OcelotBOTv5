@@ -182,10 +182,9 @@ module.exports = class Image {
         let span = bot.util.startSpan("Receive from RPC");
         let loadingMessage;
         let loadingMessageDelay = setTimeout(async () => {
-            message.channel.stopTyping(true);
             loadingMessage = await message.replyLang("GENERIC_PROCESSING");
         }, 3000)
-        message.channel.startTyping();
+        message.channel.sendTyping();
         let response = await Image.#imageProcessor(bot, request);
         clearTimeout(loadingMessageDelay)
         span.end();
@@ -225,7 +224,6 @@ module.exports = class Image {
             Sentry.captureException(e);
             messageResult = await message.channel.send("Failed to send: "+e);
         }
-        message.channel.stopTyping(true);
         span.end();
         span = bot.util.startSpan("Delete processing message");
         if (loadingMessage && !loadingMessage.deleted)

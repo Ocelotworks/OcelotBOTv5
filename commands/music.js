@@ -404,7 +404,6 @@ module.exports = {
                         setTimeout(bot.lavaqueue.cancelLeave, 100, listener.voiceChannel);
 
                     } catch (e) {
-                        listener.channel.stopTyping(true);
                         bot.logger.error("Something bad happened");
                         console.error(e);
                         await bot.music.playNextInQueue(listener.server)

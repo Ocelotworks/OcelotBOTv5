@@ -42,7 +42,7 @@
     "country-list": "^2.2.0",
     "crc": "^3.8.0",
     "dateformat": "^4.5.1",
-    "discord.js": "^13.0.0-dev.610b0b4.1625357028",
+    "discord.js": "^13.0.0-dev.c8ca7bf.1627041776",
     "express": "^4.17.1",
     "form-data": "^2.3.3",
     "gifuct-js": "^2.0.0",
@@ -69,5 +69,10 @@
     "word-wrap": "^1.2.3",
     "ws": "^7.4.3",
     "zlib-sync": "^0.1.7"
+  },
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "expect": "^27.0.6",
+    "mocha": "^9.0.2"
   }
 }

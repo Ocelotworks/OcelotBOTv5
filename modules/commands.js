@@ -463,7 +463,6 @@ module.exports = class Commands {
                     trueCommand = "help";
                 }
 
-
                 if(context.commandData.subCommands[trueCommand]){
                     if(context.args) {
                         parsedInput = commandParser.Parse(context.args.slice(2).join(" "), {
@@ -486,7 +485,6 @@ module.exports = class Commands {
         } catch (e) {
             console.log(e);
             let exceptionID = Sentry.captureException(e);
-            context.channel.stopTyping(true);
             // Show the actual error indev
             if(process.env.VERSION === "indev"){
                 exceptionID = e.message;
@@ -505,7 +503,7 @@ module.exports = class Commands {
             if(tx){
                 tx.finish();
             }
-            this.bot.database.logCommand(context.user.id, context.channel?.id, context.guild?.id || context.channel?.id, context.message ? context.message.id : context.interaction.id, context.command, context.message ? context.message.content : "Interaction", this.bot.client.user.id).catch((e)=>{
+            this.bot.database.logCommand(context.user.id, context.channel?.id, context.guild?.id || context.channel?.id, context.message ? context.message.id : context.interaction.id, context.command, context.content, this.bot.client.user.id).catch((e)=>{
                 Sentry.captureException(e);
                 this.bot.logger.error(e);
             })
