@@ -860,7 +860,7 @@ module.exports = {
             MANAGE_NICKNAMES: "Manage Nicknames",
             MANAGE_ROLES_OR_PERMISSIONS: "Manage Roles",
             MANAGE_WEBHOOKS: "Manage Webhooks",
-            MANAGE_EMOJIS: "Manage Emojis"
+            MANAGE_EMOJIS: "Manage Emojis And Stickers"
         };
 
 
