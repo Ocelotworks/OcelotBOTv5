@@ -209,7 +209,6 @@ module.exports = class Image {
         }
         if (response.err) {
             span = bot.util.startSpan("Delete processing message");
-            message.channel.stopTyping(true);
             if (loadingMessage && !loadingMessage.deleted)
                 await loadingMessage.delete();
             span.end();
