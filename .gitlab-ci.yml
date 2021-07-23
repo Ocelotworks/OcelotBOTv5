@@ -166,6 +166,9 @@ version:
   stage: release
   image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.21.1
   interruptible: true
+  artifacts:
+    paths:
+      - .next-version
   script:
     - release next-version --allow-current > .next-version
     - cat .next-version
