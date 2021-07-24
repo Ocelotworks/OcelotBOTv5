@@ -259,13 +259,9 @@ module.exports = {
                 });
                 bot.updatePresence();
                 try {
-                    if (!guild.region) return;
                     if (!guild.available) return;
-                    let lang = "en-gb";
-                    if (guild.region.startsWith("us"))
-                        lang = "en-us";
                     try {
-                        await bot.database.addServer(guild.id, guild.ownerID, guild.name, guild.joinedAt, lang);
+                        await bot.database.addServer(guild.id, guild.ownerId, guild.name, guild.joinedAt, guild.preferredLocale);
                     } catch (e) {
                         console.error(e);
                     }
