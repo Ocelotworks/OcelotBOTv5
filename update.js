@@ -47,13 +47,13 @@ async function check(){
         return;
     }
 
-    if(count > 3600000){
+    if(count > 1800000 ){
         return sendWebhookMessage({
             "content": null,
             "embeds": [
                 {
                     "title": "Deployment Stuck",
-                    "description": `Not all shards have updated to \`${targetVersion}\` within 1 hour.\nMost likely one host is not updating correctly.`,
+                    "description": `Not all shards have updated to \`${targetVersion}\` within 30 minutes.\nMost likely one host is not updating correctly.`,
                     "color": 16726072,
                     "fields": [
                         {
