@@ -17,7 +17,7 @@ module.exports = {
     commands: ["topic"],
     hidden: true,
     run: async function (context, bot) {
-        if (!context.getSetting("ocelotworks")) return;
+        if (!context.getBool("ocelotworks")) return;
         const arg = context.options.arg;
         if (arg === "next") {
             return bot.changeTopic(context.message);
