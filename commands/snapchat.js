@@ -9,7 +9,7 @@ const Util = require("../util/Util");
 const Image = require('../util/Image');
 module.exports = {
     name: "Snapchat Text",
-    usage: "snapchat :image :text+",
+    usage: "snapchat :image :text?+",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
