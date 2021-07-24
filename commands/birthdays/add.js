@@ -32,8 +32,10 @@ module.exports = {
             return context.sendLang("BIRTHDAY_ADD_SUCCESS");
         } catch (e) {
             const message = {content: "BIRTHDAY_ADD_EXISTS", ephemeral: true};
-            if(target.id === context.user.id || context.channel.permissionsFor(context.user.id).has("MANAGE_CHANNELS"))
+            if(context.channel.permissionsFor(context.user.id).has("MANAGE_CHANNELS"))
                 message.components = [bot.util.actionRow(bot.interactions.suggestedCommand(context, `remove ${target.username}`))]
+            else if(target.id === context.user.id)
+                message.components = [bot.util.actionRow(bot.interactions.suggestedCommand(context, `remove`))]
             return context.sendLang(message, {command: context.command, target});
         }
     }
