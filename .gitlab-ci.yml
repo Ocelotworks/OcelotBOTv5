@@ -190,5 +190,9 @@ release_monitor:
   stage: post-release
   script:
     - export TARGET_VERSION=$(cat .next-version)
+    # NPM is so retarded that it can't install a single package without fucking with the package.json
+    # Maybe that's my fault, this should probably be in a seperate package, but fuck you anyway
+    - rm package.json
+    - rm package-lock.json
     - npm install axios --production --registry=http://192.168.1.145/
     - node update.js
