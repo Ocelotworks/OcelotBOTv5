@@ -143,7 +143,7 @@ module.exports = class Commands {
 
         // Ratelimits
         this.addCommandMiddleware((context)=>{
-            if (!this.bot.isRateLimited(context.author?.id, context.guild?.id || "global")) return true;
+            if (!this.bot.isRateLimited(context.user?.id, context.user?.id || "global")) return true;
             this.bot.bus.emit("commandRatelimited", context);
             this.bot.logger.warn(`${context.user.username} (${context.user.id}) in ${context.guild?.name || "DM"} (${context.guild?.id || context.channel?.id}) was ratelimited`);
             if (this.bot.rateLimits[context.user.id] < context.getSetting("rateLimit.threshold")) {
@@ -153,7 +153,7 @@ module.exports = class Commands {
                 context.replyLang({
                     content: "COMMAND_RATELIMIT",
                     ephemeral: true
-                }, {timeLeft: this.bot.util.prettySeconds(timeLeft / 1000, context.guild?.id, context.author?.id)});
+                }, {timeLeft: this.bot.util.prettySeconds(timeLeft / 1000, context.guild?.id, context.user?.id)});
                 this.bot.rateLimits[context.user.id] += context.commandData.rateLimit || 1;
             }
             return false;
