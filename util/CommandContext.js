@@ -123,6 +123,15 @@ class MessageCommandContext extends CommandContext {
     }
 
     async send(options){
+        Sentry.addBreadcrumb({
+            message: "Command Send",
+            data: {
+                command: this.command,
+                id: this.message.id,
+                guild: this.message.guild?.id,
+                channel: this.message.channel?.id,
+            }
+        });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         const message = await this.message.channel.send(options);
         this.message.response = message;
@@ -131,6 +140,15 @@ class MessageCommandContext extends CommandContext {
     }
 
     async reply(options){
+        Sentry.addBreadcrumb({
+            message: "Command Replied",
+            data: {
+                command: this.command,
+                id: this.message.id,
+                guild: this.message.guild?.id,
+                channel: this.message.channel?.id,
+            }
+        });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id).has("READ_MESSAGE_HISTORY"))
             return this.send(options);
@@ -146,6 +164,15 @@ class MessageCommandContext extends CommandContext {
     }
 
     edit(options, message){
+        Sentry.addBreadcrumb({
+            message: "Command Edited",
+            data: {
+                command: this.command,
+                id: this.message.id,
+                guild: this.message.guild?.id,
+                channel: this.message.channel?.id,
+            }
+        });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         if(!message || message.deleted)return this.send(options);
         return message.edit(options);
@@ -206,6 +233,15 @@ class InteractionCommandContext extends CommandContext {
     }
 
     send(options){
+        Sentry.addBreadcrumb({
+            message: "Interaction Send",
+            data: {
+                command: this.command,
+                id: this.interaction.id,
+                guild: this.interaction.guildId,
+                channel: this.interaction.channelId,
+            }
+        });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         this.bot.bus.emit("messageSent", options);
         if(this.interaction.replied || this.interaction.deferred)
@@ -214,17 +250,44 @@ class InteractionCommandContext extends CommandContext {
     }
 
     reply(options){
+        Sentry.addBreadcrumb({
+            message: "Interaction Replied",
+            data: {
+                command: this.command,
+                id: this.interaction.id,
+                guild: this.interaction.guildId,
+                channel: this.interaction.channelId,
+            }
+        });
         // These are the same thing on interactions
         return this.send(options);
     }
 
     defer(options){
+        Sentry.addBreadcrumb({
+            message: "Interaction Deferred",
+            data: {
+                command: this.command,
+                id: this.interaction.id,
+                guild: this.interaction.guildId,
+                channel: this.interaction.channelId,
+            }
+        });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         if(this.interaction.deferred)return; // Don't bother if we've already deferred
         return this.interaction.defer(options);
     }
 
     edit(options){
+        Sentry.addBreadcrumb({
+            message: "Interaction Edited",
+            data: {
+                command: this.command,
+                id: this.interaction.id,
+                guild: this.interaction.guildId,
+                channel: this.interaction.channelId,
+            }
+        });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         return this.interaction.editReply(options);
     }
