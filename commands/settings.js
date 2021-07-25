@@ -15,7 +15,7 @@ module.exports = {
                     context.replyLang({ephemeral: true, content: "GENERIC_CHANNEL_DISABLED"}, {command: context.command});
                     return false;
                 }
-                const dm = await context.author.createDM();
+                const dm = await context.user.createDM();
                 dm.send(`NSFW commands are disabled in this server.`);
                 this.bot.logger.log(`NSFW commands are disabled in this server (${context.guild.id}): ${context}`);
                 return false;
