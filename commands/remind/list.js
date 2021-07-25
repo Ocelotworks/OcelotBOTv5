@@ -7,9 +7,9 @@ module.exports = {
     run: async function (context, bot) {
         let reminders = await bot.database.getRemindersForUser(bot.client.user.id, context.user.id,context.guild?.id || null);
         if (reminders.length === 0)
-            return context.send(`You have not got any currently active reminders! To see how to set a reminder, type ${context.command} help`);
+            return context.send(`You have not got any currently active reminders! To see how to set a reminder, type ${context.getSetting("prefix")}${context.command} help`);
 
-        let header = `To remove a reminder, type ${context.command} remove id\n\`\`\`yaml\n`
+        let header = `To remove a reminder, type ${context.getSetting("prefix")}${context.command} remove id\n\`\`\`yaml\n`
         let chunkedReminders = reminders.chunk(5);
         return Util.StandardPagination(bot, context, chunkedReminders, async function (reminders, index) {
             let formatted = [];
