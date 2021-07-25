@@ -71,8 +71,9 @@ module.exports = class Botlists {
         conditionallyAssign(body, botList, "voiceConnectionsCountField", voiceConnections);
         conditionallyAssign(body, botList, "tokenField", botList.statsKey);
         let method = botList.statsMethod;
-        let headers = {
-            "Authorization": botList.statsKey,
+        let headers = {};
+        if(botList.authHeader){
+            headers[botList.authHeader] = botList.statsKey;
         }
         if(botList.statsMethod === "postHeader"){ // Another shitty workaround for a bunch of clone botlists that use headers for some ungodly reason
             method = "post"
