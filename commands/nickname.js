@@ -8,7 +8,7 @@
 
 const nicknames = [
     "mom", "dad", "mommy", "a series of tubes", "dank memer", "not dank memer", "foreskin", "thot", "thot patrol", "big tiddy goth gf", "your new nickname",
-    "butt", "ecksdee", "Grinch", "ho ho ho", "everyone", "here", "Ed, Edd & Eddy", "several people", "is typing", "vore my ass", "daddy",
+    "butt", "ecksdee", "Grinch", "ho ho ho", "everyone", "here", "Ed, Edd & Eddy", "several people", "is typing", "vore my ass", "daddy", "arthur",
     "better than ocelotbot", "spook", "gods mistake", "sexy and i know it", "forkknife", "owl city", "lady pickle", "(:", ":)", "ocelotbot number 1 fan",
     "spooky", "big chungus", "[Object object]", "Pussy Poppin Pirate", "Peter Griffin", "Stooey", "Post-nut Clarity", "Engorged", "Asshole First Class", "Cyberspunk 2069", "Something Went Wrong.",
     "banned", "Eating Ass Masterclass", "Welcome to the Cum Zone", "In Love with Pain", "bottom boy", "Elon's Musk", "sans undertale", "nicole", "simp", "baby whale", "womb raider", "Bingus",
@@ -31,8 +31,9 @@ const nicknames = [
     [["Cum", "Piss"], ["Guzzling", "Drinking", "Hoarding"], ["Gutter", "Sewer", ""], ["Slut", "Goblin", "Whore"]],
     [["Booty", "Ass"], ["Kisser", "Licker", "Eater"]],
     [["Penis", "Hymen", "Cervix", "Womb", "Pee-pee"], ["Tickler", "Toucher", "Destroyer", "Lover"]],
-    [["kick", "ban", "mute"], "me"]
-
+    [["kick", "ban", "mute"], "me"],
+    ["double jointed", ["dick", "pussy"]],
+    [["","comic"], "sans", ["from undertale", ""]]
 ]
 module.exports = {
     name: "New Nickname Generator",

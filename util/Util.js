@@ -270,4 +270,17 @@ module.exports = class Util {
             this.guilds.cache.filter((guild)=>guild.available).size;
         `).then((c)=>c.reduce((a, b)=>a+b, 0));
     }
+
+    static async FetchMessages(channel, amount) {
+        let iterations = Math.ceil(amount / 100);
+        let before;
+        let messages = [];
+        for (let i = 0; i < iterations; i++) {
+            let messageChunk = await channel.messages.fetch({before, limit: 100});
+            messages = messages.concat(messageChunk.array());
+            before = messageChunk.lastKey();
+        }
+
+        return messages;
+    }
 }

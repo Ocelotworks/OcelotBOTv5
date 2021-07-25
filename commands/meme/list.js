@@ -55,6 +55,6 @@ module.exports = {
             if (context.guild)
                 output += `\n__:house_with_garden:${memeServer}__\n\`\`\`\n${serverMemes === "" ? "No memes yet. Add them with !meme add" : serverMemes}\n\`\`\``;
             return {content: output};
-        }, true, context.getSetting("meme.pageTimeout"));
+        }, true);
     }
 };

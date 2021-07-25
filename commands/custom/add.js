@@ -53,7 +53,7 @@ module.exports = {
             schedule = bot.util.parseSchedule(parse);
 
             // This is awful, we need to store the channel ID and the schedule, but we also need it to be deduplicated so store the message ID as a key
-            trigger = context.channel.id+"/"+trigger+"/"+(context.command?.id || context.interaction?.id);
+            trigger = context.channel.id+"/"+trigger+"/"+(context.message?.id || context.interaction?.id);
         }
 
         let code = context.options.triggerAndCode.substring(start, end).trim();

@@ -143,7 +143,7 @@ module.exports = class Commands {
 
         // Ratelimits
         this.addCommandMiddleware((context)=>{
-            if (!this.bot.isRateLimited(context.author?.id, context.guild?.id || "global")) return true;
+            if (!this.bot.isRateLimited(context.user?.id, context.user?.id || "global")) return true;
             this.bot.bus.emit("commandRatelimited", context);
             this.bot.logger.warn(`${context.user.username} (${context.user.id}) in ${context.guild?.name || "DM"} (${context.guild?.id || context.channel?.id}) was ratelimited`);
             if (this.bot.rateLimits[context.user.id] < context.getSetting("rateLimit.threshold")) {
@@ -153,7 +153,7 @@ module.exports = class Commands {
                 context.replyLang({
                     content: "COMMAND_RATELIMIT",
                     ephemeral: true
-                }, {timeLeft: this.bot.util.prettySeconds(timeLeft / 1000, context.guild?.id, context.author?.id)});
+                }, {timeLeft: this.bot.util.prettySeconds(timeLeft / 1000, context.guild?.id, context.user?.id)});
                 this.bot.rateLimits[context.user.id] += context.commandData.rateLimit || 1;
             }
             return false;
@@ -409,6 +409,7 @@ module.exports = class Commands {
             name: `Command ${context.command}`,
             sampled: true,
             data: {
+                content: context.content,
                 options: context.options,
             }
         })
@@ -510,116 +511,3 @@ module.exports = class Commands {
         }
     }
 }
-
-//
-// module.exports = {
-//     name: "Commands",
-//     init: function (bot) {
-//
-//    
-//         }
-//
-//
-//         this.bot.loadCommand = function loadCommand(command, reload) {
-//             try {
-//                 const module = `${__dirname}/../commands/${command}`;
-//                 if (reload) {
-//                     delete require.cache[require.resolve(module)];
-//                 }
-//                 let crc = crc32(fs.readFileSync(module, 'utf8')).toString(16);
-//                 let loadedCommand = require(module);
-//                 if (loadedCommand.init && !reload) {
-//                     try {
-//                         loadedCommand.init(bot);
-//                     } catch (e) {
-//                         Sentry.captureException(e);
-//                         this.bot.logger.error(e);
-//                         if (this.bot.client && this.bot.client.shard) {
-//                             this.bot.rabbit.event({
-//                                 type: "warning", payload: {
-//                                     id: "badInit-" + command,
-//                                     message: `Couldn't initialise command ${command}:\n${e.message}`
-//                                 }
-//                             });
-//                         }
-//                     }
-//                 } else if (loadedCommand.init) {
-//                     this.bot.logger.warn(`Command ${command} was reloaded, but init was not run.`);
-//                 }
-//                 this.bot.logger.log(`Loaded command ${loadedCommand.name} ${`(${crc})`.gray}`);
-//
-//                 if (reload) {
-//                     if (this.bot.commandUsages[loadedCommand.commands[0]]) {
-//                         let oldCrc = this.bot.commandUsages[loadedCommand.commands[0]].crc;
-//                         if (oldCrc !== crc)
-//                             this.bot.logger.log(`Command ${command} version has changed from ${oldCrc} to ${crc}.`);
-//                         else
-//                             this.bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
-//                     }
-//                 }
-//
-//                 this.bot.commandObjects[command] = loadedCommand;
-//
-//                 for (let i in loadedCommand.commands) {
-//                     if (loadedCommand.commands.hasOwnProperty(i)) {
-//                         const commandName = loadedCommand.commands[i];
-//                         if (this.bot.commands[commandName] && !reload) {
-//                             this.bot.rabbit.event({
-//                                 type: "warning",
-//                                 payload: {
-//                                     id: "commandOverwritten-" + commandName,
-//                                     message: `Command ${commandName} already exists as '${this.bot.commandUsages[commandName].id}' and is being overwritten by ${command}!`
-//                                 }
-//                             })
-//                         }
-//                         this.bot.commands[commandName] = this.bot.commandObjects[command].run;
-//                         this.bot.commandUsages[commandName] = {
-//                             id: command,
-//                             crc,
-//                             ...loadedCommand,
-//                         };
-//                     }
-//                 }
-//             } catch (e) {
-//                 this.bot.logger.error("failed to load command");
-//                 this.bot.logger.error(e);
-//                 Sentry.captureException(e);
-//             }
-//         };
-//
-//         // module.exports.loadPrefixCache(bot);
-//         module.exports.loadCommands(bot);
-//     },
-//     loadPrefixCache: async function (bot) {
-//         const prefixes = await this.bot.database.getPrefixes();
-//         for (let i = 0; i < prefixes.length; i++) {
-//             const prefix = prefixes[i];
-//             this.bot.prefixCache[prefix.server] = prefix.prefix;
-//         }
-//         this.bot.logger.log("Populated prefix cache with " + Object.keys(this.bot.prefixCache).length + " servers");
-//     },
-//     loadCommands: function (bot) {
-//         fs.readdir(`${__dirname}/../commands`, function readCommands(err, files) {
-//             if (err) {
-//                 this.bot.logger.error("Error reading from commands directory");
-//                 console.error(err);
-//                 Sentry.captureException(err);
-//             } else {
-//                 for (const command of files) {
-//                     if (!fs.lstatSync(`${__dirname}/../commands/${command}`).isDirectory()) {
-//                         this.bot.loadCommand(command);
-//                     }
-//                 }
-//                 this.bot.bus.emit("commandLoadFinished");
-//                 this.bot.logger.log("Finished loading commands.");
-//
-//                 this.bot.client.once("ready", () => {
-//                     this.bot.rabbit.event({
-//                         type: "commandList",
-//                         payload: this.bot.commandUsages
-//                     })
-//                 })
-//             }
-//         });
-//     }
-//};
