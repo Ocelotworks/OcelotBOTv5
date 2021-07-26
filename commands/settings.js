@@ -17,7 +17,7 @@ module.exports = {
                 }
                 const dm = await context.user.createDM();
                 dm.send(`NSFW commands are disabled in this server.`);
-                this.bot.logger.log(`NSFW commands are disabled in this server (${context.guild.id}): ${context}`);
+                bot.logger.log(`NSFW commands are disabled in this server (${context.guild.id}): ${context}`);
                 return false;
             }
             return true;

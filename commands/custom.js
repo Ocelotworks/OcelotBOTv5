@@ -52,7 +52,10 @@ module.exports = {
                             interval.clear();
                         }
                     }catch(e){
-                        channel.send(`:warning: An internal error occurred running custom function ${cron.id}`);
+                        channel.send(`:warning: An internal error occurred running custom function ${cron.id}`).catch((e)=>{
+                            bot.logger.log(e);
+                            interval.clear()
+                        });
                         bot.logger.log(e);
                         Sentry.captureException(e);
                     }
