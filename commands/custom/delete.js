@@ -13,6 +13,6 @@ module.exports = {
         if(func.type === "SCHEDULED")
             context.commandData.loadScheduled(bot);
 
-        return context.sendLang({content: "CUSTOM_DELETE_SUCCESS"}, {function: func.code});
+        return context.sendLang({content: "CUSTOM_DELETE_SUCCESS"}, func);
     }
 }
