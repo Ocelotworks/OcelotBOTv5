@@ -15,13 +15,11 @@ module.exports = {
                     if(Math.random() > 0.5)output+= input[i].toLowerCase();
                     else output+= input[i].toUpperCase();
             }
-            context.send(output, {
-                embed: {
-                    image: {
-                        url: context.getSetting("spongebob.url")
-                    }
+            context.send({content: output, embeds:[{
+                image: {
+                    url: context.getSetting("spongebob.url")
                 }
-            });
+            }]});
         };
 
         if(!context.options.text){
