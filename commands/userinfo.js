@@ -10,7 +10,7 @@ module.exports = {
         let target = context.user;
         let targetMember = context.member;
         if(context.options.user && (context.channel.guildMembers || context.channel.members).has(context.options.user)){
-            targetMember = (context.channel.guildMembers || context.channel.members).get(context.options.user);
+            targetMember = await context.getMember(context.options.user);
             target = targetMember.user;
         }
         const now = new Date();

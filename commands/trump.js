@@ -13,6 +13,6 @@ module.exports = {
         return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
     },
     run: function (context) {
-        return Image.NekobotImageGenerator(context, "trumptweet", context.text);
+        return Image.NekobotTextGenerator(context, "trumptweet", context.options.text);
     }
 };

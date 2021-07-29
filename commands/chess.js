@@ -117,7 +117,7 @@ module.exports = {
 
     },
     subCommands: {
-        start: function (context, bot) {
+        start: async function (context, bot) {
             const currentGame = runningGames[context.channel.id];
             if (currentGame) {
                 const authorIndex = currentGame.players.indexOf(context.user.id);
@@ -130,7 +130,7 @@ module.exports = {
                 }
             } else {
                 if (context.options.user) {
-                    const target = (context.channel.guildMembers || context.channel.members).get(context.options.user);
+                    const target = await context.getMember(context.options.user);
                     const now = new Date();
                     if (!gameRequests[context.channel.id]) gameRequests[context.channel.id] = {};
                     gameRequests[context.channel.id][target.id] = {

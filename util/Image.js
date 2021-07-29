@@ -269,12 +269,13 @@ module.exports = class Image {
     }
 
     static async NekobotTextGenerator(context, type, text){
-        return this.NekobotGenerator(context, type, `text=${url}`);
+        return this.NekobotGenerator(context, type, `text=${text}`);
     }
 
     static async NekobotGenerator(context, type, options){
         await context.defer();
-        const result = await axios.get(`https://nekobot.xyz/api/imagegen?type=${type}&${options}`).catch(()=>null);
+        const result = await axios.get(`https://nekobot.xyz/api/imagegen?type=${type}&${options}`).catch((e)=>e.response);
+        console.log(result?.data);
         if(!result?.data?.success) {
             if(result?.data?.message && result.data.message !== "Internal Server Error")
                 Sentry.captureMessage("Nekobot Error: "+result.data.message)
