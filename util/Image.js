@@ -263,5 +263,29 @@ module.exports = class Image {
             return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
         }
     }
+
+    static async NekobotImageGenerator(context, type, url){
+        return this.NekobotGenerator(context, type, `url=${url}`);
+    }
+
+    static async NekobotTextGenerator(context, type, text){
+        return this.NekobotGenerator(context, type, `text=${url}`);
+    }
+
+    static async NekobotGenerator(context, type, options){
+        await context.defer();
+        const result = await axios.get(`https://nekobot.xyz/api/imagegen?type=${type}&${options}`).catch(()=>null);
+        if(!result?.data?.success) {
+            if(result?.data?.message && result.data.message !== "Internal Server Error")
+                Sentry.captureMessage("Nekobot Error: "+result.data.message)
+            return context.sendLang({content: "IMAGE_PROCESSOR_ERROR_REPLY", ephemeral: true});
+        }
+
+        if(context.interaction)
+            return context.send({content: result.data.message});
+
+        const attachment = new Discord.MessageAttachment(result.data.message);
+        return context.send({files: [attachment]})
+    }
 }
 
