@@ -27,6 +27,16 @@ class CommandContext {
         console.log(this);
     }
 
+    async getMember(id){
+        // Regular
+        if(this.guild)
+            return this.guild.members.fetch(id).catch(()=>null);
+        // Threads (With no guild?)
+        if(this.channel?.members?.fetch)
+            return this.channel.members.fetch(id).catch(()=>null)
+        return this.channel?.members.get(id);
+    }
+
     getSetting(setting){
         return this.bot.config.get(this.guild?.id || "global", setting, this.user?.id);
     }

@@ -23,7 +23,7 @@ module.exports = {
                 ephemeral: true,
                 components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "help"))]
             });
-        const target = await context.channel.members.get(context.options.user);
+        const target = await context.getMember(context.options.user);
         let birthday = await bot.database.getBirthday(target.id, context.guild.id);
         if (!birthday)
             return context.replyLang({content: "BIRTHDAY_NOT_FOUND", ephemeral: true}, {arg: context.command})

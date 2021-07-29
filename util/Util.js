@@ -169,6 +169,15 @@ module.exports = class Util {
             return null;
         }
 
+        Sentry.addBreadcrumb({
+            message: "Permissions check passed",
+            data: {
+                channelType: context.channel?.type,
+                hasPermissionsFunc: !!context.channel?.permissionsFor,
+                hasGuild: !!context.guild,
+            }
+        })
+
         if(context.message?.reference?.messageID){
             const message = await (await bot.client.channels.fetch(context.message.reference.channelID)).messages.fetch(context.message.reference.messageID);
             const messageImage = Util.#GetImageFromMessage(message);

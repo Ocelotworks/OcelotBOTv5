@@ -65,8 +65,9 @@ module.exports = {
             return {type: 6};
         })
     },
-    run: function run(context){
-        const opponent = context.channel.members.get(context.options.user);
+    run: async function run(context){
+        // Why do you make me do these things
+        const opponent = (await context.getMember(context.options.user))?.user;
         if(!opponent)return context.send({content: "Couldn't find that user. Make sure that they're able to view this channel.", ephemeral: true});
         if(opponent.bot)return context.send({content: `You can't play tic tac toe against a bot.`, ephemeral: true});
         const row = (r)=>[

@@ -488,8 +488,8 @@ module.exports = {
              * @param {Number} id
              * @returns {*}
              */
-            getMessageContext: function (id) {
-                return knex.select().from("Messages").whereBetween("id", [id - 5, id + 5]);
+            getMessageContext: function (id, leftOffset = 5, rightOffset = 5) {
+                return knex.select().from("Messages").whereBetween("id", [id - leftOffset, id + rightOffset]);
             },
             /**
              * Get all messages with a particular date
