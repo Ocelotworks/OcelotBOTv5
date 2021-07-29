@@ -16,8 +16,8 @@ module.exports = {
     unwholesome: true,
     run: async function run(context, bot) {
 
-        const user1 = [context.channel.guildMembers || context.channel.members].get(context.options.user1)?.user;
-        const user2 = [context.channel.guildMembers || context.channel.members].get(context.options.user2)?.user;
+        const user1 = (context.channel.guildMembers || context.channel.members).get(context.options.user1)?.user;
+        const user2 = (context.channel.guildMembers || context.channel.members).get(context.options.user2)?.user;
 
         if(!user1 || !user2)
             return context.send({content:`:bangbang: You must enter 2 users. e.g ${context.command} ${context.user} ${bot.client.user}`, ephemeral: true});

@@ -3,7 +3,7 @@ module.exports = {
     usage: "give :@user :0amount",
     commands: ["give", "send", "pay"],
     run: async function (context, bot) {
-        let target = [context.channel.guildMembers || context.channel.members].get(context.options.user).user;
+        let target = (context.channel.guildMembers || context.channel.members).get(context.options.user).user;
 
         if(target.id === context.user.id)
             return context.send({content: "You can't send points to yourself. What would that even achieve?", ephemeral: true});

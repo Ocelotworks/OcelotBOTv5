@@ -67,7 +67,7 @@ module.exports = {
     },
     run: function run(context){
         // Why do you make me do these things
-        const opponent = [context.channel.guildMembers || context.channel.members].get(context.options.user);
+        const opponent = (context.channel.guildMembers || context.channel.members).get(context.options.user);
         if(!opponent)return context.send({content: "Couldn't find that user. Make sure that they're able to view this channel.", ephemeral: true});
         if(opponent.bot)return context.send({content: `You can't play tic tac toe against a bot.`, ephemeral: true});
         const row = (r)=>[

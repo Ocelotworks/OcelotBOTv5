@@ -130,7 +130,7 @@ module.exports = {
                 }
             } else {
                 if (context.options.user) {
-                    const target = [context.channel.guildMembers || context.channel.members].get(context.options.user);
+                    const target = (context.channel.guildMembers || context.channel.members).get(context.options.user);
                     const now = new Date();
                     if (!gameRequests[context.channel.id]) gameRequests[context.channel.id] = {};
                     gameRequests[context.channel.id][target.id] = {
