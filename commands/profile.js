@@ -138,7 +138,7 @@ module.exports = {
         };
     },
     run: async function(context, bot){
-        const target = context.options.user ? context.channel.members.get(context.options.user).user : context.user;
+        const target = context.options.user ? [context.channel.guildMembers || context.channel.members].get(context.options.user).user : context.user;
         context.defer();
 
         let imageRequest = {

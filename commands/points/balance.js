@@ -6,7 +6,7 @@ module.exports = {
     run: async function (context, bot) {
         let target = context.user;
         if (context.options.user)
-            target = context.channel.members.get(context.options.user).user;
+            target = [context.channel.guildMembers || context.channel.members].get(context.options.user).user;
         let embed = new Discord.MessageEmbed();
         embed.setTitle(`Current Balance`);
         embed.setAuthor(target.username, target.avatarURL());

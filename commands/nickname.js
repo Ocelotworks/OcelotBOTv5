@@ -80,6 +80,6 @@ function generateNickname(bot, context){
 
     }
     output = output.replace(/username/g, context.user.username);
-    output = output.replace(/randUsername/g, context.channel.members.random().username);
+    output = output.replace(/randUsername/g, [context.channel.guildMembers || context.channel.members].random().username);
     return output.substring(0, 32);
 }
