@@ -8,9 +8,9 @@ module.exports = {
     settingsOnly: true,
     requiredPermissions: ["EMBED_LINKS"],
     init: function(bot){
-        // Disable if allowNSFW is turned on
+        // Disable if disableNSFW is turned on
         bot.addCommandMiddleware(async (context)=>{
-            if (context.getBool("allowNSFW") && context.commandData.categories.indexOf("nsfw") > -1) {
+            if (context.getBool("disableNSFW") && context.commandData.categories.indexOf("nsfw") > -1) {
                 if(context.interaction){
                     context.replyLang({ephemeral: true, content: "GENERIC_CHANNEL_DISABLED"}, {command: context.command});
                     return false;
