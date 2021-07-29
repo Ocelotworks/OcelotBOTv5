@@ -426,6 +426,14 @@ module.exports = {
                     process.exit(0);
                 }
             }, 1000);
+        });
+
+        bot.client.on("threadCreate", (thread)=>{
+            if(!thread.guild?.available)return;
+            if(!bot.config.getBool(thread.guild.id, "thread.autojoin", thread.ownerId))return;
+            if(!thread.joinable)return;
+            bot.logger.log(`Joining thread ${thread.name} (${thread.id}) in ${thread.guildId}`)
+            thread.join();
         })
 
 
