@@ -1479,7 +1479,7 @@ module.exports = {
                 id: guild.id,
                 name: guild.name,
                 icon: guild.iconURL(),
-                owner: guild.ownerID,
+                owner: guild.ownerId,
             }
         }
 
