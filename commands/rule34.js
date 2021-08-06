@@ -13,7 +13,7 @@ module.exports = {
     usage: "rule34 :search+",
     categories: ["nsfw", "search"],
     rateLimit: 50,
-    requiredPermissions: ["ATTACH_FILES", "MANAGE_MESSAGES", "ADD_REACTIONS"],
+    requiredPermissions: ["ATTACH_FILES"],
     commands: ["rule34", "r34"],
     vote: true,
     pointsCost: 1,

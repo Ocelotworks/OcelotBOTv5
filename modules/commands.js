@@ -112,7 +112,7 @@ module.exports = class Commands {
 
             // Check permissions in Guilds
             if(context.member && userPermissions && !context.channel.permissionsFor(context.member).has(userPermissions)){
-                context.replyLang({content: "GENERIC_USER_PERMISSIONS", ephemeral: true}, {permissions: userPermissions.map((p)=>Strings.Permissions[p]).join(",")})
+                context.replyLang({content: "GENERIC_USER_PERMISSIONS", ephemeral: true}, {permissions: userPermissions.map((p)=>Strings.Permissions[p]).join(", ")})
                 return false
             }
 
