@@ -11,7 +11,8 @@ const customInsults = {
     "439205512425504771": ["my commands are better than yours!","you're always down!", "more like notsogood!"], //NotSoBot
     "172002275412279296": ["my commands are better than yours!","more like shitsumaki"], //Tatsumaki
     "270904126974590976": ["I am a better meme bot than you!", "dumb stupid green frog", "the whole 'pls' command thing is dumb", "just because you're in more servers than me doesn't mean you're not shit!"], //Dank memer
-    "367835200916291586": ["2012 called it wants it's stupid frog meme back", "get better commands!"]
+    "367835200916291586": ["2012 called it wants it's stupid frog meme back", "get better commands!"],
+    "754338907474231336": ["you irish tree licker", "go lick some trees"]
 };
 module.exports = {
     name: "Insult Generator",
