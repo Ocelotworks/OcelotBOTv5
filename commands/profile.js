@@ -139,6 +139,8 @@ module.exports = {
     },
     run: async function(context, bot){
         const target = context.options.user ? await context.getMember(context.options.user).user : context.user;
+        if(!target)
+            return context.send("Couldn't find that user. Make sure they are in this channel.");
         context.defer();
 
         let imageRequest = {
