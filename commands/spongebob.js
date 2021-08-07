@@ -4,7 +4,7 @@
 module.exports = {
     name: "Spongebob",
     usage: "spongebob :text?+",
-    requiredPermissions: ["EMBED_LINKS", "READ_MESSAGE_HISTORY"],
+    requiredPermissions: ["EMBED_LINKS", "READ_MESSAGE_HISTORY", "VIEW_CHANNEL"],
     commands: ["spongebob"],
     categories: ["text", "memes"],
     run: async function run(context, bot) {
