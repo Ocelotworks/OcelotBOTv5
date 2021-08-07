@@ -33,7 +33,7 @@ module.exports = {
         if(target.id === bot.client.user.id)
             return context.send("https://78.media.tumblr.com/80918f5b6f4ccf8d3a82dced9ec63561/tumblr_pfg0xmvLMz1qb3quho1_500.gif");
 
-        const webhooks = await context.channel.fetchWebhooks();
+        const webhooks = await (context.channel.fetchWebhooks ? context.channel.fetchWebhooks() : context.channel.parent.fetchWebhooks());
         let webhook = webhooks.filter((w)=>w.type === "Incoming" && w.token).first();
 
         if(!webhook && webhooks.size === 10){
@@ -41,7 +41,7 @@ module.exports = {
         }
 
         if(!webhook){
-            webhook = await context.channel.createWebhook(bot.client.user.username, bot.client.user.displayAvatarURL({dynamic: true, format: "png"}));
+            webhook = await (context.channel.fetchWebhooks ? context.channel : context.channel.parent).createWebhook(bot.client.user.username, bot.client.user.displayAvatarURL({dynamic: true, format: "png"}));
         }
 
         if(!webhook){
