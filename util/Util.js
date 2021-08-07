@@ -186,7 +186,7 @@ module.exports = class Util {
 
         let clearButtons = async ()=>{
             if(pages.length )
-            if(context.interaction || (sentMessage && !sentMessage.deleted)){
+            if(context.interaction || (sentMessage && !sentMessage.deleted) && !context.channel?.deleted && (!context.guild || context.guild.available)){
                 try{
                     context.edit({...await pageFormat(pages[index], index), components: []}, sentMessage);
                 }catch(e){
@@ -256,7 +256,7 @@ module.exports = class Util {
                 idleTimer = setTimeout(clearButtons, 60000);
             }
 
-            if ((context.interaction && context.interaction.replied) || (sentMessage && !sentMessage.deleted))
+            if ((context.interaction && context.interaction.replied) || (sentMessage && !sentMessage.deleted) && (!context.guild || context.guild.available) && !context.channel?.deleted)
                 return context.edit(payload, sentMessage)
 
             sentMessage = await context.send(payload)
