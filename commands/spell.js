@@ -3,7 +3,7 @@ module.exports = {
     usage: "spell [above?:^] :message+",
     commands: ["spell", "react"],
     categories: ["fun"],
-    equiredPermissions: ["ADD_REACTIONS"],
+    requiredPermissions: ["ADD_REACTIONS", "VIEW_CHANNEL", "READ_MESSAGE_HISTORY"],
     run: async function run(context, bot) {
         let letters = {
             abcd: ["🔡", "🔠"],
