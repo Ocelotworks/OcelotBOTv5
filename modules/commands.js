@@ -177,7 +177,7 @@ module.exports = class Commands {
             if (context.channel?.permissionsFor) {
                 const permissions = await context.channel.permissionsFor(this.bot.client.user);
 
-                if (!permissions || !permissions.has("SEND_MESSAGES")) {
+                if (!permissions || (context.message && !permissions.has("SEND_MESSAGES"))) {
                     this.bot.logger.log({
                         type: "commandPerformed",
                         success: false,
