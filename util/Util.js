@@ -164,19 +164,10 @@ module.exports = class Util {
             return attachedImage.proxyURL;
 
 
-        if(!context.channel?.permissionsFor?.(bot.client.user.id).has("READ_MESSAGE_HISTORY")) {
-            context.send(":warning: I need Read Message History permissions to look for images.");
+        if(!context.channel?.permissionsFor?.(bot.client.user.id).has(["READ_MESSAGE_HISTORY", "VIEW_CHANNEL"])) {
+            context.send(":warning: I need Read Message History and View Channel permissions to look for images.");
             return null;
         }
-
-        Sentry.addBreadcrumb({
-            message: "Permissions check passed",
-            data: {
-                channelType: context.channel?.type,
-                hasPermissionsFunc: !!context.channel?.permissionsFor,
-                hasGuild: !!context.guild,
-            }
-        })
 
         if(context.message?.reference?.messageID){
             const message = await (await bot.client.channels.fetch(context.message.reference.channelID)).messages.fetch(context.message.reference.messageID);
@@ -195,7 +186,7 @@ module.exports = class Util {
 
         let clearButtons = async ()=>{
             if(pages.length )
-            if(context.interaction || (sentMessage && !sentMessage.deleted)){
+            if(context.interaction || (sentMessage && !sentMessage.deleted) && !context.channel?.deleted && (!context.guild || context.guild.available)){
                 try{
                     context.edit({...await pageFormat(pages[index], index), components: []}, sentMessage);
                 }catch(e){
@@ -265,7 +256,7 @@ module.exports = class Util {
                 idleTimer = setTimeout(clearButtons, 60000);
             }
 
-            if ((context.interaction && context.interaction.replied) || (sentMessage && !sentMessage.deleted))
+            if ((context.interaction && context.interaction.replied) || (sentMessage && !sentMessage.deleted) && (!context.guild || context.guild.available) && !context.channel?.deleted)
                 return context.edit(payload, sentMessage)
 
             sentMessage = await context.send(payload)

@@ -133,7 +133,7 @@ function configureSentry(){
  * Initialise the Chat server
  */
 function init(){
-
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED=0;
     process.env.SHARDS = `[${process.env.SHARD-1}]` // Yes
 
     process.setMaxListeners(100);

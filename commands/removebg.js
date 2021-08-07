@@ -90,8 +90,11 @@ async function withRembg(url, context, bot){
         method: 'GET',
         url: `https://ob-prod-rembg.d.int.unacc.eu/?url=${encodeURIComponent(url)}`,
     }, async function APIResponse(err, resp, body){
-        if(err)
-           return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
+        if(err) {
+            bot.logger.log(err);
+            bot.logger.log(body);
+            return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
+        }
 
         if(body.toString().startsWith("<") || body.toString().startsWith("{")) {
             console.log(body.toString());
