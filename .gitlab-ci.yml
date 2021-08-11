@@ -42,6 +42,7 @@ build-base-image-master:
     changes:
       - package.json
       - package-lock.json
+      - BaseImage.Dockerfile
     refs:
       - master
   extends: .build-base-image
@@ -53,6 +54,7 @@ build-base-image-staging:
     changes:
       - package.json
       - package-lock.json
+      - BaseImage.Dockerfile
     refs:
       - staging
   extends: .build-base-image
