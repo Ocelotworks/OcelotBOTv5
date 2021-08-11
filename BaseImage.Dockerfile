@@ -1,4 +1,4 @@
-FROM node:lts-alpine3.12
+FROM node:16.6.1-alpine3.14
 
 RUN apk add --no-cache graphicsmagick sudo curl build-base g++ libpng libpng-dev jpeg-dev pango-dev cairo cairo-dev giflib-dev python3 font-noto
 
