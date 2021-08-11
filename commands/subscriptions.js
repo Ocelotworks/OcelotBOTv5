@@ -43,7 +43,7 @@ module.exports = {
         });
         bot.client.once("ready", async function discordReady(){
             bot.logger.log("Loading active subscriptions...");
-            const rawSubs = await bot.database.getSubscriptionsForShard(bot.client.guilds.cache.keyArray(), bot.client.user.id);
+            const rawSubs = await bot.database.getSubscriptionsForShard([...bot.client.guilds.cache.keys()], bot.client.user.id);
             bot.logger.log(`Loaded ${rawSubs.length} subs`);
             for(let i = 0; i < rawSubs.length; i++){
                 const sub = rawSubs[i];

@@ -8,6 +8,8 @@ module.exports = {
     id: "reddit",
     alias: ["subreddit"],
     validate: function(input){
+        if(!input)
+            return {error: "Enter a subreddit in the format r/name e.g r/discord_irl or r/aww/new"}
         if(input.startsWith("r/"))
             return {data: input};
         return {error: ":warning: Subreddits should be in the following format: r/name e.g: **r/discord_irl** or **r/aww/new**"};

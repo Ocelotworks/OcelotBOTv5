@@ -34,7 +34,7 @@ module.exports = {
 async function processChannels(bot) {
     if (bot.drain) return;
     setTimeout(processChannels, 8.64e7, bot);
-    let birthdays = await bot.database.getBirthdaysTodayForShard(bot.client.guilds.cache.keyArray());
+    let birthdays = await bot.database.getBirthdaysTodayForShard([...bot.client.guilds.cache.keys()]);
     bot.logger.log(`Got ${birthdays.length} birthdays today.`);
     const nowYear = new Date().getFullYear();
     for (let i = 0; i < birthdays.length; i++) {

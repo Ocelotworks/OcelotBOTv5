@@ -12,10 +12,10 @@ module.exports = {
     slashHidden: true,
     init: function(bot){
         setInterval(async ()=>{
-            let expiredPolls = await bot.database.getExpiredPolls(bot.client.guilds.cache.keyArray());
+            let expiredPolls = await bot.database.getExpiredPolls([...bot.client.guilds.cache.keys()]);
             if(expiredPolls.length === 0)return;
             bot.logger.log(`${expiredPolls.length} polls expired.`);
-            await bot.database.deleteExpiredPolls(bot.client.guilds.cache.keyArray());
+            await bot.database.deleteExpiredPolls([...bot.client.guilds.cache.keys()]);
             for(let i = 0; i < expiredPolls.length; i++){
                 try {
                     const poll = expiredPolls[i];

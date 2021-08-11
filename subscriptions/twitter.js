@@ -6,7 +6,8 @@
  */
 let axios = require('axios');
 let config = require('config');
-let Discord = require('discord.js')
+let Discord = require('discord.js');
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "Twitter Feed",
     id: "twitter",
@@ -33,7 +34,12 @@ module.exports = {
                 authorization: `Bearer ${config.get("API.twitter.bearer")}`
             }
         });
-        let user = result.data.includes.users[0];
+        let user = result.data?.includes?.users?.[0];
+        if(!user) {
+            Sentry.addBreadcrumb({message: "Twitter check error", data: result.data});
+            Sentry.captureMessage("Twitter check error");
+            return []
+        }
         let output = [];
         for(let i = 0; i < result.data.data.length; i++){
             let tweet = result.data.data[i];

@@ -1,6 +1,6 @@
 {
   "name": "ocelotbot",
-  "version": "5.2.3",
+  "version": "5.5.5",
   "description": "",
   "main": "broker/broker.js",
   "directories": {
@@ -41,7 +41,7 @@
     "country-list": "^2.2.0",
     "crc": "^3.8.0",
     "dateformat": "^4.5.1",
-    "discord.js": "^13.0.0-dev.c8ca7bf.1627041776",
+    "discord.js": "^13.1.0-dev.1628640678.0266f28",
     "express": "^4.17.1",
     "form-data": "^2.3.3",
     "gifuct-js": "^2.0.0",

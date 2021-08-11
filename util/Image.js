@@ -137,7 +137,8 @@ module.exports = class Image {
             m: interaction.id,
         };
         request.version = 1;
-        interaction.defer();
+        if(!interaction.deferred)
+            await interaction.deferReply();
         try {
             let response = await Image.#imageProcessor(bot, request);
             if (response.err) {

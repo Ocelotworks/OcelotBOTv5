@@ -61,6 +61,11 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["profile", "userprofile"],
     nestedDir: "profile",
+    contextMenu: {
+        type: "user",
+        value: "user",
+        prefix: "View"
+    },
     init: async function(bot){
         bot.badges = {};
         bot.badges.giveBadge = async function(user, channel, id){
@@ -138,7 +143,7 @@ module.exports = {
         };
     },
     run: async function(context, bot){
-        const target = context.options.user ? await context.getMember(context.options.user).user : context.user;
+        const target = context.options.user ? (await context.getMember(context.options.user)).user : context.user;
         if(!target)
             return context.send("Couldn't find that user. Make sure they are in this channel.");
         context.defer();

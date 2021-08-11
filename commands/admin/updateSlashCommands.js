@@ -1,4 +1,10 @@
 
+const contextTypeMap = {
+    user: 2,
+    text: 3,
+    message: 3,
+}
+
 module.exports = {
     name: "Update Slash Commands",
     usage: "updateslashcommands :guild?",
@@ -20,10 +26,22 @@ module.exports = {
                     name: commandData.commands[0],
                     description: commandData.name,
                     defaultPermission: !commandData.disabled && !bot.config.getBool(server ? server : "global", `${commandData.commands[0]}.disable`),
-                    options: commandData.slashOptions
+                    options: commandData.slashOptions,
+                    type: 1
                 };
                 commandOutput.push(slashCommand);
                 if (commandOutput.length >= 99) break;
+            }
+
+            for (let commandID in bot.commandObjects) {
+                if (!bot.commandObjects.hasOwnProperty(commandID)) continue;
+                let commandData = bot.commandObjects[commandID];
+                if(!commandData.contextMenu)continue;
+                if (commandData.hidden) continue;
+                commandOutput.push({
+                    name: `${commandData.contextMenu.prefix || "Use in"} /${commandData.commands[0]}`,
+                    type: contextTypeMap[commandData.contextMenu.type],
+                });
             }
             await context.send(`Putting ${commandOutput.length} slash commands...`);
             await bot.client.application.commands.set(commandOutput, server);
