@@ -39,7 +39,7 @@ module.exports = {
 
         bot.config.loadServerCache = async function loadServerCache() {
             bot.logger.log("Populating server setting cache...");
-            let result = await bot.database.getSettingsForShard(bot.client.guilds.cache.keyArray(), bot.client.user.id);
+            let result = await bot.database.getSettingsForShard([...bot.client.guilds.cache.keys()], bot.client.user.id);
             for (let i = 0; i < result.length; i++) {
                 const row = result[i];
                 if (bot.config.cache[row.server])
@@ -54,7 +54,7 @@ module.exports = {
 
         bot.config.loadUserCache = async function loadUserCache() {
             bot.logger.log("Populating user setting cache...");
-            let result = await bot.database.getUserSettingsForShard(bot.client.users.cache.keyArray());
+            let result = await bot.database.getUserSettingsForShard([...bot.client.users.cache.keys()]);
             for (let i = 0; i < result.length; i++) {
                 const row = result[i];
                 if (bot.config.cache[row.user])

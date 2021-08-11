@@ -7,6 +7,10 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS", "READ_MESSAGE_HISTORY", "VIEW_CHANNEL"],
     commands: ["spongebob"],
     categories: ["text", "memes"],
+    contextMenu: {
+        type: "text",
+        value: "text",
+    },
     run: async function run(context, bot) {
         let doSponge = function doSponge(input){
             let output = "";

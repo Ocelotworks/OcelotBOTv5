@@ -24,7 +24,7 @@ module.exports = {
     async loadScheduled(bot){
         cronIntervals.forEach((c)=>c.clear());
         // I've got crons disease ha ha
-        const crons = await bot.database.getCustomFunctionsForShard("SCHEDULED", bot.client.guilds.cache.keyArray());
+        const crons = await bot.database.getCustomFunctionsForShard("SCHEDULED", [...bot.client.guilds.cache.keys()]);
         bot.logger.log(`Loading ${crons.length} cron functions`);
         for(let i = 0; i < crons.length; i++){
             try {

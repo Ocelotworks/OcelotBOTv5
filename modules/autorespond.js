@@ -8,7 +8,7 @@ module.exports = {
         
 
         bot.client.on("ready", async ()=>{
-            let responses = await bot.database.getCustomFunctionsForShard("AUTORESPOND", bot.client.guilds.cache.keyArray());
+            let responses = await bot.database.getCustomFunctionsForShard("AUTORESPOND", [...bot.client.guilds.cache.keys()]);
             for(let i = 0; i < responses.length; i++){
                 const response = responses[i];
                 if(bot.customFunctions.AUTORESPOND[response.server])

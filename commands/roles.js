@@ -16,7 +16,7 @@ module.exports = {
         bot.util.standardNestedCommandInit("roles");
 
         bot.client.on("ready", async () => {
-            const messages = await bot.database.loadRoleMessagesForShard(bot.client.channels.cache.keyArray())
+            const messages = await bot.database.loadRoleMessagesForShard([...bot.client.channels.cache.keys()])
 
             for (let i = 0; i < messages.length; i++) {
                 const message = messages[i];

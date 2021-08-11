@@ -36,7 +36,7 @@ module.exports = class Commands {
         })
 
         this.bot.client.on("ready", async ()=>{
-            let commands = await this.bot.database.getCustomFunctionsForShard("COMMAND", this.bot.client.guilds.cache.keyArray());
+            let commands = await this.bot.database.getCustomFunctionsForShard("COMMAND", [...this.bot.client.guilds.cache.keys()]);
             for(let i = 0; i < commands.length; i++){
                 const command = commands[i];
                 if(this.bot.customFunctions.COMMAND[command.server])
@@ -52,25 +52,55 @@ module.exports = class Commands {
             if(!parse)return;
             const context = this.initContext(new MessageCommandContext(this.bot, message, parse.args, parse.command));
             if(!context)return;
+            if(context.getBool("disableMessageCommands"))return console.log("Message commands disabled");
             return this.runCommand(context);
         });
 
         this.bot.client.on("messageUpdate", (oldMessage, newMessage)=>{
             if (this.bot.drain || newMessage.author.bot) return;
-            if(oldMessage.content == newMessage.content)return console.log("Content is identical");
-            if(oldMessage.response?.deleted)return console.log("Response was deleted");
+            if(oldMessage.content == newMessage.content)return;
+            if(oldMessage.response?.deleted)return;
             const parse = this.parseCommand(newMessage);
-            if(!parse)return console.log("did not parse");
+            if(!parse)return;
             const context = this.initContext(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
-            if(!context)return console.log("did not process");
+            if(!context)return;
+            if(context.getBool("disableMessageCommands"))return console.log("Message commands disabled");
             return this.runCommand(context);
         })
 
+        // Slash Commands
         this.bot.client.on("interactionCreate", (interaction)=>{
             if(!interaction.isCommand())return; // Not a command
             if(!this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
             const context = new InteractionCommandContext(this.bot, interaction);
             context.commandData = this.bot.commandUsages[context.command];
+            return this.runCommand(context);
+        })
+
+        // Context Menu
+        this.bot.client.on("interactionCreate", async (interaction)=>{
+            if(!interaction.isContextMenu())return console.log("not a context menu"); // Not a context menu
+            const commandName = interaction.commandName.split("/")[1];
+            const commandData = this.bot.commandUsages[commandName];
+            if(!commandData)return console.log("Unknown command interaction", commandName); // No such command
+            if(!commandData.contextMenu)return console.log("Context menu interaction for non-context menu command");
+            const context = new InteractionCommandContext(this.bot, interaction);
+            context.command = commandName;
+            context.commandData = this.bot.commandUsages[context.command];
+            try {
+                switch (commandData.contextMenu.type) {
+                    case "text":
+                        context.options[commandData.contextMenu.value] = (await context.channel.messages.fetch(interaction.targetId)).content;
+                        break;
+                    case "message":
+                    case "user":
+                        context.options[commandData.contextMenu.value] = interaction.targetId;
+                        break;
+                }
+            }catch(e){
+                console.error(e);
+            }
+
             return this.runCommand(context);
         })
 
@@ -415,11 +445,13 @@ module.exports = class Commands {
         })
         try {
             if (!this.bot.commandUsages[context.command]) {
-                if (!context.guild || !this.bot.customFunctions.COMMAND[context.guild.id] || context instanceof CustomCommandContext) return;
+                console.log("no-no ", context.command)
+                if (!context.guild || !this.bot.customFunctions.COMMAND[context.guild.id] || context instanceof CustomCommandContext) return console.log("Command doesn't exist 1");
                 let customCommand = this.bot.customFunctions.COMMAND[context.guild.id][context.command]
-                if (!customCommand) return;
+                if (!customCommand) return console.log("Command doesn't exist 2");
                 context.logPerformed();
                 // todo: custom command context
+
                 return await this.bot.util.runCustomFunction(customCommand, context.message)
             }
 

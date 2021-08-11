@@ -11,11 +11,15 @@ const userMaps = {
 let lastTopic;
 module.exports = {
     name: "Topic Control",
-    usage: "topic [arg?:next,count,stats] :0index?",
+    usage: "topic [arg?:next,count,stats] :0index? :?messageid",
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["topic"],
     hidden: true,
+    contextMenu: {
+        type: "message",
+        value: "messageid",
+    },
     run: async function (context, bot) {
         if (!context.getBool("ocelotworks")) return;
         const arg = context.options.arg;
@@ -32,8 +36,8 @@ module.exports = {
         }
 
         let target;
-        if (context.message?.reference?.messageID) {
-            target = await context.channel.messages.fetch(context.message.reference.messageID)
+        if (context.message?.reference?.messageID || context.options.messageid) {
+            target = await context.channel.messages.fetch(context.message?.reference?.messageID || context.options.messageid)
         }else {
             const limit = context.options.index ? context.options.index + 1 : 1;
             const messageFetch = await context.channel.messages.fetch({limit: limit});

@@ -41,7 +41,7 @@ module.exports = {
 
             bot.updatePresence();
             bot.logger.log("Getting currently spooked...");
-            let currentlySpooked = await bot.database.getCurrentlySpookedForShard(bot.client.guilds.cache.keyArray());
+            let currentlySpooked = await bot.database.getCurrentlySpookedForShard([...bot.client.guilds.cache.keys()]);
             bot.logger.log(`${currentlySpooked.length} currently spooked.`);
             for (let i = 0; i < currentlySpooked.length; i++) {
                 let spook = currentlySpooked[i];
@@ -356,7 +356,7 @@ module.exports = {
             }
 
             bot.logger.log("Allocating Badges...");
-            const users = await bot.database.getParticipatingUsers(bot.client.guilds.cache.keyArray());
+            const users = await bot.database.getParticipatingUsers([...bot.client.guilds.cache.keys()]);
             for (let j = 0; j < users.length; j++) {
                 const userRow = users[j];
                 if (ignoredUsers.includes(userRow.spooker)) continue;

@@ -285,7 +285,7 @@ class InteractionCommandContext extends CommandContext {
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         if(this.interaction.deferred)return; // Don't bother if we've already deferred
-        return this.interaction.defer(options);
+        return this.interaction.deferReply(options);
     }
 
     edit(options){

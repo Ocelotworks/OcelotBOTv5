@@ -6,6 +6,10 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["yea", "yeah"],
     categories: ["memes"],
+    contextMenu: {
+        type: "text",
+        value: "input",
+    },
     handleError: function(context){
         return context.sendLang("GENERIC_TEXT");
     },

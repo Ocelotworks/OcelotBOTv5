@@ -7,7 +7,7 @@ module.exports = {
     userPermissions: ['MANAGE_CHANNELS'],
     init: async function init(bot, reminderData) {
         bot.client.once("ready", async () => {
-            let servers = bot.client.guilds.cache.keyArray();
+            let servers = [...bot.client.guilds.cache.keys()];
             let reminders = await bot.database.getRecurringRemindersForShard(bot.client.user.id, servers);
             if (bot.util.shard == 0)
                 reminders.push(...(await bot.database.getRecurringRemindersForDMs(bot.client.user.id)));

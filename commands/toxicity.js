@@ -23,6 +23,11 @@ module.exports = {
     usageExample: "toxicity Ocelotbot is are bad",
     requiredPermissions: ["EMBED_LINKS", "READ_MESSAGE_HISTORY"],
     commands: ["toxicity", "toxic"],
+    contextMenu: {
+        type: "text",
+        value: "text",
+        prefix: "Check"
+    },
     init: async function(bot){
         bot.logger.log("Discovering comment analyzer");
         api = await google.discoverAPI("https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1");

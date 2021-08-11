@@ -256,7 +256,7 @@ module.exports = {
             },
             updateOrSendMessage: async function (listener, message, resend = true) {
                 if (listener.lastMessage && listener.channel.messages.cache.has(listener.lastMessage.id) && !listener.lastMessage.deleted) {
-                    let keyArray = listener.channel.messages.cache.keyArray();
+                    let keyArray = [...listener.channel.messages.cache.keys()];
                     if (keyArray.length - keyArray.indexOf(listener.lastMessage.id) < 15) {
                         listener.lastMessage.edit(message);
                         return false;
