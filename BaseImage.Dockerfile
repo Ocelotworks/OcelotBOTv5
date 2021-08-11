@@ -16,6 +16,6 @@ COPY package.json package.json
 COPY package-lock.json package-lock.json
 
 RUN node --version
-RUN npm install --force --registry=http://192.168.1.145/
+RUN npm ci --force --registry=http://192.168.1.145/
 RUN npm rebuild
 RUN npm install googleapis archiver

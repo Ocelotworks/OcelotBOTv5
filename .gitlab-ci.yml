@@ -1,5 +1,5 @@
 stages:
-  - build-base
+#  - build-base
   - release
   - build
   - post-release
