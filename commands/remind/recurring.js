@@ -118,7 +118,7 @@ module.exports = {
 
         context.commandData.recurringReminders[result[0]] = scheduledReminder;
 
-        return context.send(`:white_check_mark: Successfully set recurring reminder.\nThe message:\n> ${reminder}\nWill be sent ${bot.util.parseSchedule(parse)}\nTo remove the reminder, type **${context.command} remove ${result[0]}**`)
+        return context.send(`:white_check_mark: Successfully set recurring reminder.\nThe message:\n> ${reminder}\nWill be sent ${bot.util.parseSchedule(parse)}\nTo remove the reminder, type **${context.getSetting("prefix")}${context.command} remove ${result[0]}**`)
     }
 }
 
