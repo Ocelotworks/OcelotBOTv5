@@ -140,6 +140,20 @@ module.exports = {
             return sentMessage;
         };
 
+
+        const oldreply = Discord.CommandInteraction.prototype.reply
+        Discord.CommandInteraction.prototype.reply = async function reply(options){
+            console.log(this);
+            bot.bus.emit("messageSent", options);
+            bot.logger.log({type: "messageSend", message: bot.util.serialiseMessage({
+                    ...options,
+                    channel: bot.client.channels.cache.get(this.channelId),
+                    guild: this.member.guild,
+                    member: this.member,
+            })})
+            return oldreply.apply(this, [options]);
+        }
+
         //bot.presenceMessage = null;
 
         const clientOpts = {
