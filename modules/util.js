@@ -1435,6 +1435,7 @@ module.exports = {
 
 
         bot.util.serialiseUser = function serialiseUser(user) {
+            if(!user) return null;
             return {
                 avatar: user.avatarURL({size: 32, format: "png"}),
                 id: user.id,
@@ -1444,6 +1445,7 @@ module.exports = {
         }
 
         bot.util.serialiseMember = function serialiseMember(member) {
+            if(!member)return null;
             return {
                 id: member.id,
                 bot: member.user.bot,
@@ -1456,6 +1458,7 @@ module.exports = {
         }
 
         bot.util.serialiseRole = function serialiseRole(role){
+            if(!role)return null;
             return {
                 id: role.id,
                 hoist: role.hoist,
@@ -1466,6 +1469,7 @@ module.exports = {
         }
 
         bot.util.serialiseChannel = function serialiseChannel(channel) {
+            if(!channel) return null;
             return {
                 id: channel.id,
                 name: channel.name,
@@ -1484,6 +1488,7 @@ module.exports = {
         }
 
         bot.util.serialiseMentions = function serialiseMentions(mentions){
+            if(!mentions) return null;
             const users = mentions.users.map((u)=>bot.util.serialiseUser(u));
             const channels = mentions.channels.map((c)=>bot.util.serialiseChannel(c));
             return {users, channels, everyone: mentions.everyone, crosspostedChannels: mentions.crosspostedChannels}
@@ -1499,7 +1504,7 @@ module.exports = {
                 reference: message.reference,
                 id: message.id,
                 timestamp: message.createdTimestamp,
-                attachments: message.attachments.map((a) => a.url),
+                attachments: message.attachments?.map((a) => a.url),
                 embeds: message.embeds,
                 mentions: bot.util.serialiseMentions(message.mentions)
             }

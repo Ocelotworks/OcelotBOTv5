@@ -39,6 +39,8 @@ module.exports = {
             left+=3;
             right-=3;
             await context.edit({content: await generateOutput()}, sentMessage);
+            clearTimeout(cancelTimer);
+            cancelTimer = setTimeout(cancel, 32000);
             return {type: 6}
         }
 
@@ -46,6 +48,8 @@ module.exports = {
             left-=3;
             right+=3;
             context.edit({content: await generateOutput()}, sentMessage);
+            clearTimeout(cancelTimer);
+            cancelTimer = setTimeout(cancel, 32000);
             return {type: 6}
         }
 
@@ -53,8 +57,16 @@ module.exports = {
             left = 5;
             right = 5;
             context.edit({content: await generateOutput()}, sentMessage);
+            clearTimeout(cancelTimer);
+            cancelTimer = setTimeout(cancel, 32000);
             return {type: 6}
         }
+
+        async function cancel(){
+            context.edit({components: []}, sentMessage);
+        }
+
+        let cancelTimer = setTimeout(cancel, 32000)
 
         if(messageID[0]){
             const up = bot.interactions.addAction("⬆", 1, shiftUp, 32000);

@@ -318,7 +318,7 @@ module.exports = {
                 return knex.select(knex.raw("count(*)")).from(TRIVIA_TABLE).where({user}).limit(1);
             },
 
-            logCommand: function logCommand(userID, channelID, serverID, messageID, commandID, command, productID) {
+            logCommand: function logCommand(userID, channelID, serverID, messageID, commandID, command, productID, type = "message") {
                 return knex.insert({
                     userID,
                     channelID,
@@ -327,7 +327,8 @@ module.exports = {
                     commandID,
                     command,
                     server: os.hostname()+"/"+bot.util.shard,
-                    productID
+                    productID,
+                    type
                 }).into(COMMANDLOG_TABLE);
             },
             /**

@@ -25,7 +25,7 @@ module.exports = {
     rateLimit: 100,
     commands: ["pet", "petpet"],
     run: async function run(context, bot) {
-        if (context.guild && !context.command.endsWith("petpet") && ignoredArgs.includes(context.image?.toLowerCase())) {
+        if (context.guild && !context.command.endsWith("petpet") && ignoredArgs.includes(context.options.image?.toLowerCase())) {
             context.send(`:warning: It looks like you're trying to use ${context.command} with a different bot, I will now temporarily disable the ${context.command} command on OcelotBOT for you so as not to spam.
 To prevent this in the future, consider changing OcelotBOT's prefix with **${context.getSetting("prefix")}settings set prefix** or disabling the pet command with **${context.getSetting("prefix")}settings disableCommand pet**.
 You can still access this command with ${context.getSetting("prefix")}petpet`);

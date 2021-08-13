@@ -13,7 +13,7 @@ const typeMap = {
     SPAM: "Spam",
     ATTACK_ON_COMMENTER: "Attack on User"
 }
-
+let api;
 
 module.exports = {
     name: "Toxicity Checker",
@@ -21,7 +21,7 @@ module.exports = {
     categories: ["text"],
     detailedHelp: "Checks how toxic a message is",
     usageExample: "toxicity Ocelotbot is are bad",
-    requiredPermissions: ["EMBED_LINKS", "READ_MESSAGE_HISTORY"],
+    requiredPermissions: ["EMBED_LINKS", "READ_MESSAGE_HISTORY", "VIEW_CHANNEL"],
     commands: ["toxicity", "toxic"],
     contextMenu: {
         type: "text",

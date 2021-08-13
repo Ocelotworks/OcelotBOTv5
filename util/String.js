@@ -481,5 +481,35 @@ module.exports = class Strings {
         return result;
     }
 
+    static PrintCommandUsage(usageData){
+        return usageData.map((section)=>{
+            let output = section.type;
+            switch(section.type){
+                case "number":
+                case "single":
+                   output = section.name;
+                   break;
+                case "user":
+                    output = "@"+section.name;
+                    break;
+                case "channel":
+                    output = "#"+section.name;
+                    break;
+                case "role":
+                    output = "@"+section.name;
+                    break;
+                case "boolean":
+                    output = `"on"/"off"`;
+                    break;
+                case "options":
+                    output = `"${section.options.join("\"/\"")}"`;
+                    break;
+            }
+            if(section.optional)
+                return `[${output}]`;
+            return `<${output}>`;
+        }).join(" ");
+    }
+
 
 }

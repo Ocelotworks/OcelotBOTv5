@@ -234,15 +234,19 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
     const game = module.exports.runningGames[voiceChannel.guild.id];
     const guessStarted = new Date();
     let trackName = song.track.name;
-    // try {
-    //     console.log("Waiting for track name...");
-    //     let result = await axios.get(`https://demaster.hankapi.com/demaster?long_track_name=${encodeURIComponent(trackName)}`, {timeout: 3000});
-    //     console.log("got track name!");
-    //     trackName = result.data;
-    // }catch(e){
-    //     Sentry.captureException(e);
-    //     bot.logger.error(e);
-    // }
+    try {
+        console.log("Waiting for track name...");
+        let result = await axios.post(`https://ob.bint.cc/api/music/cleantitle`, `song=${encodeURIComponent(trackName)}`, {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+        });
+        console.log("got track name! ", result.data.success);
+        trackName = result.data;
+    }catch(e){
+        Sentry.captureException(e);
+        bot.logger.error(e);
+    }
     const loggedTrackName = `${song.track.artists[0].name} - ${trackName}`;
     const normalisedName = normalise(trackName);
     console.log(`Title is ${loggedTrackName}`);

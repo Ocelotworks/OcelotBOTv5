@@ -3,6 +3,7 @@
  */
 const Embeds = require("../util/Embeds");
 const Icon = require("../util/Icon");
+const Strings = require("../util/String");
 const alphaRegex = /[a-z]/g;
 module.exports = {
     name: "Help Command",
@@ -110,7 +111,7 @@ module.exports = {
             if (command.settingsOnly)
                 output += `🔒 This command **can only be used by people with the configured settings role**\n`;
 
-            output += `**Usage:** ${context.getSetting("prefix")}${command.usage}\n`;
+            output += `**Usage:** ${context.getSetting("prefix")}${context.options.command} ${Strings.PrintCommandUsage(command.pattern)}\n`;
             if (command.usageExample)
                 output += `**Example:** ${context.getSetting("prefix")}${command.usageExample}\n`;
 
@@ -132,7 +133,7 @@ module.exports = {
                     let usage = commandUsages[i].usage;
                     if (prefix[prefix.length - 1].match(alphaRegex))
                         usage[0] = usage[0].toUpperCase();
-                    output += `${commandUsages[i].name}:: ${prefix}${commandUsages[i].usage}\n`
+                    output += `${commandUsages[i].name}:: ${prefix}${commandUsages[i].commands[0]} ${Strings.PrintCommandUsage(commandUsages[i].pattern)}\n`
                 }
         }
         return context.sendLang("COMMANDS", {commands: output});
