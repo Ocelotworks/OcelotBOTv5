@@ -142,10 +142,10 @@ module.exports = class Image {
         try {
             let response = await Image.#imageProcessor(bot, request);
             if (response.err) {
-                return interaction.followUpLang({content: "IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase()});
+                return interaction.followUp({content: bot.lang.getTranslation(interaction.guild?.id || "global", "IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase(), {}, interaction.user.id)});
             }
             if(response.size >= 10000000){
-                return interaction.followUpLang("IMAGE_PROCESSOR_ERROR_SIZE")
+                return interaction.followUp({content: bot.lang.getTranslation(interaction.guild?.id || "global", "IMAGE_PROCESSOR_ERROR_SIZE", {}, interaction.user.id)});
             }
             let imgurData = await Image.UploadToImgur(response.path);
             if(!imgurData)return interaction.followUp({content: "Failed to upload to imgur. Try a different image"});
