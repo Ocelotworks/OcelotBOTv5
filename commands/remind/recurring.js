@@ -14,34 +14,37 @@ module.exports = {
             bot.logger.log(`Got ${reminders.length} recurring reminders.`);
             for (let i = 0; i < reminders.length; i++) {
                 let reminder = reminders[i];
-                let scheduledReminder = later.setInterval(async () => {
-                    if (bot.drain) return;
-                    if(!bot.config.getBool(reminder.server || "global", "remind.recurring"))return bot.logger.log("Recurring reminders disabled by setting");
-                    try {
-                        let channel = await bot.client.channels.fetch(reminder.channel).catch(()=>null);
-                        if (channel?.permissionsFor?.(bot.client.user.id).has("SEND_MESSAGES", true)) {
-                            console.log("Bot has send message permissions");
-                            await channel.send(reminder.message);
-                        } else {
-                            bot.logger.warn("Deleting reminder "+reminder.id+" because the channel is no longer accessible.");
-                            scheduledReminder.clear();
-                            await bot.database.removeReminderByUser(reminder.id, reminder.user);
-                            const userDM = await (await bot.client.users.fetch(reminder.user)).createDM();
-                            userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in ${channel} was deleted as OcelotBOT no longer has permission to send messages in that channel.`);
-
-                        }
-                    } catch (e) {
-                        console.log(e);
-                        bot.raven.captureException(e);
-                        if(scheduledReminder)
-                            scheduledReminder.clear();
-                    }
-                }, JSON.parse(reminder.recurrence));
+                let scheduledReminder;
+                scheduledReminder = later.setInterval(module.exports.runScheduledReminder(bot, reminder, scheduledReminder), JSON.parse(reminder.recurrence));
                 reminderData.recurringReminders[reminder.id] = scheduledReminder;
             }
 
         })
 
+    },
+    runScheduledReminder(bot, reminder, scheduledReminder){
+        return async ()=> {
+            if (bot.drain) return;
+            if (!bot.config.getBool(reminder.server || "global", "remind.recurring")) return bot.logger.log("Recurring reminders disabled by setting");
+            try {
+                let channel = await bot.client.channels.fetch(reminder.channel).catch(() => null);
+                if (channel?.permissionsFor?.(bot.client.user.id).has("SEND_MESSAGES", true)) {
+                    console.log("Bot has send message permissions");
+                    await channel.send(reminder.message);
+                } else {
+                    bot.logger.warn("Deleting reminder " + reminder.id + " because the channel is no longer accessible.");
+                    scheduledReminder.clear();
+                    await bot.database.removeReminderByUser(reminder.id, reminder.user);
+                    const userDM = await(await bot.client.users.fetch(reminder.user)).createDM();
+                    userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in ${channel} was deleted as OcelotBOT no longer has permission to send messages in that channel.`);
+                }
+            } catch (e) {
+                console.log(e);
+                bot.raven.captureException(e);
+                if (scheduledReminder)
+                    scheduledReminder.clear();
+            }
+        }
     },
     run: async function (context, bot) {
         const currentTotal = await bot.database.getRecurringReminderCountForChannel(bot.client.user.id, context.channel.id);
@@ -104,16 +107,14 @@ module.exports = {
         });
 
 
-        // TODO unduplicate this
-        let scheduledReminder = later.setInterval(async () => {
-            try {
-                await context.send(reminder);
-            } catch (e) {
-                console.log(e);
-                bot.raven.captureException(e);
-                scheduledReminder.clear();
-            }
-        }, parse);
+        let scheduledReminder;
+        scheduledReminder = later.setInterval(module.exports.runScheduledReminder(bot, {
+            server: context.guild?.id,
+            channel: context.channel?.id,
+            message: reminder,
+            user: context.user.id,
+            id: result[0],
+        }, scheduledReminder), parse);
 
         context.commandData.recurringReminders[result[0]] = scheduledReminder;
 

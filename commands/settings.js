@@ -44,7 +44,7 @@ module.exports = {
                 return false;
             }
             if(context.interaction && !context.interaction.options)return true;
-            let content = context.message ? context.message.content : context.interaction.options.map((o)=>o.value).join(" ");
+            let content = context.message ? context.message.content : context.interaction.options?.map((o)=>o.value).join(" ");
             if (bot.util.swearRegex.exec(content)) {
                 context.reply({content: "No swearing!", ephemeral: true});
                 return false;

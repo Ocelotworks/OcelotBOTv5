@@ -13,7 +13,7 @@ const typeMap = {
     SPAM: "Spam",
     ATTACK_ON_COMMENTER: "Attack on User"
 }
-
+let api;
 
 module.exports = {
     name: "Toxicity Checker",
