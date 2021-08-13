@@ -15,7 +15,7 @@ module.exports = {
     run: async function run(context, bot) {
         const term = context.options.term;
         context.defer();
-        let data = await bot.util.getJson(`http://api.urbandictionary.com/v0/define?term=${term}`);
+        let data = await bot.util.getJson(`http://api.urbandictionary.com/v0/define?term=${encodeURIComponent(term)}`);
 
         if(data?.list?.length > 0) {
             return Util.StandardPagination(bot, context, data.list, async function (page) {
