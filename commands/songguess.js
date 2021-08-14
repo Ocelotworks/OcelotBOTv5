@@ -241,8 +241,10 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                 "Content-Type": "application/x-www-form-urlencoded"
             },
         });
-        console.log("got track name! ", result.data.success);
-        trackName = result.data;
+        if(result.data?.success) {
+            console.log("got track name! ", result.data.success);
+            trackName = result.data.success;
+        }
     }catch(e){
         Sentry.captureException(e);
         bot.logger.error(e);
