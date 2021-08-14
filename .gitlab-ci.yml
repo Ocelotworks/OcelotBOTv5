@@ -1,5 +1,5 @@
 stages:
-#  - build-base
+  - build-base
   - release
   - build
   - post-release
@@ -34,52 +34,52 @@ stages:
 #    - docker image rm $REGISTRY/ocelotbotv5/image-consumer:$CI_PIPELINE_ID
 ##    - curl -X POST $DEPLOY_WEBHOOK
 
-#
-#build-base-image-master:
-#  environment:
-#    name: production
-#  only:
-#    changes:
-#      - package.json
-#      - package-lock.json
-#      - BaseImage.Dockerfile
-#    refs:
-#      - master
-#  extends: .build-base-image
-#
-#build-base-image-staging:
-#  environment:
-#    name: staging
-#  only:
-#    changes:
-#      - package.json
-#      - package-lock.json
-#      - BaseImage.Dockerfile
-#    refs:
-#      - staging
-#  extends: .build-base-image
-#
-#.build-base-image:
-#  stage: build-base
-#  except:
-#    refs:
-#      - tags
-#  tags:
-#    - shell
-#  retry:
-#    max: 2
-#    when: runner_system_failure
-#  before_script:
-#    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
-#  script:
-#    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest || true
-#    - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
-#      -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
-#      --build-arg REGISTRY=$REGISTRY
-#      --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
-#      --build-arg VERSION=$CI_PIPELINE_IID
-#    - docker push $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
-#    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+
+build-base-image-master:
+  environment:
+    name: production
+  only:
+    changes:
+      - package.json
+      - package-lock.json
+      - BaseImage.Dockerfile
+    refs:
+      - master
+  extends: .build-base-image
+
+build-base-image-staging:
+  environment:
+    name: staging
+  only:
+    changes:
+      - package.json
+      - package-lock.json
+      - BaseImage.Dockerfile
+    refs:
+      - staging
+  extends: .build-base-image
+
+.build-base-image:
+  stage: build-base
+  except:
+    refs:
+      - tags
+  tags:
+    - shell
+  retry:
+    max: 2
+    when: runner_system_failure
+  before_script:
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
+  script:
+    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest || true
+    - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+      -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+      --build-arg REGISTRY=$REGISTRY
+      --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
+      --build-arg VERSION=$CI_PIPELINE_IID
+    - docker push $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
 
 build-shard-staging:
   environment:
