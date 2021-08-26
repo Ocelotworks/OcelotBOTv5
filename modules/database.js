@@ -862,7 +862,7 @@ module.exports = {
                 return knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, chat_settable: 1}).orderBy("order");
             },
             getSettingAssoc: async function(setting){
-                let value = await knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, chat_settable: 1, setting}).limit(1);
+                let value = await knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, setting}).limit(1);
                 return value[0];
             },
             addSongGuess: async function (user, channel, server, guess, song, correct, elapsed, custom = false) {

@@ -23,6 +23,13 @@ module.exports = {
             return true;
         });
 
+        bot.addCommandMiddleware(async (context)=>{
+            if(!context.guild || !context.member || !context.getSetting("commands.role") || context.getSetting("commands.role").toLowerCase() === "clear")return true;
+            if(context.member.roles.cache.has(context.getSetting("commands.role")))return true;
+            bot.logger.log(`User does not have required role to use this command (${context.getSetting("commands.role")})`);
+            return false;
+        });
+
         // Disable commands that are disabled
         bot.addCommandMiddleware((context)=>{
             if (context.getBool(`${context.command}.disable`)) {
