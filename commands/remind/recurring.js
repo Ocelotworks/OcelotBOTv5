@@ -33,7 +33,8 @@ module.exports = {
                     await channel.send(reminder.message);
                 } else {
                     bot.logger.warn("Deleting reminder " + reminder.id + " because the channel is no longer accessible.");
-                    scheduledReminder.clear();
+                    if(scheduledReminder)
+                        scheduledReminder.clear();
                     await bot.database.removeReminderByUser(reminder.id, reminder.user);
                     const userDM = await(await bot.client.users.fetch(reminder.user)).createDM();
                     userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in ${channel} was deleted as OcelotBOT no longer has permission to send messages in that channel.`);
