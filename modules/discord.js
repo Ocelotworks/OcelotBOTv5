@@ -148,7 +148,7 @@ module.exports = {
             bot.logger.log({type: "messageSend", message: bot.util.serialiseMessage({
                     ...options,
                     channel: bot.client.channels.cache.get(this.channelId),
-                    guild: this.member.guild,
+                    guild: this.member?.guild,
                     member: this.member,
             })})
             return oldreply.apply(this, [options]);
