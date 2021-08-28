@@ -32,8 +32,8 @@ module.exports = {
         if (at.getTime() >= 253370764800000)
             return context.sendLang("REMIND_LONG_TIME");
 
-        // if (at.getTime() >= 2147483647000)
-        //     return context.send(":stopwatch: You can't set a reminder for on or after 19th January 2038");
+        if (at.getTime() >= 2147483647000)
+            return context.send(":stopwatch: You can't set a reminder for on or after 19th January 2038");
 
         const offset = at - now;
 
