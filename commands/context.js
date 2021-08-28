@@ -69,9 +69,9 @@ module.exports = {
         let cancelTimer = setTimeout(cancel, 32000)
 
         if(messageID[0]){
-            const up = bot.interactions.addAction("⬆", 1, shiftUp, 32000);
-            const reset = bot.interactions.addAction("⏹", 1, resetPos, 32000);
-            const down = bot.interactions.addAction("⬇", 1, shiftDown, 32000);
+            const up = bot.interactions.addAction("⬆", 1, shiftUp, 120000, context.id);
+            const reset = bot.interactions.addAction("⏹", 1, resetPos, 120000, context.id);
+            const down = bot.interactions.addAction("⬇", 1, shiftDown, 120000, context.id);
             sentMessage = await context.send({content: await generateOutput(), components: [bot.util.actionRow(up, reset, down)]});
             return;
         }

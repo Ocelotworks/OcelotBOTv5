@@ -54,7 +54,7 @@ module.exports = class Interactions{
         delete this.bot.interactions.waiting[id];
     }
 
-    addAction(text, style, callback, timeout = 60000, emoji){
+    addAction(text, style, callback, timeout = 60000){
         const id = uuid();
         this.waiting[id] = callback;
         this.timeouts[id] = {timer: setTimeout(this.clearAction, timeout, id), timeout};
