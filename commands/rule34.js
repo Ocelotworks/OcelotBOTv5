@@ -8,6 +8,7 @@ const axios = require('axios');
 const Discord = require('discord.js');
 const xml2js = require('xml2js');
 const Util = require("../util/Util");
+const naughtyRegex = /(young|(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|(thir|four|fif|six|seven?)teen)|(1?)[0-7]( ?)(year(s?)?)( ?)(old?)|bab(y|ie)|toddler)(s?)|girl|boy|child|kid/gi;
 module.exports = {
     name: "Rule34 Search",
     usage: "rule34 :search+",
@@ -18,6 +19,9 @@ module.exports = {
     vote: true,
     pointsCost: 1,
     run: async function(context, bot){
+        if (naughtyRegex.test(context.options.search)) {
+            return context.send({content: ":warning: No results", ephemeral: true});
+        }
         let tag = encodeURIComponent(context.options.search.replace(/ /g, "_"));
 
         const points = (await bot.database.getPoints(context.user.id)).toLocaleString();

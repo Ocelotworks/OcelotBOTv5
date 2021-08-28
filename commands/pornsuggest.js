@@ -6,7 +6,7 @@ const Discord = require('discord.js');
 const request = require('request');
 const Util = require("../util/Util");
 const Strings = require("../util/String");
-let naughtyRegex = /child|kid|baby|babies|toddler|1[0-7]|/gi;
+const naughtyRegex = /(young|(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|(thir|four|fif|six|seven?)teen)|(1?)[0-7]( ?)(year(s?)?)( ?)(old?)|bab(y|ie)|toddler)(s?)|girl|boy|child|kid/gi;
 module.exports = {
     name: "Porn Suggest",
     usage: "pornsuggest :search+",
@@ -19,14 +19,9 @@ module.exports = {
     run: function run(context, bot) {
         let search = context.options.search;
 
-        // if(naughtyRegex.test(search)){
-        //     bot.logger.warn("Blocking query");
-        //     let embed = new Discord.MessageEmbed();
-        //     embed.setTitle("Search Blocked");
-        //     embed.setDescription("I'm not going to jail for your edgy joke");
-        //     embed.setImage("https://i.imgur.com/iHZJOnG.jpg");
-        //     return context.send({embeds: [embed]});
-        // }
+        if(naughtyRegex.test(search)){
+            return context.send(":warning: No results.");
+        }
 
         request(`https://www.pornmd.com/api/v1/video-search?orientation=straight&query=${encodeURIComponent(search.replace(/['"<>\[\]]/g, ""))}&start=1&ajax=true&format=json`, async function getPorn(err, resp, body){
             if(err)
