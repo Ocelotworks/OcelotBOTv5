@@ -59,7 +59,7 @@ module.exports = class Commands {
         this.bot.client.on("messageUpdate", (oldMessage, newMessage)=>{
             if (this.bot.drain || newMessage.author.bot) return;
             if(oldMessage.content == newMessage.content)return;
-            if(oldMessage.response?.deleted)return;
+            if(oldMessage.response?.deleted)return this.bot.logger.log("Edited message response was deleted");
             const parse = this.parseCommand(newMessage);
             if(!parse)return;
             const context = this.initContext(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
