@@ -301,7 +301,9 @@ class InteractionCommandContext extends CommandContext {
             }
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
-        return this.interaction.editReply(options);
+        if(this.interaction.replied)
+            return this.interaction.editReply(options);
+        return this.interaction.reply(options);
     }
 
     getLang(key, values) {
