@@ -183,8 +183,20 @@ version:
   except:
     - tags
 
+release-monitor-master:
+  extends: .release-monitor
+  environment:
+    name: production
+  only:
+    - master
+release-monitor-staging:
+  extends: .release-monitor
+  environment:
+    name: staging
+  only:
+    - staging
 
-release_monitor:
+.release-monitor:
   only:
     - master
     - staging
