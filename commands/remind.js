@@ -91,6 +91,7 @@ module.exports = {
                 let embed = module.exports.buildEmbed(reminder);
                 try {
                     await channel.send({
+                        content: `<@${reminder.user}>`,
                         embeds: [module.exports.buildEmbed(reminder)],
                         reply: {messageReference: reminder.messageID},
                     });
