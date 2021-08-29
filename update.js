@@ -130,7 +130,7 @@ function loadChangelog(){
     const file = fs.readFileSync("CHANGELOG.md").toString();
     return file
         .substring(file.indexOf("-->")+5)
-        .replace(/^## (.*)\n/gm, `**${botName} Release v$1:**\n`)
+        .replace(/^## (.*)\n/gm, `**Release \`v$1\`:**\n`)
         .replace(/^### (.*)\n/gm, "**$1**")
         .replace(/ \(.*\)(\n|$)/gm, "\n");
 }
