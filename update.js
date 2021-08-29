@@ -2,7 +2,7 @@ const targetVersion = process.env.TARGET_VERSION;
 const webhook = process.env.RELEASE_WEBHOOK_URL;
 const axios = require('axios');
 
-const botName = process.env.CI_ENVIRONMENT_NAME === "production" ? "OcelotBOT" : "OcelotBETA";
+const botName = process.env.BOT_NAME;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
 let messageId;
