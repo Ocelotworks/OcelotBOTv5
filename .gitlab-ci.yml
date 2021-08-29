@@ -171,6 +171,7 @@ version:
   artifacts:
     paths:
       - .next-version
+      - CHANGELOG.md
   script:
     - release next-version --allow-current > .next-version
     - cat .next-version
@@ -178,6 +179,7 @@ version:
     - release tag || true
   only:
     - master
+    - staging
   except:
     - tags
 
@@ -192,6 +194,7 @@ release_monitor:
   stage: post-release
   script:
     - export TARGET_VERSION=$(cat .next-version)
+    - cat CHANGELOG.md
     # NPM is so retarded that it can't install a single package without fucking with the package.json
     # Maybe that's my fault, this should probably be in a seperate package, but fuck you anyway
     - rm package.json
