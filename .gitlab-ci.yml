@@ -187,6 +187,7 @@ version:
 release_monitor:
   only:
     - master
+    - staging
   except:
     - tags
   interruptible: true
