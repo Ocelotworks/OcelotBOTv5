@@ -16,12 +16,35 @@ module.exports = {
             if (context.options.guild)
                 server = context.options.guild.toLowerCase() === "this" ? context.guild.id : context.options.guild;
 
+            let subCategories = {};
+            for(let commandID in bot.commandObjects){
+                if (!bot.commandObjects.hasOwnProperty(commandID)) continue;
+                let commandData = bot.commandObjects[commandID];
+                if (!commandData.slashOptions || commandData.hidden || !commandData.slashCategory) continue;
+                if(!subCategories[commandData.slashCategory])
+                    subCategories[commandData.slashCategory] = [];
+                subCategories[commandData.slashCategory].push(commandData);
+            }
             let commandOutput = [];
+            for(let categoryID in subCategories){
+                if(!subCategories.hasOwnProperty(categoryID))continue;
+                commandOutput.push({
+                    name: categoryID,
+                    description: "Sub-category "+categoryID,
+                    options: subCategories[categoryID].map((command)=>({
+                        name: command.commands[0],
+                        description: command.name,
+                        options: command.slashOptions,
+                        type: 1,
+                    })),
+                    type: 1,
+                })
+            }
+            console.log(JSON.stringify(commandOutput));
             for (let commandID in bot.commandObjects) {
                 if (!bot.commandObjects.hasOwnProperty(commandID)) continue;
                 let commandData = bot.commandObjects[commandID];
-                if (!commandData.slashOptions) continue;
-                if (commandData.hidden) continue;
+                if (!commandData.slashOptions || commandData.hidden || commandData.slashCategory) continue;
                 let slashCommand = {
                     name: commandData.commands[0],
                     description: commandData.name,

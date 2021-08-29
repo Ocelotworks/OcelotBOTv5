@@ -6,6 +6,7 @@ module.exports = {
     commands: ["shy"],
     rateLimit: 10,
     categories: ["memes"],
+    slashCategory: "images",
     handleError: function(context){
         return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
     },

@@ -95,12 +95,14 @@ module.exports = class Interactions{
         // it was all going so well up until this point
         for(let i = 0; i < message.components.length; i++){
             for(let j = 0; j < message.components[i].components.length; j++){
-                if(message.components[i].components[j].customID === interaction.data.custom_id) {
+                if(message.components[i].components[j].customId === interaction.data.custom_id) {
                     message.components[i].components[j].disabled = true;
                     break;
                 }
             }
         }
+        console.log("Suggested command");
+        console.log(interaction.data.custom_id, message.components);
         await message.edit({components: message.components})
         this.bot.command.runCommand(context);
         return {type: 6};

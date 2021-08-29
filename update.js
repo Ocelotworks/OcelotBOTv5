@@ -1,8 +1,9 @@
 const targetVersion = process.env.TARGET_VERSION;
 const webhook = process.env.RELEASE_WEBHOOK_URL;
+const changelogWebhook = process.env.RELEASE_CHANGELOG_URL;
 const axios = require('axios');
-
-
+const fs = require('fs');
+const botName = process.env.BOT_NAME;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
 let messageId;
@@ -14,7 +15,7 @@ let lastUpdatedValue = 0;
 
 async function check(){
     count += interval;
-    let result = await axios.get("https://ob-prod-sc.d.int.unacc.eu");
+    let result = await axios.get(process.env.RELEASE_API_URL);
     let keys = Object.keys(result.data);
     let updated = [];
     let waiting = [];
@@ -32,18 +33,28 @@ async function check(){
     }
 
     if(waiting.length === 0){
+        console.log("Waiting complete");
         await sendWebhookMessage({
             "content": null,
             "embeds": [
                 {
                     "title": "Deployment Complete",
-                    "description": `All OcelotBOT shards are now on Version \`${targetVersion}\`.`,
+                    "description": `All ${botName} shards are now on Version \`${targetVersion}\`.`,
                     "color": 5697536,
                 }
             ]
         });
+        try{
+            if(!changelogWebhook)return console.log("Skipping changelog because no changelog webhook");
+            const changelog = loadChangelog();
+            if(changelog.indexOf("NO CHANGELOG") > -1)return console.log("Skipping changelog because NO CHANGELOG was present");
+            const result = await axios.post(changelogWebhook, {content: changelog.substring(0, 2000)});
+            console.log("Posted changelog");
+            console.log(result.data);
+        }catch(e){
+            console.error(e);
+        }
         process.exit(0);
-        // TODO: Send changelog here
         return;
     }
 
@@ -53,7 +64,7 @@ async function check(){
             "embeds": [
                 {
                     "title": "Deployment Stuck",
-                    "description": `Not all shards have updated to \`${targetVersion}\` within 30 minutes.\nMost likely one host is not updating correctly.`,
+                    "description": `Not all ${botName} shards have updated to \`${targetVersion}\` within 30 minutes.\nMost likely one host is not updating correctly.`,
                     "color": 16726072,
                     "fields": [
                         {
@@ -79,7 +90,7 @@ async function check(){
             "embeds": [
                 {
                     "title": "Deployment Progress",
-                    "description": `OcelotBOT Version \`${targetVersion}\` is deploying...`,
+                    "description": `${botName} Version \`${targetVersion}\` is deploying...`,
                     "color": 16757506,
                     "fields": [
                         {
@@ -115,12 +126,21 @@ async function sendWebhookMessage(data){
 }
 
 
+function loadChangelog(){
+    const file = fs.readFileSync("CHANGELOG.md").toString();
+    return file
+        .substring(file.indexOf("-->")+5)
+        .replace(/^## (.*)\n/gm, `**Release \`v$1\`:**\n`)
+        .replace(/^### (.*)\n/gm, "**$1**")
+        .replace(/ \(.*\)(\n|$)/gm, "\n");
+}
+
 sendWebhookMessage({
     "content": null,
     "embeds": [
         {
             "title": "Deployment Started",
-            "description": `OcelotBOT Version \`${targetVersion}\` has begun deployment.`,
+            "description": `${botName} Version \`${targetVersion}\` has begun deployment.`,
             "color": 3001599
         }
     ]

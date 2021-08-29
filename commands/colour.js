@@ -26,6 +26,7 @@ module.exports = {
     categories: ["tools"],
     rateLimit: 40,
     commands: ["colour", "color"],
+    slashCategory: "images",
     run: function run(context, bot) {
         const size = parseInt(context.getSetting("colour.size"));
         const colours = [];

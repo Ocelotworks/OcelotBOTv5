@@ -224,12 +224,21 @@ class InteractionCommandContext extends CommandContext {
     constructor(bot, interaction){
         super(bot, interaction.member, interaction.user, interaction.channel, interaction.guild);
         this.interaction = interaction;
-        this.command = interaction.commandName;
-        this.content = `/${interaction.commandName}`
-        interaction.options.data.forEach((val)=>{
-            this.options[val.name]=val.value;
-            this.content += ` ${val.name}:${val.value}`
-        });
+        if(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand()) {
+            this.command = interaction.options.getSubcommand();
+            this.content = `/${interaction.commandName} ${interaction.options.getSubcommand()}`;
+            interaction.options.data[0].options.forEach((val)=>{
+                this.options[val.name]=val.value;
+                this.content += ` ${val.name}:${val.value}`
+            });
+        }else {
+            this.command = interaction.commandName;
+            this.content = `/${interaction.commandName}`
+            interaction.options.data.forEach((val)=>{
+                this.options[val.name]=val.value;
+                this.content += ` ${val.name}:${val.value}`
+            });
+        }
     }
 
     logPerformed(){

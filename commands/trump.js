@@ -8,6 +8,7 @@ module.exports = {
     rateLimit: 10,
     categories: ["text"],
     unwholesome: true,
+    slashCategory: "images",
     usageExample: "trumptweet This has been the worst trade deal in history!",
     handleError: function(context){
         return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});

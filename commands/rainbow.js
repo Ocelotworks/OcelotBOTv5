@@ -7,6 +7,7 @@ module.exports = {
     categories: ["image", "filter"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["rainbow", "rainbowimage"],
+    slashCategory: "filter",
     run: async function run(context, bot){
         const url = await Util.GetImage(bot, context)
         if(!url)

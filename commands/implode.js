@@ -13,6 +13,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["implode"],
     slashHidden: true,
+    slashCategory: "filter",
     run: async function (context, bot) {
         return Image.ImageFilter(bot, module.exports.usage, context, "implode", [context.getSetting("implode.amount")]);
     }

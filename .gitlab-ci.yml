@@ -90,7 +90,8 @@ build-shard-staging:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
-    - export VERSION=$CI_PIPELINE_IID
+#    - export VERSION=$CI_PIPELINE_IID
+    - export VERSION=$(cat .next-version)
 
 build-shard-master:
   environment:
@@ -135,7 +136,8 @@ sentry-staging:
     name: staging
   extends: .sentry
   before_script:
-    - export VERSION=$CI_PIPELINE_IID
+#    - export VERSION=$CI_PIPELINE_IID
+    - export VERSION=$(cat .next-version)
 
 sentry-master:
   only:
@@ -171,6 +173,7 @@ version:
   artifacts:
     paths:
       - .next-version
+      - CHANGELOG.md
   script:
     - release next-version --allow-current > .next-version
     - cat .next-version
@@ -178,13 +181,27 @@ version:
     - release tag || true
   only:
     - master
+    - staging
   except:
     - tags
 
-
-release_monitor:
+release-monitor-master:
+  extends: .release-monitor
+  environment:
+    name: production
   only:
     - master
+release-monitor-staging:
+  extends: .release-monitor
+  environment:
+    name: staging
+  only:
+    - staging
+
+.release-monitor:
+  only:
+    - master
+    - staging
   except:
     - tags
   interruptible: true

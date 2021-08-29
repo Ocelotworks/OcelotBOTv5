@@ -9,7 +9,7 @@ module.exports = {
         if (reminders.length === 0)
             return context.send(`You have not got any currently active reminders! To see how to set a reminder, type ${context.getSetting("prefix")}${context.command} help`);
 
-        let header = `To remove a reminder, type ${context.getSetting("prefix")}${context.command} remove id\n\`\`\`yaml\n`
+        let header = `To remove a reminder, type **${context.getSetting("prefix")}${context.command} remove id**\n\`\`\`yaml\n`
         let chunkedReminders = reminders.chunk(5);
         return Util.StandardPagination(bot, context, chunkedReminders, async function (reminders, index) {
             let formatted = [];

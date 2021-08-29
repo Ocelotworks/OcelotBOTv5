@@ -15,6 +15,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["snapchat", "snap"],
     slashHidden: true,
+    slashCategory: "filter",
     run: async function(context, bot){
         const url =  await Util.GetImage(bot, context);
 

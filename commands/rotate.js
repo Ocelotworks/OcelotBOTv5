@@ -13,6 +13,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["rotate", "rot"],
     slashHidden: true,
+    slashCategory: "filter",
     run: async function(context, bot){
         let num = context.options.deg || 90;
         return Image.ImageFilter(bot, module.exports.usage, context,"rotate", ['black', num % 360]);

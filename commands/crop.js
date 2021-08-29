@@ -15,6 +15,7 @@ module.exports = {
     detailedHelp: "Attempts to crop an image into a square in the best way possible",
     commands: ["crop"],
     categories: ["image"],
+    slashCategory: "filter",
     run: async function run(context, bot) {
         let url = await Util.GetImage(bot, context);
         if(!url)

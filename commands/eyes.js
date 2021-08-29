@@ -16,6 +16,7 @@ module.exports = {
     detailedHelp: "Adds red eyes to faces in the image",
     categories: ["image", "filter"],
     commands: ["eyes", "eye"],
+    slashCategory: "filter",
     run: async function run(context, bot) {
         let url = await Util.GetImage(bot, context);
         if(!url)

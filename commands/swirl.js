@@ -12,6 +12,7 @@ module.exports = {
     categories: ["image", "filter"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["swirl", "spiral"],
+    slashCategory: "filter",
     run: async function (context, bot) {
         return Image.ImageFilter(bot, module.exports.usage, context,"swirl", [context.getSetting("swirl.amount")]);
     }

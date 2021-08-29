@@ -24,6 +24,7 @@ module.exports = {
     categories: ["image", "filter"],
     rateLimit: 100,
     commands: ["pet", "petpet"],
+    slashCategory: "images",
     run: async function run(context, bot) {
         if (context.guild && !context.command.endsWith("petpet") && ignoredArgs.includes(context.options.image?.toLowerCase())) {
             context.send(`:warning: It looks like you're trying to use ${context.command} with a different bot, I will now temporarily disable the ${context.command} command on OcelotBOT for you so as not to spam.

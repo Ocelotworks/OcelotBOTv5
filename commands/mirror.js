@@ -13,6 +13,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["mirror", "flipimage"],
     slashHidden: true,
+    slashCategory: "filter",
     run: async function (context, bot) {
         return Image.ImageFilter(bot, module.exports.usage, context,"flop", []);
     }

@@ -9,6 +9,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["imagemacro", "macro"],
     categories: ["image", "memes"],
+    slashCategory: "images",
     run: async function (context, bot) {
         const url = await Util.GetImage(bot, context);
         if (!url)

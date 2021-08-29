@@ -7,6 +7,7 @@ module.exports = {
     categories: ["image", "filter"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["monochrome", "blackandwhite", "greyscale"],
+    slashCategory: "filter",
     run: async function(context, bot){
         const url = await Util.GetImage(bot, context);
         if(!url){

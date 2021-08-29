@@ -20,6 +20,7 @@ module.exports = {
     commands: ["removebg", "rbg", "removebackground"],
     categories: ["image", "tools", "filter"],
     slashHidden: true,
+    slashCategory: "filter",
     run: async function run(context, bot) {
         const url = await Util.GetImage(bot, context)
         if(!url)

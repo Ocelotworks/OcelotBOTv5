@@ -14,6 +14,7 @@ module.exports = {
     categories: ["memes"],
     unwholesome: true,
     slashHidden: true,
+    slashCategory: "filter",
     init: function init(bot){
         bot.logger.log("Loading sexysingle templates");
          fs.readdir(__dirname+"/../static/sexysingle", function readDir(err, files){

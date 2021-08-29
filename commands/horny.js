@@ -9,6 +9,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     unwholesome: true,
     commands: ["horny"],
+    slashCategory: "filter",
     run: async function run(context, bot) {
         let url = await Util.GetImage(bot, context);
         if(!url)

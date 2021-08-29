@@ -8,7 +8,6 @@ module.exports = {
     categories: ["fun"],
     requiredPermissions: [],
     commands: ["spook", "spooked"],
-    slashHidden: true,
     init: async function (bot) {
         let updateInterval;
         bot.spook = {};
@@ -411,7 +410,10 @@ module.exports = {
     },
     run: async function (context, bot) {
         const now = new Date();
-        return context.sendLang("SPOOK_TEASER", {
+        const setReminder = bot.interactions.fullSuggestedCommand(context, `remind on 1st October at 00:00 **The Spooking** starts now!`);
+        setReminder.label = "Set Reminder";
+        setReminder.emoji = "⏱️";
+        return context.sendLang({content: "SPOOK_TEASER", components: [bot.util.actionRow(setReminder)]}, {
             time: bot.util.prettySeconds((start - now) / 1000, context.guild && context.guild.id, context.user.id),
             year: now.getFullYear()
         });

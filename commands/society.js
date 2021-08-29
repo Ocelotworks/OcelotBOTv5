@@ -10,6 +10,8 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     rateLimit: 10,
     commands: ["society", "weliveinasociety", "wlias"],
+    slashCategory: "filter",
+    slashHidden: true,
     run: async function(context, bot){
 
         const url =  await Util.GetImage(bot, context);
