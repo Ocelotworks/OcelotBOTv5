@@ -33,6 +33,7 @@ async function check(){
     }
 
     if(waiting.length === 0){
+        console.log("Waiting complete");
         await sendWebhookMessage({
             "content": null,
             "embeds": [
@@ -43,21 +44,21 @@ async function check(){
                 }
             ]
         });
-        process.exit(0);
-        // TODO: Send changelog here
-        return;
-    }
-
-    if(count > 1800000 ){
         try{
             if(!changelogWebhook)return console.log("Skipping changelog because no changelog webhook");
             const changelog = loadChangelog();
             if(changelog.indexOf("NO CHANGELOG") > -1)return console.log("Skipping changelog because NO CHANGELOG was present");
-            await axios.post(changelogWebhook, {content: changelog.substring(0, 2000)});
-
+            const result = await axios.post(changelogWebhook, {content: changelog.substring(0, 2000)});
+            console.log("Posted changelog");
+            console.log(result.data);
         }catch(e){
             console.error(e);
         }
+        process.exit(0);
+        return;
+    }
+
+    if(count > 1800000 ){
         return sendWebhookMessage({
             "content": null,
             "embeds": [

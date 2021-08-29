@@ -90,7 +90,8 @@ build-shard-staging:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
-    - export VERSION=$CI_PIPELINE_IID
+#    - export VERSION=$CI_PIPELINE_IID
+    - export VERSION=$(cat .next-version)
 
 build-shard-master:
   environment:
@@ -135,7 +136,8 @@ sentry-staging:
     name: staging
   extends: .sentry
   before_script:
-    - export VERSION=$CI_PIPELINE_IID
+#    - export VERSION=$CI_PIPELINE_IID
+    - export VERSION=$(cat .next-version)
 
 sentry-master:
   only:
