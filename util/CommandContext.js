@@ -205,14 +205,14 @@ class MessageEditCommandContext extends MessageCommandContext {
 
     async send(options){
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
-        if(this.response)
+        if(this.response && !this.response.deleted)
             return this.response.edit(options);
         return super.reply(options);
     }
 
     async reply(options){
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
-        if(this.response)
+        if(this.response && !this.response.deleted)
             return this.response.edit(options);
         return super.reply(options);
     }
@@ -301,7 +301,9 @@ class InteractionCommandContext extends CommandContext {
             }
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
-        return this.interaction.editReply(options);
+        if(this.interaction.replied)
+            return this.interaction.editReply(options);
+        return this.interaction.reply(options);
     }
 
     getLang(key, values) {

@@ -31,7 +31,7 @@ module.exports = {
             expression.replace(/÷/g, "/");
             context.send(Discord.Util.escapeMarkdown(limitedEval(expression, scope).toString()).replace(/[@!#]/gi, ""));
         } catch (e) {
-            context.send({content: e.toString()});
+            context.send({content: e.toString() || "`No Output`"});
         }
     }
 };

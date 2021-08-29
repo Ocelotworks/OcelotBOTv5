@@ -271,7 +271,6 @@ module.exports = class Strings {
     };
     static TimezoneRegex = /(UTC|GMT)([+\-][0-9]+)/i;
 
-
     /**
      * Parse a timezone until a GMT offset
      * @param {number} tz Timezone

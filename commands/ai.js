@@ -15,7 +15,7 @@ let clev = new Cleverbot({
     key: config.get("API.cleverbot.key")
 });
 
-const genericResponses = ["huh?", "huh", "what?", "idk", "wdym", "what do you mean?", "i don't get it"];
+const genericResponses = ["huh?", "huh", "what?", "idk", "wdym", "what do you mean?", "i don't get it", "what are you talking about?", "I have no idea what you're talking about", "what??"];
 
 module.exports = {
     name: "Artificial Intelligence",

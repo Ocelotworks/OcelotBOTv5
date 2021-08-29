@@ -148,7 +148,7 @@ module.exports = {
             bot.logger.log({type: "messageSend", message: bot.util.serialiseMessage({
                     ...options,
                     channel: bot.client.channels.cache.get(this.channelId),
-                    guild: this.member.guild,
+                    guild: this.member?.guild,
                     member: this.member,
             })})
             return oldreply.apply(this, [options]);
@@ -338,7 +338,7 @@ module.exports = {
                     let webhookData = (await bot.database.getServerWebhook(guild.id))[0];
                     if (webhookData && webhookData.webhookID && webhookData.webhookToken) {
                         try {
-                            let webhook = new Discord.WebhookClient(webhookData.webhookID, webhookData.webhookToken);
+                            let webhook = new Discord.WebhookClient({id: webhookData.webhookID, token: webhookData.webhookToken});
                             await webhook.send("Thanks for trying OcelotBOT! If you have any feedback, please drop it in the support server: https://discord.gg/7YNHpfF");
                             bot.logger.log("Successfully sent webhook");
                             await webhook.delete("OcelotBOT was kicked");

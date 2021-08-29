@@ -56,10 +56,10 @@ module.exports = {
                     context.message?.delete();
                     let dm = await context.user.createDM();
                     return dm.send("You already have premium. If you have changed your premium plan, please contact Big P#1843");
-                }else if(message.channel.id === context.getSetting("premium.redeemChannel")){
+                }else if(context.channel.id === context.getSetting("premium.redeemChannel")){
                     context.message?.delete();
                     return redeemPremium(bot, context.user);
-                }else if(message.channel.id === context.getSetting("premium.server.redeemChannel")){
+                }else if(context.channel.id === context.getSetting("premium.server.redeemChannel")){
                     context.message?.delete();
                     return redeemServerPremium(bot, context.user);
                 }

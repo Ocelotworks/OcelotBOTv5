@@ -185,8 +185,8 @@ module.exports = class Util {
         let idleTimer;
 
         let clearButtons = async ()=>{
-            if(pages.length )
-            if(context.interaction || (sentMessage && !sentMessage.deleted) && !context.channel?.deleted && (!context.guild || context.guild.available)){
+            //if(pages.length )
+            if(context.interaction || (sentMessage && !sentMessage.deleted) && !context.channel?.deleted && (!context.guild || (context.guild.available && !context.guild.deleted))){
                 try{
                     context.edit({...await pageFormat(pages[index], index), components: []}, sentMessage);
                 }catch(e){
