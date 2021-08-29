@@ -12,6 +12,7 @@ module.exports = {
     detailedHelp: "Ice text font",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["icetext", "ice"],
+    slashCategory: "images",
     run: Image.CooltextGenerator({
         LogoID: 1779834160,
         FontSize: 70,

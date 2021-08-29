@@ -12,6 +12,7 @@ module.exports = {
     commands: ["mafia", "mafiaboss"],
     categories: ["memes"],
     guildOnly: true,
+    slashCategory: "images",
     run: async function run(context, bot) {
         const user1 =  (await context.guild.members.fetch(context.options.user1))?.user;
         const user2 =  (await context.guild.members.fetch(context.options.user2))?.user;

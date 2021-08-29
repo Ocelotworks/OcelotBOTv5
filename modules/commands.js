@@ -20,6 +20,7 @@ module.exports = class Commands {
     init() {
         this.bot.commandObjects = {};
         this.bot.commandUsages = {};
+        this.bot.slashCategories = [];
         this.bot.commands = {};
         this.bot.prefixCache = {};
 
@@ -71,7 +72,7 @@ module.exports = class Commands {
         // Slash Commands
         this.bot.client.on("interactionCreate", (interaction)=>{
             if(!interaction.isCommand())return; // Not a command
-            if(!this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
+            if(!(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand()) && !this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
             const context = new InteractionCommandContext(this.bot, interaction);
             context.commandData = this.bot.commandUsages[context.command];
             return this.runCommand(context);
@@ -321,6 +322,10 @@ module.exports = class Commands {
                     else
                         this.bot.logger.warn(`Command ${command} was reloaded but remains the same version.`);
                 }
+            }
+
+            if(loadedCommand.slashCategory && !this.bot.slashCategories.includes(loadedCommand.slashCategory)){
+                this.bot.slashCategories.push(loadedCommand.slashCategory);
             }
 
             if(loadedCommand.nestedDir){

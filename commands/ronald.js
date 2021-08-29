@@ -7,6 +7,7 @@ module.exports = {
     commands: ["ronald", "ronaldsays", "mcdonald"],
     categories: ["memes"],
     unwholesome: true,
+    slashCategory: "images",
     handleError: function(context){
         return context.sendLang("GENERIC_TEXT");
     },

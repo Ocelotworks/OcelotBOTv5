@@ -7,6 +7,7 @@ module.exports = {
     rateLimit: 10,
     categories: ["memes", "nsfw"],
     unwholesome: true,
+    slashCategory: "images",
     handleError: function(context){
         return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
     },

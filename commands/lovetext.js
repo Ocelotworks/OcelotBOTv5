@@ -11,6 +11,7 @@ module.exports = {
     categories: ["text"],
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["lovetext", "love"],
+    slashCategory: "images",
     run: Image.CooltextGenerator({
         "LogoID": 819721038,
         "FontSize": 70,

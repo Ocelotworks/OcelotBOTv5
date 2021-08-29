@@ -12,6 +12,7 @@ module.exports = {
     categories: ["fun", "image"],
     rateLimit: 100,
     commands: ["overlay", "combine"],
+    slashCategory: "images",
     run: async function run(context, bot) {
         const url1 = await Util.GetImage(bot, context, "image1", 0);
         const url2 = await Util.GetImage(bot, context, "image2", 1);

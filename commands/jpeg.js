@@ -13,6 +13,7 @@ module.exports = {
     detailedHelp: "JPEG-Ify an image",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jpeg", "jpg"],
+    slashCategory: "filter",
     slashHidden: true,
     run: async function (context, bot) {
         return Image.ImageFilter(bot, module.exports.usage, context,  "quality", [context.getSetting("jpeg.quality")], "JPEG");

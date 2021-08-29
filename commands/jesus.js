@@ -7,6 +7,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["jesus", "truth"],
     categories: ["memes"],
+    slashCategory: "images",
     handleError: function(context){
         return context.sendLang("GENERIC_TEXT");
     },

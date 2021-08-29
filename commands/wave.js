@@ -6,6 +6,7 @@ module.exports = {
     commands: ["wave", "wavey", "waves"],
     categories: ["image", "filter"],
     slashHidden: true,
+    slashCategory: "filter",
     run: async function (context, bot) {
         return Image.ImageFilter(bot, module.exports.usage, context, "wave", [10, 50]);
     }

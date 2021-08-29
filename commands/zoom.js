@@ -7,6 +7,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["zoom", "blur"],
     slashHidden: true,
+    slashCategory: "filter",
     run: async function (context, bot) {
         return Image.ImageFilter(bot, module.exports.usage, context,"motionBlur", [context.getSetting("zoom.radius"), context.getSetting("zoom.sigma")] )
     }
