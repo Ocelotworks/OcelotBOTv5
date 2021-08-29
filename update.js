@@ -1,7 +1,8 @@
 const targetVersion = process.env.TARGET_VERSION;
 const webhook = process.env.RELEASE_WEBHOOK_URL;
+const changelogWebhook = process.env.RELEASE_CHANGELOG_URL;
 const axios = require('axios');
-
+const fs = require('fs');
 const botName = process.env.BOT_NAME;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
@@ -48,6 +49,15 @@ async function check(){
     }
 
     if(count > 1800000 ){
+        try{
+            if(!changelogWebhook)return console.log("Skipping changelog because no changelog webhook");
+            const changelog = loadChangelog();
+            if(changelog.indexOf("NO CHANGELOG") > -1)return console.log("Skipping changelog because NO CHANGELOG was present");
+            await axios.post(changelogWebhook, {content: changelog.substring(0, 2000)});
+
+        }catch(e){
+            console.error(e);
+        }
         return sendWebhookMessage({
             "content": null,
             "embeds": [
@@ -114,6 +124,15 @@ async function sendWebhookMessage(data){
     messageId = result?.data?.id;
 }
 
+
+function loadChangelog(){
+    const file = fs.readFileSync("CHANGELOG.md").toString();
+    return file
+        .substring(file.indexOf("-->")+2)
+        .replace(/^## (.*)\n/gm, "**Release $1:**\n")
+        .replace(/^## (.*)\n/gm, "**$1**")
+        .replace(/ \(.*\)\n/gm, "\n");
+}
 
 sendWebhookMessage({
     "content": null,

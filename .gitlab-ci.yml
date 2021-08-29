@@ -207,9 +207,6 @@ release-monitor-staging:
   stage: post-release
   script:
     - export TARGET_VERSION=$(cat .next-version)
-    - cat CHANGELOG.md
-    - echo $RELEASE_API_URL
-    - echo $CI_ENVIRONMENT_NAME
     # NPM is so retarded that it can't install a single package without fucking with the package.json
     # Maybe that's my fault, this should probably be in a seperate package, but fuck you anyway
     - rm package.json
