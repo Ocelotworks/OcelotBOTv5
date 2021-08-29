@@ -410,7 +410,7 @@ module.exports = {
     },
     run: async function (context, bot) {
         const now = new Date();
-        const setReminder = bot.interactions.fullSuggestedCommand(context, `remind on 1st October at 00:00 "**The Spooking** starts now!"`);
+        const setReminder = bot.interactions.fullSuggestedCommand(context, `remind on 1st October at 00:00 **The Spooking** starts now!`);
         setReminder.label = "Set Reminder";
         setReminder.emoji = "⏱️";
         return context.sendLang({content: "SPOOK_TEASER", components: [bot.util.actionRow(setReminder)]}, {
