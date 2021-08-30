@@ -59,6 +59,9 @@ module.exports = {
 
         let lastCommands = await bot.database.getServerCommands(serverId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
         output.addField("Last 5 Commands", `Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)
-        return context.send({embeds: [output], components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, `ci ${lastCommands[0].id}`))]});
+        let components = [];
+        if(lastCommands[0])
+            components.push(bot.util.actionRow(bot.interactions.suggestedCommand(context, `ci ${lastCommands[0].id}`)));
+        return context.send({embeds: [output], components});
     }
 };

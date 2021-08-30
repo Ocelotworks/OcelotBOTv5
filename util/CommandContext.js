@@ -227,14 +227,14 @@ class InteractionCommandContext extends CommandContext {
         if(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand()) {
             this.command = interaction.options.getSubcommand();
             this.content = `/${interaction.commandName} ${interaction.options.getSubcommand()}`;
-            interaction.options.data[0].options.forEach((val)=>{
+            interaction.options?.data[0]?.options?.forEach((val)=>{
                 this.options[val.name]=val.value;
                 this.content += ` ${val.name}:${val.value}`
             });
         }else {
             this.command = interaction.commandName;
             this.content = `/${interaction.commandName}`
-            interaction.options.data.forEach((val)=>{
+            interaction.options.data?.forEach((val)=>{
                 this.options[val.name]=val.value;
                 this.content += ` ${val.name}:${val.value}`
             });
@@ -292,6 +292,9 @@ class InteractionCommandContext extends CommandContext {
                 id: this.interaction.id,
                 guild: this.interaction.guildId,
                 channel: this.interaction.channelId,
+                replied: this.interaction.replied,
+                deferred: this.interaction.deferred,
+                content: options,
             }
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
@@ -307,6 +310,9 @@ class InteractionCommandContext extends CommandContext {
                 id: this.interaction.id,
                 guild: this.interaction.guildId,
                 channel: this.interaction.channelId,
+                replied: this.interaction.replied,
+                deferred: this.interaction.deferred,
+                content: options,
             }
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});

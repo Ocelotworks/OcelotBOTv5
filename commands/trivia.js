@@ -102,9 +102,11 @@ module.exports = {
                     output += context.getLang("TRIVIA_WIN_SINGLE", {user: `<@${correct[0]}>`, points: difficulty});
                 else
                     output += context.getLang("TRIVIA_WIN", {users: correct.map((u)=>`<@${u}>`).join(", "), points: difficulty})
-                let suggestedButton = bot.interactions.fullSuggestedCommand(context, `trivia ${context.options.category}`);
-                suggestedButton.label = "Play Again";
-                suggestedButton.style = 1;
+                let suggestedButton = bot.interactions.fullSuggestedCommand(context, `trivia ${context.options.category || ""}`);
+                if(suggestedButton) {
+                    suggestedButton.label = "Play Again";
+                    suggestedButton.style = 1;
+                }
                 return context.send({content: output, components: [bot.util.actionRow(suggestedButton)]})
             }, 30000);
         }catch(e){

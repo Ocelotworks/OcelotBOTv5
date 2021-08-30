@@ -110,8 +110,9 @@ module.exports = {
             expires = null;
             options[0] = options[0].substring(7).trim();
         }else{
-            expires = new Date()
-            expires.setMinutes(expires.getMinutes()+1);
+            expires = null;
+            // expires = new Date()
+            // expires.setMinutes(expires.getMinutes()+1);
         }
 
         const pollID = (await bot.database.createPoll(expires, context.guild.id, context.channel.id, context.user.id))[0]
