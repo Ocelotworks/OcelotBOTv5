@@ -133,7 +133,7 @@ module.exports = class Image {
         request.metadata = {
             s: interaction.guild?.id,
             u: interaction.user.id,
-            c: interaction.channel.id,
+            c: interaction.channel?.id,
             m: interaction.id,
         };
         request.version = 1;
