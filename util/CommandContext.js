@@ -292,6 +292,9 @@ class InteractionCommandContext extends CommandContext {
                 id: this.interaction.id,
                 guild: this.interaction.guildId,
                 channel: this.interaction.channelId,
+                replied: this.interaction.replied,
+                deferred: this.interaction.deferred,
+                content: options,
             }
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
@@ -307,6 +310,9 @@ class InteractionCommandContext extends CommandContext {
                 id: this.interaction.id,
                 guild: this.interaction.guildId,
                 channel: this.interaction.channelId,
+                replied: this.interaction.replied,
+                deferred: this.interaction.deferred,
+                content: options,
             }
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
