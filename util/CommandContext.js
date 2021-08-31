@@ -136,7 +136,7 @@ class MessageCommandContext extends CommandContext {
         // How can this be possible?
         if(!this.message.channel)return this.bot.logger.warn("Channel was null? "+this.content);
         Sentry.addBreadcrumb({
-            message: "Command Send",
+            message: "Message Send",
             data: {
                 command: this.command,
                 id: this.message.id,
@@ -153,7 +153,7 @@ class MessageCommandContext extends CommandContext {
 
     async reply(options){
         Sentry.addBreadcrumb({
-            message: "Command Replied",
+            message: "Message Replied",
             data: {
                 command: this.command,
                 id: this.message.id,
@@ -177,7 +177,7 @@ class MessageCommandContext extends CommandContext {
 
     edit(options, message){
         Sentry.addBreadcrumb({
-            message: "Command Edited",
+            message: "Message Edited",
             data: {
                 command: this.command,
                 id: this.message.id,
