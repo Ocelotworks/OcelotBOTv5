@@ -6,6 +6,7 @@ module.exports = {
     name: "Poll",
     usage: "poll :options+",
     detailedHelp: "Separate each option in the poll with a comma. Optionally, you can specify a title with [brackets], or a time frame, or forever.",
+    usageExample: "poll 2 days [Which animal is better?], Cats, Dogs",
     categories: ["tools"],
     commands: ["poll"],
     requiredPermissions: ["READ_MESSAGE_HISTORY", "EMBED_LINKS"],
