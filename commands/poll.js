@@ -115,6 +115,10 @@ module.exports = {
             // expires.setMinutes(expires.getMinutes()+1);
         }
 
+        if(expires != null && expires.getTime() >= 2147483647000){
+            return context.send(`:stopwatch: A poll can't expire on or after the 19th of January 2038. If you need a poll that lasts forever, use **${context.getSetting("prefix")}poll forever, a, b, c**`);
+        }
+
         const pollID = (await bot.database.createPoll(expires, context.guild.id, context.channel.id, context.user.id))[0]
 
         let embed = new Embeds.AuthorEmbed(context);
