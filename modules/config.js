@@ -101,18 +101,20 @@ module.exports = {
         let cacheReloads = [];
 
         bot.bus.on("reloadConfig", (msg) => {
-            if (msg.payload === "global" || msg.payload == bot.util.shard || bot.client.guilds.cache.has(msg.payload)) {
-                if (cacheReloads[msg.payload]) return;
+            let guild = msg.payload;
+            if(msg.payload.guild)guild = msg.payload.guild;
+            if (guild === "global" || guild == bot.util.shard || bot.client.guilds.cache.has(guild)) {
+                if (cacheReloads[guild]) return;
 
-                cacheReloads[msg.payload] = setTimeout(function () {
-                    if (msg.payload === "global" || msg.payload == bot.util.shard) {
+                cacheReloads[guild] = setTimeout(function () {
+                    if (guild === "global" || guild == bot.util.shard) {
                         bot.config.loadGlobalCache();
                     } else {
-                        bot.config.reloadCacheForServer(msg.payload);
+                        bot.config.reloadCacheForServer(guild);
                     }
-                    delete cacheReloads[msg.payload];
+                    delete cacheReloads[guild];
                 }, 5000);
-                bot.logger.log("Broker requested config reload for " + msg.payload);
+                bot.logger.log("Broker requested config reload for " + guild);
             }
         })
 

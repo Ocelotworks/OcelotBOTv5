@@ -6,6 +6,7 @@ module.exports = {
     name: "Poll",
     usage: "poll :options+",
     detailedHelp: "Separate each option in the poll with a comma. Optionally, you can specify a title with [brackets], or a time frame, or forever.",
+    usageExample: "poll 2 days [Which animal is better?], Cats, Dogs",
     categories: ["tools"],
     commands: ["poll"],
     requiredPermissions: ["READ_MESSAGE_HISTORY", "EMBED_LINKS"],
@@ -113,6 +114,10 @@ module.exports = {
             expires = null;
             // expires = new Date()
             // expires.setMinutes(expires.getMinutes()+1);
+        }
+
+        if(expires != null && expires.getTime() >= 2147483647000){
+            return context.send(`:stopwatch: A poll can't expire on or after the 19th of January 2038. If you need a poll that lasts forever, use **${context.getSetting("prefix")}poll forever, a, b, c**`);
         }
 
         const pollID = (await bot.database.createPoll(expires, context.guild.id, context.channel.id, context.user.id))[0]

@@ -20,6 +20,15 @@ module.exports = {
             }
         });
 
+        function verify(member){
+            return async (interaction)=>{
+                if(!["145193838829371393", "139871249567318017", "112386674155122688", "145200249005277184"].includes(interaction.member.user.id))
+                    return {type: 4, data: {flags: 64, content: `Wait and a member of staff will be along to verify you shortly.`}};
+                await member.roles.remove("856657988629692486", "Verified by "+interaction.member.user.id);
+                return {type: 4, data: {content: `<@${member.id}> has been verified by <@${interaction.member.user.id}>`}};
+            }
+        }
+
         bot.client.on("guildMemberAdd", async (member)=>{
             if(member.guild.id !== "322032568558026753" || bot.client.user.id !== "146293573422284800")return;
             try {
@@ -31,7 +40,10 @@ module.exports = {
                 });
 
                 let channel = await bot.client.channels.fetch("856658218948624444");
-                await channel.send(`Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.`);
+                await channel.send({
+                    content: `Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.`,
+                    components: [bot.util.actionRow(bot.interactions.addAction("Verify", 1, verify(member), 1.08e+7, "✅"))]
+                });
             }catch(e){
                 bot.logger.error(e);
                 bot.raven.captureException(e);
