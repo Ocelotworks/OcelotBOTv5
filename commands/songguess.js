@@ -10,6 +10,7 @@ const {axios} = require('../util/Http');
 const config = require('config');
 const Sentry = require('@sentry/node');
 const cheerio = require('cheerio');
+const Embeds = require("../util/Embeds");
 // Start a random position in the playlist on startup, mostly for my sanity during testing
 let counter = Math.round(Math.random()*1000);
 
@@ -317,11 +318,11 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
             let points = 10;
             await bot.database.addPoints(winner.author.id, 10, `guess win`);
             let elapsed = winner.createdAt-guessStarted;
-            winEmbed.addFieldLang("SONGGUESS_WIN_TIME_TAKEN_TITLE", "SONGGUESS_WIN_TIME_TAKEN_VALUE", {elapsed: bot.util.prettySeconds(elapsed / 1000, winner.guild.id, winner.author.id)})
+            winEmbed.addFieldLang("SONGGUESS_WIN_TIME_TAKEN_TITLE", "SONGGUESS_WIN_TIME_TAKEN_VALUE", false, {elapsed: bot.util.prettySeconds(elapsed / 1000, winner.guild.id, winner.author.id)})
             if(!game.custom) {
                 const fastestGuess = await bot.database.getFastestSongGuess(loggedTrackName);
                 if (fastestGuess[0]) {
-                    winEmbed.addFieldLang("SONGGUESS_FASTEST_TIME_TITLE", "SONGGUESS_FASTEST_TIME_VALUE", {
+                    winEmbed.addFieldLang("SONGGUESS_WIN_FASTEST_TIME_TITLE", "SONGGUESS_WIN_FASTEST_TIME_VALUE", false,{
                         time: bot.util.prettySeconds(fastestGuess[0].time / 1000, winner.guild.id, winner.author.id),
                         user: await bot.util.getUserTag(fastestGuess[0].user)
                     })
@@ -337,7 +338,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                 }
             }
             if(game.textChannel.guild.getBool("points.enabled")){
-                winEmbed.addFieldLang("SONGGUESS_WIN_POINTS_TITLE", "SONGGUESS_WIN_POINTS_VALUE", {points})
+                winEmbed.addFieldLang("SONGGUESS_WIN_POINTS_TITLE", "SONGGUESS_WIN_POINTS_VALUE", false, {amount: points})
             }
             winEmbed.setFooterLang("SONGGUESS_WIN_FOOTER")
             bot.bus.emit("onGuessWin", {winner, game})
