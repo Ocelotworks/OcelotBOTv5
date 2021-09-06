@@ -67,7 +67,7 @@ module.exports = {
                     playlistName = context.getSetting("songguess.default");
                 else if(context.options.command.startsWith("http"))
                     playlistName = "<"+context.options.command+">";
-                return context.send(`Switched the playlist to **${playlistName}**\nThe next song will be from this playlist, or to start now type **${context.command} skip**`);
+                return context.sendLang("SONGGUESS_SWITCHED_PLAYLIST", {playlistName})
             }
             return context.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: module.exports.runningGames[context.guild.id].voiceChannel.name})
         }
@@ -115,12 +115,13 @@ async function startGame(bot, context, playlistId, custom){
     }, {selfdeaf: true})
 
     if(context.member.voice.channel.type === "stage"){
-        context.send(":warning: You need to promote me to speaker in order to listen!");
+        context.sendLang("VOICE_STAGE_SPEAKER");
     }
 
     module.exports.runningGames[context.guild.id] = {
         voiceChannel: context.member.voice.channel,
         textChannel: context.channel,
+        context,
         playlistId,
         player,
         custom,
@@ -175,7 +176,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
 
     if(!playlist || playlist.length === 0) {
         endGame(bot,  voiceChannel.guild.id);
-        return game.textChannel.send(":warning: The playlist you selected has no playable songs. This could be because the playlist is private, or because the playlist only contains songs that Spotify does not supply previews for.");
+        return game.context.sendLang("SONGGUESS_PLAYLIST_EMPTY");
     }
     let song = playlist[realIndex];
     if(!song) {
@@ -188,7 +189,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             Sentry.captureMessage("Failed to load song")
             counter = 0;
             endGame(bot, voiceChannel.guild.id);
-            return game.textChannel.send(`Failed to get the track data from spotify. Wait a minute or so and try again. If you keep getting this error, try a different playlist or reach out via ${game.textChannel.guild.getSetting("prefix")}feedback.`)
+            return game.context.sendLang("SONGGUESS_TRACK_FAILED")
         }else{
             counter = 0;
             song = playlist[0];
@@ -217,11 +218,11 @@ async function newGuess(bot, voiceChannel, retrying = false){
         }else{
             counter = 10;
             endGame(bot, voiceChannel.guild.id);
-            return game.textChannel.send("Failed to load song. Try again later.")
+            return game.context.sendLang("SONGGUESS_LOAD_FAILED");
         }
     }
     game.player.once("start", ()=>{
-        game.textChannel.send("Guess the name of this song, you have 30 seconds.");
+        game.context.sendLang("SONGGUESS");
         doGuess(bot, game.player, game.textChannel, song, game.voiceChannel);
     });
     return game.player.play(songData.track);
@@ -299,16 +300,16 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
         player.stop();
         const winner = collected.first();
         if(winner) {
-            const winEmbed = new Discord.MessageEmbed();
+            const winEmbed = new Embeds.LangEmbed(game.context);
             if(song.primary_color)
                 winEmbed.setColor(song.primary_color);
             else
                 winEmbed.setColor("#00ff00");
-            winEmbed.setTitle(`${winner.author.username} wins!`);
+            winEmbed.setTitleLang("SONGGUESS_WIN_TITLE", {username: winner.author.username})
             if(song.track.external_urls && song.track.external_urls.spotify)
-                winEmbed.setDescription(`The song was **[${loggedTrackName}](${song.track.external_urls.spotify})**`);
+                winEmbed.setDescriptionLang("SONGGUESS_WIN_DESCRIPTION_LINKED", {name: loggedTrackName, url: song.track.external_urls.spotify});
             else
-                winEmbed.setDescription(`The song was **${loggedTrackName}**`);
+                winEmbed.setDescriptionLang("SONGGUESS_WIN_DESCRIPTION", {name: loggedTrackName})
             if(song.track.images && song.track.images[0])
                 winEmbed.setThumbnail(song.track.images[0].url);
             else if(song.track.album && song.track.album.images && song.track.album.images[0])
@@ -316,11 +317,14 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
             let points = 10;
             await bot.database.addPoints(winner.author.id, 10, `guess win`);
             let elapsed = winner.createdAt-guessStarted;
-            winEmbed.addField(":stopwatch: Time Taken", bot.util.prettySeconds(elapsed / 1000, winner.guild.id, winner.author.id));
+            winEmbed.addFieldLang("SONGGUESS_WIN_TIME_TAKEN_TITLE", "SONGGUESS_WIN_TIME_TAKEN_VALUE", {elapsed: bot.util.prettySeconds(elapsed / 1000, winner.guild.id, winner.author.id)})
             if(!game.custom) {
                 const fastestGuess = await bot.database.getFastestSongGuess(loggedTrackName);
                 if (fastestGuess[0]) {
-                    winEmbed.addField(":timer: Fastest Time", `${bot.util.prettySeconds(fastestGuess[0].time / 1000, winner.guild.id, winner.author.id)} (${await bot.util.getUserTag(fastestGuess[0].user)})`);
+                    winEmbed.addFieldLang("SONGGUESS_FASTEST_TIME_TITLE", "SONGGUESS_FASTEST_TIME_VALUE", {
+                        time: bot.util.prettySeconds(fastestGuess[0].time / 1000, winner.guild.id, winner.author.id),
+                        user: await bot.util.getUserTag(fastestGuess[0].user)
+                    })
                 }
 
                 if (!fastestGuess[0] || fastestGuess[0].time > elapsed) {
@@ -328,22 +332,23 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                     if (fastestGuess[0]) {
                         await bot.database.addPoints(winner.author.id, 15, `guess record`);
                         points += 15;
-                        textChannel.send(":tada: You beat the fastest time for this song!");
+                        game.context.sendLang("SONGGUESS_RECORD");
                     }
                 }
             }
             if(game.textChannel.guild.getBool("points.enabled")){
-                winEmbed.addField("Points", `+<:points:817100139603820614>${points}`)
+                winEmbed.addFieldLang("SONGGUESS_WIN_POINTS_TITLE", "SONGGUESS_WIN_POINTS_VALUE", {points})
             }
-            winEmbed.setFooter(`ℹ BETA: Report any bugs with ${game.textChannel.guild.getSetting("prefix")}feedback`);
+            winEmbed.setFooterLang("SONGGUESS_WIN_FOOTER")
             bot.bus.emit("onGuessWin", {winner, game})
             bot.util.replyTo(winner, {embeds: [winEmbed]});
             game.failures = 0;
         }else {
             game.failures++;
-            let message = `:stopwatch: The song is over! The answer was **${song.track.artists.map((a) => a.name).join(", ")} - ${song.track.name}**`;
+            let message = game.context.getLang("SONGGUESS_OVER", {artists: song.track.artists.map((a) => a.name).join(", "), song: song.track.name});
             if( game.failures > 2){
-                message += `\n:thinking: Stuck? Try a different playlist from **${game.textChannel.guild.getSetting("prefix")}guess playlists**`
+                message += "\n";
+                message += game.context.getLang("SONGGUESS_OVER_STUCK");
             }
 
             textChannel.send(message);
@@ -351,21 +356,21 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
         if(game.ending)return;
         if(voiceChannel.members.filter((m)=>!m.user.bot).size < 1){
             endGame(bot,  voiceChannel.guild.id);
-            return textChannel.send(":zzz: Stopping because nobody is in the voice channel anymore.");
+            return game.context.sendLang("SONGGUESS_END_ALONE");
         }
         if((new Date()).getTime()-game.lastGuessTime > 70000){
             endGame(bot,  voiceChannel.guild.id);
-            return textChannel.send(":zzz: Stopping because nobody has guessed anything in a while.");
+            return game.context.sendLang("SONGGUESS_END_IDLE");
         }
         if(bot.drain){
             endGame(bot,  voiceChannel.guild.id);
-            return textChannel.send("OcelotBOT has received an update, please wait a few seconds and start your game again.");
+            return game.context.sendLang("SONGGUESS_END_DRAIN");
         }
         if(new Date().getTime()-guessStarted < 1000 && !winner) {
             endGame(bot,  voiceChannel.guild.id);
             return bot.logger.log("Track took less than a second to play, something bad happened");
         }
-        textChannel.send(`The next song will start shortly... (Type **${game.textChannel.guild.getSetting("prefix")}guess stop** to cancel)`);
+        game.context.sendLang("SONGGUESS_NEXT_TRACK");
         return game.timeout = setTimeout(()=>{
             newGuess(bot, voiceChannel)
         }, 3000);
