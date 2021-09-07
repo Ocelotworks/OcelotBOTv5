@@ -46,11 +46,12 @@ module.exports = {
             return context.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
 
         try {
+            const reminderResponse = await bot.database.addReminder(bot.client.user.id, context.user.id, context.guild ? context.guild.id : null, context.channel.id, at.getTime(), reminder, context.message?.id);
             context.sendLang("REMIND_SUCCESS", {
                 time: bot.util.prettySeconds((offset / 1000), context.guild && context.guild.id, context.user.id),
-                date: `<t:${Math.floor(at.getTime()/1000)}:F>`
+                date: `<t:${Math.floor(at.getTime()/1000)}:F>`,
+                id: reminderResponse[0],
             });
-            const reminderResponse = await bot.database.addReminder(bot.client.user.id, context.user.id, context.guild ? context.guild.id : null, context.channel.id, at.getTime(), reminder, context.message?.id);
             bot.util.setLongTimeout(async function () {
                 return context.commandData.sendReminder({
                     messageID: context.message?.id,

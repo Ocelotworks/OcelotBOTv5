@@ -1,4 +1,5 @@
 const Strings = require("../util/String");
+const uwuPhrases = ["owo", "oWo", "OwO", "UwU", "uwu", "~", "*nuzzles*", "hehe", ":3"]
 module.exports = class Lang {
     name = "Internationalisation";
     bot;
@@ -13,7 +14,7 @@ module.exports = class Lang {
             input = input.replace(/N([AEIOU])/g, 'Ny$1');
             input = input.replace(/([cv])([aeiou])/g, '$1w$2');
             input = input.replace(/ove/g, "uv");
-            input = input.replace(/:(.*?):/g, "<:cuteanimegrill:452909779480870922>"); //Sometimes the best solutions are the easiest ones.
+            input = input.replace(/:(.*?):/g, ()=>uwuPhrases[Math.floor(Math.random()*uwuPhrases.length)]);
             return input;
         }
     }
