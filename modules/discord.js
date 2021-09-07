@@ -283,14 +283,15 @@ module.exports = {
                     let mainChannel = bot.util.determineMainChannel(guild);
                     if (!bot.drain && bot.config.getBool("global", "welcome.enabled")) {
                         if (mainChannel) {
+                            const prefix = guild.getSetting("prefix");
                             bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
                             let embed = new Discord.MessageEmbed();
                             embed.setColor(bot.config.get("global", "welcome.embedColour"));
                             embed.setTitle("Welcome to OcelotBOT!");
-                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/commands) or by typing ${guild.getSetting("prefix")}help.`);
-                            embed.addField("Prefix", `The default prefix is !, if you want to change it type **${guild.getSetting("prefix")}settings set prefix %**`);
-                            embed.addField("Wholesome?", `Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **${guild.getSetting("prefix")}settings set wholesome true**`);
-                            embed.addField("Administrators", `You can change the bot's settings by typing **${guild.getSetting("prefix")}settings help**`);
+                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/commands?prefix=${encodeURIComponent(prefix)}) or by typing ${prefix}help.`);
+                            embed.addField("Prefix", `The prefix is set to ${prefix}, if you want to change it type **${prefix}settings set prefix ${prefix === "%" ? "!" : "%"}**`);
+                            embed.addField("Wholesome?", `Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **${prefix}settings set wholesome true**`);
+                            embed.addField("Administrators", `You can change the bot's settings by typing **${prefix}settings help**`);
                             embed.addField("Stuck?", "If you have issues or suggestions, type **!feedback** or join our [support server](https://discord.gg/7YNHpfF).");
                             embed.addField("Support", "You can support the bot by [voting](https://top.gg/bot/146293573422284800) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
                             mainChannel.send({embeds: [embed]});
