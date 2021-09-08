@@ -21,7 +21,7 @@ module.exports = {
             const subCommand = subCommands[id];
             if(subCommand.hidden)continue;
             if(context.getBool(`${context.command}.${subCommand.commands[0]}.disable`))continue;
-            output += `${subCommand.name} :: ${context.getSetting("prefix")}${context.command} ${Strings.PrintCommandUsage(subCommand.pattern)}\n`
+            output += `${subCommand.name} :: ${context.getSetting("prefix")}${context.command} ${subCommand.commands[0]} ${Strings.PrintCommandUsage(subCommand.pattern)}\n`
         }
         output += "\n```";
         return context.send({content: output, ephemeral: true});
