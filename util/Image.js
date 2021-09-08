@@ -189,7 +189,7 @@ module.exports = class Image {
         let response = await Image.#imageProcessor(bot, request);
         clearTimeout(loadingMessageDelay)
         span.end();
-        if(response.size && response.size >= 7000000 || message.channel.permissionsFor && !message.channel.permissionsFor(bot.client.user.id).has("ATTACH_FILES")){
+        if(response.size && response.size >= 7000000 || message.channel.permissionsFor && !message.channel?.permissionsFor?.(bot.client.user.id)?.has("ATTACH_FILES")){
             if(response.size >= 10000000){
                 await loadingMessage.editLang("IMAGE_PROCESSOR_ERROR_SIZE");
                 return;
