@@ -189,6 +189,10 @@ module.exports = class Image {
         let response = await Image.#imageProcessor(bot, request);
         clearTimeout(loadingMessageDelay)
         span.end();
+        if(!message.channel || message.channel.deleted){
+            bot.logger.log("Server was left or channel was deleted before image processor completed");
+            return null;
+        }
         if(response.size && response.size >= 7000000 || message.channel.permissionsFor && !message.channel?.permissionsFor?.(bot.client.user.id)?.has("ATTACH_FILES")){
             if(response.size >= 10000000){
                 await loadingMessage.editLang("IMAGE_PROCESSOR_ERROR_SIZE");
@@ -216,6 +220,11 @@ module.exports = class Image {
             return message.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
         }
         span = bot.util.startSpan("Upload image");
+        if(!message.channel || message.channel.deleted){
+            bot.logger.log("Server was left or channel was deleted before image upload completed");
+            span.end();
+            return null;
+        }
         let messageResult;
         let attachment = new Discord.MessageAttachment(response.path, `${name}.${response.extension}`);
         try {
