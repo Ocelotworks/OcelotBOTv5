@@ -31,9 +31,10 @@ module.exports = {
             output.addField("⚠ Guild Banned", `${banInfo[0].reason}`);
         }
 
-        if(bot.config.cache[serverId]){
-            output.addField("Settings Applied", `\`\`\`\n${Object.keys(bot.config.cache[serverId]).map((key)=>`${key}: ${bot.config.cache[serverId][key]}`).join("\n")}\n\`\`\``);
-        }
+        let result = await bot.database.getServerSettings(serverId, bot.client.user.id);
+        if(result)
+            output.addField("Settings Applied", `\`\`\`\n${result.map((row)=>`${row.setting}: ${row.value}`).join("\n")}\n\`\`\``);
+
 
         if(!process.env.CUSTOM_BOT) {
             const [joinedServer, leftServer] = await Promise.all([
