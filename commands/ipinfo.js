@@ -66,6 +66,7 @@ module.exports = {
                 for (let i = 0; i < torrentData.contents.length; i++) {
                     const torrent = torrentData.contents[i];
                     output += (await context.getLang("IPINFO_TORRENT", torrent))+"\n";
+                    if(output.length > 1800)break;
                 }
                 context.send(output);
             }
