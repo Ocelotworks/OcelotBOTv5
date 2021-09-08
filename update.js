@@ -44,16 +44,16 @@ async function check(){
                 }
             ]
         });
-        try{
-            if(!changelogWebhook)return console.log("Skipping changelog because no changelog webhook");
-            const changelog = loadChangelog();
-            if(changelog.indexOf("NO CHANGELOG") > -1)return console.log("Skipping changelog because NO CHANGELOG was present");
-            const result = await axios.post(changelogWebhook, {content: changelog.substring(0, 2000)});
-            console.log("Posted changelog");
-            console.log(result.data);
-        }catch(e){
-            console.error(e);
-        }
+        // try{
+        //     if(!changelogWebhook)return console.log("Skipping changelog because no changelog webhook");
+        //     const changelog = loadChangelog();
+        //     if(changelog.indexOf("NO CHANGELOG") > -1)return console.log("Skipping changelog because NO CHANGELOG was present");
+        //     const result = await axios.post(changelogWebhook, {content: changelog.substring(0, 2000)});
+        //     console.log("Posted changelog");
+        //     console.log(result.data);
+        // }catch(e){
+        //     console.error(e);
+        // }
         process.exit(0);
         return;
     }
