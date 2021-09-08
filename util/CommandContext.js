@@ -176,6 +176,8 @@ class MessageCommandContext extends CommandContext {
     }
 
     edit(options, message){
+        // I still don't understand how this can happen
+        if(!this.message.channel)return this.bot.logger.warn("Channel was null? "+this.content);
         Sentry.addBreadcrumb({
             message: "Message Edited",
             data: {
