@@ -63,6 +63,7 @@ module.exports = class Lang {
             format.fullCommandWithPrefix += ` ${context.options.command}`
         format.options = context.options;
         format.locale = context.getSetting("lang");
+        if(format.locale === "en-owo")format.locale = "en-gb";
         //format.timezone = context.getSetting("time.zone"); // TODO: Convert timezones
         return this.getTranslation(context.guild?.id || "global", key, format, context.user?.id);
     }
