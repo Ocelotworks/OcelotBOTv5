@@ -57,7 +57,7 @@ module.exports = {
                     messageID: context.message?.id,
                     receiver: bot.client.user.id,
                     channel: context.channel.id,
-                    server: context.guild.id,
+                    server: context.guild?.id,
                     id: reminderResponse[0],
                     user: context.user.id,
                     timestamp: now,
