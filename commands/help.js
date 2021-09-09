@@ -64,7 +64,7 @@ module.exports = {
                 output += `\`\`\`\nTo view custom commands help, type **${context.getSetting("prefix")}custom**`;
                 return context.send({content: output, ephemeral: true});
             }
-            return context.send({content: `:warning: This server does not have any Custom Commands setup! To learn more, type **${context.getSetting("prefix")}custom**`, ephemeral: true});
+            return context.sendLang({content: "HELP_NO_CUSTOM_COMMANDS", ephemeral: true});
         }
         if (!bot.commandCategories[context.options.command]) {
             if (!bot.commandUsages[context.options.command]) {

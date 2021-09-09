@@ -7,6 +7,7 @@
 const config = require('config');
 const request = require('request');
 const Discord = require('discord.js');
+const Embeds = require("../util/Embeds");
 
 const platforms = {
     pc: 5,
@@ -61,14 +62,13 @@ module.exports = {
                 return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
             if (body.errors) {
                 console.log(body.errors);
-                return context.send({content: `${body.errors[0].message}\nIf you're looking for an xbox or playstation player, try entering the platform. For example for xbox: ${context.command} xbl ${username}`, ephemeral: true});
+                return context.sendLang({content: "STATS_ERROR", ephemeral: true}, {message: body.error[0].message, username});
             }
             if (!body.data || !body.data.metadata)
-                return context.send({content: ":warning: No stats found for that user.", ephemeral: true});
+                return context.sendLang({content: "STATS_NOT_FOUND", ephemeral: true});
 
-            let embed = new Discord.MessageEmbed();
-
-            embed.setAuthor(`Apex Statistics for ${body.data.metadata.platformUserHandle}`, "https://i.imgur.com/GdYZo08.png");
+            let embed = new Embeds.LangEmbed(context);
+            embed.setAuthorLang("APEX_STATS_TITLE", {handle: body.data.metadata.platformUserHandle}, "https://i.imgur.com/GdYZo08.png")
             embed.setColor("#CD3333");
             if (body.data.children?.[0].metadata) {
                 embed.setDescription(body.data.children[0].metadata.legend_name);
@@ -78,7 +78,7 @@ module.exports = {
             //embed.setDescription(`Last match:\n${lastMatch.kills} kills, ${lastMatch.matches} matches.`);
             const stats = body.data.stats;
             if (!stats) {
-                return context.send({content: ":warning: No stats found for that user.", ephemeral: true});
+                return context.sendLang({content: "STATS_NO_STATS", ephemeral: true});
             } else {
                 for (let i = 0; i < stats.length; i++) {
                     const stat = stats[i];

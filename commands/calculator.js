@@ -29,9 +29,15 @@ module.exports = {
             let expression = context.options.sum;
             expression.replace(/×/g, "*");
             expression.replace(/÷/g, "/");
-            context.send(Discord.Util.escapeMarkdown(limitedEval(expression, scope).toString()).replace(/[@!#]/gi, ""));
+            const response = Discord.Util.escapeMarkdown(limitedEval(expression, scope).toString()).replace(/[@!#]/gi, "");
+            if(!response)
+                return context.sendLang("CALC_NO_OUTPUT");
+            return context.send(response);
         } catch (e) {
-            context.send({content: e.toString() || "`No Output`"});
+            const error = e.toString();
+            if(!error)
+                return context.sendLang("CALC_NO_OUTPUT");
+            return context.send({content: error});
         }
     }
 };

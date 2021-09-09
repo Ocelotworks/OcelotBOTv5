@@ -15,7 +15,7 @@ module.exports = {
             let heads = 0;
             for(let i = 0; i < coins; i++)
                 if(Math.random() > 0.5)heads++;
-            return context.send(`Flipped ${coins.toLocaleString()} coins:\n:full_moon: **${heads.toLocaleString()}** HEADS\n:new_moon: **${(coins-heads).toLocaleString()}** TAILS`);
+            return context.sendLang({content: "FLIP_MULTIPLE"}, {coins, heads, tails: coins-heads});
         }
         return context.sendLang("FLIP_" + (Math.random() > 0.5 ? "HEADS" : "TAILS"))
     }

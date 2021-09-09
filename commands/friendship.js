@@ -20,7 +20,7 @@ module.exports = {
         const user2 = (context.channel.guildMembers || context.channel.members).get(context.options.user2)?.user;
 
         if(!user1 || !user2)
-            return context.send({content:`:bangbang: You must enter 2 users. e.g ${context.command} ${context.user} ${bot.client.user}`, ephemeral: true});
+            return context.sendLang({content: "MAFIA_NOT_ENOUGH_USERS", ephemeral: true}, {them: context.user, me: bot.client.user});
 
         return Image.ImageProcessor(bot, context, {
             "components": [

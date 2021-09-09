@@ -178,7 +178,7 @@ module.exports = {
             delete runningGames[context.channel.id];
         },
         notation: function (context) {
-            return context.send({content: "https://en.wikipedia.org/wiki/Algebraic_notation_(chess)#Notation_for_moves", ephemeral: true});
+            return context.sendLang({content: "CHESS_NOTATION", ephemeral: true});
         }
     }
 };
