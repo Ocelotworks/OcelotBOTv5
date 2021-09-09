@@ -80,6 +80,10 @@ module.exports = {
 
             setTimeout(()=>{
                 removeGame(context.channel.id);
+                if(!context.channel || context.channel.deleted || !context.guild || context.guild.deleted){
+                    bot.logger.log("Guild or channel was deleted before game completed");
+                    return;
+                }
                 let correct = [];
                 context.edit({components: []}, sentMessage);
                 const users = Object.keys(userAnswers);
@@ -93,8 +97,6 @@ module.exports = {
 
                 }
 
-                console.log(correct);
-                console.log(userAnswers);
                 let output = `${context.getLang("TRIVIA_TIME_END", {answer: correctAnswer})}\n`;
                 if(correct.length === 0)
                     output += context.getLang("TRIVIA_WIN_NONE");

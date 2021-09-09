@@ -4,6 +4,7 @@ module.exports = class Lang {
     name = "Internationalisation";
     bot;
     strings = {};
+    usedStrings = [];
     langGenerators = {
         "en-owo": function (input) {
             if (input.indexOf("http") > -1 || input.indexOf("```") > -1) return input; //Can't be fucked dealing with trying to fix this
@@ -63,6 +64,7 @@ module.exports = class Lang {
             format.fullCommandWithPrefix += ` ${context.options.command}`
         format.options = context.options;
         format.locale = context.getSetting("lang");
+        if(format.locale === "en-owo")format.locale = "en-gb";
         //format.timezone = context.getSetting("time.zone"); // TODO: Convert timezones
         return this.getTranslation(context.guild?.id || "global", key, format, context.user?.id);
     }
@@ -79,6 +81,7 @@ module.exports = class Lang {
     }
 
     getTranslation(server, key, format = {}, author) {
+        this.usedStrings.push(key);
         format.prefix = this.bot.config.get(server, "prefix", author);
         format.botName = this.bot.client.user.username;
         const langOverride = this.bot.config.get(server, "lang." + key, author);

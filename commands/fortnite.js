@@ -46,7 +46,7 @@ module.exports = {
         //embed.setDescription(`Last match:\n${lastMatch.kills} kills, ${lastMatch.matches} matches.`);
         const stats = result.data.lifeTimeStats;
         if(!stats){
-            context.send({content: ":warning: No stats found for that user.", ephemeral: true});
+            return context.sendLang({content: "STATS_NOT_FOUND", ephemeral: true});
         }else {
             for (let i = 0; i < stats.length; i++) {
                 const stat = stats[i];

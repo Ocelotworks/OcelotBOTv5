@@ -20,6 +20,21 @@
       "max": 20
     }
   },
+  "Cockroach": {
+    "client": "pg",
+    "connection": {
+      "host": "",
+      "port": 26257,
+      "user": "",
+      "password": "",
+      "database": "",
+      "charset": "utf8mb4_general_ci"
+    },
+    "pool": {
+      "min": 0,
+      "max": 20
+    }
+  },
   "InfluxDB": {
     "host": "",
     "database": "",

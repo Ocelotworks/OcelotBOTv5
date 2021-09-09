@@ -527,7 +527,7 @@ module.exports = class Commands {
             if(process.env.VERSION === "indev"){
                 exceptionID = e.message;
             }
-            if(context.channel?.permissionsFor?.(this.bot.client.user.id).has("EMBED_LINKS")) {
+            if(context.channel?.permissionsFor?.(this.bot.client.user.id)?.has("EMBED_LINKS")) {
                 let errorEmbed = new Embeds.LangEmbed(context);
                 errorEmbed.setColor("#ff0000");
                 errorEmbed.setTitle("An Error Occurred");

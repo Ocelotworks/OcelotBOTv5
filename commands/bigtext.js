@@ -17,7 +17,7 @@ module.exports = {
         // As slash commands can't upload files, this command can't be done yet as
         // it doesn't use the image processor so can't upload to imgur.
         if(!context.message)
-            return context.send({content: "This command does not support slash commands", ephemeral: true})
+            return context.sendLang({content: "GENERIC_SLASH_COMMANDS", ephemeral: true})
 
         let mention = Strings.GetEmojiURLFromMention(context.options.text);
         if(mention)

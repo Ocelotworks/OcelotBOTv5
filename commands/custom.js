@@ -52,12 +52,16 @@ module.exports = {
                             interval.clear();
                         }
                     }catch(e){
-                        channel.send(`:warning: An internal error occurred running custom function ${cron.id}`).catch((e)=>{
+                        const errorId =  Sentry.captureException(e);
+                        const message = bot.lang.getTranslation(channel.guild.id, "CUSTOM_SCHEDULE_INTERNAL_ERROR", {
+                            id: cron.id,
+                            code: errorId,
+                        })
+                        channel.send(message).catch((e)=>{
                             bot.logger.log(e);
                             interval.clear()
                         });
                         bot.logger.log(e);
-                        Sentry.captureException(e);
                     }
                 }, trigger);
                 cronIntervals.push(interval);

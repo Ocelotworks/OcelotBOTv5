@@ -176,6 +176,8 @@ class MessageCommandContext extends CommandContext {
     }
 
     edit(options, message){
+        // I still don't understand how this can happen
+        if(!this.message.channel)return this.bot.logger.warn("Channel was null? "+this.content);
         Sentry.addBreadcrumb({
             message: "Message Edited",
             data: {
@@ -207,7 +209,7 @@ class MessageEditCommandContext extends MessageCommandContext {
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
         if(this.response && !this.response.deleted)
             return this.response.edit(options);
-        return super.reply(options);
+        return super.send(options);
     }
 
     async reply(options){
