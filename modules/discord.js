@@ -171,7 +171,7 @@ module.exports = {
                     type: "LISTENING",
                 }
             },
-            partials: ["REACTION"],
+            partials: ["REACTION", "CHANNEL"],
             intents: [
                 // "GUILD_PRESENCES", // Spooking
                 "GUILDS",
@@ -180,7 +180,7 @@ module.exports = {
                 "GUILD_VOICE_STATES", // Needed for voice commands
                 "GUILD_MESSAGE_REACTIONS", // Non-button reaction events
                 "DIRECT_MESSAGES",
-                "DIRECT_MESSAGE_REACTIONS" // Non-button reaction events e.g trivia, poll
+                //"DIRECT_MESSAGE_REACTIONS" // Non-button reaction events e.g trivia, poll
             ]
         };
 
