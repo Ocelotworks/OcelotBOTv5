@@ -7,7 +7,7 @@ ENV VERSION=$VERSION
 
 COPY . .
 
-RUN rm -r consumers
+#RUN rm -r consumers
 
 RUN npm install googleapis cheerio redis --registry=http://192.168.1.145/
 
