@@ -44,7 +44,7 @@ module.exports = {
                 return false;
             }
             return true;
-        });
+        }, "Premium", 80);
     },
     run: async function run(context, bot){
         if(context.options.key){

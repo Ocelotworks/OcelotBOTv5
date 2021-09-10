@@ -15,6 +15,6 @@ module.exports = {
             if (!canUse)
                 context.replyLang({content: "POINTS_REQUIRED", ephemeral: true}, {points: context.commandData.pointsCost})
             return canUse;
-        })
+        }, "Points Cost")
     },
 };

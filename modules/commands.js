@@ -8,8 +8,13 @@ const {crc32} = require("crc");
 const commandParser = require('command-parser').default;
 module.exports = class Commands {
 
+    // The OcelotBOT instance
     bot;
-    commandMiddleware = [];
+    // The Command Middlewares, mapped by their name
+    commandMiddleware = {};
+    // The Command Middleware names in the order they are executed
+    middlewareOrder = [];
+
     name = "Commands";
     
     constructor(bot){
@@ -36,217 +41,141 @@ module.exports = class Commands {
             }
         })
 
-        this.bot.client.on("ready", async ()=>{
-            let commands = await this.bot.database.getCustomFunctionsForShard("COMMAND", [...this.bot.client.guilds.cache.keys()]);
-            for(let i = 0; i < commands.length; i++){
-                const command = commands[i];
-                if(this.bot.customFunctions.COMMAND[command.server])
-                    this.bot.customFunctions.COMMAND[command.server][command.trigger] = command.function;
-                else
-                    this.bot.customFunctions.COMMAND[command.server] = {[command.trigger]: command.function};
-            }
-        })
-
-        this.bot.client.on("messageCreate", (message)=>{
-            if (this.bot.drain || (message.author.bot && message.author.id !== "824045686600368189")) return;
-            const parse = this.parseCommand(message);
-            if(!parse)return;
-            const context = this.initContext(new MessageCommandContext(this.bot, message, parse.args, parse.command));
-            if(!context)return;
-            if(context.getBool("disableMessageCommands"))return console.log("Message commands disabled");
-            return this.runCommand(context);
-        });
-
-        this.bot.client.on("messageUpdate", (oldMessage, newMessage)=>{
-            if (this.bot.drain || newMessage.author.bot) return;
-            if(oldMessage.content == newMessage.content)return;
-            if(oldMessage.response?.deleted)return this.bot.logger.log("Edited message response was deleted");
-            const parse = this.parseCommand(newMessage);
-            if(!parse)return;
-            const context = this.initContext(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
-            if(!context)return;
-            if(context.getBool("disableMessageCommands"))return console.log("Message commands disabled");
-            return this.runCommand(context);
-        })
-
-        // Slash Commands
-        this.bot.client.on("interactionCreate", (interaction)=>{
-            if(!interaction.isCommand())return; // Not a command
-            if(!(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand()) && !this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
-            const context = new InteractionCommandContext(this.bot, interaction);
-            context.commandData = this.bot.commandUsages[context.command];
-            return this.runCommand(context);
-        })
-
-        // Context Menu
-        this.bot.client.on("interactionCreate", async (interaction)=>{
-            if(!interaction.isContextMenu())return console.log("not a context menu"); // Not a context menu
-            const commandName = interaction.commandName.split("/")[1];
-            const commandData = this.bot.commandUsages[commandName];
-            if(!commandData)return console.log("Unknown command interaction", commandName); // No such command
-            if(!commandData.contextMenu)return console.log("Context menu interaction for non-context menu command");
-            const context = new InteractionCommandContext(this.bot, interaction);
-            context.command = commandName;
-            context.commandData = this.bot.commandUsages[context.command];
-            try {
-                switch (commandData.contextMenu.type) {
-                    case "text":
-                        context.options[commandData.contextMenu.value] = (await context.channel.messages.fetch(interaction.targetId)).content;
-                        break;
-                    case "message":
-                    case "user":
-                        context.options[commandData.contextMenu.value] = interaction.targetId;
-                        break;
-                }
-            }catch(e){
-                console.error(e);
-            }
-
-            return this.runCommand(context);
-        })
+        this.bot.client.on("ready", this.onDiscordReady.bind(this));
+        this.bot.client.on("messageCreate", this.onMessageCreate.bind(this));
+        this.bot.client.on("messageUpdate", this.onMessageUpdate.bind(this));
+        this.bot.client.on("interactionCreate", this.onSlashCommandInteraction.bind(this));
+        this.bot.client.on("interactionCreate", this.onContextInteraction.bind(this));
 
 
         this.bot.runCommand = this.runCommand.bind(this);
         this.bot.addCommandMiddleware = this.addCommandMiddleware.bind(this);
 
+        this.addCommandMiddleware(require('../util/middleware/CheckSendPermissions'), "Check Send Permissions", 100);
+        this.addCommandMiddleware(require('../util/middleware/NSFWChannels'), "Check NSFW Channels", 99);
+        this.addCommandMiddleware(require('../util/middleware/CommandOverride'), "Command Override", 97);
+        this.addCommandMiddleware(require('../util/middleware/CheckPermissions'), "Check Permissions", 98);
+        this.addCommandMiddleware(require('../util/middleware/Notices'), "Send Notices", 96);
 
-        // Permissions checks
-        this.addCommandMiddleware((context)=>{
-            const subCommandData = context.commandData.subCommands?.[context.options.command];
-            const commandData = context.commandData;
-            // This feels wrong but I need to get the
-            const guildOnly = commandData.guildOnly || subCommandData?.guildOnly;
-            const noSynthetic = commandData.noSynthetic || subCommandData?.noSynthetic;
-            const settingsOnly = commandData.settingsOnly || subCommandData?.settingsOnly;
-            const userPermissions = commandData.userPermissions ? subCommandData?.userPermissions ? commandData.userPermissions.concat(subCommandData?.userPermissions) : commandData.userPermissions : subCommandData?.userPermissions;
-            const adminOnly = commandData.adminOnly || subCommandData?.adminOnly;
-            // Only allow Guild Only commands to be ran in a Guild
-            if(guildOnly && !context.guild){
-                context.replyLang({content: "GENERIC_DM_CHANNEL", ephemeral: true});
-                return false;
-            }
-
-            // Don't allow this command inside custom commands
-            if(context.message && context.message.synthetic && noSynthetic){
-                context.replyLang({content: "GENERIC_CUSTOM_COMMAND", ephemeral: true})
-                return false
-            }
-
-            // Override the next checks for admins
-            if(context.getBool("admin"))return true;
-
-            if(settingsOnly && !this.bot.util.canChangeSettings(context)){
-                if(context.getSetting("settings.role") === "-")
-                    return context.replyLang({content: "GENERIC_ADMINISTRATOR", ephemeral: true});
-                return context.replyLang("SETTINGS_NO_ROLE", {role: context.getSetting("settings.role")});
-            }
-
-            // Check permissions in Guilds
-            if(context.member && userPermissions && !context.channel.permissionsFor(context.member).has(userPermissions)){
-                context.replyLang({content: "GENERIC_USER_PERMISSIONS", ephemeral: true}, {permissions: userPermissions.map((p)=>Strings.Permissions[p]).join(", ")})
-                return false
-            }
-
-            return !(adminOnly);
-        })
-
-        // Disable in NSFW channels
-        this.addCommandMiddleware((context)=>{
-            if (!context.channel?.nsfw && context.commandData.categories.indexOf("nsfw") > -1) {
-                context.replyLang({content: "GENERIC_NSFW_CHANNEL", ephemeral: true});
-                return false;
-            }
-            return true;
-        });
-
-        // Override commands
-        this.addCommandMiddleware((context)=> {
-            if (context.getSetting(`${context.command}.override`)) {
-                context.send(context.getSetting(`${context.command}.override`));
-                return false;
-            }
-            return true;
-        });
-
-        this.addCommandMiddleware((context)=>{
-            return !this.bot.checkBan(context)
-        });
-
-        // Ratelimits
-        this.addCommandMiddleware((context)=>{
-            if (!this.bot.isRateLimited(context.user?.id, context.user?.id || "global")) return true;
-            this.bot.bus.emit("commandRatelimited", context);
-            this.bot.logger.warn(`${context.user.username} (${context.user.id}) in ${context.guild?.name || "DM"} (${context.guild?.id || context.channel?.id}) was ratelimited`);
-            if (this.bot.rateLimits[context.user.id] < context.getSetting("rateLimit.threshold")) {
-                const now = new Date();
-                const timeDifference = now - this.bot.lastRatelimitRefresh;
-                let timeLeft = 60000 - timeDifference;
-                context.replyLang({
-                    content: "COMMAND_RATELIMIT",
-                    ephemeral: true
-                }, {timeLeft: this.bot.util.prettySeconds(timeLeft / 1000, context.guild?.id, context.user?.id)});
-                this.bot.rateLimits[context.user.id] += context.commandData.rateLimit || 1;
-            }
-            return false;
-        })
-
-
-        // Notices
-        this.addCommandMiddleware((context)=>{
-            if(!context.guild)return true;
-            if (context.getSetting("notice")) {
-                context.send(context.getSetting("notice"));
-                this.bot.database.deleteSetting(context.guild.id, "notice");
-                if (this.bot.config.cache[context.guild.id])
-                    this.bot.config.cache[context.guild.id].notice = null;
-            }
-            return true;
-        })
-
-        // Message permissions
-        this.addCommandMiddleware(async (context)=>{
-            if (context.channel?.permissionsFor) {
-                const permissions = await context.channel.permissionsFor(this.bot.client.user);
-
-                if (!permissions || (context.message && !permissions.has("SEND_MESSAGES"))) {
-                    this.bot.logger.log({
-                        type: "commandPerformed",
-                        success: false,
-                        outcome: "No Permissions"
-                    })
-                    const dm = await context.user.createDM();
-                    dm.send(":warning: I don't have permission to send messages in that channel.");
-                    //TODO: COMMAND_NO_PERMS lang key
-                    return false;
-                }
-
-                if (context.commandData.requiredPermissions && !permissions.has(context.commandData.requiredPermissions)) {
-                    let permission = context.commandData.requiredPermissions.map((p)=>this.bot.util.permissionsMap[p]).join();
-                    context.replyLang({content: "GENERIC_BOT_PERMISSIONS", ephemeral: true}, {permission});
-                    return false;
-                }
-            }
-            return true;
-        })
 
         this.loadCommands();
     }
 
+    /**
+     * Load all the custom functions when Discord has logged in successfully and we have a guild list
+     * @returns {Promise<void>}
+     */
+    async onDiscordReady(){
+        let commands = await this.bot.database.getCustomFunctionsForShard("COMMAND", [...this.bot.client.guilds.cache.keys()]);
+        for(let i = 0; i < commands.length; i++){
+            const command = commands[i];
+            if(this.bot.customFunctions.COMMAND[command.server])
+                this.bot.customFunctions.COMMAND[command.server][command.trigger] = command.function;
+            else
+                this.bot.customFunctions.COMMAND[command.server] = {[command.trigger]: command.function};
+        }
+    }
+
+    /**
+     * Try and parse messages as commands
+     * @param message
+     * @returns {Promise<*|void>|void}
+     */
+    onMessageCreate(message){
+        if (this.bot.drain || (message.author.bot && message.author.id !== "824045686600368189")) return; // 824045686600368189 = Watson, a bot that is allowed to use OcelotBOT
+        const parse = this.parseCommand(message);
+        if(!parse)return;
+        const context = this.initContext(new MessageCommandContext(this.bot, message, parse.args, parse.command));
+        if(!context)return;
+        if(context.getBool("disableMessageCommands"))return console.log("Message commands disabled");
+        return this.runCommand(context);
+    }
+
+    /**
+     * Edited messages are checked again and reparsed as commands
+     * @param oldMessage
+     * @param newMessage
+     * @returns {Promise<*|void>|void}
+     */
+    onMessageUpdate(oldMessage, newMessage){
+        if (this.bot.drain || newMessage.author.bot) return;
+        if(oldMessage.content == newMessage.content)return;
+        if(oldMessage.response?.deleted)return this.bot.logger.log("Edited message response was deleted");
+        const parse = this.parseCommand(newMessage);
+        if(!parse)return;
+        const context = this.initContext(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
+        if(!context)return;
+        if(context.getBool("disableMessageCommands"))return console.log("Message commands disabled");
+        return this.runCommand(context);
+    }
+
+    /**
+     * Slash command interactions are parsed here
+     * @param interaction
+     * @returns {Promise<*|void>|void}
+     */
+    onSlashCommandInteraction(interaction){
+        if(!interaction.isCommand())return; // Not a command
+        if(!(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand()) && !this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
+        const context = new InteractionCommandContext(this.bot, interaction);
+        context.commandData = this.bot.commandUsages[context.command];
+        return this.runCommand(context);
+    }
+
+    /**
+     * Context Menu Interactions are here
+     * Context menus are treated as if the user performed a command with
+     * parameters that are specified by the command metadata, depending on the
+     * type of context menu this is
+     * @param interaction
+     * @returns {Promise<*|void>}
+     */
+    async onContextInteraction(interaction){
+        if(!interaction.isContextMenu())return console.log("not a context menu"); // Not a context menu
+        const commandName = interaction.commandName.split("/")[1];
+        const commandData = this.bot.commandUsages[commandName];
+        if(!commandData)return console.log("Unknown command interaction", commandName); // No such command
+        if(!commandData.contextMenu)return console.log("Context menu interaction for non-context menu command");
+        const context = new InteractionCommandContext(this.bot, interaction);
+        context.command = commandName;
+        context.commandData = this.bot.commandUsages[context.command];
+        try {
+            switch (commandData.contextMenu.type) {
+                case "text":
+                    context.options[commandData.contextMenu.value] = (await context.channel.messages.fetch(interaction.targetId)).content;
+                    break;
+                case "message":
+                case "user":
+                    context.options[commandData.contextMenu.value] = interaction.targetId;
+                    break;
+            }
+        }catch(e){
+            console.error(e);
+        }
+
+        return this.runCommand(context);
+    }
+
+    /**
+     * Parses the basic data about the command and validates it's existence
+     * @param message
+     * @returns {{args: *, command: string}|null}
+     */
     parseCommand(message){
         const prefix = message.getSetting("prefix");
-        if (!prefix) return;//Bot hasn't fully loaded
+        if (!prefix) return null;//Bot hasn't fully loaded
         const prefixLength = prefix.length;
-        if (!message.content.startsWith(prefix))return;
+        if (!message.content.startsWith(prefix))return null;
         const args = message.content.split(/\s+/g);
         const command = args[0].substring(prefixLength).toLowerCase();
-        if(!this.bot.commandUsages[command] && !this.bot.customFunctions.COMMAND[message.guild?.id] )return;
+        if(!this.bot.commandUsages[command] && !this.bot.customFunctions.COMMAND[message.guild?.id] )return null;
         return {args, command};
     }
 
     /**
-     * Fills the data into a MessageCommandContext
+     * Populates the parsed command argument data into a MessageCommandContext
      * @param {MessageCommandContext} context
-     * @returns {null|MessageCommandContext}
+     * @returns {MessageCommandContext}
      */
     initContext(context){
         context.commandData = this.bot.commandUsages[context.command];
@@ -261,6 +190,9 @@ module.exports = class Commands {
         return context;
     }
 
+    /**
+     * Load all the commands from the command dir
+     */
     loadCommands () {
         fs.readdir(`${__dirname}/../commands`, (err, files)=>{
             if (err) {
@@ -286,6 +218,12 @@ module.exports = class Commands {
         });
     }
 
+    /**
+     * Load an individual command object
+     * @param command
+     * @param {boolean} reload Is this a reload or a fresh load
+     * @returns {Promise<void>}
+     */
     async loadCommand(command, reload) {
         try {
             const module = `${__dirname}/../commands/${command}`;
@@ -367,6 +305,12 @@ module.exports = class Commands {
         }
     };
 
+    /**
+     * Loads sub commands for a specific command
+     * @param loadedCommand
+     * @param {string} path For nested commands, this is the require path
+     * @returns {Promise<unknown>}
+     */
     loadSubcommand(loadedCommand, path = "commands"){
         return new Promise((resolve)=>{
         this.bot.logger.log(`Loading nested commands for ${loadedCommand.name}`);
@@ -381,6 +325,7 @@ module.exports = class Commands {
                     try {
                         this.bot.logger.log(`Loading sub-command for ${loadedCommand.name}: ${loadedCommand.nestedDir}/${files[i]}`)
                         const command = require(`../${path}/${loadedCommand.nestedDir}/${files[i]}`);
+                        // The highest premium tier gets a custom hosted bot, some commands are disabled for them so they can't fuck shit up
                         if (command.customDisabled && process.env.CUSTOM_BOT) continue;
                         if (command.init) {
                             this.bot.logger.log(`Init for ${loadedCommand.name}/${command.name}`);
@@ -391,6 +336,7 @@ module.exports = class Commands {
                         command.pattern = commandParser.BuildPattern(command.commands[0], command.usage).pattern;
 
                         // TODO: Subcommands
+                        // Slash commands don't support nested commands just yet
                         loadedCommand.slashHidden = true;
 
                         for (let i = 0; i < command.commands.length; i++) {
@@ -411,13 +357,26 @@ module.exports = class Commands {
         });
     }
 
-    addCommandMiddleware(func){
-        this.commandMiddleware.push(func);
+    /**
+     * Adds a command middleware
+     * @param func
+     * @param name
+     * @param priority
+     */
+    addCommandMiddleware(func, name, priority = 0){
+        if(!name){
+            name = `Unnamed Middleware ${this.middlewareOrder.length+1}`;
+        }
+        this.commandMiddleware[name] = {priority, func};
+        this.middlewareOrder.push(name);
+        this.middlewareOrder.sort((a, b)=>this.commandMiddleware[b].priority-this.commandMiddleware[a].priority);
     }
 
     async runCommandMiddleware(context){
-        for(let i = 0; i < this.commandMiddleware.length; i++){
-            const middlewareResult = await this.commandMiddleware[i](context);
+        for(let i = 0; i < this.middlewareOrder.length; i++){
+            const middlewareData = this.commandMiddleware[this.middlewareOrder[i]];
+            if(middlewareData.priority < 0)continue;
+            const middlewareResult = await middlewareData.func(context, this.bot);
 
             if(!middlewareResult){
                 return false;
@@ -427,7 +386,7 @@ module.exports = class Commands {
     }
 
     /**
-     * Runs a command
+     * Runs a command given a specific context
      * @param {CommandContext} context
      * @returns {Promise<*|void|*>}
      */
