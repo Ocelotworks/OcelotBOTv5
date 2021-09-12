@@ -7,6 +7,9 @@ module.exports = {
         let target = context.user;
         if (context.options.user)
             target = await context.getMember(context.options.user)?.user;
+        if(!target){
+            return context.send("Couldn't find that user.");
+        }
         let embed = new Discord.MessageEmbed();
         embed.setTitle(`Current Balance`);
         embed.setAuthor(target.username, target.avatarURL());

@@ -425,6 +425,21 @@ module.exports = class Strings {
         return output;
     }
 
+    static GetNumberPrefix(i) {
+        let j = i % 10,
+            k = i % 100;
+        if (j === 1 && k !== 11) {
+            return i + "st";
+        }
+        if (j === 2 && k !== 12) {
+            return i + "nd";
+        }
+        if (j === 3 && k !== 13) {
+            return i + "rd";
+        }
+        return i + "th";
+    }
+
     /**
      * Adds ellipses to the end of a string if it's too long
      * @param {string} string
@@ -454,13 +469,19 @@ module.exports = class Strings {
                     return Strings.PrettyMemory(output);
                 case "icon":
                     return Icons[output];
+                case "timestamp":
+                    if(!output.getTime)return `{Value ${split[1]} must be a Date, got ${typeof split[1]}}`
+                    return `<t:${Math.floor(output.getTime()/1000)}>`;
                 case "number":
                     return parseInt(output).toLocaleString(values.locale)
                 case "date":
+                    if(!output.toLocaleDateString)return `{Value ${split[1]} must be a Date, got ${typeof split[1]}}`
                     return output.toLocaleDateString(values.locale, {timeZone: values.timezone});
                 case "time":
+                    if(!output.toLocaleTimeString)return `{Value ${split[1]} must be a Date, got ${typeof split[1]}}`
                     return output.toLocaleTimeString(values.locale, {timeZone: values.timezone});
                 case "datetime":
+                    if(!output.toLocaleDateString)return `{Value ${split[1]} must be a Date, got ${typeof split[1]}}`
                     return output.toLocaleString(values.locale, {timeZone: values.timezone});
                 default:
                     return output;
