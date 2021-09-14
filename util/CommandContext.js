@@ -2,6 +2,7 @@ const Sentry = require('@sentry/node');
 class CommandContext {
 
     bot;
+    id;
     member;
     user;
     channel;
@@ -13,13 +14,14 @@ class CommandContext {
     options = {};
     error;
 
-    constructor(bot, member, user, channel, guild, command){
+    constructor(bot, member, user, channel, guild, command, id){
         this.bot = bot;
         this.member = member;
         this.user = user;
         this.channel = channel;
         this.guild = guild;
         this.command = command;
+        this.id = id;
     }
 
 
@@ -114,10 +116,9 @@ class MessageCommandContext extends CommandContext {
     args;
 
     constructor(bot, message, args, command){
-        super(bot, message.member, message.author, message.channel, message.guild);
+        super(bot, message.member, message.author, message.channel, message.guild, command, message.id);
         this.message = message;
         this.args = args;
-        this.command = command;
         this.content = message.content;
     }
 
@@ -146,6 +147,7 @@ class MessageCommandContext extends CommandContext {
             }
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
+        if(options.components)options.components = options.components.filter((c)=>c);
         const message = await this.message.channel.send(options);
         this.message.response = message;
         this.bot.bus.emit("messageSent", message);
@@ -208,6 +210,7 @@ class MessageEditCommandContext extends MessageCommandContext {
 
     async send(options){
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
+        if(options.components)options.components = options.components.filter((c)=>c);
         if(this.response && !this.response.deleted)
             return this.response.edit(options);
         return super.send(options);
@@ -225,7 +228,7 @@ class InteractionCommandContext extends CommandContext {
     interaction;
 
     constructor(bot, interaction){
-        super(bot, interaction.member, interaction.user, interaction.channel, interaction.guild);
+        super(bot, interaction.member, interaction.user, interaction.channel, interaction.guild,null, interaction.id);
         this.interaction = interaction;
         if(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand()) {
             this.command = interaction.options.getSubcommand();
@@ -268,6 +271,7 @@ class InteractionCommandContext extends CommandContext {
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         this.bot.bus.emit("messageSent", options);
+        if(options.components)options.components = options.components.filter((c)=>c);
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
         return this.interaction.reply(options);
@@ -333,13 +337,50 @@ class InteractionCommandContext extends CommandContext {
     }
 }
 
-class CustomCommandContext extends CommandContext {
+class SyntheticCommandContext extends CommandContext {
+    synthetic = true;
+
+    constructor(bot, member, user, channel, guild, input){
+        super(bot, member, user, channel, guild);
+        this.args = input.split(" ");
+        this.command = this.args[0];
+        this.content = input;
+        this.id = "SYNTHETIC"; // todo: make this a better ID
+    }
+
+    async send(options){
+        Sentry.addBreadcrumb({
+            message: "Message Send",
+            data: {
+                command: this.command,
+                id: this.id,
+                guild: this.guild?.id,
+                channel: this.channel?.id,
+            }
+        });
+        Sentry.setExtra("context", {type: "synthetic", command: this.command, args: this.args, message: this.content});
+        if(options.components)options.components = options.components.filter((c)=>c);
+        const message = await this.channel.send(options);
+        this.bot.bus.emit("messageSent", message);
+        return message;
+    }
+
+    reply(options) {
+        return this.send(options);
+    }
+}
+
+class CustomCommandContext extends SyntheticCommandContext {
  // TODO
 }
+
+
+
 
 module.exports = {
     CommandContext,
     CustomCommandContext,
+    SyntheticCommandContext,
     MessageEditCommandContext,
     MessageCommandContext,
     InteractionCommandContext

@@ -131,7 +131,7 @@ module.exports = class Commands {
      * @returns {Promise<*|void>}
      */
     async onContextInteraction(interaction){
-        if(!interaction.isContextMenu())return console.log("not a context menu"); // Not a context menu
+        if(!interaction.isContextMenu())return; // Not a context menu
         const commandName = interaction.commandName.split("/")[1];
         const commandData = this.bot.commandUsages[commandName];
         if(!commandData)return console.log("Unknown command interaction", commandName); // No such command
@@ -174,8 +174,8 @@ module.exports = class Commands {
 
     /**
      * Populates the parsed command argument data into a MessageCommandContext
-     * @param {MessageCommandContext} context
-     * @returns {MessageCommandContext}
+     * @param {CommandContext} context
+     * @returns {CommandContext}
      */
     initContext(context){
         context.commandData = this.bot.commandUsages[context.command];

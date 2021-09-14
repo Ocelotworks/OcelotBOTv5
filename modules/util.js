@@ -773,6 +773,8 @@ module.exports = {
         }
 
         bot.util.actionRow = function actionRow(...buttons){
+            buttons = buttons.filter((b)=>b);
+            if(buttons.length === 0)return null;
             return {
                 type: 1,
                 components: buttons
