@@ -67,7 +67,11 @@ module.exports = {
                 return {type: 4, data: {flags: 64, content: `✅ You have selected: ${answerMap[interaction.data.custom_id]}`}};
             }
 
-            let output = {components: [bot.util.actionRow()]};
+            // Annoying
+            let output = {components: [{
+                    type: 1,
+                    components: []
+                }]};
             for(let i = 0; i < answers.length; i++){
                 const answer = answers[i];
                 embed.addField(`Option ${i+1}`, answer.text, true);
