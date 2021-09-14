@@ -2,6 +2,8 @@ const Image = require('../util/Image');
 module.exports = {
     name: "1984 Meme",
     usage: "1984 :input+",
+    detailedHelp: "Makes a 1984 meme image",
+    usageExample: "1984 NSFW commands are only allowed in NSFW channels",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["1984", "984"],
     rateLimit: 10,

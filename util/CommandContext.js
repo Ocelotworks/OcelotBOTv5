@@ -60,6 +60,7 @@ class CommandContext {
     }
 
     getLang(key, values){
+        console.log("getLang not overridden");
         return this.bot.lang.getForContext(this, key, values);
     }
 
@@ -325,12 +326,10 @@ class InteractionCommandContext extends CommandContext {
         return this.interaction.reply(options);
     }
 
-    getLang(key, values) {
-        // Override the prefix for slash commands
-        if(key === "prefix"){
+    getSetting(setting) {
+        if(setting === "prefix")
             return "/";
-        }
-        return super.getLang(key, values);
+        return super.getSetting(setting);
     }
 }
 
