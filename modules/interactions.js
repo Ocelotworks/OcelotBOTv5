@@ -1,5 +1,5 @@
 const axios = require('axios');
-const {MessageCommandContext} = require("../util/CommandContext");
+const {MessageCommandContext, InteractionCommandContext, SyntheticCommandContext} = require("../util/CommandContext");
 const {v4: uuid} = require('uuid');
 module.exports = class Interactions{
     name = "Discord Interactions"
@@ -77,21 +77,20 @@ module.exports = class Interactions{
     }
 
     fullSuggestedCommand(context, command){
-        if(context.interaction)return null;
-        return this.bot.util.buttonComponent(`${context.getSetting("prefix")}${command}`, 2, `!${context.message.id}!${command}`);
+        //if(context.interaction)return null;
+        return this.bot.util.buttonComponent(`${context.getSetting("prefix")}${command}`, 2, `!${context.user.id}!${command}`);
     }
 
     async handleSuggestedCommand(interaction){
-        const [messageId, command] = interaction.data.custom_id.substring(1).split("!",2);
+        const [userId, command] = interaction.data.custom_id.substring(1).split("!",2);
+        if(interaction.member.user.id !== userId)
+            return {type: 4, data: {flags: 64, content: "Only the user that typed the command can use that button."}};
         const channel = await this.bot.client.channels.fetch(interaction.message.channel_id);
         const message = await channel.messages.fetch(interaction.message.id);
-        const userMessage = await channel.messages.fetch(messageId).catch(()=>null);
-        if(!userMessage)
-            return {type: 4, data: {flags: 64, content: "The author of the command deleted their message."}};
-        if(userMessage.author.id !== interaction.member.user.id)
-            return {type: 4, data: {flags: 64, content: "Only the user that typed the command can use that button."}};
-        const args = command.split(" ");
-        const context = this.bot.command.initContext(new MessageCommandContext(this.bot, userMessage, args, args[0].toLowerCase()));
+        const member = channel.members.get(userId);
+        if(!member)
+            return {type: 4, data: {flags: 64, content: "You no longer have access to this channel. This message should never appear. Tell Big P#1843!"}};
+        const context = this.bot.command.initContext(new SyntheticCommandContext(this.bot, member, member.user, channel, channel.guild, command));
         // it was all going so well up until this point
         for(let i = 0; i < message.components.length; i++){
             for(let j = 0; j < message.components[i].components.length; j++){
@@ -101,8 +100,6 @@ module.exports = class Interactions{
                 }
             }
         }
-        console.log("Suggested command");
-        console.log(interaction.data.custom_id, message.components);
         await message.edit({components: message.components})
         this.bot.command.runCommand(context);
         return {type: 6};

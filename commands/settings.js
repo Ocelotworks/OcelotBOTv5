@@ -21,14 +21,14 @@ module.exports = {
                 return false;
             }
             return true;
-        });
+        }, "Disable NSFW Commands", 90);
 
         bot.addCommandMiddleware(async (context)=>{
             if(!context.guild || !context.member || !context.getSetting("commands.role") || context.getSetting("commands.role").toLowerCase() === "clear")return true;
             if(context.member.roles.cache.has(context.getSetting("commands.role")))return true;
             bot.logger.log(`User does not have required role to use this command (${context.getSetting("commands.role")})`);
             return false;
-        });
+        }, "Command Roles", 95);
 
         // Disable commands that are disabled
         bot.addCommandMiddleware((context)=>{
@@ -41,7 +41,7 @@ module.exports = {
                 return false;
             }
             return true;
-        });
+        }, "Disabled Commands", 90);
 
         // Wholesome mode
         bot.addCommandMiddleware((context)=>{
@@ -57,7 +57,7 @@ module.exports = {
                 return false;
             }
             return true;
-        });
+        }, "Wholesome Mode", 90);
 
         // Disable/restriction channels
         bot.addCommandMiddleware(async (context)=>{
@@ -75,7 +75,7 @@ module.exports = {
                 return false;
             }
             return true;
-        });
+        }, "Channel Restrictions", 90);
 
     },
 };

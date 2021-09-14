@@ -55,6 +55,27 @@ module.exports = {
             rateLimitLimits = [];
         }, 240000);
 
+        bot.command.addCommandMiddleware((context)=>{
+            return !bot.checkBan(context)
+        }, "Bans", 102);
+
+        bot.command.addCommandMiddleware((context)=>{
+            if (!bot.isRateLimited(context.user?.id, context.user?.id || "global")) return true;
+            bot.bus.emit("commandRatelimited", context);
+            bot.logger.warn(`${context.user.username} (${context.user.id}) in ${context.guild?.name || "DM"} (${context.guild?.id || context.channel?.id}) was ratelimited`);
+            if (bot.rateLimits[context.user.id] < context.getSetting("rateLimit.threshold")) {
+                const now = new Date();
+                const timeDifference = now - this.bot.lastRatelimitRefresh;
+                let timeLeft = 60000 - timeDifference;
+                context.replyLang({
+                    content: "COMMAND_RATELIMIT",
+                    ephemeral: true
+                }, {timeLeft: bot.util.prettySeconds(timeLeft / 1000, context.guild?.id, context.user?.id)});
+                this.bot.rateLimits[context.user.id] += context.commandData.rateLimit || 1;
+            }
+            return false;
+        }, "Ratelimit", 101)
+
         bot.bus.on("commandRatelimited", function rateLimited(command, message) {
             // if(rateLimitLimits.indexOf(message.guild.id) > -1){
             //     // let currentRatelimit = message.getSetting("rateLimit");

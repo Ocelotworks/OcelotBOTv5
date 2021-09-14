@@ -25,8 +25,8 @@
 const config = require('config');
 const {v4: uuid} = require('uuid');
 const os = require('os');
-var knex = require('knex')(config.get("Database"));
-const series = 2020; //Spook series
+let knex = require('knex')(config.get("Database"));
+const series = 2021; //Spook series
 module.exports = {
     name: "Database Module",
     enabled: true,
@@ -56,6 +56,8 @@ module.exports = {
              * @param {String} name The name of the server
              * @param {Number} [timestamp] The Unix Timestamp in milliseconds
              * @param {String} language Language
+             * @param webhookID
+             * @param webhookToken
              * @returns {Promise<Array>}
              */
             addServer: function addNewServer(server, addedBy, name, timestamp, language = "en-gb", webhookID, webhookToken) {
@@ -552,12 +554,12 @@ module.exports = {
              */
             canSpook: async function canSpook(user, server) {
                 const result = await bot.database.getSpooked(server);
-                if (!result[0])
+                if (!result)
                     bot.logger.log(`${user} can spook because there have been no spooks.`);
-                else if (result[0].spooked !== user)
+                else if (result.spooked !== user)
                     bot.logger.log(`${user} can't spook ${result[0].spooked} is spooked not ${user}`);
 
-                return !result[0] || result[0].spooked === user;
+                return !result|| result.spooked === user;
             },
             /**
              * Spook someone
@@ -593,11 +595,11 @@ module.exports = {
              * @param {ServerID} [server]
              * @returns {*}
              */
-            getSpooked: function (server) {
+            getSpooked: async function (server) {
                 if (!server) {
                     return knex.select().from(SPOOK_TABLE).orderBy("timestamp", "desc").where({series});
                 }
-                return knex.select().from(SPOOK_TABLE).where({server, series}).orderBy("timestamp", "desc").limit(1);
+                return (await knex.select().from(SPOOK_TABLE).where({server, series}).orderBy("timestamp", "desc").limit(1))[0];
             },
             /**
              * Gets spooked server stats
@@ -655,8 +657,8 @@ module.exports = {
              * @param {ServerID} server
              * @returns {*}
              */
-            getSpookCount: function (spooked, server) {
-                return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server, spooked, series});
+            getSpookCount: async function (spooked, server) {
+                return (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_spooks").where({server, spooked, series}))[0]['COUNT(*)'];
             },
             /**
              * Get the end spook stats
