@@ -1,4 +1,5 @@
 const Sentry = require('@sentry/node');
+const Strings = require("../util/String");
 class CommandContext {
 
     bot;
@@ -365,13 +366,64 @@ class SyntheticCommandContext extends CommandContext {
         return message;
     }
 
+    edit(options, message){
+        // I still don't understand how this can happen
+        if(!this.message.channel)return this.bot.logger.warn("Channel was null? "+this.content);
+        Sentry.addBreadcrumb({
+            message: "Message Edited",
+            data: {
+                command: this.command,
+                id: this.message.id,
+                guild: this.message.guild?.id,
+                channel: this.message.channel?.id,
+            }
+        });
+        Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
+        if(!message || message.deleted)return this.send(options);
+        return message.edit(options);
+    }
+
+
     reply(options) {
         return this.send(options);
     }
 }
 
+const blacklistedSettings = ["premium", "serverPremium", "admin", "ocelotworks"];
+
 class CustomCommandContext extends SyntheticCommandContext {
- // TODO
+    overrideSettings;
+    overrideLang;
+
+    constructor(bot, message, response){
+        super(bot, message.member, message.author, message.channel, message.guild, response.content);
+        this.message = message;
+        this.overrideSettings = response.settings;
+        this.overrideLang = response.overrideLang;
+    }
+
+    getSetting(setting) {
+        if(!blacklistedSettings.includes(setting) && this.overrideSettings && this.overrideSettings[setting])
+            return this.overrideSettings[setting];
+        return super.getSetting(setting);
+    }
+
+    getLang(key, values) {
+        if(this.overrideLang && this.overrideLang[key]) {
+            values.prefix = this.getSetting("prefix")
+            values.botName = this.bot.client.user.username;
+            values.command = this.command;
+            values.commandWithPrefix = `${this.getSetting("prefix")}${this.command}`;
+            values.fullCommandWithPrefix = values.commandWithPrefix;
+            if(this.options?.command)
+                values.fullCommandWithPrefix += ` ${this.options.command}`
+            values.options = this.options;
+            values.locale = this.getSetting("lang");
+            if(values.locale === "en-owo")format.locale = "en-gb";
+            return Strings.Format(this.overrideLang[key], values);
+        }
+        return super.getLang(key, values);
+    }
 }
 
 
