@@ -7,6 +7,9 @@ module.exports = {
     commands: ["list", "view"],
     run: async function (context, bot) {
         const countdowns = await bot.database.getCountdownsForServer(context.guild?.id || context.channel.id);
+        if(countdowns.length === 0)
+            return context.sendLang({content: "COUNTDOWN_NO_COUNTDOWNS", ephemeral: true});
+
         const locale = context.getSetting("lang") === "en-owo" ? "en-gb" : context.getSetting("lang");
         let header = "\n```asciidoc\n";
         return Util.StandardPagination(bot, context, countdowns.chunk(10), async function (countdowns, index) {

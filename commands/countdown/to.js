@@ -16,7 +16,7 @@ module.exports = {
             at = chronoParse.start.date();
 
         if (!chronoParse?.text)
-            return context.sendLang("REMIND_INVALID_MESSAGE");
+            return context.sendLang("COUNTDOWN_INVALID_MESSAGE");
 
         let id = input.substring(input.indexOf(chronoParse.text) + chronoParse.text.length+1);
         id = id.substring(0, id.indexOf(" "));
@@ -24,7 +24,7 @@ module.exports = {
         if (!rargs || rargs.length < 3) {
             const guessedContent = input.substring(input.indexOf(chronoParse.text) + chronoParse.text.length);
             if (!guessedContent)
-                return context.sendLang("REMIND_INVALID_MESSAGE");
+                return context.sendLang("COUNTDOWN_INVALID_MESSAGE");
             countdownMessage = guessedContent;
         } else
             countdownMessage = rargs[2];
@@ -46,6 +46,5 @@ module.exports = {
         await bot.database.addCountdown(id, guild, context.user.id, at, countdownMessage);
 
         return context.sendLang({content: "COUNTDOWN_SUCCESS"}, {id, at});
-
     }
 }
