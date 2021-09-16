@@ -500,7 +500,7 @@ module.exports = class Commands {
             if(tx){
                 tx.finish();
             }
-            this.bot.database.logCommand(context.user.id, context.channel?.id, context.guild?.id || context.channel?.id, context.message ? context.message.id : context.interaction.id, context.command, context.content, this.bot.client.user.id, context.interaction?.type || "message").catch((e)=>{
+            this.bot.database.logCommand(context.user.id, context.channel?.id, context.guild?.id || context.channel?.id, context.id, context.command, context.content, this.bot.client.user.id, context.interaction?.type || "message").catch((e)=>{
                 Sentry.captureException(e);
                 this.bot.logger.error(e);
             })
