@@ -1275,6 +1275,18 @@ module.exports = {
             deletePoll(serverID, id){
                 return knex.delete().from("ocelotbot_polls").where({serverID, id}).limit(1);
             },
+            addCountdown(id, serverID, userID, target, message){
+                return knex.insert({id, serverID, userID, target, message}).into("ocelotbot_countdowns");
+            },
+            deleteCountdown(id, serverID, userID){
+                return knex.delete().from("ocelotbot_countdowns").where({id, serverID, userID}).limit(1);
+            },
+            async getCountdown(id, serverID){
+                return (await knex.select().from("ocelotbot_countdowns").where({id, serverID}).limit(1))[0];
+            },
+            getCountdownsForServer(serverID){
+                return knex.select().from("ocelotbot_countdowns").where({serverID});
+            },
             // This should probably be a worker
             async dataExport(userID){
                 bot.logger.log("Starting data export...");
