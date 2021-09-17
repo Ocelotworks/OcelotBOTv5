@@ -3,7 +3,7 @@ module.exports = async (context, bot)=>{
         const permissions = await context.channel.permissionsFor(bot.client.user);
 
         if (!permissions || (context.message && !permissions.has("SEND_MESSAGES"))) {
-            this.bot.logger.log({
+            bot.logger.log({
                 type: "commandPerformed",
                 success: false,
                 outcome: "No Permissions"

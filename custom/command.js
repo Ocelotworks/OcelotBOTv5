@@ -1,5 +1,4 @@
 const {CustomCommandContext} = require("../util/CommandContext");
-const blacklistedSettings = ["premium", "serverPremium", "admin", "ocelotworks"];
 module.exports = {
     type: "command",
     run: function(message, response, bot){
