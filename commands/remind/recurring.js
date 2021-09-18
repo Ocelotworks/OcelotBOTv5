@@ -15,14 +15,14 @@ module.exports = {
             for (let i = 0; i < reminders.length; i++) {
                 let reminder = reminders[i];
                 let scheduledReminder;
-                scheduledReminder = later.setInterval(module.exports.runScheduledReminder(bot, reminder, scheduledReminder), JSON.parse(reminder.recurrence));
+                scheduledReminder = later.setInterval(module.exports.runScheduledReminder(bot, reminder, reminderData), JSON.parse(reminder.recurrence));
                 reminderData.recurringReminders[reminder.id] = scheduledReminder;
             }
 
         })
 
     },
-    runScheduledReminder(bot, reminder, scheduledReminder){
+    runScheduledReminder(bot, reminder, reminderData){
         return async ()=> {
             if (bot.drain) return;
             if (!bot.config.getBool(reminder.server || "global", "remind.recurring")) return bot.logger.log("Recurring reminders disabled by setting");
@@ -33,10 +33,7 @@ module.exports = {
                     await channel.send(reminder.message);
                 } else {
                     bot.logger.warn("Deleting reminder " + reminder.id + " because the channel is no longer accessible.");
-                    if(scheduledReminder)
-                        scheduledReminder.clear();
-                    else
-                        bot.logger.warn("Schedule is inaccessible");
+                    reminderData.recurringReminders[reminder.id].clear();
                     await bot.database.removeReminderByUser(reminder.id, reminder.user);
                     const userDM = await(await bot.client.users.fetch(reminder.user)).createDM();
                     userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in ${channel} was deleted as OcelotBOT no longer has permission to send messages in that channel.`);
@@ -44,8 +41,7 @@ module.exports = {
             } catch (e) {
                 console.log(e);
                 bot.raven.captureException(e);
-                if (scheduledReminder)
-                    scheduledReminder.clear();
+                reminderData.recurringReminders[reminder.id].clear();
             }
         }
     },
