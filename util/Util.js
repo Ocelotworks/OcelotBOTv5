@@ -283,4 +283,14 @@ module.exports = class Util {
 
         return messages;
     }
+
+    /**
+     * Get a random element from an array
+     * @param {*[]} array
+     * @returns {*}
+     * @constructor
+     */
+    static ArrayRand(array){
+        return array[Math.round(Math.random() * (array.length - 1))];
+    }
 }

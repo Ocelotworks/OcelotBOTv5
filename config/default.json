@@ -8,7 +8,6 @@
   "Database": {
     "client": "mysql",
     "connection": {
-      "host": "",
       "port": 3306,
       "user": "",
       "password": "",
@@ -80,8 +79,8 @@
     "lang",
     "statistics",
     "redis",
-    "bans",
     "commands",
+    "bans",
     "lavaqueue",
     "ocelotworks",
     "support",

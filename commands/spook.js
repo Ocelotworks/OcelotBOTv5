@@ -1,9 +1,8 @@
-const Discord = require('discord.js');
 const Embeds = require("../util/Embeds");
 const Strings = require("../util/String");
 const end = new Date("1 November 2021");
  const start = new Date("1 October 2021");
-// const start = new Date("1 September 2021");
+ //const start = new Date("1 September 2021");
 module.exports = {
     name: "Spook",
     usage: "spook :@user?",
@@ -11,37 +10,45 @@ module.exports = {
     requiredPermissions: [],
     commands: ["spook", "spooked"],
     guildOnly: true,
+    nestedDir: "spook",
     init: async function (bot) {
         bot.spook = {};
         bot.spook.spooked = [];
-
-
     },
-    run: async function (context, bot) {
+    middleware: async function(context, bot){
         const now = new Date();
-        if(start-now > 0) {
+        if(start-now > 0 && !context.getBool("spook.testing")) {
             const setReminder = bot.interactions.fullSuggestedCommand(context, `remind on 1st October at 00:0${bot.util.intBetween(0, 9)} **The Spooking** starts now!`);
             if (setReminder) {
                 setReminder.label = "Set Reminder";
                 setReminder.emoji = "⏱️";
             }
-            return context.sendLang({content: "SPOOK_TEASER", components: [bot.util.actionRow(setReminder)]}, {
+            context.sendLang({content: "SPOOK_TEASER", components: [bot.util.actionRow(setReminder)]}, {
                 time: bot.util.prettySeconds((start - now) / 1000, context.guild && context.guild.id, context.user.id),
                 year: now.getFullYear()
             });
+            return false;
         }
-
+        return true;
+    },
+    spook: async function(bot, context, fromMember, toMember, rollback = false){
+        return bot.database.spook(toMember.id, fromMember.user.id, fromMember.guild.id, context.channel.id,
+            fromMember.user.username, toMember.user.username, fromMember.displayHexColor, toMember.displayHexColor, fromMember.user.avatarURL({format: "png", size: 32, dynamic: false}), toMember.user.avatarURL({format: "png", size: 32, dynamic: false}), rollback);
+    },
+    run: async function (context, bot) {
         // Check if this user has opted out
         if(context.getBool("spook.optout"))
             return context.sendLang({content: "SPOOK_OPTOUT", ephemeral: true});
 
-        // Check that the current user can actually spook
+        // Get the current spook
         const currentSpook = await bot.database.getSpooked(context.guild.id);
-        if(currentSpook && currentSpook.spooked !== context.user.id)
-            return context.sendLang({content: "SPOOK_UNABLE", ephemeral: true}, currentSpook);
 
         if(!context.options.user)
-            return  context.sendLang({content: currentSpook ? "SPOOK_CURRENT" : "SPOOK_NOBODY"}, {spooked: currentSpook?.spooked, time: end, server: context.guild.id}); // TODO: Currently spooked
+            return  context.sendLang({content: currentSpook ? "SPOOK_CURRENT" : "SPOOK_NOBODY"}, {spooked: currentSpook?.spooked, time: end, server: context.guild.id});
+
+        // Check that the current user can actually spook
+        if(currentSpook && currentSpook.spooked !== context.user.id)
+            return context.sendLang({content: "SPOOK_UNABLE", ephemeral: true}, currentSpook);
 
         // Get the target user and check that they're in this channel
         const member = await context.getMember(context.options.user);
@@ -67,7 +74,6 @@ module.exports = {
         if(member.presence?.status === "offline")
             return context.sendLang({content: "SPOOK_OFFLINE", ephemeral: true});
 
-
         // Send an introductory message before actioning the spook
         if(!currentSpook){
             const embed = new Embeds.LangEmbed(context);
@@ -82,8 +88,7 @@ module.exports = {
             await context.send({embeds: [embed]});
         }
 
-        await bot.database.spook(member.id, context.user.id, context.guild.id, context.channel.id,
-            context.user.username, member.user.username, context.member.displayHexColor, member.displayHexColor, context.user.avatarURL({format: "png", size: 32, dynamic: false}), member.user.avatarURL({format: "png", size: 32, dynamic: false}));
+        await module.exports.spook(bot, context, context.member, member);
 
         const result = await bot.database.getSpookCount(member.id, context.guild.id);
 

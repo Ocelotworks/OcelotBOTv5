@@ -63,7 +63,6 @@ class CommandContext {
     }
 
     getLang(key, values){
-        console.log("getLang not overridden");
         return this.bot.lang.getForContext(this, key, values);
     }
 

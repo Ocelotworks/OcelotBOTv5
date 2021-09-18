@@ -471,7 +471,7 @@ module.exports = class Strings {
                     return Icons[output];
                 case "timestamp":
                     if(!output.getTime)return `{Value ${split[1]} must be a Date, got ${typeof split[1]}}`
-                    return `<t:${Math.floor(output.getTime()/1000)}>`;
+                    return `<t:${Math.floor(output.getTime()/1000)}:${split[2] || "f"}>`;
                 case "number":
                     return parseInt(output).toLocaleString(values.locale)
                 case "date":

@@ -173,7 +173,7 @@ module.exports = {
             },
             partials: ["REACTION", "CHANNEL"],
             intents: [
-                // "GUILD_PRESENCES", // Spooking
+                "GUILD_PRESENCES", // Spooking
                 "GUILDS",
                 "GUILD_MESSAGES",
                 "GUILD_MEMBERS", // Join/leave messages
