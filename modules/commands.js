@@ -409,7 +409,6 @@ module.exports = class Commands {
         })
         try {
             if (!this.bot.commandUsages[context.command]) {
-                console.log("no-no ", context.command)
                 if (!context.guild || !this.bot.customFunctions.COMMAND[context.guild.id] || context instanceof CustomCommandContext) return console.log("Command doesn't exist 1");
                 let customCommand = this.bot.customFunctions.COMMAND[context.guild.id][context.command]
                 if (!customCommand) return console.log("Command doesn't exist 2");
@@ -422,6 +421,9 @@ module.exports = class Commands {
             context.logPerformed();
 
             if(!await this.runCommandMiddleware(context))return console.log("Middleware triggered"); // Middleware triggered
+
+            if(context.commandData.middleware && !await context.commandData.middleware(context, this.bot))
+                return console.log("Command specific middleware triggered");
 
             if(context.error) {
                 if (context.commandData.handleError) {
