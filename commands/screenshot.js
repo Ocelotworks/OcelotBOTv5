@@ -4,6 +4,7 @@ const Discord = require('discord.js');
 module.exports = {
     name: "Screenshot Website",
     usage: "screenshot :url",
+    usageExample: "screenshot https://google.com",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["screenshot", "screencap"],

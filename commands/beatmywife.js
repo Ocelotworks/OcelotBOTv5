@@ -7,7 +7,7 @@ module.exports = {
     name: "So Sad Meme",
     usage: "beatmywife :image?",
     rateLimit: 10,
-    detailedHelp: "https://knowyourmeme.com/memes/this-is-so-sad\nOkay, maybe this is a bit of a dead meme at this point but what's done is done.",
+    detailedHelp: "<https://knowyourmeme.com/memes/this-is-so-sad>\nOkay, maybe this is a bit of a dead meme at this point but what's done is done.",
     categories: ["image", "memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["beatmywife", "bmw", "sosad"],

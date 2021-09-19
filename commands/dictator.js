@@ -3,6 +3,7 @@ const Image = require("../util/Image");
 module.exports = {
     name: "Dictator Meme",
     usage: "dictator :image?",
+    detailedHelp: "Show's someone's avatar as a mighty dictator",
     rateLimit: 10,
     categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],

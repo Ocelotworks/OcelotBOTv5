@@ -8,6 +8,7 @@ const Image = require('../util/Image');
 module.exports = {
     name: "Rotate Image",
     usage: "rotate :0deg? :image?",
+    usageExample: "rotate 90 😀",
     categories: ["image", "filter"],
     rateLimit: 20,
     requiredPermissions: ["ATTACH_FILES"],

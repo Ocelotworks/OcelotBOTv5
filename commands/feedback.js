@@ -8,7 +8,7 @@ module.exports = {
     usageExample: "feedback this bot is amazing!",
     responseExample: "✅ Your feedback has been recorded.",
     categories: ["meta"],
-    commands: ["feedback", "complain", "report", "support", "broken", "broke"],
+    commands: ["feedback", "complain", "support", "broken", "broke"],
     init: function init(bot){
         bot.logger.log("Starting shard receiver for !feedback");
         bot.bus.on("feedback", function(msg){

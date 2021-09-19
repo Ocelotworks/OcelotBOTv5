@@ -2,6 +2,7 @@ const Image = require('../util/Image');
 module.exports = {
     name: "Ronald Says",
     usage: "ronald :text+",
+    usageExample: "ronald mconamlds",
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["ronald", "ronaldsays", "mcdonald"],

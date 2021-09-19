@@ -12,6 +12,7 @@ const naughtyRegex = /(young|(one|two|three|four|five|six|seven|eight|nine|ten|e
 module.exports = {
     name: "Rule34 Search",
     usage: "rule34 :search+",
+    usageExample: "rule34 ocelotbot",
     categories: ["nsfw", "search"],
     rateLimit: 50,
     requiredPermissions: ["ATTACH_FILES"],

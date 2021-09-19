@@ -9,6 +9,7 @@ const Discord = require('discord.js');
 module.exports = {
     name: "Zork",
     usage: "zork :input?+",
+    detailedHelp: "The classic computer game Zork",
     categories: ["games"],
     commands: ["zork", "z5"],
     run: async function run(context, bot) {
