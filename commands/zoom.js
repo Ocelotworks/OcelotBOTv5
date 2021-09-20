@@ -2,6 +2,7 @@ const Image = require('../util/Image');
 module.exports = {
     name: "Zoom Image",
     usage: "zoom :image?",
+    detailedHelp: "Makes the image all speedy-like",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],

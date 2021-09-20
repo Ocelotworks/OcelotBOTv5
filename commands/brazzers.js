@@ -3,6 +3,7 @@ const Image = require("../util/Image");
 module.exports = {
     name: "Brazzers",
     usage: "brazzers :image?",
+    detailedHelp: "Adds a Brazzers logo on the image.",
     rateLimit: 10,
     categories: ["memes", "nsfw"],
     requiredPermissions: ["ATTACH_FILES"],

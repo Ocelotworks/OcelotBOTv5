@@ -37,10 +37,12 @@ module.exports = {
         } else {
             let split = context.options.users.split(" ");
             let people;
-            if (context.guild)
-                people = context.message.mentions.members.map((m) => m.displayName);
-            else
-                people = context.message.mentions.users.map((m) => m.username);
+            if(context.message) {
+                if (context.guild)
+                    people = context.message.mentions.members.map((m) => m.displayName);
+                else
+                    people = context.message.mentions.users.map((m) => m.username);
+            }
             for (let i = 1; i < split.length; i++) {
                 if (!split[i].startsWith("<")) {
                     people.push(split[i]);

@@ -6,6 +6,7 @@ module.exports = {
     usage: "custom",
     rateLimit: 10,
     detailedHelp: "Add custom commands or autoresponders",
+    usageExample: "custom add command return 'hello world'",
     categories: ["meta"],
     commands: ["custom", "customcommands"],
     noSynthetic: true,

@@ -3,6 +3,7 @@ module.exports = {
     name: "Yea Meme",
     usage: "yea :input+",
     rateLimit: 10,
+    detailedHelp: "When someone says something that makes you go ....yea",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["yea", "yeah"],
     categories: ["memes"],

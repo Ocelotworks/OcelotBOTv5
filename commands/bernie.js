@@ -3,6 +3,7 @@ module.exports = {
     name: "Bernie Meme",
     usage: "bernie :input+",
     rateLimit: 10,
+    detailedHelp: "Bernie Sanders shows you some text.",
     usageExample: "bernie I am not related to colonel sanders",
     categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],

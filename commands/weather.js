@@ -6,6 +6,8 @@ const {axios} = require('../util/Http');
 module.exports = {
     name: "Weather",
     usage: "weather :place+",
+    detailedHelp: "What's the weather in a certain place",
+    usageExample: "weather London",
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["weather", "forecast"],
     categories: ["tools"],

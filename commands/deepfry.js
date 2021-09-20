@@ -12,6 +12,7 @@ const Util = require("../util/Util");
 module.exports = {
     name: "Deepfry",
     usage: "deepfry :image?",
+    detailedHelp: "Ruins an image",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],

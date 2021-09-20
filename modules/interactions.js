@@ -90,7 +90,9 @@ module.exports = class Interactions{
         const member = channel.members.get(userId);
         if(!member)
             return {type: 4, data: {flags: 64, content: "You no longer have access to this channel. This message should never appear. Tell Big P#1843!"}};
-        const context = this.bot.command.initContext(new SyntheticCommandContext(this.bot, member, member.user, channel, channel.guild, command));
+        const synthContext = new SyntheticCommandContext(this.bot, member, member.user, channel, channel.guild, command);
+        synthContext.message = message;
+        const context = this.bot.command.initContext(synthContext);
         // it was all going so well up until this point
         for(let i = 0; i < message.components.length; i++){
             for(let j = 0; j < message.components[i].components.length; j++){

@@ -55,11 +55,11 @@ module.exports = {
             rateLimitLimits = [];
         }, 240000);
 
-        bot.command.addCommandMiddleware((context)=>{
+        bot.addCommandMiddleware((context)=>{
             return !bot.checkBan(context)
         }, "Bans", 102);
 
-        bot.command.addCommandMiddleware((context)=>{
+        bot.addCommandMiddleware((context)=>{
             if (!bot.isRateLimited(context.user?.id, context.user?.id || "global")) return true;
             bot.bus.emit("commandRatelimited", context);
             bot.logger.warn(`${context.user.username} (${context.user.id}) in ${context.guild?.name || "DM"} (${context.guild?.id || context.channel?.id}) was ratelimited`);

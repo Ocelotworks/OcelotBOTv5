@@ -3,6 +3,7 @@ const Image = require("../util/Image");
 module.exports = {
     name: "Crush",
     usage: "crush :image?",
+    detailedHelp: "Show that you've got a crush on something/someone.",
     rateLimit: 10,
     categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],
