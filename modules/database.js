@@ -1307,6 +1307,27 @@ module.exports = {
             getCountdownsForServer(serverID){
                 return knex.select().from("ocelotbot_countdowns").where({serverID});
             },
+            createEvent(serverID, channelID, ownerID, name, starts){
+                return knex.insert({serverID, channelID, ownerID, name, starts}).into("ocelotbot_events");
+            },
+            getEventsForServer(serverID){
+                return knex.select().from("ocelotbot_events").where("starts", ">", new Date()).andWhere({serverID}).orderBy("starts", "ASC");
+            },
+            getEventsForUser(serverID, userID){
+                return knex.select().from("ocelotbot_events_users").where({userID, serverID}).innerJoin("ocelotbot_events", "eventID", "id");
+            },
+            async getUserResponse(userID, eventID){
+                return (await knex.select().from("ocelotbot_events_users").where({eventID, userID}).limit(1))[0];
+            },
+            addUserResponse(userID, eventID, status){
+                return knex.insert({userID, eventID, status}).into("ocelotbot_events_users");
+            },
+            updateUserResponse(userID, eventID, status){
+                return knex("ocelotbot_events_users").update({status}).where({userID, eventID}).limit(1);
+            },
+            getResponseCounts(eventID){
+                return knex.select("status", knex.raw("count(*) as count")).from("ocelotbot_events_users").where({eventID}).groupBy("status")
+            },
             // This should probably be a worker
             async dataExport(userID){
                 bot.logger.log("Starting data export...");
