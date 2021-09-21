@@ -69,6 +69,12 @@ module.exports = {
                     playlistName = context.getSetting("songguess.default");
                 else if(context.options.command.startsWith("http"))
                     playlistName = "<"+context.options.command+">";
+                else{
+                    let playlistPrettyName = await bot.database.getGuessPlaylistName(context.guild.id, playlistName);
+                    if(!playlistPrettyName)
+                        return context.sendLang("SONGGUESS_NO_PLAYLIST");
+                    return context.sendLang("SONGGUESS_SWITCHED_PLAYLIST", {playlistName: playlistPrettyName})
+                }
                 return context.sendLang("SONGGUESS_SWITCHED_PLAYLIST", {playlistName})
             }
             return context.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: module.exports.runningGames[context.guild.id].voiceChannel.name})

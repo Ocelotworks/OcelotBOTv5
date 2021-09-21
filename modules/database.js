@@ -973,6 +973,11 @@ module.exports = {
                   if(result[0])return result[0]['spotify_id'];
                   return null;
             },
+            getGuessPlaylistName: async function(server, id){
+                let result = await knex.select("name").from("ocelotbot_song_guess_playlists").whereIn("server", [server, "global"]).andWhere({id}).orderBy("server").limit(1);
+                if(result[0])return result[0]['name'];
+                return null;
+            },
             getCommandCount: function () {
                 return knex.select(knex.raw("MAX(id)")).from(COMMANDLOG_TABLE);
             },
