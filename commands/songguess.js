@@ -17,7 +17,8 @@ let counter = Math.round(Math.random()*1000);
 
 
 const llErrors = {
-    "WebSocketClosedEvent": ":thinking: Looks like I was disconnected from the Voice Channel for some reason. Try again in a minute or so."
+    "WebSocketClosedEvent": ":thinking: Looks like I was disconnected from the Voice Channel for some reason. Try again in a minute or so.",
+    "TrackExceptionEvent": ":warning: Something happened when I tried to play that song. There could be an issue with Spotify, or with that song in particular. Wait a few minutes and try a different playlist. If the issue persists, use the feedback command to let me know."
 }
 
 const spotifyPlaylist = /.*\/open\.spotify\.com\/playlist\/(.+?)([\/?#]|$)/gi
