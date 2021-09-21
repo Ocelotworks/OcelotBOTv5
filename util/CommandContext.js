@@ -213,15 +213,19 @@ class MessageEditCommandContext extends MessageCommandContext {
     async send(options){
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
         if(options.components)options.components = options.components.filter((c)=>c);
-        if(this.response && !this.response.deleted)
-            return this.response.edit(options);
+        if(this.response && !this.response.deleted) {
+            let editResult = await this.response.edit(options).catch(()=>null);
+            if(editResult)return editResult;
+        }
         return super.send(options);
     }
 
     async reply(options){
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
-        if(this.response && !this.response.deleted)
-            return this.response.edit(options);
+        if(this.response && !this.response.deleted) {
+            let editResult = await this.response.edit(options).catch(() => null);
+            if (editResult) return editResult;
+        }
         return super.reply(options);
     }
 }
