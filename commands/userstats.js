@@ -200,7 +200,7 @@ module.exports = {
             output.push(`- **${totalWords.toLocaleString()}** total words. (**${Object.keys(uniqueWords).length.toLocaleString()}** unique)`);
             output.push(`- **${(totalWords / totalMessages).toFixed(3)}** words per message.`);
             output.push(`- **${totalChars.toLocaleString()}** total characters.`);
-            output.push(`- At **44** words per minute, this would've taken **${bot.util.prettySeconds((totalWords / 44)*60, message.guild && message.guild.id, message.author.id)}** to type.`);
+            output.push(`- At **44** words per minute, this would've taken **${bot.util.prettySeconds((totalWords / 44)*60, context.guild && context.guild.id, context.author.id)}** to type.`);
             output.push(`- All their messages in a text file would take up **${bot.util.prettyMemory(totalChars)}** of space.`);
 
             const lastWordIndex = uniqueWordsSorted.length - 1;
