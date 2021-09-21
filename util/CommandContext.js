@@ -150,7 +150,7 @@ class MessageCommandContext extends CommandContext {
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         if(options.components)options.components = options.components.filter((c)=>c);
-        const message = await this.message.channel.send(options);
+        const message = await this.channel.send(options);
         if(this.message)
             this.message.response = message;
         this.bot.bus.emit("messageSent", message);
@@ -171,8 +171,7 @@ class MessageCommandContext extends CommandContext {
         if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id).has("READ_MESSAGE_HISTORY"))
             return this.send(options);
         const message = await this.message.reply(options);
-        if(this.message)
-            this.message.response = message;
+        this.message.response = message;
         this.bot.bus.emit("messageSent", message);
         return message;
     }

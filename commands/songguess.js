@@ -60,7 +60,6 @@ module.exports = {
         if (context.guild.voiceConnection && !bot.voiceLeaveTimeouts[context.member.voice.channel.id] && context.getSetting("songguess.disallowReguess"))return context.sendLang("SONGGUESS_OCCUPIED");
 
 
-
         if (module.exports.runningGames[context.guild.id]) {
             if(playlist != module.exports.runningGames[context.guild.id].playlistId){
                 module.exports.runningGames[context.guild.id].playlistId = playlist;
