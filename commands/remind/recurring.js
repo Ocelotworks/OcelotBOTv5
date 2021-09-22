@@ -1,5 +1,7 @@
 const later = require('later');
 const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
+// fuck this shit;
+let deletedReminders = [];
 module.exports = {
     name: "Set Recurring Reminder",
     usage: "every :timeAndMessage+",
@@ -26,6 +28,7 @@ module.exports = {
         return async ()=> {
             if (bot.drain) return;
             if (!bot.config.getBool(reminder.server || "global", "remind.recurring")) return bot.logger.log("Recurring reminders disabled by setting");
+            if(deletedReminders.includes(reminder.id))return;
             try {
                 let channel = await bot.client.channels.fetch(reminder.channel).catch(() => null);
                 if (channel?.permissionsFor?.(bot.client.user.id).has("SEND_MESSAGES", true)) {
@@ -33,7 +36,8 @@ module.exports = {
                     await channel.send(reminder.message);
                 } else {
                     bot.logger.warn("Deleting reminder " + reminder.id + " because the channel is no longer accessible.");
-                    reminderData.recurringReminders[reminder.id].clear();
+                    deletedReminders.push(reminder.id);
+                    //reminderData.recurringReminders[reminder.id].clear();
                     await bot.database.removeReminderByUser(reminder.id, reminder.user);
                     const userDM = await(await bot.client.users.fetch(reminder.user)).createDM();
                     userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in ${channel} was deleted as OcelotBOT no longer has permission to send messages in that channel.`);
@@ -41,7 +45,7 @@ module.exports = {
             } catch (e) {
                 console.log(e);
                 bot.raven.captureException(e);
-                reminderData.recurringReminders[reminder.id].clear();
+                deletedReminders.push(reminder.id);
             }
         }
     },
