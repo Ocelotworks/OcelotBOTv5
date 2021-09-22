@@ -539,39 +539,6 @@ module.exports = {
                 return knex.select(knex.raw("COUNT(*)")).from("Messages").where("message", "like", `%${phrase}%`);
             },
             /**
-             * Gets the database stats
-             * @returns {Promise.<{servers: Number, leftServers: Number, memes: Number, reminders: Number, commands: Number}>}
-             */
-            getDatabaseStats: async function () {
-                const serverCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_servers");
-                const leftServerCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_leftservers");
-                const memeCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_memes");
-                const reminderCount = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_reminders");
-                const commandCount = await knex.select(knex.raw("COUNT(*)")).from("commandlog");
-                return {
-                    servers: serverCount[0]['COUNT(*)'],
-                    leftServers: leftServerCount[0]['COUNT(*)'],
-                    memes: memeCount[0]['COUNT(*)'],
-                    reminders: reminderCount[0]['COUNT(*)'],
-                    commands: commandCount[0]['COUNT(*)']
-                }
-            },
-            /**
-             * Checks if a user can spook someone
-             * @param {UserID} user
-             * @param {ServerID} server
-             * @returns {Promise.<boolean>}
-             */
-            canSpook: async function canSpook(user, server) {
-                const result = await bot.database.getSpooked(server);
-                if (!result)
-                    bot.logger.log(`${user} can spook because there have been no spooks.`);
-                else if (result.spooked !== user)
-                    bot.logger.log(`${user} can't spook ${result[0].spooked} is spooked not ${user}`);
-
-                return !result|| result.spooked === user;
-            },
-            /**
              * Spook someone
              * @param spooked
              * @param {UserID} spooker The user who did the spooking
@@ -583,10 +550,10 @@ module.exports = {
              * @param {String} spookedColour
              * @param {String} spookerAvatar
              * @param {String} spookedAvatar
-             * @param {Boolean} rollback
+             * @param {String} type
              * @returns {*}
              */
-            spook: function spook(spooked, spooker, server, channel, spookerUsername, spookedUsername, spookerColour, spookedColour, spookerAvatar, spookedAvatar, rollback) {
+            spook: function spook(spooked, spooker, server, channel, spookerUsername, spookedUsername, spookerColour, spookedColour, spookerAvatar, spookedAvatar, type) {
                 return knockroach.insert({
                     spooked,
                     spooker,
@@ -599,7 +566,7 @@ module.exports = {
                     spookerAvatar,
                     spookedAvatar,
                     series,
-                    rollback
+                    type
                 }).into(SPOOK_TABLE);
             },
             /**
@@ -614,57 +581,7 @@ module.exports = {
                 return (await knockroach.select().from(SPOOK_TABLE).where({server, series}).orderBy("timestamp", "desc").limit(1))[0];
             },
             getPreviousSpook: async function (server) {
-                return (await knockroach.select().from(SPOOK_TABLE).where({server, series, rollback: 0}).orderBy("timestamp", "desc").limit(1).offset(1))[0];
-            },
-            /**
-             * Gets spooked server stats
-             * @returns {Promise.<{servers: Number, total: Number}>}
-             */
-            getSpookedServers: async function () {
-                return {
-                    servers: await knockroach.select("server", knex.raw("COUNT(*)")).from(SPOOK_TABLE).groupBy("server").where({series}),
-                    total: await knockroach.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({series})
-                }
-            },
-            getCompletedRoles: function (server) {
-                return knockroach.select("user", "role").from("ocelotbot_spook_role_assignments").where("required", "=", "current").andWhereNot({role: 3}).andWhere({server});
-            },
-            getCompletedSabRole: function (server, spooked) {
-                return knockroach.select("user").from("ocelotbot_spook_role_assignments").where({role: 4, spooked, server});
-            },
-            /**
-             * Gets all servers that have participated in the spooking
-             * @returns {Array|*}
-             */
-            getParticipatingServers: function () {
-                return knockroach.select().distinct("server").from(SPOOK_TABLE).where({series});
-            },
-            /**
-             * Gets all users that have participated in the spooking
-             * @returns {Array|*}
-             */
-            getParticipatingUsers: function (servers) {
-                return knockroach.select().distinct("spooker", "spooked").from(SPOOK_TABLE).where({series}).whereIn("server", servers);
-            },
-            /**
-             * Gets all spooks where there is a username missing
-             * @returns {*}
-             */
-            getDirtySpooks: function () {
-                return knockroach.select().from(SPOOK_TABLE).whereNull("spookerUsername").orWhereNull("spookedUsername").where({series});
-            },
-            /**
-             * Update a spook
-             * @param {Number} id The spook ID
-             * @param {Object} spook
-             * @param {String} [spook.spookerUsername]
-             * @param {String} [spook.spookedUsername]
-             * @param {UserID} [spook.spooker]
-             * @param {UserID} [spook.spooked]
-             * @param {ServerID} [spook.server]
-             */
-            updateSpook: function (id, spook) {
-                return knockroach(SPOOK_TABLE).update(spook).where({id, series}).limit(1);
+                return (await knockroach.select().from(SPOOK_TABLE).where({server, series}).andWhereNot({type: "ROLLBACK"}).orderBy("timestamp", "desc").limit(1).offset(1))[0];
             },
             /**
              * Get the total times a user has been spooked in a particular server
@@ -674,6 +591,24 @@ module.exports = {
              */
             getSpookCount: async function (spooked, server) {
                 return (await knockroach.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({server, spooked, series}))[0].count;
+            },
+            getAvailableSpookRoles: function(){
+                return knockroach.select().from("spook_roles");
+            },
+            getAssignedRolesForServer: function(serverID){
+                return knockroach.select().from("spook_role_assignments").where({serverID});
+            },
+            getRoleForUser: async function(userID, serverID){
+                return (await knockroach.select().from("spook_role_assignments").where({userID, serverID}).limit(1))[0];
+            },
+            getRoleCountsForServer: function(serverID){
+                return knockroach.select("id", "rate", knex.raw(`(select count(*) from spook_role_assignments where role = id and spook_role_assignments."serverID" = ?)`, serverID)).from("spook_roles").orderByRaw("RANDOM()")
+            },
+            getRoleInfo: async function(id){
+                return (await knockroach.select().from("spook_roles").where({id}).limit(1))[0]
+            },
+            addSpookRole: function(userID, serverID, role, data){
+                return knockroach.insert({userID, serverID, role, data}).into("spook_role_assignments");
             },
             /**
              * Get the end spook stats
@@ -697,49 +632,6 @@ module.exports = {
                         series
                     }).orderBy("diff", "DESC").limit(1))[0]
                 }
-            },
-            getCurrentlySpookedForShard: function (servers) {
-                return knockroach.select("server", "spooked", "spooker", "timestamp").from(knex.raw(SPOOK_TABLE+" as a")).whereIn("server", servers).andWhere("id", knex.select(knex.raw("MAX(id)")).from(knex.raw(SPOOK_TABLE+" as b")).whereRaw("a.server = b.server")).andWhere("series", series);
-            },
-            incrementSpecialRole: function (server, spooker, spooked) {
-                return knockroach("ocelotbot_spook_role_assignments").increment("current").where({spooker, spooked}).limit(1);
-            },
-            getSpecialRoleCount: async function (server) {
-                let result = await knockroach.select(knex.raw("COUNT(*)")).from("ocelotbot_spook_role_assignments").where({server});
-                return result[0].count;
-            },
-            getSpookRoles: function () {
-                return knockroach.select().from("ocelotbot_spook_roles");
-            },
-            getSpookRole: async function (server, user) {
-                let result = await knockroach.select().from("ocelotbot_spook_role_assignments").where({
-                    server,
-                    user
-                }).limit(1).innerJoin("ocelotbot_spook_roles", "ocelotbot_spook_roles.id", "ocelotbot_spook_role_assignments.role");
-                return result[0];
-            },
-            deleteSpookRole: function (server, user) {
-                return knockroach.delete().from("ocelotbot_spook_role_assignments").where({server, user}).limit(1);
-            },
-            setRoleComplete: function (server, user, complete = 1) {
-                return knockroach("ocelotbot_spook_role_assignments").update({complete}).where({server, user}).limit(1);
-            },
-            hasSpookRole: async function (server, user) {
-                let result = await knockroach.select('user').from("ocelotbot_spook_role_assignments").where({
-                    server,
-                    user
-                }).limit(1);
-                return !!result[0]
-            },
-            assignSpookRole: function (role, user, spooked, required, server, spooker) {
-                return knockroach.insert({
-                    role,
-                    user,
-                    spooker,
-                    spooked,
-                    required,
-                    server
-                }).into("ocelotbot_spook_role_assignments");
             },
             getProfile: function (user) {
                 return knex.select().from("ocelotbot_profile").where({id: user}).limit(1);
