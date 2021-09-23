@@ -18,7 +18,7 @@ module.exports = {
         bot.spook.spooked = [];
         bot.client.on("guildMemberRemove", async (member)=> {
             const currentSpook = await bot.database.getSpooked(member.guild.id);
-            if (currentSpook.spooked !== member.id) return;
+            if (!currentSpook || currentSpook.spooked !== member.id) return;
             module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
         });
     },
