@@ -95,7 +95,7 @@ module.exports = {
             if (assignableRoleId) {
                 try {
                     bot.logger.log(`Attempting to assign role ${assignableRoleId} to ${toMember.id}`);
-                    let roleInfo = await bot.database.getRoleInfo(assignableRoleId);
+                    let roleInfo = await bot.redis.cache(`spook/role/${assignableRoleId}`, async ()=>await bot.database.getRoleInfo(assignableRoleId), 60000);
                     let roleData = await SpookRoles.GetDataForSpookRole(bot, toMember, roleInfo);
                     if(roleData) {
                         let embed = new Discord.MessageEmbed();
@@ -170,11 +170,9 @@ module.exports = {
             await context.send({embeds: [embed]});
         }
 
-        await module.exports.spook(bot, context, context.member, member);
-
+        module.exports.spook(bot, context, context.member, member);
         const result = await bot.database.getSpookCount(member.id, context.guild.id);
-
-        return context.sendLang({content: "SPOOK"}, {spooked: member.id, count: Strings.GetNumberPrefix(result)});
+        return context.sendLang({content: "SPOOK"}, {spooked: member.id, count: Strings.GetNumberPrefix(result+1)});
 
     }
 };
