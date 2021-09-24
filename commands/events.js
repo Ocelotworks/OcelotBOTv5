@@ -27,9 +27,8 @@ module.exports = {
             embed.fields = [];
             for (let i = 0; i < responses.length; i++){
                 const response = responses[i];
-                embed.addField(bot.lang.getTranslation(interaction.guild_id, `EVENTS_${response.status}`, {}, interaction.member.user.id), "" + response.count)
+                embed.addField(bot.lang.getTranslation(interaction.guild_id, `EVENTS_${response.status}`, {}, interaction.member.user.id), "" + response.count, true);
             }
-
 
             await message.edit({embeds: [embed]});
 
