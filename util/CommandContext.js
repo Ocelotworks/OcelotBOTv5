@@ -277,7 +277,7 @@ class InteractionCommandContext extends CommandContext {
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         this.bot.bus.emit("messageSent", options);
-        if(options.components)options.components = options.components.filter((c)=>c);
+        if(options?.components)options.components = options.components.filter((c)=>c);
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
         return this.interaction.reply(options);
