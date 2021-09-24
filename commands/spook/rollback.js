@@ -28,7 +28,7 @@ module.exports = {
             }
         }
 
-        await context.commandData.spook(bot, context, fromMember, toMember, true);
+        await context.commandData.spook(bot, context, fromMember, toMember, "ROLLBACK");
         return context.sendLang({content}, {fromMember, toMember});
     }
 

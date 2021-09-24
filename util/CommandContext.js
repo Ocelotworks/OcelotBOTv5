@@ -116,10 +116,12 @@ class MessageCommandContext extends CommandContext {
     args;
 
     constructor(bot, message, args, command){
-        super(bot, message.member, message.author, message.channel, message.guild, command, message.id);
-        this.message = message;
+        super(bot, message?.member, message?.author, message?.channel, message?.guild, command, message?.id);
         this.args = args;
-        this.content = message.content;
+        if(message) {
+            this.message = message;
+            this.content = message.content;
+        }
     }
 
     logPerformed(){
@@ -136,7 +138,7 @@ class MessageCommandContext extends CommandContext {
 
     async send(options){
         // How can this be possible?
-        if(!this.message.channel)return this.bot.logger.warn("Channel was null? "+this.content);
+        if(!this.channel)return this.bot.logger.warn("Channel was null? "+this.content);
         Sentry.addBreadcrumb({
             message: "Message Send",
             data: {
@@ -148,8 +150,9 @@ class MessageCommandContext extends CommandContext {
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         if(options.components)options.components = options.components.filter((c)=>c);
-        const message = await this.message.channel.send(options);
-        this.message.response = message;
+        const message = await this.channel.send(options);
+        if(this.message)
+            this.message.response = message;
         this.bot.bus.emit("messageSent", message);
         return message;
     }
@@ -159,15 +162,14 @@ class MessageCommandContext extends CommandContext {
             message: "Message Replied",
             data: {
                 command: this.command,
-                id: this.message.id,
-                guild: this.message.guild?.id,
-                channel: this.message.channel?.id,
+                id: this.id,
+                guild: this.guild?.id,
+                channel: this.channel?.id,
             }
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id).has("READ_MESSAGE_HISTORY"))
             return this.send(options);
-
         const message = await this.message.reply(options);
         this.message.response = message;
         this.bot.bus.emit("messageSent", message);
@@ -180,14 +182,14 @@ class MessageCommandContext extends CommandContext {
 
     edit(options, message){
         // I still don't understand how this can happen
-        if(!this.message.channel)return this.bot.logger.warn("Channel was null? "+this.content);
+        if(!this.channel)return this.bot.logger.warn("Channel was null? "+this.content);
         Sentry.addBreadcrumb({
             message: "Message Edited",
             data: {
                 command: this.command,
-                id: this.message.id,
-                guild: this.message.guild?.id,
-                channel: this.message.channel?.id,
+                id: this.id,
+                guild: this.guild?.id,
+                channel: this.channel?.id,
             }
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
@@ -211,15 +213,19 @@ class MessageEditCommandContext extends MessageCommandContext {
     async send(options){
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
         if(options.components)options.components = options.components.filter((c)=>c);
-        if(this.response && !this.response.deleted)
-            return this.response.edit(options);
+        if(this.response && !this.response.deleted) {
+            let editResult = await this.response.edit(options).catch(()=>null);
+            if(editResult)return editResult;
+        }
         return super.send(options);
     }
 
     async reply(options){
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
-        if(this.response && !this.response.deleted)
-            return this.response.edit(options);
+        if(this.response && !this.response.deleted) {
+            let editResult = await this.response.edit(options).catch(() => null);
+            if (editResult) return editResult;
+        }
         return super.reply(options);
     }
 }
@@ -337,52 +343,19 @@ class InteractionCommandContext extends CommandContext {
     }
 }
 
-class SyntheticCommandContext extends CommandContext {
+class SyntheticCommandContext extends MessageCommandContext {
     synthetic = true;
 
     constructor(bot, member, user, channel, guild, input){
-        super(bot, member, user, channel, guild);
+        super(bot);
+        this.id = "SYNTHETIC"; // todo: make this a better ID
+        this.member = member;
+        this.user = user;
+        this.channel = channel;
+        this.guild = guild;
+        this.content = input;
         this.args = input.split(" ");
         this.command = this.args[0];
-        this.content = input;
-        this.id = "SYNTHETIC"; // todo: make this a better ID
-    }
-
-    async send(options){
-        Sentry.addBreadcrumb({
-            message: "Message Send",
-            data: {
-                command: this.command,
-                id: this.id,
-                guild: this.guild?.id,
-                channel: this.channel?.id,
-            }
-        });
-        Sentry.setExtra("context", {type: "synthetic", command: this.command, args: this.args, message: this.content});
-        if(options.components)options.components = options.components.filter((c)=>c);
-        const message = await this.channel.send(options);
-        this.bot.bus.emit("messageSent", message);
-        return message;
-    }
-
-    edit(options, message){
-        Sentry.addBreadcrumb({
-            message: "Message Edited",
-            data: {
-                command: this.command,
-                id: this.message.id,
-                guild: this.message.guild?.id,
-                channel: this.message.channel?.id,
-            }
-        });
-        Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
-        if(!message || message.deleted)return this.send(options);
-        return message.edit(options);
-    }
-
-
-    reply(options) {
-        return this.send(options);
     }
 }
 
