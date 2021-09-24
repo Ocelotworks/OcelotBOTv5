@@ -100,7 +100,7 @@ module.exports = {
                     if (moveData.src.piece.side.name === runningGame.turn ? "white" : "black") {
                         context.sendLang({
                             content: "CHESS_INVALID_NOTATION" + (moveData.dest.piece ? "_TAKE" : ""),
-                            components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, move))]
+                           // components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, move))]
                         }, {
                             move,
                             piece: moveData.src.piece.type,
