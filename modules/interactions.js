@@ -87,7 +87,7 @@ module.exports = class Interactions{
             return {type: 4, data: {flags: 64, content: "Only the user that typed the command can use that button."}};
         const channel = await this.bot.client.channels.fetch(interaction.message.channel_id);
         const message = await channel.messages.fetch(interaction.message.id);
-        const member = channel.members.get(userId);
+        const member = channel.isThread() ? await channel.members.fetch(userId) : channel.members.get(userId);
         if(!member)
             return {type: 4, data: {flags: 64, content: "You no longer have access to this channel. This message should never appear. Tell Big P#1843!"}};
         const synthContext = new SyntheticCommandContext(this.bot, member, member.user, channel, channel.guild, command);
