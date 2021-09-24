@@ -4,9 +4,8 @@ module.exports = {
     commands: ["givepoints", "points"],
     noCustom: true,
     run: async function (context, bot) {
-        let target = await bot.client.users.fetch(context.options.user);
         let amount = context.options.amount;
-        let newAmount = await bot.database.addPoints(target, amount, `admin add ${context.user.id}`);
-        context.send(`<@${target}> now has <:points:817100139603820614>${newAmount.toLocaleString()}`)
+        let newAmount = await bot.database.addPoints(context.options.user, amount, `admin add ${context.user.id}`);
+        return context.send(`<@${context.options.user}> now has <:points:817100139603820614>${newAmount.toLocaleString()}`)
     }
 };
