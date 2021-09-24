@@ -5,6 +5,9 @@ module.exports = {
     run: async function (context, bot) {
         let target = await context.getMember(context.options.user)?.user;
 
+        if(!target)
+            return context.send({content: "Couldn't find the user specified. Make sure they're in this channel.", ephemeral: true});
+
         if(target.id === context.user.id)
             return context.send({content: "You can't send points to yourself. What would that even achieve?", ephemeral: true});
 
