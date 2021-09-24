@@ -172,7 +172,7 @@ module.exports = {
 
         module.exports.spook(bot, context, context.member, member);
         const result = await bot.database.getSpookCount(member.id, context.guild.id);
-        return context.sendLang({content: "SPOOK"}, {spooked: member.id, count: Strings.GetNumberPrefix(result+1)});
+        return context.sendLang({content: "SPOOK"}, {spooked: member.id, count: Strings.GetNumberPrefix(1+result)});
 
     }
 };
