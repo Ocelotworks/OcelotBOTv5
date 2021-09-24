@@ -9,6 +9,7 @@ module.exports = {
     nestedDir: "points",
     init: function init(bot){
         bot.addCommandMiddleware(async (context)=>{
+            if(context.getBool("serverPremium"))return true;
             if(!context.getBool("points.enabled"))return true;
             if(!context.commandData.pointsCost)return true;
             const canUse = await bot.database.takePoints(context.user.id, context.commandData.pointsCost, context.commandData.id);
