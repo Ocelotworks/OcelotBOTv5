@@ -17,6 +17,7 @@ module.exports = {
         bot.spook = {};
         bot.spook.spooked = [];
         bot.client.on("guildMemberRemove", async (member)=> {
+            if(!bot.config.getBool("global", "spook.doLeaveCheck"))return bot.logger.log("Ignoring leave as doLeaveCheck is off");
             const currentSpook = await bot.database.getSpooked(member.guild.id);
             if (!currentSpook || currentSpook.spooked !== member.id) return;
             module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
