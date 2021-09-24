@@ -143,9 +143,9 @@ class MessageCommandContext extends CommandContext {
             message: "Message Send",
             data: {
                 command: this.command,
-                id: this.message.id,
-                guild: this.message.guild?.id,
-                channel: this.message.channel?.id,
+                id: this.message?.id,
+                guild: this.message?.guild?.id,
+                channel: this.message?.channel?.id,
             }
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
