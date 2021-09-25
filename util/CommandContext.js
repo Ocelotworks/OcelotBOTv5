@@ -363,13 +363,11 @@ const blacklistedSettings = ["premium", "serverPremium", "admin", "ocelotworks"]
 
 class CustomCommandContext extends SyntheticCommandContext {
     overrideSettings;
-    overrideLang;
 
     constructor(bot, message, response){
         super(bot, message.member, message.author, message.channel, message.guild, response.content);
         this.message = message;
         this.overrideSettings = response.settings;
-        this.overrideLang = response.overrideLang;
     }
 
     getSetting(setting) {
@@ -378,8 +376,8 @@ class CustomCommandContext extends SyntheticCommandContext {
         return super.getSetting(setting);
     }
 
-    getLang(key, values) {
-        if(this.overrideLang && this.overrideLang[key]) {
+    getLang(key, values = {}) {
+        if(this.overrideSettings && this.overrideSettings["lang."+key]) {
             values.prefix = this.getSetting("prefix")
             values.botName = this.bot.client.user.username;
             values.command = this.command;
@@ -390,7 +388,7 @@ class CustomCommandContext extends SyntheticCommandContext {
             values.options = this.options;
             values.locale = this.getSetting("lang");
             if(values.locale === "en-owo")format.locale = "en-gb";
-            return Strings.Format(this.overrideLang[key], values);
+            return Strings.Format(this.overrideSettings["lang."+key], values);
         }
         return super.getLang(key, values);
     }
