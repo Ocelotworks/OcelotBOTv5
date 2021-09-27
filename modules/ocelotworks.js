@@ -42,7 +42,8 @@ module.exports = {
         bot.client.on("messageCreate", async function onMessage(message) {
             // noinspection EqualityComparisonWithCoercionJS
             if (message.guild && message.guild.id == "478950156654346292") {
-                bot.topicCounter++;
+                if(!message.channel.isThread())
+                    bot.topicCounter++;
                 await bot.database.logMessage(userMaps[message.author.id] || message.author.id, message.content, message.channel.id);
                 if (bot.topicCounter >= 100) {
                     bot.changeTopic(message);

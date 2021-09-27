@@ -15,7 +15,12 @@ module.exports = {
             acc[data.id] = data;
             return acc;
         }, {})
-        let output = `\n\`\`\`asciidoc\n${context.commandData.name} help:\n========\n`;
+        let preamble = "";
+        if(context.commandData.detailedHelp)
+            preamble+= context.commandData.detailedHelp;
+        if(context.commandData.usageExample)
+            preamble += `\ne.g **${context.getSetting("prefix")}${context.commandData.usageExample}**`;
+        let output = `${preamble}\n\`\`\`asciidoc\n${context.commandData.name} help:\n========\n`;
         for(let id in subCommands){
             if(!subCommands.hasOwnProperty(id))continue;
             const subCommand = subCommands[id];

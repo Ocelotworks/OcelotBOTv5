@@ -143,9 +143,9 @@ class MessageCommandContext extends CommandContext {
             message: "Message Send",
             data: {
                 command: this.command,
-                id: this.message.id,
-                guild: this.message.guild?.id,
-                channel: this.message.channel?.id,
+                id: this.message?.id,
+                guild: this.message?.guild?.id,
+                channel: this.message?.channel?.id,
             }
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
@@ -277,7 +277,7 @@ class InteractionCommandContext extends CommandContext {
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         this.bot.bus.emit("messageSent", options);
-        if(options.components)options.components = options.components.filter((c)=>c);
+        if(options?.components)options.components = options.components.filter((c)=>c);
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
         return this.interaction.reply(options);
@@ -363,13 +363,11 @@ const blacklistedSettings = ["premium", "serverPremium", "admin", "ocelotworks"]
 
 class CustomCommandContext extends SyntheticCommandContext {
     overrideSettings;
-    overrideLang;
 
     constructor(bot, message, response){
         super(bot, message.member, message.author, message.channel, message.guild, response.content);
         this.message = message;
         this.overrideSettings = response.settings;
-        this.overrideLang = response.overrideLang;
     }
 
     getSetting(setting) {
@@ -378,8 +376,8 @@ class CustomCommandContext extends SyntheticCommandContext {
         return super.getSetting(setting);
     }
 
-    getLang(key, values) {
-        if(this.overrideLang && this.overrideLang[key]) {
+    getLang(key, values = {}) {
+        if(this.overrideSettings && this.overrideSettings["lang."+key]) {
             values.prefix = this.getSetting("prefix")
             values.botName = this.bot.client.user.username;
             values.command = this.command;
@@ -390,7 +388,7 @@ class CustomCommandContext extends SyntheticCommandContext {
             values.options = this.options;
             values.locale = this.getSetting("lang");
             if(values.locale === "en-owo")format.locale = "en-gb";
-            return Strings.Format(this.overrideLang[key], values);
+            return Strings.Format(this.overrideSettings["lang."+key], values);
         }
         return super.getLang(key, values);
     }
