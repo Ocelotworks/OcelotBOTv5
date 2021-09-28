@@ -39,28 +39,37 @@ module.exports = {
         if (data.hidden)
             desc += "\n- Hidden";
 
+        if (data.disabled)
+            desc += "\n- Disabled";
+
         if (data.slashHidden)
             desc += "\n- Hidden for Slash Commands";
 
         if (data.noSynthetic)
-            desc += "\n- Disabled for Custom Commands";
+            desc += "\n- Disabled for Synthetic Contexts";
+
+        if(data.middleware)
+            desc += "\n - Implements Custom Middleware"
+
+        if(data.handleError)
+            desc += "\n - Implements Custom Error Handling"
 
         embed.setDescription(desc);
 
         embed.addField("Aliases", data.commands.join(", "), true);
         embed.addField("Categories", data.categories.join(", "), true)
         if(data.detailedHelp)
-            embed.addField("Detailed Help", data.detailedHelp, true);
+            embed.addField("Detailed Help", data.detailedHelp);
 
         if (data.usageExample)
-            embed.addField("Usage Example", data.usageExample, true);
+            embed.addField("Usage Example", data.usageExample);
 
         if (data.responseExample)
             embed.addField("Response Example", data.responseExample, true);
 
         if (data.rateLimit) {
             const max = context.getSetting("rateLimit");
-            embed.addField("RateLimit", `${data.rateLimit}/${max} (${(max/data.rateLimit).toFixed(0)} per minute)`, true);
+            embed.addField("Ratelimit", `${data.rateLimit}/${max} (${(max/data.rateLimit).toFixed(0)} per minute)`, true);
         }
 
         if (data.nestedDir)
@@ -77,6 +86,9 @@ module.exports = {
 
         if(data.pattern)
             embed.addField("Parsed Pattern", `\`\`\`json\n${JSON.stringify(data.pattern)}\n\`\`\``);
+
+        if(data.contextMenu)
+            embed.addField("Context Menu", `\`\`\`json\n${JSON.stringify(data.contextMenu)}\n\`\`\``);
 
         if(context.options.subcommand && data.subCommands[context.options.subcommand])
             embed.addField("Sub-command Pattern", `\`\`\`json\n${JSON.stringify(data.subCommands[context.options.subcommand].pattern)}\n\`\`\``);

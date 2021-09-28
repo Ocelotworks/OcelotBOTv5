@@ -20,7 +20,7 @@ module.exports = {
 
         if(user){
             output.setTitle(`Info for ${user.tag} (${userId})`);
-            output.setImage(user.avatarURL())
+            output.setThumbnail(user.avatarURL())
         }else{
             output.setTitle(`Info for ${userId}`);
         }
@@ -31,7 +31,7 @@ module.exports = {
         }
 
         if(bot.config.cache[userId]){
-            output.addField("Settings Applied", trim(`\`\`\`\n${Object.keys(bot.config.cache[userId]).map((key)=>`${key}: ${bot.config.cache[userId][key]}`).join("\n")}\n\`\`\``));
+            output.addField("Settings Applied", trim(`\`\`\`yaml\n${Object.keys(bot.config.cache[userId]).map((key)=>`${key}: ${bot.config.cache[userId][key]}`).join("\n")}\n\`\`\``));
         }
 
         let guildCollection = (await bot.rabbit.broadcastEval(`
@@ -42,7 +42,10 @@ module.exports = {
 
         let lastCommands = await bot.database.getUserCommands(userId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
         output.addField("Last 5 Commands", trim(`Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``));
-        let buttons = [{type: 2, label: "View in Dashboard", style: 5, url: `https://ocelotbot.xyz/dash-beta/#/admin/user/${userId}`}]
+        let buttons = [
+            {type: 2, label: "View in Dashboard", style: 5, url: `https://ocelotbot.xyz/dash-beta/#/admin/user/${userId}`},
+            {type: 2, label: "View in Sentry", style: 5, url: `https://sentry.io/organizations/ocelotworks/issues/?project=228107&query=is%3Aunresolved+user.id%3A${userId}&statsPeriod=14d`}
+        ]
         if(lastCommands[0])
             buttons.push(bot.interactions.suggestedCommand(context, `ci ${lastCommands[0].id}`))
         return bot.util.sendButtons(context.channel, {embeds: [output]},  buttons);
