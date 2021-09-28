@@ -79,6 +79,7 @@ module.exports = class Strings {
         MANAGE_ROLES_OR_PERMISSIONS: "Manage Roles",
         MANAGE_WEBHOOKS: "Manage Webhooks",
         MANAGE_EMOJIS: "Manage Emojis And Stickers",
+        MANAGE_EMOJIS_AND_STICKERS: "Manage Emojis And Stickers",
         USE_APPLICATION_COMMANDS: "Use Slash Commands",
         REQUEST_TO_SPEAK: "Request to Speak",
         MANAGE_THREADS: "Manage Threads",
