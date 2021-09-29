@@ -273,7 +273,7 @@ module.exports = class Util {
 
     static GetUserCount(bot){
         return bot.rabbit.broadcastEval(`
-            this.guilds.cache.filter((guild)=>guild.available).memberCount;
+            this.guilds.cache.filter((guild)=>guild.available).map((g)=>g.memberCount);
         `).then((c)=>c.reduce((a, b)=>a+b, 0));
     }
 
