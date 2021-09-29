@@ -16,7 +16,7 @@ module.exports = {
             if(bot.commands[trigger])return context.sendLang({content: "CUSTOM_TRIGGER_BUILTIN", ephemeral: true});
         }
         if(type === "COMMAND" || type === "AUTORESPOND" && await bot.database.getCustomCommand(context.guild.id, trigger))
-            return context.sendLang({content: "CUSTOM_TRIGGER_EXISTS", ephemeral: true}, {arg: context.command});
+            return context.sendLang({content: "CUSTOM_TRIGGER_EXISTS", ephemeral: true}, {trigger});
         let start = context.options.triggerAndCode.indexOf("```")
         let end = context.options.triggerAndCode.length - 4;
         if (start === -1) {
