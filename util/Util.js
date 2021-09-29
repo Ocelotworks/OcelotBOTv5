@@ -271,6 +271,12 @@ module.exports = class Util {
         `).then((c)=>c.reduce((a, b)=>a+b, 0));
     }
 
+    static GetUserCount(bot){
+        return bot.rabbit.broadcastEval(`
+            this.guilds.cache.filter((guild)=>guild.available).memberCount;
+        `).then((c)=>c.reduce((a, b)=>a+b, 0));
+    }
+
     static async FetchMessages(channel, amount) {
         let iterations = Math.ceil(amount / 100);
         let before;
