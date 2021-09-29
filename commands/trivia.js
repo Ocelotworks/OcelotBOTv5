@@ -95,9 +95,10 @@ module.exports = {
                 const correctAnswer = decodeURIComponent(question.correct_answer);
                 for(let i = 0; i < users.length; i++){
                     if(!userAnswers.hasOwnProperty(users[i]))continue
-                    bot.database.logTrivia(users[i], userAnswers[users[i]] === correctAnswer, difficulty, context.guild?.id || context.channel.id)
-                    if(userAnswers[users[i]] === correctAnswer)
+                    bot.database.logTrivia(users[i], userAnswers[users[i]] === correctAnswer, difficulty, context.guild?.id || context.channel.id).then(()=>null)
+                    if(userAnswers[users[i]] === correctAnswer) {
                         correct.push(users[i]);
+                    }
 
                 }
 
