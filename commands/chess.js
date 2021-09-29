@@ -41,7 +41,7 @@ module.exports = {
             context.sendLang({content: "GAME_INVALID_USAGE", ephemeral: true}, {arg: context.command});
         });
     },
-    renderBoard: async function (context, bot) {
+    renderBoard: async function (context, bot, isFirstRun) {
         const game = runningGames[context.channel.id].game;
         let payload = {
             "components": [{"url": "chess/chessboard.png", "local": true}]
@@ -62,20 +62,22 @@ module.exports = {
             })
         }
 
-        let output = `Turn: ${runningGames[context.channel.id].players[+!runningGames[context.channel.id].turn]}`;
-        if (gameStatus.board.isCheck)
-            output += context.getLang("CHESS_CHECK");
+        if(!isFirstRun) {
+            let output = `Turn: ${runningGames[context.channel.id].players[+!runningGames[context.channel.id].turn]}`;
+            if (gameStatus.board.isCheck)
+                output += context.getLang("CHESS_CHECK");
 
-        if (gameStatus.board.isCheckmate) {
-            output += context.getLang("CHESS_CHECKMATE", {winner: runningGames[context.channel.id].players[+!runningGames[context.channel.id].turn].id});
-            delete runningGames[context.channel.id];
+            if (gameStatus.board.isCheckmate) {
+                output += context.getLang("CHESS_CHECKMATE", {winner: runningGames[context.channel.id].players[+!runningGames[context.channel.id].turn].id});
+                delete runningGames[context.channel.id];
+            }
+            if (gameStatus.board.isStalemate) {
+                output += context.getLang("CHESS_STALEMATE");
+                delete runningGames[context.channel.id];
+            }
+            if (gameStatus.board.isRepetition)
+                output += context.getLang("CHESS_REPETITION");
         }
-        if (gameStatus.board.isStalemate) {
-            output += context.getLang("CHESS_STALEMATE");
-            delete runningGames[context.channel.id];
-        }
-        if (gameStatus.board.isRepetition)
-            output += context.getLang("CHESS_REPETITION");
 
         return await Image.ImageProcessor(bot, context,  payload, "board", output);
     },
@@ -85,7 +87,7 @@ module.exports = {
         if (runningGame) {
             try {
                 runningGame.game.move(command);
-                let newMessage = await module.exports.renderBoard(context, bot);
+                let newMessage = await module.exports.renderBoard(context, bot, true);
                 if (runningGame.lastMessage && !runningGame.lastMessage.deleted) {
                     await runningGame.lastMessage.delete();
                 }
