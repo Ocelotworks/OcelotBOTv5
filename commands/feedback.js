@@ -16,14 +16,15 @@ module.exports = {
             const [guildId, channelId] = interaction.data.custom_id.substring(1).split("/");
             const channel = await bot.client.guilds.fetch(guildId).then((g)=>g.channels.fetch(channelId)).catch(()=>null);
             if(!channel)return {type: 4, data: {flags: 64, content: "Channel has been deleted or server was left."}};
-            let thread = await channel.threads.create({
+            const feedbackChannel = await bot.client.channels.fetch(interaction.channel_id);
+            let thread = await feedbackChannel.threads.create({
                 startMessage: interaction.message.id,
                 name: `${channel.guild.name} - ${channel.id}`,
                 autoArchiveDuration: 1440,
                 reason: "Feedback thread requested",
             });
             thread.send({content: `<@${interaction.member.user.id}>`});
-            let message = await bot.client.channels.fetch(interaction.channel_id).then((c)=>c.messages.fetch(interaction.message.id));
+            let message = await feedbackChannel.messages.fetch(interaction.message.id);
             message.edit({components: []});
             return {type: 6};
         })
