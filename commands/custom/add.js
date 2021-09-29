@@ -15,16 +15,17 @@ module.exports = {
             if(trigger.startsWith(context.getSetting("prefix")))return context.sendLang({content: "CUSTOM_TRIGGER_PREFIX", ephemeral: true});
             if(bot.commands[trigger])return context.sendLang({content: "CUSTOM_TRIGGER_BUILTIN", ephemeral: true});
         }
-        if(type === "COMMAND" || type === "AUTORESPOND" && await bot.database.getCustomCommand(context.guild.id, trigger))
+        if((type === "COMMAND" || type === "AUTORESPOND") && await bot.database.getCustomCommand(context.guild.id, trigger))
             return context.sendLang({content: "CUSTOM_TRIGGER_EXISTS", ephemeral: true}, {trigger});
-        let start = context.options.triggerAndCode.indexOf("```")
-        let end = context.options.triggerAndCode.length - 4;
+        const content = `${context.options.trigger} ${context.options.triggerAndCode}`;
+        let start = content.indexOf("```")
+        let end = content.length - 4;
         if (start === -1) {
             start = trigger.length+1;
-            end = context.options.triggerAndCode.length;
+            end = content.length;
         }else{
             if(type !== "COMMAND")
-                trigger = context.options.trigger+" "+context.options.triggerAndCode.substring(0, start);
+                trigger = content.substring(0, start);
             start += 3
         }
 
@@ -56,8 +57,9 @@ module.exports = {
             trigger = context.channel.id+"/"+trigger+"/"+(context.message?.id || context.interaction?.id);
         }
 
-        let code = context.options.triggerAndCode.substring(start, end).trim();
+        let code = content.substring(start, end).trim();
 
+        console.log(code);
         if(code.startsWith("lua"))code = code.substring(3); // Remove lua from the start of the codeblock
 
         if(code.length === 0){

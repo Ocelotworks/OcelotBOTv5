@@ -84,6 +84,7 @@ module.exports = {
         let code = context.options.code.substring(start, end);
 
         if(code.startsWith("lua"))code = code.substring(3); // Remove lua from the start of the codeblock
+        console.log("Codeblock:" ,code);
         return code;
     },
     async getNameOrId(context, bot){
