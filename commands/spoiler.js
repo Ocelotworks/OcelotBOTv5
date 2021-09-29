@@ -7,6 +7,8 @@
 module.exports = {
     name: "Spoilerise Text",
     usage: "spoiler :text+",
+    detailedHelp: "Puts spoiler tags around every single letter in a word",
+    usageHelp: "spoiler darth vader is lukes father",
     categories: ["text"],
     rateLimit: 10,
     commands: ["spoiler", "spoilerise", "spoilerize"],

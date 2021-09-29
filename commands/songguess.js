@@ -31,6 +31,8 @@ module.exports = {
     categories: ["games", "voice"],
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["guess", "guesssong", "songguess", "namethattune", "quess", "gues"],
+    detailedHelp: "Guess the name of a song",
+    usageExample: "guess",
     guildOnly: true,
     slashHidden: true,
     nestedDir: "guess",
