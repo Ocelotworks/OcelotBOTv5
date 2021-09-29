@@ -62,7 +62,7 @@ module.exports = {
                 return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
             if (body.errors) {
                 console.log(body.errors);
-                return context.sendLang({content: "STATS_ERROR", ephemeral: true}, {message: body.error[0].message, username});
+                return context.sendLang({content: "STATS_ERROR", ephemeral: true}, {message: body.errors[0].message, username});
             }
             if (!body.data || !body.data.metadata)
                 return context.sendLang({content: "STATS_NOT_FOUND", ephemeral: true});
