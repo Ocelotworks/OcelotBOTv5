@@ -13,8 +13,8 @@ module.exports = {
         bot.interactions.addHandler("F", async (interaction)=>{
             if(!(bot.config.getBool(interaction.guild_id, "admin", interaction.member.user.id)|| bot.config.getBool(interaction.guild_id, "feedback.responder", interaction.member.user.id)))
                 return {type: 4, data: {flags: 64, content: "You're not allowed to use that button"}};
-            const channelId = interaction.data.custom_id.substring(1);
-            const channel = await bot.client.channels.fetch(channelId).catch(()=>null);
+            const [guildId, channelId] = interaction.data.custom_id.substring(1).split("/");
+            const channel = await bot.client.guilds.fetch(guildId).then((g)=>g.channels.fetch(channelId)).catch(()=>null);
             if(!channel)return {type: 4, data: {flags: 64, content: "Channel has been deleted or server was left."}};
             let thread = await channel.threads.create({
                 startMessage: interaction.message.id,
@@ -41,7 +41,7 @@ module.exports = {
             });
         })
 
-        bot.client.on("messageEdited", (oldMessage, newMessage)=>{})
+       // bot.client.on("messageEdited", (oldMessage, newMessage)=>{})
     },
     run: async function run(context, bot) {
         if(context.getSetting("prefix") === "!" && context.command === "feedback" && context.channel?.members?.has("507970352501227523"))  //Fast Food Bot
@@ -89,13 +89,14 @@ module.exports = {
         if(context.getBool("feedback.shadowbanned"))return;
 
 
-        const feedbackChannel = await bot.client.channels.fetch(context.getSetting("feedback.channel"));
+        // Discord.js can't fetch a channel for a guild that hasn't been fetched, so need a quick hack here
+        const feedbackChannel = await bot.client.guilds.fetch("322032568558026753").then((g)=>g.channels.fetch(context.getSetting("feedback.channel")));
         if(!feedbackChannel)return bot.logger.warn(`Could not fetch feedback channel! ${context.getSetting("feedback.channel")}`);
         let feedbackMessage = Discord.Util.escapeMarkdown(context.options.message).replace(/discord\.gg/gi, "discordxgg");
         let thread = await feedbackChannel.threads.fetch({active: true}).then((result)=>result.threads.find((t)=>t.name.endsWith(context.channel.id))).catch(console.error);
         if(!thread)
             return feedbackChannel.send({
-                components: [bot.util.actionRow({type: 2, custom_id: `F${context.channel.id}`, label: "Thread...", style: 2})],
+                components: [bot.util.actionRow({type: 2, custom_id: `F${context.guild?.id}/${context.channel.id}`, label: "Thread...", style: 2})],
                 content: `Feedback from ${context.user.id} (${await bot.util.getUserTag(context.user.id)}) in ${context.guild?.id} (${context.guild?.name}):\n\`\`\`\n${feedbackMessage}\n\`\`\``
             });
 
