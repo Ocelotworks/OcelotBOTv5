@@ -3,16 +3,16 @@ const Util = require("../util/Util");
 const Embeds = require("../util/Embeds");
 const shardNames = [
     "Remo.tv",
-    "shart",
+    "Alexis",
     "Sexy Trap Wife",
     "Wankish",
     "Wiking",
-    "cursed_shard",
+    "Thatgirlpossessed",
     "Anex TTT",
-    "blessed_shard",
+    "Zucc",
     "King Viking",
     "S1othy",
-    "Omz",
+    "Marco",
     "sunny",
     "smirkstudios",
     "Gnome Fire",
@@ -24,6 +24,9 @@ const shardNames = [
     "Fay",
     "crybaby",
     "nicole",
+    "Massive Effect",
+    "Maxmarval",
+    "Cables",
 ];
 module.exports = {
     name: "Stats",

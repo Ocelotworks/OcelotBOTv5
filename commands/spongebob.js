@@ -4,6 +4,8 @@
 module.exports = {
     name: "Spongebob",
     usage: "spongebob :text?+",
+    detailedHelp: "The SpOnGeBob mEmE",
+    usageExample: "spongebob shut up",
     requiredPermissions: ["EMBED_LINKS", "READ_MESSAGE_HISTORY", "VIEW_CHANNEL"],
     commands: ["spongebob"],
     categories: ["text", "memes"],

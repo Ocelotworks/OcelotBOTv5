@@ -8,6 +8,7 @@ const Image = require('../util/Image');
 module.exports = {
     name: "Spread Image",
     usage: "spread :image?",
+    detailedHelp: "Mr Ocelot I don't Feel So Good...",
     categories: ["image", "filter"],
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],

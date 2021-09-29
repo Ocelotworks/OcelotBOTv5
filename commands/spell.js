@@ -1,6 +1,7 @@
 module.exports = {
     name: "Spell with Reactions",
     usage: "spell :message+",
+    detailedHelp: "Tries to spell a word using reactions",
     usageExample: "spell hello world",
     commands: ["spell", "react"],
     categories: ["fun"],
