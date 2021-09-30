@@ -22,6 +22,25 @@ module.exports = {
             if (!currentSpook || currentSpook.spooked !== member.id) return;
             module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
         });
+        bot.client.once("ready", ()=>{
+            let diff = start-new Date();
+            bot.logger.log(`Spook starts in ${diff}ms`);
+            if(diff < 0)
+                return module.exports.startSpook(bot);
+            setTimeout(()=>module.exports.startSpook(bot), diff);
+        });
+    },
+    startSpook(bot){
+        bot.updatePresence = async ()=>{
+            let spookCount = await bot.database.getTotalSpooks()
+            await bot.client.user.setPresence({
+                activities: [{
+                    name: `👻 !spook | ${spookCount.toLocaleString()} SPOOKED`,
+                    type: "COMPETING",
+                }]
+            });
+        }
+        bot.updatePresence();
     },
     async forceNewSpook(bot, currentSpook, reason, fromMember){
         bot.logger.log(`Generating new spook for ${currentSpook.server} (${reason})`);
@@ -172,7 +191,7 @@ module.exports = {
 
         module.exports.spook(bot, context, context.member, member);
         const result = await bot.database.getSpookCount(member.id, context.guild.id);
-        return context.sendLang({content: "SPOOK"}, {spooked: member.id, count: Strings.GetNumberPrefix(1+result)});
+        return context.sendLang({content: "SPOOK"}, {spooked: member.id, count: Strings.GetNumberPrefix(parseInt(result)+1)});
 
     }
 };
