@@ -22,6 +22,28 @@ module.exports = {
             if (!currentSpook || currentSpook.spooked !== member.id) return;
             module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
         });
+        bot.client.once("ready", ()=>{
+            let diff = start-new Date();
+            bot.logger.log(`Spook starts in ${diff}ms`);
+            if(diff < 0)
+                return module.exports.startSpook(bot);
+            setTimeout(()=>module.exports.startSpook(bot), diff);
+        });
+    },
+    startSpook(bot){
+        bot.updatePresence = async ()=>{
+            const now = new Date();
+            if (now - bot.lastPresenceUpdate < 100000)return;
+            bot.lastPresenceUpdate = now;
+            let spookCount = await bot.database.getTotalSpooks()
+            await bot.client.user.setPresence({
+                activities: [{
+                    name: `👻 !spook | ${spookCount.toLocaleString()} SPOOKED`,
+                    type: "COMPETING",
+                }]
+            });
+        }
+        bot.updatePresence();
     },
     async forceNewSpook(bot, currentSpook, reason, fromMember){
         bot.logger.log(`Generating new spook for ${currentSpook.server} (${reason})`);
@@ -37,7 +59,7 @@ module.exports = {
 
         if(!channel)return bot.logger.warn(`No good available channels for spook update in ${currentSpook.server}`);
 
-        let membersNotOptedOut =  channel.members.filter((m)=>!m.user.bot && !bot.config.getBool(currentSpook.server, "spook.optout", m.id) && m.user.id !== fromMember.id);
+        let membersNotOptedOut =  channel.members.filter((m)=>!m.user.bot && !bot.config.getBool(currentSpook.server, "spook.optout", m.id) && m.user.id !== currentSpook.spooked);
         // Look for online members first
         let toMember = membersNotOptedOut.filter((m)=>m.presence && m.presence.status !== "offline").random();
         // If there are no online members, pick a random member
@@ -113,7 +135,7 @@ module.exports = {
                 }
             }
         }
-
+        bot.updatePresence();
         return bot.database.spook(toMember.id, fromMember.user.id, toMember.guild.id, context.channel.id,
             fromMember.user.username, toMember.user.username, fromMember.displayHexColor, toMember.displayHexColor, fromMember.user.avatarURL({format: "png", size: 32, dynamic: false}), toMember.user.avatarURL({format: "png", size: 32, dynamic: false}), type);
     },
@@ -172,7 +194,7 @@ module.exports = {
 
         module.exports.spook(bot, context, context.member, member);
         const result = await bot.database.getSpookCount(member.id, context.guild.id);
-        return context.sendLang({content: "SPOOK"}, {spooked: member.id, count: Strings.GetNumberPrefix(1+result)});
+        return context.sendLang({content: "SPOOK"}, {spooked: member.id, count: Strings.GetNumberPrefix(parseInt(result)+1)});
 
     }
 };
