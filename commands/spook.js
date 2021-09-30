@@ -56,7 +56,7 @@ module.exports = {
 
         if(!channel)return bot.logger.warn(`No good available channels for spook update in ${currentSpook.server}`);
 
-        let membersNotOptedOut =  channel.members.filter((m)=>!m.user.bot && !bot.config.getBool(currentSpook.server, "spook.optout", m.id) && m.user.id !== fromMember.id);
+        let membersNotOptedOut =  channel.members.filter((m)=>!m.user.bot && !bot.config.getBool(currentSpook.server, "spook.optout", m.id) && m.user.id !== currentSpook.spooked);
         // Look for online members first
         let toMember = membersNotOptedOut.filter((m)=>m.presence && m.presence.status !== "offline").random();
         // If there are no online members, pick a random member

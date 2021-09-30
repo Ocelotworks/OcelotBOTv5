@@ -592,6 +592,9 @@ module.exports = {
             getSpookCount: async function (spooked, server) {
                 return (await knockroach.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({server, spooked, series}))[0].count;
             },
+            getTotalSpooks: async function(){
+                return (await knockroach.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({series}))[0].count;
+            },
             getAvailableSpookRoles: function(){
                 return knockroach.select().from("spook_roles");
             },
