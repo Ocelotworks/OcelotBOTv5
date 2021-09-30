@@ -47,7 +47,7 @@ module.exports = {
         let channelCount = 0;
         try {
             serverCount = await Util.GetServerCount(bot);
-            userCount = (await bot.rabbit.fetchClientValues("users.cache.size")).reduce((prev, val) => prev + val, 0);
+            userCount = await Util.GetUserCount(bot);
             channelCount = (await bot.rabbit.fetchClientValues("channels.cache.size")).reduce((prev, val) => prev + val, 0);
         } catch (e) {
             bot.raven.captureException(e);

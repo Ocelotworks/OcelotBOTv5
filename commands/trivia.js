@@ -17,6 +17,7 @@ let runningGames = [];
 let sessionTokens = {};
 
 const {axios} = require('../util/Http');
+const Strings = require("../util/String");
 
 module.exports = {
     name: "Trivia",
@@ -58,7 +59,7 @@ module.exports = {
             embed.setDescription(decodeURIComponent(question.question));
             embed.setFooterLang("TRIVIA_SECONDS", null, {seconds: 30});
             const answers = question.type === "boolean" ? [{text: "True", emoji: "✅", style: 3}, {text: "False", emoji: "❌", style: 4}] :
-                question.incorrect_answers.concat(question.correct_answer).map((a)=>({text: decodeURIComponent(a), style: 1}));
+                question.incorrect_answers.concat(question.correct_answer).map((a)=>({text: Strings.Truncate(decodeURIComponent(a), 80), style: 1}));
 
             let answerMap = {};
             let userAnswers = {};
@@ -95,9 +96,10 @@ module.exports = {
                 const correctAnswer = decodeURIComponent(question.correct_answer);
                 for(let i = 0; i < users.length; i++){
                     if(!userAnswers.hasOwnProperty(users[i]))continue
-                    bot.database.logTrivia(users[i], userAnswers[users[i]] === correctAnswer, difficulty, context.guild?.id || context.channel.id)
-                    if(userAnswers[users[i]] === correctAnswer)
+                    bot.database.logTrivia(users[i], userAnswers[users[i]] === correctAnswer, difficulty, context.guild?.id || context.channel.id).then(()=>null)
+                    if(userAnswers[users[i]] === correctAnswer) {
                         correct.push(users[i]);
+                    }
 
                 }
 

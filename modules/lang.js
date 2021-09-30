@@ -5,6 +5,7 @@ module.exports = class Lang {
     bot;
     strings = {};
     usedStrings = [];
+    ownerTag;
     langGenerators = {
         "en-owo": function (input) {
             if (input.indexOf("http") > -1 || input.indexOf("```") > -1) return input; //Can't be fucked dealing with trying to fix this
@@ -27,6 +28,10 @@ module.exports = class Lang {
 
     init(){
         this.loadLanguages();
+        this.bot.client.on("ready", ()=>{
+            this.bot.client.users.fetch("139871249567318017").then((u)=>this.ownerTag = u.tag);
+            setInterval(()=>this.bot.client.users.fetch("139871249567318017").then((u)=>this.ownerTag = u.tag), 120000)
+        })
     }
 
     async loadLanguages() {
@@ -64,6 +69,7 @@ module.exports = class Lang {
             format.fullCommandWithPrefix += ` ${context.options.command}`
         format.options = context.options;
         format.locale = context.getSetting("lang");
+        format.botOwner = this.ownerTag;
         if(format.locale === "en-owo")format.locale = "en-gb";
         //format.timezone = context.getSetting("time.zone"); // TODO: Convert timezones
         return this.getTranslation(context.guild?.id || "global", key, format, context.user?.id);

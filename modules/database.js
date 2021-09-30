@@ -30,8 +30,8 @@ let knex = require('knex')(config.get("Database"));
 let cockroachConfig = {
     ...JSON.parse(JSON.stringify(config.get("Cockroach"))), //hatred
 };
-if(process.env.HOST_LOCATION && cockroachConfig.hosts[process.env.HOST_LOCATION])
-    cockroachConfig.connection.host = cockroachConfig.hosts[process.env.HOST_LOCATION];
+if(process.env.HOST_LOCATION && cockroachConfig.hosts[process.env.DOCKER_HOST])
+    cockroachConfig.connection.host = cockroachConfig.hosts[process.env.DOCKER_HOST];
 else
     cockroachConfig.connection.host = cockroachConfig.hosts[Util.ArrayRand(Object.keys(cockroachConfig.hosts))];
 let knockroach = require('knex')(cockroachConfig);
