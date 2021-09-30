@@ -32,6 +32,9 @@ module.exports = {
     },
     startSpook(bot){
         bot.updatePresence = async ()=>{
+            const now = new Date();
+            if (now - bot.lastPresenceUpdate < 100000)return;
+            bot.lastPresenceUpdate = now;
             let spookCount = await bot.database.getTotalSpooks()
             await bot.client.user.setPresence({
                 activities: [{
@@ -132,7 +135,7 @@ module.exports = {
                 }
             }
         }
-
+        bot.updatePresence();
         return bot.database.spook(toMember.id, fromMember.user.id, toMember.guild.id, context.channel.id,
             fromMember.user.username, toMember.user.username, fromMember.displayHexColor, toMember.displayHexColor, fromMember.user.avatarURL({format: "png", size: 32, dynamic: false}), toMember.user.avatarURL({format: "png", size: 32, dynamic: false}), type);
     },
