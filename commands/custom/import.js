@@ -3,7 +3,7 @@ module.exports = {
     usage: "import :id :trigger+",
     commands: ["import"],
     run: async function (context, bot) {
-        const publishedFunction = await bot.database.getPublishedFunction(args[2]);
+        const publishedFunction = await bot.database.getPublishedFunction(context.options.id);
         if(!publishedFunction)return context.send({content: "Couldn't find that import ID. Check the ID is correct and try again.", ephemeral: true});
         let trigger = context.options.trigger;
         if(publishedFunction.type === "COMMAND"){
