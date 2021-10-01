@@ -43,6 +43,7 @@ module.exports = {
                 }]
             });
         }
+        setInterval(()=>bot.updatePresence(), 200000)
         bot.updatePresence();
     },
     async forceNewSpook(bot, currentSpook, reason, fromMember){
