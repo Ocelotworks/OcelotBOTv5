@@ -90,7 +90,7 @@ module.exports = {
         return true;
     },
     spook: async function(bot, context, fromMember, toMember, type = "REGULAR"){
-        let toMemberRole = await bot.database.getRoleForUser(toMember.id, toMember.guild.id);
+        let toMemberRole = await bot.redis.cache(`spook/role/${toMember.guild.id}/${toMember.id}`, async ()=>await bot.database.getRoleForUser(toMember.id, toMember.guild.id), 60000);
         if(!toMemberRole) {
             let currentRoleCounts = await bot.database.getRoleCountsForServer(toMember.guild.id);
             let memberCount = fromMember.guild.memberCount;
@@ -130,6 +130,7 @@ module.exports = {
                         let channel = await toMember.user.createDM();
                         await channel.send({embeds: [embed]});
                         await bot.database.addSpookRole(toMember.id, toMember.guild.id, assignableRoleId, roleData)
+                        bot.redis.clear(`spook/role/${toMember.guild.id}/${toMember.id}`)
                     }
                 } catch (e) {
                     bot.logger.error(e);
