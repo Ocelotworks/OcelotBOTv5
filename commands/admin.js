@@ -6,5 +6,6 @@ module.exports = {
     commands: ["admin", "adm", "mgt"],
     hidden: true,
     adminOnly: true,
+    noSynthetic: true,
     nestedDir: "admin",
 };
