@@ -62,8 +62,9 @@ module.exports = {
             })
         }
 
+        let output = "";
         if(!isFirstRun) {
-            let output = `Turn: ${runningGames[context.channel.id].players[+!runningGames[context.channel.id].turn]}`;
+            output = `Turn: ${runningGames[context.channel.id].players[+!runningGames[context.channel.id].turn]}`;
             if (gameStatus.board.isCheck)
                 output += context.getLang("CHESS_CHECK");
 
@@ -79,7 +80,7 @@ module.exports = {
                 output += context.getLang("CHESS_REPETITION");
         }
 
-        return await Image.ImageProcessor(bot, context,  payload, "board", output);
+        return await Image.ImageProcessor(bot, context,  payload, "board", output );
     },
     doGo: async function (context, command, bot) {
         const channel = context.channel.id;
