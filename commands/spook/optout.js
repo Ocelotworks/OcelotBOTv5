@@ -21,7 +21,7 @@ module.exports = {
         bot.rabbit.event({type: "reloadUserConfig"});
 
         const currentSpook = await bot.database.getSpooked(context.guild.id);
-        if(currentSpook.spooked === context.user.id)
+        if(currentSpook && currentSpook.spooked === context.user.id)
             context.commandData.forceNewSpook(bot, currentSpook, "OPT_OUT", context.member);
         return context.sendLang({content: "SPOOK_OPT_OUT_SUCCESS"});
     }
