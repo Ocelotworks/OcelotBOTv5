@@ -14,7 +14,7 @@ module.exports = {
     rateLimit: 50,
     nsfw: true,
     vote: true,
-    requiredPermissions: ["ADD_REACTIONS", "MANAGE_MESSAGES"],
+    requiredPermissions: ["MANAGE_MESSAGES"],
     categories: ["nsfw", "search"],
     run: function run(context, bot) {
         let search = context.options.search;

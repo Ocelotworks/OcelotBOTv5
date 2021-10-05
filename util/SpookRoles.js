@@ -20,7 +20,7 @@ module.exports = class SpookRoles {
 
     static async GetDataForBodyguard(bot, toMember, roleInfo){
         let spooked = await SpookRoles.#getEligibleUser(bot, toMember.guild, 1, toMember.user.id);
-        if(!spooked || !spooked.user.id)return null;
+        if(!spooked || !spooked.user)return null;
         return {spooked: spooked.user.id};
     }
 

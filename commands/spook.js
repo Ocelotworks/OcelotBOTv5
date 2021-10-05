@@ -17,6 +17,7 @@ module.exports = {
         bot.spook = {};
         bot.spook.spooked = [];
         bot.client.on("guildMemberRemove", async (member)=> {
+            if(bot.drain)return;
             if(!bot.config.getBool("global", "spook.doLeaveCheck"))return bot.logger.log("Ignoring leave as doLeaveCheck is off");
             const currentSpook = await bot.database.getSpooked(member.guild.id);
             if (!currentSpook || currentSpook.spooked !== member.id) return;
@@ -118,7 +119,7 @@ module.exports = {
             if (assignableRoleId) {
                 try {
                     bot.logger.log(`Attempting to assign role ${assignableRoleId} to ${toMember.id}`);
-                    let roleInfo = await bot.redis.cache(`spook/role/${assignableRoleId}`, async ()=>await bot.database.getRoleInfo(assignableRoleId), 60000);
+                    let roleInfo = await bot.redis.cache(`spook/role/${assignableRoleId}`,()=>bot.database.getRoleInfo(assignableRoleId), 60000);
                     let roleData = await SpookRoles.GetDataForSpookRole(bot, toMember, roleInfo);
                     if(roleData) {
                         let embed = new Discord.MessageEmbed();
@@ -171,8 +172,8 @@ module.exports = {
         if(member.id === bot.client.user.id)
             return context.sendLang({content: "SPOOK_OCELOTBOT", ephemeral: true});
 
-       if(member.id === context.user.id)
-           return context.sendLang({content: "SPOOK_SELF", ephemeral: true});
+       // if(member.id === context.user.id)
+       //     return context.sendLang({content: "SPOOK_SELF", ephemeral: true});
 
         if(member.user.bot)
             return context.sendLang({content: "SPOOK_BOT", ephemeral: true});
