@@ -28,7 +28,9 @@ module.exports = {
                         if (err || !data) {
                             let freshData = await func();
                             fulfill(freshData);
-                            if (err)
+                            if(!freshData)
+                                bot.logger.warn("Redis cache result was undefined")
+                            else if (err)
                                 bot.logger.warn("redis error: " + err);
                             else {
                                 try {
