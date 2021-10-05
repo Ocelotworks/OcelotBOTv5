@@ -17,6 +17,7 @@ module.exports = {
         bot.spook = {};
         bot.spook.spooked = [];
         bot.client.on("guildMemberRemove", async (member)=> {
+            if(bot.drain)return;
             if(!bot.config.getBool("global", "spook.doLeaveCheck"))return bot.logger.log("Ignoring leave as doLeaveCheck is off");
             const currentSpook = await bot.database.getSpooked(member.guild.id);
             if (!currentSpook || currentSpook.spooked !== member.id) return;
@@ -43,9 +44,10 @@ module.exports = {
                 }]
             });
         }
+        setInterval(()=>bot.updatePresence(), 200000)
         bot.updatePresence();
     },
-    async forceNewSpook(bot, currentSpook, reason, fromMember){
+    async forceNewSpook(bot, currentSpook, reason, fromMember, sendHopelessMessage){
         bot.logger.log(`Generating new spook for ${currentSpook.server} (${reason})`);
         const guild = await bot.client.guilds.fetch(currentSpook.server).catch(()=>null);
         if(!guild || guild.deleted)return bot.logger.warn(`Guild deleted or failed to fetch.`);
@@ -65,7 +67,10 @@ module.exports = {
         // If there are no online members, pick a random member
         if(!toMember)toMember = membersNotOptedOut.random();
         // No members at all. I'm all alone
-        if(!toMember)return bot.logger.warn("No accessible members");
+        if(!toMember) {
+            if(sendHopelessMessage)return channel.send("I couldn't find any active, valid members to spook. If you think this is a mistake, contact the support server.");
+            return bot.logger.warn("No accessible members");
+        }
 
         await module.exports.spook(bot, {channel}, fromMember, toMember, reason);
 
@@ -89,7 +94,7 @@ module.exports = {
         return true;
     },
     spook: async function(bot, context, fromMember, toMember, type = "REGULAR"){
-        let toMemberRole = await bot.database.getRoleForUser(toMember.id, toMember.guild.id);
+        let toMemberRole = await bot.redis.cache(`spook/role/${toMember.guild.id}/${toMember.id}`, async ()=>await bot.database.getRoleForUser(toMember.id, toMember.guild.id), 60000);
         if(!toMemberRole) {
             let currentRoleCounts = await bot.database.getRoleCountsForServer(toMember.guild.id);
             let memberCount = fromMember.guild.memberCount;
@@ -117,7 +122,7 @@ module.exports = {
             if (assignableRoleId) {
                 try {
                     bot.logger.log(`Attempting to assign role ${assignableRoleId} to ${toMember.id}`);
-                    let roleInfo = await bot.redis.cache(`spook/role/${assignableRoleId}`, async ()=>await bot.database.getRoleInfo(assignableRoleId), 60000);
+                    let roleInfo = await bot.redis.cache(`spook/role/${assignableRoleId}`,()=>bot.database.getRoleInfo(assignableRoleId), 60000);
                     let roleData = await SpookRoles.GetDataForSpookRole(bot, toMember, roleInfo);
                     if(roleData) {
                         let embed = new Discord.MessageEmbed();
@@ -129,6 +134,7 @@ module.exports = {
                         let channel = await toMember.user.createDM();
                         await channel.send({embeds: [embed]});
                         await bot.database.addSpookRole(toMember.id, toMember.guild.id, assignableRoleId, roleData)
+                        bot.redis.clear(`spook/role/${toMember.guild.id}/${toMember.id}`)
                     }
                 } catch (e) {
                     bot.logger.error(e);
@@ -169,8 +175,8 @@ module.exports = {
         if(member.id === bot.client.user.id)
             return context.sendLang({content: "SPOOK_OCELOTBOT", ephemeral: true});
 
-       if(member.id === context.user.id)
-           return context.sendLang({content: "SPOOK_SELF", ephemeral: true});
+       // if(member.id === context.user.id)
+       //     return context.sendLang({content: "SPOOK_SELF", ephemeral: true});
 
         if(member.user.bot)
             return context.sendLang({content: "SPOOK_BOT", ephemeral: true});

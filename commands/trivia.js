@@ -73,6 +73,7 @@ module.exports = {
                     type: 1,
                     components: []
                 }]};
+            bot.util.shuffle(answers);
             for(let i = 0; i < answers.length; i++){
                 const answer = answers[i];
                 embed.addField(`Option ${i+1}`, answer.text, true);

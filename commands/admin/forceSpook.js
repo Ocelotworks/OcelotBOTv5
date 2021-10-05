@@ -9,7 +9,7 @@ module.exports = {
     usage: "forcespook :server :user?",
     commands: ["forcespook", "spook"],
     run: async function (context, bot) {
-        const currentSpook = await bot.database.getSpooked(context.guild.id);
+        const currentSpook = await bot.database.getSpooked(context.options.server);
         if(!context.options.user){
             let result = await bot.commandObjects['spook.js'].forceNewSpook(bot, currentSpook, "ADMIN", context.member);
             return context.send(`Successfully forced a new spook.\n> ${result.content}`);

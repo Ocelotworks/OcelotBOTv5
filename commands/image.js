@@ -40,7 +40,7 @@ module.exports = {
         await context.defer();
         try {
             let images;
-            const nsfw = (!context.guild || context.channel.nsfw);
+            const nsfw = (!context.guild || context.channel?.nsfw);
             let type = nsfw ? "nsfw" : "sfw";
 
             if(context.getBool("image.yandex")) {
