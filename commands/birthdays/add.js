@@ -12,7 +12,7 @@ module.exports = {
     run: async function (context, bot) {
         let target = context.user;
         if (context.options.addUser)
-            target = context.getMember(context.options.addUser)?.user;
+            target = (await context.getMember(context.options.addUser))?.user;
         if(!target)
             return context.send({content: "Couldn't find that user. Make sure they're in this channel.", ephemeral: true});
 
