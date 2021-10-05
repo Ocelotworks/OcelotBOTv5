@@ -28,6 +28,10 @@ module.exports = {
             }
         }
 
+        if(toMember.id === currentSpook.spooked){
+            return context.commandData.forceNewSpook(bot, currentSpook, "ROLLBACK", context.member);
+        }
+
         await context.commandData.spook(bot, context, fromMember, toMember, "ROLLBACK");
         return context.sendLang({content}, {fromMember, toMember});
     }

@@ -47,7 +47,7 @@ module.exports = {
         setInterval(()=>bot.updatePresence(), 200000)
         bot.updatePresence();
     },
-    async forceNewSpook(bot, currentSpook, reason, fromMember){
+    async forceNewSpook(bot, currentSpook, reason, fromMember, sendHopelessMessage){
         bot.logger.log(`Generating new spook for ${currentSpook.server} (${reason})`);
         const guild = await bot.client.guilds.fetch(currentSpook.server).catch(()=>null);
         if(!guild || guild.deleted)return bot.logger.warn(`Guild deleted or failed to fetch.`);
@@ -67,7 +67,10 @@ module.exports = {
         // If there are no online members, pick a random member
         if(!toMember)toMember = membersNotOptedOut.random();
         // No members at all. I'm all alone
-        if(!toMember)return bot.logger.warn("No accessible members");
+        if(!toMember) {
+            if(sendHopelessMessage)return channel.send("I couldn't find any active, valid members to spook. If you think this is a mistake, contact the support server.");
+            return bot.logger.warn("No accessible members");
+        }
 
         await module.exports.spook(bot, {channel}, fromMember, toMember, reason);
 
