@@ -15,7 +15,7 @@ module.exports = {
         }
 
         let output = "```asciidoc\n";
-        if(position > -1)output = `This server is **#${position+1}** out of **${data.length}** total!\n${output}`
+        if(position > -1)output = `This server is **#${position+1}** out of **${data.length}** with **${data[position].count} spooks!\n${output}`
 
         let topTen = [];
         for(let i = 0; i < Math.min(10, data.length); i++) {
