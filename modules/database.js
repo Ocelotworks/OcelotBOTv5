@@ -592,6 +592,9 @@ module.exports = {
             getSpookCount: async function (spooked, server) {
                 return (await knockroach.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({server, spooked, series}))[0].count;
             },
+            getCurrentlySpookedForShard: function (servers) {
+                return knockroach.select("server", "spooked", "spooker", "timestamp").from(knex.raw(SPOOK_TABLE+" as a")).whereIn("server", servers).andWhere("timestamp", knex.select(knex.raw("MAX(timestamp)")).from(knex.raw(SPOOK_TABLE+" as b")).whereRaw("a.server = b.server")).andWhere("series", series);
+            },
             getTotalSpooks: async function(){
                 return (await knockroach.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({series}))[0].count;
             },
@@ -612,6 +615,9 @@ module.exports = {
             },
             addSpookRole: function(userID, serverID, role, data){
                 return knockroach.insert({userID, serverID, role, data}).into("spook_role_assignments");
+            },
+            getSpookLeaderboard: function(){
+                return knockroach.select("server", knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({series}).groupBy("server").orderByRaw("COUNT(*) DESC");
             },
             /**
              * Get the end spook stats

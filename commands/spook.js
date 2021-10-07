@@ -5,10 +5,13 @@ const SpookRoles = require("../util/SpookRoles");
 const end = new Date("1 November 2021");
 const start = new Date("1 October 2021");
 const roleMultipliers = [8, 25, 100, 1000, 2000, 5000];
+let currentSpooks = {};
 module.exports = {
     name: "Spook",
     usage: "spook :@user?",
     categories: ["fun"],
+    detailedHelp: "A once a year event that runs for the entirety of October.",
+    usageExample: "spook intro",
     requiredPermissions: [],
     commands: ["spook", "spooked"],
     guildOnly: true,
@@ -26,8 +29,10 @@ module.exports = {
         bot.client.once("ready", ()=>{
             let diff = start-new Date();
             bot.logger.log(`Spook starts in ${diff}ms`);
-            if(diff < 0)
+            if(diff < 0) {
+                module.exports.startIdleCheck(bot);
                 return module.exports.startSpook(bot);
+            }
             setTimeout(()=>module.exports.startSpook(bot), diff);
         });
     },
@@ -46,6 +51,43 @@ module.exports = {
         }
         setInterval(()=>bot.updatePresence(), 200000)
         bot.updatePresence();
+    },
+    async startIdleCheck(bot){
+        let spooksForShard = await bot.database.getCurrentlySpookedForShard([...bot.client.guilds.cache.keys()])
+        bot.logger.log(`Got ${spooksForShard.length} current spooks for this shard.`);
+        for(let i = 0; i < spooksForShard.length; i++){
+            const spook = spooksForShard[i];
+            module.exports.setIdleCheck(bot, spook.server, spook.spooked);
+        }
+
+        bot.client.on("message", (message)=>{
+            if(bot.drain || !message.guild || message.author?.bot)return; // Ignore on drain, in DMs and from bots
+            const id = `${message.guild.id}-${message.author.id}`;
+            if(!currentSpooks[id])return;
+            clearTimeout(currentSpooks[id]);
+            module.exports.setIdleCheck(bot, message.guild, message.author.id);
+
+        })
+    },
+    setIdleCheck(bot, server, spooked){
+        const id = `${server}-${spooked}`;
+        currentSpooks[id] = setTimeout(()=>module.exports.handleIdleCheck(bot, server), 8.64e+7) // 24 hours
+    },
+    async handleIdleCheck(bot, server){
+        if(bot.drain)return;
+        if(!bot.config.getBool(server, "spook.doIdleCheck"))return bot.logger.log("Ignoring idle as doIdleCheck is off");
+        let currentSpook = await bot.database.getSpooked(server);
+        if(!currentSpook)return bot.logger.warn(`Not running idle check for ${server} as the spook entry couldn't be fine`);
+        if(currentSpook.type === "IDLE")return bot.logger.log(`Not running idle check for ${server} as last spook type was ${currentSpook.type}`);
+        const guild = await bot.client.guilds.fetch(currentSpook.server).catch(()=>null);
+        if(!guild || guild.deleted)return bot.logger.warn(`Guild deleted or failed to fetch.`);
+        let fromMember = guild.members.fetch(currentSpook.spooked).catch(()=>null);
+        if(!fromMember) {
+            bot.logger.warn(`Could not retrieve guild member for ${currentSpook.spooked}, defaulting to OcelotBOT`);
+            fromMember = guild.me; // Default to OcelotBOT if the member is missing
+        }
+        // Run the actual force spook
+        return module.exports.forceNewSpook(bot, currentSpook, "IDLE", fromMember, false);
     },
     async forceNewSpook(bot, currentSpook, reason, fromMember, sendHopelessMessage){
         bot.logger.log(`Generating new spook for ${currentSpook.server} (${reason})`);
@@ -142,6 +184,9 @@ module.exports = {
             }
         }
         bot.updatePresence();
+        const id = `${context.guild.id}-${fromMember.user.id}`;
+        clearTimeout(currentSpooks[id]);
+        module.exports.setIdleCheck(bot, context.guild.id, toMember.user.id);
         return bot.database.spook(toMember.id, fromMember.user.id, toMember.guild.id, context.channel.id,
             fromMember.user.username, toMember.user.username, fromMember.displayHexColor, toMember.displayHexColor, fromMember.user.avatarURL({format: "png", size: 32, dynamic: false}), toMember.user.avatarURL({format: "png", size: 32, dynamic: false}), type);
     },
