@@ -231,8 +231,8 @@ module.exports = {
         if(member.id === bot.client.user.id)
             return context.sendLang({content: "SPOOK_OCELOTBOT", ephemeral: true});
 
-       // if(member.id === context.user.id)
-       //     return context.sendLang({content: "SPOOK_SELF", ephemeral: true});
+       if(member.id === context.user.id)
+           return context.sendLang({content: "SPOOK_SELF", ephemeral: true});
 
         if(member.user.bot)
             return context.sendLang({content: "SPOOK_BOT", ephemeral: true});
