@@ -6,6 +6,7 @@
  */
 const columnify = require('columnify');
 const changePrefix = /.*(change|custom).*prefix.*/gi;
+const freeNitro = /.*free.*nitro.*/gi;
 module.exports = {
     name: "Support Server Specific Functions",
     init: function (bot) {
@@ -14,9 +15,11 @@ module.exports = {
                 if (message.content.indexOf("discord.gg") > -1)
                     return message.delete();
 
-                if (changePrefix.exec(message.content)) {
-                    bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
-                }
+                if (changePrefix.exec(message.content))
+                    return bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
+
+                if (freeNitro.exec(message.content))
+                    return message.delete();
             }
         });
 

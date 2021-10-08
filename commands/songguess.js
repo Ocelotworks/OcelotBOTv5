@@ -45,11 +45,13 @@ module.exports = {
             let regexResult = spotifyPlaylist.exec(context.options.command);
             if(regexResult && regexResult[1]){
                 isCustom = true;
-                playlists = regexResult[1]
+                playlists = regexResult[1];
             }
         }
 
         if(playlists === null) {
+            if(context.options.command)
+                return context.sendLang({content: "SONGGUESS_UNKNOWN_INPUT", ephemeral: true});
             const playlistId = context.getSetting("songguess.default");
             bot.logger.log(`Using playlist ID: ${playlistId}`);
             playlists = await bot.database.getGuessPlaylist(context.guild.id, playlistId);

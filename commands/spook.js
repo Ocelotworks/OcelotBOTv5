@@ -73,7 +73,7 @@ module.exports = {
         const id = `${server}-${spooked}`;
         currentSpooks[id] = setTimeout(()=>module.exports.handleIdleCheck(bot, server), 8.64e+7) // 24 hours
     },
-    async handleIdleCheck(bot, server){
+    async handleIdleCheck(bot, server, channel){
         if(bot.drain)return;
         if(!bot.config.getBool(server, "spook.doIdleCheck"))return bot.logger.log("Ignoring idle as doIdleCheck is off");
         let currentSpook = await bot.database.getSpooked(server);
@@ -81,20 +81,20 @@ module.exports = {
         if(currentSpook.type === "IDLE")return bot.logger.log(`Not running idle check for ${server} as last spook type was ${currentSpook.type}`);
         const guild = await bot.client.guilds.fetch(currentSpook.server).catch(()=>null);
         if(!guild || guild.deleted)return bot.logger.warn(`Guild deleted or failed to fetch.`);
-        let fromMember = guild.members.fetch(currentSpook.spooked).catch(()=>null);
+        let fromMember = await guild.members.fetch(currentSpook.spooked).catch(()=>null);
         if(!fromMember) {
             bot.logger.warn(`Could not retrieve guild member for ${currentSpook.spooked}, defaulting to OcelotBOT`);
             fromMember = guild.me; // Default to OcelotBOT if the member is missing
         }
         // Run the actual force spook
-        return module.exports.forceNewSpook(bot, currentSpook, "IDLE", fromMember, false);
+        return module.exports.forceNewSpook(bot, currentSpook, "IDLE", fromMember, false, channel);
     },
-    async forceNewSpook(bot, currentSpook, reason, fromMember, sendHopelessMessage){
+    async forceNewSpook(bot, currentSpook, reason, fromMember, sendHopelessMessage, channelId){
         bot.logger.log(`Generating new spook for ${currentSpook.server} (${reason})`);
         const guild = await bot.client.guilds.fetch(currentSpook.server).catch(()=>null);
         if(!guild || guild.deleted)return bot.logger.warn(`Guild deleted or failed to fetch.`);
 
-        let channel = await guild.channels.fetch(currentSpook.channel).catch(()=>null);
+        let channel = await guild.channels.fetch(channelId || currentSpook.channel).catch(()=>null);
         if(!channel || channel.deleted || channel.archived){
             // Channel not accessible anymore
             await guild.channels.fetch();
@@ -184,9 +184,9 @@ module.exports = {
             }
         }
         bot.updatePresence();
-        const id = `${context.guild.id}-${fromMember.user.id}`;
+        const id = `${fromMember.guild.id}-${fromMember.user.id}`;
         clearTimeout(currentSpooks[id]);
-        module.exports.setIdleCheck(bot, context.guild.id, toMember.user.id);
+        module.exports.setIdleCheck(bot, fromMember.guild.id, toMember.user.id);
         return bot.database.spook(toMember.id, fromMember.user.id, toMember.guild.id, context.channel.id,
             fromMember.user.username, toMember.user.username, fromMember.displayHexColor, toMember.displayHexColor, fromMember.user.avatarURL({format: "png", size: 32, dynamic: false}), toMember.user.avatarURL({format: "png", size: 32, dynamic: false}), type);
     },
@@ -198,8 +198,19 @@ module.exports = {
         // Get the current spook
         const currentSpook = await bot.database.getSpooked(context.guild.id);
 
-        if(!context.options.user)
-            return  context.sendLang({content: currentSpook ? "SPOOK_CURRENT" : "SPOOK_NOBODY"}, {spooked: currentSpook?.spooked, time: end, server: context.guild.id});
+        if(!context.options.user) {
+            const now = new Date();
+            const spookedTime = now-currentSpook.timestamp;
+            if(spookedTime > 8.64e+7 && currentSpook.type !== "IDLE"){
+                return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id);
+            }
+            return context.sendLang({content: currentSpook ? "SPOOK_CURRENT" : "SPOOK_NOBODY"}, {
+                spooked: currentSpook?.spooked,
+                time: end,
+                server: context.guild.id,
+                spookedTime: bot.util.prettySeconds(spookedTime/1000, context.guild.id, context.user.id),
+            });
+        }
 
         // Check that the current user can actually spook
         if(currentSpook && currentSpook.spooked !== context.user.id)
