@@ -184,9 +184,9 @@ module.exports = {
             }
         }
         bot.updatePresence();
-        const id = `${context.guild.id}-${fromMember.user.id}`;
+        const id = `${fromMember.guild.id}-${fromMember.user.id}`;
         clearTimeout(currentSpooks[id]);
-        module.exports.setIdleCheck(bot, context.guild.id, toMember.user.id);
+        module.exports.setIdleCheck(bot, fromMember.guild.id, toMember.user.id);
         return bot.database.spook(toMember.id, fromMember.user.id, toMember.guild.id, context.channel.id,
             fromMember.user.username, toMember.user.username, fromMember.displayHexColor, toMember.displayHexColor, fromMember.user.avatarURL({format: "png", size: 32, dynamic: false}), toMember.user.avatarURL({format: "png", size: 32, dynamic: false}), type);
     },
