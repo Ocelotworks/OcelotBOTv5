@@ -200,9 +200,12 @@ module.exports = {
 
         if(!context.options.user) {
             const now = new Date();
-            const spookedTime = now-currentSpook.timestamp;
-            if(spookedTime > 8.64e+7 && currentSpook.type !== "IDLE"){
-                return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id);
+            let spookedTime = 0;
+            if(currentSpook) {
+                spookedTime = now - currentSpook.timestamp;
+                if (spookedTime > 8.64e+7 && currentSpook.type !== "IDLE") {
+                    return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id);
+                }
             }
             return context.sendLang({content: currentSpook ? "SPOOK_CURRENT" : "SPOOK_NOBODY"}, {
                 spooked: currentSpook?.spooked,
