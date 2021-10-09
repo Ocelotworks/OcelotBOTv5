@@ -46,15 +46,6 @@ module.exports = class Botlists {
                 if(!botList)return counter = 0;
                 await this.updateList(botList);
             }, 60000)
-
-            axios.post("https://api.discordservices.net/bot/146293573422284800/commands", Object.keys(this.bot.commandObjects).map((key) => {
-                const cmd = this.bot.commandObjects[key]
-                return {
-                    command: "!" + cmd.commands[0],
-                    desc: cmd.name,
-                    category: cmd.categories[0],
-                }
-            }), {headers: {authorization: (await this.bot.database.getBotlist("services", this.bot.client.user.id))[0].statsKey}})
         })
     }
     async updateList(botList){
