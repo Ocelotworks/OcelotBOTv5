@@ -38,7 +38,7 @@ module.exports = class Botlists {
         bot.lists = this;
     }
     init(){
-        this.bot.client.on("ready", ()=>{
+        this.bot.client.on("ready", async ()=>{
             if (this.bot.util.shard > 0) return;
             this.bot.logger.log("Doing botlist updates");
             setInterval(async ()=>{
@@ -46,10 +46,8 @@ module.exports = class Botlists {
                 if(!botList)return counter = 0;
                 await this.updateList(botList);
             }, 60000)
-        })
 
-        this.bot.bus.on("commandLoadFinished", async ()=>{
-            return axios.post("https://api.discordservices.net/bot/146293573422284800/commands", Object.keys(this.bot.commandObjects).map((key) => {
+            axios.post("https://api.discordservices.net/bot/146293573422284800/commands", Object.keys(this.bot.commandObjects).map((key) => {
                 const cmd = this.bot.commandObjects[key]
                 return {
                     command: "!" + cmd.commands[0],
