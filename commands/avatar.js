@@ -15,7 +15,7 @@ module.exports = {
             return context.replyLang({ephemeral: true, content: "AVATAR_NOT_FOUND"});
         const embed = new Embeds.AuthorEmbed(context);
         embed.setColor(target.displayColor);
-        embed.setImage(target.user.displayAvatarURL({dynamic: true, format: "png", size: 4096}))
+        embed.setImage(target.displayAvatarURL({dynamic: true, format: "png", size: 4096}))
         embed.setTitleLang("AVATAR", {username: target.displayName});
         return context.send({embeds: [embed]});
     }
