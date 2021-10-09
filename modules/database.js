@@ -1026,24 +1026,24 @@ module.exports = {
                 let result = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_referrals").where({id});
                 return result[0]['COUNT(*)'];
             },
-            getBotlist: function (id) {
-                return knex.select().from("ocelotbot_botlists").where({id}).limit(1);
+            getBotlist: function (id, productID) {
+                return knex.select().from("ocelotbot_botlists").where({id, productID}).limit(1);
             },
-            getBotlistsWithStats: function () {
-                return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1});
+            getBotlistsWithStats: function (productID) {
+                return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1, productID});
             },
-            getSingleBotlist: async function(index){
-                return (await knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1}).limit(1).offset(index))[0];
+            getSingleBotlist: async function(index, productID){
+                return (await knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1, productID}).limit(1).offset(index))[0];
             },
             getBotlistsWithVoteRewards: function(){
                 return knex.select().from("ocelotbot_botlists").whereNotNull("pointsReward").andWhere({enabled: 1}).orderBy("pointsReward", "DESC");
             },
-            getBotlistUrl: async function (id) {
-                let url = await knex.select("botUrl").from("ocelotbot_botlists").where({id}).orWhere({id: 'topgg'}).limit(1);
+            getBotlistUrl: async function (id, productID) {
+                let url = await knex.select("botUrl").from("ocelotbot_botlists").where({id, productID}).orWhere({id: 'topgg'}).limit(1);
                 return url[0].botUrl;
             },
-            botlistSuccess: function(id){
-              return knex("ocelotbot_botlists").update({lastSuccessfulPost: new Date()}).where({id});
+            botlistSuccess: function(id, productID){
+              return knex("ocelotbot_botlists").update({lastSuccessfulPost: new Date()}).where({id, productID});
             },
             logAiConversation: function (userID, serverID, lastMessageID, message, response) {
                 return knex.insert({

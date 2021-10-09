@@ -19,7 +19,7 @@ module.exports = {
         async function logVote(user, voteServer, channel, source) {
             bot.logger.log(`Vote Source: ${source}`);
 
-            const botList = await bot.database.getBotlist(source);
+            const botList = await bot.database.getBotlist(source, bot.client.user.id);
             if(botList[0] && botList[0].pointsReward) {
                 await bot.database.addPoints(user, botList[0].pointsReward, `vote (${source})`);
             }
@@ -47,7 +47,7 @@ module.exports = {
 
             if(bot.client.channels.cache.has("756854640204709899")) {
                 try {
-                    bot.client.channels.cache.get("756854640204709899").send(`:heart: **${await bot.util.getUserTag(user)}** just voted at ${await bot.database.getBotlistUrl(source)}`)
+                    bot.client.channels.cache.get("756854640204709899").send(`:heart: **${await bot.util.getUserTag(user)}** just voted at ${await bot.database.getBotlistUrl(source, bot.client.user.id)}`)
                 } catch (e) {
                     // fart
                     //console.log(e);
