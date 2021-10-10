@@ -216,20 +216,20 @@ module.exports = {
         };
 
         bot.client.on("ready", async function discordReady() {
-            let token = process.env.DISCORD_TOKEN;
-            process.env.DISCORD_TOKEN = null;
-            bot.client.token = new Proxy({}, {get: () => {
-                const data = caller_id.getData();
-                if(data.typeName === "RESTManager")
-                    return ()=>token;
-                bot.logger.warn(`Invalid token access from ${data.typeName}`);
-                bot.logger.log(data);
-                Sentry.setExtra("filePath", data.filePath);
-                Sentry.setExtra("functionName", data.functionName);
-                Sentry.setExtra("evalFlag", data.evalFlag);
-                Sentry.captureException(`Invalid token access from ${data.typeName}`);
-                return ()=>"undefined";
-            }})
+            // let token = process.env.DISCORD_TOKEN;
+            // process.env.DISCORD_TOKEN = null;
+            // bot.client.token = new Proxy({}, {get: () => {
+            //     const data = caller_id.getData();
+            //     if(data.typeName === "RESTManager")
+            //         return ()=>token;
+            //     bot.logger.warn(`Invalid token access from ${data.typeName}`);
+            //     bot.logger.log(data);
+            //     Sentry.setExtra("filePath", data.filePath);
+            //     Sentry.setExtra("functionName", data.functionName);
+            //     Sentry.setExtra("evalFlag", data.evalFlag);
+            //     Sentry.captureException(`Invalid token access from ${data.typeName}`);
+            //     return ()=>"undefined";
+            // }})
 
             Sentry.configureScope(function discordReady(scope) {
                 bot.logger.log(`Logged in as ${bot.client.user.tag}`);
