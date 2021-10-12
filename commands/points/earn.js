@@ -11,7 +11,7 @@ module.exports = {
         const now = new Date();
         embed.setDescription("Stuck for points? Here are some ways you can earn:");
 
-        const voteSources = (await bot.database.getBotlistsWithVoteRewards()).chunk(5);
+        const voteSources = (await bot.database.getBotlistsWithVoteRewards(bot.client.user.id)).chunk(5);
         for(let c = 0; c < voteSources.length; c++){
             let voteRewards = "";
             for (let i = 0; i < voteSources[c].length; i++) {

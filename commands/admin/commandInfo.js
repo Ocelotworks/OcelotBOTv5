@@ -28,7 +28,8 @@ module.exports = {
         output.addField("Guild", server ? `**${server.name}** (${server.id})` : command.serverID, true);
         output.addField("Channel", channel ? `**#${channel.name}** (${channel.id})` :  command.channelID, true);
         output.addField("Bot",product ? `**${product.tag}** (${product.id})` :  command.productID, true);
-        output.addField("Timestamp", `<t:${Math.floor(command.timestamp.getTime()/1000)}>`, true);
+        output.addField("Timestamp", `<t:${Math.floor(command.timestamp.getTime()/1000)}> (${command.timestamp.getTime()})`, true);
+        output.addField("Message ID", command.messageID, true);
         output.addField("Type",command.type, true);
         output.addField("Served By","`"+command.server+"`", true);
         const buttons = [];
@@ -36,7 +37,7 @@ module.exports = {
         if(server) buttons.push(bot.interactions.suggestedCommand(context, `si ${server.id}`));
         buttons.push(bot.interactions.suggestedCommand(context, `cd ${command.commandID}`));
         if(command.type === "message")
-            buttons.push(bot.interactions.fullSuggestedCommand(context, `${command.command.split(command.command.indexOf(command.commandID)+1)}`));
+            buttons.push(bot.interactions.fullSuggestedCommand(context, `${command.command.substring(command.command.indexOf(command.commandID)+1)}`));
         return context.send({
             embeds: [output],
             components: [bot.util.actionRow(...buttons)]

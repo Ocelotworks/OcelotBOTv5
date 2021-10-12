@@ -38,25 +38,14 @@ module.exports = class Botlists {
         bot.lists = this;
     }
     init(){
-        this.bot.client.on("ready", ()=>{
-            if (this.bot.client.user.id !== "146293573422284800" || this.bot.util.shard > 0) return;
+        this.bot.client.on("ready", async ()=>{
+            if (this.bot.util.shard > 0) return;
             this.bot.logger.log("Doing botlist updates");
             setInterval(async ()=>{
-                let botList = await this.bot.database.getSingleBotlist(counter++);
+                let botList = await this.bot.database.getSingleBotlist(counter++, this.bot.client.user.id);
                 if(!botList)return counter = 0;
                 await this.updateList(botList);
             }, 60000)
-        })
-
-        this.bot.bus.on("commandLoadFinished", async ()=>{
-            return axios.post("https://api.discordservices.net/bot/146293573422284800/commands", Object.keys(this.bot.commandObjects).map((key) => {
-                const cmd = this.bot.commandObjects[key]
-                return {
-                    command: "!" + cmd.commands[0],
-                    desc: cmd.name,
-                    category: cmd.categories[0],
-                }
-            }), {headers: {authorization: (await this.bot.database.getBotlist("services"))[0].statsKey}})
         })
     }
     async updateList(botList){
@@ -82,7 +71,7 @@ module.exports = class Botlists {
         }
         axios[method](botList.statsUrl, body, {headers}).then(() => {
             this.bot.logger.log(`Posted stats to ${botList.id}`)
-            return this.bot.database.botlistSuccess(botList.id);
+            return this.bot.database.botlistSuccess(botList.id, this.bot.client.user.id);
         }).catch((e) => {
             this.bot.logger.warn(`Failed to post stats to ${botList.id}: ${e.message}`);
             if (e.response && e.response.data)
@@ -90,7 +79,7 @@ module.exports = class Botlists {
         })
     }
     async updateBotLists() {
-        let botLists = await this.bot.database.getBotlistsWithStats();
+        let botLists = await this.bot.database.getBotlistsWithStats(this.bot.client.user.id);
         for (let i = 0; i < botLists.length; i++) {
             await this.updateList(botLists[i]);
         }

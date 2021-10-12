@@ -65,7 +65,7 @@ module.exports = {
             const id = `${message.guild.id}-${message.author.id}`;
             if(!currentSpooks[id])return;
             clearTimeout(currentSpooks[id]);
-            module.exports.setIdleCheck(bot, message.guild, message.author.id);
+            module.exports.setIdleCheck(bot, message.guild.id, message.author.id);
 
         })
     },
@@ -77,7 +77,7 @@ module.exports = {
         if(bot.drain)return;
         if(!bot.config.getBool(server, "spook.doIdleCheck"))return bot.logger.log("Ignoring idle as doIdleCheck is off");
         let currentSpook = await bot.database.getSpooked(server);
-        if(!currentSpook)return bot.logger.warn(`Not running idle check for ${server} as the spook entry couldn't be fine`);
+        if(!currentSpook)return bot.logger.warn(`Not running idle check for ${server} as the spook entry couldn't be found`);
         if(currentSpook.type === "IDLE")return bot.logger.log(`Not running idle check for ${server} as last spook type was ${currentSpook.type}`);
         const guild = await bot.client.guilds.fetch(currentSpook.server).catch(()=>null);
         if(!guild || guild.deleted)return bot.logger.warn(`Guild deleted or failed to fetch.`);
@@ -200,9 +200,12 @@ module.exports = {
 
         if(!context.options.user) {
             const now = new Date();
-            const spookedTime = now-currentSpook.timestamp;
-            if(spookedTime > 8.64e+7 && currentSpook.type !== "IDLE"){
-                return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id);
+            let spookedTime = 0;
+            if(currentSpook) {
+                spookedTime = now - currentSpook.timestamp;
+                if (spookedTime > 8.64e+7 && currentSpook.type !== "IDLE") {
+                    return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id);
+                }
             }
             return context.sendLang({content: currentSpook ? "SPOOK_CURRENT" : "SPOOK_NOBODY"}, {
                 spooked: currentSpook?.spooked,
