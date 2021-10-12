@@ -117,6 +117,7 @@ build-shard-master:
     max: 2
     when: runner_system_failure
   script:
+    - export DOCKER_TLS_VERIFY=0
     - mv $CONFIG config/local.json
     - docker build .
       -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
