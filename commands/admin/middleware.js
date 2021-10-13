@@ -18,7 +18,7 @@ module.exports = {
 
             switch(context.options.action){
                 case "view":
-                    return context.send(`\`\`\`js\n\t\t${middleware.func.toString()}\n\`\`\``);
+                    return context.send(`\`\`\`js\n${middleware.func.toString()}\n\`\`\``);
                 case "enable":
                     if(middleware.priority >= 0)return context.send(`Middleware '${middlewareName}' is not disabled.`);
                     middleware.priority = middleware.oldPriority || 0;
