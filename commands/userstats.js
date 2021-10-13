@@ -93,11 +93,10 @@ module.exports = {
 
                 let cost = 0;
 
-                cost += commandResult['commandCount']*COST_PER_CMD;
+                cost += commandResult['commandCount']*(COST_PER_CMD+COST_PER_GM);
                 cost += getAllIn(countPerCommand, ['im', 'image', 'googleimage'])*COST_PER_IMG;
                 if(countPerCommand['removebg'])
                     cost += countPerCommand['removebg']*COST_PER_REMOVEBG;
-                cost += getAllIn(countPerCommand, ['bulge', 'trim', 'swirl', 'zoom', 'deepfry', 'omegle', 'wave', 'curse', 'zork', 'z5'])*COST_PER_GM;
                 cost += getAllIn(countPerCommand, ['identify', 'eyes', 'age'])*COST_PER_FACERECOG;
                 if(countPerCommand['ai'])
                     cost += countPerCommand['ai']*COST_PER_AI;
