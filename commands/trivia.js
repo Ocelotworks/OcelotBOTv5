@@ -133,7 +133,7 @@ module.exports = {
 function formatStreakedUser(obj){
     let output = `<@${obj.user}>`
     if(obj.streak > 1){
-        output += ` (${Array.from({length: Math.floor(obj.streak / 10)}, ()=>"🔥").join("")}${obj.streak})`
+        output += ` (${Array.from({length: Math.floor(obj.streak / 10)+1}, ()=>"🔥").join("")}${obj.streak})`
     }
     return output;
 }
