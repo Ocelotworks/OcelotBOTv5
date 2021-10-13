@@ -52,9 +52,12 @@ class PointsEmbed extends AuthorEmbed {
         if(!this.context.getBool("points.enabled"))return;
         if(!points)
             await this.bot.database.getPoints(this.context.user.id);
-        if(!points)return; // They do not have points. Somehow.
+        if(!points)points = 100; // They do not have points. Somehow.
         this.points = points;
-        super.setFooter(points.toLocaleString(), Icon.points.url);
+        if(points < 100)
+            super.setFooter(`${points.toLocaleString()} Low points! Check out ${this.context.getSetting("prefix")}points earn`, Icon.points_ending.url);
+        else
+            super.setFooter(points.toLocaleString(), Icon.points.url);
     }
 
     setFooter(text, iconURL ){
