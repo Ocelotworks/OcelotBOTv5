@@ -27,14 +27,14 @@ module.exports = class SpookRoles {
     static async GetDataForBully(bot, toMember, roleInfo){
         let spooked = await SpookRoles.#getEligibleUser(bot, toMember.guild,1, toMember.user.id);
         if(!spooked || !spooked.user)return null;
-        let num = bot.util.intBetween(2, 100);
+        let num = bot.util.intBetween(2, 50);
         return {spooked: spooked.user.id, num};
     }
 
     static async GetDataForJoker(bot, toMember, roleInfo){
         let [spooked, spooker] = await SpookRoles.#getEligibleUser(bot, toMember.guild, 2, toMember.user.id);
         if(!spooked || !spooked.user || !spooker || !spooker.user)return null;
-        let num = bot.util.intBetween(2, 100);
+        let num = bot.util.intBetween(2, 50);
         return {spooker: spooker.user.id, spooked: spooked.user.id, num};
     }
 
