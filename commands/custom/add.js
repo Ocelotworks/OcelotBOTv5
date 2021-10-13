@@ -50,7 +50,7 @@ module.exports = {
             }
 
             if (tooShort > occurrences.length / 2)
-                return context.send({content: "CUSTOM_SCHEDULE_FREQUENCY", ephemeral: true});
+                return context.sendLang({content: "CUSTOM_SCHEDULE_FREQUENCY", ephemeral: true});
             schedule = bot.util.parseSchedule(parse);
 
             // This is awful, we need to store the channel ID and the schedule, but we also need it to be deduplicated so store the message ID as a key
