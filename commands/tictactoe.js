@@ -77,7 +77,7 @@ module.exports = {
         ];
         let api = new Discord.MessagePayload(context.channel, {});
         api.data = {
-            content: `${X}: ${context.user}\n${O}: ${opponent}\nCurrent Turn: ${O}`,
+            content: `${X}: ${context.user}\n${O}: ${opponent}\nCurrent Turn: ${X}`,
             components: [
                 {type: 1, components: row(0)},
                 {type: 1, components: row(3)},
