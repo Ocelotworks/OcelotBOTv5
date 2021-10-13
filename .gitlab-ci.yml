@@ -72,7 +72,6 @@ build-base-image-staging:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
-    - export DOCKER_TLS_VERIFY=0
     - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest || true
     - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
@@ -117,7 +116,6 @@ build-shard-master:
     max: 2
     when: runner_system_failure
   script:
-    - export DOCKER_TLS_VERIFY=0
     - mv $CONFIG config/local.json
     - docker build .
       -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
