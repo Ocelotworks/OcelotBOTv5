@@ -1035,8 +1035,8 @@ module.exports = {
             getSingleBotlist: async function(index, productID){
                 return (await knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1, productID}).limit(1).offset(index))[0];
             },
-            getBotlistsWithVoteRewards: function(){
-                return knex.select().from("ocelotbot_botlists").whereNotNull("pointsReward").andWhere({enabled: 1}).orderBy("pointsReward", "DESC");
+            getBotlistsWithVoteRewards: function(productID){
+                return knex.select().from("ocelotbot_botlists").whereNotNull("pointsReward").andWhere({enabled: 1, productID}).orderBy("pointsReward", "DESC");
             },
             getBotlistUrl: async function (id, productID) {
                 let url = await knex.select("botUrl").from("ocelotbot_botlists").where({id, productID}).orWhere({id: 'topgg'}).limit(1);
