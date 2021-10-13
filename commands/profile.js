@@ -105,7 +105,7 @@ module.exports = {
             embed.setTitle(`You just earned ${badge.name}`);
             embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
             embed.setColor("#3ba13b");
-            await channel.send(output, {embeds: [embed]});
+            await channel.send({content: output, embeds: [embed]});
         };
 
         bot.badges.updateBadge = async function updateBadge(user, series, value, channel){
