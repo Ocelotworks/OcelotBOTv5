@@ -115,6 +115,7 @@ module.exports = {
                     delete cacheReloads[guild];
                 }, 5000);
                 bot.logger.log("Broker requested config reload for " + guild);
+                bot.logger.log(msg.payload);
             }
         })
 
