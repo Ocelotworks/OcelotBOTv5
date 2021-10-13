@@ -1,5 +1,6 @@
 FROM node:16.6.1-alpine3.12
 
+
 RUN apk add --no-cache ca-certificates wget graphicsmagick sudo curl build-base g++ libpng libpng-dev jpeg-dev pango-dev cairo cairo-dev giflib-dev python3 font-noto alpine-sdk
 
 RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
