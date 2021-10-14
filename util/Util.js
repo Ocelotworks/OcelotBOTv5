@@ -2,6 +2,7 @@ const {axios} = require('./Http');
 const Sentry = require('@sentry/node');
 const Strings = require("./String");
 const config = require('config');
+const columnify = require("columnify");
 module.exports = class Util {
 
     static Sleep(milliseconds){
@@ -298,5 +299,33 @@ module.exports = class Util {
      */
     static ArrayRand(array){
         return array[Math.round(Math.random() * (array.length - 1))];
+    }
+
+    /**
+     *
+     * @param {Object} data
+     * @param {string} target The value for the target user/server/whatever
+     * @param keyField
+     * @param keyMapping
+     * @constructor
+     */
+    static async Leaderboard(data, target, keyField = "user", keyMapping){
+        let position = -1;
+        let output = "```asciidoc\n";
+        let topTen = [];
+        for(let i = 0; i < data.length; i++){
+            if(data[i][keyField] === target){
+                position = i;
+            }
+            if(keyMapping)
+                topTen.push(await keyMapping(data[i], i));
+            else
+                topTen.push({
+                    "#": (i+1).toLocaleString(),
+                    ...data[i],
+                })
+        }
+        output += `${columnify(topTen)}\n\`\`\``
+        return {output, position};
     }
 }

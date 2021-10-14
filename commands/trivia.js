@@ -84,7 +84,7 @@ module.exports = {
             output.embeds = [embed];
             let sentMessage = await context.send(output);
 
-            setTimeout(()=>{
+            setTimeout(async ()=>{
                 removeGame(context.channel.id);
                 if(!context.channel || context.channel.deleted || !context.guild || context.guild.deleted){
                     bot.logger.log("Guild or channel was deleted before game completed");
@@ -99,7 +99,10 @@ module.exports = {
                     if(!userAnswers.hasOwnProperty(users[i]))continue
                     bot.database.logTrivia(users[i], userAnswers[users[i]] === correctAnswer, difficulty, context.guild?.id || context.channel.id).then(()=>null)
                     if(userAnswers[users[i]] === correctAnswer) {
-                        correct.push(users[i]);
+                        let streak = await bot.database.incrementStreak(users[i], "trivia");
+                        correct.push({user: users[i], streak});
+                    }else{
+                        bot.database.resetStreak(users[i], "trivia");
                     }
 
                 }
@@ -108,9 +111,9 @@ module.exports = {
                 if(correct.length === 0)
                     output += context.getLang("TRIVIA_WIN_NONE");
                 else if(correct.length === 1)
-                    output += context.getLang("TRIVIA_WIN_SINGLE", {user: `<@${correct[0]}>`, points: difficulty});
+                    output += context.getLang("TRIVIA_WIN_SINGLE", {user: formatStreakedUser(correct[0]), points: difficulty});
                 else
-                    output += context.getLang("TRIVIA_WIN", {users: correct.map((u)=>`<@${u}>`).join(", "), points: difficulty})
+                    output += context.getLang("TRIVIA_WIN", {users: correct.map((u)=>formatStreakedUser(u)).join(", "), points: difficulty})
                 let suggestedButton = bot.interactions.fullSuggestedCommand(context, `trivia ${context.options.category || ""}`);
                 if(suggestedButton) {
                     suggestedButton.label = "Play Again";
@@ -126,6 +129,14 @@ module.exports = {
         }
     }
 };
+
+function formatStreakedUser(obj){
+    let output = `<@${obj.user}>`
+    if(obj.streak > 1){
+        output += ` (${Array.from({length: Math.floor(obj.streak / 10)+1}, ()=>"🔥").join("")}${obj.streak})`
+    }
+    return output;
+}
 
 setInterval(()=>{
     runningGames = [];
