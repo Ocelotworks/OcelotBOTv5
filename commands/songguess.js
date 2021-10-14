@@ -248,7 +248,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
     let trackName = song.track.name;
     try {
         console.log("Waiting for track name...");
-        let result = await axios.post(`https://ob.bint.cc/api/music/cleantitle`, `song=${encodeURIComponent(trackName)}`, {
+        let result = await axios.post(`https://ob-prod-api.d.int.unacc.eu/api/music/cleantitle`, `song=${encodeURIComponent(trackName)}`, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
