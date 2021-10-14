@@ -60,10 +60,7 @@ module.exports = {
                     channel = bot.waitingVoteChannels[i];
                     bot.logger.log("Matched waiting vote channel for " + user);
                     const streak = await bot.database.getStreak(user, "vote");
-                    if (streak > 1)
-                        channel.sendLang("VOTE_MESSAGE_STREAK", {user, streak});
-                    else
-                        channel.sendLang("VOTE_MESSAGE", {user});
+                    channel.sendLang(streak > 1 ? "VOTE_MESSAGE_STREAK" : "VOTE_MESSAGE", {user, streak});
                     bot.waitingVoteChannels.splice(i, 1);
                     voteServer = channel.guild.id;
                     break;
