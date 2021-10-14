@@ -316,14 +316,17 @@ module.exports = class Util {
         for(let i = 0; i < data.length; i++){
             if(data[i][keyField] === target){
                 position = i;
+                if(i >= 10)break;
             }
-            if(keyMapping)
-                topTen.push(await keyMapping(data[i], i));
-            else
-                topTen.push({
-                    "#": (i+1).toLocaleString(),
-                    ...data[i],
-                })
+            if(i < 10) {
+                if (keyMapping)
+                    topTen.push(await keyMapping(data[i], i));
+                else
+                    topTen.push({
+                        "#": (i + 1).toLocaleString(),
+                        ...data[i],
+                    })
+            }
         }
         output += `${columnify(topTen)}\n\`\`\``
         return {output, position};
