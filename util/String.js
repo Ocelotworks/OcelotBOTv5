@@ -533,4 +533,8 @@ module.exports = class Strings {
     }
 
 
+    static NCharacters(n, character){
+        return Array.from({length: n}, ()=>character).join("")
+    }
+
 }
