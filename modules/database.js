@@ -916,12 +916,13 @@ module.exports = {
             },
             resetStreak: async function (user, type) {
                 let streak = await bot.database.getStreak(user, type);
-                if (!streak) return;
+                if (!streak) return 0;
                 await knex("ocelotbot_streaks").update({highest: streak, achieved: new Date()}).where({
                     user,
                     type
                 }).andWhere("highest", "<", streak).limit(1);
                 await bot.database.setStreak(user, type, 0);
+                return streak;
             },
             getHighestStreak: async function (user, type) {
                 return (await knex.select("highest", "achieved").from("ocelotbot_streaks").where({

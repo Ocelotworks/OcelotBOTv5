@@ -91,6 +91,7 @@ module.exports = {
                     return;
                 }
                 let correct = [];
+                let lostStreaks = [];
                 context.edit({components: []}, sentMessage);
                 const users = Object.keys(userAnswers);
                 const difficulty = difficulties.indexOf(question.difficulty)+1;
@@ -102,7 +103,8 @@ module.exports = {
                         let streak = await bot.database.incrementStreak(users[i], "trivia");
                         correct.push({user: users[i], streak});
                     }else{
-                        bot.database.resetStreak(users[i], "trivia");
+                        let lostStreak = await bot.database.resetStreak(users[i], "trivia");
+                        if(lostStreak > 2)lostStreaks.push({user: users[i], streak: lostStreak})
                     }
 
                 }
@@ -114,6 +116,11 @@ module.exports = {
                     output += context.getLang("TRIVIA_WIN_SINGLE", {user: formatStreakedUser(correct[0]), points: difficulty});
                 else
                     output += context.getLang("TRIVIA_WIN", {users: correct.map((u)=>formatStreakedUser(u)).join(", "), points: difficulty})
+
+                if(lostStreaks.length === 1)
+                    output += `\n<@${lostStreaks[0].user}> lost their winning streak of 🔥${lostStreaks[0].streak.toLocaleString()} :(`;
+                if(lostStreaks.length > 1)
+                    output += `\n<@${lostStreaks.map((s)=>s.user).join(">, <@")}> lost their winning streaks :(`;
                 let suggestedButton = bot.interactions.fullSuggestedCommand(context, `trivia ${context.options.category || ""}`);
                 if(suggestedButton) {
                     suggestedButton.label = "Play Again";
