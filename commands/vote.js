@@ -40,14 +40,15 @@ module.exports = {
         }
 
         bot.bus.on("registerVote", async (message) => {
-            let user = message.payload.user;
-            let source = message.payload.source;
+            let {user, source, multiplier} = message.payload;
             let voteServer = null;
             let channel = null;
 
             if(bot.client.channels.cache.has("756854640204709899")) {
                 try {
-                    bot.client.channels.cache.get("756854640204709899").send(`:heart: **${await bot.util.getUserTag(user)}** just voted at ${await bot.database.getBotlistUrl(source, bot.client.user.id)}`)
+                    let message = `:heart: **${await bot.util.getUserTag(user)}** just voted at ${await bot.database.getBotlistUrl(source, bot.client.user.id)}`;
+                    if(multiplier > 1)message += ` **(${multiplier.toLocaleString()}x multiplier)**`
+                    bot.client.channels.cache.get("756854640204709899").send(message)
                 } catch (e) {
                     // fart
                     //console.log(e);

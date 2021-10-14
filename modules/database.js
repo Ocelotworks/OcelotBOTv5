@@ -786,8 +786,8 @@ module.exports = {
             addSongGuess: async function (user, channel, server, guess, song, correct, elapsed, custom = false) {
                 await knex.insert({user, channel, server, guess, song, correct, elapsed, custom}).into("ocelotbot_song_guess");
             },
-            addVote: async function (user, referralServer, source) {
-                await knex.insert({user, referralServer, source}).into("ocelotbot_votes");
+            addVote: async function (user, referralServer, source, multiplier) {
+                await knex.insert({user, referralServer, source, multiplier}).into("ocelotbot_votes");
             },
             getVoteCount: function (user) {
                 return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_votes").where({user});
