@@ -51,8 +51,7 @@ class PointsEmbed extends AuthorEmbed {
     async init(points){
         if(!this.context.getBool("points.enabled"))return;
         if(!points)
-            await this.bot.database.getPoints(this.context.user.id);
-        if(!points)points = 100; // They do not have points. Somehow.
+            points = await this.bot.database.getPoints(this.context.user.id);
         this.points = points;
         if(points < 100)
             super.setFooter(`${points.toLocaleString()} Low points! Check out ${this.context.getSetting("prefix")}points earn`, Icon.points_ending.url);
