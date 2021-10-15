@@ -22,7 +22,7 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS"],
     commands: ["image", "images", "im", "googleimage"],
     vote: true,
-    pointsCost: 2,
+    pointsCost: 15,
     categories: ["image", "search"],
     handleError: function(context){
         return context.sendLang("IMAGE_NO_TEXT");
