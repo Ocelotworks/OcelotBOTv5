@@ -18,12 +18,12 @@ module.exports = {
 
         let voteTimeouts = {};
 
-        async function logVote(user, voteServer, channel, source) {
+        async function logVote(user, voteServer, channel, source, multiplier) {
             bot.logger.log(`Vote Source: ${source}`);
 
             const botList = await bot.database.getBotlist(source, bot.client.user.id);
             if(botList?.pointsReward) {
-                await bot.database.addPoints(user, botList.pointsReward, `vote (${source})`);
+                await bot.database.addPoints(user, botList.pointsReward*multiplier, `vote (${source})`);
             }
 
             let lastVote = await bot.database.getLastVote(user);
@@ -74,9 +74,9 @@ module.exports = {
             }
             if (voteServer || bot.util.shard == 0) {
                 if (bot.util.shard == 0) {
-                    voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel, source);
+                    voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel, source, multiplier);
                 } else {
-                    await logVote(user, voteServer, channel, source);
+                    await logVote(user, voteServer, channel, source, multiplier);
                     await bot.rabbit.event({type: "clearVoteTimeout", payload: user});
                 }
             }
