@@ -3,7 +3,7 @@ module.exports = {
     usage: "give :@user :0amount",
     commands: ["give", "send", "pay"],
     run: async function (context, bot) {
-        let target = await context.getMember(context.options.user)?.user;
+        let target = (await context.getMember(context.options.user))?.user;
 
         if(!target)
             return context.send({content: "Couldn't find the user specified. Make sure they're in this channel.", ephemeral: true});
