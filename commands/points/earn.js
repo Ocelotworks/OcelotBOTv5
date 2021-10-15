@@ -25,6 +25,7 @@ module.exports = {
                 }else{
                     line = `<:points:817100139603820614> **${line}**`;
                 }
+                if(voteSource.voteTimer === 0)line += " (No cooldown!)";
                 voteRewards += line + "\n";
             }
             embed.addField(c === 0 ? "Voting" : "‍", voteRewards.substring(0, 1024));
