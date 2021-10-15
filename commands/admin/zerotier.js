@@ -9,7 +9,7 @@ module.exports = {
     run: async function (context, bot) {
         if (!context.options.approve) {
             try {
-                let result = await bot.util.getJson("https://ob.bint.cc/api/zt/nodes");
+                let result = await bot.util.getJson("https://ob-prod-api.d.int.unacc.eu/api/zt/nodes");
                 let header = Object.keys(result)[0];
                 let nodes = result[header].map((node)=>({...node, Approved: node.Approved === "Y" ? "✅" : "🚫", Status: node.Status === "ONL" ? "✅" : "❌"}));
                 if (context.options.idOrSearch)
@@ -29,7 +29,7 @@ module.exports = {
         if (!context.options.idOrSearch || !context.options.name) return context.send({content: "!admin zerotier approve id name", ephemeral: true});
         try {
             let name = context.options.name;
-            let result = await axios.post("https://ob.bint.cc/api/zt/nodes", {
+            let result = await axios.post("https://ob-prod-api.d.int.unacc.eu/api/zt/nodes", {
                 id: args[3],
                 name
             });

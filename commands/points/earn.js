@@ -17,7 +17,9 @@ module.exports = {
             for (let i = 0; i < voteSources[c].length; i++) {
                 const voteSource = voteSources[c][i];
                 const lastVote = await bot.database.getLastVoteBySource(context.user.id, voteSource.id);
+                const streak = await bot.database.getStreak(context.user.id, voteSource.id);
                 let line = `Earn ${voteSource.pointsReward} Voting at [${voteSource.name}](${voteSource.botUrl})`;
+                if(streak > 1)line = `🔥${streak.toLocaleString()} ${line}`
                 if (lastVote && now - lastVote < (voteSource.voteTimer * 3600000)) { // Vote timer is stored in hours, we want milliseconds
                     line = `<:points_off:825695949790904330> ~~${line}~~ [Available in ${bot.util.shortSeconds(((voteSource.voteTimer * 3600000) - (now - lastVote)) / 1000)}]`
                 }else{

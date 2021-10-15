@@ -786,8 +786,8 @@ module.exports = {
             addSongGuess: async function (user, channel, server, guess, song, correct, elapsed, custom = false) {
                 await knex.insert({user, channel, server, guess, song, correct, elapsed, custom}).into("ocelotbot_song_guess");
             },
-            addVote: async function (user, referralServer, source) {
-                await knex.insert({user, referralServer, source}).into("ocelotbot_votes");
+            addVote: async function (user, referralServer, source, multiplier) {
+                await knex.insert({user, referralServer, source, multiplier}).into("ocelotbot_votes");
             },
             getVoteCount: function (user) {
                 return knex.select(knex.raw("COUNT(*)")).from("ocelotbot_votes").where({user});
@@ -916,12 +916,13 @@ module.exports = {
             },
             resetStreak: async function (user, type) {
                 let streak = await bot.database.getStreak(user, type);
-                if (!streak) return;
+                if (!streak) return 0;
                 await knex("ocelotbot_streaks").update({highest: streak, achieved: new Date()}).where({
                     user,
                     type
                 }).andWhere("highest", "<", streak).limit(1);
                 await bot.database.setStreak(user, type, 0);
+                return streak;
             },
             getHighestStreak: async function (user, type) {
                 return (await knex.select("highest", "achieved").from("ocelotbot_streaks").where({
@@ -1026,8 +1027,8 @@ module.exports = {
                 let result = await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_referrals").where({id});
                 return result[0]['COUNT(*)'];
             },
-            getBotlist: function (id, productID) {
-                return knex.select().from("ocelotbot_botlists").where({id, productID}).limit(1);
+            getBotlist: async function (id, productID) {
+                return (await knex.select().from("ocelotbot_botlists").where({id, productID}).limit(1))[0];
             },
             getBotlistsWithStats: function (productID) {
                 return knex.select().from("ocelotbot_botlists").whereNotNull("statsUrl").andWhere({enabled: 1, productID});
