@@ -10,6 +10,6 @@ module.exports = {
     },
     run: async function (context, bot) {
         await bot.rabbit.event({type: "reloadLang"});
-        context.send(`Loaded ${bot.lang.strings['en-gb'].length} unique keys.`);
+        return context.send(`Loaded ${Object.keys(bot.lang.strings['en-gb']).length} unique keys.`);
     }
 };
