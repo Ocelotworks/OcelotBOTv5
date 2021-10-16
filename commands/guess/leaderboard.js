@@ -1,15 +1,12 @@
 const columnify = require('columnify');
 const Sentry = require('@sentry/node');
-const timescales = {
-    all: "all",
-    month: "month",
-    monthly: "month",
-    week: "week",
-    weekly: "week",
-    year: "year",
-    yearly: "year",
-}
 
+
+const timescales = {
+    monthly: "month",
+    yearly: "year",
+    weekly: "week"
+}
 
 module.exports = {
     name: "Leaderboards",
@@ -18,7 +15,7 @@ module.exports = {
     run: async function (context, bot) {
         let server = context.options.server || "global";
 
-        const timescale = context.options.timescale || "all";
+        const timescale = timescales[context.options.timescale] || "all";
 
         context.defer();
         try {
