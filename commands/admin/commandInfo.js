@@ -37,7 +37,7 @@ module.exports = {
         if(server) buttons.push(bot.interactions.suggestedCommand(context, `si ${server.id}`));
         buttons.push(bot.interactions.suggestedCommand(context, `cd ${command.commandID}`));
         if(command.type === "message")
-            buttons.push(bot.interactions.fullSuggestedCommand(context, `${command.command.substring(command.command.indexOf(command.commandID)+1)}`));
+            buttons.push(bot.interactions.fullSuggestedCommand(context, `${command.command.substring(command.command.indexOf(command.commandID))}`));
         return context.send({
             embeds: [output],
             components: [bot.util.actionRow(...buttons)]
