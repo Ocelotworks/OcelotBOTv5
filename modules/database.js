@@ -1115,6 +1115,9 @@ module.exports = {
                 }).into("ocelotbot_points_transactions");
                 return true;
             },
+            getLastPointsTransactions(user){
+                return knex.select().from("ocelotbot_points_transactions").where({user}).orderBy("timestamp", "desc").limit(10)
+            },
             getPointsChallengeTypes(){
                 return knex.select().from("ocelotbot_points_challenge_types");
             },
