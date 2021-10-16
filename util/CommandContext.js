@@ -261,7 +261,7 @@ class InteractionCommandContext extends CommandContext {
                 id: this.command,
                 content: this.content,
             },
-            interaction: this.interaction,
+            interaction: this.bot.util.serialiseInteraction(this.interaction),
         })
     }
 

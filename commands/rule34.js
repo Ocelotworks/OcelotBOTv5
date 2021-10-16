@@ -18,7 +18,7 @@ module.exports = {
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["rule34", "r34"],
     vote: true,
-    pointsCost: 1,
+    pointsCost: 10,
     run: async function(context, bot){
         if (naughtyRegex.test(context.options.search)) {
             return context.send({content: ":warning: No results", ephemeral: true});

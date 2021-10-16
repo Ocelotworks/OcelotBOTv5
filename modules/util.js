@@ -1513,6 +1513,18 @@ module.exports = {
             }
         }
 
+        bot.util.serialiseInteraction = function serialiseInteraction(interaction){
+            if(!interaction)return {};
+            return {
+                guild: bot.util.serialiseChannel(interaction.guild),
+                channel: bot.util.serialiseChannel(interaction.channel),
+                author: interaction.member ? bot.util.serialiseMember(interaction.member) : bot.util.serialiseUser(interaction.user),
+                id: interaction.id,
+                type: interaction.type,
+                timestamp: interaction.createdTimestamp,
+            }
+        }
+
 
         let customTypes = {};
 
