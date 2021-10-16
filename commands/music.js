@@ -310,7 +310,7 @@ module.exports = {
                     },
                     playerUpdateListener: function playerUpdate(evt) {
                         if (listener && listener.playing) {
-                            bot.logger.log(`Listener update: (${listener.playing.info.title}) ${evt.state.position}`);
+                            bot.logger.log(`Listener update: (${listener.playing.info.title}) ${bot.util.shortSeconds(evt.state.position/1000)}`);
                             listener.playing.position = evt.state.position;
                         }
                     },
