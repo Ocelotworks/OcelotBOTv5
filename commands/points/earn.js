@@ -4,6 +4,27 @@ module.exports = {
     usage: "earn",
     commands: ["earn", "get", "daily"],
     run: async function (context, bot) {
+        const embed = await module.exports.createEmbed(context, bot);
+
+        let response = await context.send({embeds: [embed]});
+
+        let listenerTimeout;
+        let voteListener = async (message)=>{
+            let {user} = message.payload;
+            if(user !== context.user.id)return;
+            clearTimeout(listenerTimeout)
+            setTimeout(removeListener, 60000);
+            context.edit({embeds: [await module.exports.createEmbed(context, bot)]}, response);
+        }
+        let removeListener = ()=>{
+            bot.logger.log(`Removing vote listener for ${context.user.id}`);
+            bot.bus.removeListener("vote", voteListener);
+        };
+
+        bot.bus.on("vote", voteListener);
+        listenerTimeout = setTimeout(removeListener, 60000)
+    },
+    async createEmbed(context, bot){
         let embed = new Embeds.PointsEmbed(context, bot);
         await embed.init();
         embed.setTitleLang("POINTS_EARN_TITLE")
@@ -37,7 +58,6 @@ module.exports = {
 
         let challenges = await bot.database.getPointsChallenges();
         let challengeProgress = (await bot.database.getInProgressChallenges(context.user.id, challenges.map(c=>c.id))).reduce((acc,c)=>{acc[c.challenge] = c; return acc}, {});
-        console.log(challenges);
         if(challenges.length > 0) {
             let challengeOutput = "";
             for(let i = 0; i < challenges.length; i++){
@@ -59,6 +79,6 @@ module.exports = {
 
         embed.setColor("#03F783");
         embed.setAuthor(context.user.username, context.user.avatarURL());
-        context.send({embeds: [embed]})
+        return embed;
     }
 };
