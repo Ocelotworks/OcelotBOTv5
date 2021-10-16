@@ -6,7 +6,7 @@ module.exports = {
     noCustom: true,
     run: async function (context, bot) {
         try {
-            let result = await bot.util.getJson("https://ob.bint.cc/api/pve/nodes");
+            let result = await bot.util.getJson("https://ob-prod-api.d.int.unacc.eu/api/pve/nodes");
             console.log(result);
             if (result.success) {
                 let output = "";
