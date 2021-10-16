@@ -30,20 +30,23 @@ module.exports = {
             embed.addField(c === 0 ? context.getLang("POINTS_EARN_BOTLIST_TITLE") : "‍", voteRewards.substring(0, 1024));
         }
         let games = "";
-        games += context.getLang("POINTS_EARN_GAMES_GUESS")
-        games += context.getLang("POINTS_EARN_GAMES_TRIVIA")
-        games += context.getLang("POINTS_EARN_GAMES_REFERRAL")
+        games += context.getLang("POINTS_EARN_GAMES_GUESS")+"\n"
+        games += context.getLang("POINTS_EARN_GAMES_TRIVIA")+"\n"
+        games += context.getLang("POINTS_EARN_GAMES_REFERRAL")+"\n"
         embed.addField(context.getLang("POINTS_EARN_GAMES_TITLE"), games);
 
         let challenges = await bot.database.getPointsChallenges();
-        let completedChallenges = (await bot.database.getCompletedChallenges(context.user.id, challenges.map(c=>c.id))).reduce((acc,c)=>{acc[c.challenge] = c; return acc}, {});
+        let challengeProgress = (await bot.database.getInProgressChallenges(context.user.id, challenges.map(c=>c.id))).reduce((acc,c)=>{acc[c.challenge] = c; return acc}, {});
+        console.log(challenges);
         if(challenges.length > 0) {
             let challengeOutput = "";
             for(let i = 0; i < challenges.length; i++){
                 const challenge = challenges[i];
                 let line = context.getLang("POINTS_EARN_WEEKLY", challenge);
-                if(completedChallenges[challenge.id]){
+                if(challengeProgress[challenge.id]?.complete) {
                     line = context.getLang("POINTS_EARN_WEEKLY_COMPLETED", {line});
+                }else if(challengeProgress[challenge.id]){
+                    line = context.getLang("POINTS_EARN_WEEKLY_PROGRESS", {line, progress: challengeProgress[challenge.id].progress, challenge});
                 }else if(challenge.end-now < 1.44e+7) { // 4 hours
                     line = context.getLang("POINTS_EARN_WEEKLY_ENDING", {line, timeout: (challenge.end-now)/1000});
                 }else{
