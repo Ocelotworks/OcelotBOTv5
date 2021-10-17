@@ -90,8 +90,6 @@ module.exports = {
     run: async function (context, bot) {
         if (context.args && context.args[1]) return;
         let lastVote = await bot.database.getLastVoteBySource(context.user.id, "topgg");
-        if (lastVote[0])
-            lastVote = lastVote[0]['MAX(timestamp)'];
         let difference = new Date() - lastVote;
 
         if (difference < bot.util.voteTimeout) {
