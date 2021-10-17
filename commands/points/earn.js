@@ -22,7 +22,7 @@ module.exports = {
             bot.bus.removeListener("vote", voteListener);
         };
 
-        bot.bus.on("vote", voteListener);
+        bot.bus.on("registerVote", voteListener);
         listenerTimeout = setTimeout(removeListener, 60000)
     },
     async createEmbed(context, bot){
