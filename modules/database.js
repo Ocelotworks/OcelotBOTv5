@@ -123,6 +123,9 @@ module.exports = {
             getServer: function getServer(serverID) {
                 return knex.select().from(SERVERS_TABLE).where({server: serverID}).limit(1);
             },
+            searchServer: function searchServer(serverName){
+                return knex.select().from(SERVERS_TABLE).where("name", "LIKE", serverName);
+            },
             getLeftServer: function getLeftServer(serverID){
                 return knex.select().from(LEFTSERVERS_TABLE).where({server: serverID});
             },
