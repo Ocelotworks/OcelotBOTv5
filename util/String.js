@@ -464,6 +464,8 @@ module.exports = class Strings {
             }
             const output = Strings.GetReference(values, split[1]);
             switch(split[0]){
+                case "format":
+                    return Strings.Format(output, values);
                 case "shortSeconds":
                     return Strings.ShortSeconds(output);
                 case "memory":
@@ -476,13 +478,13 @@ module.exports = class Strings {
                 case "number":
                     return parseInt(output).toLocaleString(values.locale)
                 case "date":
-                    if(!output.toLocaleDateString)return `{Value ${split[1]} must be a Date, got ${typeof split[1]}}`
+                    if(!output.toLocaleDateString)return `{Value of ${split[1]} (${output}) must be a Date, got ${typeof output}}`
                     return output.toLocaleDateString(values.locale, {timeZone: values.timezone});
                 case "time":
-                    if(!output.toLocaleTimeString)return `{Value ${split[1]} must be a Date, got ${typeof split[1]}}`
+                    if(!output.toLocaleTimeString)return `{Value of ${split[1]} (${output}) must be a Date, got ${typeof output}}`
                     return output.toLocaleTimeString(values.locale, {timeZone: values.timezone});
                 case "datetime":
-                    if(!output.toLocaleDateString)return `{Value ${split[1]} must be a Date, got ${typeof split[1]}}`
+                    if(!output.toLocaleDateString)return `{Value of ${split[1]} (${output}) must be a Date, got ${typeof output}}`
                     return output.toLocaleString(values.locale, {timeZone: values.timezone});
                 default:
                     return output;

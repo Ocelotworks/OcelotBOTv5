@@ -6,26 +6,26 @@ module.exports = {
         let target = (await context.getMember(context.options.user))?.user;
 
         if(!target)
-            return context.send({content: "Couldn't find the user specified. Make sure they're in this channel.", ephemeral: true});
+            return context.sendLang({content: "GENERIC_USER_NOT_FOUND", ephemeral: true});
 
         if(target.id === context.user.id)
-            return context.send({content: "You can't send points to yourself. What would that even achieve?", ephemeral: true});
+            return context.sendLang({content: "POINTS_GIVE_SELF", ephemeral: true});
 
         if(target.bot)
-            return context.send({content: "You can't send points to a bot.", ephemeral: true});
-        
+            return context.sendLang({content: "POINTS_GIVE_BOT", ephemeral: true});
+
         const amount = context.options.amount;
-        
+
         if(amount <= 0)
-            return context.send({content: "Nice try, enter a number higher than 0.", ephemeral: true});
+            return context.sendLang({content: "POINTS_GIVE_NEGATIVE", ephemeral: true});
 
         const canSend = await bot.database.takePoints(context.user.id, amount, `given to ${target.id}`);
 
         if(!canSend)
-            return context.send({content: "You don't have enough points to do that.", ephemeral: true});
+            return context.sendLang({content: "POINTS_GIVE_NOT_ENOUGH", ephemeral: true});
 
         await bot.database.addPoints(target.id, amount, `received from ${context.user.id}`);
 
-        return context.send(`✅ Sent **<:points:817100139603820614>${amount}** to ${target}!`)
+        return context.sendLang("POINTS_GIVE", {amount, target});
     }
 };

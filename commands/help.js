@@ -34,7 +34,7 @@ module.exports = {
             if(!context.guild || context.channel.permissionsFor(bot.client.user.id).has("EMBED_LINKS")) {
                 const embed = new Embeds.AuthorEmbed(context);
                 embed.setTitle("OcelotBOT Help");
-                embed.setDescription(`Here is a list of command categories. Type **${context.command}** followed by a category or a command name to learn more.\nAlternatively, you can view an interactive command list [here](https://ocelotbot.xyz/commands?prefix=${encodeURIComponent(context.getSetting("prefix"))}).`);
+                embed.setDescription(`Here is a list of command categories. Type **${context.getSetting("prefix")}${context.command}** followed by a category or a command name to learn more.\nAlternatively, you can view an interactive command list [here](https://ocelotbot.xyz/commands?prefix=${encodeURIComponent(context.getSetting("prefix"))}).`);
                 for (let i in bot.commandCategories) {
                     if(!bot.commandCategories.hasOwnProperty(i))continue;
                     if ((context.getSetting("help.hiddenCategories") && context.getSetting("help.hiddenCategories").indexOf(i) > -1) || (i === "nsfw" && (context.getBool("disableNSFW") || context.getBool("wholesome"))))

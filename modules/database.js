@@ -1115,16 +1115,39 @@ module.exports = {
                 }).into("ocelotbot_points_transactions");
                 return true;
             },
-            getPointsChallenges(){
+            getLastPointsTransactions(user){
+                return knex.select().from("ocelotbot_points_transactions").where({user}).orderBy("timestamp", "desc").limit(10)
+            },
+            getPointsChallengeTypes(){
+                return knex.select().from("ocelotbot_points_challenge_types");
+            },
+            getPointsChallengesByType(type){
                 const now = new Date();
                 return knex.select()
                     .from("ocelotbot_points_challenges")
                     .where("begin", "<=", now)
                     .andWhere("end", ">", now)
+                    .andWhere({challenge_type: type});
+            },
+            getPointsChallenges(){
+                const now = new Date();
+                return knex.select("begin", "end", "ocelotbot_points_challenges.id", "reward_value", "challenge_value", "desc")
+                    .from("ocelotbot_points_challenges")
+                    .where("begin", "<=", now)
+                    .andWhere("end", ">", now)
                     .innerJoin("ocelotbot_points_challenge_types", "ocelotbot_points_challenges.challenge_type", "ocelotbot_points_challenge_types.id")
             },
-            getCompletedChallenges(user, challenges){
+            getInProgressChallenges(user, challenges){
                 return knex.select().from("ocelotbot_points_challenge_log").whereIn("challenge", challenges).andWhere({user});
+            },
+            async getChallengeLog(user, challenge){
+                return (await knex.select().from("ocelotbot_points_challenge_log").where({user, challenge}).limit(1))[0];
+            },
+            async addChallengeLog(log){
+                return knex.insert(log).into("ocelotbot_points_challenge_log");
+            },
+            async updateChallengeLog(user, challenge, progress, complete){
+                return knex("ocelotbot_points_challenge_log").update({progress, complete}).where({user, challenge})
             },
             async getCustomCommand(server, trigger){
                 let result = await knex.select("function").from("ocelotbot_custom_functions").where({server, trigger, type: "COMMAND"}).limit(1);

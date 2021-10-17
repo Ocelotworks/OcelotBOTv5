@@ -5,7 +5,7 @@ module.exports = {
     name: "Custom Functions",
     usage: "custom",
     rateLimit: 10,
-    detailedHelp: "Add custom commands or autoresponders. View the full documentation at https://docs.ocelotbot.xyz",
+    detailedHelp: "Add custom commands or autoresponders. View the full documentation at <https://docs.ocelotbot.xyz>",
     usageExample: `custom add command test return "hello world"`,
     categories: ["meta"],
     commands: ["custom", "customcommands"],

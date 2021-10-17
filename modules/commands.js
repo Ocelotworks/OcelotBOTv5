@@ -202,13 +202,16 @@ module.exports = class Commands {
                 console.error(err);
                 Sentry.captureException(err);
             } else {
+                let promises = [];
                 for (const command of files) {
                     if (!fs.lstatSync(`${__dirname}/../commands/${command}`).isDirectory()) {
-                        this.loadCommand(command);
+                        promises.push(this.loadCommand(command));
                     }
                 }
-                this.bot.bus.emit("commandLoadFinished");
-                this.bot.logger.log("Finished loading commands.");
+                Promise.all(promises).then(()=>{
+                    this.bot.bus.emit("commandLoadFinished");
+                    this.bot.logger.log("Finished loading commands.");
+                })
 
                 this.bot.client.once("ready", () => {
                     this.bot.rabbit.event({
@@ -222,7 +225,7 @@ module.exports = class Commands {
 
     /**
      * Load an individual command object
-     * @param command
+     * @param {string} command The command file, relative to commands/
      * @param {boolean} reload Is this a reload or a fresh load
      * @returns {Promise<void>}
      */

@@ -354,6 +354,12 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
             bot.bus.emit("onGuessWin", {winner, game})
             bot.util.replyTo(winner, {embeds: [winEmbed]});
             game.failures = 0;
+            bot.bus.emit("guessWin", winner.author, {
+                winner,
+                voiceChannel,
+                game,
+                elapsed,
+            }, game.context);
         }else {
             game.failures++;
             let message = game.context.getLang("SONGGUESS_OVER", {artists: song.track.artists.map((a) => a.name).join(", "), song: song.track.name});
