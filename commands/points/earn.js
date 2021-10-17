@@ -12,6 +12,7 @@ module.exports = {
         let voteListener = async (message)=>{
             let {user} = message.payload;
             if(user !== context.user.id)return;
+            bot.logger.log("!points earn vote listener for "+context.user.id)
             clearTimeout(listenerTimeout)
             setTimeout(removeListener, 60000);
             context.edit({embeds: [await module.exports.createEmbed(context, bot)]}, response);
@@ -39,7 +40,7 @@ module.exports = {
                 const lastVote = await bot.database.getLastVoteBySource(context.user.id, voteSource.id);
                 const streak = await bot.database.getStreak(context.user.id, voteSource.id);
                 let line = context.getLang("POINTS_EARN_BOTLIST", voteSource);
-                if(streak > 1)line = context.getLang("POINTS_EARN_STRING", {streak, line});
+                if(streak > 1)line = context.getLang("POINTS_EARN_STREAK", {streak, line});
                 if (lastVote && now - lastVote < (voteSource.voteTimer * 3600000)) { // Vote timer is stored in hours, we want milliseconds
                     line = context.getLang("POINTS_EARN_BOTLIST_COOLDOWN", {line, timeout: ((voteSource.voteTimer * 3600000) - (now - lastVote)) / 1000})
                 }else{

@@ -41,6 +41,8 @@ class AuthorEmbed extends LangEmbed {
 class PointsEmbed extends AuthorEmbed {
     bot;
     points;
+    pointsString;
+    pointsIcon;
     constructor(context, bot){
         super(context);
         this.bot = bot;
@@ -53,15 +55,14 @@ class PointsEmbed extends AuthorEmbed {
         if(!points)
             points = await this.bot.database.getPoints(this.context.user.id);
         this.points = points;
-        if(points < 100)
-            super.setFooter(`${points.toLocaleString()} Low points! Check out ${this.context.getSetting("prefix")}points earn`, Icon.points_ending.url);
-        else
-            super.setFooter(points.toLocaleString(), Icon.points.url);
+        this.pointsString = points < 100 ? `${points.toLocaleString()} Low points! Check out ${this.context.getSetting("prefix")}points earn` : points.toLocaleString();
+        this.pointsIcon = points < 100 ? Icon.points_ending.url : Icon.points.url
+        super.setFooter(this.pointsString, this.pointsIcon);
     }
 
     setFooter(text, iconURL ){
         if(!this.context.getBool("points.enabled"))return super.setFooter(text, iconURL);
-        return super.setFooter(`${this.points.toLocaleString()} • ${text}`, iconURL || Icon.points.url);
+        return super.setFooter(`${this.pointsString} • ${text}`, iconURL || this.pointsIcon);
     }
 }
 
