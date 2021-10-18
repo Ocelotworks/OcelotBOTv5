@@ -16,7 +16,6 @@ module.exports = {
     init: function (bot) {
         bot.waitingVoteChannels = [];
 
-        let voteTimeouts = {};
 
         async function logVote(user, voteServer, channel, source, multiplier) {
             bot.logger.log(`Vote Source: ${source}`);
@@ -72,20 +71,10 @@ module.exports = {
                     break;
                 }
             }
-            if (voteServer || bot.util.shard == 0) {
-                if (bot.util.shard == 0) {
-                    voteTimeouts[user] = setTimeout(logVote, 5000, user, voteServer, channel, source, multiplier);
-                } else {
-                    await logVote(user, voteServer, channel, source, multiplier);
-                    await bot.rabbit.event({type: "clearVoteTimeout", payload: user});
-                }
+            if (bot.util.shard == 0) {
+                await logVote(user, voteServer, channel, source, multiplier);
             }
-
         })
-
-        bot.bus.on("clearVoteTimeout", async (message) => {
-            clearTimeout(voteTimeouts[message.payload]);
-        });
     },
     run: async function (context, bot) {
         if (context.args && context.args[1]) return;
