@@ -18,8 +18,10 @@ module.exports = {
                 if (changePrefix.exec(message.content))
                     return bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
 
-                if (freeNitro.exec(message.content))
+                if (freeNitro.exec(message.content)) {
+                    bot.logger.log(`Deleting possible free nitro message ${message.content}`);
                     return message.delete();
+                }
             }
         });
 
