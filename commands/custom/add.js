@@ -29,6 +29,8 @@ module.exports = {
             start += 3
         }
 
+        trigger = trigger.trim();
+
         // oh man
         let schedule;
         if(type === "SCHEDULED"){
