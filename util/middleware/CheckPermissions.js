@@ -25,8 +25,10 @@ module.exports = (context, bot) => {
 
     if(settingsOnly && !bot.util.canChangeSettings(context)){
         if(context.getSetting("settings.role") === "-")
-            return context.replyLang({content: "GENERIC_ADMINISTRATOR", ephemeral: true});
-        return context.replyLang("SETTINGS_NO_ROLE", {role: context.getSetting("settings.role")});
+            context.replyLang({content: "GENERIC_ADMINISTRATOR", ephemeral: true});
+        else
+            context.replyLang("SETTINGS_NO_ROLE", {role: context.getSetting("settings.role")});
+        return false
     }
 
     // Check permissions in Guilds

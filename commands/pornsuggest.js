@@ -6,7 +6,7 @@ const Discord = require('discord.js');
 const request = require('request');
 const Util = require("../util/Util");
 const Strings = require("../util/String");
-const naughtyRegex = /(young|(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|(thir|four|fif|six|seven?)teen)|(1?)[0-7]( ?)(year(s?)?)( ?)(old?)|bab(y|ie)|toddler)(s?)|girl|boy|child|kid/gi;
+const naughtyRegex = /(young|(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|(thir|four|fif|six|seven?)teen)|(1?)[0-7]( ?)(year(s?)?)( ?)(old?)|bab(y|ie)|toddler)(s?)|girl|boy|child|kid|dog|cat|horse|animal|beast/gi;
 module.exports = {
     name: "Porn Suggest",
     usage: "pornsuggest :search+",
