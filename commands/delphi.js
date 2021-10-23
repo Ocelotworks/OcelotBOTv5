@@ -15,7 +15,7 @@ module.exports = {
         await context.defer();
         let result = await axios.get(`https://mosaic-api-morality.apps.allenai.org/api/ponder?action1=${encodeURIComponent(context.options.question)}`);
         if(result?.data?.answer?.text)
-            return context.send({content: `> ${context.options.question}\n${result.data.answer.text}`});
+            return context.send({content: `> ${context.options.question}\n_${result.data.answer.text}_`});
         bot.logger.log(result?.data);
         return context.send({content: "Couldn't answer that question. Try something else."});
     }
