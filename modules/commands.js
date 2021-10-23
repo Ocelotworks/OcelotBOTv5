@@ -398,7 +398,7 @@ module.exports = class Commands {
     async runCommand(context) {
         Sentry.configureScope((scope) => {
             scope.setUser({
-                username: context.user.username,
+                username: context.user?.username,
                 id: context.user.id
             });
             scope.setTag("command", context.command);
@@ -449,7 +449,7 @@ module.exports = class Commands {
                 level: Sentry.Severity.Info,
                 message: context.command,
                 data: {
-                    username: context.user.username,
+                    username: context.user?.username,
                     id: context.user.id,
                     message: context.message?.content,
                     options: context.options,
