@@ -17,7 +17,7 @@ module.exports = {
     validate: function(data, context){
         if(!data)data = "{{username}} has left.";
         const fakeMessage = Strings.Format(data, {
-            username: context.user.username,
+            username: context.user?.username,
             server: context.guild.name,
             userCount: context.guild.memberCount
         })

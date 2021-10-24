@@ -1591,7 +1591,7 @@ module.exports = {
 
         bot.util.checkVoiceChannel = function(message){
             if (!message.guild) return message.replyLang("GENERIC_DM_CHANNEL");
-            if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
+            //if (!message.guild.available) return message.replyLang("GENERIC_GUILD_UNAVAILABLE");
             if (!message.member.voice.channel) return message.replyLang("VOICE_NO_CHANNEL");
             if ( message.member.voice.channel.full) return message.replyLang("VOICE_FULL_CHANNEL");
             if (!message.member.voice.channel.joinable) return message.replyLang("VOICE_UNJOINABLE_CHANNEL");

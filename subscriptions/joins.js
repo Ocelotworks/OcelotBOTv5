@@ -19,7 +19,7 @@ module.exports = {
         if(!data)data = "{{user}}, welcome to {{server}}.";
         const fakeMessage = Strings.Format(data, {
             user: context.user,
-            username: context.user.username,
+            username: context.user?.username,
             server: context.guild.name,
             userCount: context.guild.memberCount
         })
