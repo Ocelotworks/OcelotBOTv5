@@ -6,7 +6,7 @@
  */
 const columnify = require('columnify');
 const changePrefix = /.*(change|custom).*prefix.*/gi;
-const freeNitro = /.*free.*nitro.*/i;
+const freeNitro = /.*(free|away|gift|redeem|code).*nitro.*/i;
 module.exports = {
     name: "Support Server Specific Functions",
     init: function (bot) {
