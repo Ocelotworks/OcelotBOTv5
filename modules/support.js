@@ -6,6 +6,8 @@
  */
 const columnify = require('columnify');
 const changePrefix = /.*(change|custom).*prefix.*/gi;
+const domainRegex = /.*(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9].*/i
+const {axios} = require('../util/Http')
 module.exports = {
     name: "Support Server Specific Functions",
     init: function (bot) {
@@ -17,11 +19,14 @@ module.exports = {
                 if (changePrefix.exec(message.content))
                     return bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
 
-                if (message.content.toLowerCase().indexOf("nitro") > -1) {
-                    const reportChannel = await message.guild.channels.fetch("738826685729734776");
-                    reportChannel.send(`<@139871249567318017> Possible free nitro spam from ${message.author} (${message.author.id}) in ${message.channel}:\n>${message.content}`)
-                    bot.logger.log(`Deleting possible free nitro message ${message.content}`);
-                    return message.delete();
+                if(domainRegex.match(message.content)){
+                    let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content});
+                    if(result.data?.match){
+                        const reportChannel = await message.guild.channels.fetch("738826685729734776");
+                        reportChannel.send(`<@139871249567318017> Possible free nitro spam from ${message.author} (${message.author.id}) in ${message.channel}:\n> ${message.content}\n\`\`\`json\n${JSON.stringify(result.data)}\n\`\`\``);
+                        bot.logger.log(`Deleting possible free nitro message ${message.content}`);
+                        return message.delete();
+                    }
                 }
             }
         });
