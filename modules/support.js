@@ -20,12 +20,16 @@ module.exports = {
                     return bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
 
                 if(domainRegex.exec(message.content)){
-                    let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content});
-                    if(result.data?.match){
-                        const reportChannel = await message.guild.channels.fetch("738826685729734776");
-                        reportChannel.send(`<@139871249567318017> Possible free nitro spam from ${message.author} (${message.author.id}) in ${message.channel}:\n> ${message.content}\n\`\`\`json\n${JSON.stringify(result.data)}\n\`\`\``);
-                        bot.logger.log(`Deleting possible free nitro message ${message.content}`);
-                        return message.delete();
+                    try {
+                        let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content});
+                        if (result.data?.match) {
+                            const reportChannel = await message.guild.channels.fetch("738826685729734776");
+                            reportChannel.send(`<@139871249567318017> Possible free nitro spam from ${message.author} (${message.author.id}) in ${message.channel}:\n> ${message.content}\n\`\`\`json\n${JSON.stringify(result.data)}\n\`\`\``);
+                            bot.logger.log(`Deleting possible free nitro message ${message.content}`);
+                            return message.delete();
+                        }
+                    }catch(e){
+                        bot.logger.error(e);
                     }
                 }
             }
