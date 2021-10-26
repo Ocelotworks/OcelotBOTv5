@@ -19,7 +19,7 @@ module.exports = {
                 if (changePrefix.exec(message.content))
                     return bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
 
-                if(domainRegex.match(message.content)){
+                if(domainRegex.exec(message.content)){
                     let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content});
                     if(result.data?.match){
                         const reportChannel = await message.guild.channels.fetch("738826685729734776");
