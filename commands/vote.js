@@ -62,7 +62,7 @@ module.exports = {
             }
 
             for (let i = 0; i < bot.waitingVoteChannels.length; i++) {
-                if (bot.waitingVoteChannels[i].members && bot.waitingVoteChannels[i].members.has(user)) {
+                if (bot.waitingVoteChannels[i]?.members?.has?.(user)) {
                     channel = bot.waitingVoteChannels[i];
                     bot.logger.log("Matched waiting vote channel for " + user);
                     channel.sendLang(streak > 1 ? "VOTE_MESSAGE_STREAK" : "VOTE_MESSAGE", {user, streak});
