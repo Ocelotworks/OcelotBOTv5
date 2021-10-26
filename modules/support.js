@@ -6,7 +6,6 @@
  */
 const columnify = require('columnify');
 const changePrefix = /.*(change|custom).*prefix.*/gi;
-const freeNitro = /.*free.*nitro.*/i;
 module.exports = {
     name: "Support Server Specific Functions",
     init: function (bot) {
@@ -18,7 +17,9 @@ module.exports = {
                 if (changePrefix.exec(message.content))
                     return bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
 
-                if (freeNitro.exec(message.content)) {
+                if (message.content.toLowerCase().indexOf("nitro") > -1) {
+                    const reportChannel = await message.guild.channels.fetch("738826685729734776");
+                    reportChannel.send(`<@139871249567318017> Possible free nitro spam from ${message.author} (${message.author.id}) in ${message.channel}:\n>${message.content}`)
                     bot.logger.log(`Deleting possible free nitro message ${message.content}`);
                     return message.delete();
                 }
@@ -46,7 +47,7 @@ module.exports = {
 
                 let channel = await bot.client.channels.fetch("856658218948624444");
                 await channel.send({
-                    content: `Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.`,
+                    content: `Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.\nAccount created: ${member.user.createdAt}`,
                     components: [bot.util.actionRow(bot.interactions.addAction("Verify", 1, verify(member), 1.08e+7, "✅"))]
                 });
             }catch(e){
