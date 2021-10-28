@@ -30,6 +30,7 @@ module.exports = {
         });
     },
     run: async function run(context, bot) {
+        // No category/command
         if (!context.options.command) {
             if(!context.guild || context.channel.permissionsFor(bot.client.user.id).has("EMBED_LINKS")) {
                 const embed = new Embeds.AuthorEmbed(context);
@@ -54,6 +55,7 @@ module.exports = {
             output += "```";
             return context.send({content: output, ephemeral: true});
         }
+        // Custom Commands Category
         if(context.options.command === "custom" && context.guild){
             if(bot.customFunctions.COMMAND[context.guild.id]) {
                 let output = "```cs\n# Custom Commands\n";
@@ -66,6 +68,7 @@ module.exports = {
             }
             return context.sendLang({content: "HELP_NO_CUSTOM_COMMANDS", ephemeral: true});
         }
+        // Command
         if (!bot.commandCategories[context.options.command]) {
             if (!bot.commandUsages[context.options.command]) {
                 return context.sendLang({
@@ -111,12 +114,16 @@ module.exports = {
             if (command.settingsOnly)
                 output += `🔒 This command **can only be used by people with the configured settings role**\n`;
 
-            output += `**Usage:** ${context.getSetting("prefix")}${context.options.command} ${Strings.PrintCommandUsage(command.pattern)}\n`;
+            output += `**Usage:** ${context.getSetting("prefix")}`
+            if (context.interaction && command.slashCategory)
+                output += `${command.slashCategory} `;
+            output += `${context.options.command} ${Strings.PrintCommandUsage(command.pattern)}\n`;
             if (command.usageExample)
                 output += `**Example:** ${context.getSetting("prefix")}${command.usageExample}\n`;
 
             return context.send({content: output, ephemeral: true});
         }
+        // Category
         let unique = []; //ahhh..
         let output = "";
         if (context.options.command === "nsfw" && !context.channel.nsfw)
@@ -127,15 +134,26 @@ module.exports = {
             commandUsages = bot.commandCategories[context.options.command];
         }
         for (let i in commandUsages) {
-            if (commandUsages.hasOwnProperty(i) && !commandUsages[i].hidden && !context.getBool(`${i}.disable`) && !(commandUsages[i].unwholesome && context.getBool("wholesome")) && !(commandUsages[i].nsfw && context.getBool("disableNSFW")))
-                if (unique.indexOf(commandUsages[i].name) === -1) {
-                    unique.push(commandUsages[i].name);
-                    let usage = commandUsages[i].usage;
-                    if (prefix[prefix.length - 1].match(alphaRegex))
-                        usage[0] = usage[0].toUpperCase();
-                    output += `${commandUsages[i].name}:: ${prefix}${commandUsages[i].commands[0]} ${Strings.PrintCommandUsage(commandUsages[i].pattern)}\n`
-                }
+            if (commandUsages.hasOwnProperty(i) && shouldShowCommand(context, commandUsages[i]) && unique.indexOf(commandUsages[i].name) === -1) {
+                const commandUsage = commandUsages[i];
+                unique.push(commandUsage.name);
+                let usage = commandUsage.usage;
+                if (prefix[prefix.length - 1].match(alphaRegex))
+                    usage[0] = usage[0].toUpperCase();
+                let formattedCommand = `${prefix}${commandUsage.commands[0]}`
+                if (context.interaction && commandUsage.slashCategory)
+                    formattedCommand = `${prefix}${commandUsage.slashCategory} ${commandUsage.commands[0]}`
+                output += `${commandUsages[i].name}:: ${formattedCommand} ${Strings.PrintCommandUsage(commandUsages[i].pattern)}\n`
+            }
         }
         return context.sendLang("COMMANDS", {commands: output});
     }
 };
+
+
+function shouldShowCommand(context, usage){
+    return !usage.hidden && // Not Hidden
+        !context.getBool(`${usage.commands[0]}.disable`) && // Not Disabled
+        !(usage.unwholesome && context.getBool("wholesome")) && // Not unwholesome in wholesome mode
+        !(usage.nsfw && context.getBool("disableNSFW")) // Not NSFW with disableNSFW
+}
