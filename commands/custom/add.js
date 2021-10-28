@@ -1,7 +1,7 @@
 const later = require('later');
 module.exports = {
     name: "Add Custom Function",
-    usage: "add [type:command,autorespond,scheduled] :trigger :triggerAndCode+",
+    usage: "add [type:command,autorespond,scheduled] :trigger :triggerandcode+", //TODO: specific slash command handling for this
     commands: ["add", "new", "create"],
     run: async function (context, bot) {
         if(!context.getBool("serverPremium")){
@@ -17,7 +17,7 @@ module.exports = {
         }
         if((type === "COMMAND" || type === "AUTORESPOND") && await bot.database.getCustomCommand(context.guild.id, trigger))
             return context.sendLang({content: "CUSTOM_TRIGGER_EXISTS", ephemeral: true}, {trigger});
-        const content = `${context.options.trigger} ${context.options.triggerAndCode}`;
+        const content = `${context.options.trigger} ${context.options.triggerandcode}`;
         let start = content.indexOf("```")
         let end = content.length - 4;
         if (start === -1) {

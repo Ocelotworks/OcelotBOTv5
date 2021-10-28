@@ -81,8 +81,6 @@ module.exports = {
         });
     },
     run: async function run(message, args, bot) {
-        if (!message.guild) return message.channel.send("This command cannot be used in a DM channel.");
-        if (!message.member.hasPermission("MANAGE_CHANNELS")) return message.channel.send("You must have the Manage Channels permission to use this command.");
-        await bot.util.standardNestedCommand(message, args, bot, "roles", module.exports.roleData);
+
     }
 };

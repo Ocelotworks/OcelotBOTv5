@@ -276,8 +276,26 @@ module.exports = class Commands {
             }
 
             loadedCommand.pattern = commandParser.BuildPattern(command, loadedCommand.usage).pattern;
-            if(!loadedCommand.slashHidden)
-                loadedCommand.slashOptions = Util.PatternToOptions(loadedCommand.pattern, loadedCommand.argDescriptions);
+            if(!loadedCommand.slashHidden && !loadedCommand.slashOptions) {
+                if (loadedCommand.subCommands) {
+                    loadedCommand.slashOptions = [];
+                    let used = [];
+                    for(let subCommandId in loadedCommand.subCommands){
+                        if(!loadedCommand.subCommands.hasOwnProperty(subCommandId) || !loadedCommand.subCommands[subCommandId].slashOptions)continue;
+                        let subCommand = loadedCommand.subCommands[subCommandId];
+                        if(used.includes(subCommand.id))continue;
+                        used.push(subCommand.id);
+                        loadedCommand.slashOptions.push({
+                            name: subCommandId,
+                            description: subCommand.name,
+                            options: subCommand.slashOptions,
+                            type: 1,
+                        })
+                    }
+                }else
+                    loadedCommand.slashOptions = Util.PatternToOptions(loadedCommand.pattern, loadedCommand.argDescriptions);
+            }
+
 
 
             this.bot.commandObjects[command] = loadedCommand;
@@ -339,10 +357,7 @@ module.exports = class Commands {
 
                         command.id = files[i];
                         command.pattern = commandParser.BuildPattern(command.commands[0], command.usage).pattern;
-
-                        // TODO: Subcommands
-                        // Slash commands don't support nested commands just yet
-                        loadedCommand.slashHidden = true;
+                        command.slashOptions = Util.PatternToOptions(command.pattern, command.argDescriptions)
 
                         for (let i = 0; i < command.commands.length; i++) {
                             loadedCommand.subCommands[command.commands[i]] = command;
@@ -416,7 +431,7 @@ module.exports = class Commands {
             if (!this.bot.commandUsages[context.command]) {
                 if (!context.guild || !this.bot.customFunctions.COMMAND[context.guild.id] || context instanceof CustomCommandContext) return console.log("Command doesn't exist 1");
                 let customCommand = this.bot.customFunctions.COMMAND[context.guild.id][context.command]
-                if (!customCommand) return console.log("Command doesn't exist 2");
+                if (!customCommand) return console.log("Command doesn't exist 2", context.command);
                 context.logPerformed();
                 // todo: custom command context
 

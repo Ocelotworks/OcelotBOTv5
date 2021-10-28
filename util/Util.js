@@ -25,7 +25,7 @@ module.exports = class Util {
                 required: !argument.optional,
             };
             switch(argument.type){
-                case "option":
+                case "options":
                     option.type = "STRING";
                     option.choices = argument.options.map((option)=>({name: argDescriptions[option] || option, value: option}))
                     break;

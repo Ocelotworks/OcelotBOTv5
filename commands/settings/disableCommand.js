@@ -6,10 +6,10 @@
  */
 module.exports = {
     name: "Disable Command",
-    usage: "disableCommand :targetCommand",
+    usage: "disableCommand :targetcommand",
     commands: ["disablecommand", "dc"],
     run: async function (context, bot) {
-        let command = context.options.targetCommand.toLowerCase().replace(context.getSetting("prefix"), "");
+        let command = context.options.targetcommand.toLowerCase().replace(context.getSetting("prefix"), "");
 
         if (!bot.commands[command])
             return context.sendLang("SETTINGS_ENABLE_INVALID");

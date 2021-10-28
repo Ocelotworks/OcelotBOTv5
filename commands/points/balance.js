@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 const Embeds = require("../../util/Embeds");
 module.exports = {
     name: "View Balance",

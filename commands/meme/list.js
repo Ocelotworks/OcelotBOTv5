@@ -8,7 +8,7 @@ const columnify = require('columnify');
 const Util = require("../../util/Util");
 module.exports = {
     name: "List/Search Memes",
-    usage: "list :search?+",
+    usage: "list :search?+", // TODO: autocomplete
     commands: ["list", "search"],
     run: async function (context, bot) {
         let memes;
