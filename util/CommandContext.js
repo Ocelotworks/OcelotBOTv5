@@ -236,9 +236,17 @@ class InteractionCommandContext extends CommandContext {
     constructor(bot, interaction){
         super(bot, interaction.member, interaction.user, interaction.channel, interaction.guild,null, interaction.id);
         this.interaction = interaction;
-        if(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand()) {
-            this.command = interaction.options.getSubcommand();
-            this.content = `/${interaction.commandName} ${interaction.options.getSubcommand()}`;
+        const subCommand = interaction.options?.getSubcommand();
+        // TODO: this logic could be simpler
+        if(subCommand){
+            if(this.bot.slashCategories.includes(interaction.commandName)){
+                this.command = subCommand;
+                this.content = `/${interaction.commandName} ${subCommand}`;
+            }else{
+                this.command = interaction.commandName;
+                this.content = `/${interaction.commandName}`
+                this.options.command = subCommand;
+            }
             interaction.options?.data[0]?.options?.forEach((val)=>{
                 this.options[val.name]=val.value;
                 this.content += ` ${val.name}:${val.value}`

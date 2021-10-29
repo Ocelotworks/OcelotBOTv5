@@ -2,10 +2,10 @@ const chrono = require('chrono-node');
 const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
 module.exports = {
     name: "Set Reminder",
-    usage: "in :timeAndMessage+",
+    usage: "in :timeandmessage+",
     commands: ["in", "on", "at", "for", "the", "me"],
     run: async function (context, bot) {
-        const input = `${context.options.command} ${context.options.timeAndMessage}`
+        const input = `${context.options.command} ${context.options.timeandmessage}`
         const now = new Date();
         const rargs = regex.exec(input);
         const chronoParse = (chrono.parse(input, now, {forwardDate: true}))[0];

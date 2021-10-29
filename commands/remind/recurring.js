@@ -4,7 +4,7 @@ const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『�
 let deletedReminders = [];
 module.exports = {
     name: "Set Recurring Reminder",
-    usage: "every :timeAndMessage+",
+    usage: "every :timeandmessage+", // TODO: specifics for slash commands
     commands: ["every", "everyday"],
     userPermissions: ['MANAGE_CHANNELS'],
     init: async function init(bot, reminderData) {
@@ -56,7 +56,7 @@ module.exports = {
             ephemeral: true,
             components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
         })
-        const input = `${context.options.command} ${context.options.timeAndMessage}`;
+        const input = `${context.options.command} ${context.options.timeandmessage}`;
         let parse = later.parse.text(input);
         const rargs = regex.exec(input);
         let reminder;

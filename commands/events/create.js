@@ -3,12 +3,12 @@ const Embeds = require("../../util/Embeds");
 const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
 module.exports = {
     name: "Create Event",
-    usage: "create :timeAndName+",
+    usage: "create :timeandname+", // TODO: Specific slash command handling for this
     commands: ["add", "new", "create"],
     run: async function (context, bot) {
         // TODO: This is duplicated across reminders, countdowns and events, this should be standardised
         const now = new Date();
-        const input = context.options.timeAndName;
+        const input = context.options.timeandname;
         const rargs = regex.exec(input);
         const chronoParse = (chrono.parse(input, now))[0];
 

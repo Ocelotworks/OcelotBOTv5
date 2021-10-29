@@ -7,12 +7,12 @@
 const chrono = require('chrono-node');
 module.exports = {
     name: "Add Birthday",
-    usage: "add :@addUser? :date+",
+    usage: "add :@adduser? :date+",
     commands: ["add", "new"],
     run: async function (context, bot) {
         let target = context.user;
-        if (context.options.addUser)
-            target = (await context.getMember(context.options.addUser))?.user;
+        if (context.options.adduser)
+            target = (await context.getMember(context.options.adduser))?.user;
         if(!target)
             return context.send({content: "Couldn't find that user. Make sure they're in this channel.", ephemeral: true});
 

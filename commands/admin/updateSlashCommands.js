@@ -1,9 +1,30 @@
+const Discord = require("discord.js");
+
+
+const type = {
+    CHAT_INPUT: 1,
+    USER: 2,
+    MESSAGE: 3,
+}
+const option = {
+    SUB_COMMAND: 1,
+    SUB_COMMAND_GROUP: 2,
+    STRING: 3,
+    INTEGER: 4,
+    BOOLEAN: 5,
+    USER: 6,
+    CHANNEL: 7,
+    ROLE: 8,
+    MENTIONABLE: 9,
+    NUMBER: 10,
+}
 
 const contextTypeMap = {
-    user: 2,
-    text: 3,
-    message: 3,
+    user: type.USER,
+    text: type.MESSAGE,
+    message: type.MESSAGE,
 }
+
 
 module.exports = {
     name: "Update Slash Commands",
@@ -16,6 +37,7 @@ module.exports = {
             if (context.options.guild)
                 server = context.options.guild.toLowerCase() === "this" ? context.guild.id : context.options.guild;
 
+            // Creates the sub-categories and adds each command to it's respective sub-category
             let subCategories = {};
             for(let commandID in bot.commandObjects){
                 if (!bot.commandObjects.hasOwnProperty(commandID)) continue;
@@ -26,6 +48,7 @@ module.exports = {
                 subCategories[commandData.slashCategory].push(commandData);
             }
             let commandOutput = [];
+            // Adds all the subCategories as actual commands
             for(let categoryID in subCategories){
                 if(!subCategories.hasOwnProperty(categoryID))continue;
                 commandOutput.push({
@@ -35,12 +58,11 @@ module.exports = {
                         name: command.commands[0],
                         description: command.name,
                         options: command.slashOptions,
-                        type: 1,
+                        type: option.SUB_COMMAND,
                     })),
-                    type: 1,
+                    type: type.CHAT_INPUT,
                 })
             }
-            console.log(JSON.stringify(commandOutput));
             for (let commandID in bot.commandObjects) {
                 if (!bot.commandObjects.hasOwnProperty(commandID)) continue;
                 let commandData = bot.commandObjects[commandID];
@@ -50,7 +72,7 @@ module.exports = {
                     description: commandData.name,
                     defaultPermission: !commandData.disabled && !bot.config.getBool(server ? server : "global", `${commandData.commands[0]}.disable`),
                     options: commandData.slashOptions,
-                    type: 1
+                    type: type.CHAT_INPUT
                 };
                 commandOutput.push(slashCommand);
                 if (commandOutput.length >= 99) break;
@@ -66,6 +88,8 @@ module.exports = {
                     type: contextTypeMap[commandData.contextMenu.type],
                 });
             }
+            console.log(JSON.stringify(commandOutput))
+            context.send({files: [new Discord.MessageAttachment(Buffer.from(JSON.stringify(commandOutput)), "eval.json")]})
             await context.send(`Putting ${commandOutput.length} slash commands...`);
             await bot.client.application.commands.set(commandOutput, server);
             if (server)
@@ -76,3 +100,4 @@ module.exports = {
         }
     }
 };
+
