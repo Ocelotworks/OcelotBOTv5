@@ -236,7 +236,7 @@ class InteractionCommandContext extends CommandContext {
     constructor(bot, interaction){
         super(bot, interaction.member, interaction.user, interaction.channel, interaction.guild,null, interaction.id);
         this.interaction = interaction;
-        const subCommand = interaction.options?.getSubcommand();
+        const subCommand = interaction.options?.getSubcommand(false);
         // TODO: this logic could be simpler
         if(subCommand){
             if(this.bot.slashCategories.includes(interaction.commandName)){

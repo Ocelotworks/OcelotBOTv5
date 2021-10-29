@@ -117,7 +117,7 @@ module.exports = class Commands {
     onSlashCommandInteraction(interaction){
         if(this.bot.drain)return;
         if(!interaction.isCommand())return; // Not a command
-        if(!(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand()) && !this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
+        if(!(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand(false)) && !this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
         const context = new InteractionCommandContext(this.bot, interaction);
         context.commandData = this.bot.commandUsages[context.command];
         return this.runCommand(context);
