@@ -14,6 +14,9 @@ module.exports = {
     commands: ["birthdays", "birthday"],
     nestedDir: "birthdays",
     guildOnly: true,
+    argDescriptions: {
+        "base": {name: "get", description: "Get a users birthday"},
+    },
     run: async function(context, bot) {
         if(!context.options.command)
             return bot.commands["nestedCommandHelp"](context, bot);

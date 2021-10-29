@@ -8,6 +8,12 @@ module.exports = {
     name: "Disable Command",
     usage: "disableCommand :targetcommand",
     commands: ["disablecommand", "dc"],
+    argDescriptions: {
+        targetcommand: {name: "The command to disable", autocomplete: true}
+    },
+    autocomplete: function(input, interaction, bot) {
+        return Object.keys(bot.commands).filter((k)=>k.includes(input) && !bot.config.getBool(interaction.guildId, `${k}.disable`)).map((k)=>({name: k, value: k}));
+    },
     run: async function (context, bot) {
         let command = context.options.targetcommand.toLowerCase().replace(context.getSetting("prefix"), "");
 

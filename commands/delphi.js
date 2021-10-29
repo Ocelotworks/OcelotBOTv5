@@ -7,7 +7,7 @@ module.exports = {
     responseExample: "_You should not_",
     categories: ["fun"],
     commands: ["delphi"],
-    argDescriptions: {question: "Am ethical question to ask Delphi"},
+    argDescriptions: {question: {name: "An ethical question to ask Delphi"}},
     handleError: function(context){
       return context.sendLang("8BALL_NO_QUESTION");
     },

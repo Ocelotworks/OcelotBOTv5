@@ -32,6 +32,7 @@ module.exports = {
     commands: ["updateslashcommands", "usc"],
     noCustom: true,
     run: async function (context, bot) {
+        let commandOutput = [];
         try {
             let server;
             if (context.options.guild)
@@ -47,7 +48,6 @@ module.exports = {
                     subCategories[commandData.slashCategory] = [];
                 subCategories[commandData.slashCategory].push(commandData);
             }
-            let commandOutput = [];
             // Adds all the subCategories as actual commands
             for(let categoryID in subCategories){
                 if(!subCategories.hasOwnProperty(categoryID))continue;
@@ -89,13 +89,14 @@ module.exports = {
                 });
             }
             console.log(JSON.stringify(commandOutput))
-            context.send({files: [new Discord.MessageAttachment(Buffer.from(JSON.stringify(commandOutput)), "eval.json")]})
+
             await context.send(`Putting ${commandOutput.length} slash commands...`);
             await bot.client.application.commands.set(commandOutput, server);
             if (server)
                 return context.send(`Set ${commandOutput.length} slash commands for ${server}`);
             return context.send(`Set ${commandOutput.length} slash commands.`);
         }catch(e){
+            context.send({files: [new Discord.MessageAttachment(Buffer.from(JSON.stringify(commandOutput, null, 1)), "slash.json")]})
             return context.send(e.message);
         }
     }
