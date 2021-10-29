@@ -72,7 +72,11 @@ module.exports = {
                 }
             }
             if (bot.util.shard == 0) {
-                await logVote(user, voteServer, channel, source, multiplier);
+                logVote(user, voteServer, channel, source, multiplier).then(()=>{
+                    bot.rabbit.emit("vote", {
+                        user, source, multiplier
+                    });
+                });
             }
         })
     },

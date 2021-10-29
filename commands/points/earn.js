@@ -9,20 +9,20 @@ module.exports = {
         let response = await context.send({embeds: [embed]});
 
         let listenerTimeout;
-        let voteListener = (message)=>{
+        let voteListener = async (message)=>{
             let {user} = message.payload;
             if(user !== context.user.id)return;
             bot.logger.log("!points earn vote listener for "+context.user.id)
             clearTimeout(listenerTimeout)
             setTimeout(removeListener, 60000);
-            setTimeout(async ()=>context.edit({embeds: [await module.exports.createEmbed(context, bot)]}, response), 1000);
+            context.edit({embeds: [await module.exports.createEmbed(context, bot)]}, response)
         }
         let removeListener = ()=>{
             bot.logger.log(`Removing vote listener for ${context.user.id}`);
             bot.bus.removeListener("vote", voteListener);
         };
 
-        bot.bus.on("registerVote", voteListener);
+        bot.bus.on("vote", voteListener);
         listenerTimeout = setTimeout(removeListener, 60000)
     },
     async createEmbed(context, bot){
