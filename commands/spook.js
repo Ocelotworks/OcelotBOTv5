@@ -30,7 +30,7 @@ module.exports = {
             let diff = start-new Date();
             bot.logger.log(`Spook starts in ${diff}ms`);
             if(diff < 0) {
-                module.exports.startIdleCheck(bot);
+                //module.exports.startIdleCheck(bot);
                 return module.exports.startSpook(bot);
             }
             setTimeout(()=>module.exports.startSpook(bot), diff);
