@@ -9,6 +9,14 @@ module.exports = {
     name: "Meme Info",
     usage: "info :name+",
     commands: ["info"],
+    argDescriptions: {
+        name: {name: "The meme to get info on", autocomplete: true}
+    },
+    autocomplete: async function(input, interaction, bot) {
+        let memes = input ? await bot.database.searchMeme(input, interaction.guildId) : await bot.database.getMemes(interaction.guildId);
+
+        return memes.filter((m)=>m.server !== "global").map((m)=>({name: m.name, value: m.name}))
+    },
     run: async function (context, bot) {
         if (!context.guild)
             return context.sendLang("GENERIC_DM_CHANNEL");

@@ -80,7 +80,7 @@ module.exports = {
                 output += context.getLang("CHESS_REPETITION");
         }
 
-        return await Image.ImageProcessor(bot, context,  payload, "board", output );
+        return await Image.ImageProcessor(bot, context,  payload, "board", output);
     },
     doGo: async function (context, command, bot) {
         const channel = context.channel.id;
@@ -88,7 +88,7 @@ module.exports = {
         if (runningGame) {
             try {
                 runningGame.game.move(command);
-                let newMessage = await module.exports.renderBoard(context, bot, true);
+                let newMessage = await module.exports.renderBoard(context, bot);
                 if (runningGame.lastMessage && !runningGame.lastMessage.deleted) {
                     await runningGame.lastMessage.delete();
                 }
@@ -157,7 +157,7 @@ module.exports = {
                 };
                 runningGames[context.channel.id].lastMessage = await context.sendLang("CHESS_ACCEPTED", {
                     user: request.from.id,
-                    board: await module.exports.renderBoard(context, bot),
+                    board: await module.exports.renderBoard(context, bot, true),
                     arg: context.command
 
                 });

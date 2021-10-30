@@ -21,13 +21,14 @@ module.exports = class Util {
             const argument = pattern[i];
             let option = {
                 name: argument.name,
-                description: argDescriptions[argument.name] || argument.name,
+                description: argDescriptions?.[argument.name]?.name || argument.name,
                 required: !argument.optional,
+                autocomplete: argDescriptions?.[argument.name]?.autocomplete
             };
             switch(argument.type){
                 case "options":
                     option.type = "STRING";
-                    option.choices = argument.options.map((option)=>({name: argDescriptions[option] || option, value: option}))
+                    option.choices = argument.options.map((option)=>({name: argDescriptions?.[option]?.name || option, value: option}))
                     break;
                 case "user":
                     option.type = "USER";

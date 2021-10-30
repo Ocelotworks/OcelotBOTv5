@@ -46,6 +46,7 @@ module.exports = class Commands {
         this.bot.client.on("messageUpdate", this.onMessageUpdate.bind(this));
         this.bot.client.on("interactionCreate", this.onSlashCommandInteraction.bind(this));
         this.bot.client.on("interactionCreate", this.onContextInteraction.bind(this));
+        this.bot.client.on("interactionCreate", this.onAutocompleteInteraction.bind(this));
 
 
         this.bot.runCommand = this.runCommand.bind(this);
@@ -156,6 +157,24 @@ module.exports = class Commands {
         }
 
         return this.runCommand(context);
+    }
+
+    async onAutocompleteInteraction(interaction){
+        if(this.bot.drain)return;
+        if(!interaction.isAutocomplete())return;
+        const commandData = this.bot.commandUsages[interaction.commandName];
+        if(!commandData){ // No such command
+            interaction.respond([]);
+            return console.log("Unknown command interaction", interaction.commandName);
+        }
+        const subCommand = interaction.options.getSubcommand(false);
+        this.bot.logger.log(`Autocomplete: ${interaction.options.getFocused()} on /${interaction.commandName} ${subCommand}`);
+        if(subCommand && commandData.subCommands[subCommand].autocomplete)
+            return interaction.respond(await commandData.subCommands[subCommand].autocomplete(interaction.options.getFocused(), interaction, this.bot))
+        if(commandData.autocomplete)
+            return interaction.respond(await commandData.autocomplete(interaction.options.getFocused(), interaction, this.bot))
+        this.bot.logger.warn(`Autocomplete triggered for function with no autocomplete capability ${interaction.commandName} ${subCommand}`);
+        return interaction.respond([]);
     }
 
     /**
@@ -277,6 +296,7 @@ module.exports = class Commands {
 
             loadedCommand.pattern = commandParser.BuildPattern(command, loadedCommand.usage).pattern;
             if(!loadedCommand.slashHidden && !loadedCommand.slashOptions) {
+                // Load sub commands
                 if (loadedCommand.subCommands) {
                     loadedCommand.slashOptions = [];
                     let used = [];
@@ -292,11 +312,21 @@ module.exports = class Commands {
                             type: 1,
                         })
                     }
-                }else
+                    // Discord forces me to do this dumb workaround because you can't have a slash command with sub commands and other commands
+                    let otherOptions = Util.PatternToOptions(loadedCommand.pattern.filter((p)=>p.name != "command"), loadedCommand.argDescriptions);
+                    if(otherOptions.length > 0) {
+                        loadedCommand.slashOptions.push({
+                            name: loadedCommand.argDescriptions?.["base"]?.name || "base",
+                            description: loadedCommand.argDescriptions?.["base"]?.description || "Arguments that aren't on any subcommand",
+                            options: otherOptions,
+                            type: 1
+                        });
+                    }
+
+                }else {
                     loadedCommand.slashOptions = Util.PatternToOptions(loadedCommand.pattern, loadedCommand.argDescriptions);
+                }
             }
-
-
 
             this.bot.commandObjects[command] = loadedCommand;
 
@@ -357,7 +387,7 @@ module.exports = class Commands {
 
                         command.id = files[i];
                         command.pattern = commandParser.BuildPattern(command.commands[0], command.usage).pattern;
-                        command.slashOptions = Util.PatternToOptions(command.pattern, command.argDescriptions)
+                        command.slashOptions = Util.PatternToOptions(command.pattern, command.argDescriptions);
 
                         for (let i = 0; i < command.commands.length; i++) {
                             loadedCommand.subCommands[command.commands[i]] = command;

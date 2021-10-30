@@ -6,7 +6,6 @@ module.exports = {
     usage: "meme",
     commands: ["meme"],
     categories: ["tools"],
-    slashHidden: true,
     nestedDir: "meme",
     run: async function run(context, bot) {
         if(!context.options.command)
