@@ -5,8 +5,7 @@
  *  ════╝
  */
 const typeMap = {
-    "boolean": "yes or no",
-    "integer": "number",
+    "boolean": "on or off",
 }
 const Embeds = require("../../util/Embeds");
 module.exports = {

@@ -37,9 +37,31 @@ module.exports = {
                 bot.logger.warn(`Unknown setting type ${setting.type}`);
                 break;
         }
+        if(validators[setting.setting] && !(await validators[setting.setting](context, bot, cleanValue)))return;
         await bot.config.set(context.guild.id, setting.setting, cleanValue);
         if(typeof cleanValue === "boolean")
             return context.send(`✅ Successfully ${cleanValue ? "enabled" : "disabled"} ${setting.name}.`);
         return context.send(`✅ Successfully set ${setting.name} to ${cleanValue}`)
     }
 };
+
+let validators = {
+    prefix: (context, bot, cleanValue)=>{
+        if(cleanValue.indexOf(" ") > -1){
+            context.send("You can't set the prefix to more than one word. Ideally a single character works best like % or !");
+            return false;
+        }
+        if(cleanValue === "value" || cleanValue === "string"){
+            context.send(`You probably don't want to set your prefix to ${cleanValue}. Try something like % or !`);
+            return false;
+        }
+        return true;
+    },
+    lang: (context, bot, cleanValue)=>{
+        if(!bot.lang.strings[cleanValue]){
+            context.send(`Invalid language, enter a value from ${context.getSetting("prefix")}languages e.g \`en-gb\` or \`el\``);
+            return false;
+        }
+        return true;
+    }
+}
