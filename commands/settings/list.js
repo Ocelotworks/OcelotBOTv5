@@ -4,6 +4,10 @@
  * ╚════ ║   (ocelotbotv5) list
  *  ════╝
  */
+const typeMap = {
+    "boolean": "yes or no",
+    "integer": "number",
+}
 const Embeds = require("../../util/Embeds");
 module.exports = {
     name: "View Settings",
@@ -17,7 +21,7 @@ module.exports = {
         for(let i = 0; i < settings.length; i++) {
             const setting = settings[i];
             const value = context.getSetting(setting.setting);
-            embed.addField(`${setting.name} ${value ? ` (Currently '${value}')` : ""}`, `${setting.desc}\n\`${context.getSetting("prefix")}setting set ${setting.setting} ${setting.type}\``);
+            embed.addField(`${setting.name} ${value ? ` (Currently '${value}')` : ""}`, `${setting.desc}\n\`${context.getSetting("prefix")}setting set ${setting.setting} ${typeMap[setting.type] || setting.type}\``);
         }
         return context.send({embeds: [embed]});
     }
