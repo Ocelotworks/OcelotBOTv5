@@ -10,7 +10,7 @@ module.exports = {
     name: "Spook",
     usage: "spook :@user?",
     categories: ["fun"],
-    detailedHelp: "A once a year event that runs for the entirety of October.",
+    detailedHelp: "A once a year event that runs for the ent   irety of October.",
     usageExample: "spook intro",
     requiredPermissions: [],
     commands: ["spook", "spooked"],
@@ -126,19 +126,22 @@ module.exports = {
             context.defer();
             let spookLoser = await bot.redis.cache(`spook/loser/${context.guild.id}`, async ()=>await bot.database.getSpooked(context.guild.id), 60000)
             let spookStats = await bot.redis.cache(`spook/stats/${context.guild.id}`, async ()=>await bot.database.getSpookStats(context.guild.id), 60000);
-            let roleStats = await bot.redis.cache(`spook/roles/${context.guild.id}`, async ()=>await module.exports.processRolesForServer(bot, context), 60000);
+            let roleStats = await bot.redis.cache(`spook/roles/${context.guild.id}`, async ()=>await module.exports.processRolesForServer(bot, context), 60000).catch(()=>null);
+            console.log(roleStats);
+            console.log(spookStats);
+            console.log(spookLoser);
             let embed = new Embeds.LangEmbed(context);
             embed.setColor("#bf621a");
             embed.setTitleLang("SPOOK_END_TITLE"); // The Spooking has ended!
-            embed.setDescriptionLang("SPOOK_END_DESC", {loser: spookLoser.id}); // Thankyou for participating in The Spooking 2021. The loser is {{loser}}!
+            embed.setDescriptionLang("SPOOK_END_DESC", {loser: spookLoser.spooked}); // Thankyou for participating in The Spooking 2021. The loser is {{loser}}!
             // Total Spooks - This server spooked a total of {{number:totalSpooks}} times. ({{percent}}% of all spooks!)
-            embed.addFieldLang("SPOOK_TOTAL", "SPOOK_TOTAL_VALUE", false, {...spookStats, percent: ((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)})
+            embed.addFieldLang("SPOOK_END_TOTAL", "SPOOK_END_TOTAL_VALUE", false, {...spookStats, percent: ((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)})
             // Most Spooked - <@{{mostSpooked.user}}> was spooked {{number:mostSpooked.count}} times.
-            embed.addFieldLang("SPOOK_MOST_TITLE", "SPOOK_MOST_VALUE", false, spookStats)
-            if(roleStats.assigned > 0) { // Secret Roles - {{number:assigned}} of you had secret roles. {{number:successful}} succeeded. - {{number:assigned}} of you had secret roles. None of you succeeded! You literally had one job...
-                embed.addFieldLang("SPOOK_ROLES_TITLE", roleStats.succeeded > 0 ? "SPOOK_ROLES_VALUE" : "SPOOK_ROLES_VALUE_NONE", false, roleStats)
+            embed.addFieldLang("SPOOK_END_MOST_TITLE", "SPOOK_END_MOST_VALUE", false, spookStats)
+            if(roleStats?.assigned > 0) { // Secret Roles - {{number:assigned}} of you had secret roles. {{number:successful}} succeeded. - {{number:assigned}} of you had secret roles. None of you succeeded! You literally had one job...
+                embed.addFieldLang("SPOOK_END_ROLES_TITLE", roleStats.succeeded > 0 ? "SPOOK_END_ROLES_VALUE" : "SPOOK_END_ROLES_VALUE_NONE", false, roleStats)
             }
-            embed.setFooter("Happy Halloween!");
+            embed.setFooterLang("SPOOK_END_FOOTER");
             context.send({embeds: [embed]});
             return false;
         }

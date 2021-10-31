@@ -47,10 +47,10 @@ module.exports = class SpookRoles {
     }
 
     static successFunctions = {
-        "bodyguard": SpookRoles.GetSuccessForBodyguard(),
-        "sab": SpookRoles.GetSuccessForSab(),
-        "bully": SpookRoles.GetSuccessForBully(),
-        "joker": SpookRoles.GetSuccessForJoker(),
+        "bodyguard": SpookRoles.GetSuccessForBodyguard,
+        "sab": SpookRoles.GetSuccessForSab,
+        "bully": SpookRoles.GetSuccessForBully,
+        "joker": SpookRoles.GetSuccessForJoker,
     }
 
 
@@ -59,18 +59,22 @@ module.exports = class SpookRoles {
     }
 
     static async GetSuccessForBodyguard(bot, roleData){
+        if(!roleData.data.spooked)return false;
         return (await bot.database.getSpookedCountBySpooked(roleData.serverID, roleData.data.spooked)) === 0;
     }
 
     static async GetSuccessForBully(bot, roleData){
+        if(!roleData.data.spooked)return false;
         return (await bot.database.getSpookedCountBySpookerAndSpooked(roleData.serverID, roleData.userID, roleData.data.spooked)) === roleData.data.num;
     }
 
     static async GetSuccessForJoker(bot, roleData){
+        if(!roleData.data.spooker || !roleData.data.spooked)return false;
         return (await bot.database.getSpookedCountBySpookerAndSpooked(roleData.serverID, roleData.data.spooker, roleData.data.spooked)) === roleData.data.num;
     }
 
     static async GetSuccessForSab(bot, roleData){
+        if(!roleData.data.spooked)return false;
         let spookLoser = await bot.redis.cache(`spook/loser/${roleData.serverID}`, async ()=>await bot.database.getSpooked(roleData.serverID), 60000);
         return spookLoser === roleData.data.spooked;
     }
