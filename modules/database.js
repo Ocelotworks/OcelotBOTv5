@@ -59,6 +59,7 @@ module.exports = {
 
         bot.database = {
             knex,
+            knockroach,
             /**
              * Add a server to the database
              * @param {ServerID} server The server's Snowflake ID
@@ -639,11 +640,17 @@ module.exports = {
                     }))[0].count,
                     allSpooks: (await knockroach.select(knex.raw("COUNT(*)")).from(SPOOK_TABLE).where({series}))[0].count,
                     //I'm sorry papa
-                    longestSpook: (await knockroach.select("spooked", knex.raw("TIMESTAMPDIFF(SECOND, timestamp, (SELECT timestamp FROM ocelotbot_spooks AS spooks3 WHERE id = (SELECT min(id) FROM ocelotbot_spooks AS spooks2 WHERE spooks2.id > ocelotbot_spooks.id AND spooks2.server = ocelotbot_spooks.server))) as diff")).from("ocelotbot_spooks").where({
-                        server,
-                        series
-                    }).orderBy("diff", "DESC").limit(1))[0]
+                    // longestSpook: (await knockroach.select("spooked", knex.raw("timestamp - (SELECT timestamp FROM spooks AS spooks3 WHERE id = (SELECT min(id) FROM spooks AS spooks2 WHERE spooks2.id > spooks.id AND spooks2.server = spooks.server)) as diff")).from("spooks").where({
+                    //     server,
+                    //     series
+                    // }).orderBy("diff", "DESC").limit(1))[0]
                 }
+            },
+            getSpookedCountBySpooked: async function(server, spooked){
+                return (await knockroach.select(knockroach.raw("count(*)")).from(SPOOK_TABLE).where({series, server, spooked}))[0].count;
+            },
+            getSpookedCountBySpookerAndSpooked: async function(server, spooker, spooked){
+               return (await knockroach.select(knockroach.raw("count(*)")).from(SPOOK_TABLE).where({series, server, spooked, spooker}))[0].count;
             },
             getProfile: function (user) {
                 return knex.select().from("ocelotbot_profile").where({id: user}).limit(1);
