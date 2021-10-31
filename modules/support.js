@@ -21,8 +21,8 @@ module.exports = {
 
                 if(domainRegex.exec(message.content)){
                     try {
-                        let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content});
-                        if (result.data?.match) {
+                        let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content}).catch(()=>null);
+                        if (result?.data?.match) {
                             const reportChannel = await message.guild.channels.fetch("738826685729734776");
                             reportChannel.send(`<@139871249567318017> Possible free nitro spam from ${message.author} (${message.author.id}) in ${message.channel}:\n> ${message.content}\n\`\`\`json\n${JSON.stringify(result.data)}\n\`\`\``);
                             bot.logger.log(`Deleting possible free nitro message ${message.content}`);

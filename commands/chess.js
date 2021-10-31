@@ -62,7 +62,7 @@ module.exports = {
             })
         }
 
-        let output = "";
+        let output = "Board:\n";
         if(!isFirstRun) {
             output = `Turn: ${runningGames[context.channel.id].players[+!runningGames[context.channel.id].turn]}`;
             if (gameStatus.board.isCheck)

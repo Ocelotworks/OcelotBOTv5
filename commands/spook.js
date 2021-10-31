@@ -10,7 +10,7 @@ module.exports = {
     name: "Spook",
     usage: "spook :@user?",
     categories: ["fun"],
-    detailedHelp: "A once a year event that runs for the entirety of October.",
+    detailedHelp: "A once a year event that runs for the ent   irety of October.",
     usageExample: "spook intro",
     requiredPermissions: [],
     commands: ["spook", "spooked"],
@@ -121,6 +121,30 @@ module.exports = {
     },
     middleware: async function(context, bot){
         const now = new Date();
+        console.log(end-now);
+        if(end-now < 0 && context.options.command !== "leaderboard"){
+            context.defer();
+            let spookLoser = await bot.redis.cache(`spook/loser/${context.guild.id}`, async ()=>await bot.database.getSpooked(context.guild.id), 60000)
+            let spookStats = await bot.redis.cache(`spook/stats/${context.guild.id}`, async ()=>await bot.database.getSpookStats(context.guild.id), 60000);
+            let roleStats = await bot.redis.cache(`spook/roles/${context.guild.id}`, async ()=>await module.exports.processRolesForServer(bot, context), 60000).catch(()=>null);
+            console.log(roleStats);
+            console.log(spookStats);
+            console.log(spookLoser);
+            let embed = new Embeds.LangEmbed(context);
+            embed.setColor("#bf621a");
+            embed.setTitleLang("SPOOK_END_TITLE"); // The Spooking has ended!
+            embed.setDescriptionLang("SPOOK_END_DESC", {loser: spookLoser.spooked}); // Thankyou for participating in The Spooking 2021. The loser is {{loser}}!
+            // Total Spooks - This server spooked a total of {{number:totalSpooks}} times. ({{percent}}% of all spooks!)
+            embed.addFieldLang("SPOOK_END_TOTAL", "SPOOK_END_TOTAL_VALUE", false, {...spookStats, percent: ((spookStats.totalSpooks/spookStats.allSpooks)*100).toFixed(2)})
+            // Most Spooked - <@{{mostSpooked.user}}> was spooked {{number:mostSpooked.count}} times.
+            embed.addFieldLang("SPOOK_END_MOST_TITLE", "SPOOK_END_MOST_VALUE", false, spookStats)
+            if(roleStats?.assigned > 0) { // Secret Roles - {{number:assigned}} of you had secret roles. {{number:successful}} succeeded. - {{number:assigned}} of you had secret roles. None of you succeeded! You literally had one job...
+                embed.addFieldLang("SPOOK_END_ROLES_TITLE", roleStats.succeeded > 0 ? "SPOOK_END_ROLES_VALUE" : "SPOOK_END_ROLES_VALUE_NONE", false, roleStats)
+            }
+            embed.setFooterLang("SPOOK_END_FOOTER");
+            context.send({embeds: [embed]});
+            return false;
+        }
         if(start-now > 0 && !context.getBool("spook.testing")) {
             const setReminder = bot.interactions.fullSuggestedCommand(context, `remind on 1st October at 00:0${bot.util.intBetween(0, 9)}:0${bot.util.intBetween(0,9)} **The Spooking** starts now!`);
             if (setReminder) {
@@ -134,6 +158,20 @@ module.exports = {
             return false;
         }
         return true;
+    },
+    async processRolesForServer(bot, context){
+        let assignedRoles = await bot.database.getAssignedRolesForServer(context.guild.id);
+        let success = 0;
+        for(let i = 0; i < assignedRoles.length; i++){
+            const roleData = assignedRoles[i];
+            let success = await SpookRoles.WasSuccessful(bot, roleData);
+            if(success){
+                success++;
+                if(context.getBool("spook.doBadges"))
+                    await bot.badges.giveBadgeOnce(roleData.userID, context.channel.id, SpookRoles.BadgeMap[roleData.role]);
+            }
+        }
+        return {success, assigned: assignedRoles.length};
     },
     spook: async function(bot, context, fromMember, toMember, type = "REGULAR"){
         let toMemberRole = await bot.redis.cache(`spook/role/${toMember.guild.id}/${toMember.id}`, async ()=>await bot.database.getRoleForUser(toMember.id, toMember.guild.id), 60000);
