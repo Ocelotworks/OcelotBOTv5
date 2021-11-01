@@ -139,7 +139,7 @@ module.exports = {
             // Most Spooked - <@{{mostSpooked.user}}> was spooked {{number:mostSpooked.count}} times.
             embed.addFieldLang("SPOOK_END_MOST_TITLE", "SPOOK_END_MOST_VALUE", false, spookStats)
             if(roleStats?.assigned > 0) { // Secret Roles - {{number:assigned}} of you had secret roles. {{number:successful}} succeeded. - {{number:assigned}} of you had secret roles. None of you succeeded! You literally had one job...
-                embed.addFieldLang("SPOOK_END_ROLES_TITLE", roleStats.succeeded > 0 ? "SPOOK_END_ROLES_VALUE" : "SPOOK_END_ROLES_VALUE_NONE", false, roleStats)
+                embed.addFieldLang("SPOOK_END_ROLES_TITLE", roleStats.success > 0 ? "SPOOK_END_ROLES_VALUE" : "SPOOK_END_ROLES_VALUE_NONE", false, roleStats)
             }
             embed.setFooterLang("SPOOK_END_FOOTER");
             context.send({embeds: [embed]});
@@ -167,8 +167,10 @@ module.exports = {
             let wasSuccess = await SpookRoles.WasSuccessful(bot, roleData);
             if(wasSuccess){
                 success++;
-                if(context.getBool("spook.doBadges"))
-                    await bot.badges.giveBadgeOnce(roleData.userID, context.channel.id, SpookRoles.BadgeMap[roleData.role]);
+                if(context.getBool("spook.doBadges")) {
+                    console.log(roleData.userID, context.channel.id, SpookRoles.BadgeMap[roleData.role])
+                    await bot.badges.giveBadgeOnce({id: roleData.userID}, context.channel, SpookRoles.BadgeMap[roleData.role]).catch(console.log);
+                }
             }
         }
         return {success, assigned: assignedRoles.length};
