@@ -78,7 +78,7 @@ module.exports = {
                 embed.setTitle(`You just earned ${badge.name}`);
                 embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
                 embed.setColor("#3ba13b");
-                channel.send({content: user, embeds: [embed]});
+                channel.send({content: `<@${user.id}>`, embeds: [embed]});
             }
             span.end();
         };
