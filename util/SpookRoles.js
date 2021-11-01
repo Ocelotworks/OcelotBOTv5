@@ -64,7 +64,7 @@ module.exports = class SpookRoles {
             bot.logger.log(roleData.data);
             return false;
         }
-        return (await bot.database.getSpookedCountBySpooked(roleData.serverID, roleData.data.spooked)) === 0;
+        return (await bot.database.getSpookedCountBySpooked(roleData.serverID, roleData.data.spooked)) == 0;
     }
 
     static async GetSuccessForBully(bot, roleData){
@@ -73,7 +73,7 @@ module.exports = class SpookRoles {
             bot.logger.log(roleData.data);
             return false;
         }
-        return (await bot.database.getSpookedCountBySpookerAndSpooked(roleData.serverID, roleData.userID, roleData.data.spooked)) === roleData.data.num;
+        return (await bot.database.getSpookedCountBySpookerAndSpooked(roleData.serverID, roleData.userID, roleData.data.spooked)) == roleData.data.num;
     }
 
     static async GetSuccessForJoker(bot, roleData){
@@ -82,7 +82,7 @@ module.exports = class SpookRoles {
             bot.logger.log(roleData.data);
             return false;
         }
-        return (await bot.database.getSpookedCountBySpookerAndSpooked(roleData.serverID, roleData.data.spooker, roleData.data.spooked)) === roleData.data.num;
+        return (await bot.database.getSpookedCountBySpookerAndSpooked(roleData.serverID, roleData.data.spooker, roleData.data.spooked)) == roleData.data.num;
     }
 
     static async GetSuccessForSab(bot, roleData){
