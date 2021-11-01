@@ -10,7 +10,7 @@ module.exports = {
     name: "Spook",
     usage: "spook :@user?",
     categories: ["fun"],
-    detailedHelp: "A once a year event that runs for the ent   irety of October.",
+    detailedHelp: "A once a year event that runs for the entirety of October.",
     usageExample: "spook intro",
     requiredPermissions: [],
     commands: ["spook", "spooked"],
@@ -19,22 +19,22 @@ module.exports = {
     init: async function (bot) {
         bot.spook = {};
         bot.spook.spooked = [];
-        bot.client.on("guildMemberRemove", async (member)=> {
-            if(bot.drain)return;
-            if(!bot.config.getBool("global", "spook.doLeaveCheck"))return bot.logger.log("Ignoring leave as doLeaveCheck is off");
-            const currentSpook = await bot.database.getSpooked(member.guild.id);
-            if (!currentSpook || currentSpook.spooked !== member.id) return;
-            module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
-        });
-        bot.client.once("ready", ()=>{
-            let diff = start-new Date();
-            bot.logger.log(`Spook starts in ${diff}ms`);
-            if(diff < 0) {
-                //module.exports.startIdleCheck(bot);
-                return module.exports.startSpook(bot);
-            }
-            setTimeout(()=>module.exports.startSpook(bot), diff);
-        });
+        // bot.client.on("guildMemberRemove", async (member)=> {
+        //     if(bot.drain)return;
+        //     if(!bot.config.getBool("global", "spook.doLeaveCheck"))return bot.logger.log("Ignoring leave as doLeaveCheck is off");
+        //     const currentSpook = await bot.database.getSpooked(member.guild.id);
+        //     if (!currentSpook || currentSpook.spooked !== member.id) return;
+        //     module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
+        // });
+        // bot.client.once("ready", ()=>{
+        //     let diff = start-new Date();
+        //     bot.logger.log(`Spook starts in ${diff}ms`);
+        //     if(diff < 0) {
+        //         //module.exports.startIdleCheck(bot);
+        //         return module.exports.startSpook(bot);
+        //     }
+        //    // setTimeout(()=>module.exports.startSpook(bot), diff);
+        // });
     },
     startSpook(bot){
         bot.updatePresence = async ()=>{
@@ -44,7 +44,7 @@ module.exports = {
             let spookCount = await bot.database.getTotalSpooks()
             await bot.client.user.setPresence({
                 activities: [{
-                    name: `👻 !spook | ${spookCount.toLocaleString()} SPOOKED`,
+                    name: `👻 Thank you for playing! | ${spookCount.toLocaleString()} SPOOKED`,
                     type: "COMPETING",
                 }]
             });
@@ -164,8 +164,8 @@ module.exports = {
         let success = 0;
         for(let i = 0; i < assignedRoles.length; i++){
             const roleData = assignedRoles[i];
-            let success = await SpookRoles.WasSuccessful(bot, roleData);
-            if(success){
+            let wasSuccess = await SpookRoles.WasSuccessful(bot, roleData);
+            if(wasSuccess){
                 success++;
                 if(context.getBool("spook.doBadges"))
                     await bot.badges.giveBadgeOnce(roleData.userID, context.channel.id, SpookRoles.BadgeMap[roleData.role]);
