@@ -2,8 +2,9 @@ const Embeds = require("../util/Embeds");
 const Strings = require("../util/String");
 const Discord = require("discord.js");
 const SpookRoles = require("../util/SpookRoles");
-const end = new Date("1 November 2021");
-const start = new Date("1 October 2021");
+const now = new Date();
+const end = new Date("1 November "+now.getFullYear());
+const start = new Date("1 October "+now.getFullYear());
 const roleMultipliers = [8, 25, 100, 1000, 2000, 5000];
 let currentSpooks = {};
 module.exports = {
@@ -124,9 +125,10 @@ module.exports = {
         console.log(end-now);
         if(end-now < 0 && context.options.command !== "leaderboard"){
             context.defer();
-            let spookLoser = await bot.redis.cache(`spook/loser/${context.guild.id}`, async ()=>await bot.database.getSpooked(context.guild.id), 60000)
+            let spookLoser = await bot.redis.cache(`spook/loser/${context.guild.id}`, async ()=>await bot.database.getSpooked(context.guild.id), 60000);
             let spookStats = await bot.redis.cache(`spook/stats/${context.guild.id}`, async ()=>await bot.database.getSpookStats(context.guild.id), 60000);
             let roleStats = await bot.redis.cache(`spook/roles/${context.guild.id}`, async ()=>await module.exports.processRolesForServer(bot, context), 60000).catch(()=>null);
+            if(!spookLoser)return false;
             console.log(roleStats);
             console.log(spookStats);
             console.log(spookLoser);

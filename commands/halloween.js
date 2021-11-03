@@ -4,7 +4,8 @@
  * ╚════ ║   (ocelotbotv5) halloween
  *  ════╝
  */
-const halloween = new Date("31 October 2021");
+const now = new Date();
+const halloween = new Date("31 October "+now.getFullYear());
 module.exports = {
     name: "Halloween Countdown",
     usage: "halloween",
@@ -15,6 +16,9 @@ module.exports = {
     commands: ["halloween"],
     run: function run(context, bot) {
         const diff = (halloween-(new Date()))/1000;
+        if(diff <= 0){
+            return context.send(":ghost: Happy Halloween!");
+        }
         return context.sendLang("HALLOWEEN", {time: bot.util.prettySeconds(diff, context.guild?.id, context.user.id)});
     }
 
