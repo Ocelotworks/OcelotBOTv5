@@ -10,7 +10,7 @@ module.exports = {
     categories: ["tools"],
     commands: ["poll"],
     requiredPermissions: ["READ_MESSAGE_HISTORY", "EMBED_LINKS"],
-    slashHidden: true,
+    guildOnly: true,
     init: function(bot){
         setInterval(async ()=>{
             let expiredPolls = await bot.database.getExpiredPolls([...bot.client.guilds.cache.keys()]);
