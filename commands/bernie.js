@@ -35,9 +35,6 @@ module.exports = {
                 {
                     "url": "bernie.png",
                     "local": true,
-                    "pos": {"x": 0, "y": 0},
-                    "rot": 0,
-                    "filter": []
                 }
             ],
             "width": 764,
