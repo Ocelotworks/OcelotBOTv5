@@ -58,7 +58,7 @@ module.exports = class Lavalink {
     }
     async updateDockerContainers(){
         try {
-            let dockerHosts = await dns.promises.resolve("tasks.ocelotbot-sat_lavalink", "A")
+            let dockerHosts = await dns.promises.resolve("tasks.lavalink_lavalink", "A")
 
             this.manager.nodes.forEach((connectedNode) => {
                 if (connectedNode.id.startsWith("docker-") && !dockerHosts.includes(connectedNode.id.split("-")[1])) {

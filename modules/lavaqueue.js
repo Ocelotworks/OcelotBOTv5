@@ -175,7 +175,7 @@ module.exports = {
 
         bot.lavaqueue.updateDockerContainers = async function () {
             try {
-                let dockerHosts = await dns.promises.resolve("tasks.ocelotbot-sat_lavalink", "A")
+                let dockerHosts = await dns.promises.resolve("tasks.lavalink_lavalink", "A")
 
                 bot.lavaqueue.manager.nodes.forEach((connectedNode) => {
                     if (connectedNode.id.startsWith("docker-") && !dockerHosts.includes(connectedNode.id.split("-")[1])) {

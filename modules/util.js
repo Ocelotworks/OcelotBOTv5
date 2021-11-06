@@ -1545,7 +1545,7 @@ module.exports = {
         bot.util.runCustomFunction = async function(code, message, showErrors = true, doOutput = true){
             try {
 
-                let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "http://ocelotbot-sat_custom-commands:3000/run", {
+                let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "http://ob-sat_custom-commands:3000/run", {
                     version: 1,
                     script: code,
                     message: bot.util.serialiseMessage(message),
