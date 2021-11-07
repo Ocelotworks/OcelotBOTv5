@@ -64,7 +64,7 @@ module.exports = {
             let answerMap = {};
             let userAnswers = {};
             function recordAnswer(interaction){
-                userAnswers[interaction.member.user.id] = answerMap[interaction.data.custom_id];
+                userAnswers[interaction.user.id] = answerMap[interaction.data.custom_id];
                 return {type: 4, data: {flags: 64, content: `✅ You have selected: ${answerMap[interaction.data.custom_id]}`}};
             }
 
@@ -86,7 +86,7 @@ module.exports = {
 
             setTimeout(async ()=>{
                 removeGame(context.channel.id);
-                if(!context.channel || context.channel.deleted || !context.guild || context.guild.deleted){
+                if((!context.channel && !context.guild) || context.channel.deleted || context.guild?.deleted){
                     bot.logger.log("Guild or channel was deleted before game completed");
                     return;
                 }
