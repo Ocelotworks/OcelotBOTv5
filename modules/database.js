@@ -334,18 +334,18 @@ module.exports = {
                 return knex.select(knex.raw("count(*)")).from(TRIVIA_TABLE).where({user}).limit(1);
             },
 
-            logCommand: function logCommand(userID, channelID, serverID, messageID, commandID, command, productID, type = "message") {
-                return knex.insert({
-                    userID,
-                    channelID,
-                    serverID,
-                    messageID,
-                    commandID,
+            logCommand: function logCommand(userid, channelid, serverid, messageid, commandid, command, productid, type = "message") {
+                return knockroach.insert({
+                    userid,
+                    channelid,
+                    serverid,
+                    messageid,
+                    commandid,
                     command,
                     server: os.hostname()+"/"+bot.util.shard,
-                    productID,
+                    productid,
                     type
-                }).into(COMMANDLOG_TABLE);
+                }).into("commands");
             },
             /**
              * Ban a user
