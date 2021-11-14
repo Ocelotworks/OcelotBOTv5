@@ -116,15 +116,13 @@ module.exports = {
                 bot.logger.log(`Awarding badge ${eligibleBadge.name} (${eligibleBadge.id}) to ${user.username} (${userID}). ${series} = ${value}`);
                 await bot.database.deleteBadgeFromSeries(userID, series);
                 await bot.database.giveBadge(userID, eligibleBadge.id);
-
-
                 if(channel){
                     let embed = new Discord.MessageEmbed();
                     embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${eligibleBadge.id}`);
                     embed.setTitle(`You just earned ${eligibleBadge.name}`);
                     embed.setDescription(`${eligibleBadge.desc}\nNow available on your **${channel.guild ? channel.guild.getSetting("prefix") : bot.config.get("global", "prefix")}profile**`);
                     embed.setColor("#3ba13b");
-                    channel.send(`<@${userID}>`, {embeds: [embed]});
+                    channel.send({content: `<@${userID}>`, embeds: [embed]});
                 }else{
                     bot.logger.log("No channel was given for sending the award message.");
                 }

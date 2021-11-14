@@ -34,7 +34,7 @@ module.exports = {
             }else{
                 const result = await bot.database.getUserStats(user);
                 if(result[0])
-                    bot.commandCache[user] = result[0].commandCount;
+                    bot.commandCache[user] = result[0].count;
                 else
                     bot.commandCache[user] = 1;
 

@@ -342,7 +342,7 @@ module.exports = {
                     messageid,
                     commandid,
                     command,
-                    server: os.hostname()+"/"+bot.util.shard,
+                    handler: os.hostname()+"/"+bot.util.shard,
                     productid,
                     type
                 }).into("commands");
@@ -371,36 +371,24 @@ module.exports = {
             getBan: function(id){
                 return knex.select().from(BANS_TABLE).where({id}).limit(1);
             },
-            /**
-             * Get most used commands, through a very slow database query
-             */
-            getCommandStats: function () {
-                return knex.select(knex.raw("SUBSTRING_INDEX(SUBSTRING_INDEX(command, ' ',  1), ' ', -1) as commandName"), knex.raw("COUNT(*) as count"))
-                    .from(COMMANDLOG_TABLE)
-                    .whereRaw("command LIKE '!%'")
-                    .andWhereRaw("server NOT LIKE 'ethanbot-%'")
-                    .orderBy("count", "DESC")
-                    .groupBy("commandName")
-                    .limit(5);
-            },
-            getUserCommands: function(userID, productID){
-                let query = knex.select('id', 'command').from(COMMANDLOG_TABLE).where({userID}).orderBy("timestamp", "desc").limit(5);
-                if(productID){
-                    query = query.andWhere({productID});
+            getUserCommands: function(userid, productid){
+                let query = knockroach.select('id', 'command').from("commands").where({userid}).orderBy("timestamp", "desc").limit(5);
+                if(productid){
+                    query = query.andWhere({productid});
                 }
                 return query;
             },
-            getServerCommands: function(serverID, productID){
-                let query = knex.select('id', 'command').from(COMMANDLOG_TABLE).where({serverID}).orderBy("timestamp", "desc").limit(5);;
-                if(productID){
-                    query = query.andWhere({productID});
+            getServerCommands: function(serverid, productid){
+                let query = knockroach.select('id', 'command').from("commands").where({serverid}).orderBy("timestamp", "desc").limit(5);;
+                if(productid){
+                    query = query.andWhere({productid});
                 }
                 return query;
             },
-            getCommandById: function(id, productID){
-                let query = knex.select().from(COMMANDLOG_TABLE).where({id}).limit(1);
-                if(productID){
-                    query = query.andWhere({productID});
+            getCommandById: function(id, productid){
+                let query = knockroach.select().from("commands").where({id}).limit(1);
+                if(productid){
+                    query = query.andWhere({productid});
                 }
                 return query;
             },
@@ -409,8 +397,8 @@ module.exports = {
              * @param {Snowflake} user
              * @returns {*}
              */
-            getUserStats: function (user) {
-                return knex.select(knex.raw("COUNT(*) AS commandCount")).from(COMMANDLOG_TABLE).where({userID: user})
+            getUserStats: function (userid) {
+                return knockroach.select(knockroach.raw("COUNT(*)")).from("commands").where({userid})
             },
             /**
              * Get a random topic for Ocelotworks
@@ -703,8 +691,8 @@ module.exports = {
             removeBadge: function (user, badge) {
                 return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge});
             },
-            getFirstSeen: function (user) {
-                return knex.select(knex.raw("MIN(timestamp)")).from(COMMANDLOG_TABLE).where({userID: user})
+            getFirstSeen: function (userid) {
+                return knockroach.select(knockroach.raw("MIN(timestamp)")).from("commands").where({userid: userid})
             },
             addSubscription: function (server, channel, user, type, data, productID) {
                 return knex.insert({server, channel, user, type, data, productID}).into("ocelotbot_subscriptions");
@@ -890,7 +878,7 @@ module.exports = {
                 return null;
             },
             getCommandCount: function () {
-                return knex.select(knex.raw("MAX(id)")).from(COMMANDLOG_TABLE);
+                return knockroach.select(knex.raw("MAX(id)")).from("commands");
             },
             createPremiumKey: async function (owner) {
                 let id = uuid();
