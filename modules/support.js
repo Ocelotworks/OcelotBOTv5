@@ -12,6 +12,7 @@ module.exports = {
     name: "Support Server Specific Functions",
     init: function (bot) {
         bot.client.on("messageCreate", async function onMessage(message) {
+            if(bot.drain)return;
             if(message.guild && !message.author.bot && message.guild.getBool("antiphish")){
                 if(domainRegex.exec(message.content)){
                     try {
