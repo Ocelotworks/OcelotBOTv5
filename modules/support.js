@@ -12,15 +12,10 @@ module.exports = {
     name: "Support Server Specific Functions",
     init: function (bot) {
         bot.client.on("messageCreate", async function onMessage(message) {
-            if (message.guild && message.guild.id === "322032568558026753" && !message.author.bot && bot.client.user.id == "635846996418363402") {
-                if (message.content.indexOf("discord.gg") > -1)
-                    return message.delete();
-
-                if (changePrefix.exec(message.content))
-                    return bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
-
+            if(message.guild && !message.author.bot && message.guild.getBool("antiphish") && message.member.permissions.has("ADMINISTRATOR")){
                 if(domainRegex.exec(message.content)){
                     try {
+                        bot.logger.log(`Checking domain in ${message.guild.id}`);
                         let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content}).catch(()=>null);
                         if (result?.data?.match) {
                             const reportChannel = await message.guild.channels.fetch("738826685729734776");
@@ -32,6 +27,13 @@ module.exports = {
                         bot.logger.error(e);
                     }
                 }
+            }
+            if (message.guild && message.guild.id === "322032568558026753" && !message.author.bot && bot.client.user.id == "635846996418363402") {
+                if (message.content.indexOf("discord.gg") > -1)
+                    return message.delete();
+
+                if (changePrefix.exec(message.content))
+                    return bot.util.replyTo(message, "To change the prefix, type !settings set prefix %\nWhere % is the prefix you want.");
             }
         });
 
