@@ -444,7 +444,7 @@ module.exports = class Commands {
         Sentry.configureScope((scope) => {
             scope.setUser({
                 username: context.user?.username,
-                id: context.user.id
+                id: context.user?.id
             });
             scope.setTag("command", context.command);
         });
@@ -495,7 +495,7 @@ module.exports = class Commands {
                 message: context.command,
                 data: {
                     username: context.user?.username,
-                    id: context.user.id,
+                    id: context.user?.id,
                     message: context.message?.content,
                     options: context.options,
                     channel: context.channel?.id,
