@@ -12,7 +12,7 @@ module.exports = {
     name: "Support Server Specific Functions",
     init: function (bot) {
         bot.client.on("messageCreate", async function onMessage(message) {
-            if(message.guild && !message.author.bot && message.guild.getBool("antiphish") && message.member.permissions.has("ADMINISTRATOR")){
+            if(message.guild && !message.author.bot && message.guild.getBool("antiphish")){
                 if(domainRegex.exec(message.content)){
                     try {
                         bot.logger.log(`Checking domain in ${message.guild.id}`);
@@ -21,6 +21,7 @@ module.exports = {
                             const reportChannel = await message.guild.channels.fetch(message.guild.getSetting("antiphish.channel"));
                             reportChannel.send(`Possible free nitro spam from ${message.author} (${message.author.id}) in ${message.channel}:\n> ${message.content}\n\`\`\`json\n${JSON.stringify(result.data)}\n\`\`\``);
                             bot.logger.log(`Deleting possible free nitro message ${message.content}`);
+                            if(message.member.permissions.has("ADMINISTRATOR"))return;
                             return message.delete();
                         }
                     }catch(e){
