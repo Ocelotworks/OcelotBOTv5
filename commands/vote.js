@@ -73,6 +73,7 @@ module.exports = {
             }
             if (bot.util.shard == 0) {
                 logVote(user, voteServer, channel, source, multiplier).then(()=>{
+                    bot.logger.log("emitting vote event");
                     bot.rabbit.emit("vote", {
                         user, source, multiplier
                     });

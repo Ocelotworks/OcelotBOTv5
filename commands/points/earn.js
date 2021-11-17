@@ -10,6 +10,8 @@ module.exports = {
 
         let listenerTimeout;
         let voteListener = async (message)=>{
+            bot.logger.log("Received vote event");
+            bot.logger.log(message);
             let {user} = message.payload;
             if(user !== context.user.id)return;
             bot.logger.log("!points earn vote listener for "+context.user.id)
