@@ -14,7 +14,7 @@ module.exports = {
         const key = context.options.key;
         const value = context.options.value;
         await bot.database.setSetting(server, key, value, bot.client.user.id);
-        bot.rabbit.event({type: "reloadConfig", payload: server});
+        bot.rabbit.event({type: "reloadConfig", payload: {guild: server, settings: [key]}});
         if(!context.options.value)
             return context.send(`Cleared value \`${key}\` for ${server}`);
         return context.send(`Set \`${key} = '${value}'\` for ${server}`);
