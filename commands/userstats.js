@@ -77,8 +77,8 @@ module.exports = {
                 let triviaResult = (await bot.database.getTriviaCorrectCount(target))[0];
                 let voteCount = 0, guessCount = 0, triviaCount = 0, commandCount = 0;
 
-                if(commandResult && commandResult['commandCount'])
-                    commandCount = commandResult['commandCount'].toLocaleString();
+                if(commandResult && commandResult.count)
+                    commandCount = commandResult.count.toLocaleString();
 
                 if(voteResult && voteResult['COUNT(*)'])
                     voteCount = voteResult['COUNT(*)'].toLocaleString();
