@@ -873,28 +873,29 @@ module.exports = {
 
         /**
          * Attempt to find the main channel for a specified guild
-         * @param {Discord.Guild} guild
-         * @returns {Discord.TextChannel}
+         * @param {Guild} guild
+         * @returns {TextChannel}
          */
-        bot.util.determineMainChannel = function determineMainChannel(guild) {
-            let channels = guild.channels;
+        bot.util.determineMainChannel = async function determineMainChannel(guild) {
+            let channels = await guild.channels.fetch();
 
-            let mainChannel = channels.cache.find(function (channel) {
-                return channel.type === "text" && channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
+            let mainChannel = channels.find(function (channel) {
+                return channel.type === "GUILD_TEXT" && channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
             if (mainChannel)
                 return mainChannel;
 
-            let secondaryChannel = channels.cache.find(function (channel) {
-                return channel.type === "text" && channel.name.match(secondaryChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
+            let secondaryChannel = channels.find(function (channel) {
+                return channel.type === "GUILD_TEXT" && channel.name.match(secondaryChannelRegex) && channel.permissionsFor(bot.client.user).has(requiredPermissions, true)
             });
 
             if (secondaryChannel)
                 return secondaryChannel;
 
-            return channels.cache.find(function (channel) {
-                return channel.type === "text" && channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
+            console.log("Looking for any channel with the right permissions");
+            return channels.find(function (channel) {
+                return channel.type === "GUILD_TEXT" && channel.permissionsFor(bot.client.user).has(requiredPermissions, true);
             });
         };
 

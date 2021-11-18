@@ -297,24 +297,6 @@ module.exports = {
                         console.error(e);
                     }
                     await bot.database.unleaveServer(guild.id);
-                    let mainChannel = bot.util.determineMainChannel(guild);
-                    if (!bot.drain && bot.config.getBool("global", "welcome.enabled")) {
-                        if (mainChannel) {
-                            const prefix = guild.getSetting("prefix");
-                            bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
-                            let embed = new Discord.MessageEmbed();
-                            embed.setColor(bot.config.get("global", "welcome.embedColour"));
-                            embed.setTitle("Welcome to OcelotBOT!");
-                            embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/commands?prefix=${encodeURIComponent(prefix)}) or by typing ${prefix}help.`);
-                            embed.addField("Prefix", `The prefix is set to ${prefix}, if you want to change it type **${prefix}settings set prefix ${prefix === "%" ? "!" : "%"}**`);
-                            embed.addField("Wholesome?", `Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **${prefix}settings set wholesome true**`);
-                            embed.addField("Administrators", `You can change the bot's settings by typing **${prefix}settings help**`);
-                            embed.addField("Stuck?", "If you have issues or suggestions, type **!feedback** or join our [support server](https://discord.gg/7YNHpfF).");
-                            embed.addField("Support", "You can support the bot by [voting](https://top.gg/bot/146293573422284800) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
-                            mainChannel.send({embeds: [embed]});
-                        }
-                    }
-
                     if (bot.config.getBool("global", "webhook.enabled")) {
                         try {
                             let webhook = await mainChannel.createWebhook("OcelotBOT", bot.client.avatar);
@@ -526,6 +508,30 @@ module.exports = {
                         discriminator: user.discriminator
                     }
                 });
+            }
+        })
+
+        // OOBE Finish
+        bot.bus.on("settingChanged", async (guildId, setting)=>{
+            if(bot.drain || guildId === "global" || setting !== "oobe.finished")return;
+            const guild = await bot.client.guilds.fetch(guildId);
+            let mainChannel = await bot.util.determineMainChannel(guild);
+            if (guild.getSetting("welcome.enabled") && mainChannel) {
+                bot.logger.log(`Sending welcome message to ${mainChannel}`)
+                const prefix = guild.getSetting("prefix");
+                bot.logger.log(`Found main channel of ${mainChannel.name} (${mainChannel.id})`);
+                let embed = new Discord.MessageEmbed();
+                embed.setColor(bot.config.get("global", "welcome.embedColour"));
+                embed.setTitle("Welcome to OcelotBOT!");
+                embed.setDescription(`You can find my commands [here](https://ocelotbot.xyz/commands?prefix=${encodeURIComponent(prefix)}) or by typing ${prefix}help.`);
+                embed.addField("Prefix", `The prefix is set to ${prefix}, if you want to change it type **${prefix}settings set prefix ${prefix === "%" ? "!" : "%"}**`);
+                embed.addField("Wholesome?", `Don't want swearing in your Christian server? Disable NSFW/swearing commands by typing **${prefix}settings set wholesome true**`);
+                embed.addField("Administrators", `You can change the bot's settings by typing **${prefix}settings help**`);
+                embed.addField("Stuck?", "If you have issues or suggestions, type **!feedback** or join our [support server](https://discord.gg/7YNHpfF).");
+                embed.addField("Support", "You can support the bot by [voting](https://top.gg/bot/146293573422284800) or by subscribing to [premium](https://www.patreon.com/ocelotbot).");
+                mainChannel.send({embeds: [embed]});
+            }else{
+                bot.logger.log("Didn't send welcome message; disabled or main channel not found")
             }
         })
 
