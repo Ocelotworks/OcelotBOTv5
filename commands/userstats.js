@@ -93,7 +93,7 @@ module.exports = {
 
                 let cost = 0;
 
-                cost += commandResult['commandCount']*(COST_PER_CMD+COST_PER_GM);
+                cost += commandResult.count*(COST_PER_CMD+COST_PER_GM);
                 cost += getAllIn(countPerCommand, ['im', 'image', 'googleimage'])*COST_PER_IMG;
                 if(countPerCommand['removebg'])
                     cost += countPerCommand['removebg']*COST_PER_REMOVEBG;

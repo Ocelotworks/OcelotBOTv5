@@ -837,18 +837,18 @@ module.exports = {
                     correct: 1
                 });
             },
-            getCommandCountByCommand: async function (userID) {
-                let result = await knex.select(knex.raw("COUNT(*)"), "commandID").from("commandlog").groupBy("commandID").where({userID});
+            getCommandCountByCommand: async function (userid) {
+                let result = await knockroach.select(knockroach.raw("COUNT(*)"), "commandid").from("commands").groupBy("commandid").where({userid});
                 let output = {};
                 for (let i = 0; i < result.length; i++) {
                     let row = result[i];
-                    output[row.commandID] = row['COUNT(*)'];
+                    output[row.commandid] = parseInt(row.count) || 0;
                 }
                 return output;
             },
             getGuessStats: async function () {
                 return {
-                    totalGuesses: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess"))[0]['COUNT(*)'],
+                    totalGuesses: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess"))[0].count,
                     totalCorrect: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['COUNT(*)'],
                     averageTime: (await knex.select(knex.raw("AVG(elapsed)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['AVG(elapsed)'],
                     totalUsers: (await knex.select(knex.raw("COUNT(DISTINCT user)")).from("ocelotbot_song_guess"))[0]['COUNT(DISTINCT user)'],
@@ -878,7 +878,7 @@ module.exports = {
                 return null;
             },
             getCommandCount: function () {
-                return knockroach.select(knex.raw("MAX(id)")).from("commands");
+                return knockroach.select(knex.raw("COUNT(*)")).from("commands");
             },
             createPremiumKey: async function (owner) {
                 let id = uuid();
