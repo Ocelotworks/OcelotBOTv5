@@ -83,7 +83,7 @@ module.exports = class Interactions{
 
     async handleSuggestedCommand(interaction){
         const [userId, command] = interaction.data.custom_id.substring(1).split("!",2);
-        if(interaction.user.id !== userId)
+        if(interaction.member.user.id !== userId)
             return {type: 4, data: {flags: 64, content: "Only the user that typed the command can use that button."}};
         const channel = await this.bot.client.channels.fetch(interaction.message.channel_id);
         const message = await channel.messages.fetch(interaction.message.id);

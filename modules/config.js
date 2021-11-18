@@ -106,12 +106,18 @@ module.exports = {
             if (guild === "global" || guild == bot.util.shard || bot.client.guilds.cache.has(guild)) {
                 if (cacheReloads[guild]) return;
 
-                cacheReloads[guild] = setTimeout(function () {
+                cacheReloads[guild] = setTimeout(async function () {
                     if (guild === "global" || guild == bot.util.shard) {
-                        bot.config.loadGlobalCache();
+                        await bot.config.loadGlobalCache();
                     } else {
-                        bot.config.reloadCacheForServer(guild);
+                        await bot.config.reloadCacheForServer(guild);
                     }
+                    if(msg.payload.settings){
+                        for(let i = 0; i < msg.payload.settings.length; i++){
+                            bot.bus.emit("settingChanged", msg.payload.guild, msg.payload.settings[i]);
+                        }
+                    }
+                    bot.logger.log("Reloaded config successfully");
                     delete cacheReloads[guild];
                 }, 5000);
                 bot.logger.log("Broker requested config reload for " + guild);

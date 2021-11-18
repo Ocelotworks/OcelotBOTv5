@@ -130,7 +130,7 @@ class MessageCommandContext extends CommandContext {
             command: {
                 name: this.command,
                 id: this.command,
-                content: this.message.content,
+                content: this.message?.content,
             },
             message: this.bot.util.serialiseMessage(this.message),
         })
