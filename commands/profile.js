@@ -242,7 +242,7 @@ module.exports = {
 
 
         drawStat(mutualGuilds, "servers");
-        drawStat(userStats[0].commandCount.toLocaleString(), "commands");
+        drawStat(userStats[0].count.toLocaleString(), "commands");
         drawStat(voteStats[0] && voteStats[0]['COUNT(*)'] ? voteStats[0]['COUNT(*)'] : 0, "votes");
         drawStat(guessStats[0] && guessStats[0]['COUNT(*)'] ? guessStats[0]['COUNT(*)'] : 0, "songs guessed");
         drawStat(triviaStats[0] && triviaStats[0]['count(*)'] ? triviaStats[0]['count(*)'] : 0, "trivia correct");
