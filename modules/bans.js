@@ -34,7 +34,7 @@ module.exports = {
         bot.checkBan = function checkBan(context) {
             if (context.guild && bot.banCache.server.indexOf(context.guild.id) > -1) return true;
             if (context.channel && bot.banCache.channel.indexOf(context.channel.id) > -1) return true;
-            return bot.banCache.user.indexOf(context.user.id) > -1;
+            return bot.banCache.user.indexOf(context.user?.id) > -1;
         };
 
         function updateRateLimit(command, message) {
