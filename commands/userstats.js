@@ -77,8 +77,8 @@ module.exports = {
                 let triviaResult = (await bot.database.getTriviaCorrectCount(target))[0];
                 let voteCount = 0, guessCount = 0, triviaCount = 0, commandCount = 0;
 
-                if(commandResult && commandResult['commandCount'])
-                    commandCount = commandResult['commandCount'].toLocaleString();
+                if(commandResult && commandResult.count)
+                    commandCount = commandResult.count.toLocaleString();
 
                 if(voteResult && voteResult['COUNT(*)'])
                     voteCount = voteResult['COUNT(*)'].toLocaleString();
@@ -93,7 +93,7 @@ module.exports = {
 
                 let cost = 0;
 
-                cost += commandResult['commandCount']*(COST_PER_CMD+COST_PER_GM);
+                cost += commandResult.count*(COST_PER_CMD+COST_PER_GM);
                 cost += getAllIn(countPerCommand, ['im', 'image', 'googleimage'])*COST_PER_IMG;
                 if(countPerCommand['removebg'])
                     cost += countPerCommand['removebg']*COST_PER_REMOVEBG;

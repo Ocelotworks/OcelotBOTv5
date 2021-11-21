@@ -17,7 +17,7 @@ module.exports = {
         const fullText = context.options.input;
         let first = fullText
         let second = "nothing";
-        if(fullText.indexOf("/") > -1){
+        if(fullText && fullText.indexOf("/") > -1){
             const split = fullText.split("/");
             first = split[0].trim();
             second = split[1].trim();

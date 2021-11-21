@@ -5,7 +5,6 @@
  *  ════╝
  */
 
-const Discord = require('discord.js');
 const {axios} = require('../util/Http');
 const config = require('config');
 const Sentry = require('@sentry/node');
@@ -13,8 +12,6 @@ const cheerio = require('cheerio');
 const Embeds = require("../util/Embeds");
 // Start a random position in the playlist on startup, mostly for my sanity during testing
 let counter = Math.round(Math.random()*1000);
-
-
 
 const llErrors = {
     "WebSocketClosedEvent": ":thinking: Looks like I was disconnected from the Voice Channel for some reason. Try again in a minute or so.",
@@ -37,6 +34,9 @@ module.exports = {
     slashHidden: true,
     nestedDir: "guess",
     runningGames: {},
+    argDescriptions: {
+        "base": {name: "play", description: "Start a guess game"},
+    },
     run:  async function run(context, bot) {
         let playlists = null;
         let playlist;

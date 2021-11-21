@@ -781,6 +781,10 @@ module.exports = {
                 let value = await knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, setting}).limit(1);
                 return value[0];
             },
+            searchSettingAssoc: function(search){
+                search = `%${search}%`;
+                return knex.select().from("ocelotbot_server_settings_assoc").whereRaw("(`setting` LIKE ? OR `name` LIKE ? OR `desc` LIKE ?)", [search, search, search]).andWhere({settable:1}).limit(1);
+            },
             addSongGuess: async function (user, channel, server, guess, song, correct, elapsed, custom = false) {
                 await knex.insert({user, channel, server, guess, song, correct, elapsed, custom}).into("ocelotbot_song_guess");
             },
@@ -837,18 +841,18 @@ module.exports = {
                     correct: 1
                 });
             },
-            getCommandCountByCommand: async function (userID) {
-                let result = await knex.select(knex.raw("COUNT(*)"), "commandID").from("commandlog").groupBy("commandID").where({userID});
+            getCommandCountByCommand: async function (userid) {
+                let result = await knockroach.select(knockroach.raw("COUNT(*)"), "commandid").from("commands").groupBy("commandid").where({userid});
                 let output = {};
                 for (let i = 0; i < result.length; i++) {
                     let row = result[i];
-                    output[row.commandID] = row['COUNT(*)'];
+                    output[row.commandid] = parseInt(row.count) || 0;
                 }
                 return output;
             },
             getGuessStats: async function () {
                 return {
-                    totalGuesses: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess"))[0]['COUNT(*)'],
+                    totalGuesses: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess"))[0].count,
                     totalCorrect: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['COUNT(*)'],
                     averageTime: (await knex.select(knex.raw("AVG(elapsed)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['AVG(elapsed)'],
                     totalUsers: (await knex.select(knex.raw("COUNT(DISTINCT user)")).from("ocelotbot_song_guess"))[0]['COUNT(DISTINCT user)'],
@@ -878,7 +882,7 @@ module.exports = {
                 return null;
             },
             getCommandCount: function () {
-                return knockroach.select(knex.raw("MAX(id)")).from("commands");
+                return knockroach.select(knex.raw("COUNT(*)")).from("commands");
             },
             createPremiumKey: async function (owner) {
                 let id = uuid();

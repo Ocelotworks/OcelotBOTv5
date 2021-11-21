@@ -539,4 +539,26 @@ module.exports = class Strings {
         return Array.from({length: n}, ()=>character).join("")
     }
 
+    /**
+     *
+     * @param {BigInt} number
+     * @constructor
+     * @returns {string}
+     */
+    static NumberToCommandId(number){
+        let hexString = number.toString(16);
+        if(hexString % 2 !== 0)hexString = "0"+hexString; // Node truncates the last character of odd hex values in buffers because fuck you
+        return Buffer.from(hexString, 'hex').toString("base64").replace(/=/g, "")
+    }
+
+    /**
+     *
+     * @param {string} commandId
+     * @constructor
+     * returns {string}
+     */
+    static CommandIdToNumber(commandId){
+        return BigInt("0x"+Buffer.from(commandId, "base64").toString("hex")).toString();
+    }
+
 }
