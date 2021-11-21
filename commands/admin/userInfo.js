@@ -6,6 +6,7 @@
  */
 const Discord = require('discord.js');
 const columnify = require('columnify');
+const Strings = require("../../util/String");
 module.exports = {
     name: "User Info",
     usage: "user :user",
@@ -27,11 +28,11 @@ module.exports = {
 
         if(bot.banCache.user.includes(userId)){
             const banInfo = await bot.database.getBan(userId);
-            output.addField("⚠ User Banned", trim(banInfo[0].reason || "Not specified"));
+            output.addField("⚠ User Banned", Strings.Truncate(banInfo[0].reason || "Not specified", 1024));
         }
 
         if(bot.config.cache[userId]){
-            output.addField("Settings Applied", trim(`\`\`\`yaml\n${Object.keys(bot.config.cache[userId]).map((key)=>`${key}: ${bot.config.cache[userId][key]}`).join("\n")}\n\`\`\``));
+            output.addField("Settings Applied", Strings.Truncate(`\`\`\`yaml\n${Object.keys(bot.config.cache[userId]).map((key)=>`${key}: ${bot.config.cache[userId][key]}`).join("\n")}\n\`\`\``, 1024));
         }
 
         let guildCollection = (await bot.rabbit.broadcastEval(`
@@ -40,8 +41,8 @@ module.exports = {
         output.addField("Seen in", guildCollection.length > 0 ? guildCollection.join(", ") : "Nowhere.");
 
 
-        let lastCommands = await bot.database.getUserCommands(userId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
-        output.addField("Last 5 Commands", trim(`Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``));
+        let lastCommands = (await bot.database.getUserCommands(userId, process.env.CUSTOM_BOT ? bot.client.user.id : null)).map((r)=>({...r, id: Strings.NumberToCommandId(BigInt(r.id))}));
+        output.addField("Last 5 Commands", Strings.Truncate(`Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``, 1024));
         let buttons = [
             {type: 2, label: "View in Dashboard", style: 5, url: `https://ocelotbot.xyz/dash-beta/#/admin/user/${userId}`},
             {type: 2, label: "View in Sentry", style: 5, url: `https://sentry.io/organizations/ocelotworks/issues/?project=228107&query=is%3Aunresolved+user.id%3A${userId}&statsPeriod=14d`}

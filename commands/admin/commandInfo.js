@@ -5,12 +5,15 @@
  *    ════╝
  */
 const Discord = require('discord.js');
+const Strings = require("../../util/String");
 module.exports = {
     name: "Command  Info",
     usage: "command :commandID",
     commands: ["command", "commandinfo", "ci"],
     run: async function (context, bot) {
-        const commandId = context.options.commandID;
+        let commandId = context.options.commandID;
+        if(isNaN(commandId))
+            commandId = Strings.CommandIdToNumber(commandId)
         await context.defer();
         let output = new Discord.MessageEmbed();
         const command = (await bot.database.getCommandById(commandId, process.env.CUSTOM_BOT ? bot.client.user.id : null))[0];
@@ -36,7 +39,7 @@ module.exports = {
         if(user) buttons.push(bot.interactions.suggestedCommand(context, `ui ${user.id}`));
         if(server) buttons.push(bot.interactions.suggestedCommand(context, `si ${server.id}`));
         buttons.push(bot.interactions.suggestedCommand(context, `cd ${command.commandid}`));
-        if(command.type === "message")
+        if(command.type === "message" && command.command.length < 80)
             buttons.push(bot.interactions.fullSuggestedCommand(context, `${command.command.substring(command.command.indexOf(command.commandid))}`));
         return context.send({
             embeds: [output],
