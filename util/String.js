@@ -535,6 +535,13 @@ module.exports = class Strings {
     }
 
 
+    /**
+     * Fills a string with n characters
+     * @param {number} n Amount of characters
+     * @param {string} character The character to use
+     * @returns {string}
+     * @constructor
+     */
     static NCharacters(n, character){
         return Array.from({length: n}, ()=>character).join("")
     }
