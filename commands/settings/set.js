@@ -9,8 +9,32 @@ module.exports = {
     name: "Set Setting",
     usage: "set :setting :value+",
     commands: ["set"],
+    argDescriptions: {
+        setting: {name: "The setting to set", autocomplete: true},
+        value: {name: "The value to set it to", autocomplete: true}
+    },
+    autocomplete: async function(input, interaction, bot) {
+        const focus = interaction.options.getFocused(true).name;
+        // Setting focus
+        if(focus === "setting") {
+            if (input.length === 0)
+                return (await bot.database.getSettingsAssoc()).map((k) => ({name: k.name, value: k.setting}));
+            return (await bot.database.searchSettingAssoc(input)).map((k) => ({name: k.name, value: k.setting}));
+        }
+
+        // Value focus
+        const settingName = interaction.options.getString("setting");
+        const setting = await bot.redis.cache(`assoc/${settingName}`, async ()=>await bot.database.getSettingAssoc(settingName), 60000);
+        switch(setting.type){
+            case "boolean":
+                return [{name: "Enable", value: "on"}, {name: "Disable", value: "off"}];
+            // TODO: There will probably be other types eventually
+            default:
+                return [{name: input, value: input}]
+        }
+    },
     run: async function (context, bot, data) {
-        let setting = await bot.database.getSettingAssoc(context.options.setting);
+        let setting = await bot.redis.cache(`assoc/${context.options.setting}`, async ()=>await bot.database.getSettingAssoc(context.options.setting), 60000);
         if(!setting)return context.send({
             content: `Couldn't find a setting by that name. Try ${context.getSetting("prefix")}settings list`,
             ephemeral: true,

@@ -781,6 +781,10 @@ module.exports = {
                 let value = await knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, setting}).limit(1);
                 return value[0];
             },
+            searchSettingAssoc: function(search){
+                search = `%${search}%`;
+                return knex.select().from("ocelotbot_server_settings_assoc").whereRaw("(`setting` LIKE ? OR `name` LIKE ? OR `desc` LIKE ?)", [search, search, search]).andWhere({settable:1}).limit(1);
+            },
             addSongGuess: async function (user, channel, server, guess, song, correct, elapsed, custom = false) {
                 await knex.insert({user, channel, server, guess, song, correct, elapsed, custom}).into("ocelotbot_song_guess");
             },
