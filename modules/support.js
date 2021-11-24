@@ -4,10 +4,13 @@
  * ╚════ ║   (ocelotbotv5) support
  *  ════╝
  */
+const Sentry = require('@sentry/node');
 const columnify = require('columnify');
 const changePrefix = /.*(change|custom).*prefix.*/gi;
 const domainRegex = /.*(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9].*/i
 const {axios} = require('../util/Http')
+const {NotificationContext} = require("../util/CommandContext");
+const Embeds = require("../util/Embeds");
 module.exports = {
     name: "Support Server Specific Functions",
     init: function (bot) {
@@ -19,14 +22,30 @@ module.exports = {
                         bot.logger.log(`Checking domain in ${message.guild.id}`);
                         let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content}).catch(()=>null);
                         if (result?.data?.match) {
-                            const reportChannel = await message.guild.channels.fetch(message.guild.getSetting("antiphish.channel"));
-                            reportChannel.send(`Possible free nitro spam from ${message.author} (${message.author.id}) in ${message.channel}:\n> ${message.content}\n\`\`\`json\n${JSON.stringify(result.data)}\n\`\`\``);
-                            bot.logger.log(`Deleting possible free nitro message ${message.content}`);
-                            if(message.member.permissions.has("ADMINISTRATOR"))return;
-                            return message.delete();
+                            if (message.guild.getSetting("antiphish.channel")) {
+                                const reportChannel = await message.guild.channels.fetch(message.guild.getSetting("antiphish.channel"));
+                                const isAdmin = message.member.permissions.has("ADMINISTRATOR");
+                                if(!isAdmin)message.delete();
+                                const context = new NotificationContext(bot, reportChannel, message.author, message.member);
+                                const embed = new Embeds.LangEmbed(context);
+                                embed.setTitleLang("PHISHING_DETECTION_TITLE");
+                                embed.setDescriptionLang("PHISHING_DETECTION_DESC", message);
+                                embed.setThumbnail(message.author.avatarURL({size: 128}));
+                                embed.setColor("#ff0000");
+                                if(isAdmin)
+                                    embed.addFieldLang("PHISHING_DETECTION_ADMIN_NAME", "PHISHING_DETECTION_ADMIN_VALUE");
+                                for (let i = 0; i < result.data.matches.length; i++) {
+                                    const match = result.data.matches[i];
+                                    embed.addFieldLang("PHISHING_DETECTION_MATCH_NAME", "PHISHING_DETECTION_MATCH_VALUE", true, {match, index: i+1});
+                                }
+                                embed.setTimestamp(new Date());
+                                reportChannel.send({embeds: [embed]});
+                                bot.logger.log(`Deleting possible free nitro message ${message.content}`);
+                            }
                         }
                     }catch(e){
                         bot.logger.error(e);
+                        Sentry.captureException(e);
                     }
                 }
             }
