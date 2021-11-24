@@ -37,7 +37,7 @@ class CommandContext {
         // Threads (With no guild?)
         if(this.channel?.members?.fetch)
             return this.channel.members.fetch(id).catch(()=>null)
-        return this.channel?.members.get(id);
+        return this.channel?.members?.get(id);
     }
 
     getSetting(setting){
