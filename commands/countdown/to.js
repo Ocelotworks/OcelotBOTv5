@@ -37,11 +37,19 @@ module.exports = {
         if(countdownMessage.length > 2000)
             return context.sendLang({content: "COUNTDOWN_MESSAGE_TOO_LONG"});
 
+        if(!at)
+            return context.sendLang({content: "COUNTDOWN_INVALID_TIME"});
+
+        if (at.getTime() >= 2147483647000)
+            return context.sendLang({content: "COUNTDOWN_TOO_FAR_FUTURE"});
+
+        if (at.getTime() <= 0)
+            return context.sendLang({content: "COUNTDOWN_TOO_FAR_PAST"});
+
         let currentCountdown = await bot.database.getCountdown(id, guild);
 
         if(currentCountdown)
             return context.sendLang({content: "COUNTDOWN_ALREADY_EXISTS", ephemeral: true}, {id});
-
 
         await bot.database.addCountdown(id, guild, context.user.id, at, countdownMessage);
 
