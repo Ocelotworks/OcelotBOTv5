@@ -98,14 +98,13 @@ module.exports = {
             await bot.config.reloadCacheForServer(server);
         };
 
-        let cacheReloads = [];
+        let cacheReloads = {};
 
         bot.bus.on("reloadConfig", (msg) => {
             let guild = msg.payload;
             if(msg.payload.guild)guild = msg.payload.guild;
-            if (guild === "global" || guild == bot.util.shard || bot.client.guilds.cache.has(guild)) {
+            if (guild === "global" || guild === bot.util.shard || bot.client.guilds.cache.has(guild)) {
                 if (cacheReloads[guild]) return;
-
                 cacheReloads[guild] = setTimeout(async function () {
                     if (guild === "global" || guild == bot.util.shard) {
                         await bot.config.loadGlobalCache();

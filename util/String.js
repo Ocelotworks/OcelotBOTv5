@@ -470,6 +470,8 @@ module.exports = class Strings {
                     return Strings.ShortSeconds(output);
                 case "memory":
                     return Strings.PrettyMemory(output);
+                case "truncate":
+                    return Strings.Truncate(output, split[2] || 1024);
                 case "icon":
                     return Icons[output];
                 case "timestamp":
@@ -535,6 +537,13 @@ module.exports = class Strings {
     }
 
 
+    /**
+     * Fills a string with n characters
+     * @param {number} n Amount of characters
+     * @param {string} character The character to use
+     * @returns {string}
+     * @constructor
+     */
     static NCharacters(n, character){
         return Array.from({length: n}, ()=>character).join("")
     }

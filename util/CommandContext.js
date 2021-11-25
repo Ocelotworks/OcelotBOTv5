@@ -37,7 +37,7 @@ class CommandContext {
         // Threads (With no guild?)
         if(this.channel?.members?.fetch)
             return this.channel.members.fetch(id).catch(()=>null)
-        return this.channel?.members.get(id);
+        return this.channel?.members?.get(id);
     }
 
     getSetting(setting){
@@ -70,8 +70,8 @@ class CommandContext {
         return this.send(this.getOptionsOrString(options, values));
     }
 
-    editLang(options, values){
-        return this.edit(this.getOptionsOrString(options, values));
+    editLang(options, values, message){
+        return this.edit(this.getOptionsOrString(options, values), message);
     }
 
     replyLang(options, values){
@@ -402,6 +402,33 @@ class CustomCommandContext extends SyntheticCommandContext {
     }
 }
 
+// Context for interactionless things, e.g reminders firing
+class NotificationContext extends CommandContext {
+    constructor(bot, channel, user, member){
+        super(bot, member, user, channel, channel.guild);
+    }
+
+    async send(options){
+        const message = await this.channel.send(options);
+        if(this.message)
+            this.message.response = message;
+        this.bot.bus.emit("messageSent", message);
+    }
+
+    edit(options, message){
+        if(!message || message.deleted)return this.send(options);
+        return message.edit(options);
+    }
+
+    reply(options){
+        // Can't reply as there is nothing to reply to
+        return this.send(options);
+    }
+
+    defer(options){
+        // Ignore a defer, since the user doesn't know what's happening yet.
+    }
+}
 
 
 
@@ -411,5 +438,6 @@ module.exports = {
     SyntheticCommandContext,
     MessageEditCommandContext,
     MessageCommandContext,
-    InteractionCommandContext
+    InteractionCommandContext,
+    NotificationContext
 }

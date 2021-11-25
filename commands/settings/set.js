@@ -5,6 +5,7 @@
  *  ════╝
  */
 const Strings = require("../../util/String");
+const Discord = require("../../util/Discord");
 module.exports = {
     name: "Set Setting",
     usage: "set :setting :value+",
@@ -40,7 +41,7 @@ module.exports = {
             ephemeral: true,
             components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
         });
-        let cleanValue;
+        let cleanValue, displayValue;
         switch(setting.type){
             case "boolean":
                 cleanValue = Strings.Bools[context.options.value.toLowerCase()]
@@ -57,6 +58,12 @@ module.exports = {
                 if(cleanValue.length > 2000)
                     return context.send({content: "Value must be less than 2000 characters.", ephemeral: true});
                 break;
+            case "role":
+                let role = await Discord.ResolveRole(context.guild, context.options.value)
+                if(!role)return context.send({content: "You must enter a valid role name or ID", ephemeral: true});
+                cleanValue = role.id;
+                displayValue = role.name;
+                break;
             default:
                 bot.logger.warn(`Unknown setting type ${setting.type}`);
                 break;
@@ -65,7 +72,7 @@ module.exports = {
         await bot.config.set(context.guild.id, setting.setting, cleanValue);
         if(typeof cleanValue === "boolean")
             return context.send(`✅ Successfully ${cleanValue ? "enabled" : "disabled"} ${setting.name}.`);
-        return context.send(`✅ Successfully set ${setting.name} to ${cleanValue}`)
+        return context.send(`✅ Successfully set ${setting.name} to ${displayValue || cleanValue}`)
     }
 };
 
