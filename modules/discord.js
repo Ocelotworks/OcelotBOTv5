@@ -47,6 +47,7 @@ module.exports = {
         }
 
         Discord.Message.prototype.replyLang = async function (message, values) {
+            if(!this.channel)return;
             return this.channel.send(this.getLang(message, values));
         };
 
