@@ -262,7 +262,7 @@ module.exports = class DiscordModule {
             });
 
             this.bot.logger.log(`Logged in as ${this.bot.client.user.tag}`);
-            setTimeout(this.updatePresence, 150000);
+            setTimeout(this.updatePresence.bind(this), 150000);
 
             try {
                 this.bot.rabbit.event({"type": "ready"});
