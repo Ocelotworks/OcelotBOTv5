@@ -6,11 +6,13 @@
  */
 const Sentry = require('@sentry/node');
 const columnify = require('columnify');
-const changePrefix = /.*(change|custom).*prefix.*/gi;
-const domainRegex = /.*(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9].*/i
+const config = require('config');
 const {axios} = require('../util/Http')
 const {NotificationContext} = require("../util/CommandContext");
 const Embeds = require("../util/Embeds");
+
+const changePrefix = /.*(change|custom).*prefix.*/gi;
+const domainRegex = /.*(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9].*/i
 module.exports = {
     name: "Support Server Specific Functions",
     init: function (bot) {
@@ -76,18 +78,40 @@ module.exports = {
                     return {type: 4, data: {flags: 64, content: "User has left."}};
 
                 let content = `**Details for ${member.user.tag}:**\nAccount Age: `;
+                try {
+                    const [guildData, drep, ddu] = await Promise.all([
+                        bot.rabbit.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${member.id}') && guild.id !== '${member.guild.id}').map((guild)=>\`\${guild.name} (\${guild.id})\`);`),
+                        axios.get(`https://discordrep.com/api/v3/rep/${member.id}`, {
+                            headers: {
+                                Authorization: config.get("API.discordrep.key")
+                            }
+                        }).catch(() => null),
+                        axios.get(`https://discord.riverside.rocks/check.json.php?id=${member.id}`).catch(() => null)
+                    ]);
 
-                const now = new Date();
-                const accountAge = now-member.user.createdAt;
-                if(accountAge < 3.6e+6)content += "⚠️" // 1 Hour
-                if(accountAge < 8.64e+7)content += "‼️" // 1 Day
-                else if(accountAge < 6.048e+8)content += "❗" // 1 Week
-                else if(accountAge < 2.628e+9)content += "❕" // 1 Month
-                content += `**${bot.util.prettySeconds(accountAge/1000, member.guild.id, member.user)}**\n`;
-                let guildCollection = (await bot.rabbit.broadcastEval(`
-                    this.guilds.cache.filter((guild)=>guild.members.cache.has('${member.id}') && guild.id !== '${member.guild.id}').map((guild)=>\`\${guild.name} (\${guild.id})\`);
-                `)).reduce((a,b)=>a.concat(b), []);
-                content += `Seen: ${guildCollection.length > 0 ? guildCollection.join(", ") : "Nowhere."}\n`;
+                    const now = new Date();
+                    const accountAge = now - member.user.createdAt;
+                    if (accountAge < 3.6e+6) content += "⚠️" // 1 Hour
+                    if (accountAge < 8.64e+7) content += "‼️" // 1 Day
+                    else if (accountAge < 6.048e+8) content += "❗" // 1 Week
+                    else if (accountAge < 2.628e+9) content += "❕" // 1 Month
+                    content += `**${bot.util.prettySeconds(accountAge / 1000, member.guild.id, member.user)}**\n`;
+                    let guildCollection = guildData.reduce((a, b) => a.concat(b), []);
+                    content += `Seen: ${guildCollection.length > 0 ? guildCollection.join(", ") : "Nowhere."}\n`;
+
+                    if (drep.data) {
+                        if (drep.data.downvotes > 0) content += "⚠️"
+                        content += `DiscordRep: ${drep.data.upvotes} UP | ${drep.data.downvotes} DOWN | ${drep.data.xp} XP\n`;
+                    }
+
+                    if (ddu.data) {
+                        if (drep.data.score > 0) content += "⚠️"
+                        content += `DDU: Score: ${drep.data.score} (${drep.data.reports}/${drep.data.total_reports})\n`;
+                    }
+                }catch(e){
+                    bot.logger.log(e);
+                    content += "\n"+e;
+                }
                 return {type: 4, data: {flags: 64, content}}
             }
         }
