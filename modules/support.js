@@ -79,14 +79,19 @@ module.exports = {
 
                 let content = `**Details for ${member.user.tag}:**\nAccount Age: `;
                 try {
-                    const [guildData, drep, ddu] = await Promise.all([
+                    const [guildData, drep, ddu, azrael] = await Promise.all([
                         bot.rabbit.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${member.id}') && guild.id !== '${member.guild.id}').map((guild)=>\`\${guild.name} (\${guild.id})\`);`),
                         axios.get(`https://discordrep.com/api/v3/rep/${member.id}`, {
                             headers: {
                                 Authorization: config.get("API.discordrep.key")
                             }
                         }).catch(() => null),
-                        axios.get(`https://discord.riverside.rocks/check.json.php?id=${member.id}`).catch(() => null)
+                        axios.get(`https://discord.riverside.rocks/check.json.php?id=${member.id}`).catch(() => null),
+                        axios.get(`https://azreal.gg/api/v3/checks/${member.id}`, {
+                            headers: {
+                                Authorization: config.get("API.azrael.key")
+                            }
+                        }).catch(() => null),
                     ]);
 
                     const now = new Date();
@@ -108,6 +113,11 @@ module.exports = {
                         if (drep.data.score > 0) content += "⚠️"
                         content += `DDU: Score: ${drep.data.score} (${drep.data.reports}/${drep.data.total_reports})\n`;
                     }
+
+                    if(azrael.data){
+                        content += `Azrael: ${azrael.data.banned ? "⚠️Banned" : "✅ Not Banned"}\n`;
+                    }
+
                 }catch(e){
                     bot.logger.log(e);
                     content += "\n"+e;
