@@ -67,6 +67,30 @@ module.exports = {
             }
         }
 
+        function viewUserInfo(member){
+            return async (interaction)=>{
+                if(!["145193838829371393", "139871249567318017", "112386674155122688", "145200249005277184"].includes(interaction.member.user.id))
+                    return {type: 4, data: {flags: 64, content: `Wait and a member of staff will be along to verify you shortly.`}};
+                if(member.deleted)
+                    return {type: 4, data: {flags: 64, content: "User has left."}};
+
+                let content = `**Details for ${member.user.tag}:**\nAccount Age: `;
+
+                const now = new Date();
+                const accountAge = now-member.user.createdAt;
+                if(accountAge < 3.6e+6)content += "⚠️" // 1 Hour
+                if(accountAge < 8.64e+7)content += "‼️" // 1 Day
+                else if(accountAge < 6.048e+8)content += "❗" // 1 Week
+                else if(accountAge < 2.628e+9)content += "❕" // 1 Month
+                content += `**${bot.util.prettySeconds(accountAge/1000, member.guild.id, member.user)}**\n`;
+                let guildCollection = (await bot.rabbit.broadcastEval(`
+                    this.guilds.cache.filter((guild)=>guild.members.cache.has('${member.id}') && guild.id !== '${member.guild.id}').map((guild)=>\`\${guild.name} (\${guild.id})\`);
+                `)).reduce((a,b)=>a.concat(b), []);
+                content += `Seen: ${guildCollection.length > 0 ? guildCollection.join(", ") : "Nowhere."}\n`;
+                return {type: 4, data: {flags: 64, content}}
+            }
+        }
+
         bot.client.on("guildMemberAdd", async (member)=>{
             if(member.guild.id !== "322032568558026753" || bot.client.user.id !== "146293573422284800")return;
             try {
@@ -79,8 +103,11 @@ module.exports = {
 
                 let channel = await bot.client.channels.fetch("856658218948624444");
                 member.verifyMessage = await channel.send({
-                    content: `Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.\nAccount created: ${member.user.createdAt}`,
-                    components: [bot.util.actionRow(bot.interactions.addAction("Verify", 1, verify(member), -1, "✅"))]
+                    content: `Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.`,
+                    components: [bot.util.actionRow(
+                        bot.interactions.addAction("Verify", 1, verify(member), -1, "✅"),
+                        bot.interactions.addAction("View Details", 2, viewUserInfo(member), -1, "❓")
+                    )]
                 });
             }catch(e){
                 bot.logger.error(e);

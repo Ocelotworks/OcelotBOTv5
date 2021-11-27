@@ -54,13 +54,13 @@ module.exports = class Interactions{
         delete this.bot.interactions.waiting[id];
     }
 
-    addAction(text, style, callback, timeout = 60000){
+    addAction(text, style, callback, timeout = 60000, emoji){
         const id = uuid();
         this.waiting[id] = callback;
         this.timeouts[id] = {timeout};
         if(timeout > 0)
             this.timeouts[id].timer = setTimeout(this.clearAction, timeout, id);
-        return this.bot.util.buttonComponent(text, style, id);
+        return this.bot.util.buttonComponent(text, style, id, emoji);
     }
 
     addDropdown(placeholder, options, callback, min = 1, max = 3,timeout = 60000){
