@@ -57,7 +57,9 @@ module.exports = class Interactions{
     addAction(text, style, callback, timeout = 60000){
         const id = uuid();
         this.waiting[id] = callback;
-        this.timeouts[id] = {timer: setTimeout(this.clearAction, timeout, id), timeout};
+        this.timeouts[id] = {timeout};
+        if(timeout > 0)
+            this.timeouts[id].timer = setTimeout(this.clearAction, timeout, id);
         return this.bot.util.buttonComponent(text, style, id);
     }
 
