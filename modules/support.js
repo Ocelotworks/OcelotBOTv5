@@ -80,7 +80,7 @@ module.exports = {
                 let channel = await bot.client.channels.fetch("856658218948624444");
                 await channel.send({
                     content: `Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.\nAccount created: ${member.user.createdAt}`,
-                    components: [bot.util.actionRow(bot.interactions.addAction("Verify", 1, verify(member), 1.08e+7, "✅"))]
+                    components: [bot.util.actionRow(bot.interactions.addAction("Verify", 1, verify(member), -1, "✅"))]
                 });
             }catch(e){
                 bot.logger.error(e);
