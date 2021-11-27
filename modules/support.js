@@ -78,7 +78,7 @@ module.exports = {
                 });
 
                 let channel = await bot.client.channels.fetch("856658218948624444");
-                await channel.send({
+                member.verifyMessage = await channel.send({
                     content: `Welcome to the server, <@${member.id}>!\nWe require certain accounts to be screened before joining the server to avoid trolls/spammers. Please wait here and a <@&325967792128131084> or <@&439485569425211392> will be around shortly to let you in.\nAccount created: ${member.user.createdAt}`,
                     components: [bot.util.actionRow(bot.interactions.addAction("Verify", 1, verify(member), -1, "✅"))]
                 });
@@ -86,8 +86,12 @@ module.exports = {
                 bot.logger.error(e);
                 bot.raven.captureException(e);
             }
-        })
+        });
 
+        bot.client.on("guildMemberRemove", async (member)=>{
+            if(member.guild.id !== "322032568558026753" || bot.client.user.id !== "146293573422284800" || !member.verifyMessage)return;
+            member.verifyMessage.delete();
+        })
 
         async function updateLeaderboards() {
             if (bot.config.getBool("global", "leaderboard.enable")) {
