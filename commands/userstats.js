@@ -28,6 +28,7 @@ module.exports = {
         bot.commandCache = {};
 
         bot.bus.on("commandPerformed", async function commandPerformed(context){
+            if(!context.user)return;
             const user = context.user.id;
             if(bot.commandCache[user]){
                 bot.commandCache[user]++;
