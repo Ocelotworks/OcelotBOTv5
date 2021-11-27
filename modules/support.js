@@ -62,6 +62,7 @@ module.exports = {
             return async (interaction)=>{
                 if(!["145193838829371393", "139871249567318017", "112386674155122688", "145200249005277184"].includes(interaction.member.user.id))
                     return {type: 4, data: {flags: 64, content: `Wait and a member of staff will be along to verify you shortly.`}};
+                if(member.deleted)  return {type: 4, data: {flags: 64, content: "User has left."}};
                 await member.roles.remove("856657988629692486", "Verified by "+interaction.member.user.id);
                 return {type: 4, data: {content: `<@${member.id}> has been verified by <@${interaction.member.user.id}>`}};
             }
