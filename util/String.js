@@ -449,7 +449,7 @@ module.exports = class Strings {
      * @constructor
      */
     static Truncate(string, maxWidth){
-        if(!string)return null;
+        if(string === undefined || string === null)return null;
         if(string.length > maxWidth)
             return string.substring(0, maxWidth-3)+"...";
         return string;
