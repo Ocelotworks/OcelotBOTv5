@@ -42,7 +42,7 @@ module.exports = {
                         continue;
                     embed.addField(i[0].toUpperCase() + i.substring(1), `Type \`${context.getSetting("prefix")}${context.command} ${i}\``, true);
                 }
-                embed.addField("Custom", `Type \`${context.command} custom\``, true);
+                embed.addField("Custom", `Type \`${context.getSetting("prefix")}${context.command} custom\``, true);
                 return context.send({embeds: [embed], ephemeral: true});
             }
             let output = "OcelotBOT Help:\n```python\n"
