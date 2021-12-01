@@ -152,7 +152,6 @@ module.exports = {
 
         // Custom Commands Category
         if(context.options.command === "custom" && context.guild){
-
             if(bot.customFunctions.COMMAND[context.guild.id]) {
                 const embed = new Embeds.AuthorEmbed(context);
                 embed.setTitleLang("HELP_CATEGORY_CUSTOM_LABEL");
@@ -173,96 +172,67 @@ module.exports = {
             });
         }
         // Command
-        if (!bot.commandCategories[context.options.command]) {
-            if (!bot.commandUsages[context.options.command]) {
-                return message = await context.sendLang({
-                    content: "COMMANDS_INVALID_CATEGORY",
-                    embeds: [],
-                    components: [dropdown],
-                    ephemeral: true
-                });
-            }
-            let command = bot.commandUsages[context.options.command];
-            let output = `**${command.name} Help:**\n`;
-            if (command.detailedHelp)
-                output += command.detailedHelp + "\n";
-            if (command.commands.length > 1)
-                output += `**Aliases:** ${command.commands.join(", ")}\n`;
-            if (context.getBool(`${context.options.command}.disable`))
-                output += "🚫 This command is **disabled**. You cannot run it here (or maybe anywhere)\n";
-            if (context.getSetting(`${context.options.command}.override`))
-                output += "❓ This command is **overridden**. This usually means it's temporarily disabled.\n";
-            if (context.getSetting(`${context.options.command}.channelDisable`))
-                output += "🚫 This command is **disabled in the following channels**: <#" + context.getSetting(`${context.options.command}.channelDisable`).replace(/,/g, "> <#") + "> \n"; //Genius
-            if (context.getSetting(`${context.options.command}.channelRestriction`))
-                output += "🚫 This command is **restricted to the following channels**: <#" + context.getSetting(`${context.options.command}.channelRestriction`).replace(/,/g, "> <#") + "> \n"; //Genius
-            if (command.hidden)
-                output += ":eyes: This command is **hidden**. How did you find it?\n";
-            if (command.premium)
-                output += `${Icon.premium} This command requires **OcelotBOT Premium**\n`;
-            if (command.vote) {
-                if (context.getSetting("restrictionType") === "vote") {
-                    output += `${Icon.supporter_1} This command requires you to **vote for OcelotBOT** every 24 hours.\n`;
-                } else {
-                    output += `${Icon.supporter_1} This command requires you to **join the Support Server**.\n`;
-                }
-            }
-            if (command.categories.indexOf("nsfw") > -1)
-                output += "🔞 This command is **Not Safe For Work**\n";
-            if (command.unwholesome)
-                output += "⭐ This command can't be used in **Wholesome Mode**\n";
-            if (command.adminOnly)
-                output += `${Icon.ocelotbot} This command is for **Admins Only**\n`;
-            if (command.guildOnly)
-                output += `🚫 This command **cannot be used in a DM Channel**\n`;
-            if (command.noSynthetic)
-                output += `🚫 This command **cannot be used inside a custom command**\n`;
-            if (command.settingsOnly)
-                output += `🔒 This command **can only be used by people with the configured settings role**\n`;
-
-            output += `**Usage:** ${context.getSetting("prefix")}`
-            if (context.interaction && command.slashCategory)
-                output += `${command.slashCategory} `;
-            output += `${context.options.command} ${Strings.PrintCommandUsage(command.pattern)}\n`;
-            if (command.usageExample)
-                output += `**Example:** ${context.getSetting("prefix")}${command.usageExample}\n`;
-
-            return message = await context.send({
-                content: output,
+        if (!bot.commandUsages[context.options.command]) {
+            return message = await context.sendLang({
+                content: "COMMANDS_INVALID_CATEGORY",
                 embeds: [],
                 components: [dropdown],
                 ephemeral: true
             });
         }
-        // Category
-        let unique = []; //ahhh..
-        let output = "";
-        if (context.options.command === "nsfw" && !context.channel.nsfw)
-            output += "# NSFW Commands can only be used in NSFW channels.\n";
-        const prefix = context.getSetting("prefix");
-        let commandUsages = bot.commandUsages;
-        if (context.options.command && bot.commandCategories[context.options.command]) {
-            commandUsages = bot.commandCategories[context.options.command];
-        }
-        for (let i in commandUsages) {
-            if (commandUsages.hasOwnProperty(i) && shouldShowCommand(context, commandUsages[i]) && unique.indexOf(commandUsages[i].name) === -1) {
-                const commandUsage = commandUsages[i];
-                unique.push(commandUsage.name);
-                let usage = commandUsage.usage;
-                if (prefix[prefix.length - 1].match(alphaRegex))
-                    usage[0] = usage[0].toUpperCase();
-                let formattedCommand = `${prefix}${commandUsage.commands[0]}`
-                if (context.interaction && commandUsage.slashCategory)
-                    formattedCommand = `${prefix}${commandUsage.slashCategory} ${commandUsage.commands[0]}`
-                output += `${commandUsages[i].name}:: ${formattedCommand} ${Strings.PrintCommandUsage(commandUsages[i].pattern)}\n`
+        let command = bot.commandUsages[context.options.command];
+        let output = `**${command.name} Help:**\n`;
+        if (command.detailedHelp)
+            output += command.detailedHelp + "\n";
+        if (command.commands.length > 1)
+            output += `**Aliases:** ${command.commands.join(", ")}\n`;
+        if (context.getBool(`${context.options.command}.disable`))
+            output += "🚫 This command is **disabled**. You cannot run it here (or maybe anywhere)\n";
+        if (context.getSetting(`${context.options.command}.override`))
+            output += "❓ This command is **overridden**. This usually means it's temporarily disabled.\n";
+        if (context.getSetting(`${context.options.command}.channelDisable`))
+            output += "🚫 This command is **disabled in the following channels**: <#" + context.getSetting(`${context.options.command}.channelDisable`).replace(/,/g, "> <#") + "> \n"; //Genius
+        if (context.getSetting(`${context.options.command}.channelRestriction`))
+            output += "🚫 This command is **restricted to the following channels**: <#" + context.getSetting(`${context.options.command}.channelRestriction`).replace(/,/g, "> <#") + "> \n"; //Genius
+        if (command.hidden)
+            output += ":eyes: This command is **hidden**. How did you find it?\n";
+        if (command.premium)
+            output += `${Icon.premium} This command requires **OcelotBOT Premium**\n`;
+        if (command.vote) {
+            if (context.getSetting("restrictionType") === "vote") {
+                output += `${Icon.supporter_1} This command requires you to **vote for OcelotBOT** every 24 hours.\n`;
+            } else {
+                output += `${Icon.supporter_1} This command requires you to **join the Support Server**.\n`;
             }
         }
-        return message = await context.sendLang({
-            content: "COMMANDS",
+        if (command.categories.indexOf("nsfw") > -1)
+            output += "🔞 This command is **Not Safe For Work**\n";
+        if (command.unwholesome)
+            output += "⭐ This command can't be used in **Wholesome Mode**\n";
+        if (command.adminOnly)
+            output += `${Icon.ocelotbot} This command is for **Admins Only**\n`;
+        if (command.guildOnly)
+            output += `🚫 This command **cannot be used in a DM Channel**\n`;
+        if (command.noSynthetic)
+            output += `🚫 This command **cannot be used inside a custom command**\n`;
+        if (command.settingsOnly)
+            output += `🔒 This command **can only be used by people with the configured settings role**\n`;
+
+        output += `**Usage:** ${context.getSetting("prefix")}`
+        if (context.interaction && command.slashCategory)
+            output += `${command.slashCategory} `;
+        output += `${context.options.command} ${Strings.PrintCommandUsage(command.pattern)}\n`;
+        if (command.usageExample)
+            output += `**Example:** ${context.getSetting("prefix")}${command.usageExample}\n`;
+
+        return message = await context.send({
+            content: output,
             embeds: [],
-            components: [],
+            components: [dropdown],
             ephemeral: true
-        }, {commands: output});
+        });
+
+
     }
 };
 
