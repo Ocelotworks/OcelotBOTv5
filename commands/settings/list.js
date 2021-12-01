@@ -19,7 +19,7 @@ module.exports = {
         else
             context.options.category = "general";
 
-        let assocs = await bot.database.getSettingsAssocCommands()//await bot.redis.cache(`assoc-types`, async ()=>await bot.database.getSettingsAssocCommands(), 60000);
+        let assocs = await bot.redis.cache(`assoc-types`, async ()=>await bot.database.getSettingsAssocCommands(), 60000);
 
         let message;
         const components = [bot.util.actionRow(bot.interactions.addDropdown("Select Category...", assocs.map((cat) => ({

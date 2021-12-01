@@ -23,8 +23,6 @@ module.exports = {
             return (await bot.database.searchSettingAssoc(input)).map((k) => ({name: k.name, value: k.setting}));
         }
 
-        console.log(interaction);
-
         // Value focus
         const settingName = interaction.options.getString("setting");
         const setting = await bot.redis.cache(`assoc/${settingName}`, async ()=>await bot.database.getSettingAssoc(settingName), 60000);
