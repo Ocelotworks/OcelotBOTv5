@@ -24,10 +24,10 @@ module.exports = {
                         bot.logger.log(`Checking domain in ${message.guild.id}`);
                         let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content}).catch(()=>null);
                         if (result?.data?.match) {
+                            const isAdmin = message.member.permissions.has("ADMINISTRATOR");
+                            if(!isAdmin)message.delete();
                             if (message.guild.getSetting("antiphish.channel")) {
                                 const reportChannel = await message.guild.channels.fetch(message.guild.getSetting("antiphish.channel"));
-                                const isAdmin = message.member.permissions.has("ADMINISTRATOR");
-                                if(!isAdmin)message.delete();
                                 const context = new NotificationContext(bot, reportChannel, message.author, message.member);
                                 const embed = new Embeds.LangEmbed(context);
                                 embed.setTitleLang("PHISHING_DETECTION_TITLE");
