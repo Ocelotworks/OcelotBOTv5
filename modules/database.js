@@ -777,6 +777,12 @@ module.exports = {
             getSettingsAssoc: function(){
                 return knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, chat_settable: 1}).orderBy("order");
             },
+            getSettingsAssocForCommand: function(command){
+                return knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, chat_settable: 1, command}).orderBy("order");
+            },
+            getSettingsAssocCommands: function(){
+                return knex.select("command", knex.raw("COUNT(*)")).from("ocelotbot_server_settings_assoc").where({settable: 1, chat_settable: 1}).groupBy("command").orderByRaw("COUNT(*) DESC");
+            },
             getSettingAssoc: async function(setting){
                 let value = await knex.select().from("ocelotbot_server_settings_assoc").where({settable:1, setting}).limit(1);
                 return value[0];
