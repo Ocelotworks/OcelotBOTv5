@@ -256,6 +256,10 @@ module.exports = class Commands {
             }
             let crc = crc32(fs.readFileSync(module, 'utf8')).toString(16);
             let loadedCommand = require(module);
+            // Class-type
+            if(loadedCommand instanceof Function){
+                loadedCommand = new loadedCommand(this.bot);
+            }
             if (loadedCommand.init && !reload) {
                 try {
                     loadedCommand.init(this.bot);
