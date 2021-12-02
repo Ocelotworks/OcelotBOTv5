@@ -26,11 +26,25 @@ module.exports = {
         // Value focus
         const settingName = interaction.options.getString("setting");
         const setting = await bot.redis.cache(`assoc/${settingName}`, async ()=>await bot.database.getSettingAssoc(settingName), 60000);
+        const guild = interaction.member.guild;
         switch(setting.type){
             case "boolean":
                 return [{name: "Enable", value: "on"}, {name: "Disable", value: "off"}];
-            // TODO: There will probably be other types eventually
+            case "role":
+                const roles = await guild.roles.fetch();
+                return roles.filter((r)=>r.name.toLowerCase().startsWith(input)).map((r)=>({name: r.name, value: r.id}));
+            case "text_channel":
+            case "voice_channel":
+            case "category_channel":
+            case "stage_channel":
+            case "store_channel":
+            case "news_channel":
+            case "channel":
+                const type = setting.type.split("_")[0].toUpperCase();
+                const channels = await guild.channels.fetch();
+                return channels.filter((c)=>(type !== "CHANNEL" && c.type === `GUILD_${type}`) && c.name.toLowerCase().startsWith(input)).map((r)=>({name: "#"+r.name, value: r.id}));
             default:
+                if(input === "")return [];
                 return [{name: input, value: input}]
         }
     },
@@ -63,6 +77,21 @@ module.exports = {
                 if(!role)return context.send({content: "You must enter a valid role name or ID", ephemeral: true});
                 cleanValue = role.id;
                 displayValue = role.name;
+                break;
+            case "text_channel":
+            case "voice_channel":
+            case "category_channel":
+            case "stage_channel":
+            case "store_channel":
+            case "news_channel":
+            case "channel":
+                let channel = await Discord.ResolveChannel(context.guild, context.options.value)
+                if(!channel)return context.send({content: "You must enter a valid channel name or ID. Make sure the channel is visible and accessible to OcelotBOT.", ephemeral: true});
+                const channelType = setting.type.split("_")[0];
+                if(channelType !== "channel" && channel.type !== `GUILD_${channelType.toUpperCase()}`)
+                    return context.send({content: `This setting requires a ${channelType} channel. If you have more than one channel of the same name, tag the correct channel or use the ID.`})
+                cleanValue = channel.id;
+                displayValue = channel.toString();
                 break;
             default:
                 bot.logger.warn(`Unknown setting type ${setting.type}`);

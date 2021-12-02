@@ -14,13 +14,14 @@ module.exports = {
         return context.sendLang({content: "TRADEOFFER_INPUT", ephemeral: true});
     },
     run: function (context, bot) {
-        const fullText = context.options.input;
-        let first = fullText
-        let second = "nothing";
-        if(fullText && fullText.indexOf("/") > -1){
-            const split = fullText.split("/");
+        let first, second;
+        if(context.options.first){
+            first = context.options.first;
+            second = context.options.second;
+        }else {
+            const split = context.options.input.split("/", 1);
             first = split[0].trim();
-            second = split[1].trim();
+            second = split[1]?.trim() || "nothing";
         }
         return Image.ImageProcessor(bot, context,  getTemplate(first, second), "tradeoffer")
     },
