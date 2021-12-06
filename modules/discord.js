@@ -563,7 +563,7 @@ module.exports = class DiscordModule {
     async apiGetGuildRoles(req, res){
         try {
             const guild = await this.bot.client.guilds.fetch(req.params.id);
-            res.json((await guild.roles.fetch()).cache.map(this.bot.util.serialiseRole));
+            res.json((await guild.roles.fetch()).map(this.bot.util.serialiseRole));
         } catch (err) {
             return res.json({err})
         }
