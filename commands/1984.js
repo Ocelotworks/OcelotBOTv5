@@ -1,19 +1,20 @@
 const Image = require('../util/Image');
-module.exports = {
-    name: "1984 Meme",
-    usage: "1984 :input+",
-    detailedHelp: "Makes a 1984 meme image",
-    usageExample: "1984 NSFW commands are only allowed in NSFW channels",
-    requiredPermissions: ["ATTACH_FILES"],
-    commands: ["1984", "984"],
-    rateLimit: 10,
-    categories: ["memes"],
-    argDescriptions: {input: {name: "The contents of the speech bubble"}},
-    slashCategory: "images",
-    handleError: function(context){
+const Command = require("../util/Command");
+module.exports = class NineteenEightyFour extends Command {
+    name = "1984 Meme"
+    usage = "1984 :input+"
+    detailedHelp = "Makes a 1984 meme image"
+    usageExample = "1984 NSFW commands are only allowed in NSFW channels"
+    requiredPermissions = ["ATTACH_FILES"]
+    commands = ["1984", "984"]
+    rateLimit = 10
+    categories = ["memes"]
+    argDescriptions = {input: {name: "The contents of the speech bubble"}}
+    slashCategory = "images"
+    handleError(context){
         return context.sendLang("GENERIC_TEXT");
-    },
-    run: function (context, bot) {
+    }
+    run(context, bot) {
         return Image.ImageProcessor(bot, context, {
             "components": [
                 {
@@ -38,5 +39,5 @@ module.exports = {
                 },
             ]
         }, "shy");
-    },
+    }
 };
