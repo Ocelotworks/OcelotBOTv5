@@ -231,13 +231,6 @@ module.exports = class Commands {
                     this.bot.bus.emit("commandLoadFinished");
                     this.bot.logger.log("Finished loading commands.");
                 })
-
-                this.bot.client.once("ready", () => {
-                    this.bot.rabbit.event({
-                        type: "commandList",
-                        payload: this.bot.commandUsages
-                    })
-                })
             }
         });
     }
@@ -346,12 +339,11 @@ module.exports = class Commands {
                             }
                         })
                     }
+
                     this.bot.commands[commandName] = this.bot.commandObjects[command].run;
-                    this.bot.commandUsages[commandName] = {
-                        id: command,
-                        crc,
-                        ...loadedCommand,
-                    };
+                    loadedCommand.crc = crc;
+                    loadedCommand.id = command;
+                    this.bot.commandUsages[commandName] = loadedCommand;
                 }
             }
         } catch (e) {
