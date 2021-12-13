@@ -1,6 +1,12 @@
-const axios = require('axios');
-const {MessageCommandContext, InteractionCommandContext, SyntheticCommandContext} = require("../util/CommandContext");
+const {SyntheticCommandContext, ButtonInteractionContext, ButtonCommandContext} = require("../util/CommandContext");
 const {v4: uuid} = require('uuid');
+
+const defaultConfig = {
+    "edit": false,
+    "oneShot": true,
+    "allowAnyone": false
+};
+
 module.exports = class Interactions{
     name = "Discord Interactions"
     bot;
@@ -19,34 +25,32 @@ module.exports = class Interactions{
 
         this.addHandler("!", this.handleSuggestedCommand.bind(this));
 
-        // Legacy Interaction handling
-        this.bot.client.on("raw", async (packet)=>{
-            if(packet.t === "INTERACTION_CREATE"){
-                const interaction = packet.d;
-                if(interaction.type !== 3)return;
-                let callback;
-                if(interaction.data.custom_id && this.prefix[interaction.data.custom_id[0]]){
-                    if(this.bot.drain)return;
-                    callback = await this.prefix[interaction.data.custom_id[0]](interaction);
-                }else if(this.waiting[interaction.data.custom_id]) {
-                    callback = (await this.waiting[interaction.data.custom_id](interaction)) || {type: 6};
-                }else{
-                    if(this.bot.drain)return;
-                    callback = {type: 4, data: {flags: 64, content: "Sorry, that button is no longer available."}};
-                }
-                const timeoutData = this.timeouts[interaction.data.custom_id];
-                if(timeoutData){
-                    clearTimeout(timeoutData.timer)
-                    this.timeouts[interaction.data.custom_id] = {timer: setTimeout(this.clearAction, timeoutData.timeout, interaction.data.custom_id), timeout: timeoutData.timeout};
-                }
-                await axios.post(`https://discord.com/api/v8/interactions/${interaction.id}/${interaction.token}/callback`, callback);
-                this.bot.raven.addBreadcrumb({
-                    message: "Interaction",
-                    data: interaction,
-                })
-                this.bot.logger.log({type: "interaction", interaction});
-            }
+        this.bot.client.on("interactionCreate", this.onInteraction.bind(this));
+    }
+
+    async onInteraction(interaction){
+        if(!interaction.isButton() && !interaction.isSelectMenu())return;
+        let context = new ButtonInteractionContext(this.bot, interaction);
+        if(interaction.customId && this.prefix[interaction.customId[0]]){
+            if(this.bot.drain)return;
+            await this.prefix[interaction.customId[0]](interaction, context);
+        }else if(this.waiting[interaction.customId]) {
+            let result = await this.waiting[interaction.customId](interaction, context);
+            if(!result)await interaction.deferUpdate();
+        }else{
+            if(this.bot.drain)return;
+            context.sendLang({content: "GENERIC_BUTTON_UNAVAILABLE", ephemeral: true});
+        }
+        const timeoutData = this.timeouts[interaction.customId];
+        if(timeoutData){
+            clearTimeout(timeoutData.timer)
+            this.timeouts[interaction.customId] = {timer: setTimeout(this.clearAction, timeoutData.timeout, interaction.customId), timeout: timeoutData.timeout};
+        }
+        this.bot.raven.addBreadcrumb({
+            message: "Interaction",
+            data: interaction,
         })
+        this.bot.logger.log({type: "interaction", interaction: this.bot.util.serialiseInteraction(interaction)});
     }
 
     clearAction(id){
@@ -74,39 +78,59 @@ module.exports = class Interactions{
         this.bot.interactions.prefix[id] = callback;
     }
 
-    suggestedCommand(context, command){
-        return this.fullSuggestedCommand(context, `${context.command} ${command}`);
+    suggestedCommand(context, command, config){
+        return this.fullSuggestedCommand(context, `${context.command} ${command}`, config);
     }
 
-    fullSuggestedCommand(context, command){
-        //if(context.interaction)return null;
-        return this.bot.util.buttonComponent(`${context.getSetting("prefix")}${command}`, 2, `!${context.user.id}!${command}`);
+    fullSuggestedCommand(context, command, config = defaultConfig){
+        return this.bot.util.buttonComponent(`${context.getSetting("prefix")}${command}`, 2, `!${context.user.id}!${Interactions.#mapSuggestedCommandConfig(config)}!${command}`);
     }
 
-    async handleSuggestedCommand(interaction){
-        const [userId, command] = interaction.data.custom_id.substring(1).split("!",2);
-        if(interaction.member.user.id !== userId)
-            return {type: 4, data: {flags: 64, content: "Only the user that typed the command can use that button."}};
-        const channel = await this.bot.client.channels.fetch(interaction.message.channel_id);
-        const message = await channel.messages.fetch(interaction.message.id);
-        const member = channel.guild ? channel.isThread() ? await channel.members.fetch(userId) : channel.members.get(userId) : {user: interaction.user}; // Hacky DM support
-        if(!member)
-            return {type: 4, data: {flags: 64, content: "You no longer have access to this channel. This message should never appear. Tell Big P#1843!"}};
-        const synthContext = new SyntheticCommandContext(this.bot, member, member.user, channel, channel.guild, command);
+    static #unmapSuggestedCommandConfig(config){
+        let output = {...defaultConfig};
+        const configOptions = Object.keys(defaultConfig);
+        for(let i = 0; i < configOptions.length; i++){
+            output[configOptions[i]] = !!(config & 1<<i);
+        }
+        return output;
+    }
+
+    static #mapSuggestedCommandConfig(config){
+        let output = 0;
+        const configOptions = Object.keys(defaultConfig);
+        for(let i = 0; i < configOptions.length; i++){
+            output += +config[configOptions[i]]<<i
+        }
+        return output;
+    }
+
+    async handleSuggestedCommand(interaction, context){
+        let [userId, configFlags, command] = interaction.customId.substring(1).split("!",3);
+        if(!command) { // Handle old buttons with no config
+            command = configFlags;
+            configFlags = 2;
+        }
+        const config = Interactions.#unmapSuggestedCommandConfig(configFlags);
+        if(!config.allowAnyone && interaction.user.id !== userId)
+            return context.replyLang({content: "SUGGESTED_COMMAND_USER", ephemeral: true});
+        const {message} = interaction;
+        const synthContext = new ButtonCommandContext(this.bot, interaction, command);
         synthContext.message = message;
-        const context = this.bot.command.initContext(synthContext);
-        // it was all going so well up until this point
-        for(let i = 0; i < message.components.length; i++){
-            for(let j = 0; j < message.components[i].components.length; j++){
-                if(message.components[i].components[j].customId === interaction.data.custom_id) {
-                    message.components[i].components[j].disabled = true;
-                    break;
+        const initContext = this.bot.command.initContext(synthContext);
+        // noinspection ES6MissingAwait
+        if(config.oneShot) {
+            // it was all going so well up until this point
+            for (let i = 0; i < message.components.length; i++) {
+                for (let j = 0; j < message.components[i].components.length; j++) {
+                    if (message.components[i].components[j].customId === interaction.customId) {
+                        message.components[i].components[j].disabled = true;
+                        break;
+                    }
                 }
             }
+            await interaction.update({components: message.components});
         }
-        await message.edit({components: message.components})
-        this.bot.command.runCommand(context);
-        return {type: 6};
+        return this.bot.command.runCommand(initContext)
     }
 
 }

@@ -9,14 +9,14 @@ module.exports = {
     commands: ["tictactoe", "noughtsandcrosses", "ttt"],
     categories: ["games", "fun"],
     init: function(bot){
-        bot.interactions.addHandler("#", async (interaction)=>{
+        bot.interactions.addHandler("#", async (interaction, context)=>{
             // Get the interaction data and validate that the user is supposed to be clicking this
-            const [turnUser, otherUser, gridPosition, turnType] = interaction.data.custom_id.substring(1).split("|");
-            if(turnUser !== interaction.member.user.id && otherUser !== interaction.member.user.id)
-                return {type: 4, data: {flags: 64, content: "You are not a participant in this game of Tic Tac Toe!"}}
+            const [turnUser, otherUser, gridPosition, turnType] = interaction.customId.substring(1).split("|");
+            if(turnUser !== interaction.user.id && otherUser !== interaction.user.id)
+                return context.sendLang({content: "TTT_NOT_PARTICIPANT", ephemeral: true});
 
             if(turnUser !== interaction.member.user.id)
-                return {type: 4, data: {flags: 64, content: "It's currently the other players turn."}}
+                return context.sendLang({content: "TTT_NOT_TURN", ephemeral: true});
 
 
             const nextTurn = turnType === X ? O : X;
@@ -29,16 +29,15 @@ module.exports = {
                 style: buttonStyle,
                 disabled: true,
                 emoji: {name: turnType},
-                custom_id: `#${otherUser}|${turnUser}|${gridPosition}|${nextTurn}`
+                customId: `#${otherUser}|${turnUser}|${gridPosition}|${nextTurn}`
             }
 
             let content = `${X}: <@${turnType === X ? turnUser : otherUser}>\n${O}: <@${turnType === O ? turnUser : otherUser}>\n`;
 
             // Switch the user and turn type for the rest of the buttons
             interaction.message.components.forEach((c) => c.components.forEach((c) => {
-                console.log(c);
-                const [turnUser, otherUser, gridPosition, turnType] = c.custom_id.substring(1).split("|");
-                c.custom_id = `#${otherUser}|${turnUser}|${gridPosition}|${turnType === X ? O : X}`
+                const [turnUser, otherUser, gridPosition, turnType] = c.customId.substring(1).split("|");
+                c.customId = `#${otherUser}|${turnUser}|${gridPosition}|${turnType === X ? O : X}`
             }))
 
             const winner = getWin(interaction.message.components);
@@ -56,13 +55,7 @@ module.exports = {
                 content += `Current Turn: ${nextTurn}`
             }
 
-            // Send the message
-            const channel = await bot.client.channels.fetch(interaction.message.channel_id);
-            let api = new Discord.MessagePayload(channel, {});
-            api.data = {content, components: interaction.message.components};
-            let message = await channel.messages.fetch(interaction.message.id);
-            message.edit(api);
-            return {type: 6};
+            return context.edit({content, components: interaction.message.components});
         })
     },
     run: async function run(context){

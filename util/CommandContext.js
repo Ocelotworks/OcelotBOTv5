@@ -230,35 +230,12 @@ class MessageEditCommandContext extends MessageCommandContext {
     }
 }
 
-class InteractionCommandContext extends CommandContext {
+class InteractionContext extends CommandContext {
     interaction;
 
     constructor(bot, interaction){
         super(bot, interaction.member, interaction.user, interaction.channel, interaction.guild,null, interaction.id);
         this.interaction = interaction;
-        const subCommand = interaction.options?.getSubcommand(false);
-        // TODO: this logic could be simpler
-        if(subCommand){
-            if(this.bot.slashCategories.includes(interaction.commandName)){
-                this.command = subCommand;
-                this.content = `/${interaction.commandName} ${subCommand}`;
-            }else{
-                this.command = interaction.commandName;
-                this.content = `/${interaction.commandName}`
-                this.options.command = subCommand;
-            }
-            interaction.options?.data[0]?.options?.forEach((val)=>{
-                this.options[val.name]=val.value;
-                this.content += ` ${val.name}:${val.value}`
-            });
-        }else {
-            this.command = interaction.commandName;
-            this.content = `/${interaction.commandName}`
-            interaction.options.data?.forEach((val)=>{
-                this.options[val.name]=val.value;
-                this.content += ` ${val.name}:${val.value}`
-            });
-        }
     }
 
     logPerformed(){
@@ -286,6 +263,7 @@ class InteractionCommandContext extends CommandContext {
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         this.bot.bus.emit("messageSent", options);
         if(options?.components)options.components = options.components.filter((c)=>c);
+        options.fetchReply = true;
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
         return this.interaction.reply(options);
@@ -367,7 +345,7 @@ class SyntheticCommandContext extends MessageCommandContext {
     }
 }
 
-const blacklistedSettings = ["premium", "serverPremium", "admin", "ocelotworks"];
+const blacklistedSettings = ["premium", "serverPremium", "admin", "ocelotworks", "feedback.responder"];
 
 class CustomCommandContext extends SyntheticCommandContext {
     overrideSettings;
@@ -430,7 +408,59 @@ class NotificationContext extends CommandContext {
     }
 }
 
+class InteractionCommandContext extends InteractionContext {
+    constructor(bot, interaction){
+        super(bot, interaction);
+        const subCommand = interaction.options?.getSubcommand(false);
+        // TODO: this logic could be simpler
+        if(subCommand){
+            if(this.bot.slashCategories.includes(interaction.commandName)){
+                this.command = subCommand;
+                this.content = `/${interaction.commandName} ${subCommand}`;
+            }else{
+                this.command = interaction.commandName;
+                this.content = `/${interaction.commandName}`
+                this.options.command = subCommand;
+            }
+            interaction.options?.data[0]?.options?.forEach((val)=>{
+                this.options[val.name]=val.value;
+                this.content += ` ${val.name}:${val.value}`
+            });
+        }else {
+            this.command = interaction.commandName;
+            this.content = `/${interaction.commandName}`
+            interaction.options.data?.forEach((val)=>{
+                this.options[val.name]=val.value;
+                this.content += ` ${val.name}:${val.value}`
+            });
+        }
+    }
+}
 
+class ButtonInteractionContext extends InteractionContext {
+    edit(options){
+        return this.interaction.update(options);
+    }
+
+    defer(){
+        if(!this.interaction.deferred)
+            return this.interaction.deferUpdate();
+    }
+}
+
+// Disgusting hybrid between a message command and an interaction
+class ButtonCommandContext extends ButtonInteractionContext {
+    synthetic = true
+
+    constructor(bot, interaction, content) {
+        super(bot, interaction);
+        this.id = "SYNTHETIC"; // todo: make this a better ID
+        this.content = content;
+        this.args = content.split(" ");
+        this.command = this.args[0];
+    }
+
+}
 
 module.exports = {
     CommandContext,
@@ -438,6 +468,9 @@ module.exports = {
     SyntheticCommandContext,
     MessageEditCommandContext,
     MessageCommandContext,
+    InteractionContext,
     InteractionCommandContext,
-    NotificationContext
+    NotificationContext,
+    ButtonInteractionContext,
+    ButtonCommandContext,
 }

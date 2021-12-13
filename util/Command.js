@@ -75,25 +75,33 @@ module.exports = class Command {
     /**
      * An optional middleware that runs for all this and all sub-commands of this command.
      * As with regular Middleware, return false to stop execution of the command.
+     * @function handleError
+     * @abstract
      * @type {null|function(CommandContext, {}):boolean}
      */
-    middleware = null
+
     /**
      * A custom error handler for this command, for syntax errors in the command parsing.
      * `context.error` contains the error information
+     * @function handleError
+     * @abstract
      * @type {null|function(CommandContext)}
      */
-    handleError = null
+
     /**
      * Function called when autocomplete is true on at least one argument
+     * @abstract
+     * @function autocomplete
      * @type {null|function(string, Interaction, {})}
      */
-    autocomplete = null
+
     /**
      * Actually run the command. Required if `nestedDir = null`
+     * @abstract
+     * @function run
      * @type {null|function(CommandContext)}
      */
-    run = null
+
 
     /**
      * The category used as a sub-command for collapsing multiple slash commands into one.

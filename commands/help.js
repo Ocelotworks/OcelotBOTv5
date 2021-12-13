@@ -69,19 +69,23 @@ module.exports = {
     commands: ["help", "commands"],
     categories: ["meta"],
     init: function init(bot) {
-        bot.bus.on("commandLoadFinished", function commandLoadFinished() {
-            bot.logger.log("Generating help categories");
-            bot.commandCategories = {};
-            for (let i in bot.commandUsages) {
-                const commandUsage = bot.commandUsages[i];
-                for (let j = 0; j < commandUsage.categories.length; j++) {
-                    const category = commandUsage.categories[j];
-                    if (bot.commandCategories[category] && !bot.commandCategories[category][commandUsage.id]) {
-                        bot.commandCategories[category][commandUsage.id] = commandUsage;
-                    } else if (!bot.commandCategories[category]) {
-                        bot.commandCategories[category] = {[commandUsage.id]: commandUsage};
+        bot.bus.once("commandLoadFinished",()=>{
+            try {
+                bot.logger.log("Generating help categories");
+                bot.commandCategories = {};
+                for (let i in bot.commandObjects) {
+                    const commandUsage = bot.commandObjects[i];
+                    for (let j = 0; j < commandUsage.categories.length; j++) {
+                        const category = commandUsage.categories[j];
+                        if (bot.commandCategories[category] && !bot.commandCategories[category][commandUsage.id]) {
+                            bot.commandCategories[category][commandUsage.id] = commandUsage;
+                        } else if (!bot.commandCategories[category]) {
+                            bot.commandCategories[category] = {[commandUsage.id]: commandUsage};
+                        }
                     }
                 }
+            }catch(e){
+                console.error(e);
             }
         });
     },
@@ -107,7 +111,7 @@ module.exports = {
 
         let message;
         const dropdown = bot.util.actionRow(bot.interactions.addDropdown("Select Category...", categories, (interaction) => {
-            const categoryID = interaction.data.values[0];
+            const categoryID = interaction.values[0];
             const args = [context.command, categoryID];
             bot.command.runCommand(bot.command.initContext(new MessageEditCommandContext(bot, context.message, message, args, context.command)));
         }, 1, 1))

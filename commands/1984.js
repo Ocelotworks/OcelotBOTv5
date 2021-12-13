@@ -14,8 +14,8 @@ module.exports = class NineteenEightyFour extends Command {
     handleError(context){
         return context.sendLang("GENERIC_TEXT");
     }
-    run(context, bot) {
-        return Image.ImageProcessor(bot, context, {
+    run(context) {
+        return Image.ImageProcessor(this.bot, context, {
             "components": [
                 {
                     "url": "1984.png",
