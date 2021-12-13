@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+let replyMap = {};
 module.exports = {
     name: "Leave Feedback",
     usage: "feedback :message+",
@@ -10,23 +11,20 @@ module.exports = {
     categories: ["meta"],
     commands: ["feedback", "complain", "support", "broken", "broke"],
     init: function init(bot){
-        bot.interactions.addHandler("F", async (interaction)=>{
-            if(!(bot.config.getBool(interaction.guild_id, "admin", interaction.member.user.id)|| bot.config.getBool(interaction.guild_id, "feedback.responder", interaction.member.user.id)))
-                return {type: 4, data: {flags: 64, content: "You're not allowed to use that button"}};
-            const [guildId, channelId] = interaction.data.custom_id.substring(1).split("/");
+        bot.interactions.addHandler("F", async (interaction, context)=>{
+            if(!(context.getBool("admin") || context.getBool("feedback.responder")))
+                return context.sendLang({content: "FEEBDACK_NOT_ALLOWED", ephemeral: true});
+            const [guildId, channelId] = interaction.customId.substring(1).split("/");
             const channel = await bot.client.guilds.fetch(guildId).then((g)=>g.channels.fetch(channelId)).catch(()=>null);
-            if(!channel)return {type: 4, data: {flags: 64, content: "Channel has been deleted or server was left."}};
-            const feedbackChannel = await bot.client.channels.fetch(interaction.channel_id);
-            let thread = await feedbackChannel.threads.create({
+            if(!channel)return context.send({content: "Channel has been deleted or server was left.", ephemeral: true})
+            let thread = await interaction.channel.threads.create({
                 startMessage: interaction.message.id,
                 name: `${channel.guild.name} - ${channel.id}`,
                 autoArchiveDuration: 1440,
                 reason: "Feedback thread requested",
             });
-            thread.send({content: `<@${interaction.member.user.id}>`});
-            let message = await feedbackChannel.messages.fetch(interaction.message.id);
-            message.edit({components: []});
-            return {type: 6};
+            thread.send({content: `<@${interaction.user.id}>`});
+            return context.edit({components: []})
         })
 
         bot.client.on("messageCreate", async (message)=>{
@@ -37,13 +35,34 @@ module.exports = {
             let channelID = message.channel.name.split("-")[1];
             if(!channelID)return;
             let responseChannel = await bot.client.channels.fetch(channelID.trim());
-            responseChannel.sendLang("FEEDBACK_RESPONSE", {
+            if(message.reference){
+                let repliedMessage = replyMap[message.reference.messageId] || (await message.channel.messages.fetch(message.reference.messageId))?.feedbackResponse;
+                if(repliedMessage){
+                    message.feedbackResponse = await repliedMessage.reply(repliedMessage.getLang("FEEDBACK_RESPONSE", {
+                        response: message.content,
+                        admin: message.author.tag,
+                    }))
+                    return;
+                }else{
+                    console.log("no replied message");
+                    console.log(message.reference);
+                }
+            }
+            message.feedbackResponse = await responseChannel.sendLang("FEEDBACK_RESPONSE", {
                 response: message.content,
                 admin: message.author.tag,
             });
+
         })
 
-       // bot.client.on("messageEdited", (oldMessage, newMessage)=>{})
+       bot.client.on("messageUpdate", (oldMessage, newMessage)=>{
+           if(!oldMessage.feedbackResponse)return;
+           oldMessage.feedbackResponse.editLang("FEEDBACK_RESPONSE", {response: newMessage.content, admin: oldMessage.author.tag})
+       });
+        bot.client.on("messageDelete", (message)=>{
+            if(!message.feedbackResponse)return;
+            message.feedbackResponse.delete();
+        })
     },
     run: async function run(context, bot) {
         if(context.getSetting("prefix") === "!" && context.command === "feedback" && context.channel?.members?.has("507970352501227523"))  //Fast Food Bot
@@ -104,11 +123,14 @@ module.exports = {
 
         let webhook = await feedbackChannel.fetchWebhooks().then((w)=>w.first());
 
-        return webhook.send({
+        let result = await webhook.send({
             username: `${await bot.util.getUserTag(context.user.id)} (${context.user.id})`,
             avatarURL: context.user.avatarURL(),
             threadId: thread.id,
             content: feedbackMessage,
-        })
+        });
+        replyMap[result.id] = context.message;
+        setTimeout(()=>delete replyMap[result.id], 360000); // Ah jesus
+        return result;
     }
 };
