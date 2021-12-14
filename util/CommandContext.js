@@ -260,6 +260,8 @@ class InteractionContext extends CommandContext {
                 channel: this.interaction.channelId,
             }
         });
+        if(typeof options === "string")
+            options = {content: options};
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         this.bot.bus.emit("messageSent", options);
         if(options?.components)options.components = options.components.filter((c)=>c);
