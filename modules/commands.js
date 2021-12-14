@@ -231,13 +231,6 @@ module.exports = class Commands {
                     this.bot.bus.emit("commandLoadFinished");
                     this.bot.logger.log("Finished loading commands.");
                 })
-
-                this.bot.client.once("ready", () => {
-                    this.bot.rabbit.event({
-                        type: "commandList",
-                        payload: this.bot.commandUsages
-                    })
-                })
             }
         });
     }
@@ -346,17 +339,17 @@ module.exports = class Commands {
                             }
                         })
                     }
-                    this.bot.commands[commandName] = this.bot.commandObjects[command].run;
-                    this.bot.commandUsages[commandName] = {
-                        id: command,
-                        crc,
-                        ...loadedCommand,
-                    };
+
+                    this.bot.commands[commandName] = command;
+                    loadedCommand.crc = crc;
+                    loadedCommand.id = command;
+                    // TODO: this should be gone
+                    this.bot.commandUsages[commandName] = loadedCommand;
                 }
             }
         } catch (e) {
             console.error(e);
-            this.bot.logger.error("failed to load command");
+            this.bot.logger.error("failed to load command "+command);
             this.bot.logger.error(e);
             Sentry.captureException(e);
         }
@@ -490,8 +483,6 @@ module.exports = class Commands {
                 }, context.error.data);
             }
 
-
-            // TODO: This event
             this.bot.bus.emit("commandPerformed", context);
             Sentry.addBreadcrumb({
                 category: "Command",
@@ -533,8 +524,8 @@ module.exports = class Commands {
                     return await this.bot.commands["nestedCommandHelp"](context, this.bot);
                 }
             }
-
-            return await this.bot.commands[context.command](context, this.bot);
+            let commandId = this.bot.commands[context.command];
+            return await this.bot.commandObjects[commandId].run(context, this.bot);
         } catch (e) {
             console.log(e);
             let exceptionID = Sentry.captureException(e);

@@ -30,7 +30,7 @@ let knex = require('knex')(config.get("Database"));
 let cockroachConfig = {
     ...JSON.parse(JSON.stringify(config.get("Cockroach"))), //hatred
 };
-if(process.env.HOST_LOCATION && cockroachConfig.hosts[process.env.DOCKER_HOST])
+if(process.env.DOCKER_HOST && cockroachConfig.hosts[process.env.DOCKER_HOST])
     cockroachConfig.connection.host = cockroachConfig.hosts[process.env.DOCKER_HOST];
 else
     cockroachConfig.connection.host = cockroachConfig.hosts[Util.ArrayRand(Object.keys(cockroachConfig.hosts))];
@@ -1203,11 +1203,13 @@ module.exports = {
             async getPoll(id){
                 return (await knex.select().where({id}).from("ocelotbot_polls").limit(1))[0];
             },
-            async updatePoll(id, messageID){
-              return knex("ocelotbot_polls").update({messageID}).where({id})
-            },
-            async getPollAnswer(poll, userID){
+            async getPollAnswer(poll, userID, choice){
+                if(choice !== undefined)
+                    return (await knex.select().where({poll, userID, choice}).from("ocelotbot_poll_answers").limit(1))[0];
                 return (await knex.select().where({poll, userID}).from("ocelotbot_poll_answers").limit(1))[0];
+            },
+            async getUniquePollRespondents(poll){
+                return (await knex.select(knex.raw("COUNT(DISTINCT userID) as count")).from("ocelotbot_poll_answers").where({poll}))[0].count;
             },
             async getPollAnswers(poll){
                 return (await knex.select("choice", knex.raw("COUNT(*) as count")).from("ocelotbot_poll_answers").where({poll}).groupBy("choice"))
@@ -1219,6 +1221,18 @@ module.exports = {
                     return knex.insert({poll, userID, choice}).into("ocelotbot_poll_answers");
                 return knex("ocelotbot_poll_answers").update({choice}).where({poll, userID});
             },
+            async deletePollAnswers(poll){
+                return knex("ocelotbot_poll_answers").delete().where({poll});
+            },
+            async togglePollAnswer(poll, userID, choice){
+                let currentAnswer = await bot.database.getPollAnswer(poll, userID, choice);
+                if(!currentAnswer){
+                    await knex.insert({poll, userID, choice}).into("ocelotbot_poll_answers");
+                    return true;
+                }
+                await knex.delete().from("ocelotbot_poll_answers").where({poll, userID, choice}).limit(1);
+                return false;
+            },
             getExpiredPolls(servers){
                 return knex.select().from("ocelotbot_polls").whereIn("serverID", servers).whereNotNull("expires").andWhere("expires", "<", new Date());
             },
@@ -1227,6 +1241,9 @@ module.exports = {
             },
             deletePoll(serverID, id){
                 return knex.delete().from("ocelotbot_polls").where({serverID, id}).limit(1);
+            },
+            updatePoll(serverID, id, update){
+                return knex("ocelotbot_polls").update(update).where({serverID, id}).limit(1);
             },
             addCountdown(id, serverID, userID, target, message){
                 return knex.insert({id, serverID, userID, target, message}).into("ocelotbot_countdowns");

@@ -9,30 +9,29 @@ module.exports = {
     guildOnly: true,
     nestedDir: "events",
     init: function(bot){
-        bot.interactions.addHandler("E", async (interaction)=>{
-            let [eventID, status] = interaction.data.custom_id.substring(1).split(":", 2);
+        bot.interactions.addHandler("E", async (interaction, context)=>{
+            let [eventID, status] = interaction.customId.substring(1).split(":", 2);
 
-            let userResponse = await bot.database.getUserResponse(interaction.member.user.id, eventID);
+            let userResponse = await bot.database.getUserResponse(interaction.user.id, eventID);
 
             if(!userResponse){
-                await bot.database.addUserResponse(interaction.member.user.id, eventID, status);
+                await bot.database.addUserResponse(interaction.user.id, eventID, status);
             }else{
-                await bot.database.updateUserResponse(interaction.member.user.id, eventID, status);
+                await bot.database.updateUserResponse(interaction.user.id, eventID, status);
             }
 
-            let message = await bot.client.channels.fetch(interaction.channel_id).then((c)=>c.messages.fetch(interaction.message.id));
+            let message = await bot.client.channels.fetch(interaction.channelId).then((c)=>c.messages.fetch(interaction.message.id));
 
             let responses = await bot.database.getResponseCounts(eventID);
             let embed = message.embeds[0];
             embed.fields = [];
             for (let i = 0; i < responses.length; i++){
                 const response = responses[i];
-                embed.addField(bot.lang.getTranslation(interaction.guild_id, `EVENTS_${response.status}`, {}, interaction.member.user.id), "" + response.count, true);
+                embed.addField(context.getLang(`EVENTS_${response.status}`), "" + response.count, true);
             }
 
-            await message.edit({embeds: [embed]});
-
-            return {type: 4, data: {flags: 64, content: bot.lang.getTranslation(interaction.guild_id, `EVENTS_STATUS_${status}`, {}, interaction.member.user.id)}};
+            context.edit({embeds: [embed]})
+            return context.sendLang({content: `EVENTS_STATUS_${status}`, ephemeral: true})
         });
     }
 };
