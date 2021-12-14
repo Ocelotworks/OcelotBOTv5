@@ -10,7 +10,7 @@ module.exports = {
     nestedDir: "countdown",
     run: async function run(context, bot) {
         if(!context.options.command || context.options.command === "help"){
-            return bot.commands["nestedCommandHelp"](context, bot);
+            return bot.commandObjects["nestedCommandHelp.js"].run(context, bot);
         }
 
         const countdown = await bot.database.getCountdown(context.options.command.toLowerCase(), context.guild?.id || context.channel.id);

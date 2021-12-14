@@ -521,7 +521,7 @@ module.exports = class Commands {
                         return await context.commandData.subCommands[trueCommand].run(context, this.bot);
                 }
                 if(!this.bot.commands[context.command] || (context.options.command === "help")) {
-                    return await this.bot.commands["nestedCommandHelp"](context, this.bot);
+                    return await this.bot.commandObjects["nestedCommandHelp.js"].run(context, this.bot);
                 }
             }
             let commandId = this.bot.commands[context.command];

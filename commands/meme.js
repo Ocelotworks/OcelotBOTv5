@@ -9,7 +9,7 @@ module.exports = {
     nestedDir: "meme",
     run: async function run(context, bot) {
         if(!context.options.command)
-            return bot.commands["nestedCommandHelp"](context, bot);
+            return bot.commandObjects["nestedCommandHelp.js"].run(context, bot);
         try {
             const memeResult = await bot.database.getMeme(context.options.command?.toLowerCase(), context.message.guild ? context.message.guild.id : "global");
             if (memeResult[0]) {
