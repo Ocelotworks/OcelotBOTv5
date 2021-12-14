@@ -19,7 +19,7 @@ module.exports = {
     },
     run: async function(context, bot) {
         if(!context.options.command)
-            return bot.commands["nestedCommandHelp"](context, bot);
+            return bot.commandObjects["nestedCommandHelp.js"].run(context, bot);
         if(!context.options.user)
             return context.sendLang({
                 content: "BIRTHDAY_USAGE",
