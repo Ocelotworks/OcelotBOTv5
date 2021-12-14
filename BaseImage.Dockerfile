@@ -11,6 +11,7 @@ RUN rm glibc-2.32-r0.apk
 RUN mkdir app
 WORKDIR app
 
+
 RUN mkdir temp
 
 COPY package.json package.json
