@@ -30,7 +30,7 @@ module.exports = {
                 return context.send(":warning: No results.");
             if (song.count)
                 return context.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000, context.guild && context.guild.id, context.user.id)})`);
-            if (song.title.indexOf("-") > -1)
+            if (song.title?.indexOf("-") > -1)
                 return context.send(`:white_check_mark: Added **${song.title}** to the queue.`);
             if (bot.music.listeners[guild].queue.length > 0) {
                 return context.send(`:white_check_mark: Added **${song.author} - ${song.title}** to the queue.`);
