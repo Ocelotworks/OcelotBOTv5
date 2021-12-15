@@ -233,7 +233,7 @@ module.exports = class Util {
             if(!dropdownItems)
                 dropdownItems = Array(Math.min(pages.length, 25)).fill(1).map((_,i)=>({label: `Page ${i+1}`, value: `${i}`}));
             dropdown = bot.interactions.addDropdown("Go to page...", dropdownItems, (interaction)=>{
-                index = parseInt(interaction.data.values[0]);
+                index = parseInt(interaction.values[0]);
                 buildPage();
             }, 0, 1);
         }

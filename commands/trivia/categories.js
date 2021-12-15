@@ -27,7 +27,7 @@ module.exports = {
         }
 
         let message = await context.send({embeds: [embed], ephemeral: true, components: [bot.util.actionRow(bot.interactions.addDropdown("Select Category...", options, (interaction)=>{
-            const categoryID = parseInt(interaction.data.values[0]);
+            const categoryID = parseInt(interaction.values[0]);
             // This is some real funky shit
             const args = [context.command, categoryID];
             bot.command.runCommand(bot.command.initContext(new MessageCommandContext(bot, context.message, args, context.command)));

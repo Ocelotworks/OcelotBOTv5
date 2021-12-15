@@ -195,7 +195,8 @@ module.exports = class DiscordModule {
         if (process.env.GATEWAY) {
             console.log("Using gateway", process.env.GATEWAY);
             clientOpts.http = {
-                api: process.env.GATEWAY
+                api: process.env.GATEWAY,
+                version: 9,
             }
         }
 
