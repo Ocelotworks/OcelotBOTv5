@@ -18,7 +18,7 @@ const llErrors = {
     "TrackExceptionEvent": ":warning: Something happened when I tried to play that song. There could be an issue with Spotify, or with that song in particular. Wait a few minutes and try a different playlist. If the issue persists, use the feedback command to let me know."
 }
 
-const spotifyPlaylist = /.*\/open\.spotify\.com\/playlist\/(.+?)([\/?#]|$)/gi
+const spotifyPlaylist = /.*open\.spotify\.com\/playlist\/(.+?)([\/?#>]|$)/i
 
 
 module.exports = {
@@ -38,56 +38,66 @@ module.exports = {
         "base": {name: "play", description: "Start a guess game"},
     },
     run:  async function run(context, bot) {
-        let playlists = null;
         let playlist;
-        let isCustom = false;
-        if (context.options.command && (playlists = await bot.database.getGuessPlaylist(context.guild.id, context.options.command.toLowerCase())) == null) {
-            let regexResult = spotifyPlaylist.exec(context.options.command);
-            if(regexResult && regexResult[1]){
-                isCustom = true;
-                playlists = regexResult[1];
-            }
-        }
 
-        if(playlists === null) {
-            if(context.options.command)
-                return context.sendLang({content: "SONGGUESS_UNKNOWN_INPUT", ephemeral: true});
-            const playlistId = context.getSetting("songguess.default");
-            bot.logger.log(`Using playlist ID: ${playlistId}`);
-            playlists = await bot.database.getGuessPlaylist(context.guild.id, playlistId);
-        }
+        let {playlists, isCustom} = await getPlaylistId(bot, context);
+
+        console.log(playlists, isCustom);
+
+        if(!playlists)
+            return context.sendLang({content: "SONGGUESS_UNKNOWN_INPUT"});
 
         playlist = bot.util.arrayRand(playlists.split(","));
         bot.logger.log(`Using spotify playlist: ${playlist}`);
 
         if (bot.util.checkVoiceChannel(context.message)) return;
-        if (context.guild.voiceConnection && !bot.voiceLeaveTimeouts[context.member.voice.channel.id] && context.getSetting("songguess.disallowReguess"))return context.sendLang("SONGGUESS_OCCUPIED");
+        if (context.guild.voiceConnection && !bot.voiceLeaveTimeouts[context.member.voice.channel.id] && context.getSetting("songguess.disallowReguess"))
+            return context.sendLang("SONGGUESS_OCCUPIED");
 
+        let playlistData = await getPlaylistData(bot, playlist);
+        if(!playlistData)
+            return context.sendLang({content: "SONGGUESS_TRACK_FAILED"}); // Bad
+        if(playlistData.error)
+            return context.sendLang({content: "SONGGUESS_SPOTIFY_ERROR"}, playlistData.error);
 
         if (module.exports.runningGames[context.guild.id]) {
             if(playlist != module.exports.runningGames[context.guild.id].playlistId){
                 module.exports.runningGames[context.guild.id].playlistId = playlist;
-                let playlistName = context.options.command;
-                if(!context.options.command)
-                    playlistName = context.getSetting("songguess.default");
-                else if(context.options.command.startsWith("http"))
-                    playlistName = "<"+context.options.command+">";
-                else{
-                    let playlistPrettyName = await bot.database.getGuessPlaylistName(context.guild.id, playlistName);
-                    if(!playlistPrettyName)
-                        return context.sendLang("SONGGUESS_NO_PLAYLIST");
-                    return context.sendLang("SONGGUESS_SWITCHED_PLAYLIST", {playlistName: playlistPrettyName})
-                }
-                return context.sendLang("SONGGUESS_SWITCHED_PLAYLIST", {playlistName})
+                return context.sendLang("SONGGUESS_SWITCHED_PLAYLIST", {playlistName: playlistData.name})
             }
             return context.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: module.exports.runningGames[context.guild.id].voiceChannel.name})
         }
-
 
         return startGame(bot, context, playlist, isCustom);
     }
 
 };
+
+async function getPlaylistId(bot, context){
+    if(!context.options.command){
+        const playlistId = context.getSetting("songguess.default");
+        bot.logger.log(`Using default playlist ID: ${playlistId}`);
+        return {
+            custom: false,
+            playlists: await bot.database.getGuessPlaylist(context.guild.id, playlistId)
+        };
+    }
+
+    console.log(context.options.command);
+    let regexResult = spotifyPlaylist.exec(context.options.command);
+    console.log("Regex Result", regexResult);
+    if(regexResult?.[1]){
+        return {
+            custom: true,
+            playlists: regexResult[1]
+        };
+    }
+
+    return {
+        custom: false,
+        playlists: await bot.database.getGuessPlaylist(context.guild.id, context.options.command.toLowerCase())
+    }
+}
 
 async function endGame(bot, id){
     bot.logger.log("Ending game ", id)
@@ -437,6 +447,16 @@ async function getPlaylistLength(bot, playlistId){
         })
         return result.data.total;
     }, 120);
+}
+
+async function getPlaylistData(bot, playlistId){
+    let result = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+        headers: {
+            authorization: `Bearer ${await getToken(bot)}`
+        },
+        validateStatus: ()=>true,
+    })
+    return result.data
 }
 
 
