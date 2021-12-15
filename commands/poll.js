@@ -53,7 +53,7 @@ module.exports = {
                     let embed = message.embeds[0];
                     embed.setDescription(embed.description.split("\n")[0]);
                     embed.setColor("#ff0000");
-                    embed.setFooter("Poll Expired");
+                    embed.setFooter(context.getLang("POLL_EXPIRED"));
                     message.edit({embeds: [embed], components: []}).catch(console.error);
                     bot.database.deletePoll(message.guild.id, pollID);
                     if(answer === "END")
@@ -66,7 +66,7 @@ module.exports = {
                     await bot.database.setPollAnswer(poll.id, interaction.user.id, answer);
 
                 let embed = message.embeds[0];
-                await this.renderPollAnswers(bot, message, poll);
+                await this.renderPollAnswers(bot, message, poll, context);
                 if(poll.expires)
                     embed.description += `\nExpires <t:${Math.floor(poll.expires.getTime() / 1000)}:R>`
                 return context.edit({embeds: [embed]})
@@ -76,17 +76,17 @@ module.exports = {
             }
         })
     },
-    async expirePoll(bot, poll){
+    async expirePoll(bot, poll, context){
         let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
         if(!message)return;
         if(message.author.id !== bot.client.user.id)return;
         let embed = message.embeds[0];
         embed.setDescription(embed.description.split("\n")[0]);
         embed.setColor("#ff0000");
-        embed.setFooter("Poll Expired");
+        embed.setFooter(context ? context.getLang("POLL_EXPIRED") : "Poll Expired."); // TODO: contexts here
         await message.edit({embeds: [embed], components: []}).catch(console.error);
     },
-    async renderPollAnswers(bot, message, poll){
+    async renderPollAnswers(bot, message, poll, context){
         let answers = await bot.database.getPollAnswers(poll.id);
         let totalAnswers = 0;
         const keys = Object.keys(answers);
@@ -96,9 +96,9 @@ module.exports = {
         let embed = message.embeds[0];
         if(poll.multiple){
             let respondents = await bot.database.getUniquePollRespondents(poll.id);
-            embed.description = `${respondents} Respondents / ${totalAnswers} Responses`;
+            embed.description = context.getLang("POLL_RESPONSE_MULTIPLE", {respondents, totalAnswers})
         }else {
-            embed.description = totalAnswers === 1 ? "1 Response" : `${totalAnswers} Responses`;
+            embed.description = context.getLang(totalAnswers === 1 ? "POLL_RESPONSE" : "POLL_RESPONSES");
         }
         let inline = embed.fields.length > 10;
         for(let i = 0; i < embed.fields.length; i++){
@@ -146,7 +146,7 @@ module.exports = {
         }
 
         if(expires != null && expires.getTime() >= 2147483647000){
-            return context.send(`:stopwatch: A poll can't expire on or after the 19th of January 2038. If you need a poll that lasts forever, use **${context.getSetting("prefix")}poll forever, a, b, c**`);
+            return context.sendLang("POLL_EXPIRY_LONG");
         }
 
         const pollID = (await bot.database.createPoll(expires, context.guild.id, context.channel.id, context.user.id))[0]
@@ -164,7 +164,7 @@ module.exports = {
         }
 
         if(!!context.options.multiple){
-            embed.setFooter("Allows Multiple Responses. " + (embed.footer?.text || ""))
+            embed.setFooter(context.getLang("POLL_MULTIPLE_RESPONSES") + (embed.footer?.text || ""))
         }
 
         options = options.filter(o=>o.length);

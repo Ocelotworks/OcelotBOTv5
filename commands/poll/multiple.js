@@ -12,7 +12,7 @@ module.exports = {
         if(!message)return;
         const embed = message.embeds[0];
 
-        embed.setFooter("Allows Multiple Responses. " + (embed.footer?.text || ""));
+        embed.setFooter(context.getLang("POLL_MULTIPLE_RESPONSES") + (embed.footer?.text || ""));
 
         message.edit({embeds: [embed], components: message.components});
 
@@ -21,6 +21,6 @@ module.exports = {
         if(context.message.components){
             context.message.components[1].components[0].disabled = true;
         }
-        return context.edit({content: "Multiple Entries are now allowed.", components: context.message.components});
+        return context.editLang({content: "POLL_ALLOW_MULTIPLE_SUCCESS", components: context.message.components});
     }
 };

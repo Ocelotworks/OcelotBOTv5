@@ -17,7 +17,7 @@ module.exports = {
             embed.setDescription(embed.description.substring(embed.description.indexOf("\n")));
         }else {
             embed.setColor("#d29700");
-            embed.setDescription(`**Poll is currently not accepting entries.**\n${embed.description}`);
+            embed.setDescription(`${context.getLang("POLL_PAUSED")}\n${embed.description}`);
         }
         for (let i = 0; i < message.components.length; i++) {
             for (let j = 0; j < message.components[i].components.length; j++) {
