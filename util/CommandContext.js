@@ -440,7 +440,9 @@ class InteractionCommandContext extends InteractionContext {
 }
 
 class ButtonInteractionContext extends InteractionContext {
-    edit(options){
+    edit(options, message){
+        if(message)
+            return message.edit(options);
         return this.interaction.update(options);
     }
 
