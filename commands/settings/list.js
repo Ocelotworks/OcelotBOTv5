@@ -28,7 +28,7 @@ module.exports = {
             value: cat.command,
             default: context.options.category === cat.command,
         })), (interaction) => {
-            const categoryID = interaction.data.values[0];
+            const categoryID = interaction.values[0];
             const args = [context.command, "list", categoryID];
             bot.command.runCommand(bot.command.initContext(new MessageEditCommandContext(bot, context.message, message, args, context.command)));
         }, 1, 1))]

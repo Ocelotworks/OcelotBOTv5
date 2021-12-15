@@ -63,10 +63,9 @@ module.exports = {
 
             let answerMap = {};
             let userAnswers = {};
-            function recordAnswer(interaction){
-                console.log(interaction);
-                userAnswers[interaction.member.user.id] = answerMap[interaction.data.custom_id];
-                return {type: 4, data: {flags: 64, content: `✅ You have selected: ${answerMap[interaction.data.custom_id]}`}};
+            function recordAnswer(interaction, context){
+                userAnswers[interaction.user.id] = answerMap[interaction.customId];
+                return context.send({content: `✅ You have selected: ${answerMap[interaction.customId]}`, ephemeral: true})
             }
 
             // Annoying
