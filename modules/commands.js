@@ -497,7 +497,7 @@ module.exports = class Commands {
                     server:  context.guild?.id
                 }
             });
-
+            let commandId = this.bot.commands[context.command];
             if(context.commandData.subCommands){
                 let parsedInput;
 
@@ -520,11 +520,10 @@ module.exports = class Commands {
                     if (!parsedInput || !parsedInput.error)
                         return await context.commandData.subCommands[trueCommand].run(context, this.bot);
                 }
-                if(!this.bot.commands[context.command] || (context.options.command === "help")) {
+                if(!this.bot.commandObjects[commandId].run || (context.options.command === "help")) {
                     return await this.bot.commandObjects["nestedCommandHelp.js"].run(context, this.bot);
                 }
             }
-            let commandId = this.bot.commands[context.command];
             return await this.bot.commandObjects[commandId].run(context, this.bot);
         } catch (e) {
             console.log(e);
