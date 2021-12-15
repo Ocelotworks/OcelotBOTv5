@@ -1522,6 +1522,7 @@ module.exports = {
                 id: interaction.id,
                 type: interaction.type,
                 timestamp: interaction.createdTimestamp,
+                component: interaction.component,
             }
         }
 
