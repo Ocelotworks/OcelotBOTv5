@@ -33,7 +33,8 @@ class LangEmbed extends Discord.MessageEmbed {
 class AuthorEmbed extends LangEmbed {
     constructor(context) {
         super(context);
-        this.setAuthor(context.user.username, context.user.avatarURL({size: 32, format: "png", dynamic: true}));
+        if(context.user)
+            this.setAuthor(context.user.username, context.user.avatarURL({size: 32, format: "png", dynamic: true}));
     }
 }
 
