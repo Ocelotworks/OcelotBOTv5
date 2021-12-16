@@ -13,12 +13,12 @@ module.exports = {
             ephemeral: true,
             components: [
                 bot.util.actionRow(
-                    button(bot, context, "pause", id, poll.paused ? "Resume Entries" : "Pause Entries"),
-                    button(bot, context, "end", id, "End Poll", 4),
+                    button(bot, context, "pause", id, poll.paused ? "POLL_RESUME" : "POLL_PAUSE"),
+                    button(bot, context, "end", id, "POLL_END", 4),
                 ),
                 bot.util.actionRow(
-                    button(bot, context, "multiple", id, "Allow Multiple", 3, poll.multiple),
-                    button(bot, context, "reset", id, "Reset Votes", 4),
+                    button(bot, context, "multiple", id, "POLL_ALLOW_MULTIPLE", 3, poll.multiple),
+                    button(bot, context, "reset", id, "POLL_RESET", 4),
                    //button(bot, context, "votes", id, "Show Votes", 1),
                 ),
                 // bot.util.actionRow(
@@ -36,7 +36,7 @@ module.exports = {
 
 function button(bot, context, command, id, label, style = 2, disabled = false){
     let button = bot.interactions.suggestedCommand(context, `${command} ${id}`, {oneShot: false});
-    button.label = label;
+    button.label = context.getLang(label);
     button.style = style;
     button.disabled = disabled;
     return button;

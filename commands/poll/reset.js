@@ -17,6 +17,6 @@ module.exports = {
 
         message.edit({embeds: message.embeds});
 
-        return context.reply({content: "The poll's answers have been cleared.", ephemeral: true});
+        return context.editLang({content: "POLL_RESET_SUCCESS", ephemeral: true});
     }
 };

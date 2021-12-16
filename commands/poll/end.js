@@ -10,6 +10,6 @@ module.exports = {
 
         await Promise.all([context.commandData.expirePoll(bot, poll), bot.database.deletePoll(context.guild.id, id)]);
 
-        return context.edit({content: "Poll Ended.", components: []}); // TODO: maybe print out final readings here?
+        return context.editLang({content: "POLL_ENDED", components: []}); // TODO: maybe print out final readings here?
     }
 };

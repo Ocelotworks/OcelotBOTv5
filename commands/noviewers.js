@@ -8,7 +8,7 @@ module.exports = {
     run: async function run(context, bot) {
         let result = await bot.util.getJson("https://nobody.live/stream");
         let embed = new Discord.MessageEmbed();
-        embed.setTitle(result.title);
+        embed.setTitle(result.title || `${result.user_name}'s Stream`);
         embed.setColor("#6441a5");
         embed.setAuthor(result.user_name, "https://assets.help.twitch.tv/Glitch_Purple_RGB.png");
         embed.setImage(result.thumbnail_url.replace("{width}", 800).replace("{height}", 600))
