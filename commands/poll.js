@@ -98,7 +98,7 @@ module.exports = {
             let respondents = await bot.database.getUniquePollRespondents(poll.id);
             embed.description = context.getLang("POLL_RESPONSE_MULTIPLE", {respondents, totalAnswers})
         }else {
-            embed.description = context.getLang(totalAnswers === 1 ? "POLL_RESPONSE" : "POLL_RESPONSES");
+            embed.description = context.getLang(totalAnswers === 1 ? "POLL_RESPONSE" : "POLL_RESPONSES", {num: totalAnswers});
         }
         let inline = embed.fields.length > 10;
         for(let i = 0; i < embed.fields.length; i++){
