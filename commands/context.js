@@ -69,9 +69,9 @@ module.exports = {
         let cancelTimer = setTimeout(cancel, 32000)
 
         if(messageID[0]){
-            const up = bot.interactions.addAction("⬆", 1, shiftUp, 120000, context.id);
-            const reset = bot.interactions.addAction("⏹", 1, resetPos, 120000, context.id);
-            const down = bot.interactions.addAction("⬇", 1, shiftDown, 120000, context.id);
+            const up = bot.interactions.addAction("⬆", 1, shiftUp, 120000);
+            const reset = bot.interactions.addAction("⏹", 1, resetPos, 120000);
+            const down = bot.interactions.addAction("⬇", 1, shiftDown, 120000);
             sentMessage = await context.send({content: await generateOutput(), components: [bot.util.actionRow(up, reset, down)]});
             return;
         }
@@ -82,7 +82,7 @@ module.exports = {
 
         return context.send({content: "Topic not found in database.", embeds:[{
             image: {
-                url: "https://wompampsupport.azureedge.net/fetchimage?siteId=7575&v=2&jpgQuality=100&width=700&url=https%3A%2F%2Fi.kym-cdn.com%2Fentries%2Ficons%2Ffacebook%2F000%2F023%2F967%2Fobiwan.jpg"
+                url: "https://media0.giphy.com/media/6uGhT1O4sxpi8/giphy.gif"
             }
         }]})
     }
