@@ -22,7 +22,35 @@ module.exports = {
         });
 
         bot.api.get("/commands", (req, res) => {
-            res.json(bot.commandObjects);
+            res.json(Object.keys(bot.commandObjects).map((command)=>{
+                let cd = bot.commandObjects[command];
+                return {
+                    name: cd.name,
+                    usage: cd.usage,
+                    detailedHelp: cd.detailedHelp,
+                    usageExample: cd.usageExample,
+                    responseExample: cd.responseExample,
+                    categories: cd.categories,
+                    commands: cd.commands,
+                    requiredPermissions: cd.requiredPermissions,
+                    userPermissions: cd.userPermissions,
+                    slashCategory: cd.slashCategory,
+                    argDescriptions: cd.argDescriptions,
+                    contextMenu: cd.contextMenu,
+                    premium: cd.premium,
+                    vote: cd.vote,
+                    hidden: cd.hidden,
+                    slashHidden: cd.slashHidden,
+                    disabled: cd.disabled,
+                    unwholesome: cd.unwholesome,
+                    adminOnly: cd.adminOnly,
+                    guildOnly: cd.guildOnly,
+                    settingsOnly: cd.settingsOnly,
+                    noSynthetic: cd.noSynthetic,
+                    pattern: cd.pattern,
+                    subCommands: cd.subCommands
+                }
+            }));
         })
 
         bot.api.get("/metrics", (req, res) => {
