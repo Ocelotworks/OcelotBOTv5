@@ -61,21 +61,21 @@ module.exports = {
         });
 
         function verify(member){
-            return async (interaction)=>{
+            return async (interaction, context)=>{
                 if(!["145193838829371393", "139871249567318017", "112386674155122688", "145200249005277184"].includes(interaction.member.user.id))
-                    return {type: 4, data: {flags: 64, content: `Wait and a member of staff will be along to verify you shortly.`}};
-                if(member.deleted)  return {type: 4, data: {flags: 64, content: "User has left."}};
+                    return context.send({content: "Wait and a member of staff will be along to verify you shortly.", ephemeral: true});
+                if(member.deleted) return context.send({content: "User has left.", ephemeral: true});
                 await member.roles.remove("856657988629692486", "Verified by "+interaction.member.user.id);
-                return {type: 4, data: {content: `<@${member.id}> has been verified by <@${interaction.member.user.id}>`}};
+                return context.send({content: `<@${member.id}> has been verified by <@${interaction.member.user.id}>`});
             }
         }
 
         function viewUserInfo(member){
-            return async (interaction)=>{
+            return async (interaction, context)=>{
                 if(!["145193838829371393", "139871249567318017", "112386674155122688", "145200249005277184"].includes(interaction.member.user.id))
-                    return {type: 4, data: {flags: 64, content: `Wait and a member of staff will be along to verify you shortly.`}};
+                    return context.send({content: "Wait and a member of staff will be along to verify you shortly.", ephemeral: true})
                 if(member.deleted)
-                    return {type: 4, data: {flags: 64, content: "User has left."}};
+                    return context.send({content: "User has left.", ephemeral: true});
 
                 let content = `**Details for ${member.user.tag}:**\nAccount Age: `;
                 try {
@@ -122,14 +122,14 @@ module.exports = {
                     bot.logger.log(e);
                     content += "\n"+e;
                 }
-                return {type: 4, data: {flags: 64, content}}
+                return context.send({content, ephemeral: true});
             }
         }
 
         bot.client.on("guildMemberAdd", async (member)=>{
             if(member.guild.id !== "322032568558026753" || bot.client.user.id !== "146293573422284800")return;
             try {
-                const commandCount = (await bot.database.getUserStats(member.id))[0].commandCount;
+                const commandCount = (await bot.database.getUserStats(member.id))[0].count;
                 if (commandCount > 0) return;
                 bot.logger.log("Found suspicious account " + member.id);
                 await member.edit({
