@@ -21,13 +21,19 @@ module.exports = {
             if(message.guild && !message.author.bot && message.guild.getBool("antiphish")){
                 if(domainRegex.exec(message.content)){
                     try {
-                        bot.logger.log(`Checking domain in ${message.guild.id}`);
+                        bot.logger.warn(`Checking domain in ${message.guild.id} (${message.content})`);
                         let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content}).catch(()=>null);
                         if (result?.data?.match) {
+                            bot.logger.warn(`Deleting possible free nitro message ${message.content}`);
                             const isAdmin = message.member.permissions.has("ADMINISTRATOR");
                             if(!isAdmin)message.delete();
                             if (message.guild.getSetting("antiphish.channel")) {
-                                const reportChannel = await message.guild.channels.fetch(message.guild.getSetting("antiphish.channel"));
+                                let channelSetting = message.guild.getSetting("antiphish.channel");
+                                let reportChannel = await message.guild.channels.fetch(channelSetting).catch(()=>null);
+                                if(!reportChannel)
+                                    reportChannel = await message.guild.channels.fetch().then((cs)=>cs.find((c)=>c.name === channelSetting)).catch(()=>null);
+                                if(!reportChannel)
+                                    return bot.logger.warn(`Report channel ${channelSetting} couldn't be found`);
                                 const context = new NotificationContext(bot, reportChannel, message.author, message.member);
                                 const embed = new Embeds.LangEmbed(context);
                                 embed.setTitleLang("PHISHING_DETECTION_TITLE");
@@ -42,7 +48,7 @@ module.exports = {
                                 }
                                 embed.setTimestamp(new Date());
                                 reportChannel.send({embeds: [embed]});
-                                bot.logger.log(`Deleting possible free nitro message ${message.content}`);
+
                             }
                         }
                     }catch(e){
