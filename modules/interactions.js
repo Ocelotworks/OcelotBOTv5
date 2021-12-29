@@ -42,7 +42,7 @@ module.exports = class Interactions{
             context.sendLang({content: "GENERIC_BUTTON_UNAVAILABLE", ephemeral: true});
         }
         const timeoutData = this.timeouts[interaction.customId];
-        if(timeoutData){
+        if(timeoutData?.timer){
             clearTimeout(timeoutData.timer)
             this.timeouts[interaction.customId] = {timer: setTimeout(this.clearAction, timeoutData.timeout, interaction.customId), timeout: timeoutData.timeout};
         }
@@ -70,7 +70,8 @@ module.exports = class Interactions{
     addDropdown(placeholder, options, callback, min = 1, max = 3,timeout = 60000){
         const id = uuid();
         this.waiting[id] = callback;
-        this.timeouts[id] = {timer: setTimeout(this.clearAction, timeout, id), timeout};
+        if(timeout > 0)
+            this.timeouts[id] = {timer: setTimeout(this.clearAction, timeout, id), timeout};
         return {type: 3, custom_id: id, options, placeholder, min_values: min, max_values: max}
     }
 
