@@ -447,7 +447,7 @@ class ButtonInteractionContext extends InteractionContext {
     }
 
     defer(){
-        if(!this.interaction.deferred)
+        if(!this.interaction.deferred && !this.interaction.replied)
             return this.interaction.deferUpdate();
     }
 }
