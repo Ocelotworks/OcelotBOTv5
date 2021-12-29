@@ -116,11 +116,11 @@ module.exports = {
                     }
 
                     if (ddu.data) {
-                        if (drep.data.score > 0) content += "⚠️"
-                        content += `DDU: Score: ${drep.data.score} (${drep.data.reports}/${drep.data.total_reports})\n`;
+                        if (ddu.data.score > 0) content += "⚠️"
+                        content += `DDU: Score: ${ddu.data.score} (${ddu.data.reports}/${ddu.data.total_reports})\n`;
                     }
 
-                    if(azrael.data){
+                    if(azrael?.data){
                         content += `Azrael: ${azrael.data.banned ? "⚠️Banned" : "✅ Not Banned"}\n`;
                     }
 
