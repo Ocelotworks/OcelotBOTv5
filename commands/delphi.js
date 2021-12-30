@@ -17,6 +17,6 @@ module.exports = {
         if(result?.data?.answer?.text)
             return context.send({content: `> ${context.options.question}\n_${result.data.answer.text}_`});
         bot.logger.log(result?.data);
-        return context.send({content: "Couldn't answer that question. Try something else."});
+        return context.sendLang({content: "DELPHI_UNANSWERABLE"});
     }
 };

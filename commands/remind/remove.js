@@ -1,3 +1,4 @@
+const Strings = require("../../util/String");
 module.exports = {
     name: "Remove Reminder",
     usage: "remove :0id",
@@ -33,6 +34,6 @@ module.exports = {
         if (context.commandData.recurringReminders[context.options.id]) {
             context.commandData.recurringReminders[context.options.id].clear();
         }
-        return context.send("Successfully removed reminder " + context.options.id);
+        return context.send(`Successfully removed reminder ${context.options.id} '${Strings.Truncate(reminder.message, 128)}'`);
     }
 };

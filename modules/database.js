@@ -1278,6 +1278,12 @@ module.exports = {
             getResponseCounts(eventID){
                 return knex.select("status", knex.raw("count(*) as count")).from("ocelotbot_events_users").where({eventID}).groupBy("status")
             },
+            incrementStat(serverid, userid, statistic, value = 1){
+                return knockroach.insert({serverid, userid, statistic, value})
+                    .into("statistics")
+                    .onConflict(["serverid", "userid", "statistic"])
+                    .merge({value: knex.raw("statistics.value + excluded.value")});
+            },
             // This should probably be a worker
             async dataExport(userID){
                 bot.logger.log("Starting data export...");

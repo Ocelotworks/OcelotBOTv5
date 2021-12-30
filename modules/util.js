@@ -1452,11 +1452,11 @@ module.exports = {
             return {
                 id: member.id,
                 bot: member.user.bot,
-                avatar: member.user.avatarURL({size: 32, format: "png"}),
+                avatar: member.user?.avatarURL({size: 32, format: "png"}),
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
-                roles: member.roles.cache.map(bot.util.serialiseRole),
+                roles: member.roles?.cache.map(bot.util.serialiseRole),
             }
         }
 
