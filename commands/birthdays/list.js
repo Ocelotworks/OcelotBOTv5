@@ -4,8 +4,8 @@
  * ╚════ ║   (ocelotbotv5) list
  *  ════╝
  */
-const columnify = require('columnify');
 const Util = require("../../util/Util");
+const Strings = require("../../util/String");
 module.exports = {
     name: "List Birthdays",
     usage: "list",
@@ -19,7 +19,7 @@ module.exports = {
 
         let header = await context.getLang(context.getSetting("birthday.channel") ? "BIRTHDAY_CHANNEL" : "BIRTHDAY_CHANNEL_NAG", {channel: context.getSetting("birthday.channel"), arg: context.command});
 
-        header += "\n```asciidoc\n";
+        header += "\n";
 
         allBirthdays = allBirthdays.map((birthday) => {
             let d = birthday.birthday; //Yes
@@ -47,7 +47,7 @@ module.exports = {
                 else
                     days = context.getLang(days !== 1 ? "BIRTHDAY_DAYS" : "BIRTHDAY_DAY", {days});
                 formatted.push({
-                    "user ::": `${user.username}#${user.discriminator} ::`,
+                    user: `${user.username}#${user.discriminator}`.red,
                     birthday: await bot.lang.getTranslation(context.guild.id, "BIRTHDAY_DATE", {
                         day: bot.util.getNumberPrefix(d.getDate()),
                         month: bot.util.months[d.getMonth()]
@@ -56,7 +56,7 @@ module.exports = {
                 });
             }
 
-            return {content: header + columnify(formatted) + "\n```"};
+            return {content: header + Strings.Columnify(formatted)};
         });
     }
 };
