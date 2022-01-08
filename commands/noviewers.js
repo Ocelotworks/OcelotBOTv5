@@ -7,10 +7,11 @@ module.exports = {
     commands: ["noviews", "zeroviews", "noviewers"],
     run: async function run(context, bot) {
         let result = await bot.util.getJson("https://nobody.live/stream");
+        result = result[0];
         let embed = new Discord.MessageEmbed();
         embed.setTitle(result.title || `${result.user_name}'s Stream`);
         embed.setColor("#6441a5");
-        embed.setAuthor(result.user_name, "https://assets.help.twitch.tv/Glitch_Purple_RGB.png");
+        embed.setAuthor(result.user_name || "A Twitch User", "https://assets.help.twitch.tv/Glitch_Purple_RGB.png");
         embed.setImage(result.thumbnail_url.replace("{width}", 800).replace("{height}", 600))
         embed.setDescription(`${result.user_name} is streaming ${result.game_name} to ${result.viewer_count} viewers. [Watch](https://twitch.tv/${result.user_name})`);
         embed.setTimestamp(new Date(result.started_at))
