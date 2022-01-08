@@ -37,12 +37,13 @@ module.exports = class RabbitMQ {
         this.createPubsub = this.createPubsub.bind(this);
     }
 
-    async init(bot){
+    init(bot){
         bot.drain = false;
         bot.rabbit = this;
-        await this.initRabbit();
-        this.initClientEvents();
-        this.initBusEvents();
+        this.initRabbit().then(()=>{
+            this.initClientEvents();
+            this.initBusEvents();
+        });
     }
 
     async initRabbit(){
