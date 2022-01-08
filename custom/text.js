@@ -1,6 +1,6 @@
 module.exports = {
     type: "text",
-    run: function(message, response, bot){
-        return message.channel.send(response.content);
+    run: function(context, response, bot){
+        return context.send(response.content);
     }
 }

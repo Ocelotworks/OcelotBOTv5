@@ -48,6 +48,7 @@ module.exports = class Commands {
         this.bot.client.on("interactionCreate", this.onContextInteraction.bind(this));
         this.bot.client.on("interactionCreate", this.onAutocompleteInteraction.bind(this));
 
+        this.bot.api.post("/command", this.onHttpCommand.bind(this));
 
         this.bot.runCommand = this.runCommand.bind(this);
         this.bot.addCommandMiddleware = this.addCommandMiddleware.bind(this);
@@ -175,6 +176,10 @@ module.exports = class Commands {
             return interaction.respond(await commandData.autocomplete(interaction.options.getFocused(), interaction, this.bot))
         this.bot.logger.warn(`Autocomplete triggered for function with no autocomplete capability ${interaction.commandName} ${subCommand}`);
         return interaction.respond([]);
+    }
+
+    onHttpCommand(req, res){
+
     }
 
     /**
@@ -311,7 +316,7 @@ module.exports = class Commands {
                     }
                     // Discord forces me to do this dumb workaround because you can't have a slash command with sub commands and other commands
                     let otherOptions = Util.PatternToOptions(loadedCommand.pattern.filter((p)=>p.name != "command"), loadedCommand.argDescriptions);
-                    if(otherOptions.length > 0) {
+                    if(otherOptions.length > 0 || loadedCommand.argDescriptions?.base) {
                         loadedCommand.slashOptions.push({
                             name: loadedCommand.argDescriptions?.["base"]?.name || "base",
                             description: loadedCommand.argDescriptions?.["base"]?.description || "Arguments that aren't on any subcommand",
@@ -462,7 +467,7 @@ module.exports = class Commands {
                 context.logPerformed();
                 // todo: custom command context
 
-                return await this.bot.util.runCustomFunction(customCommand, context.message)
+                return await this.bot.util.runCustomFunction(customCommand, context)
             }
 
             context.logPerformed();
