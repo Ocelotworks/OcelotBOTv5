@@ -1440,7 +1440,7 @@ module.exports = {
         bot.util.serialiseUser = function serialiseUser(user) {
             if(!user) return null;
             return {
-                avatar: user.avatarURL({size: 32, format: "png"}),
+                avatar: user.displayAvatarURL({size: 32, format: "png"}),
                 id: user.id,
                 username: user.username,
                 bot: user.bot,
@@ -1452,7 +1452,7 @@ module.exports = {
             return {
                 id: member.id,
                 bot: member.user.bot,
-                avatar: member.user?.avatarURL({size: 32, format: "png"}),
+                avatar: member.displayAvatarURL({size: 32, format: "png"}),
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
