@@ -276,7 +276,8 @@ module.exports = class RabbitMQ {
         if(!context.message)return;
         this.emit("commandPerformed", {
             command: context.command,
-            message: this.#getSafeMessage(context.message),
+            message: context.message && this.#getSafeMessage(context.message),
+            interaction: context.interaction && this.bot.util.serialiseInteraction(context.interaction)
         });
     }
 
