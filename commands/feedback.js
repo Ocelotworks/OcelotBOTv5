@@ -92,7 +92,7 @@ module.exports = {
                 if(!channel)return context.send({content: "Channel has been deleted or server was left.", ephemeral: true});
                 return channel.threads.create({
                     startMessage: context.message.id,
-                    name: `${channel.guild.name} - ${channel.id}`,
+                    name: `${channel.guild.name.replace(/-/g, "_")} - ${channel.id}`,
                     autoArchiveDuration: 1440,
                     reason: "Feedback thread requested",
                 }).then((t)=>t.send({content: `<@${context.user.id}>`}));
