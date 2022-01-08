@@ -33,6 +33,8 @@ module.exports = class RabbitMQ {
 
     constructor(bot){
         this.bot = bot;
+        this.emit = this.emit.bind(this);
+        this.createPubsub = this.createPubsub.bind(this);
     }
 
     async init(bot){
