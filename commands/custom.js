@@ -46,7 +46,7 @@ module.exports = {
                             return bot.logger.warn(`No last message was sent in ${channel.id}`);
                         }
                         const message = (await channel.messages.fetch({limit: 1})).first();
-                        let context = new CustomCommandContext(bot, message, {});
+                        let context = new CustomCommandContext(bot, message, {input: message.content});
                         bot.logger.log(`Running custom function #${cron.id}`);
                         const success = bot.util.runCustomFunction(cron.function, context, true, true);
                         if (!success) {
