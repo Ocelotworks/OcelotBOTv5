@@ -26,11 +26,12 @@ module.exports = {
             }
             return;
         }
-        if (!context.options.idOrSearch || !context.options.name) return context.send({content: "!admin zerotier approve id name", ephemeral: true});
+        if (!context.options.idOrSearch || !context.options.name)
+            return context.send({content: `**Usage:**\n${context.getSetting("prefix")}admin ${context.options.command} approve \`id\` \`name\``, ephemeral: true});
         try {
             let name = context.options.name;
             let result = await axios.post("https://ob-prod-api.d.int.unacc.eu/api/zt/nodes", {
-                id: args[3],
+                id: context.options.idOrSearch,
                 name
             });
             context.send(result.data.success || result.data.error)

@@ -18,7 +18,7 @@ module.exports = {
         const focus = interaction.options.getFocused(true).name;
         // Setting focus
         if(focus === "setting") {
-            if (input.length === 0)
+            if (input.length === 0 || interaction.options.getString("setting") === "")
                 return (await bot.database.getSettingsAssoc()).map((k) => ({name: k.name, value: k.setting}));
             return (await bot.database.searchSettingAssoc(input)).map((k) => ({name: k.name, value: k.setting}));
         }

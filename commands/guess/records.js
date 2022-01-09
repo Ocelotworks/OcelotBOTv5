@@ -1,6 +1,7 @@
 const columnify = require('columnify');
 const Sentry = require('@sentry/node');
 const Util = require("../../util/Util");
+const Strings = require("../../util/String");
 
 module.exports = {
     name: "Records Leaderboard",
@@ -36,12 +37,12 @@ module.exports = {
                     }
                     outputData.push({
                         "#": i + 1,
-                        "user": user ? `${user.username}#${user.discriminator}` : `${unknownUserKey} ${entry.user}`,
-                        "Total": entry.total.toLocaleString(),
+                        user: user ? `${user.username}#${user.discriminator}`.yellow : `${unknownUserKey} ${entry.user}`.black,
+                        total: entry.total.toLocaleString(),
                     });
                 }
                 span.end();
-                context.reply(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total record holders${timescale === "all" ? " of all time" : ` this ${timescale}`}.\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
+                context.reply(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total record holders${timescale === "all" ? " of all time" : ` this ${timescale}`}.\n${Strings.Columnify(outputData)}`);
             } else {
                 let targetUser = context.user.id;
                 let span = bot.util.startSpan("Get Records");
@@ -52,19 +53,16 @@ module.exports = {
 
                 const pages = records.data.chunk(10);
                 return Util.StandardPagination(bot, context, pages, async function (records, index) {
-                    let output = "```autohotkey\n";
                     let rows = [];
                     for (let i = 0; i < records.length; i++) {
                         const record = records[i];
                         rows.push({
                             date: new Date(record.timestamp).toDateString(),
-                            ":: song": ":: " + record.song,
+                            song: record.song.yellow,
                             seconds: (record.time < 10000 ? "0" : "") + (record.time / 1000).toFixed(3)
                         })
                     }
-                    output += `\n${columnify(rows)}\n`
-                    output += `Page ${index + 1}/${pages.length}\n\`\`\``;
-                    return {content: output}
+                    return {content: Strings.Columnify(rows, "", `\nPage ${index + 1}/${pages.length}`.white)}
                 })
             }
         } catch (e) {

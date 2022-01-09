@@ -1,6 +1,6 @@
 module.exports = {
     type: "paginate",
-    run: async function(message, response, bot){
-        return bot.util.standardPagination(message.channel, response.pages, (page)=>page);
+    run: async function(context, response, bot){
+        return bot.util.standardPagination(context.channel, response.pages, (page)=>page);
     }
 }

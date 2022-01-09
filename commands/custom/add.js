@@ -69,7 +69,7 @@ module.exports = {
         }
 
         // TODO: Custom functions
-        let success = await bot.util.runCustomFunction(code, context.message, true, false);
+        let success = await bot.util.runCustomFunction(code, context, true, false);
         if(!success) return;
 
         await bot.database.addCustomFunction(context.guild.id, "", trigger, type, code, context.user.id);

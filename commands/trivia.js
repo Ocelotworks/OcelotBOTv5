@@ -28,6 +28,8 @@ module.exports = {
     requiredPermissions: ["EMBED_LINKS", "ADD_REACTIONS"],
     nestedDir: "trivia",
     run: async function run(context, bot) {
+        if(!context.channel)
+            return context.send("Congratulations! You've encountered a bug that I'm not sure how to fix as I am unable to replicate it.\nPLEASE Reach out to me (Big P#1843) or via the feedback server and tell me you got this so I can ask you some questions. Thank you!")
         if(runningGames.includes(context.channel.id))
             return context.sendLang({content: "TRIVIA_SINGLE", ephemeral: true});
 

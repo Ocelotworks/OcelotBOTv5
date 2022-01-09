@@ -31,13 +31,13 @@ module.exports = {
     detailedHelp: "Guess the name of a song",
     usageExample: "guess",
     guildOnly: true,
-    slashHidden: true,
     nestedDir: "guess",
     runningGames: {},
     argDescriptions: {
         "base": {name: "play", description: "Start a guess game"},
     },
     run:  async function run(context, bot) {
+        if(context.options.command === "play")context.options.command = null; // No
         let playlist;
 
         let {playlists, isCustom} = await getPlaylistId(bot, context);
@@ -50,7 +50,7 @@ module.exports = {
         playlist = bot.util.arrayRand(playlists.split(","));
         bot.logger.log(`Using spotify playlist: ${playlist}`);
 
-        if (bot.util.checkVoiceChannel(context.message)) return;
+        if (bot.util.checkVoiceChannel(context.message || context.interaction)) return;
         if (context.guild.voiceConnection && !bot.voiceLeaveTimeouts[context.member.voice.channel.id] && context.getSetting("songguess.disallowReguess"))
             return context.sendLang("SONGGUESS_OCCUPIED");
 

@@ -8,6 +8,6 @@ module.exports = {
         if(code.length === 0)
             return context.sendLang({content: "CUSTOM_CODE_AMBIGUOUS", ephemeral: true})
 
-        return bot.util.runCustomFunction(code, context.message);
+        return bot.util.runCustomFunction(code, context);
     }
 }

@@ -1,4 +1,15 @@
 const  dateformat = require('dateformat');
+const userColours = {
+    "joel": "red",
+    "neil": "green",
+    "peter": "green",
+    "alex": "magenta",
+    "holly": "yellow",
+    "jake": "blue",
+    "ocelotbot": "red",
+    "abbey": "black"
+}
+
 module.exports = {
     name: "Topic Context",
     usage: "context [actually?:actually]",
@@ -24,11 +35,11 @@ module.exports = {
         let sentMessage;
         async function generateOutput(){
             const messageContext = await bot.database.getMessageContext(messageID[0].id, left, right);
-            let output = "```markdown\n";
+            let output = "```ansi\n";
             for(let i = 0; i < messageContext.length; i++){
                 const msg = messageContext[i];
                 const date = dateformat(new Date(msg.time), 'UTC:dd/mm/yy HH:MM:ss Z');
-                output+= `${msg.message===topicMessage ? "#":" "}[${date}] <${msg.user}> ${msg.message}\n`;
+                output += `${("["+date+"]").black} <${msg.user[userColours[msg.user] || "white"]}> ${msg.message===topicMessage ? msg.message.red : msg.message}\n`;
                 if(output.length >= 1998)break;
             }
             output += "\n```";

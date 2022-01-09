@@ -9,6 +9,7 @@ const twemoji = require('twemoji-parser');
 const config = require('config');
 const Sentry = require('@sentry/node');
 const {crc32} = require('crc');
+const Embeds = require("../util/Embeds");
 
 module.exports = {
     name: "Utilities",
@@ -1440,7 +1441,7 @@ module.exports = {
         bot.util.serialiseUser = function serialiseUser(user) {
             if(!user) return null;
             return {
-                avatar: user.avatarURL({size: 32, format: "png"}),
+                avatar: user.displayAvatarURL({size: 32, format: "png"}),
                 id: user.id,
                 username: user.username,
                 bot: user.bot,
@@ -1452,7 +1453,7 @@ module.exports = {
             return {
                 id: member.id,
                 bot: member.user.bot,
-                avatar: member.user?.avatarURL({size: 32, format: "png"}),
+                avatar: member.displayAvatarURL({size: 32, format: "png"}),
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
@@ -1543,32 +1544,31 @@ module.exports = {
             }
         })
 
-        bot.util.runCustomFunction = async function(code, message, showErrors = true, doOutput = true){
+        bot.util.runCustomFunction = async function(code, context, showErrors = true, doOutput = true){
             try {
-
                 let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "http://ob-sat_custom-commands:3000/run", {
                     version: 1,
                     script: code,
-                    message: bot.util.serialiseMessage(message),
+                    message: context.message ? bot.util.serialiseMessage(context.message) : bot.util.serialiseInteraction(context.interaction),
                 })
                 if(doOutput)
                     await Promise.all(result.data.map((out)=>{
                         if(!customTypes[out.type])return bot.logger.warn(`No custom type ${out.type}`);
-                        return customTypes[out.type](message, out, bot);
+                        return customTypes[out.type](context, out, bot);
                     }));
                 return true;
             }catch(e){
-                let errorEmbed = new Discord.MessageEmbed()
+                let errorEmbed = new Embeds.LangEmbed(context)
                 errorEmbed.setColor("#ff0000")
-                errorEmbed.setTitle(await message.getLang("CUSTOM_COMMAND_ERROR_TITLE"));
+                errorEmbed.setTitleLang("CUSTOM_COMMAND_ERROR_TITLE")
                 if(e.response && e.response.data)
-                    errorEmbed.setDescription(await message.getLang("CUSTOM_COMMAND_ERROR", {error: JSON.stringify(e.response.data, null, 1)}));
+                    errorEmbed.setDescriptionLang("CUSTOM_COMMAND_ERROR", {error: JSON.stringify(e.response.data, null, 1)});
                 else {
                     bot.logger.log(e);
-                    errorEmbed.setDescription(await message.getLang("CUSTOM_COMMAND_INTERNAL_ERROR"))
+                    errorEmbed.setDescriptionLang("CUSTOM_COMMAND_INTERNAL_ERROR")
                 }
                 if(showErrors)
-                    message.channel.send({embeds: [errorEmbed]});
+                    context.send({embeds: [errorEmbed]});
                 return false
             }
         }

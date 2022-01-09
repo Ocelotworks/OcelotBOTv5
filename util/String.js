@@ -1,5 +1,6 @@
 const twemoji = require('twemoji-parser');
 const Icons = require('./Icon')
+const columnify = require("columnify");
 module.exports = class Strings {
     static Vowels = ["a", "e", "i", "o", "u",
         "ａ", "ｅ", "ｉ", "ｏ", "ｕ",
@@ -568,6 +569,12 @@ module.exports = class Strings {
      */
     static CommandIdToNumber(commandId){
         return BigInt("0x"+Buffer.from(commandId, "base64").toString("hex")).toString();
+    }
+
+    static Columnify(input, before = "", after = ""){
+        return `\`\`\`ansi\n${before}${columnify(input, {
+            headingTransform: (key)=> key.toUpperCase().bold,
+        })}${after}\n\`\`\``
     }
 
 }

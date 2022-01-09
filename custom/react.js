@@ -1,6 +1,7 @@
 module.exports = {
     type: "react",
-    run: async function(message, response, bot){
-        return message.react(response.content);
+    run: async function(context, response, bot){
+        if(!context.message)return;
+        return context.message.react(response.content);
     }
 }

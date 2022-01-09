@@ -11,7 +11,7 @@ module.exports = {
             return context.sendLang({content: "CUSTOM_CODE_AMBIGUOUS", ephemeral: true})
 
         // TODO
-        let success = await bot.util.runCustomFunction(code, context.message, true, false);
+        let success = await bot.util.runCustomFunction(code, context, true, false);
         if(!success)return;
 
         await bot.database.updateCustomFunction(context.guild.id, func.id, code);
