@@ -215,9 +215,16 @@ module.exports = class RabbitMQ {
     async emit(type, payload){
         let buf = Buffer.from(JSON.stringify(payload));
         if (!this.pubsub[type]) {
+            // pubsub is set to false to create only one connection
             if (this.pubsub[type] === false) return;
             this.pubsub[type] = false;
-            this.pubsub[type] = await this.createPubsub(type);
+            let pubsub = await this.createPubsub(type);
+            if(!pubsub){
+                // Set pubsub back to undefined
+                this.pubsub[type] = undefined;
+                return;
+            }
+            this.pubsub[type] = pubsub;
         }
         this.pubsub[type].publish(type, '', buf, {appId: this.identifier});
     }
@@ -248,6 +255,10 @@ module.exports = class RabbitMQ {
     }
 
     async createPubsub(name){
+        if(!this.connection) {
+            console.warn(`Pubsub '${name}' Tried to create before the connection was ready`);
+            return undefined;
+        }
         this.bot.logger.log("Creating queue");
         const channel = await this.connection.createChannel();
         channel.assertExchange(name, 'fanout', {'durable': false});
