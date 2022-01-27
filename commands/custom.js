@@ -42,6 +42,7 @@ module.exports = {
                             message: "Running custom cron",
                             data: cron,
                         })
+
                         if (!channel.lastMessageId) {
                             return bot.logger.warn(`No last message was sent in ${channel.id}`);
                         }
