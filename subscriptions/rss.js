@@ -28,7 +28,7 @@ module.exports = {
             embed.setDescription(result.description || result.contentSnippet || result.content);
             if(result.pubDate)
                 embed.setTimestamp(result.pubDate);
-            embed.setAuthor(result.author);
+            embed.setAuthor(result.author || "RSS Feed");
             embed.setURL(result.link);
             output.push(embed);
         }
