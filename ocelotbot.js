@@ -150,6 +150,7 @@ function init(){
  * The modules are loaded in the order they are in config `Modules`
  */
 async function loadModules(){
+    bot.modules = {};
     bot.logger.log("Loading modules...");
     const moduleFiles = config.get("Modules");
     const modulePath = config.get("General.ModulePath");
@@ -189,6 +190,7 @@ async function loadModules(){
                 await loadedModule.init(bot);
             else
                 loadedModule.init(bot);
+            bot.modules[fileName] = loadedModule;
             bot.logger.log(`Loaded module ${loadedModule.name}`);
         }catch(e){
             //Spit the error out and continue loading modules.
