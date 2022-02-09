@@ -111,8 +111,8 @@ module.exports = class SupportServer {
                         if(!reportChannel)
                             reportChannel = await message.guild.channels.fetch().then((cs)=>cs.find((c)=>c.name === channelSetting)).catch(()=>null);
                         if(!reportChannel)
-                            return bot.logger.warn(`Report channel ${channelSetting} couldn't be found`);
-                        const context = new NotificationContext(bot, reportChannel, message.author, message.member);
+                            return this.bot.logger.warn(`Report channel ${channelSetting} couldn't be found`);
+                        const context = new NotificationContext(this.bot, reportChannel, message.author, message.member);
                         const embed = new Embeds.LangEmbed(context);
                         embed.setTitleLang("PHISHING_DETECTION_TITLE");
                         embed.setDescriptionLang("PHISHING_DETECTION_DESC", message);
