@@ -8,7 +8,7 @@ module.exports = {
     validate: function(input){
         if(input.startsWith("http"))
             return {data: input};
-        return {data: ":warning: RSS must be a valid URL, for example: https://status.discordapp.com/history.rss"};
+        return {error: ":warning: RSS must be a valid URL, for example: https://status.discordapp.com/history.rss"};
     },
     check: async function check(url, lastCheck){
         const then = new Date(lastCheck);
