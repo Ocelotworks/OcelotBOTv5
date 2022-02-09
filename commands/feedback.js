@@ -29,7 +29,7 @@ module.exports = {
 
         bot.client.on("messageCreate", async (message)=>{
             if(bot.drain)return;
-            if(!message.guild || !message.channel.isThread() || bot.config.get(message.guild.id, "feedback.channel") !== message.channel.parent.id || message.author.bot)return;
+            if(!message.guild || !message.channel.isThread() || bot.config.get(message.guild.id, "feedback.channel") !== message.channel?.parent?.id || message.author.bot)return;
             if(message.channel.ownerId !== bot.client.user.id)return;
             if(message.content.startsWith(bot.config.get(message.guild.id, "prefix")))return;
             let channelID = message.channel.name.split("-")[1];
