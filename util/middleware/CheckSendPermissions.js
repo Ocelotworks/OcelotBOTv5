@@ -1,6 +1,5 @@
 module.exports = async (context, bot)=>{
-    if (!context.channel?.permissionsFor) return;
-
+    if (!context.channel?.permissionsFor) return true;
     if (context.channel.type === "GUILD_PUBLIC_THREAD" && !context.channel.parent) return true;
 
     const permissions = await context.channel.permissionsFor(bot.client.user);
