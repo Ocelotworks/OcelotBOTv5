@@ -13,7 +13,7 @@ module.exports = {
 
         await bot.database.deletePollAnswers(id);
 
-        await context.commandData.renderPollAnswers(bot, message, poll);
+        await context.commandData.renderPollAnswers(bot, message, poll, context);
 
         message.edit({embeds: message.embeds});
 
