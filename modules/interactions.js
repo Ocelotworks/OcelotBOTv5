@@ -1,7 +1,11 @@
 const {SyntheticCommandContext, ButtonInteractionContext, ButtonCommandContext} = require("../util/CommandContext");
 const {v4: uuid} = require('uuid');
+const {Interaction, InteractionWebhook} = require('discord.js');
 
-const defaultConfig = {
+// Now this is podracing
+const InteractionResponses = require('discord.js/src/structures/interfaces/InteractionResponses');
+
+ const defaultConfig = {
     "edit": false,
     "oneShot": true,
     "allowAnyone": false
@@ -26,10 +30,12 @@ module.exports = class Interactions{
         this.addHandler("!", this.handleSuggestedCommand.bind(this));
 
         this.bot.client.on("interactionCreate", this.onInteraction.bind(this));
+
+        this.bot.client.on("raw", this.onFormInteraction.bind(this));
     }
 
     async onInteraction(interaction){
-        if(!interaction.isButton() && !interaction.isSelectMenu())return;
+        if(!interaction.isButton() && !interaction.isSelectMenu() && interaction.type !== "MODAL")return;
         let context = new ButtonInteractionContext(this.bot, interaction);
         if(interaction.customId && this.prefix[interaction.customId[0]]){
             if(this.bot.drain)return;
@@ -53,9 +59,40 @@ module.exports = class Interactions{
         this.bot.logger.log({type: "interaction", interaction: this.bot.util.serialiseInteraction(interaction)});
     }
 
+    // Hacky code for converting form interactions into real interactions
+    async onFormInteraction(packet) {
+        if (this.bot.drain || (packet.t !== "INTERACTION_CREATE" || packet.d?.type !== 5)) return;
+        let djsInteraction = new ModalInteraction(this.bot.client, packet.d);
+        return this.onInteraction(djsInteraction);
+    }
+
     clearAction(id){
         this.bot.logger.log(`Interaction ${id} has timed out`);
         delete this.bot.interactions.waiting[id];
+    }
+
+
+    awaitForm(context, formData, timeout = 60000){
+        return new Promise(async (fulfill, reject)=>{
+            const id = uuid();
+            this.waiting[id] = (data)=>{
+                let output = {};
+                for(let i = 0; i < data.components.length; i++){
+                    for(let x = 0; x < data.components[i].components.length; x++){
+                        const component = data.components[i].components[x];
+                        console.log(component);
+                        output[component.custom_id] = component.value;
+                    }
+                }
+                fulfill(output);
+            };
+            formData.custom_id = id;
+            await context.openForm(formData);
+            this.timeouts[id] = {timer: setTimeout(()=>{
+                reject("Interaction timed out");
+                this.clearAction(id);
+            }, timeout), timeout};
+        })
     }
 
     addAction(text, style, callback, timeout = 60000, emoji){
@@ -135,3 +172,25 @@ module.exports = class Interactions{
     }
 
 }
+
+class ModalInteraction extends Interaction {
+    constructor(client, data){
+        super(client, data);
+        this.type = "MODAL";
+        this.id = data.id;
+        this.customId = data.data.custom_id;
+        this.components = data.data.components;
+        this.webhook = new InteractionWebhook(this.client, this.applicationId, this.token);
+    }
+
+    deferReply(){}
+    reply(){}
+    fetchReply(){}
+    editReply(){}
+    deleteReply(){}
+    followUp(){}
+    deferUpdate(){}
+    update(){}
+}
+
+InteractionResponses.applyToClass(ModalInteraction);
