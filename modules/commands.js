@@ -159,6 +159,9 @@ module.exports = class Commands {
             console.error(e);
         }
 
+        if(commandData.contextMenu.func)
+            return commandData.runContextMenu(context, this.bot);
+
         return this.runCommand(context);
     }
 
