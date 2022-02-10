@@ -16,5 +16,5 @@ RUN mkdir temp
 COPY package.json package.json
 #COPY package-lock.json package-lock.json
 
-RUN npm ci --force
+RUN npm install --force
 RUN npm install googleapis archiver
