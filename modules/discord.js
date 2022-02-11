@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { REST } = require('@discordjs/rest');
 const Sentry = require('@sentry/node');
 const Util = require("../util/Util");
 const caller_id = require('caller-id');
@@ -50,6 +51,7 @@ module.exports = class DiscordModule {
     init(){
         this.overrideSendMethods();
         this.setupClient();
+        this.setupRest();
         this.setupEvents();
 
         this.bot.logger.log("Logging in to Discord...");
@@ -203,6 +205,10 @@ module.exports = class DiscordModule {
         this.bot.client = new Discord.Client(clientOpts);
         this.bot.client.bot = this.bot; //:hornywaste:
         this.bot.client.setMaxListeners(100);
+    }
+
+    setupRest(){
+        this.bot.rest = new REST({version: '9'}).setToken(process.env.DISCORD_TOKEN);
     }
 
     async updatePresence(){

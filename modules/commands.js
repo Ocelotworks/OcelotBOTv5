@@ -117,8 +117,10 @@ module.exports = class Commands {
      * @returns {Promise<*|void>|void}
      */
     onSlashCommandInteraction(interaction){
+        console.log(interaction);
         if(this.bot.drain)return;
         if(!interaction.isCommand())return; // Not a command
+        console.log("Interaction command", interaction.commandName)
         if(!(this.bot.slashCategories.includes(interaction.commandName) && interaction.options?.getSubcommand(false)) && !this.bot.commandUsages[interaction.commandName])return console.log("Unknown command interaction", interaction.commandName); // No such command
         const context = new InteractionCommandContext(this.bot, interaction);
         context.commandData = this.bot.commandUsages[context.command];
@@ -156,6 +158,9 @@ module.exports = class Commands {
         }catch(e){
             console.error(e);
         }
+
+        if(commandData.contextMenu.func)
+            return commandData.runContextMenu(context, this.bot);
 
         return this.runCommand(context);
     }
@@ -431,6 +436,7 @@ module.exports = class Commands {
             const middlewareResult = await middlewareData.func(context, this.bot);
 
             if(!middlewareResult){
+                console.log("Middleware ", this.middlewareOrder[i]);
                 return false;
             }
         }
@@ -535,7 +541,7 @@ module.exports = class Commands {
             let exceptionID = Sentry.captureException(e);
             // Show the actual error indev
             if(process.env.VERSION === "indev"){
-                exceptionID = e.message;
+                exceptionID = e?.message;
             }
             if(context.channel?.permissionsFor?.(this.bot.client.user.id)?.has("EMBED_LINKS")) {
                 let errorEmbed = new Embeds.LangEmbed(context);

@@ -2,6 +2,7 @@
  * Created by Peter on 01/07/2017.
  */
 const Discord = require('discord.js');
+const chrono = require("chrono-node");
 module.exports = {
     name: "Reminders",
     usage: "remind :command? :args?+",
@@ -15,6 +16,11 @@ module.exports = {
     deletedReminders: [],
     recurringReminders: {},
     nestedDir: "remind",
+    contextMenu: {
+        type: "message",
+        value: "message",
+        func: true,
+    },
     init: function init(bot){
         bot.client.once("ready", async function discordReady(){
             bot.logger.log("Loading reminders...");
@@ -136,5 +142,62 @@ module.exports = {
             bot.logger.error(`Error removing reminder!!! This is bad!!! ${err.stack}`);
             bot.raven.captureException(err);
         }
+    },
+    async runContextMenu(context, bot){
+        let form = await bot.interactions.awaitForm(context, {
+            "title": "Set Reminder",
+            "components": [{
+                "type": 1,
+                "components": [{
+                    "type": 4,
+                    "custom_id": "time",
+                    "label": "When should I remind you?",
+                    "style": 1,
+                    "min_length": 1,
+                    "max_length": 2000,
+                    "placeholder": "in 2 hours",
+                    "value": "in 2 hours",
+                    "required": true
+                }]
+            }]}, 60000);
+        const now = new Date();
+        const chronoParse = (chrono.parse(form.time, now, {forwardDate: true}))[0];
+
+        let at = chronoParse?.start?.date();
+
+        if(!at)
+            return context.sendLang({ephemeral: true, content: "REMIND_INVALID_TIME"});
+
+        if (at.getTime() >= 2147483647000)
+            return context.send({ephemeral: true, content: ":stopwatch: You can't set a reminder for on or after 19th January 2038"});
+
+        const offset = at - now;
+
+        if (offset < 0)
+            return context.send({ephemeral: true, content: ":stopwatch: The time you entered is in the past. Try being more specific or using exact dates."});
+        if (offset < 1000)
+            return context.sendLang({ephemeral: true, content: "REMIND_SHORT_TIME"});
+
+        const reminder = `[Message in ${context.guild?.name || "this channel"}](https://discord.com/channels/${context.guild?.id || "@me"}/${context.channel.id}/${context.options.message})`;
+
+        const reminderResponse = await bot.database.addReminder(bot.client.user.id, context.user.id, null, context.channel.id, at.getTime(), reminder, context.message?.id);
+        context.sendLang({ephemeral: true, content: "REMIND_MESSAGE_SUCCESS"}, {
+            time: bot.util.prettySeconds((offset / 1000), context.guild && context.guild.id, context.user.id),
+            date: `<t:${Math.floor(at.getTime()/1000)}:F>`,
+            id: reminderResponse[0],
+        });
+        bot.util.setLongTimeout(async function () {
+            return context.commandData.sendReminder({
+                messageID: context.message?.id,
+                receiver: bot.client.user.id,
+                channel: context.channel.id,
+                server: null,
+                id: reminderResponse[0],
+                user: context.user.id,
+                timestamp: now,
+                message: reminder,
+                at: at,
+            }, bot);
+        }, offset);
     }
 };

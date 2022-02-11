@@ -1,5 +1,6 @@
 const Sentry = require('@sentry/node');
 const Strings = require("../util/String");
+const {Routes} = require('discord-api-types/v9')
 class CommandContext {
 
     bot;
@@ -268,6 +269,7 @@ class InteractionContext extends CommandContext {
         options.fetchReply = true;
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
+        console.log(this.interaction);
         return this.interaction.reply(options);
     }
 
@@ -328,6 +330,17 @@ class InteractionContext extends CommandContext {
         if(setting === "prefix")
             return "/";
         return super.getSetting(setting);
+    }
+
+
+    openForm(data){
+        this.interaction.replied = true;
+        return this.bot.rest.post(Routes.interactionCallback(this.interaction.id, this.interaction.token), {
+            body: {
+                type: 9,
+                data,
+            },
+        }).then(console.log).catch(console.error)
     }
 }
 
