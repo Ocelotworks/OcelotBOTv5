@@ -175,6 +175,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
             counter,
             index,
             chunk,
+            playlistLength,
             playlistId: game.playlistId
         }
     })
@@ -188,10 +189,17 @@ async function newGuess(bot, voiceChannel, retrying = false){
        }
     });
     if(realIndex < 0 || realIndex > playlist.length){
-        Sentry.captureMessage("RealIndex is calculated incorrectly");
         bot.logger.warn("realIndex was incorrect "+realIndex);
         realIndex = bot.util.intBetween(0, playlist.length); // Last ditch
         counter = bot.util.intBetween(0, playlistLength); // Reset the counter
+        Sentry.addBreadcrumb({
+            message: "Forcibly Reset reallIndex",
+            data: {
+                realIndex,
+                counter,
+            }
+        })
+        Sentry.captureMessage("RealIndex is calculated incorrectly");
     }
     bot.logger.log(`Counter: ${counter} | Index: ${index} | Chunk: ${chunk} | List length: ${playlistLength} | Array Length: ${playlist.length} | Real Index: ${realIndex}`);
 
