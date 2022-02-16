@@ -13,7 +13,7 @@ module.exports = {
     usage: "leaderboard [timescale?:all,monthly,weekly,yearly] [server?:server]",
     commands: ["leaderboard", "lb"],
     run: async function (context, bot) {
-        let server = context.options.server || "global";
+        let server = context.options.server ? context.guild?.id  : "global";
 
         const timescale = timescales[context.options.timescale] || "all";
 
