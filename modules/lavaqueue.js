@@ -8,6 +8,7 @@ const config = require('config');
 const request = require('request');
 const dns = require('dns');
 const {Manager} = require('@lavacord/discord.js');
+const {axios} = require("../util/Http");
 
 
 module.exports = {
@@ -77,23 +78,9 @@ module.exports = {
 
         bot.lavaqueue = {};
         bot.lavaqueue.getSongs = async function getSongs(search, player) {
-            return new Promise(function (fulfill, reject) {
                 const params = new URLSearchParams();
                 params.append("identifier", search);
-                request({
-                    url: `http://${player.node.host}:${player.node.port}/loadtracks?${params.toString()}`,
-                    headers: {Authorization: player.node.password}
-                }, function (err, resp, body) {
-                    if (err)
-                        return reject(err);
-                    try {
-                        let data = JSON.parse(body);
-                        fulfill(data);
-                    } catch (e) {
-                        reject(e);
-                    }
-                })
-            });
+                return bot.redis.cache(`lavaqueue/search/${search}`, async ()=>axios.get(`http://${player.node.host}:${player.node.port}/loadtracks?${params.toString()}`, {headers: {Authorization: player.node.password}}).then((r)=>r.data), 60000);
         };
 
         bot.lavaqueue.getSong = async function getSong(search, player) {
