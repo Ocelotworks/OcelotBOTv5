@@ -180,7 +180,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
         }
     })
     const playlist = await getPlaylist(bot, game.playlistId, chunk);
-    let realIndex = ((index-chunk)-1) % playlist.length; // For some reason spotify sends unusual things
+    let realIndex = (index-chunk) % playlist.length; // For some reason spotify sends unusual things
     Sentry.addBreadcrumb({
        message: "Calculate realIndex",
        data: {
