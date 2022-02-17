@@ -34,6 +34,6 @@ module.exports = {
         if (context.commandData.recurringReminders[context.options.id]) {
             context.commandData.recurringReminders[context.options.id].clear();
         }
-        return context.send(`Successfully removed reminder ${context.options.id} '${Strings.Truncate(reminder.message, 128)}'`);
+        return context.send(`Successfully removed reminder ${context.options.id} '${Strings.Truncate(reminder[0].message, 128)}'`);
     }
 };

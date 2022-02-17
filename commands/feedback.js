@@ -13,7 +13,7 @@ module.exports = {
     init: function init(bot){
         bot.interactions.addHandler("F", async (interaction, context)=>{
             if(!(context.getBool("admin") || context.getBool("feedback.responder")))
-                return context.sendLang({content: "FEEBDACK_NOT_ALLOWED", ephemeral: true});
+                return context.sendLang({content: "FEEDBACK_NOT_ALLOWED", ephemeral: true});
             const [guildId, channelId] = interaction.customId.substring(1).split("/");
             const channel = await bot.client.guilds.fetch(guildId).then((g)=>g.channels.fetch(channelId)).catch(()=>null);
             if(!channel)return context.send({content: "Channel has been deleted or server was left.", ephemeral: true})
@@ -31,28 +31,28 @@ module.exports = {
             if(bot.drain)return;
             if(!message.guild || !message.channel.isThread() || bot.config.get(message.guild.id, "feedback.channel") !== message.channel?.parent?.id || message.author.bot)return;
             if(message.channel.ownerId !== bot.client.user.id)return;
-            if(message.content.startsWith(bot.config.get(message.guild.id, "prefix")))return;
+            if(message.author.bot || message.content.startsWith(bot.config.get(message.guild.id, "prefix")))return;
             let channelID = message.channel.name.split("-")[1];
             if(!channelID)return;
             let responseChannel = await bot.client.channels.fetch(channelID.trim());
-            if(message.reference){
-                let repliedMessage = replyMap[message.reference.messageId] || (await message.channel.messages.fetch(message.reference.messageId))?.feedbackResponse;
-                if(repliedMessage){
-                    message.feedbackResponse = await repliedMessage.reply(repliedMessage.getLang("FEEDBACK_RESPONSE", {
-                        response: message.content,
-                        admin: message.author.tag,
-                    }))
-                    return;
-                }else{
-                    console.log("no replied message");
-                    console.log(message.reference);
+            try {
+                if (message.reference) {
+                    let repliedMessage = replyMap[message.reference.messageId] || (await message.channel.messages.fetch(message.reference.messageId))?.feedbackResponse;
+                    if (repliedMessage) {
+                        message.feedbackResponse = await repliedMessage.reply(repliedMessage.getLang("FEEDBACK_RESPONSE", {
+                            response: message.content,
+                            admin: message.author.tag,
+                        }))
+                        return;
+                    }
                 }
+                message.feedbackResponse = await responseChannel.sendLang("FEEDBACK_RESPONSE", {
+                    response: message.content,
+                    admin: message.author.tag,
+                });
+            }catch(e){
+                message.reply("Couldn't send this response: "+e.message);
             }
-            message.feedbackResponse = await responseChannel.sendLang("FEEDBACK_RESPONSE", {
-                response: message.content,
-                admin: message.author.tag,
-            });
-
         })
 
        bot.client.on("messageUpdate", (oldMessage, newMessage)=>{

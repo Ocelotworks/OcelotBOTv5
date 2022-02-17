@@ -180,7 +180,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
         }
     })
     const playlist = await getPlaylist(bot, game.playlistId, chunk);
-    let realIndex = ((index-chunk)-1) % playlist.length; // For some reason spotify sends unusual things
+    let realIndex = (index-chunk) % playlist.length; // For some reason spotify sends unusual things
     Sentry.addBreadcrumb({
        message: "Calculate realIndex",
        data: {
@@ -297,6 +297,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
             const partialLength = normalisedName.indexOf(normalisedContent) > -1 ? normalisedContent.length : 0;
             // If the message contains the entire title, or the message is more than 30% of the title
             if(normalisedContent.indexOf(normalisedName) > -1 || partialLength >= normalisedName.length/3){
+                this.incrementStat(m.guild.id, m.author.id, "guess_wins");
                 bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, normalisedContent, loggedTrackName, 1, elapsed, game.custom);
                 return true;
             }
@@ -313,6 +314,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                     break
                 }
             }
+            this.incrementStat(m.guild.id, m.author.id, "guess_attempts");
             bot.database.addSongGuess(m.author.id, m.channel.id, m.guild.id, "", loggedTrackName, 0, elapsed, game.custom);
             return false;
         }

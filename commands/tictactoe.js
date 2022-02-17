@@ -24,13 +24,8 @@ module.exports = {
             const y = gridPosition % 3;
 
             // Set the current grid position
-            interaction.message.components[x].components[y] = {
-                type: 2,
-                style: buttonStyle,
-                disabled: true,
-                emoji: {name: turnType},
-                customId: `#${otherUser}|${turnUser}|${gridPosition}|${nextTurn}`
-            }
+            interaction.message.components[x].components[y].disabled = true;
+            interaction.message.components[x].components[y].emoji = {name: turnType};
 
             let content = `${X}: <@${turnType === X ? turnUser : otherUser}>\n${O}: <@${turnType === O ? turnUser : otherUser}>\n`;
 
@@ -49,7 +44,7 @@ module.exports = {
                 }
                 interaction.message.components.forEach((c, x) => c.components.forEach((c, y) => {
                     c.disabled = true
-                    if(winner !== "draw" && winner.find((a)=>a[0] === x && a[1] === y))c.style = 1;
+                    if(winner !== "draw" && winner.find((a)=>a[0] === x && a[1] === y))c.style = "PRIMARY";
                 }))
             }else{
                 content += `Current Turn: ${nextTurn}`
