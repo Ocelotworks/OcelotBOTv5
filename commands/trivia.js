@@ -110,7 +110,6 @@ module.exports = {
                         let lostStreak = await bot.database.resetStreak(users[i], "trivia");
                         if(lostStreak > 2)lostStreaks.push({user: users[i], streak: lostStreak})
                     }
-
                 }
 
                 let output = `${context.getLang("TRIVIA_TIME_END", {answer: correctAnswer})}\n`;
