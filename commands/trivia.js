@@ -102,15 +102,14 @@ module.exports = {
                     if(!userAnswers.hasOwnProperty(users[i]))continue
                     bot.database.logTrivia(users[i], userAnswers[users[i]] === correctAnswer, difficulty, context.guild?.id || context.channel.id).then(()=>null)
                     if(userAnswers[users[i]] === correctAnswer) {
-                        bot.statistics.incrementStat(context.guild?.id, users[i], "trivia_correct");
+                        bot.modules.statistics.incrementStat(context.guild?.id, users[i], "trivia_correct");
                         let streak = await bot.database.incrementStreak(users[i], "trivia");
                         correct.push({user: users[i], streak});
                     }else{
-                        bot.statistics.incrementStat(context.guild?.id, users[i], "trivia_incorrect");
+                        bot.modules.statistics.incrementStat(context.guild?.id, users[i], "trivia_incorrect");
                         let lostStreak = await bot.database.resetStreak(users[i], "trivia");
                         if(lostStreak > 2)lostStreaks.push({user: users[i], streak: lostStreak})
                     }
-
                 }
 
                 let output = `${context.getLang("TRIVIA_TIME_END", {answer: correctAnswer})}\n`;
