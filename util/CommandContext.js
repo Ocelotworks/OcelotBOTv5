@@ -16,6 +16,8 @@ class CommandContext {
     options = {};
     error;
 
+    responsePrefix;
+
     constructor(bot, member, user, channel, guild, command, id){
         this.bot = bot;
         this.member = member;
@@ -110,6 +112,25 @@ class CommandContext {
     defer(options){
         throw new Error("This context does not support deferring");
     }
+
+    _appendPrefix(options, isEdit){
+        if(!this.responsePrefix || (!options.content && isEdit))return;
+        if(!options.content)
+            options.content = this.responsePrefix;
+        else
+            options.content = `${this.responsePrefix}\n${options.content}`
+    }
+
+    setResponsePrefix(prefix){
+        this.responsePrefix = prefix;
+    }
+
+    appendResponsePrefix(prefix){
+        if(!this.responsePrefix)
+            this.responsePrefix = prefix;
+        else
+            this.responsePrefix += "\n"+prefix;
+    }
 }
 
 class MessageCommandContext extends CommandContext {
@@ -151,6 +172,8 @@ class MessageCommandContext extends CommandContext {
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         if(options.components)options.components = options.components.filter((c)=>c);
+        if(typeof options === "string")options = {content: options};
+        this._appendPrefix(options);
         const message = await this.channel.send(options);
         if(this.message)
             this.message.response = message;
@@ -169,6 +192,8 @@ class MessageCommandContext extends CommandContext {
             }
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
+        if(typeof options === "string")options = {content: options};
+        this._appendPrefix(options);
         if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id).has("READ_MESSAGE_HISTORY"))
             return this.send(options);
         const message = await this.message.reply(options);
@@ -194,6 +219,8 @@ class MessageCommandContext extends CommandContext {
             }
         });
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
+        if(typeof options === "string")options = {content: options};
+        this._appendPrefix(options, true);
         if(!message || message.deleted)return this.send(options);
         return message.edit(options);
     }
@@ -214,6 +241,8 @@ class MessageEditCommandContext extends MessageCommandContext {
     async send(options){
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
         if(options.components)options.components = options.components.filter((c)=>c);
+        if(typeof options === "string")options = {content: options};
+        this._appendPrefix(options, true);
         if(this.response && !this.response.deleted) {
             let editResult = await this.response.edit(options).catch(()=>null);
             if(editResult)return editResult;
@@ -223,10 +252,13 @@ class MessageEditCommandContext extends MessageCommandContext {
 
     async reply(options){
         Sentry.setExtra("context", {type: "messageEdit", command: this.command, args: this.args, message: this.message?.content});
+        if(typeof options === "string")options = {content: options};
+        this._appendPrefix(options, true);
         if(this.response && !this.response.deleted) {
             let editResult = await this.response.edit(options).catch(() => null);
             if (editResult) return editResult;
         }
+        super._appendPrefix(options);
         return super.reply(options);
     }
 }
@@ -264,12 +296,13 @@ class InteractionContext extends CommandContext {
         if(typeof options === "string")
             options = {content: options};
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
+        if(typeof options === "string")options = {content: options};
         this.bot.bus.emit("messageSent", options);
         if(options?.components)options.components = options.components.filter((c)=>c);
         options.fetchReply = true;
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
-        console.log(this.interaction);
+        super._appendPrefix(options);
         return this.interaction.reply(options);
     }
 
@@ -319,6 +352,8 @@ class InteractionContext extends CommandContext {
             }
         });
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
+        if(typeof options === "string")options = {content: options};
+        this._appendPrefix(options, true);
         if(this.interaction.replied)
             return this.interaction.editReply(options);
         if(this.interaction.deferred)
@@ -402,6 +437,8 @@ class NotificationContext extends CommandContext {
     }
 
     async send(options){
+        if(typeof options === "string")options = {content: options};
+        this._appendPrefix(options, true);
         const message = await this.channel.send(options);
         if(this.message)
             this.message.response = message;
@@ -409,11 +446,14 @@ class NotificationContext extends CommandContext {
     }
 
     edit(options, message){
+        this._appendPrefix(options, true);
         if(!message || message.deleted)return this.send(options);
         return message.edit(options);
     }
 
     reply(options){
+        if(typeof options === "string")options = {content: options};
+        this._appendPrefix(options, true);
         // Can't reply as there is nothing to reply to
         return this.send(options);
     }
@@ -454,6 +494,8 @@ class InteractionCommandContext extends InteractionContext {
 
 class ButtonInteractionContext extends InteractionContext {
     edit(options, message){
+        if(typeof options === "string")options = {content: options};
+        this._appendPrefix(options, true);
         if(message)
             return message.edit(options);
         return this.interaction.update(options);

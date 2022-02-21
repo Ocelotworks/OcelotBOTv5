@@ -58,6 +58,7 @@ module.exports = class Commands {
         this.addCommandMiddleware(require('../util/middleware/CommandOverride'), "Command Override", 97);
         this.addCommandMiddleware(require('../util/middleware/CheckPermissions'), "Check Permissions", 98);
         this.addCommandMiddleware(require('../util/middleware/Notices'), "Send Notices", 96);
+        this.addCommandMiddleware(require('../util/middleware/MessageCommandDeprecation'), "Send Message Command Deprecation warning", 95);
 
 
         this.loadCommands();
