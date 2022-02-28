@@ -7,9 +7,9 @@
 module.exports = {
     name: "Set User Config Key",
     usage: "setuserconfig :user :key :value+?",
-    commands: ["setuserconfig", "suc"],
+    commands: ["setuserconfig", "suc", "succ"],
     run: async function (context, bot) {
-        const user = context.options.user === "me" ? message.author.id : context.options.user;
+        const user = context.options.user === "me" ? context.user.id : context.options.user;
         const key = context.options.key;
         const value = context.options.value;
         await bot.database.setUserSetting(user, key, value);
