@@ -62,7 +62,7 @@ module.exports = {
                                 components: [{
                                     type: 4,
                                     custom_id: "answer",
-                                    label: Strings.Truncate(embed.title, 80),
+                                    label: Strings.Truncate(embed.title, 45),
                                     style: 1,
                                     min_length: 1,
                                     max_length: 80,
