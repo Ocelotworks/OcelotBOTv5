@@ -19,6 +19,8 @@ module.exports = {
     },{
         type: "BOOLEAN", name: "multiple", description: "Allow Multiple Entries", required: false,
     },{
+        type: "BOOLEAN", name: "open", description: "Allow users to submit custom entries", required: false,
+    },{
         type: "STRING", name: "expiry", description: "Enter a date or timeframe to end the poll in", required: false,
     }],
     init: function(bot){
@@ -40,17 +42,51 @@ module.exports = {
 
         bot.interactions.addHandler("P", async (interaction, context)=>{
             try {
-                const [answer, pollID] = interaction.customId.substring(1).split("/");
+                let [answer, pollID] = interaction.customId.substring(1).split("/");
                 let poll = await bot.database.getPoll(pollID);
                 if (!poll) {
                     return context.sendLang({content: "POLL_DELETED_EXPIRED", ephemeral: true});
                 }
                 if(answer === "END" && poll.creatorID !== interaction.user.id)
                     return context.sendLang({content: "POLL_NOT_ALLOWED", ephemeral: true});
+
                 let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
+                let embed = message.embeds[0];
+                if(answer === "OTHER" && poll.open){
+                    if(interaction.type === "MESSAGE_COMPONENT")
+                        return context.openForm({
+                            custom_id: interaction.customId,
+                            title: "Add Poll Option",
+                            components: [{
+                                type: 1,
+                                components: [{
+                                    type: 4,
+                                    custom_id: "answer",
+                                    label: embed.title,
+                                    style: 1,
+                                    min_length: 1,
+                                    max_length: 80,
+                                    required: true
+                                }]
+                            }]
+                        })
+
+
+                    const newOption = interaction.components[0].components[0].value;
+
+                    answer = embed.fields.findIndex((f)=>f.name.toLowerCase() === newOption.toLowerCase());
+                    if(answer === -1){
+                        answer = embed.fields.length;
+                        embed.addField(newOption, `If you see this, something has gone wrong. Contact ${bot.lang.ownerTag}!`);
+                        let newOptionButton = {type: 2, style: 1, label: newOption, custom_id: `P${answer}/${pollID}`};
+                        const buttons = this.unwrapButtons(message.components);
+                        buttons.splice(buttons.length-2, 0, newOptionButton);
+                        message.components = this.wrapButtons(buttons);
+                    }
+                }
+
                 const now = new Date();
                 if((poll.expires && poll.expires < now) || answer === "END"){
-                    let embed = message.embeds[0];
                     embed.setDescription(embed.description.split("\n")[0]);
                     embed.setColor("#ff0000");
                     embed.setFooter(context.getLang("POLL_EXPIRED"));
@@ -65,11 +101,10 @@ module.exports = {
                 else
                     await bot.database.setPollAnswer(poll.id, interaction.user.id, answer);
 
-                let embed = message.embeds[0];
                 await this.renderPollAnswers(bot, message, poll, context);
                 if(poll.expires)
                     embed.description += `\nExpires <t:${Math.floor(poll.expires.getTime() / 1000)}:R>`
-                return context.edit({embeds: [embed]})
+                return context.edit({embeds: [embed], components: message.components})
             }catch(e){
                 console.error(e);
                 return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
@@ -110,16 +145,22 @@ module.exports = {
             }
         }
     },
+    wrapButtons(buttons){
+        return buttons.chunk(5).map((chunk)=>({type:1, components: chunk}));
+    },
+    unwrapButtons(components){
+        return components.flatMap((c)=>c.components);
+    },
     handleError: function(context){
         return context.sendLang({content: "POLL_HELP", ephemeral: true});
     },
     run: async function (context, bot) {
         const fullOptions = (context.options.command || "") + " " + (context.options.options || "")
         let options = fullOptions.split(',');
-        if (options.length < 2)
+        if (options.length < 2 && !context.options.open)
             return context.sendLang({content: "POLL_MINIMUM", ephemeral: true});
 
-        if (options.length > 24)
+        if (options.length > 24 || (options.length > 23 && !!context.options.open))
             return context.send({content: "POLL_MAXIMUM", ephemeral: true});
 
         const now = new Date();
@@ -168,30 +209,26 @@ module.exports = {
         }
 
         options = options.filter(o=>o.length);
-        let buttons = options
-            .map((o,i)=>({type: 2, style: 1, label: Strings.Truncate(o, 80), custom_id: `P${i}/${pollID}`}))
-            .chunk(5)
-            .map((bGroup)=>({type: 1, components: bGroup}));
+        let buttons = options.map((o,i)=>({type: 2, style: 1, label: Strings.Truncate(o, 80), custom_id: `P${i}/${pollID}`}))
 
+        if(!!context.options.open){
+            buttons.push({type: 2, style: 3, label: "Other...", custom_id: `POTHER/${pollID}`})
+        }
 
-        const end = bot.interactions.suggestedCommand(context, `manage ${pollID}`, {oneShot: false});
-        end.label = "Manage";
-
-        if(buttons[buttons.length-1].components.length < 4)
-            buttons[buttons.length-1].components.push(end);
-        else
-            buttons.push({type: 1, components: [end]});
-
+        const manage = bot.interactions.suggestedCommand(context, `manage ${pollID}`, {oneShot: false});
+        manage.label = "Manage";
+        buttons.push(manage);
 
         let inline = options.length > 10;
         for(let i = 0; i < options.length; i++){
             embed.addField(Strings.Truncate(options[i], 256), `${Strings.ProgressBar(0, 0, inline ? 5 : 10)} 0%`, inline);
         }
-        let message = await context.send({embeds: [embed], components: buttons});
+        let message = await context.send({embeds: [embed], components: this.wrapButtons(buttons)});
 
         return bot.database.updatePoll(context.guild.id, pollID, {
             messageID: message.id,
-            multiple: !!context.options.multiple
+            multiple: !!context.options.multiple,
+            open: !!context.options.open,
         });
     }
 };
