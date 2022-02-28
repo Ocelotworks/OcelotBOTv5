@@ -69,8 +69,7 @@ module.exports = {
                                     required: true
                                 }]
                             }]
-                        })
-
+                        });
 
                     const newOption = interaction.components[0].components[0].value;
 
@@ -81,6 +80,8 @@ module.exports = {
                         let newOptionButton = {type: 2, style: 1, label: newOption, custom_id: `P${answer}/${pollID}`};
                         const buttons = this.unwrapButtons(message.components);
                         buttons.splice(buttons.length-2, 0, newOptionButton);
+                        // Disable the "Other" buttons when you get to 25 buttons
+                        if(buttons.length > 24)buttons[buttons.length-2].disabled = true;
                         message.components = this.wrapButtons(buttons);
                     }
                 }
