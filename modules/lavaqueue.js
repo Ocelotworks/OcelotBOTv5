@@ -5,7 +5,6 @@
  *  ════╝
  */
 const config = require('config');
-const request = require('request');
 const dns = require('dns');
 const {Manager} = require('@lavacord/discord.js');
 const {axios} = require("../util/Http");
@@ -14,66 +13,84 @@ const {axios} = require("../util/Http");
 module.exports = {
     name: "LavaQueue",
     init: function (bot) {
-        let firstReady = true;
-        bot.client.on("ready", async function () {
-            if (firstReady) {
-                firstReady = false;
-                const resumeKey = bot.client.user.id + "-" + bot.util.shard;
+        bot.client.once("ready", async function () {
+            const resumeKey = bot.client.user.id + "-" + bot.util.shard;
 
-                const clients = [
-                    {
-                        id: "lava.link",
-                        host: "lava.link",
-                        port: 80,
-                        password: "ocelotbot.xyz",
-                        reconnectInterval: 1000,
-                        resumeKey,
-                    }
-                ];
-
-                bot.lavaqueue.manager = new Manager(bot.client, clients, {
-                    user: bot.client.user.id,
-                });
-
-                await bot.lavaqueue.updateDockerContainers();
-
-                try {
-                    bot.logger.log("Connecting...");
-                    await bot.lavaqueue.manager.connect();
-                    bot.logger.log("Connected!");
-
-                } catch (e) {
-                    bot.logger.log("Connect error!!!!");
-                    bot.logger.log(e);
+            const clients = [
+                {
+                    id: "lava.link",
+                    host: "lava.link",
+                    port: 80,
+                    password: "ocelotbot.xyz",
+                    reconnectInterval: 1000,
+                    resumeKey,
                 }
-                bot.lavaqueue.manager.on("error", function (node, error) {
-                    bot.logger.error("Node Error: ", error);
-                });
+            ];
 
-                bot.lavaqueue.manager.players.forEach(function playerHarvest(player) {
-                    if (!player.playing) {
-                        bot.logger.log(`Cleaning up stale player ${player.id} (${player.timestamp})`)
-                        bot.lavaqueue.manager.leave(player.id);
-                        player.removeAllListeners();
-                        player.destroy();
-                    }
-                });
+            bot.lavaqueue.manager = new Manager(bot.client, clients, {
+                user: bot.client.user.id,
+            });
 
-                setInterval(() => {
-                    bot.lavaqueue.manager.nodes.forEach(async function nodeReconnect(node) {
-                        if (!node.connected) {
-                            bot.logger.log(`Attempting to connect node ${node.id}`);
-                            try {
-                                await node.connect();
-                            } catch (e) {
-                                bot.logger.error(`Error connecting to node ${node.id}: ${e}`)
-                            }
-                        }
-                    })
+            bot.api.get("/lavalink/nodes", (req, res) => {
+                res.json([...bot.lavaqueue.manager.nodes.values()].map((node)=>({
+                    id: node.id,
+                    host: node.host,
+                    connected: node.connected,
+                    stats: node.stats,
+                    state: node.state,
+                })));
+            });
 
-                    bot.lavaqueue.updateDockerContainers();
-                }, 300000);
+            bot.api.get("/lavalink/players", (req, res)=>{
+                res.json([...bot.lavaqueue.manager.players.values()].map((player)=>({
+                    id: player.id,
+                    node: player.node.id,
+                    track: player.track,
+                    paused: player.paused,
+                    playing: player.paused,
+                    timestamp: player.timestamp,
+                })));
+            })
+
+            await bot.lavaqueue.updateDockerContainers();
+
+            try {
+                bot.logger.log("Connecting...");
+                await bot.lavaqueue.manager.connect();
+                bot.logger.log("Connected!");
+
+            } catch (e) {
+                bot.logger.log("Connect error!!!!");
+                bot.logger.log(e);
             }
+            bot.lavaqueue.manager.on("error", function (node, error) {
+                bot.logger.error("Node Error: ", error);
+            });
+
+            bot.lavaqueue.manager.players.forEach(function playerHarvest(player) {
+                if (!player.playing) {
+                    bot.logger.log(`Cleaning up stale player ${player.id} (${player.timestamp})`)
+                    bot.lavaqueue.manager.leave(player.id);
+                    player.removeAllListeners();
+                    player.destroy();
+                }
+            });
+
+            setInterval(() => {
+                bot.lavaqueue.manager.nodes.forEach(async function nodeReconnect(node) {
+                    if (!node.connected) {
+                        bot.logger.log(`Attempting to connect node ${node.id}`);
+                        try {
+                            await node.connect();
+                        } catch (e) {
+                            bot.logger.error(`Error connecting to node ${node.id}: ${e}`)
+                        }
+                    }
+                })
+
+                bot.lavaqueue.updateDockerContainers();
+            }, 300000);
+
         });
 
         bot.lavaqueue = {};

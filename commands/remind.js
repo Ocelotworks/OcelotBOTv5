@@ -156,7 +156,7 @@ module.exports = {
                     "min_length": 1,
                     "max_length": 2000,
                     "placeholder": "in 2 hours",
-                    "value": "in 2 hours",
+                    "value": context.getSetting("remind.defaultTime"),
                     "required": true
                 }]
             }]}, 60000);
