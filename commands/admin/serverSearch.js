@@ -8,7 +8,7 @@ const Strings = require("../../util/String");
 module.exports = {
     name: "Server Search",
     usage: "search :name+",
-    commands: ["serversearch", "ss", "search", "gs", "guildsearch"],
+    commands: ["serversearch", "ss", "search", "gs", "guildsearch", "sh"],
     noCustom: true,
     run: async function (context, bot) {
         const serverName = `%${context.options.name}%`;

@@ -19,7 +19,7 @@ module.exports = {
                 bot.util.actionRow(
                     button(bot, context, "multiple", id, "POLL_ALLOW_MULTIPLE", 3, poll.multiple),
                     button(bot, context, "reset", id, "POLL_RESET", 4),
-                   //button(bot, context, "votes", id, "Show Votes", 1),
+                   button(bot, context, "votes", id, "Show Voters", 1),
                 ),
                 bot.util.actionRow(
                     button(bot, context, "edit", id, "Edit Title"),
