@@ -1215,6 +1215,9 @@ module.exports = {
                 return (await knex.select("choice", knex.raw("COUNT(*) as count")).from("ocelotbot_poll_answers").where({poll}).groupBy("choice"))
                     .reduce((o,a)=>{o[a.choice]=a.count;return o;},{});
             },
+            async getAllPollAnswers(poll){
+                return knex.select().from("ocelotbot_poll_answers").where({poll}).orderBy("choice");
+            },
             async setPollAnswer(poll, userID, choice){
                 let currentAnswer = await bot.database.getPollAnswer(poll, userID);
                 if(!currentAnswer)

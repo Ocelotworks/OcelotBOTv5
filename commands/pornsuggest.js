@@ -16,6 +16,7 @@ module.exports = {
     vote: true,
     pointsCost: 15,
     categories: ["nsfw", "search"],
+    slashHidden: true,
     run: function run(context, bot) {
         let search = context.options.search;
 
