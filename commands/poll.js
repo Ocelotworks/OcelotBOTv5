@@ -13,7 +13,7 @@ module.exports = {
     guildOnly: true,
     nestedDir: "poll",
     slashOptions: [{
-        type: "STRING", name: "options", description: "Poll options separated by a comma (,)", required: true
+        type: "STRING", name: "options", description: "Poll options separated by a comma (,)", required: false
     }, {
         type: "STRING", name: "title", description: "Poll Title", required: false,
     },{
