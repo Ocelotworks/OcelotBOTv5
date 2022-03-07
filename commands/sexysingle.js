@@ -13,7 +13,7 @@ module.exports = {
     commands: ["sexysingle", "sexy", "single"],
     categories: ["memes"],
     unwholesome: true,
-    slashHidden: true,
+    hidden: true,
     slashCategory: "filter",
     init: function init(bot){
         bot.logger.log("Loading sexysingle templates");
