@@ -19,6 +19,7 @@ module.exports = {
     commands: ["rule34", "r34"],
     vote: true,
     pointsCost: 10,
+    hidden: true,
     run: async function(context, bot){
         if (naughtyRegex.test(context.options.search)) {
             return context.send({content: ":warning: No results", ephemeral: true});

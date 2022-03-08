@@ -10,6 +10,7 @@ module.exports = {
     commands: ["brazzers"],
     unwholesome: true,
     slashCategory: "filter",
+    slashHidden: true,
     run: async function run(context, bot){
         let url = await Util.GetImage(bot, context);
         if(!url)
