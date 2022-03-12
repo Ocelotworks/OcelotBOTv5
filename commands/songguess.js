@@ -23,7 +23,7 @@ const spotifyPlaylist = /.*open\.spotify\.com\/playlist\/(.+?)([\/?#>]|$)/i
 
 module.exports = {
     name: "Guess The Song",
-    usage: "guess",
+    usage: "guess :command? :playlist?",
     rateLimit: 25,
     categories: ["games", "voice"],
     //requiredPermissions: ["CONNECT", "SPEAK"],
@@ -74,7 +74,8 @@ module.exports = {
 };
 
 async function getPlaylistId(bot, context){
-    if(!context.options.command){
+    const playlist = context.options.command || context.options.playlist;
+    if(!playlist){
         const playlistId = context.getSetting("songguess.default");
         bot.logger.log(`Using default playlist ID: ${playlistId}`);
         return {
@@ -83,9 +84,7 @@ async function getPlaylistId(bot, context){
         };
     }
 
-    console.log(context.options.command);
-    let regexResult = spotifyPlaylist.exec(context.options.command);
-    console.log("Regex Result", regexResult);
+    let regexResult = spotifyPlaylist.exec(playlist);
     if(regexResult?.[1]){
         return {
             custom: true,
@@ -95,7 +94,7 @@ async function getPlaylistId(bot, context){
 
     return {
         custom: false,
-        playlists: await bot.database.getGuessPlaylist(context.guild.id, context.options.command.toLowerCase())
+        playlists: await bot.database.getGuessPlaylist(context.guild.id, playlist.toLowerCase())
     }
 }
 
