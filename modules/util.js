@@ -1584,10 +1584,15 @@ module.exports = {
             return Buffer.from(charCodes).toString("base64");
         }
 
+        bot.util.hasRole = function(member, roleNameOrId){
+            const normalised = roleNameOrId.toLowerCase();
+            member.roles.cache.find(function (role) {
+                return role.name.toLowerCase() === normalised || role.id === normalised
+            })
+        }
+
         bot.util.canChangeSettings = function(context) {
-            return context.channel.permissionsFor(context.member).has("ADMINISTRATOR", true) || context.getSetting("settings.role") !== "-" && context.member.roles.cache.find(function (role) {
-                return role.name.toLowerCase() === context.getSetting("settings.role").toLowerCase();
-            });
+            return context.channel.permissionsFor(context.member).has("ADMINISTRATOR", true) || context.getSetting("settings.role") !== "-" && bot.util.hasRole(context.member, context.getSetting("settings.role"));
         }
 
         bot.util.checkVoiceChannel = function(message){
