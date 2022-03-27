@@ -32,15 +32,17 @@ module.exports = {
                         console.log("Last check",lastCheck);
                         let embed = new Discord.MessageEmbed();
                         embed.setColor("#FF5700")
-                        embed.setTitle(post.title.substring(0,256));
+                        embed.setTitle(post.title?.substring(0,256) || `Commented on ${post.link_title.substring(0, 200)}`);
                         embed.setAuthor(post.author, "https://www.shareicon.net/data/64x64/2016/11/03/849484_reddit_512x512.png", `https://reddit.com/u/${post.author}`);
                         embed.setURL(`https://reddit.com${post.permalink}`);
                         embed.setFooter(`${post.ups} points on r/${post.subreddit}`);
-                        embed.setTimestamp(new Date(post.created_utc*1000));
-                        if(post.selftext)
+                        embed.setTimestamp(new Date(epost.created_utc*1000));
+                        if(post.body)
+                            embed.setDescription(post.body.substring(0, 1024));
+                        else if(post.selftext)
                             embed.setDescription(post.selftext.substring(0,1024));
                         else
-                            embed.setDescription("Image Post")
+                            embed.setDescription("(No Body)")
 
                         if(post.preview && post.preview.images && post.preview.images[0] && post.preview.images[0].source) {
                             console.log("Setting preview image");
