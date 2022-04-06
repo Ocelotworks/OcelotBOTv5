@@ -36,7 +36,7 @@ module.exports = {
                         embed.setAuthor(post.author, "https://www.shareicon.net/data/64x64/2016/11/03/849484_reddit_512x512.png", `https://reddit.com/u/${post.author}`);
                         embed.setURL(`https://reddit.com${post.permalink}`);
                         embed.setFooter(`${post.ups} points on r/${post.subreddit}`);
-                        embed.setTimestamp(new Date(epost.created_utc*1000));
+                        embed.setTimestamp(new Date(post.created_utc*1000));
                         if(post.body)
                             embed.setDescription(post.body.substring(0, 1024));
                         else if(post.selftext)
