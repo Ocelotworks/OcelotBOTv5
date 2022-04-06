@@ -2,6 +2,7 @@
 const Discord = require('discord.js');
 const util = require('util');
 const request = util.promisify(require('request'));
+const Sentry = require('@sentry/node');
 //Reddit API
 module.exports = {
     name: "Reddit",
@@ -44,14 +45,14 @@ module.exports = {
                         else
                             embed.setDescription("(No Body)")
 
-                        if(post.preview && post.preview.images && post.preview.images[0] && post.preview.images[0].source) {
+                        if(post.preview?.images?.[0]?.source) {
                             console.log("Setting preview image");
                             //Why do you do this, reddit?
                             embed.setImage(post.preview.images[0].source.url.replace(/&amp;/g, "&"));
-                        }else if(post.url.indexOf("imgur") > -1) {
+                        }else if(post.url?.indexOf("imgur") > -1) {
                             console.log("Setting post url");
                             embed.setImage(post.url);
-                        }else if(post.thumbnail && post.thumbnail.startsWith("http")) {
+                        }else if(post.thumbnail?.startsWith("http")) {
                             console.log("Setting thumbnail");
                             embed.setThumbnail(post.thumbnail);
                         }else{
@@ -68,6 +69,7 @@ module.exports = {
         }catch(e){
             console.error("Error checking sub "+sub);
             console.error(e);
+            Sentry.captureException(e);
             return null;
         }
         return output;
