@@ -92,6 +92,7 @@ module.exports = {
                     default:
                         console.warn("Unknown type " + result.loadType);
                     case "LOAD_FAILED":
+                        obj = {err: result.exception}
                     case "NO_MATCHES":
                         bot.logger.log("Load failed " + result.loadType);
                         obj = null;

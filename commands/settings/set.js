@@ -27,7 +27,7 @@ module.exports = {
         const settingName = interaction.options.getString("setting");
         const setting = await bot.redis.cache(`assoc/${settingName}`, async ()=>await bot.database.getSettingAssoc(settingName), 60000);
         const guild = interaction.member.guild;
-        switch(setting.type){
+        switch(setting?.type){
             case "boolean":
                 return [{name: "Enable", value: "on"}, {name: "Disable", value: "off"}];
             case "role":
@@ -56,7 +56,7 @@ module.exports = {
             components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "list"))]
         });
         let cleanValue, displayValue;
-        switch(setting.type){
+        switch(setting?.type){
             case "boolean":
                 cleanValue = Strings.Bools[context.options.value.toLowerCase()]
                 if(cleanValue === undefined)

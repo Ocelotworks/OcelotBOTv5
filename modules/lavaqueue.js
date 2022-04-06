@@ -16,16 +16,7 @@ module.exports = {
         bot.client.once("ready", async function () {
             const resumeKey = bot.client.user.id + "-" + bot.util.shard;
 
-            const clients = [
-                {
-                    id: "lava.link",
-                    host: "lava.link",
-                    port: 80,
-                    password: "ocelotbot.xyz",
-                    reconnectInterval: 1000,
-                    resumeKey,
-                }
-            ];
+            const clients = [];
 
             bot.lavaqueue.manager = new Manager(bot.client, clients, {
                 user: bot.client.user.id,

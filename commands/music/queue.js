@@ -26,8 +26,11 @@ module.exports = {
             bot.logger.log("Added song to queue successfully");
             if (!bot.music.listeners[guild])
                 return context.send(":thinking: Something went horribly wrong whilst queueing this song. Please try again.");
+
             if (!song)
                 return context.send(":warning: No results.");
+            if(song.err)
+                return context.send(song.err.message);
             if (song.count)
                 return context.send(`:white_check_mark: Added **${song.count}** songs from playlist **${song.name}** (${bot.util.prettySeconds(song.duration / 1000, context.guild && context.guild.id, context.user.id)})`);
             if (song.title?.indexOf("-") > -1)
