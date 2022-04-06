@@ -1586,7 +1586,7 @@ module.exports = {
 
         bot.util.hasRole = function(member, roleNameOrId){
             const normalised = roleNameOrId.toLowerCase();
-            member.roles.cache.find(function (role) {
+            return member.roles.cache.find(function (role) {
                 return role.name.toLowerCase() === normalised || role.id === normalised
             })
         }
