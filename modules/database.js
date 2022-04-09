@@ -1328,7 +1328,7 @@ module.exports = {
                 let guessRecords = await knex.select().from("ocelotbot_song_guess_records").where({user: userID});
                 //bot.logger.log("Exporting Spook Roles...");
                 //let spookRoles = await knex.select().from("ocelotbot_spook_role_assignments").where({user: userID});
-                //bot.logger.log("Exporting Spooks...");
+                //bot.logger.log("Exporting Spooks...")
                 //let spooks = await knockroach.select().from("ocelotbot_spooks").where({spooker: userID}).orWhere({spooked: userID});
                 bot.logger.log("Exporting Streaks...");
                 let streaks = await knex.select().from("ocelotbot_streaks").where({user: userID});
