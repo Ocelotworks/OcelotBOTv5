@@ -1291,7 +1291,7 @@ module.exports = {
             async dataExport(userID){
                 bot.logger.log("Starting data export...");
                 bot.logger.log("Exporting Commands...");
-                let commands = await knex.select().from("commandlog").where({userID});
+                let commands = await knockroach.select().from("commands").where({userid: userID});
                 bot.logger.log("Exporting AI Conversations...");
                 let aiConversations = await knex.select().from("ocelotbot_ai_conversations").where({userID});
                 bot.logger.log("Exporting Audit Logs...");
@@ -1328,8 +1328,8 @@ module.exports = {
                 let guessRecords = await knex.select().from("ocelotbot_song_guess_records").where({user: userID});
                 //bot.logger.log("Exporting Spook Roles...");
                 //let spookRoles = await knex.select().from("ocelotbot_spook_role_assignments").where({user: userID});
-                bot.logger.log("Exporting Spooks...");
-                let spooks = await knockroach.select().from("ocelotbot_spooks").where({spooker: userID}).orWhere({spooked: userID});
+                //bot.logger.log("Exporting Spooks...");
+                //let spooks = await knockroach.select().from("ocelotbot_spooks").where({spooker: userID}).orWhere({spooked: userID});
                 bot.logger.log("Exporting Streaks...");
                 let streaks = await knex.select().from("ocelotbot_streaks").where({user: userID});
                 bot.logger.log("Exporting Subscriptions...");
@@ -1359,8 +1359,8 @@ module.exports = {
                     servers,
                     guesses,
                     guessRecords,
-                    spookRoles,
-                    spooks,
+                    //spookRoles,
+                    //spooks,
                     streaks,
                     subscriptions,
                     settings,
