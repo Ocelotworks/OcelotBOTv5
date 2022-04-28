@@ -18,22 +18,33 @@ module.exports = {
         if(!result?.data)
             return context.sendLang({content: "DELPHI_UNANSWERABLE"});
 
-        let neutEmbed = new Embeds.LangEmbed(context);
-        neutEmbed.setTitle("Neutral");
-        neutEmbed.setDescription(result.data.neutResponse);
-        neutEmbed.setColor("#a1a1a1");
 
-        let ytaEmbed = new Embeds.LangEmbed(context);
-        ytaEmbed.setTitle("YTA");
-        ytaEmbed.setDescription(result.data.yataResponse);
-        ytaEmbed.setColor("#aa2222");
+        const embeds = [];
 
-        let ntaEmbed = new Embeds.LangEmbed(context);
-        ntaEmbed.setTitle("NTA");
-        ntaEmbed.setDescription(result.data.ntaResponse);
-        ntaEmbed.setColor("#22aa22");
+        if(result.data.neutResponse) {
+            let neutEmbed = new Embeds.LangEmbed(context);
+            neutEmbed.setTitle("Neutral");
+            neutEmbed.setDescription(result.data.neutResponse);
+            neutEmbed.setColor("#a1a1a1");
+            embeds.push(neutEmbed);
+        }
 
-        const embeds = [neutEmbed, ytaEmbed, ntaEmbed];
+        if(result.data.yataResponse) {
+            let ytaEmbed = new Embeds.LangEmbed(context);
+            ytaEmbed.setTitle("YTA");
+            ytaEmbed.setDescription(result.data.yataResponse);
+            ytaEmbed.setColor("#aa2222");
+            embeds.push(ytaEmbed)
+        }
+
+        if(result.data.ntaResponse) {
+            let ntaEmbed = new Embeds.LangEmbed(context);
+            ntaEmbed.setTitle("NTA");
+            ntaEmbed.setDescription(result.data.ntaResponse);
+            ntaEmbed.setColor("#22aa22");
+            embeds.push(ntaEmbed);
+        }
+
         bot.util.shuffle(embeds)
 
         return context.send({embeds})
