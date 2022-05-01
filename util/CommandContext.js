@@ -196,7 +196,8 @@ class MessageCommandContext extends CommandContext {
         this._appendPrefix(options);
         if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id)?.has("READ_MESSAGE_HISTORY"))
             return this.send(options);
-        const message = await this.message.reply(options);
+        const message = await this.message.reply(options).catch(()=>null);
+        if(!message)return this.send(message);
         this.message.response = message;
         this.bot.bus.emit("messageSent", message);
         return message;
