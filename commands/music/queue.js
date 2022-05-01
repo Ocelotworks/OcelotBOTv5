@@ -16,7 +16,11 @@ module.exports = {
             if (!context.member.voice || !context.member.voice.channel)
                 return context.send(":warning: You have to be in a voice channel to use this command.");
             bot.logger.log("Constructing listener");
-            await bot.music.constructListener(context.guild, context.member.voice.channel, context.channel);
+            let listener = await bot.music.constructListener(context.guild, context.member.voice.channel, context.channel);
+            if(!listener){
+                Sentry.captureMessage("No lavalink nodes are available");
+                return context.send("Sorry, music playback is temporarily unavailable. Try again later. (No nodes available)");
+            }
         }
 
         // await context.channel.sendTyping();
