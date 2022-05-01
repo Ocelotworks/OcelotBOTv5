@@ -1453,7 +1453,7 @@ module.exports = {
             return {
                 id: member.id,
                 bot: member.user.bot,
-                avatar: member.displayAvatarURL({size: 32, format: "png"}),
+                avatar: member.user.displayAvatarURL({size: 32, format: "png"}),
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
