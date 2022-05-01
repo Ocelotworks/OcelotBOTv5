@@ -10,7 +10,7 @@ module.exports = {
     run: async function run(context, bot) {
         let exec = subredditRegex.exec(context.options.subreddit);
         const subreddit = exec[2];
-        const result = await bot.util.getJson(`https://reddit.com/r/${subreddit}.json`)
+        const result = await bot.util.getJson(`https://json.reddit.com/r/${subreddit}`)
 
         if(result.error){
             let output;
