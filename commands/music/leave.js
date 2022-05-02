@@ -4,20 +4,18 @@
  * ╚════ ║   (ocelotbotv5) leave
  *  ════╝
  */
+const {axios} = require("../../util/Http");
 module.exports = {
     name: "Leave Channel",
     usage: "leave",
     commands: ["leave", "quit", "stop"],
     run: async function (context, bot) {
-        const guild = context.guild.id;
-        await bot.lavaqueue.manager.leave(guild);
-        await bot.music.deconstructListener(guild);
+        let {data} = await axios.post(`${process.env.MUSIC_URL}/leave`, {
+            guildId: context.guild.id,
+        });
 
-        if (!bot.music.listeners[guild])
+        if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");
-
-        //if(listener.playing && listener.voiceChannel.members.size > 2)
-        //   return context.send(`:bangbang: You can only use this command if you're the only one listening.`);
 
         return context.send(":wave: Goodbye.");
     }

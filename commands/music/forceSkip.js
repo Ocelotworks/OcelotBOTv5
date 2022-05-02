@@ -1,3 +1,4 @@
+const {axios} = require("../../util/Http");
 /**
  *   ╔════   Copyright 2019 Peter Maguire
  *  ║ ════╗  Created 02/09/2019
@@ -10,11 +11,15 @@ module.exports = {
     settingsOnly: true,
     commands: ["forceskip", "fs"],
     run: async function (context, bot) {
-        const guild = context.guild.id;
-        if (!bot.music.listeners[guild] || !bot.music.listeners[guild].playing)
+        let {data} = await axios.post(`${process.env.MUSIC_URL}/skip`, {
+            guildId: context.guild.id,
+            userId: context.user.id,
+            force: true,
+        });
+
+        if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");
 
-        await context.sendLang("MUSIC_SKIPPED");
-        return bot.music.playNextInQueue(guild);
+        return context.sendLang("MUSIC_SKIPPED");
     }
 };

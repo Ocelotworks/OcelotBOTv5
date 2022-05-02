@@ -1,3 +1,5 @@
+const {axios} = require("../../util/Http");
+const Sentry = require("@sentry/node");
 /**
  *   ╔════   Copyright 2019 Peter Maguire
  *  ║ ════╗  Created 05/09/2019
@@ -9,16 +11,22 @@ module.exports = {
     usage: "resume",
     commands: ["resume", "unpause"],
     run: async function (context, bot) {
-        const guild = context.guild.id;
-        if (!bot.music.listeners[guild])
+        let {data} = await axios.post(`${process.env.MUSIC_URL}/pause`, {
+            guildId: context.guild.id,
+            pause: false,
+        });
+
+        if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");
 
-        const listener = bot.music.listeners[guild];
-        if (listener.playing && listener.voiceChannel.members.size > 2 && listener.playing.requester !== context.user.id)
+        if(data?.err === "not permitted")
             return context.send(`:bangbang: You can only use this command if you're the only one listening or it is your track playing.`);
 
+        if(!data || data.err){
+            Sentry.captureMessage("Invalid response from patchwork on resume");
+            return context.sendLang({content: "GENERIC_ERROR"});
+        }
 
-        listener.connection.pause(false);
-        context.send("▶ Resumed.");
+        return context.send("▶ Resumed.");
     }
 };
