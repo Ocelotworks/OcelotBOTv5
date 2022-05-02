@@ -3,7 +3,7 @@ module.exports = {
     usage: "waitfordrain",
     commands: ["waitfordrain", "drain"],
     run: function (context, bot) {
-        let content = "```ascii\n";
+        let content = "```ansi\n";
         content += `Docker Host:\t${process.env.DOCKER_HOST.red}\n`;
         content += `Current Ver:\t${bot.version.red}\n`;
         content += `Drain:\t${bot.version.red}\n`;
