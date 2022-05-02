@@ -11,7 +11,7 @@ module.exports = {
     settingsOnly: true,
     commands: ["forceskip", "fs"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${bot.util.patchworkHost}/skip`, {
+        let {data} = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/skip`, {
             guildId: context.guild.id,
             userId: context.user.id,
             force: true,

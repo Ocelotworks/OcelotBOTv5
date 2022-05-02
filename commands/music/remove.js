@@ -17,7 +17,7 @@ module.exports = {
             });
         }
 
-        let {data} = await axios.post(`${bot.util.patchworkHost}/queue/${context.options.pos}`, {
+        let {data} = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/queue/${context.options.pos}`, {
             guildId: context.guild.id,
             userId: context.user.id,
         });

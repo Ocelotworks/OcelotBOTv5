@@ -10,7 +10,7 @@ module.exports = {
     usage: "leave",
     commands: ["leave", "quit", "stop"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${bot.util.patchworkHost}/leave`, {
+        let {data} = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/leave`, {
             guildId: context.guild.id,
         });
 
