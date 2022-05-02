@@ -11,7 +11,7 @@ module.exports = {
     usage: "seek :seconds",
     commands: ["seek"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${process.env.MUSIC_URL}/seek`, {
+        let {data} = await axios.post(`${bot.util.patchworkHost}/seek`, {
             guildId: context.guild.id,
             position: context.options.seconds,
         });

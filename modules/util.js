@@ -1575,6 +1575,7 @@ module.exports = {
 
         bot.util.shard = parseInt(process.env.SHARD) - 1
 
+        bot.util.patchworkHost = process.env.MUSIC_URL || `patchwork-${process.env.BOT_ID}-${parseInt(bot.util.shard/10)}`;
 
         bot.util.getUniqueId = function(message){
             let charCodes = [];

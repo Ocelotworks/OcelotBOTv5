@@ -10,7 +10,7 @@ module.exports = {
     usage: "clearqueue",
     commands: ["clear", "cq", "clearqueue", "qc"],
     run: async function (context, bot) {
-        let {data} = await axios.delete(`${process.env.MUSIC_URL}/queue?guild=${context.guild.id}`);
+        let {data} = await axios.delete(`${bot.util.patchworkHost}/queue?guild=${context.guild.id}`);
 
         if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");

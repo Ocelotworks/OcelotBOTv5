@@ -10,7 +10,7 @@ module.exports = {
     usage: "skip",
     commands: ["skip", "next", "s", "n"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${process.env.MUSIC_URL}/skip`, {
+        let {data} = await axios.post(`${bot.util.patchworkHost}/skip`, {
             guildId: context.guild.id,
             userId: context.user.id,
             force: false,

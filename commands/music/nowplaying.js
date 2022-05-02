@@ -10,7 +10,7 @@ module.exports = {
     usage: "nowplaying",
     commands: ["nowplaying", "np", "playing"],
     run: async function (context, bot) {
-        let {data} = await axios.get(`${process.env.MUSIC_URL}/playing?guild=${context.guild.id}`);
+        let {data} = await axios.get(`${bot.util.patchworkHost}/playing?guild=${context.guild.id}`);
 
         if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");

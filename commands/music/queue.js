@@ -14,7 +14,7 @@ module.exports = {
         if (!context.member.voice || !context.member.voice.channel)
             return context.send(":warning: You have to be in a voice channel to use this command.");
 
-        let {data} = await axios.post(`${process.env.MUSIC_URL}/queue`, {
+        let {data} = await axios.post(`${bot.util.patchworkHost}/queue`, {
             query: context.options.url,
             guildId: context.guild.id,
             voiceChannelId: context.member.voice.channel.id,

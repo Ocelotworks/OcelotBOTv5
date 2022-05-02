@@ -11,7 +11,7 @@ module.exports = {
     usage: "resume",
     commands: ["resume", "unpause"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${process.env.MUSIC_URL}/pause`, {
+        let {data} = await axios.post(`${bot.util.patchworkHost}/pause`, {
             guildId: context.guild.id,
             pause: false,
         });

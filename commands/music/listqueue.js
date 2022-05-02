@@ -11,7 +11,7 @@ module.exports = {
     usage: "listqueue",
     commands: ["list", "lq", "upnext", "vq", "viewqueue", "listqueue", "ql"],
     run: async function (context, bot) {
-        let {data} = await axios.get(`${process.env.MUSIC_URL}/queue?guild=${context.guild.id}`);
+        let {data} = await axios.get(`${bot.util.patchworkHost}/queue?guild=${context.guild.id}`);
 
         if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");

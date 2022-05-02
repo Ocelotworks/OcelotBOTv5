@@ -10,7 +10,7 @@ module.exports = {
     usage: "leave",
     commands: ["leave", "quit", "stop"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${process.env.MUSIC_URL}/leave`, {
+        let {data} = await axios.post(`${bot.util.patchworkHost}/leave`, {
             guildId: context.guild.id,
         });
 
