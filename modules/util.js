@@ -1581,7 +1581,7 @@ module.exports = {
                 return process.env.MUSIC_URL;
 
             const shard = Number(BigInt(guildId) >> 22n) % parseInt(process.env.PATCHWORK_SHARD_COUNT);
-            return `http://patchwork-${process.env.BOT_ID}-${shard}:8008`;
+            return `http://patchwork-${process.env.BOT_ID}-${shard+1}:8008`;
         }
 
         bot.util.getUniqueId = function(message){
