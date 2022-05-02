@@ -17,18 +17,13 @@ module.exports = {
         
         context.defer();
         try {
-            let span = bot.util.startSpan("Get Leaderboard");
             let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/points/${timescale}`);
-            span.end();
             if (!leaderboard.data || leaderboard.data.length === 0) {
                 return context.send({content:`There is no data for this timeframe yet. Try **${context.command} leaderboard all** to see the all time scores.`, ephemeral: true});
             }
-            span = bot.util.startSpan("Get Position");
             let positionData = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/points/${timescale}/${context.user.id}`);
-            span.end();
             let outputData = [];
 
-            span = bot.util.startSpan("Create Table");
             for (let i = 0; i < leaderboard.data.length; i++) {
                 const entry = leaderboard.data[i]
                 outputData.push({
@@ -37,9 +32,8 @@ module.exports = {
                     [timescale === "all" ? "balance" : "earned"]: parseInt(entry.points).toLocaleString(),
                 });
             }
-            span.end();
 
-            let output = `You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total users${timescale === "all" ? " of all time" : ` this ${timescale}`}.\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``;
+            let output = `You are **#${(positionData.position + 1)?.toLocaleString() || "not placed"}** out of **${positionData.total?.toLocaleString() || 0}** total users${timescale === "all" ? " of all time" : ` this ${timescale}`}.\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``;
             if(timescale !== "all")output += `**${context.getSetting("prefix")}points leaderboard all** to see all-time scores.`
             return context.reply(output);
         } catch (e) {
