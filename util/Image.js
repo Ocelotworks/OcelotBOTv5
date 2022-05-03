@@ -230,6 +230,7 @@ module.exports = class Image {
         try {
             messageResult = await message.channel.send({content: sentMessage, files: [attachment]});
         } catch (e) {
+            if(!message.channel)return;
             Sentry.captureException(e);
             messageResult = await message.channel.send("Failed to send: "+e);
         }

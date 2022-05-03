@@ -127,6 +127,10 @@ async function endGame(bot, id){
 
 async function startGame(bot, context, playlistId, custom){
     context.defer();
+    if(!context.member.voice.channel) {
+        Sentry.captureMessage("Member has no voice channel when starting guess game");
+        return context.send("Couldn't start game, try again (voice channel does not exist)");
+    }
     const vcId = context.member.voice.channel.id;
     const player = await bot.lavaqueue.manager.join({
         guild: context.guild.id,

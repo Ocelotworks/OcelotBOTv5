@@ -28,6 +28,8 @@ module.exports = {
             const noot = noots[nootNumber]
             context.defer();
             let {songData, player} = await bot.lavaqueue.playOneSong(context.member.voice.channel, noot);
+            if(!player)
+                return context.send("No lavalink node is currently available. Try again later.");
             player.once("start", ()=>{
                 context.sendLang("DOOT", {doot: nootNumber, arg: context.command, fileName: songData.info.title});
             });

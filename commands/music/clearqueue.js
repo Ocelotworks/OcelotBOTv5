@@ -1,3 +1,4 @@
+const {axios} = require("../../util/Http");
 /**
  *   ╔════   Copyright 2019 Peter Maguire
  *  ║ ════╗  Created 04/09/2019
@@ -9,21 +10,17 @@ module.exports = {
     usage: "clearqueue",
     commands: ["clear", "cq", "clearqueue", "qc"],
     run: async function (context, bot) {
-        const guild = context.guild.id;
-        if (!bot.music.listeners[guild] || !bot.music.listeners[guild].playing)
+        let {data} = await axios.delete(`${bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
+
+        if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");
 
-        const listener = bot.music.listeners[guild];
-
-        if (listener.queue.length === 0)
+        if (data?.err === "queue empty")
             return context.sendLang("MUSIC_QUEUE_EMPTY");
 
-
-        if (listener.voiceChannel.members.size > 2)
+        if (data?.err === "not permitted")
             return context.send(`:bangbang: You can only use this command if you're the only one listening.`);
 
-        context.send(`:white_check_mark: Cleared **${listener.queue.length}** items from the queue.`);
-        listener.queue = [];
-        await bot.database.clearQueue(listener.id);
+        return context.send(`:white_check_mark: Cleared **${data.count}** items from the queue.`);
     }
 };

@@ -5,23 +5,23 @@
  *  ════╝
  */
 const Util = require("../../util/Util");
+const {axios} = require("../../util/Http");
 module.exports = {
     name: "List Queue",
     usage: "listqueue",
     commands: ["list", "lq", "upnext", "vq", "viewqueue", "listqueue", "ql"],
     run: async function (context, bot) {
-        const guild = context.guild.id;
-        if (!bot.music.listeners[guild])
+        let {data} = await axios.get(`${bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
+
+        if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");
 
-        const listener = bot.music.listeners[guild];
-
-        if (listener.queue.length === 0)
+        if (data.queue.length === 0)
             return context.sendLang("MUSIC_QUEUE_EMPTY");
 
-        let header = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(listener.queue.reduce((p, t) => p + t.info.length, 0) / 1000, context.guild && context.guild.id, context.user.id)})\n============\n`;
+        let header = `\`\`\`asciidoc\nQueue (${bot.util.prettySeconds(data.queue.reduce((p, t) => p + t.info.length, 0) / 1000, context.guild && context.guild.id, context.user.id)})\n============\n`;
 
-        let chunkedQueue = listener.queue.chunk(10);
+        let chunkedQueue = data.queue.chunk(10);
         return Util.StandardPagination(bot, context, chunkedQueue, async function (page, index) {
             let output = "";
             output += header;

@@ -92,7 +92,7 @@ module.exports = {
                        let chan = bot.client.channels.cache.get(subList[i].channel);
                         await bot.database.updateLastCheck(subList[i].id);
                         subList[i].lastcheck = new Date();
-                       if(chan) {
+                       if(chan && !chan.deleted && chan.permissionsFor(bot.client.user.id)?.has("SEND_MESSAGES")) {
                            console.log(JSON.stringify(results))
                            let output = {embeds:results.slice(0,10)};
                            if(results.length > 10)

@@ -194,9 +194,10 @@ class MessageCommandContext extends CommandContext {
         Sentry.setExtra("context", {type: "message", command: this.command, args: this.args, message: this.message?.content});
         if(typeof options === "string")options = {content: options};
         this._appendPrefix(options);
-        if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id).has("READ_MESSAGE_HISTORY"))
+        if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id)?.has("READ_MESSAGE_HISTORY"))
             return this.send(options);
-        const message = await this.message.reply(options);
+        const message = await this.message.reply(options).catch(()=>null);
+        if(!message)return this.send(message);
         this.message.response = message;
         this.bot.bus.emit("messageSent", message);
         return message;

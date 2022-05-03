@@ -45,6 +45,8 @@ module.exports = {
             const noot = noots[nootNumber]
             context.defer();
             let {songData, player} = await bot.lavaqueue.playOneSong(context.member.voice.channel, noot);
+            if(!player)
+                return context.channel.send("No lavalink node is currently available. Try again later.");
             player.once("start", ()=>{
                 context.send(`<:noot:524657747757891615> Noot #${nootNumber} (${songData.info.title})\nUse \`${context.getSetting("prefix")}${context.command} ${nootNumber}\` to play this again.`);
             });

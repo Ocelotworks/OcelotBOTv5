@@ -277,6 +277,9 @@ module.exports = {
             },
             constructListener: async function constructListener(server, voiceChannel, channel, id) {
                 bot.logger.log("Constructing listener for " + server);
+                if(bot.lavaqueue.manager.idealNodes.length === 0){
+                    return null;
+                }
                 let player = await bot.lavaqueue.manager.join({
                     guild: server.id,
                     channel: voiceChannel.id,

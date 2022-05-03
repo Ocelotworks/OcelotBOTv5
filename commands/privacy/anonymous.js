@@ -6,7 +6,7 @@ module.exports = {
         let option;
         if(!context.options.mode){
             if(context.getBool("privacy.anonymous"))
-                return context.send(`You currently have anonymity turned ON, meaning that your Discord Tag will not show up anywhere on OcelotBOT. To turn this off, **${context.command} ${args[1]} off**`);
+                return context.send(`You currently have anonymity turned ON, meaning that your Discord Tag will not show up anywhere on OcelotBOT. To turn this off, **${context.command} anonymous off**`);
 
             return context.send(`For certain commands, your Discord Tag (e.g Big P#1843) may be displayed to other users. This includes, but isn't limited to:
 - Getting a Guess record, or being on the leaderboard

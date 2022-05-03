@@ -1453,7 +1453,7 @@ module.exports = {
             return {
                 id: member.id,
                 bot: member.user.bot,
-                avatar: member.displayAvatarURL({size: 32, format: "png"}),
+                avatar: member.user.displayAvatarURL({size: 32, format: "png"}),
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
@@ -1575,6 +1575,14 @@ module.exports = {
 
         bot.util.shard = parseInt(process.env.SHARD) - 1
 
+
+        bot.util.getPatchworkHost = (guildId)=>{
+            if(process.env.MUSIC_URL)
+                return process.env.MUSIC_URL;
+
+            const shard = Number(BigInt(guildId) >> 22n) % parseInt(process.env.PATCHWORK_SHARD_COUNT);
+            return `http://patchwork-${process.env.BOT_ID}-${shard+1}:8008`;
+        }
 
         bot.util.getUniqueId = function(message){
             let charCodes = [];

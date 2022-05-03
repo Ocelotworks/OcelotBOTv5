@@ -64,7 +64,7 @@ module.exports = {
                 }
             } else {
                 images = await bot.redis.cache(`images/${type}/${query}`, async () => await client.search(query, {safe: nsfw ? "off" : "high"}), 36000)
-                images = images.filter((image) => !image.thumbnail.url.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
+                images = images.filter((image) => !image.thumbnail?.url?.startsWith("x-raw-image") && !image.url.startsWith("x-raw-image"))
 
             }
             if (images.length === 0)
@@ -78,8 +78,8 @@ module.exports = {
                 embed.setAuthor(context.user.username, context.user.avatarURL({dynamic: true, format: "png"}));
                 embed.setTimestamp(new Date());
                 embed.setTitle(`Image results for '${query.substring(0, 200)}'`);
-                if (!page.thumbnail.url.startsWith("x-raw-image") && (context.getSetting("image.useThumbnails") || !page.url))
-                    embed.setImage(page.thumbnail.url);
+                if (!page.thumbnail?.url.startsWith("x-raw-image") && (context.getSetting("image.useThumbnails") || !page.url))
+                    embed.setImage(page.thumbnail?.url);
                 else
                     embed.setImage(page.url);
                 embed.setDescription(page.description || "No Description");
