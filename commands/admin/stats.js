@@ -21,7 +21,6 @@ module.exports = {
         let content = "```ansi\n";
         let keys = Object.keys(stats);
 
-
         let paddingLength = 0;
         for(let key of keys){
             if(paddingLength < key.length)paddingLength = key.length;
