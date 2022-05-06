@@ -4,8 +4,6 @@
  * ╚════ ║   (ocelotbotv5) voiceConnections
  *  ════╝
  */
-const encoding = require('@lavalink/encoding');
-const columnify = require('columnify');
 const {axios} = require("../../util/Http");
 module.exports = {
     name: "Lavalink",
@@ -16,8 +14,19 @@ module.exports = {
         const shards = Object.keys(data);
         let output = shards.flatMap((shardNum)=>{
             const shardData = data[shardNum].flat();
-            return shardData.map((shard)=>`${shardNum}: ${shard.paused ? "paused".red : "playing".green} ${shard.playing ? "active".green : "idle".dim}`);
-        })
+            return shardData.map((shard)=>`  ${shardNum}: ${shard.paused ? "paused".red : "playing".green} ${shard.playing ? "active".green : "idle".dim}`);
+        });
+
+        let patchworkWorkers = Math.floor(parseInt(process.env.PATCHWORK_SHARD_COUNT)/10);
+
+        for (let i = 1; i < patchworkWorkers; i++){
+            try {
+                let {data} = await axios.get(`http://patchwork-${process.env.BOT_ID}-${i}:8008/lavalink/players`);
+                output.append(data.map((shard) => `PW${i}: ${shard.paused ? "paused".red : "playing".green} ${shard.playing ? "active".green : "idle".dim}`));
+            }catch(e){
+                output.push(`Patchwork ${i} failed`);
+            }
+        }
 
         return context.send({content: `${output.length} players:\n\`\`\`ansi\n${output.join("\n")}\n\`\`\``});
     }
