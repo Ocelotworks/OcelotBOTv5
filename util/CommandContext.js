@@ -161,6 +161,7 @@ class MessageCommandContext extends CommandContext {
     async send(options){
         // How can this be possible?
         if(!this.channel)return this.bot.logger.warn("Channel was null? "+this.content);
+        if(!options) options = {content: "<Blank message>"};
         Sentry.addBreadcrumb({
             message: "Message Send",
             data: {
