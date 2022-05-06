@@ -17,9 +17,9 @@ module.exports = {
             return shardData.map((shard)=>`  ${shardNum}: ${shard.paused ? "paused".red : "playing".green} ${shard.playing ? "active".green : "idle".dim}`);
         });
 
-        let patchworkWorkers = Math.floor(parseInt(process.env.PATCHWORK_SHARD_COUNT)/10);
+        let patchworkWorkers = Math.floor(parseInt(process.env.PATCHWORK_SHARD_COUNT)/10)+1;
 
-        for (let i = 1; i < patchworkWorkers; i++){
+        for (let i = 1; i <= patchworkWorkers; i++){
             try {
                 let {data} = await axios.get(`http://patchwork-${process.env.BOT_ID}-${i}:8008/lavalink/players`);
                 output.append(data.map((shard) => `PW${i}: ${shard.paused ? "paused".red : "playing".green} ${shard.playing ? "active".green : "idle".dim}`));
