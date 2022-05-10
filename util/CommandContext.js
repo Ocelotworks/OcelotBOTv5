@@ -161,6 +161,7 @@ class MessageCommandContext extends CommandContext {
     async send(options){
         // How can this be possible?
         if(!this.channel)return this.bot.logger.warn("Channel was null? "+this.content);
+        if(!options) options = {content: "<Blank message>"};
         Sentry.addBreadcrumb({
             message: "Message Send",
             data: {
@@ -355,8 +356,11 @@ class InteractionContext extends CommandContext {
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         if(typeof options === "string")options = {content: options};
         this._appendPrefix(options, true);
-        if(this.interaction.replied)
+        try {
             return this.interaction.editReply(options);
+        }catch(e){
+            console.log("Discord moment");
+        }
         if(this.interaction.deferred)
             return this.interaction.followUp(options);
         return this.interaction.reply(options);

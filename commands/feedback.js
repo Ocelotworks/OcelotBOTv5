@@ -19,7 +19,7 @@ module.exports = {
             if(!channel)return context.send({content: "Channel has been deleted or server was left.", ephemeral: true})
             let thread = await interaction.channel.threads.create({
                 startMessage: interaction.message.id,
-                name: `${channel.guild.name} - ${channel.id}`,
+                name: `${channel.guild.name.replace(/-/g, "~")} - ${channel.id}`,
                 autoArchiveDuration: 1440,
                 reason: "Feedback thread requested",
             });

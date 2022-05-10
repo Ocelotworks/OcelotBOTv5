@@ -27,10 +27,12 @@ module.exports = {
             description: context.getLang(`SETTINGS_CATEGORY_${cat.command.toUpperCase()}_DESC`),
             value: cat.command,
             default: context.options.category === cat.command,
-        })), (interaction) => {
+        })), async (interaction) => {
             const categoryID = interaction.values[0];
-            const args = [context.command, "list", categoryID];
-            bot.command.runCommand(bot.command.initContext(new MessageEditCommandContext(bot, context.message, message, args, context.command)));
+            const newContext = Object.create(context);
+            newContext.options = {command: "list", category: categoryID}
+            if(message)message.delete();
+            message = await bot.command.runCommand(newContext);
         }, 1, 1))]
 
 
