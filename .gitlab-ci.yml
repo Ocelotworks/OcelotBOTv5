@@ -62,14 +62,14 @@ build-base-image-staging:
 
 build-base-image-goblin:
   environment:
-    name: staging
+    name: production
   only:
     changes:
       - package.json
       - package-lock.json
       - BaseImage.Dockerfile
     refs:
-      - staging
+      - goblin
   extends: .build-base-image
 
 .build-base-image:
