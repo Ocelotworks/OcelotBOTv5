@@ -60,6 +60,18 @@ build-base-image-staging:
       - staging
   extends: .build-base-image
 
+build-base-image-goblin:
+  environment:
+    name: staging
+  only:
+    changes:
+      - package.json
+      - package-lock.json
+      - BaseImage.Dockerfile
+    refs:
+      - staging
+  extends: .build-base-image
+
 .build-base-image:
   stage: build-base
   except:
@@ -73,7 +85,7 @@ build-base-image-staging:
   before_script:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
   script:
-    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest || true
+    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH || true
     - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
       --build-arg REGISTRY=$REGISTRY
@@ -104,6 +116,18 @@ build-shard-master:
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
     - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
     - export VERSION=$(cat .next-version)
+
+build-shard-goblin:
+  environment:
+    name: production
+  only:
+    - goblin
+  extends: .build-shard
+  before_script:
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
+    - export VERSION=$(cat .next-version)
+
 
 .build-shard:
   stage: build
