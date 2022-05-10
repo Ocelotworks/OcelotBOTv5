@@ -110,10 +110,12 @@ module.exports = {
         });
 
         let message;
-        const dropdown = bot.util.actionRow(bot.interactions.addDropdown("Select Category...", categories, (interaction) => {
+        const dropdown = bot.util.actionRow(bot.interactions.addDropdown("Select Category...", categories, async (interaction) => {
             const categoryID = interaction.values[0];
-            const args = [context.command, categoryID];
-            bot.command.runCommand(bot.command.initContext(new MessageEditCommandContext(bot, context.message, message, args, context.command)));
+            const newContext = Object.create(context);
+            newContext.options = {command: categoryID}
+            if(message)message.delete();
+            message = await bot.command.runCommand(newContext);
         }, 1, 1))
 
         if(!context.options.command) {
