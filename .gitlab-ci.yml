@@ -62,7 +62,7 @@ build-base-image-staging:
 
 build-base-image-goblin:
   environment:
-    name: production
+    name: goblin
   only:
     changes:
       - package.json
@@ -119,7 +119,7 @@ build-shard-master:
 
 build-shard-goblin:
   environment:
-    name: production
+    name: goblin
   only:
     - goblin
   extends: .build-shard
@@ -207,6 +207,7 @@ version:
   only:
     - master
     - staging
+    - goblin
   except:
     - tags
 
