@@ -258,10 +258,11 @@ module.exports = class Util {
                 idleTimer = setTimeout(clearButtons, 60000);
             }
 
-            if ((context.interaction && context.interaction.replied) || (sentMessage && !sentMessage.deleted) && (!context.guild || context.guild.available) && !context.channel?.deleted)
+            if (sentMessage)
                 return context.edit(payload, sentMessage)
 
-            sentMessage = await context.send(payload)
+            sentMessage = await context.send(payload);
+            console.log(sentMessage);
         };
 
         await buildPage();
