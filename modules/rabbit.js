@@ -230,7 +230,7 @@ module.exports = class RabbitMQ {
     }
 
     event(data){
-        return this.eventsChannel.publish(this.eventsExchange, '', Buffer.from(JSON.stringify(data)), {appId: this.identifier});
+        return this.eventsChannel?.publish(this.eventsExchange, '', Buffer.from(JSON.stringify(data)), {appId: this.identifier});
     }
 
     broadcastEval(script){
