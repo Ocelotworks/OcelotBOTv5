@@ -31,7 +31,7 @@ module.exports = {
                     id: message.author.id,
                     username: message.author.username
                 });
-                if(message.guild && !message.channel?.permissionsFor?.(bot.client.user.id).has("SEND_MESSAGES", true))return;
+                if(message.guild && !message.channel?.permissionsFor?.(bot.client.user.id)?.has("SEND_MESSAGES", true))return;
                 if(message.guild && !message.author.bot && bot.customFunctions.AUTORESPOND[message.guild.id]){
                     if(!bot.config.getBool(message.guild?.id || "global", "custom.autorespond"))return bot.logger.log("Custom autoresponds disabled by setting");
                     const keys = Object.keys(bot.customFunctions.AUTORESPOND[message.guild.id]);
