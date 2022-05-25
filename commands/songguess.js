@@ -132,6 +132,9 @@ async function startGame(bot, context, playlistId, custom){
         return context.send("Couldn't start game, try again (voice channel does not exist)");
     }
     const vcId = context.member.voice.channel.id;
+    if(bot.lavaqueue.manager.idealNodes.length === 0){
+        return context.send("Audio functions are currently unavailable. Try again later.");
+    }
     const player = await bot.lavaqueue.manager.join({
         guild: context.guild.id,
         channel: vcId,
