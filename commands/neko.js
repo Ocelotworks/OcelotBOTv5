@@ -1,4 +1,5 @@
 const config = require('config');
+const {axios} = require('../util/Http')
 module.exports = {
     name: "Random Neko Image",
     usage: "neko",
@@ -8,9 +9,11 @@ module.exports = {
     slashOptions: [],
     slashHidden: true,
     run: async function(context, bot){
-        const data = await bot.util.getJson("https://gallery.fluxpoint.dev/api/nsfw/nekopara", null, {
-            "Authorization": config.get("API.fluxpoint.key"),
-        });
+        const {data} = await axios.get("https://gallery.fluxpoint.dev/api/nsfw/img/neko", {
+            headers: {
+                "Authorization": config.get("API.fluxpoint.key"),
+            }
+        })
         return context.send(data.file)
     },
 };

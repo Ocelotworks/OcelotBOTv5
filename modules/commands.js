@@ -541,7 +541,7 @@ module.exports = class Commands {
             console.log(e);
             let exceptionID = Sentry.captureException(e);
             // Show the actual error indev
-            if(process.env.VERSION === "indev"){
+            if(process.env.VERSION === "indev" || context.getBool("showErrors")){
                 exceptionID = e?.message;
             }
             if(context.channel?.permissionsFor?.(this.bot.client.user.id)?.has("EMBED_LINKS")) {
