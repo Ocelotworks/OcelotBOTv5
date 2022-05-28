@@ -5,7 +5,7 @@ module.exports = {
     run: async function (context, bot) {
         const func = await context.commandData.getNameOrId(context, bot);
         if(!func)return;
-        const code = context.commandData.getCodeBlock(context);
+        const {code, language} = context.commandData.getCodeBlock(context);
 
         if(code.length === 0)
             return context.sendLang({content: "CUSTOM_CODE_AMBIGUOUS", ephemeral: true})
