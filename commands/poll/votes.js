@@ -25,7 +25,7 @@ module.exports = {
 
         for(let i = 0; i < answers.length; i++){
             const answer = answers[i];
-            output += `**Option #${i+1} '${embed.fields[i]?.name}'**:\n- ${answer?.map((u)=>`<@${u.userID}> <t:${parseInt(u.timestamp.getTime()/1000)}:R>`).join("\n") || "None\n"}`
+            output += `**Option #${i+1} '${embed.fields[i]?.name}'**:\n- ${answer?.map((u)=>`<@${u.userID}> <t:${parseInt(u.timestamp.getTime()/1000)}:R>`).join("\n") || "None\n"}\n`
         }
         try {
             await dm.send({
