@@ -2,6 +2,16 @@ const later = require('later');
 const Sentry = require('@sentry/node')
 const {SyntheticCommandContext, CustomCommandContext} = require("../util/CommandContext");
 let cronIntervals = [];
+// Match group 2 - block language (null for block with no language, undefined for no block)
+// Match group 3 - code
+const codeBlockRegex = /(```([A-Z]*)[ \n])?(.*)([ \n]```)?/i;
+
+const normalisedLanguages = {
+    "js": "js",
+    "javascript": "js",
+    "lua": "lua"
+}
+
 module.exports = {
     name: "Custom Functions",
     usage: "custom",
@@ -76,19 +86,12 @@ module.exports = {
         }
     },
     getCodeBlock(context){
-        let start = context.options.code.indexOf("```")
-        let end = context.options.code.length - 4;
-        if (start === -1) {
-            start = 0;
-            end = context.options.code.length;
-        }else{
-            start += 3
-        }
-        let code = context.options.code.substring(start, end);
-
-        if(code.startsWith("lua"))code = code.substring(3); // Remove lua from the start of the codeblock
-        console.log("Codeblock:" ,code);
-        return code;
+        // OcelotBOT normalises text command arguments into having only one space between each argument, this is done almost
+        // for purely legacy purposes. Once the is message split into individual arguments it's recombined with a space inbetween those
+        // arguments and fed into the command parser. This can't be changed to the original message content without messing up the parsing
+        // and the regex leaves the ``` at the end of a codeblock if it's using spaces rather than line breaks. So we have to trim those off the end.
+        const matches = codeBlockRegex.exec(context.options.code);
+        return {language: normalisedLanguages[matches[2]] || "lua", code: matches[3].replace(/`+$/, "")};
     },
     async getNameOrId(context, bot){
         let func;
