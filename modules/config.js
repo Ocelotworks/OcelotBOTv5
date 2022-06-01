@@ -93,6 +93,14 @@ module.exports = {
             return result === "true" || result === "1";
         };
 
+        bot.config.getObject = function getObject(server, property, user){
+            return JSON.parse(bot.config.get(server, property, user));
+        }
+
+        bot.config.setObject = function setObject(server, property, value){
+            return bot.config.set(server, property, JSON.stringify(value));
+        }
+
         bot.config.set = async function (server, property, value) {
             await bot.database.setSetting(server, property, value, bot.client.user.id);
             await bot.config.reloadCacheForServer(server);
