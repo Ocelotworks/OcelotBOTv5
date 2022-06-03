@@ -4,8 +4,13 @@ module.exports = {
     name: "Set Reminder",
     usage: "in :timeandmessage+",
     commands: ["in", "on", "at", "for", "the", "me"],
+    slashOptions: [{
+        type: "STRING", name: "time", description: "The time for your reminder ('in 2 hours' or 'at 10pm')", required: true
+    }, {
+        type: "STRING", name: "message", description: "The message that goes along with your reminder", required: true,
+    }],
     run: async function (context, bot) {
-        const input = `${context.options.command} ${context.options.timeandmessage}`
+        const input = context.interaction ? `${context.options.command} ${context.options.time} ${context.options.message}`: `${context.options.command} ${context.options.timeandmessage}`
         const now = new Date();
         const rargs = regex.exec(input);
         const chronoParse = (chrono.parse(input, now, {forwardDate: true}))[0];
@@ -17,33 +22,33 @@ module.exports = {
         let reminder = null;
         if (!rargs || rargs.length < 3) {
             if (!chronoParse?.text)
-                return context.sendLang("REMIND_INVALID_MESSAGE");
+                return context.sendLang({content: "REMIND_INVALID_MESSAGE", ephemeral: true});
 
             const guessedContent = input.substring(input.indexOf(chronoParse.text) + chronoParse.text.length);
             if (!guessedContent)
-                return context.sendLang("REMIND_INVALID_MESSAGE");
+                return context.sendLang({content: "REMIND_INVALID_MESSAGE", ephemeral: true});
             reminder = guessedContent;
         } else
             reminder = rargs[2];
 
         if (!at)
-            return context.sendLang("REMIND_INVALID_TIME");
+            return context.sendLang({content: "REMIND_INVALID_TIME", ephemeral: true});
 
         if (at.getTime() >= 253370764800000)
-            return context.sendLang("REMIND_LONG_TIME");
+            return context.sendLang({content: "REMIND_LONG_TIME", ephemeral: true});
 
         if (at.getTime() >= 2147483647000)
-            return context.send(":stopwatch: You can't set a reminder for on or after 19th January 2038");
+            return context.send({content: ":stopwatch: You can't set a reminder for on or after 19th January 2038", ephemeral: true});
 
         const offset = at - now;
 
         if (offset < 0)
-            return context.send(":stopwatch: The time you entered is in the past. Try being more specific or using exact dates.");
+            return context.send({content: ":stopwatch: The time you entered is in the past. Try being more specific or using exact dates.", ephemeral: true});
         if (offset < 1000)
-            return context.sendLang("REMIND_SHORT_TIME");
+            return context.sendLang({content: "REMIND_SHORT_TIME", ephemeral: true});
 
         if (reminder.length > 1000)
-            return context.send("Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.");
+            return context.send({content: "Your reminder message cannot be longer than 1000 characters. Yours is " + reminder.length + " characters.", ephemeral: true});
 
         try {
             const reminderResponse = await bot.database.addReminder(bot.client.user.id, context.user.id, context.guild ? context.guild.id : null, context.channel.id, at.getTime(), reminder, context.message?.id);
@@ -67,7 +72,7 @@ module.exports = {
             }, offset);
         } catch (e) {
             console.log(e);
-            context.sendLang("REMIND_ERROR");
+            context.sendLang({content: "REMIND_ERROR", ephemeral: true});
             bot.raven.captureException(e);
         }
     }
