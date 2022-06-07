@@ -51,6 +51,9 @@ class CommandContext {
         return this.bot.config.getBool(this.guild?.id || "global", setting, this.user?.id);
     }
 
+    getObject(setting){
+        return this.bot.config.getObject(this.guild?.id || "global", setting, this.user?.id);
+    }
 
     /**
      * Gets the options
