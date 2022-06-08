@@ -5,12 +5,11 @@ module.exports = {
     usage: "in :timeandmessage+",
     commands: ["in", "on", "at", "for", "the", "me"],
     slashOptions: [{
-        type: "STRING", name: "time", description: "The time for your reminder ('in 2 hours' or 'at 10pm')", required: true
-    }, {
-        type: "STRING", name: "message", description: "The message that goes along with your reminder", required: true,
+        type: "STRING", name: "timeandmessage", description: "The time your reminder is at and the message", required: true
     }],
     run: async function (context, bot) {
-        const input = context.interaction ? `${context.options.command} ${context.options.time} ${context.options.message}`: `${context.options.command} ${context.options.timeandmessage}`
+        // TODO: someday ill fix this
+        const input = `${context.options.command} ${context.options.timeandmessage}`
         const now = new Date();
         const rargs = regex.exec(input);
         const chronoParse = (chrono.parse(input, now, {forwardDate: true}))[0];
