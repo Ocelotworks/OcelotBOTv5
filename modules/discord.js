@@ -194,8 +194,12 @@ module.exports = class DiscordModule {
             ]
         };
 
+        // TODO: remove before putting on prod!!
+        clientOpts.intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES", "DIRECT_MESSAGES"];
+
         // Quick hack because discords verification process did a grumpy on me
         if(process.env.BOT_ID === "635846996418363402"){
+            this.bot.logger.log("Using limited intents for OcelotBETA")
             clientOpts.intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES", "DIRECT_MESSAGES"];
         }
 
