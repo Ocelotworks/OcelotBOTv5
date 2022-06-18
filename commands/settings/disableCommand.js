@@ -12,7 +12,7 @@ module.exports = {
         targetcommand: {name: "The command to disable", autocomplete: true}
     },
     autocomplete: function(input, interaction, bot) {
-        return Object.keys(bot.commands).filter((k)=>k.includes(input) && !bot.config.getBool(interaction.guildId, `${k}.disable`)).map((k)=>({name: k, value: k}));
+        return Object.keys(bot.commands).filter((k)=>k.includes(input) && !bot.config.getBool(interaction.guildId, `${k}.disable`)).map((k)=>({name: k, value: k})).slice(0, 25);
     },
     run: async function (context, bot) {
         let command = context.options.targetcommand.toLowerCase().replace(context.getSetting("prefix"), "");
