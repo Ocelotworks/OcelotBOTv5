@@ -22,7 +22,7 @@ module.exports = {
         for (let i = 1; i <= patchworkWorkers; i++){
             try {
                 let {data} = await axios.get(`http://patchwork-${process.env.BOT_ID}-${i}:8008/lavalink/players`);
-                output.append(data.map((shard) => `PW${i}: ${shard.paused ? "paused".red : "playing".green} ${shard.playing ? "active".green : "idle".dim}`));
+                output.concat(data.map((shard) => `PW${i}: ${shard.paused ? "paused".red : "playing".green} ${shard.playing ? "active".green : "idle".dim}`));
             }catch(e){
                 output.push(`Patchwork ${i} failed (${e.message})`);
             }
