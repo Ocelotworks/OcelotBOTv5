@@ -332,4 +332,10 @@ module.exports = class Util {
         output += `${columnify(topTen)}\n\`\`\``
         return {output, position};
     }
+
+    static ModalInput(label, custom_id, placeholder, required = false, value = placeholder, min_length = 1, max_length = 1){
+        return {
+            label, custom_id, placeholder, required, value, min_length, max_length, type: 1, style: 1
+        }
+    }
 }
