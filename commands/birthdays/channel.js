@@ -43,6 +43,11 @@ async function processChannels(bot) {
             let birthdayChannelId = bot.config.get(birthday.server, "birthday.channel", birthday.user);
             if (!birthdayChannelId) continue;
             let birthdayChannel = await bot.client.channels.fetch(birthdayChannelId);
+            const member = await birthdayChannel.guild.members.fetch(birthday.user).catch(()=>null);
+            if(!member){
+                bot.logger.warn(`Didn't print birthday for ${birthday.user} in ${birthday.server} because they are no longer in the server.`);
+                continue;
+            }
             const age = nowYear - new Date(birthday.birthday).getFullYear();
             if (age > 13) {
                 birthdayChannel.sendLang("BIRTHDAY_MESSAGE_AGE", {user: birthday.user, age: bot.util.getNumberPrefix(age)})

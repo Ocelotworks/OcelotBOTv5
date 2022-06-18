@@ -32,7 +32,7 @@ module.exports = {
                 embed.setDescription(data.isp);
                 if(data.domain)
                     embed.addField("Domain", data.domain, true);
-                embed.addField("Country", data.countryName || data.countryCode, true);
+                embed.addField("Country", data.countryName || data.countryCode || "None", true);
                 embed.addField("Abuse Score", data.abuseConfidenceScore+"%", true);
                 embed.addField("Reports", `${data.totalReports} from ${data.numDistinctUsers} users.`, true)
                 console.log(data);
@@ -44,7 +44,7 @@ module.exports = {
                     embed.setColor("#00ff00");
 
                 if(data.hostnames && data.hostnames.length > 0){
-                    embed.addField("Hostnames", data.hostnames.join("\n"));
+                    embed.addField("Hostnames", data.hostnames?.join("\n"));
                 }
                 context.send({embeds: [embed]});
             }else{

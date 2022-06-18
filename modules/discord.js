@@ -183,7 +183,7 @@ module.exports = class DiscordModule {
             },
             partials: ["REACTION", "CHANNEL"],
             intents: [
-                "GUILD_PRESENCES", // Spooking
+                //"GUILD_PRESENCES", // Spooking
                 "GUILDS",
                 "GUILD_MESSAGES",
                 "GUILD_MEMBERS", // Join/leave messages
@@ -193,6 +193,12 @@ module.exports = class DiscordModule {
                 //"DIRECT_MESSAGE_REACTIONS" // Non-button reaction events e.g trivia, poll
             ]
         };
+
+        // Quick hack because discords verification process did a grumpy on me
+        if(process.env.BOT_ID === "635846996418363402"){
+            this.bot.logger.log("Using limited intents for OcelotBETA")
+            clientOpts.intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES", "DIRECT_MESSAGES"];
+        }
 
         if (process.env.GATEWAY) {
             console.log("Using gateway", process.env.GATEWAY);

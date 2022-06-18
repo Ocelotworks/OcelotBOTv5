@@ -3,6 +3,8 @@ module.exports = {
     usage: "publish :0id? :name?+",
     commands: ["publish", "export", "share"],
     run: async function (context, bot) {
+        if(!context.options.name && !context.options.id)
+            return context.send({ephemeral: true, content: "You must enter an ID or a name for a custom function to publish."});
         const func = await context.commandData.getNameOrId(context, bot);
         if(!func)return;
         let publishedFunction = await bot.database.getPublishedFunctionFromOrigin(func.id);
