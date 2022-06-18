@@ -3,8 +3,7 @@ module.exports = {
     usage: "serverAnonymous [mode?:on,off]",
     commands: ["serveranonymous", "serveranonymise", "serveranonymize"],
     run: async function (context, bot) {
-        // TODO
-        if(!bot.util.canChangeSettings(context.message))return context.send("You must be Administrator or have the settings role to change this.");
+        if(!bot.util.canChangeSettings(context))return context.send("You must be Administrator or have the settings role to change this.");
         let option;
         if(!context.options.mode){
             if(context.getBool("privacy.serverAnonymous"))
