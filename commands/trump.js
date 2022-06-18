@@ -14,6 +14,7 @@ module.exports = {
         return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
     },
     run: function (context) {
+        if(context.options.text.length < 1)return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
         return Image.NekobotTextGenerator(context, "trumptweet", context.options.text);
     }
 };
