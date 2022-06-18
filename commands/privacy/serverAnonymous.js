@@ -12,7 +12,7 @@ module.exports = {
             return context.send(`The following commands will display elements from your server: 
 - The ${context.getSetting("prefix")}emoji will display your server's emojis in other servers.
 - Your server's name will show up when someone does ${context.getSetting("prefix")}userinfo on a member of this server.
-If you do not want elements of your server to be shared with others, type **${context.command} ${context.options.command} on**.
+If you do not want elements of your server to be shared with others, type **${context.getSetting("prefix")}${context.command} ${context.options.command} on**.
 This is separate from and does not override user's individual anonymity setting.
 This does not stop data being associated with your server. If you wish to remove all data associated with you from OcelotBOT forever contact **Big P#1843**
 `)
