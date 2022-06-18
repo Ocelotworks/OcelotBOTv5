@@ -1457,7 +1457,7 @@ module.exports = {
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
-                roles: member.roles?.cache.map(bot.util.serialiseRole),
+                roles: member.roles?.cache?.map(bot.util.serialiseRole),
             }
         }
 
