@@ -1577,7 +1577,7 @@ module.exports = {
 
 
         bot.util.getPatchworkHost = (guildId)=>{
-            if(process.env.MUSIC_URL)
+            if(process.env.MUSIC_URL != null)
                 return process.env.MUSIC_URL;
 
             const shard = Number(BigInt(guildId) >> 22n) % parseInt(process.env.PATCHWORK_SHARD_COUNT);
