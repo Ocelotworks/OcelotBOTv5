@@ -1287,8 +1287,8 @@ module.exports = {
                     .onConflict(["serverid", "userid", "statistic"])
                     .merge({value: knex.raw("statistics.value + excluded.value")});
             },
-            async logFailure(type, item, reason, serverid, userid, guildid){
-                await knockroach.insert({type, item, reason, serverid, userid, guildid}).into("failures");
+            async logFailure(type, item, reason, serverid, userid, channelid){
+                await knockroach.insert({type, item, reason, serverid, userid, channelid}).into("failures");
                 return bot.database.getFailureCount(type, item);
 
             },
