@@ -1,5 +1,5 @@
 const fs = require('fs');
-
+const Sentry = require('@sentry/node');
 
 let checkTimer;
 
@@ -89,18 +89,24 @@ module.exports = {
                     let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
                     if(!results || results.length === 0)continue;
                     for (let i = 0; i < subList.length; i++) {
-                       let chan = bot.client.channels.cache.get(subList[i].channel);
-                        await bot.database.updateLastCheck(subList[i].id);
-                        subList[i].lastcheck = new Date();
-                       if(chan && !chan.deleted && chan.permissionsFor(bot.client.user.id)?.has("SEND_MESSAGES")) {
-                           console.log(JSON.stringify(results))
-                           let output = {embeds:results.slice(0,10)};
-                           if(results.length > 10)
-                               output.content = `:warning: ${results.length-10} results omitted.`;
-                           chan.send(output);
-                       }else {
-                           bot.logger.warn(`${subList[i].channel} does not exist for sub ${subList[i].id}`);
-                       }
+                        const subChannel = subList[i];
+                        try {
+                            let chan = bot.client.channels.cache.get(subChannel.channel);
+                            await bot.database.updateLastCheck(subChannel.id);
+                            subChannel.lastcheck = new Date();
+                            if (chan && !chan.deleted && chan.permissionsFor(bot.client.user.id)?.has("SEND_MESSAGES")) {
+                                let output = {embeds: results.slice(0, 10)};
+                                if (results.length > 10)
+                                    output.content = `:warning: ${results.length - 10} results omitted.`;
+                                await chan.send(output);
+                            } else {
+                                bot.database.logFailure("subscription", subChannel.id, "Channel not accessible", subChannel.server, subChannel.channel, subChannel.user)
+                                bot.logger.warn(`${subChannel.channel} does not exist for sub ${subChannel.id}`);
+                            }
+                        }catch(e){
+                            Sentry.captureException(e);
+                            bot.database.logFailure("subscription", subChannel.id, e.message, subChannel.server, subChannel.channel, subChannel.user)
+                        }
                    }
                }else{
                    bot.logger.warn(`Invalid subscription type ${sub.type}`);

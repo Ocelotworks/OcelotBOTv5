@@ -1,4 +1,5 @@
 const later = require('later');
+const Util = require("../../util/Util");
 const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
 // fuck this shit;
 let deletedReminders = [];
@@ -28,26 +29,39 @@ module.exports = {
         return async ()=> {
             if (bot.drain) return;
             if (!bot.config.getBool(reminder.server || "global", "remind.recurring")) return bot.logger.log("Recurring reminders disabled by setting");
-            if(deletedReminders.includes(reminder.id))return;
+            if(deletedReminders.includes(reminder.id)) {
+                bot.logger.log(`Not running reminder ${reminder.id} as it is deleted`);
+                return;
+            }
             try {
                 let channel = await bot.client.channels.fetch(reminder.channel).catch(() => null);
                 if (channel?.permissionsFor?.(bot.client.user.id).has("SEND_MESSAGES", true)) {
                     console.log("Bot has send message permissions");
                     await channel.send(reminder.message);
                 } else {
-                    bot.logger.warn("Deleting reminder " + reminder.id + " because the channel is no longer accessible.");
-                    deletedReminders.push(reminder.id);
-                    //reminderData.recurringReminders[reminder.id].clear();
-                    await bot.database.removeReminderByUser(reminder.id, reminder.user);
-                    const userDM = await(await bot.client.users.fetch(reminder.user)).createDM();
-                    userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in ${channel} was deleted as OcelotBOT no longer has permission to send messages in that channel.`);
+                    const failureCount = await bot.database.logFailure("recurring", reminder.id, "Missing Send Message permissions", reminder.server, reminder.user, reminder.channel);
+                    if(failureCount > 5){
+                        module.exports.removeScheduledReminder(bot, reminder);
+                    }
                 }
             } catch (e) {
                 console.log(e);
                 bot.raven.captureException(e);
-                deletedReminders.push(reminder.id);
+                const failureCount = await bot.database.logFailure("recurring", reminder.id, e.message, reminder.server, reminder.user, reminder.channel);
+                if(failureCount > 5){
+                    module.exports.removeScheduledReminder(bot, reminder);
+                }
             }
         }
+    },
+    async removeScheduledReminder(bot, reminder){
+        bot.logger.warn("Deleting reminder " + reminder.id + " because the channel is no longer accessible.");
+        deletedReminders.push(reminder.id);
+        //reminderData.recurringReminders[reminder.id].clear();
+        await bot.database.removeReminderByUser(reminder.id, reminder.user);
+        const userDM = await bot.client.users.fetch(reminder.user).then(d=>d.createDM());
+        userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in <#${reminder.channel}> was deleted due to too many failures.\nIf you believe this to be a bug, please contact support.`);
+
     },
     run: async function (context, bot) {
         const currentTotal = await bot.database.getRecurringReminderCountForChannel(bot.client.user.id, context.channel.id);
