@@ -21,13 +21,13 @@ module.exports = {
             channelId: context.channel.id,
             userId: context.user.id,
             next: false,
-        });
+        }).catch(()=>({err: "music is temporarily unavailable"})); // shameful shameful hack
 
         if(data.err){
             if(data.err === "no results")
                 return context.sendLang("MUSIC_NO_RESULTS");
-            console.log(data);
-            return context.send({content: `Couldn't queue: ${data.err}`})
+            Sentry.captureMessage("Patchwork error: "+data.err);
+            return context.send({content: `Couldn't queue: ${typeof data.err === "object" ? JSON.stringify(data.err) : data.err}`})
         }
 
         if(!data.success || !data.song){

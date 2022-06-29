@@ -195,9 +195,11 @@ module.exports = class DiscordModule {
         };
 
         // Quick hack because discords verification process did a grumpy on me
-        if(process.env.BOT_ID === "635846996418363402"){
+        if(process.env.BOT_ID == "635846996418363402"){
             this.bot.logger.log("Using limited intents for OcelotBETA")
             clientOpts.intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES", "DIRECT_MESSAGES"];
+        }else{
+            this.bot.logger.log(`Not using limited intents, this is '${process.env.BOT_ID}' not '635846996418363402'`);
         }
 
         if (process.env.GATEWAY) {
