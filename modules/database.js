@@ -1293,8 +1293,8 @@ module.exports = {
 
             },
             async getFailureCount(type, item){
-                  let result = await knockroach.select("COUNT(*)").from("failures").where({type, item});
-                  return result.count;
+                  let result = await knockroach.select(knex.raw("COUNT(*) as count")).from("failures").where({type, item});
+                  return result[0]?.count || 0;
             },
             // This should probably be a worker
             async dataExport(userID){
