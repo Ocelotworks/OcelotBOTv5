@@ -1287,14 +1287,14 @@ module.exports = {
                     .onConflict(["serverid", "userid", "statistic"])
                     .merge({value: knex.raw("statistics.value + excluded.value")});
             },
-            async logFailure(type, item, reason, serverid, userid, guildid){
-                await knockroach.insert({type, item, reason, serverid, userid, guildid}).into("failures");
+            async logFailure(type, item, reason, serverid, userid, channelid){
+                await knockroach.insert({type, item, reason, serverid, userid, channelid}).into("failures");
                 return bot.database.getFailureCount(type, item);
 
             },
             async getFailureCount(type, item){
-                  let result = await knockroach.select("COUNT(*)").from("failures").where({type, item});
-                  return result.count;
+                  let result = await knockroach.select(knex.raw("COUNT(*) as count")).from("failures").where({type, item});
+                  return result[0]?.count || 0;
             },
             // This should probably be a worker
             async dataExport(userID){
