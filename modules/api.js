@@ -70,6 +70,9 @@ module.exports = {
             output += writeOpenMetric("guildsUnavailable", bot.client.guilds.cache.filter((g) => !g.available).size);
             output += writeOpenMetric("drain", +bot.drain);
             output += writeOpenMetric("tasks", bot.tasks.running.length);
+            output += writeOpenMetric("connectedLavalinkNodes", bot.lavaqueue.manager.idealNodes.length);
+
+            output += writeOpenMetric("memoryUsage", process.memoryUsage().heapUsed);
 
             res.header('Content-Type', 'text/plain')
             res.send(output);
