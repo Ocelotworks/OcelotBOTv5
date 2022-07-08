@@ -90,6 +90,7 @@ module.exports = {
         });
     },
     run: async function run(context, bot) {
+
         let categories = Object.keys(bot.commandCategories).filter((cat) => {
             return !context.getSetting("help.hiddenCategories")?.includes(cat) && !(cat === "nsfw" && (context.getBool("disableNSFW") || context.getBool("wholesome")))
         }).map((cat) => ({
@@ -131,6 +132,8 @@ module.exports = {
         }
 
         if(bot.commandCategories[context.options.command]){
+            let slashCommands = await bot.client.application.commands.fetch().then((c)=>c.reduce((acc, data)=>{acc[data.name] = data.id; return acc}, {}));
+
             const embed = new Embeds.AuthorEmbed(context);
             const catData = categoryData[context.options.command];
             if(catData?.colour)
@@ -141,12 +144,20 @@ module.exports = {
 
             const keys = Object.keys(bot.commandCategories[context.options.command]).filter((command)=>{
                 let cmd = bot.commandCategories[context.options.command][command];
-                return !cmd.hidden && !(cmd.unwholesome && context.getBool("wholesome")) && !(cmd.categories?.includes("nsfw") && context.getBool("disableNSFW")) && !context.getBool(`${cmd.commands[0]}.disable`)
+                return (!context.interaction || !cmd.slashHidden) && !cmd.hidden && !(cmd.unwholesome && context.getBool("wholesome")) && !(cmd.categories?.includes("nsfw") && context.getBool("disableNSFW")) && !context.getBool(`${cmd.commands[0]}.disable`)
             });
 
             keys.forEach((command)=>{
                 let cmd = bot.commandCategories[context.options.command][command];
-                embed.addField(cmd.name, `${Strings.Truncate(cmd.detailedHelp||"", 32)}\n\`${context.getSetting("prefix")}${cmd.commands[0]} ${Strings.PrintCommandUsage(cmd.pattern)}\``, keys.length > 5)
+                let commandName = cmd.commands[0];
+                if(context.interaction && slashCommands[commandName]){
+                    embed.addField(cmd.name, `${Strings.Truncate(cmd.detailedHelp||"", 32)}\n</${commandName}:${slashCommands[commandName]}>`);
+                }else {
+                    // Some slash commands exist in a sub-category so make sure we display that
+                    if (context.interaction && cmd.slashCategory)
+                        commandName = `${cmd.slashCategory} ${commandName}`;
+                    embed.addField(cmd.name, `${Strings.Truncate(cmd.detailedHelp || "", 32)}\n\`${context.getSetting("prefix")}${commandName} ${Strings.PrintCommandUsage(cmd.pattern)}\``, keys.length > 5)
+                }
             })
 
             return message = await context.send({

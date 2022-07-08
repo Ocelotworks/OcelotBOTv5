@@ -1445,6 +1445,7 @@ module.exports = {
                 id: user.id,
                 username: user.username,
                 bot: user.bot,
+                flags: user.flags,
             }
         }
 
@@ -1457,6 +1458,7 @@ module.exports = {
                 nickname: member.nickname,
                 username: member.user.username,
                 colour: member.displayHexColor,
+                flags: member.user?.flags,
                 roles: member.roles?.cache?.map(bot.util.serialiseRole),
             }
         }

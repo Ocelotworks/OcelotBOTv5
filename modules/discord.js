@@ -247,7 +247,7 @@ module.exports = class DiscordModule {
         this.bot.client.on("guildUpdate", this.onGuildUpdate.bind(this));
         this.bot.client.on("guildMemberUpdate", this.onGuildMemberUpdate.bind(this));
         this.bot.client.on("threadCreate", this.onThreadCreate.bind(this));
-
+        
         this.bot.bus.on("requestData", this.busRequestData.bind(this));
         this.bot.bus.on("presence", this.busPresence.bind(this));
         this.bot.bus.on("getUserInfo", this.busGetUserInfo.bind(this));
