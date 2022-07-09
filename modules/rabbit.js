@@ -273,7 +273,8 @@ module.exports = class RabbitMQ {
             createdAt: message.createdAt,
             author: {
                 id: message.author.id,
-                username: message.author.username
+                username: message.author.username,
+                flags: message.author.flags,
             },
             guild: {
                 id: message.guild && message.guild.id,
