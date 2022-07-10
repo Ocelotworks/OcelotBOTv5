@@ -43,7 +43,7 @@ module.exports = {
             } catch (e) {
                 bot.raven.captureException(e);
                 if (e.message && e.message.includes("Channel closed")) {
-                    process.exit(1)
+                    process.exit(38)
                 }
             }
         };
@@ -86,7 +86,7 @@ module.exports = {
             } catch (e) {
                 bot.raven.captureException(e);
                 if (e.message && e.message.includes("Channel closed")) {
-                    process.exit(1);
+                    process.exit(39);
                 }
             }
         };
