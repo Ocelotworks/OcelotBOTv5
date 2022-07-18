@@ -200,15 +200,15 @@ module.exports = class DiscordModule {
                 },
                 bans: {
                     interval: 35,
-                    filter: ()=>true,
+                    filter: ()=>()=>true,
                 },
                 emojis: {
                     interval: 65,
-                    filter: ()=>true,
+                    filter: ()=>()=>true,
                 },
                 guildMembers: {
                     interval: 120,
-                    filter: ()=>true,
+                    filter: ()=>()=>true,
                 },
                 messages: {
                     interval: 40,
@@ -220,11 +220,11 @@ module.exports = class DiscordModule {
                 },
                 users: {
                     interval: 120,
-                    filter: ()=>true,
+                    filter: ()=>()=>true,
                 },
                 voiceStates: {
                     interval: 25,
-                    filter: ()=>true,
+                    filter: ()=>()=>true,
                 }
             }
         };
