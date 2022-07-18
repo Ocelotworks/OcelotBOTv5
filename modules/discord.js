@@ -171,6 +171,7 @@ module.exports = class DiscordModule {
                 parse: ["users"],
                 repliedUser: true,
             },
+            failIfNotExists: false,
             messageCacheLifetime: 3600,
             messageSweepInterval: 3600,
             invalidRequestWarningInterval: 500,
@@ -191,7 +192,41 @@ module.exports = class DiscordModule {
                 "GUILD_MESSAGE_REACTIONS", // Non-button reaction events
                 "DIRECT_MESSAGES",
                 //"DIRECT_MESSAGE_REACTIONS" // Non-button reaction events e.g trivia, poll
-            ]
+            ],
+            sweepers: {
+                invites: {
+                    interval: 30,
+                    lifetime: 10,
+                },
+                bans: {
+                    interval: 35,
+                    filter: ()=>true,
+                },
+                emojis: {
+                    interval: 65,
+                    filter: ()=>true,
+                },
+                guildMembers: {
+                    interval: 120,
+                    filter: ()=>true,
+                },
+                messages: {
+                    interval: 40,
+                    lifetime: 120,
+                },
+                threads: {
+                    interval: 130,
+                    lifetime: 10,
+                },
+                users: {
+                    interval: 120,
+                    filter: ()=>true,
+                },
+                voiceStates: {
+                    interval: 25,
+                    filter: ()=>true,
+                }
+            }
         };
 
         // Quick hack because discords verification process did a grumpy on me
