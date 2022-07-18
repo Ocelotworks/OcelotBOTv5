@@ -83,7 +83,7 @@ module.exports = class SupportServer {
 
     async isSuspiciousAccount(member){
         const commandCount = (await this.bot.database.getUserStats(member.id))[0].count;
-        return commandCount === 0 || this.scammerList[member.id];
+        return commandCount == 0 || this.scammerList[member.id];
     }
 
     async checkAutoReplies(message){

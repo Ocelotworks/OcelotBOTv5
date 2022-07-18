@@ -4,6 +4,7 @@
  * ╚════ ║   (ocelotbotv5) listqueue
  *  ════╝
  */
+const Sentry = require("@sentry/node");
 const Util = require("../../util/Util");
 const {axios} = require("../../util/Http");
 module.exports = {
@@ -15,6 +16,18 @@ module.exports = {
 
         if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");
+
+        if(data?.err === "not ready")
+            return context.sendLang()
+
+        if(!data.queue) {
+            Sentry.addBreadcrumb({
+                message: "Patchwork response",
+                data
+            })
+            Sentry.captureMessage("Response from patchwork contained no queue")
+            return context.send("Received an unexpected response. Please wait a second and try again. If the problem persists, do /music stop and then queue again.");
+        }
 
         if (data.queue.length === 0)
             return context.sendLang("MUSIC_QUEUE_EMPTY");

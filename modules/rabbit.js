@@ -91,7 +91,7 @@ module.exports = class RabbitMQ {
             }
             if (retries > 5) {
                 console.error(`Failed to connect to rabbit after ${retries} tries`);
-                os.exit(80);
+                process.exit(80);
             }
             if (!connection) {
                 console.log("Waiting for ${retires*1000}ms");
@@ -273,7 +273,8 @@ module.exports = class RabbitMQ {
             createdAt: message.createdAt,
             author: {
                 id: message.author.id,
-                username: message.author.username
+                username: message.author.username,
+                flags: message.author.flags,
             },
             guild: {
                 id: message.guild && message.guild.id,
