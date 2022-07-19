@@ -171,6 +171,7 @@ module.exports = class DiscordModule {
                 parse: ["users"],
                 repliedUser: true,
             },
+            failIfNotExists: false,
             messageCacheLifetime: 3600,
             messageSweepInterval: 3600,
             invalidRequestWarningInterval: 500,
@@ -191,7 +192,7 @@ module.exports = class DiscordModule {
                 "GUILD_MESSAGE_REACTIONS", // Non-button reaction events
                 "DIRECT_MESSAGES",
                 //"DIRECT_MESSAGE_REACTIONS" // Non-button reaction events e.g trivia, poll
-            ]
+            ],
         };
 
         // Quick hack because discords verification process did a grumpy on me

@@ -73,6 +73,12 @@ module.exports = {
             output += writeOpenMetric("connectedLavalinkNodes", bot.lavaqueue.manager.idealNodes.length);
 
             output += writeOpenMetric("memoryUsage", process.memoryUsage().heapUsed);
+            output += writeOpenMetric("memoryExternal", process.memoryUsage().external);
+            output += writeOpenMetric("memoryRss", process.memoryUsage().rss);
+            output += writeOpenMetric("memoryTotal", process.memoryUsage().heapTotal);
+
+            output += writeOpenMetric("cpuUser", process.cpuUsage().user);
+            output += writeOpenMetric("cpuSystem", process.cpuUsage().system);
 
             res.header('Content-Type', 'text/plain')
             res.send(output);

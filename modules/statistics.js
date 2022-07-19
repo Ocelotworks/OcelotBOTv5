@@ -20,6 +20,14 @@ const clientEventMapping = {
     },
     shardReconnecting: {
         stat: "reconnects"
+    },
+    apiRequest: {
+        stat: "apiRequestsTotal",
+        rate: "apiRequestsPerMinute"
+    },
+    apiResponse: {
+        stat: "apiResponsesTotal",
+        rate: "apiResponsesPerMinute"
     }
 }
 
@@ -58,11 +66,15 @@ module.exports = class Statistics {
         commandsFailed: 0,
         cacheHits: 0,
         cacheMisses: 0,
+        apiRequestsTotal: 0,
+        apiResponsesTotal: 0,
     };
     performanceRateStats = {
         messagesPerMinute: 0,
         messagesSentPerMinute: 0,
         commandsPerMinute: 0,
+        apiRequestsPerMinute: 0,
+        apiResponsesPerMinute: 0,
     }
 
     userStats = {};
