@@ -187,6 +187,11 @@ module.exports = {
             }
         }
 
+        if(options[0].toLowerCase() === "multiple"){
+            options.splice(0, 1);
+            context.options.multiple = true;
+        }
+
         if(expires != null && expires.getTime() >= 2147483647000){
             return context.sendLang("POLL_EXPIRY_LONG");
         }
