@@ -38,8 +38,8 @@ module.exports = class SupportServer {
 
 
     async onReady(){
-        this.updateScammerList();
         if (this.bot.client.guilds.cache.has("322032568558026753")) {
+            this.updateScammerList();
             setTimeout(this.updateLeaderboards.bind(this), 5000)
             setInterval(this.updateLeaderboards.bind(this), 8.64e+7)
             setInterval(this.updateScammerList.bind(this), 300000) // 5 minutes
