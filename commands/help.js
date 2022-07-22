@@ -90,7 +90,6 @@ module.exports = {
         });
     },
     run: async function run(context, bot) {
-
         let categories = Object.keys(bot.commandCategories).filter((cat) => {
             return !context.getSetting("help.hiddenCategories")?.includes(cat) && !(cat === "nsfw" && (context.getBool("disableNSFW") || context.getBool("wholesome")))
         }).map((cat) => ({
@@ -131,9 +130,9 @@ module.exports = {
             });
         }
 
-        if(bot.commandCategories[context.options.command]){
-            let slashCommands = await bot.client.application.commands.fetch().then((c)=>c.reduce((acc, data)=>{acc[data.name] = data.id; return acc}, {}));
 
+        if(bot.commandCategories[context.options.command]){
+            let slashCommands = {};// await bot.client.application.commands.fetch().then((c)=>c.reduce((acc, data)=>{acc[data.name] = data.id; return acc}, {}));
             const embed = new Embeds.AuthorEmbed(context);
             const catData = categoryData[context.options.command];
             if(catData?.colour)
