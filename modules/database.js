@@ -46,15 +46,13 @@ module.exports = {
         const MEMES_TABLE = "ocelotbot_memes";
         const REMINDERS_TABLE = "ocelotbot_reminders";
         const TRIVIA_TABLE = "trivia";
-        const COMMANDLOG_TABLE = "commandlog";
         const BANS_TABLE = "bans";
         const LEFTSERVERS_TABLE = "ocelotbot_leftservers";
         const LANG_TABLE = "ocelotbot_languages";
         const LANG_KEYS_TABLE = "ocelotbot_language_keys";
         const SPOOK_TABLE = "spooks";
-        const PROFILE_TABLE = "ocelotbot_profile";
         const SERVER_SETTINGS_TABLE = "ocelotbot_server_settings";
-        const BADGES_TABLE = "ocelotbot_badges";
+        const BADGES_TABLE = "badges";
 
 
         bot.database = {
@@ -662,34 +660,34 @@ module.exports = {
                 }).into("ocelotbot_profile");
             },
             getProfileBadges: function (user) {
-                return knex.select().from("ocelotbot_badge_assignments").where({user: user}).innerJoin(BADGES_TABLE, "ocelotbot_badges.id", "ocelotbot_badge_assignments.badge").orderBy("ocelotbot_badge_assignments.order", "ASC").groupByRaw("`ocelotbot_badge_assignments`.`badge`, `ocelotbot_badge_assignments`.`order`");
+                return knockroach.select().from("badge_assignments").where({user}).innerJoin(BADGES_TABLE, "badges.id", "badge_assignments.badge").orderBy("badge_assignments.order", "ASC");
             },
             getBadgeTypes: function () {
-                return knex.select().from(BADGES_TABLE).orderBy("order");
+                return knockroach.select().from(BADGES_TABLE).orderBy("order");
             },
             getBadgesInSeries: function (series) {
-                return knex.select().from(BADGES_TABLE).orderBy("order").where({series});
+                return knockroach.select().from(BADGES_TABLE).orderBy("order").where({series});
             },
             setProfileTagline: function (user, tagline) {
                 return knex("ocelotbot_profile").update({caption: tagline}).where({id: user}).limit(1);
             },
             giveBadge: function (user, badge) {
-                return knex.insert({user: user, badge: badge}).into("ocelotbot_badge_assignments");
+                return knockroach.insert({user: user, badge: badge}).into("badge_assignments");
             },
             getBadge: function (id) {
-                return knex.select().from("ocelotbot_badges").where({id}).limit(1);
+                return knockroach.select().from("badges").where({id}).limit(1);
             },
             hasBadge: async function (user, badge) {
-                return (await knex.select().from("ocelotbot_badge_assignments").where({
+                return (await knockroach.select().from("badge_assignments").where({
                     user,
                     badge
                 }).limit(1)).length > 0
             },
             haveBadge: async function (users, badge) {
-                return knex.select("user").where({badge}).whereIn("user", users).from("ocelotbot_badge_assignments");
+                return knockroach.select("user").where({badge}).whereIn("user", users).from("badge_assignments");
             },
             removeBadge: function (user, badge) {
-                return knex.delete().from("ocelotbot_badge_assignments").where({user: user, badge: badge});
+                return knockroach.delete().from("badge_assignments").where({user, badge});
             },
             getFirstSeen: function (userid) {
                 return knockroach.select(knockroach.raw("MIN(timestamp)")).from("commands").where({userid: userid})
@@ -808,24 +806,17 @@ module.exports = {
                 if(result[0])return result[0]['MAX(timestamp)'];
                 return null;
             },
-            getEligbleBadge: function (user, series, count) {
-                return knex.select()
-                    .from(BADGES_TABLE)
-                    .whereNotIn('id', knex.select('badge').from("ocelotbot_badge_assignments").where({user}))
+            getEligibleBadge: function (user, series, count) {
+                return knockroach.select()
+                    .from("badges")
+                    .whereNotIn('id', knockroach.select('badge').from("badge_assignments").where({user}))
                     .andWhere({series})
                     .andWhere('min', '<=', count)
                     .andWhere('max', '>', count)
                     .limit(1);
             },
             deleteBadgeFromSeries: async function (user, series) {
-                await knex.raw(`delete s.* from \`ocelotbot_badge_assignments\` s INNER JOIN ocelotbot_badges ON ocelotbot_badges.id = s.badge where \`user\` = '${user}' and \`series\` = '${series}'`);
-            },
-            getSongList: function () {
-                //return knex.select("name", "title", "path").from("petify.songs").whereNotNull("mbid").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
-                return knex.select("songs.id", "name", "title", "path", "album").from("petify.playlist_data").where({playlist_id: "62564ae2-b77b-41ee-8708-632815b23334"}).innerJoin("petify.songs", "petify.playlist_data.song_id", "petify.songs.id").innerJoin("petify.artists", "petify.artists.id", "petify.songs.artist").orderByRaw("RAND()");
-            },
-            getSongPath: async function (id) {
-                return (await knex.select("path").from("petify.songs").where({id}).limit(1))[0].path;
+                await knockroach.raw(`DELETE FROM badge_assignments WHERE "user" = ? AND badge IN (SELECT id FROM badges WHERE series = ?)`, [user, series]);
             },
             updateSongRecord: async function (song, user, time) {
                 let currentRecord = (await knex.select("time").from("ocelotbot_song_guess_records").where({song}).limit(1))[0];
@@ -1306,7 +1297,7 @@ module.exports = {
                 bot.logger.log("Exporting Audit Logs...");
                 let audit = await knex.select().from("ocelotbot_audit_log").where({user: userID});
                 bot.logger.log("Exporting Badge Assignments...");
-                let badgeAssignments = await knex.select().from("ocelotbot_badge_assignments").where({user: userID});
+                let badgeAssignments = await knockroach.select().from("badge_assignments").where({user: userID});
                 bot.logger.log("Exporting Birthdays...");
                 let birthdays = await knex.select().from("ocelotbot_birthdays").where({user: userID});
                 bot.logger.log("Exporting Functions...");
