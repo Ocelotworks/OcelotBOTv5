@@ -112,7 +112,7 @@ module.exports = {
             if(bot.config.get("global", "profile.disableBadgeUpdates") === "1")return;
             const userID = user.id;
             let eligibleBadge = (await bot.database.getEligibleBadge(userID, series, value))[0];
-            if(eligibleBadge){
+            if(eligibleBadge?.id){
                 bot.logger.log(`Awarding badge ${eligibleBadge.name} (${eligibleBadge.id}) to ${user.username} (${userID}). ${series} = ${value}`);
                 await bot.database.deleteBadgeFromSeries(userID, series);
                 await bot.database.giveBadge(userID, eligibleBadge.id);
