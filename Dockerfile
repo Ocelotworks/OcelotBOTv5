@@ -12,6 +12,6 @@ COPY . .
 RUN npm install googleapis cheerio redis
 
 EXPOSE 8006/tcp
-HEALTHCHECK --interval=30s --start-period=1m --retries=5 \
+HEALTHCHECK --interval=1m --start-period=5m --retries=5 \
     CMD node healthcheck.js
 ENTRYPOINT node ocelotbot.js

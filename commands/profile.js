@@ -109,9 +109,9 @@ module.exports = {
         };
 
         bot.badges.updateBadge = async function updateBadge(user, series, value, channel){
-            if(bot.config.get("global", "profile.disableBadgeUpdates") && bot.config.get("global", "profile.disableBadgeUpdates") === "1")return;
+            if(bot.config.get("global", "profile.disableBadgeUpdates") === "1")return;
             const userID = user.id;
-            let eligibleBadge = (await bot.database.getEligbleBadge(userID, series, value))[0];
+            let eligibleBadge = (await bot.database.getEligibleBadge(userID, series, value))[0];
             if(eligibleBadge){
                 bot.logger.log(`Awarding badge ${eligibleBadge.name} (${eligibleBadge.id}) to ${user.username} (${userID}). ${series} = ${value}`);
                 await bot.database.deleteBadgeFromSeries(userID, series);
@@ -224,7 +224,8 @@ module.exports = {
         const mutualGuilds = guildCounts.reduce((a,b)=>a+b, 0);
 
         if(profileInfo.firstSeen)
-            await bot.badges.updateBadge(target, "year", parseInt((new Date()-profileInfo.firstSeen) / 3.154e+10));
+            await bot.badges.updateBadge(target, "year", parseInt((new Date() - profileInfo.firstSeen) / 3.154e+10));
+
         await bot.updateServersBadge(target, mutualGuilds);
 
         if(context.guild && bot.config.get(context.guild.id, "profile.complimentaryBadge", target.id))
