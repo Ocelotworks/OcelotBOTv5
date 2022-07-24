@@ -25,7 +25,8 @@ module.exports = {
                 scope.setTags({
                     "channel": message.channel.id,
                     "guild": message.guild ? message.guild.id : "DM",
-                    "shard": bot.util.shard
+                    "shard": bot.util.shard,
+                    "host": process.env.DOCKER_HOST,
                 });
                 scope.setUser({
                     id: message.author.id,
