@@ -601,7 +601,7 @@ module.exports = class Commands {
 
         await axios.post(`https://sentry.io/api/0/projects/${config.get("Sentry.org")}/${config.get("Sentry.project")}/user-feedback/`, {
             name: context.user.tag,
-            email: context.user.id,
+            email: context.user.id+"@discord.com",
             comments: feedback,
             event_id: eventId,
         },{
