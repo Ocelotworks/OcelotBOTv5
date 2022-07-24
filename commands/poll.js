@@ -95,7 +95,7 @@ module.exports = {
                     bot.database.deletePoll(message.guild.id, pollID);
                     if(answer === "END")
                         return
-                    return context.send({content: "POLL_EXPIRED", ephemeral: true});
+                    return context.sendLang({content: "POLL_EXPIRED", ephemeral: true});
                 }
                 if(poll.multiple)
                     await bot.database.togglePollAnswer(poll.id, interaction.user.id, answer);
