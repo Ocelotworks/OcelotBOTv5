@@ -599,7 +599,7 @@ module.exports = class Commands {
 
         const feedback = interaction.components[0].components[0].value;
 
-        await axios.post(`https://sentry.io/api/0/projects/${config.get("Sentry.org")}/${config.get("Sentry.project")}/user-feedback`, {
+        await axios.post(`https://sentry.io/api/0/projects/${config.get("Sentry.org")}/${config.get("Sentry.project")}/user-feedback/`, {
             name: context.user.tag,
             email: context.user.id,
             comments: feedback,
