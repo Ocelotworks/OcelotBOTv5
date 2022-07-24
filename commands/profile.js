@@ -115,7 +115,7 @@ module.exports = {
             if(eligibleBadge?.id){
                 bot.logger.log(`Awarding badge ${eligibleBadge.name} (${eligibleBadge.id}) to ${user.username} (${userID}). ${series} = ${value}`);
                 await bot.database.deleteBadgeFromSeries(userID, series);
-                await bot.database.giveBadge(userID, eligibleBadge.id);
+                await bot.database.giveBadge(userID, null, eligibleBadge.id);
                 if(channel){
                     let embed = new Discord.MessageEmbed();
                     embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${eligibleBadge.id}`);
