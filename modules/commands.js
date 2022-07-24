@@ -5,6 +5,8 @@ const Util = require("../util/Util");
 const Embeds = require("../util/Embeds");
 const Strings = require("../util/String");
 const {crc32} = require("crc");
+const {axios} = require("../util/Http");
+const config = require('config');
 const commandParser = require('command-parser').default;
 module.exports = class Commands {
 
@@ -60,6 +62,9 @@ module.exports = class Commands {
         this.addCommandMiddleware(require('../util/middleware/Notices'), "Send Notices", 96);
         this.addCommandMiddleware(require('../util/middleware/MessageCommandDeprecation'), "Send Message Command Deprecation warning", 95);
 
+        this.bot.bus.once("modulesLoaded", ()=>{
+            this.bot.interactions.addHandler("S", this.onSentryFeedback.bind(this));
+        })
 
         this.loadCommands();
     }
@@ -540,18 +545,25 @@ module.exports = class Commands {
         } catch (e) {
             console.log(e);
             let exceptionID = Sentry.captureException(e);
+            let sentryButton = undefined;
             // Show the actual error indev
             if(process.env.VERSION === "indev" || context.getBool("showErrors")){
                 exceptionID = e?.message;
+            }else {
+                sentryButton = [{
+                    type: 1, components: [
+                        {type: 2, style: 1, label: "Send Feedback", custom_id: `S${exceptionID}`}
+                    ]
+                }]
             }
             if(context.channel?.permissionsFor?.(this.bot.client.user.id)?.has("EMBED_LINKS")) {
                 let errorEmbed = new Embeds.LangEmbed(context);
                 errorEmbed.setColor("#ff0000");
                 errorEmbed.setTitle("An Error Occurred");
                 errorEmbed.setDescription(`Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``);
-                context.reply({embeds: [errorEmbed], ephemeral: true});
+                context.reply({embeds: [errorEmbed], ephemeral: true, components: sentryButton});
             }else {
-                context.reply({content: `Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``, ephemeral: true});
+                context.reply({content: `Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``, ephemeral: true, components: sentryButton});
             }
             this.bot.bus.emit("commandFailed", e);
         } finally {
@@ -565,4 +577,39 @@ module.exports = class Commands {
             })
         }
     }
+
+    async onSentryFeedback(interaction, context){
+        const eventId = interaction.customId.substring(2); //"S/"
+        if(interaction.type === "MESSAGE_COMPONENT")
+            return context.openForm({
+                custom_id: interaction.customId,
+                title: "Send Feedback",
+                components: [{
+                    type: 1,
+                    components: [{
+                        type: 4,
+                        custom_id: "feedback",
+                        label: "What were you doing before the error occurred",
+                        style: 2,
+                        min_length: 1,
+                        required: true
+                    }]
+                }]
+            });
+
+        const feedback = interaction.components[0].components[0].value;
+
+        await axios.post(`https://sentry.io/api/0/projects/${config.get("Sentry.org")}/${config.get("Sentry.project")}/user-feedback`, {
+            name: context.user.tag,
+            email: context.user.id,
+            comments: feedback,
+            event_id: eventId,
+        },{
+            headers: {
+                authorization: `Bearer ${config.get("Sentry.key")}`
+            }
+        });
+
+        return context.send({content: "Thank you for your feedback!", ephemeral: true});
+    };
 }
