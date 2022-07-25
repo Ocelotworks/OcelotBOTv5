@@ -106,7 +106,7 @@ module.exports = class Commands {
      * @returns {Promise<*|void>|void}
      */
     onMessageUpdate(oldMessage, newMessage){
-        if (this.bot.drain || newMessage.author.bot) return;
+        if (this.bot.drain ||  !newMessage.author || newMessage.author?.bot) return;
         if(oldMessage.content == newMessage.content)return;
         if(oldMessage.response?.deleted)return this.bot.logger.log("Edited message response was deleted");
         const parse = this.parseCommand(newMessage);
