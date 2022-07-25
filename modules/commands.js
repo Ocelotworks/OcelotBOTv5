@@ -106,7 +106,7 @@ module.exports = class Commands {
      * @returns {Promise<*|void>|void}
      */
     onMessageUpdate(oldMessage, newMessage){
-        if (this.bot.drain || newMessage.author.bot) return;
+        if (this.bot.drain ||  !newMessage.author || newMessage.author?.bot) return;
         if(oldMessage.content == newMessage.content)return;
         if(oldMessage.response?.deleted)return this.bot.logger.log("Edited message response was deleted");
         const parse = this.parseCommand(newMessage);
@@ -599,7 +599,7 @@ module.exports = class Commands {
 
         const feedback = interaction.components[0].components[0].value;
 
-        await axios.post(`https://sentry.io/api/0/projects/${config.get("Sentry.org")}/${config.get("Sentry.project")}/user-feedback/`, {
+        const {status} = await axios.post(`https://sentry.io/api/0/projects/${config.get("Sentry.org")}/${config.get("Sentry.project")}/user-feedback/`, {
             name: context.user.tag,
             email: context.user.id+"@discord.com",
             comments: feedback,
@@ -607,8 +607,12 @@ module.exports = class Commands {
         },{
             headers: {
                 authorization: `Bearer ${config.get("Sentry.key")}`
-            }
+            },
+            validateStatus: (s)=>s < 500
         });
+
+        if(status === 409)
+            return context.send({content: "You've already sent feedback for this issue or the feedback window has expired.", ephemeral: true});
 
         return context.send({content: "Thank you for your feedback!", ephemeral: true});
     };

@@ -182,7 +182,7 @@ module.exports = class DiscordModule {
                     type: "LISTENING",
                 }
             },
-            partials: ["REACTION", "CHANNEL"],
+            partials: ["REACTION", "CHANNEL", "MESSAGE", "USER"],
             intents: [
                 //"GUILD_PRESENCES", // Spooking
                 "GUILDS",

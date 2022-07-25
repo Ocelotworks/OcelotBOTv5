@@ -269,22 +269,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
     console.log("Guess is starting")
     const game = module.exports.runningGames[voiceChannel.guild.id];
     const guessStarted = new Date();
-    let trackName = song.track.name;
-    try {
-        console.log("Waiting for track name...");
-        let result = await axios.post(`https://ob-prod-api.d.int.unacc.eu/api/music/cleantitle`, `song=${encodeURIComponent(trackName)}`, {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-        });
-        if(result.data?.success) {
-            console.log("got track name! ", result.data.success);
-            trackName = result.data.success;
-        }
-    }catch(e){
-        Sentry.captureException(e);
-        bot.logger.error(e);
-    }
+    let trackName = song.track.name.split("-")[0];
     const loggedTrackName = `${song.track.artists[0].name} - ${trackName}`;
     const normalisedName = normalise(trackName);
     console.log(`Title is ${loggedTrackName}`);
