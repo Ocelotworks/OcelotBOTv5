@@ -71,7 +71,7 @@ module.exports = {
         }else{
             const target = context.options.user || context.user.id;
             try {
-                context.defer();
+                await context.defer();
                 let commandResult = (await bot.database.getUserStats(target))[0];
                 let voteResult =(await bot.database.getVoteCount(target))[0];
                 let guessResult =(await bot.database.getTotalCorrectGuesses(target))[0];
