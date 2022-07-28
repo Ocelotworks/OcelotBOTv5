@@ -133,7 +133,7 @@ module.exports = {
 
         if(bot.commandCategories[context.options.command]){
             //console.log("about to fetch slash commands");
-            //let slashCommands = await bot.client.application.commands.fetch();//.then((c)=>c.reduce((acc, data)=>{acc[data.name] = data.id; return acc}, {}));
+            let slashCommands = await bot.client.application.commands.fetch().then((c)=>c.reduce((acc, data)=>{acc[data.name] = data.id; return acc}, {}));
             //console.log(slashCommands);
             const embed = new Embeds.AuthorEmbed(context);
             const catData = categoryData[context.options.command];
