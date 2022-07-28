@@ -24,10 +24,6 @@ const clientEventMapping = {
     apiRequest: {
         stat: "apiRequestsTotal",
         rate: "apiRequestsPerMinute"
-    },
-    apiResponse: {
-        stat: "apiResponsesTotal",
-        rate: "apiResponsesPerMinute"
     }
 }
 
