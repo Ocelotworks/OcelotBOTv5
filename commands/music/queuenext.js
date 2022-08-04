@@ -26,12 +26,15 @@ module.exports = {
         if(data.err){
             if(data.err === "no results")
                 return context.sendLang("MUSIC_NO_RESULTS");
-            return context.send({content: `Couldn't queue: ${data.err}`})
+            if(data.err === "listener doesn't exist"){
+                return context.send({content: "Couldn't find that video. Try a different search term, or use a link directly", ephemeral: true})
+            }
+            return context.send({content: `Couldn't queue: ${data.err}`, ephemeral: true})
         }
 
         if(!data.success || !data.song){
             Sentry.captureMessage("Invalid response from patchwork on queuenext");
-            return context.sendLang({content: "GENERIC_ERROR"})
+            return context.sendLang({content: "GENERIC_ERROR", ephemeral: true})
         }
 
         if (data.song.count)
