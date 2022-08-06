@@ -10,17 +10,10 @@ module.exports = {
     usage: "clearqueue",
     commands: ["clear", "cq", "clearqueue", "qc"],
     run: async function (context, bot) {
-        let {data} = await axios.delete(`${bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
+        let result = await axios.delete(`${bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
 
-        if(data?.err === "nothing playing")
-            return context.sendLang("MUSIC_NOTHING_PLAYING");
+        if(context.commandData.handlePatchworkError(result, context))return;
 
-        if (data?.err === "queue empty")
-            return context.sendLang("MUSIC_QUEUE_EMPTY");
-
-        if (data?.err === "not permitted")
-            return context.send(`:bangbang: You can only use this command if you're the only one listening.`);
-
-        return context.send(`:white_check_mark: Cleared **${data.count}** items from the queue.`);
+        return context.sendLang({content: "MUSIC_QUEUE_CLEAR"}, {amount: result.data.count});
     }
 };
