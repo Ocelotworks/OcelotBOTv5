@@ -10,11 +10,10 @@ module.exports = {
     usage: "nowplaying",
     commands: ["nowplaying", "np", "playing"],
     run: async function (context, bot) {
-        let {data} = await axios.get(`${bot.util.getPatchworkHost(context.guild.id)}/playing?guild=${context.guild.id}`);
+        let result = await axios.get(`${bot.util.getPatchworkHost(context.guild.id)}/playing?guild=${context.guild.id}`);
 
-        if(data?.err === "nothing playing")
-            return context.sendLang("MUSIC_NOTHING_PLAYING");
+        if(context.commandData.handlePatchworkError(result, context))return;
 
-        return context.send(data.data);
+        return context.send(result.data.data);
     }
 };

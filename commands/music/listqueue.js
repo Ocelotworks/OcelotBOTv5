@@ -12,13 +12,11 @@ module.exports = {
     usage: "listqueue",
     commands: ["list", "lq", "upnext", "vq", "viewqueue", "listqueue", "ql"],
     run: async function (context, bot) {
-        let {data} = await axios.get(`${bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
+        let result = await axios.get(`${bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
 
-        if(data?.err === "nothing playing")
-            return context.sendLang("MUSIC_NOTHING_PLAYING");
+        if(context.commandData.handlePatchworkError(result, context))return;
 
-        if(data?.err === "not ready")
-            return context.sendLang()
+        const {data} = result;
 
         if(!data.queue) {
             Sentry.addBreadcrumb({

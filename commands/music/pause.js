@@ -11,22 +11,13 @@ module.exports = {
     usage: "pause",
     commands: ["pause", "p"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/pause`, {
+        let result = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/pause`, {
             guildId: context.guild.id,
             pause: true,
         });
 
-        if(data?.err === "nothing playing")
-            return context.sendLang("MUSIC_NOTHING_PLAYING");
+        if(context.commandData.handlePatchworkError(result, context))return;
 
-        if(data?.err === "not permitted")
-            return context.send(`:bangbang: You can only use this command if you're the only one listening or it is your track playing.`);
-
-        if(!data || data.err){
-            Sentry.captureMessage("Invalid response from patchwork on pause");
-            return context.sendLang({content: "GENERIC_ERROR"});
-        }
-
-        return context.send("⏸ Paused.");
+        return context.sendLang("MUSIC_PAUSED");
     }
 };

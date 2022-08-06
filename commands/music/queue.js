@@ -14,7 +14,7 @@ module.exports = {
         if (!context.member.voice || !context.member.voice.channel)
             return context.send(":warning: You have to be in a voice channel to use this command.");
 
-        let {data} = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/queue`, {
+        let result = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/queue`, {
             query: context.options.url,
             guildId: context.guild.id,
             voiceChannelId: context.member.voice.channel.id,
@@ -23,12 +23,9 @@ module.exports = {
             next: false,
         }).catch(()=>({err: "music is temporarily unavailable"})); // shameful shameful hack
 
-        if(data.err){
-            if(data.err === "no results")
-                return context.sendLang("MUSIC_NO_RESULTS");
-            Sentry.captureMessage("Patchwork error: "+data.err);
-            return context.send({content: `Couldn't queue: ${typeof data.err === "object" ? JSON.stringify(data.err) : data.err}`})
-        }
+        if(context.commandData.handlePatchworkError(result, context))return;
+
+        const {data} = result;
 
         if(!data.success || !data.song){
             Sentry.captureMessage("Invalid response from patchwork on queue");
@@ -45,7 +42,7 @@ module.exports = {
             return context.sendLang("MUSIC_ADD_SONG", {title: data.song.title});
 
         if(data.now)
-            return context.send(`:white_check_mark: Playing **${data.song.author} - ${data.song.title}**.`);
+            return context.sendLang("MUSIC_PLAYING_NOW", data.song);
 
         return context.sendLang("MUSIC_ADD_VIDEO", data.song);
     }

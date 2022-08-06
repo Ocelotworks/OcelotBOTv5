@@ -414,7 +414,44 @@ module.exports = {
                     }
                 })
             }
-        }
-        ;
+        };
     },
+    handlePatchworkError({data, status}, context) {
+        if (!data.err){
+            // Patchwork is probably completely dead
+            if(status >= 500)
+                return context.sendLang({ephemeral: true, content: "MUSIC_ERROR_UNAVAILABLE"});
+            return false
+        }
+
+        // Some random error from lavalink
+        if(data.err.message)
+            return context.sendLang({ephemeral: true, content: "MUSIC_ERROR_MESSAGE"}, data.err);
+
+        switch(data.err){
+            case "no results":
+                return context.sendLang({ephemeral: true, content: "MUSIC_NO_RESULTS"});
+            case "not ready":
+                return context.sendLang({ephemeral: true, content: "MUSIC_ERROR_NOT_READY"});
+            case "nothing playing":
+                return context.sendLang({ephemeral: true, content: "MUSIC_NOTHING_PLAYING"});
+            case "not permitted":
+                return context.sendLang({ephemeral: true, content: data.requester ? "MUSIC_REMOVE_NOT_REQUESTER" : "MUSIC_LONE_ONLY"}, data);
+            case "no item":
+                return context.sendLang({ephemeral: true, content: "MUSIC_REMOVE_NO_ITEM"});
+            case "queue empty":
+                return context.sendLang({ephemeral: true, content: "MUSIC_QUEUE_EMPTY"});
+            case "listener doesn't exist":
+                return context.sendLang({ephemeral: true, content: "MUSIC_ERROR_LISTENER_GONE"});
+            case "no nodes available":
+                return context.sendLang({ephemeral: true, content: "MUSIC_ERROR_NO_NODES_AVAILABLE"});
+            case "seek too far":
+                return context.sendLang({
+                    content: "MUSIC_SEEK_TOO_FAR",
+                    components: [context.bot.util.actionRow(context.bot.interactions.suggestedCommand(context, "skip"))]
+                });
+
+        }
+    }
+
 };

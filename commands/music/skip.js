@@ -10,11 +10,15 @@ module.exports = {
     usage: "skip",
     commands: ["skip", "next", "s", "n"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/skip`, {
+        let result = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/skip`, {
             guildId: context.guild.id,
             userId: context.user.id,
             force: false,
         });
+
+        if(context.commandData.handlePatchworkError(result, context))return;
+
+        const {data} = result;
 
         if(data?.err === "nothing playing")
             return context.sendLang("MUSIC_NOTHING_PLAYING");

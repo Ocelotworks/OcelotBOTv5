@@ -69,10 +69,9 @@ module.exports = {
     init: async function(bot){
         bot.badges = {};
         bot.badges.giveBadge = async function(user, channel, id){
-            let span = bot.util.startSpan("Give badge");
             await bot.database.giveBadge(user.id, id);
-            const badge = (await bot.database.getBadge(id))[0];
             if(channel) {
+                const badge = (await bot.database.getBadge(id))[0];
                 let embed = new Discord.MessageEmbed();
                 embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${id}`);
                 embed.setTitle(`You just earned ${badge.name}`);
@@ -80,7 +79,6 @@ module.exports = {
                 embed.setColor("#3ba13b");
                 channel.send({content: `<@${user.id}>`, embeds: [embed]});
             }
-            span.end();
         };
 
         bot.badges.giveBadgeOnce = async function(user, channel, id){
@@ -115,7 +113,7 @@ module.exports = {
             if(eligibleBadge?.id){
                 bot.logger.log(`Awarding badge ${eligibleBadge.name} (${eligibleBadge.id}) to ${user.username} (${userID}). ${series} = ${value}`);
                 await bot.database.deleteBadgeFromSeries(userID, series);
-                await bot.database.giveBadge(userID, null, eligibleBadge.id);
+                await bot.database.giveBadge(userID, eligibleBadge.id);
                 if(channel){
                     let embed = new Discord.MessageEmbed();
                     embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${eligibleBadge.id}`);

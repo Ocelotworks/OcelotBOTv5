@@ -672,7 +672,7 @@ module.exports = {
                 return knex("ocelotbot_profile").update({caption: tagline}).where({id: user}).limit(1);
             },
             giveBadge: function (user, badge) {
-                return knockroach.insert({user: user, badge: badge}).into("badge_assignments");
+                return knockroach.insert({user, badge}).into("badge_assignments");
             },
             getBadge: function (id) {
                 return knockroach.select().from("badges").where({id}).limit(1);

@@ -10,13 +10,12 @@ module.exports = {
     usage: "leave",
     commands: ["leave", "quit", "stop"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/leave`, {
+        let result = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/leave`, {
             guildId: context.guild.id,
         });
 
-        if(data?.err === "nothing playing")
-            return context.sendLang("MUSIC_NOTHING_PLAYING");
+        if(context.commandData.handlePatchworkError(result, context))return;
 
-        return context.send(":wave: Goodbye.");
+        return context.sendLang("MUSIC_STOP");
     }
 };

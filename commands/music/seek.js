@@ -22,12 +22,6 @@ module.exports = {
         if(data?.err === "not permitted")
             return context.send(`:bangbang: You can only use this command if you're the only one listening or it is your track playing.`);
 
-        if(data?.err === "seek too far")
-            return context.send({
-                content: `:warning: That would seek past the end of the song. To skip, type ${context.command} skip`,
-                components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "skip"))]
-            });
-
         if(!data || data.err){
             Sentry.captureMessage("Invalid response from patchwork on seek");
             return context.sendLang({content: "GENERIC_ERROR"});
