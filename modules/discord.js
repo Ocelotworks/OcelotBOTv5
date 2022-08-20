@@ -49,6 +49,7 @@ module.exports = class DiscordModule {
     }
 
     init(){
+        Util.LoadSecret("DISCORD_TOKEN");
         this.overrideSendMethods();
         this.setupClient();
         this.setupRest();
