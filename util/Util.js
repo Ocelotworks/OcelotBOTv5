@@ -14,7 +14,7 @@ module.exports = class Util {
 
         const secretEnv = name+"_FILE";
         if(process.env[secretEnv]){
-            const value = fs.readFileSync(secretEnv);
+            const value = fs.readFileSync(process.env[secretEnv]);
             process.env[name] = value.toString();
         }
 
