@@ -1,6 +1,7 @@
 const later = require('later');
 const Sentry = require('@sentry/node')
 const {SyntheticCommandContext, CustomCommandContext} = require("../util/CommandContext");
+const Util = require("../util/Util");
 let cronIntervals = [];
 // Match group 2 - block language (null for block with no language, undefined for no block)
 // Match group 3 - code
@@ -24,6 +25,7 @@ module.exports = {
     nestedDir: "custom",
     userPermissions: ["MANAGE_GUILD"],
     init: async function init(bot) {
+
         bot.customFunctions = {
             "COMMAND": {},
             "AUTORESPOND": {},
