@@ -36,8 +36,6 @@ module.exports = {
         });
         let user = result.data?.includes?.users?.[0];
         if(!user) {
-            Sentry.addBreadcrumb({message: "Twitter check error", data: result.data});
-            Sentry.captureMessage("Twitter check error");
             return []
         }
         let output = [];
