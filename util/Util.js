@@ -3,7 +3,22 @@ const Sentry = require('@sentry/node');
 const Strings = require("./String");
 const config = require('config');
 const columnify = require("columnify");
+const fs = require('fs');
 module.exports = class Util {
+
+    // Load a secret into the environment from a file, if the file path is set
+    static LoadSecret(name){
+        // Don't load if it's already set
+        if(process.env[name])
+            return;
+
+        const secretEnv = name+"_FILE";
+        if(process.env[secretEnv]){
+            const value = fs.readFileSync(process.env[secretEnv]);
+            process.env[name] = value.toString();
+        }
+
+    }
 
     static Sleep(milliseconds){
        return new Promise((fulfill)=>setTimeout(fulfill, milliseconds));

@@ -57,20 +57,6 @@ module.exports = {
         }
 
         let uptimeValue = bot.util.prettySeconds(process.uptime(), context.guild && context.guild.id, context.user.id);
-        try{
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-            const watsonResult = await bot.util.getJson("https://ob-watson.d.int.unacc.eu/");
-            if(watsonResult && watsonResult.uptimes && watsonResult.uptimes[bot.client.user.id]){
-                const uptime = watsonResult.uptimes[bot.client.user.id];
-                const downtime = watsonResult.downtimes[bot.client.user.id] || 0;
-                const upSince = watsonResult.lastChanges[bot.client.user.id];
-                const upSeconds = ((new Date())-(new Date(upSince)))/1000
-                uptimeValue = `${bot.util.prettySeconds(upSeconds, context.guild && context.guild.id, context.user.id)} (${((uptime/(uptime+downtime))*100).toFixed(2)}% Uptime)`;
-            }
-        }catch(e){
-            bot.logger.error(e);
-        }
-
         let embed = new Embeds.LangEmbed(context)
         embed.setColor(0x189F06);
         embed.setAuthorLang("STATS_VERSION", {version: bot.version}, bot.client.user.displayAvatarURL({dynamic: true, format: "png"}))

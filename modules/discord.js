@@ -49,6 +49,7 @@ module.exports = class DiscordModule {
     }
 
     init(){
+        Util.LoadSecret("DISCORD_TOKEN");
         this.overrideSendMethods();
         this.setupClient();
         this.setupRest();
@@ -193,6 +194,29 @@ module.exports = class DiscordModule {
                 "DIRECT_MESSAGES",
                 //"DIRECT_MESSAGE_REACTIONS" // Non-button reaction events e.g trivia, poll
             ],
+            sweepFilter: {
+                messages: {
+                    interval: 1800,
+                    lifetime: 3600,
+                },
+                guildMembers: {
+                    interval: 900,
+                    filter: ()=> (member) => {
+                        //If the member has cached messages, keep them.
+                        return !this.bot.client?.channels?.cache.some(c => c?.messages?.cache.some(m => m?.author?.id == member?.user?.id));
+                    }
+                },
+                users: {
+                    interval: 1000,
+                    filter: ()=> (user) => {
+                        //if the user exists as in member cache, keep them.
+                        if(this.bot.client?.guilds?.cache.some(g => g?.members?.cache.some(u => u?.id == user?.id))) return false
+
+                        //If the user has cached messages, keep them.
+                        return !this.bot.client?.channels?.cache.some(c => c?.messages?.cache.some(m => m?.author?.id == user?.id));
+                    }
+                },
+            }
         };
 
         // Quick hack because discords verification process did a grumpy on me

@@ -155,14 +155,18 @@ module.exports = class SupportServer {
 
             let content = `**Details for ${member.user.tag}:**\nAccount Age: `;
             try {
-                const [guildData, drep, ddu, azrael] = await Promise.all([
+                const [guildData, drep, /*ddu,*/ azrael] = await Promise.all([
+                    // Guild Data
                     this.bot.rabbit.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${member.id}') && guild.id !== '${member.guild.id}').map((guild)=>\`\${guild.name} (\${guild.id})\`);`),
+                    // drep
                     axios.get(`https://discordrep.com/api/v3/rep/${member.id}`, {
                         headers: {
                             Authorization: config.get("API.discordrep.key")
                         }
                     }).catch(() => null),
-                    axios.get(`https://discord.riverside.rocks/check.json.php?id=${member.id}`).catch(() => null),
+                    // ddu
+                    //axios.get(`https://discord.riverside.rocks/check.json.php?id=${member.id}`).catch(() => null),
+                    // azrael
                     axios.get(`https://azreal.gg/api/v3/checks/${member.id}`, {
                         headers: {
                             Authorization: config.get("API.azrael.key")
@@ -185,10 +189,10 @@ module.exports = class SupportServer {
                     content += `DiscordRep: ${drep.data.upvotes} UP | ${drep.data.downvotes} DOWN | ${drep.data.xp} XP\n`;
                 }
 
-                if (ddu.data) {
-                    if (ddu.data.score > 0) content += "⚠️"
-                    content += `DDU: Score: ${ddu.data.score} (${ddu.data.reports}/${ddu.data.total_reports})\n`;
-                }
+                // if (ddu.data) {
+                //     if (ddu.data.score > 0) content += "⚠️"
+                //     content += `DDU: Score: ${ddu.data.score} (${ddu.data.reports}/${ddu.data.total_reports})\n`;
+                // }
 
                 if(azrael?.data){
                     content += `Azrael: ${azrael.data.banned ? "⚠️Banned" : "✅ Not Banned"}\n`;
