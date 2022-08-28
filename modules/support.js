@@ -22,8 +22,6 @@ module.exports = class SupportServer {
     name = "Support Server Specific Functions";
     bot;
 
-    scammerList = {};
-
     constructor(bot){
         this.bot = bot;
     }
@@ -39,10 +37,8 @@ module.exports = class SupportServer {
 
     async onReady(){
         if (this.bot.client.guilds.cache.has("322032568558026753")) {
-            this.updateScammerList();
             setTimeout(this.updateLeaderboards.bind(this), 5000)
             setInterval(this.updateLeaderboards.bind(this), 8.64e+7)
-            setInterval(this.updateScammerList.bind(this), 300000) // 5 minutes
         }
     }
 
@@ -82,8 +78,19 @@ module.exports = class SupportServer {
     }
 
     async isSuspiciousAccount(member){
+        const verifyMode = member.guild.getSetting("verifyMode");
+        if(verifyMode == 0)return false;
+        if(verifyMode == 2)return true;
         const commandCount = (await this.bot.database.getUserStats(member.id))[0].count;
-        return commandCount == 0 || this.scammerList[member.id];
+        if(commandCount == 0)return true;
+        const friskyData = await this.checkFrisky(member.id)
+        if(friskyData)return true;
+        const azraelData = await this.checkAzrael(member.id)
+        if(azraelData.banned)return true;
+        const drepData = await this.checkDiscordRep(member.id);
+        if(drepData.downvotes > 0)return true;
+        const blacklisterData = await this.checkBlacklister(member.id);
+        return blacklisterData.blacklisted;
     }
 
     async checkAutoReplies(message){
@@ -155,27 +162,28 @@ module.exports = class SupportServer {
 
             let content = `**Details for ${member.user.tag}:**\nAccount Age: `;
             try {
-                const [guildData, drep, /*ddu,*/ azrael] = await Promise.all([
+                const [guildData, drep, /*ddu,*/ azrael, blacklister, frisky, commandCount] = await Promise.all([
                     // Guild Data
                     this.bot.rabbit.broadcastEval(`this.guilds.cache.filter((guild)=>guild.members.cache.has('${member.id}') && guild.id !== '${member.guild.id}').map((guild)=>\`\${guild.name} (\${guild.id})\`);`),
                     // drep
-                    axios.get(`https://discordrep.com/api/v3/rep/${member.id}`, {
-                        headers: {
-                            Authorization: config.get("API.discordrep.key")
-                        }
-                    }).catch(() => null),
+                    this.checkDiscordRep(member.id),
                     // ddu
                     //axios.get(`https://discord.riverside.rocks/check.json.php?id=${member.id}`).catch(() => null),
                     // azrael
-                    axios.get(`https://azreal.gg/api/v3/checks/${member.id}`, {
-                        headers: {
-                            Authorization: config.get("API.azrael.key")
-                        }
-                    }).catch(() => null),
+                    this.checkAzrael(member.id),
+                    // Blacklister
+                    this.checkBlacklister(member.id),
+                    // Frisky
+                    this.checkFrisky(member.id),
+                    // Command count
+                    this.bot.database.getUserStats(member.id).then((d)=>d[0].count)
                 ]);
 
                 const now = new Date();
                 const accountAge = now - member.user.createdAt;
+                if(context.getSetting("verifyMode") == 2)
+                    content += "⚠️Verify Mode is set to challenge all (2)\n";
+
                 if (accountAge < 3.6e+6) content += "⚠️" // 1 Hour
                 if (accountAge < 8.64e+7) content += "‼️" // 1 Day
                 else if (accountAge < 6.048e+8) content += "❗" // 1 Week
@@ -183,6 +191,9 @@ module.exports = class SupportServer {
                 content += `**${this.bot.util.prettySeconds(accountAge / 1000, member.guild.id, member.user)}**\n`;
                 let guildCollection = guildData.reduce((a, b) => a.concat(b), []);
                 content += `Seen: ${guildCollection.length > 0 ? guildCollection.join(", ") : "Nowhere."}\n`;
+
+                if(commandCount === 0) content += "⚠️";
+                content += `**${commandCount.toLocaleString()}** commands performed\n`;
 
                 if (drep.data) {
                     if (drep.data.downvotes > 0) content += "⚠️"
@@ -198,9 +209,14 @@ module.exports = class SupportServer {
                     content += `Azrael: ${azrael.data.banned ? "⚠️Banned" : "✅ Not Banned"}\n`;
                 }
 
-                if(this.scammerList[member.id]){
-                    content += `⚠️**Found on scammer list**: ${this.scammerList[member.id].add_reason}`
+                if(blacklister?.blacklisted){
+                    content += `⚠️Blacklisted: ${blacklister.reason}\n`;
                 }
+
+                if(frisky){
+                    content += `⚠️${frisky.add_reason}\n`;
+                }
+
             }
 
             catch(e){
@@ -211,6 +227,43 @@ module.exports = class SupportServer {
         }
     }
 
+    async checkFrisky(id){
+        const {data} = await axios.get(`https://api.extrafrisky.dev/api/v1/scammers/detailed/${id}`,{
+            headers: {
+                authorization: config.get("API.extrafrisky.key")
+            }
+        });
+        return data.user;
+    }
+
+    async checkAzrael(id){
+        const {data} = await axios.get(`https://azrael.gg/api/v3/checks/${id}`, {
+            headers: {
+                Authorization: config.get("API.azrael.key")
+            },
+            validateStatus: ()=>true,
+        });
+        return data;
+    }
+
+    async checkDiscordRep(id){
+        const {data} = await axios.get(`https://discordrep.com/api/v3/rep/${id}`, {
+            headers: {
+                Authorization: config.get("API.discordrep.key")
+            },
+            validateStatus: ()=>true,
+        });
+        return data;
+    }
+
+    async checkBlacklister(id){
+        const {data}= await axios.get(`https://api.blacklister.xyz/${id}`, {
+            headers: {
+                Authorization: config.get("API.blacklister.key")
+            }
+        });
+        return data;
+    }
 
     async updateLeaderboards(){
         if (this.bot.config.getBool("global", "leaderboard.enable")) {
@@ -253,16 +306,5 @@ module.exports = class SupportServer {
             outputData.push(row);
         }
         return (time === "month" ? "Monthly Scores:" : "All Time Scores:") + "\n```yaml\n" + columnify(outputData) + "\n```\nLast Updated:" + new Date().toLocaleString();
-    }
-
-    async updateScammerList(){
-        const {data: {data: scammers}} = await axios.get(`https://api.extrafrisky.dev/api/v1/scammers/detailed`,{
-            headers: {
-                authorization: config.get("API.extrafrisky.key")
-            }
-        });
-        scammers.forEach((scammer)=>{
-            this.scammerList[scammer.id] = scammer;
-        })
     }
 }
