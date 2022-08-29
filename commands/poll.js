@@ -199,7 +199,7 @@ module.exports = {
         const pollID = (await bot.database.createPoll(expires, context.guild.id, context.channel.id, context.user.id))[0]
 
         let embed = new Embeds.AuthorEmbed(context);
-        embed.setTitle(title);
+        embed.setTitle(Strings.Truncate(title, 256));
         embed.setDescriptionLang(expires ? "POLL_RESPONSES_EXPIRY" : "POLL_RESPONSES", {
             num: 0,
             timestamp: Math.floor(expires?.getTime()/1000)
