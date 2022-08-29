@@ -1,3 +1,4 @@
+const {NotificationContext} = require("../../util/CommandContext");
 module.exports = {
     name: "Set Birthday Channel",
     usage: "channel [clear?:clear] :#name?",
@@ -48,12 +49,9 @@ async function processChannels(bot) {
                 bot.logger.warn(`Didn't print birthday for ${birthday.user} in ${birthday.server} because they are no longer in the server.`);
                 continue;
             }
+            const context = new NotificationContext(bot, birthdayChannel, member.user, member);
             const age = nowYear - new Date(birthday.birthday).getFullYear();
-            if (age > 13) {
-                birthdayChannel.sendLang("BIRTHDAY_MESSAGE_AGE", {user: birthday.user, age: bot.util.getNumberPrefix(age)})
-            } else {
-                birthdayChannel.sendLang("BIRTHDAY_MESSAGE", {user: birthday.user})
-            }
+            context.sendLang(age > 13 ? "BIRTHDAY_MESSAGE_AGE" : "BIRTHDAY_MESSAGE", {user: birthday.user, age: bot.util.getNumberPrefix(age)})
         } catch (e) {
             await bot.config.set(birthday.server, "birthday.channel", null);
             bot.raven.captureException(e);
