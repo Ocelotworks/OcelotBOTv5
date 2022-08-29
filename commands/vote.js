@@ -6,6 +6,7 @@
  */
 const Icon = require("../util/Icon");
 const Strings = require("../util/String");
+const {NotificationContext} = require("../util/CommandContext");
 module.exports = {
     name: "Vote For OcelotBOT",
     usage: "vote",
@@ -65,7 +66,9 @@ module.exports = {
                 if (bot.waitingVoteChannels[i]?.members?.has?.(user)) {
                     channel = bot.waitingVoteChannels[i];
                     bot.logger.log("Matched waiting vote channel for " + user);
-                    channel.sendLang(streak > 1 ? "VOTE_MESSAGE_STREAK" : "VOTE_MESSAGE", {user, streak});
+                    const member = channel.members.get(user);
+                    const context = new NotificationContext(bot, channel, member, member.user);
+                    context.sendLang(streak > 1 ? "VOTE_MESSAGE_STREAK" : "VOTE_MESSAGE", {user, streak});
                     bot.waitingVoteChannels.splice(i, 1);
                     voteServer = channel.guild.id;
                     break;
