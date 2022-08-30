@@ -419,7 +419,7 @@ module.exports = {
     handlePatchworkError({data, status}, context) {
         if (!data?.err){
             // Patchwork is probably completely dead
-            if(status >= 500)
+            if(!data || status >= 500)
                 return context.sendLang({ephemeral: true, content: "MUSIC_ERROR_UNAVAILABLE"});
             return false
         }
