@@ -77,6 +77,50 @@ module.exports = {
             }
         })
     },
+    handleFailures: function handleFailures(bot, sub, failures){
+        if(failures < 3)return;
+        // Timeout by 0.5 hours, 1.5 hours, 2.5 hours...
+        const timeoutHours = failures-2.5
+        bot.logger.warn(`Temporarily not checking ID ${sub.id} for ${timeoutHours} hours`);
+        sub.timedOut = true;
+        if(failures > 10){
+            bot.logger.warn(`Just forgetting the sub entirely until the bot is restarted`);
+            // TODO: remove completely
+            return;
+        }
+        setTimeout(()=>{
+            bot.logger.warn(`Resuming checks for ${sub.id}`);
+            sub.timedOut = false;
+        }, 3.6e+6*timeoutHours);
+    },
+    checkSubType: async function checkSubType(bot, subList){
+        const sub = subList[0];
+        let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
+        if(!results || results.length === 0)return;
+        for (let i = 0; i < subList.length; i++) {
+            const subChannel = subList[i];
+            if(subChannel.timedOut || module.exports.removedSubs.includes(subChannel.id))continue;
+            try {
+                let chan = bot.client.channels.cache.get(subChannel.channel);
+                await bot.database.updateLastCheck(subChannel.id);
+                subChannel.lastcheck = new Date();
+                if (chan && !chan.deleted && chan.permissionsFor(bot.client.user.id)?.has("SEND_MESSAGES")) {
+                    let output = {embeds: results.slice(0, 10)};
+                    if (results.length > 10)
+                        output.content = `:warning: ${results.length - 10} results omitted.`;
+                    await chan.send(output);
+                } else {
+                    let failures = await bot.database.logFailure("subscription", subChannel.id, "Channel not accessible", subChannel.server, subChannel.channel, subChannel.user)
+                    module.exports.handleFailures(bot, subChannel, failures);
+                    bot.logger.warn(`${subChannel.channel} does not exist for sub ${subChannel.id}`);
+                }
+            }catch(e){
+                Sentry.captureException(e);
+                let failures = await bot.database.logFailure("subscription", subChannel.id, e.message, subChannel.server, subChannel.channel, subChannel.user)
+                module.exports.handleFailures(bot, subChannel, failures);
+            }
+        }
+    },
     check: async function check(bot){
         if(bot.drain)return;
         for(let data in module.exports.subs)
@@ -85,30 +129,7 @@ module.exports = {
                const sub = subList[0];
                if(bot.subscriptions[sub.type]){
                    if(!bot.subscriptions[sub.type].check)continue;
-                    let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
-                    if(!results || results.length === 0)continue;
-                    for (let i = 0; i < subList.length; i++) {
-                        const subChannel = subList[i];
-                        if(module.exports.removedSubs.includes(subChannel.id))continue;
-                        let failures;
-                        try {
-                            let chan = bot.client.channels.cache.get(subChannel.channel);
-                            await bot.database.updateLastCheck(subChannel.id);
-                            subChannel.lastcheck = new Date();
-                            if (chan && !chan.deleted && chan.permissionsFor(bot.client.user.id)?.has("SEND_MESSAGES")) {
-                                let output = {embeds: results.slice(0, 10)};
-                                if (results.length > 10)
-                                    output.content = `:warning: ${results.length - 10} results omitted.`;
-                                await chan.send(output);
-                            } else {
-                                bot.database.logFailure("subscription", subChannel.id, "Channel not accessible", subChannel.server, subChannel.channel, subChannel.user)
-                                bot.logger.warn(`${subChannel.channel} does not exist for sub ${subChannel.id}`);
-                            }
-                        }catch(e){
-                            Sentry.captureException(e);
-                            bot.database.logFailure("subscription", subChannel.id, e.message, subChannel.server, subChannel.channel, subChannel.user)
-                        }
-                   }
+                   await module.exports.checkSubType(bot, subList);
                }else{
                    bot.logger.warn(`Invalid subscription type ${sub.type}`);
                }
