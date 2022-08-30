@@ -83,13 +83,14 @@ module.exports = {
            if(module.exports.subs.hasOwnProperty(data)){
                const subList = module.exports.subs[data];
                const sub = subList[0];
-               if(module.exports.removedSubs.includes(sub.id))continue;
                if(bot.subscriptions[sub.type]){
                    if(!bot.subscriptions[sub.type].check)continue;
                     let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
                     if(!results || results.length === 0)continue;
                     for (let i = 0; i < subList.length; i++) {
                         const subChannel = subList[i];
+                        if(module.exports.removedSubs.includes(subChannel.id))continue;
+                        let failures;
                         try {
                             let chan = bot.client.channels.cache.get(subChannel.channel);
                             await bot.database.updateLastCheck(subChannel.id);
