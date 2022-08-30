@@ -95,6 +95,7 @@ module.exports = {
     },
     checkSubType: async function checkSubType(bot, subList){
         const sub = subList[0];
+        if(subList.length === 1 && sub.timedOut || module.exports.removedSubs.includes(sub.id))return;
         let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
         if(!results || results.length === 0)return;
         for (let i = 0; i < subList.length; i++) {
