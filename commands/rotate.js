@@ -13,7 +13,6 @@ module.exports = {
     rateLimit: 20,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["rotate", "rot"],
-    slashHidden: true,
     slashCategory: "filter",
     run: async function(context, bot){
         let num = context.options.deg || 90;
