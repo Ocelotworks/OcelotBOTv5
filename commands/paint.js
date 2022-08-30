@@ -12,7 +12,6 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["paint", "oil", "oilpaint"],
-    slashHidden: true,
     slashCategory: "filter",
     run: async function (context, bot) {
         return Image.ImageFilter(bot, module.exports.usage, context,"paint", [10]);

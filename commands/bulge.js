@@ -7,7 +7,6 @@ module.exports = {
     detailedHelp: "Make an image bulge in the middle.",
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["bulge", "explode", "buldge"],
-    slashHidden: true,
     slashCategory: "filter",
     run: async function (context, bot) {
         return Image.ImageFilter(bot, module.exports.usage, context, "implode", [context.getSetting("bulge.amount")]);

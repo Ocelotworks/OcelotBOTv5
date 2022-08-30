@@ -11,7 +11,6 @@ module.exports = {
     categories: ["memes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["epic", "thisisepic", "okaythisisepic", "tis"],
-    slashHidden: true,
     slashCategory: "filter",
     run: async function (context, bot) {
         let url = await Util.GetImage(bot, context);

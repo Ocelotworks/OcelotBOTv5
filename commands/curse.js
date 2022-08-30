@@ -16,7 +16,6 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["curse", "cursed"],
-    slashHidden: true,
     slashCategory: "filter",
     run: async function (context, bot) {
         let url = await Util.GetImage(bot, context);

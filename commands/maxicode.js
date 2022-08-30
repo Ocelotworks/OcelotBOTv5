@@ -8,7 +8,6 @@ module.exports = {
     categories: ["barcodes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["maxi", "maxicode"],
-    slashHidden: true,
     slashCategory: "barcode",
     run:  function(context, bot){
         context.defer();

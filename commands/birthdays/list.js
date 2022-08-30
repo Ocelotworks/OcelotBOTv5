@@ -11,6 +11,7 @@ module.exports = {
     usage: "list",
     commands: ["list", "view"],
     run: async function (context, bot) {
+        await context.defer();
         let allBirthdays = await bot.database.getBirthdays(context.guild.id);
         if (allBirthdays.length === 0)
             return context.replyLang("BIRTHDAY_NONE", {command: context.command});

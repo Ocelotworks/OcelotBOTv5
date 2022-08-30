@@ -70,16 +70,22 @@ module.exports = class Image {
         if(!url)
             return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage});
 
-        // Slash commands can't upload files
-        if(!context.message)
-            return context.send({content: "This command is not supported in this context."})
+        // // Slash commands can't upload files
+        // if(!context.message)
+        //     return context.send({content: "This command is not supported in this context."})
 
         return Image.#MessageImageFilter(bot, url, context, filter, input, format);
     }
 
 
     static async #MessageImageFilter(bot, url,  context, filter, input, format){
-        const loadingMessage = await context.send(`${Icon.loading} Processing...`);
+        let loadingMessage;
+        if(context.interaction){
+            if(!context.interaction.deferred && !context.interaction.replied)
+                await context.interaction.deferReply();
+        }else {
+            loadingMessage = await context.send(`${Icon.loading} Processing...`);
+        }
         const response = await Image.#imageFilter(bot, url, filter, input, format);
         if(response.err){
             bot.logger.log("Response error: "+response.err);
@@ -102,7 +108,7 @@ module.exports = class Image {
             await context.edit(`${Icon.loading} Uploading...`, loadingMessage);
         }
         const attachment = new Discord.MessageAttachment(buf, response.name);
-        return context.send({files: [attachment]}).then(()=>loadingMessage.delete());
+        return context.send({files: [attachment]}).then(()=>loadingMessage?.delete());
     }
 
     /**
@@ -123,10 +129,10 @@ module.exports = class Image {
     /**
      * Makes an Image Processor request for Interaction requests
      * @param {Object} bot OcelotBOT instance
-     * @param {Discord.CommandInteraction} interaction the Interaction
+     * @param {Discord.Interaction} interaction the Interaction
      * @param {Object} request The request object
      * @param sentMessage
-     * @returns {Promise<Discord.Message | Discord.RawMessage>}
+     * @returns {Promise<Discord.Message>}
      * @constructor
      */
     static async InteractionImageProcessor(bot, interaction, request, sentMessage){

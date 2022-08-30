@@ -6,7 +6,6 @@ module.exports = {
     categories: ["barcodes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["qr", "qrcode"],
-    slashHidden: true,
     run: function(context, bot){
         context.defer();
         try {

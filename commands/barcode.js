@@ -6,7 +6,8 @@ module.exports = {
     usageExample: "barcode hello",
     categories: ["barcodes"],
     requiredPermissions: ["ATTACH_FILES"],
-    commands: ["barcode"],
+    commands: ["normal", "barcode"],
+    slashCategory: "barcode",
     run:  function(context){
         return context.send(`https://www.barcodesinc.com/generator/image.php?code=${encodeURIComponent(context.options.code)}&style=197&type=C128B&width=${167+(context.options.code.length*5)}&height=50&xres=1&font=3`)
     }

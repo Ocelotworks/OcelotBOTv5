@@ -10,7 +10,6 @@ module.exports = {
     commands: ["screenshot", "screencap"],
     categories: ["image", "tools"],
     unwholesome: true,
-    slashHidden: true,
     run: function(context, bot){
         request({
             encoding: null,

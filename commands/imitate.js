@@ -15,7 +15,6 @@ module.exports = {
     commands: ["imitate", "imatate"],
     categories: ["fun"],
     unwholesome: true,
-    slashHidden: true,
     guildOnly: true,
     handleError: function(context){
         if(!context.options.user)
@@ -46,6 +45,10 @@ module.exports = {
 
         if(!webhook){
             return context.sendLang({content: "IMITATE_WEBHOOK_FAILED", ephemeral: true});
+        }
+
+        if(context.interaction){
+            context.send({ephemeral: true, content: "Done"});
         }
 
         const content = context.options.message;
