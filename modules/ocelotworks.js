@@ -53,7 +53,6 @@ module.exports = {
 
         bot.client.on("messageReactionAdd", async (reaction, user) => {
             if(reaction.partial){
-                bot.logger.log(reaction);
                 await reaction.fetch();
             }
             if(reaction.message?.partial){
