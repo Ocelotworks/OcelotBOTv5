@@ -359,6 +359,8 @@ class InteractionContext extends CommandContext {
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         if(typeof options === "string")options = {content: options};
         this._appendPrefix(options, true);
+        if(!this.interaction.replied)
+            return this.interaction.reply(options);
         try {
             return this.interaction.editReply(options);
         }catch(e){
