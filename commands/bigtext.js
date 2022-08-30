@@ -8,7 +8,6 @@ module.exports = {
     usageExample: "bigtext this is really big",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["bigtext", "big"],
-    slashHidden: true,
     slashCategory: "images",
     handleError: function(context){
         return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});

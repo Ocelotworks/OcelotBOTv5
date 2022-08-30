@@ -14,7 +14,6 @@ module.exports = {
     rateLimit: 10,
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["snapchat", "snap"],
-    slashHidden: true,
     slashCategory: "filter",
     run: async function(context, bot){
         const url =  await Util.GetImage(bot, context);
@@ -29,7 +28,7 @@ module.exports = {
         let content = `${context.options.image} ${context.options.text}`
 
         // This feels wrong but I don't want to deal with doing it the proper way
-        if(url.startsWith("https://cdn.discord") && context.message.mentions.users.size > 0){
+        if(url.startsWith("https://cdn.discord") && context.message?.mentions.users.size > 0){
             content = content.replace(new RegExp(`<@!?(${context.message.mentions.users.firstKey()})>`), "")
         }
 
