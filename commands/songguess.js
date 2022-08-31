@@ -464,5 +464,8 @@ async function getPlaylistData(bot, playlistId){
 async function fetchAlternativePreview(id) {
     const { data } = await axios.get(`https://open.spotify.com/embed/track/${id}`);
     const $ = cheerio.load(data);
-    return JSON.parse(Buffer.from($('script[id="initial-state"]')[0].children[0].data, 'base64').toString())?.data?.entity?.audioPreview?.url;
+    if($('script[id="initial-state"]').length > 0) {
+        return JSON.parse(Buffer.from($('script[id="initial-state"]')[0].children[0].data, 'base64').toString())?.data?.entity?.audioPreview?.url;
+    }
+    return JSON.parse(decodeURIComponent($('script[id="resource"]')[0].children[0].data)).preview_url;
 }
