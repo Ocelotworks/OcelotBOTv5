@@ -18,6 +18,14 @@ module.exports = {
             const resumeKey = bot.client.user.id + "-" + bot.util.shard;
 
             const clients = [];
+            if(process.env.LAVALINK_TEST == 1){
+                clients.push({
+                    host: "localhost",
+                    port: 2333,
+                    password: config.get("Lavalink.password"),
+                    reconnectInterval: 1000,
+                })
+            }
 
             bot.lavaqueue.manager = new Manager(bot.client, clients, {
                 user: bot.client.user.id,

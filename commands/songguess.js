@@ -148,6 +148,7 @@ async function startGame(bot, context, playlistId, custom){
     module.exports.runningGames[context.guild.id] = {
         voiceChannel: context.member.voice.channel,
         textChannel: context.channel,
+        debug: context.getBool("songguess.debug"),
         context,
         playlistId,
         player,
@@ -196,6 +197,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
     });
     if(realIndex < 0 || realIndex > playlist.length){
         bot.logger.warn("realIndex was incorrect "+realIndex);
+        if(game.debug) game.context.send(`:bug: RealIndex miscalculation: 0 < ${realIndex} < ${playlist.length}`);
         realIndex = bot.util.intBetween(0, playlist.length); // Last ditch
         counter = bot.util.intBetween(0, playlistLength); // Reset the counter
         Sentry.addBreadcrumb({
@@ -217,6 +219,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
     if(!song) {
         bot.logger.warn("Song is null");
         bot.logger.log(playlist);
+        if(game.debug) game.context.send(`:bug: Null \`song\` at realIndex ${realIndex} | Perceived Length: ${playlistLength} | Actual Length: ${playlist.length} | Counter: ${counter} | Retrying: ${retrying}`);
         if (!retrying) {
             counter = bot.util.intBetween(0, playlistLength);
             return newGuess(bot, voiceChannel, true);
@@ -236,9 +239,11 @@ async function newGuess(bot, voiceChannel, retrying = false){
             message: "Fetched alternative preview",
             data: song.track
         });
+        if(game.debug) game.context.send(`:warning: Fetching alternative preview URL`);
         bot.logger.warn("Fetching alternative preview for "+song.track.id);
         song.track.preview_url = await fetchAlternativePreview(song.track.id);
         if(!song.track.preview_url){
+            if(game.debug) game.context.send(`:bug: Alternative preview URL was null`);
             Sentry.captureMessage("Alternative preview URL was null");
         }
     }
@@ -247,6 +252,7 @@ async function newGuess(bot, voiceChannel, retrying = false){
     const songData = await bot.lavaqueue.getSong(song.track.preview_url, game.player);
     if(!songData){
         bot.logger.warn("songData is null")
+        if(game.debug) game.context.send(`:bug: Null \`songData\` at realIndex ${realIndex} | Perceived Length: ${playlistLength} | Actual Length: ${playlist.length} | Counter: ${counter} | Retrying: ${retrying}`);
         if(!retrying) {
             console.log("retrying...");
             return newGuess(bot, voiceChannel, true);
@@ -257,7 +263,10 @@ async function newGuess(bot, voiceChannel, retrying = false){
         }
     }
     game.player.once("start", ()=>{
-        game.context.sendLang("SONGGUESS");
+        if(game.debug)
+            game.context.send(`Counter: ${counter} | Index: ${index} | Chunk: ${chunk} | List length: ${playlistLength} | Array Length: ${playlist.length} | Real Index: ${realIndex}\nSong Name: ${song.track.name}`);
+        else
+            game.context.sendLang("SONGGUESS");
         doGuess(bot, game.player, game.textChannel, song, game.voiceChannel);
     });
     return game.player.play(songData.track);
@@ -340,7 +349,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
             await bot.database.addPoints(winner.author.id, 10, `guess win`);
             let elapsed = winner.createdAt-guessStarted;
             winEmbed.addFieldLang("SONGGUESS_WIN_TIME_TAKEN_TITLE", "SONGGUESS_WIN_TIME_TAKEN_VALUE", false, {elapsed: bot.util.prettySeconds(elapsed / 1000, winner.guild.id, winner.author.id)})
-            if(!game.custom) {
+            if(!game.custom && !game.debug) {
                 const fastestGuess = await bot.database.getFastestSongGuess(loggedTrackName);
                 if (fastestGuess[0]) {
                     winEmbed.addFieldLang("SONGGUESS_WIN_FASTEST_TIME_TITLE", "SONGGUESS_WIN_FASTEST_TIME_VALUE", false,{
@@ -358,7 +367,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
                     }
                 }
             }
-            if(game.textChannel.guild.getBool("points.enabled")){
+            if(game.textChannel.guild.getBool("points.enabled") && !game.debug){
                 winEmbed.addFieldLang("SONGGUESS_WIN_POINTS_TITLE", "SONGGUESS_WIN_POINTS_VALUE", false, {amount: points})
             }
             winEmbed.setFooterLang("SONGGUESS_WIN_FOOTER")
@@ -401,7 +410,7 @@ async function doGuess(bot, player, textChannel, song, voiceChannel){
         game.context.sendLang("SONGGUESS_NEXT_TRACK");
         return game.timeout = setTimeout(()=>{
             newGuess(bot, voiceChannel)
-        }, 3000);
+        }, game.debug ? 500 : 3000);
     })
 }
 
@@ -464,5 +473,8 @@ async function getPlaylistData(bot, playlistId){
 async function fetchAlternativePreview(id) {
     const { data } = await axios.get(`https://open.spotify.com/embed/track/${id}`);
     const $ = cheerio.load(data);
+    if($('script[id="initial-state"]').length > 0) {
+        return JSON.parse(Buffer.from($('script[id="initial-state"]')[0].children[0].data, 'base64').toString())?.data?.entity?.audioPreview?.url;
+    }
     return JSON.parse(decodeURIComponent($('script[id="resource"]')[0].children[0].data)).preview_url;
 }
