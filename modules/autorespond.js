@@ -85,11 +85,11 @@ module.exports = {
                             bot.util.replyTo(message, `My prefix is **${message.getSetting("prefix")}**\nTo change the prefix, do ${message.getSetting("prefix")}settings set prefix %\nWhere % is the prefix you want.`);
                         }
                     }else if (message.content.toLowerCase().indexOf("help") > -1 || message.content.toLowerCase().indexOf("commands") > -1) {
-                        if(message.getBool("disableMessageCommands")){
+                        if(message.getBool("disableMessageCommands"))
                             bot.util.replyTo(message, `You can see my commands with /help`);
-                        }else {
-                            bot.util.replyTo(message, `You can see my commands with ${message.getSetting("prefix")}help`);
-                        }
+                       // }else {
+                            //bot.util.replyTo(message, `You can see my commands with ${message.getSetting("prefix")}help`);
+                        //}
                     }else if (message.content.toLowerCase().indexOf("shut up") > -1) {
                         bot.util.replyTo(message, `:pensive: If I'm interrupting, you can always change my prefix with **${message.getSetting("prefix")}settings set prefix** or disable conflicting commands with ${message.getSetting("prefix")}settings disableCommand`)
                     }
