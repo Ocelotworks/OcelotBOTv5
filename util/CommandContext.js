@@ -359,6 +359,8 @@ class InteractionContext extends CommandContext {
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         if(typeof options === "string")options = {content: options};
         this._appendPrefix(options, true);
+        if(this.interaction.deferred)
+            return this.interaction.followUp(options);
         if(!this.interaction.replied)
             return this.interaction.reply(options);
         try {
@@ -366,8 +368,6 @@ class InteractionContext extends CommandContext {
         }catch(e){
             console.log("Discord moment");
         }
-        if(this.interaction.deferred)
-            return this.interaction.followUp(options);
         return this.interaction.reply(options);
     }
 
@@ -529,6 +529,14 @@ class ButtonCommandContext extends ButtonInteractionContext {
         this.command = this.args[0];
     }
 
+}
+
+// Fake context for testing
+class TestCommandContext extends CommandContext {
+
+    constructor(bot, member, user, channel, guild, command){
+        super(bot, member, user, channel, guild, command, "TEST");
+    }
 }
 
 module.exports = {

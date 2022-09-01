@@ -199,12 +199,20 @@ module.exports = class Commands {
      * @returns {{args: *, command: string}|null}
      */
     parseCommand(message){
-        const prefix = message.getSetting("prefix");
-        if (!prefix) return null;//Bot hasn't fully loaded
-        const prefixLength = prefix.length;
-        if (!message.content.startsWith(prefix))return null;
-        const args = message.content.split(/\s+/g);
-        const command = args[0].substring(prefixLength).toLowerCase();
+        let args, command;
+        if(message.content.startsWith(`<@${this.bot.client.user.id}`) || message.content.startsWith(`<@!${this.bot.client.user.id}`)){
+            const marker = `${this.bot.client.user.id}>`;
+            args = message.content.substring(message.content.indexOf(marker)+marker.length).trim().split(/\s+/g);
+            command = args[0].toLowerCase();
+            console.log(command);
+        }else {
+            const prefix = message.getSetting("prefix");
+            if (!prefix) return null;//Bot hasn't fully loaded
+            const prefixLength = prefix.length;
+            if (!message.content.startsWith(prefix)) return null;
+            args = message.content.split(/\s+/g);
+            command = args[0].substring(prefixLength).toLowerCase();
+        }
         if(!this.bot.commandUsages[command] && !this.bot.customFunctions.COMMAND[message.guild?.id] )return null;
         return {args, command};
     }
