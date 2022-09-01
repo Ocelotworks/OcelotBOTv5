@@ -1,7 +1,7 @@
 const Strings = require("../String");
 let seenMessage = {};
 module.exports = async (context, bot) => {
-
+    if(context.interaction || !context.message || context.message.mentions.users.has(bot.client.user.id))return true;
     if(context.getBool("messageCommandSubstitution")){
         let slashCommands = await bot.client.application.commands.fetch().then((c)=>c.reduce((acc, data)=>{acc[data.name] = data.id; return acc}, {}));
         let dm = await context.user.createDM();
