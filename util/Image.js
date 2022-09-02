@@ -89,7 +89,7 @@ module.exports = class Image {
         const response = await Image.#imageFilter(bot, url, filter, input, format);
         if(response.err){
             bot.logger.log("Response error: "+response.err);
-            await loadingMessage.delete();
+            await loadingMessage?.delete();
             return context.sendLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
         }else if(!response.image){
             return context.sendLang("GENERIC_ERROR")
@@ -100,7 +100,7 @@ module.exports = class Image {
         bot.logger.log(`Buffer size: ${buf.byteLength}`)
 
         if(buf.byteLength >= 10000000){
-            await loadingMessage.delete();
+            await loadingMessage?.delete();
             return context.sendLang("IMAGE_PROCESSOR_ERROR_SIZE");
         }
 
