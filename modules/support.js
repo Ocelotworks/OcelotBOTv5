@@ -31,6 +31,7 @@ module.exports = class SupportServer {
         this.bot.client.on("messageCreate", this.onMessage.bind(this));
         this.bot.client.on("guildMemberAdd", this.onGuildMemberAdd.bind(this));
         this.bot.client.on("guildMemberRemove", this.onGuildMemberRemove.bind(this));
+        //this.bot.client.on("raw", this.onRawMessage.bind(this));
         this.bot.client.on("ready", this.onReady.bind(this));
     }
 
@@ -91,6 +92,11 @@ module.exports = class SupportServer {
         if(drepData.downvotes > 0)return true;
         const blacklisterData = await this.checkBlacklister(member.id);
         return blacklisterData.blacklisted;
+    }
+
+
+    onRawMessage(message){
+        console.log(message);
     }
 
     async checkAutoReplies(message){

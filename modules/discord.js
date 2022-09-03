@@ -154,16 +154,18 @@ module.exports = class DiscordModule {
 
         const oldreply = Discord.CommandInteraction.prototype.reply
         Discord.CommandInteraction.prototype.reply = async function reply(options){
-            console.log(this);
+            console.log("INTERACTION REPLY");
             bot.bus.emit("messageSent", options);
             bot.logger.log({type: "messageSend", message: bot.util.serialiseMessage({
                     ...options,
                     channel: bot.client.channels.cache.get(this.channelId),
-                    guild: this.member?.guild,
-                    member: this.member,
+                    guild: this.guild,
+                    member: this.member?.guild?.me,
                 })})
             return oldreply.apply(this, [options]);
         }
+
+
     }
 
     setupClient(){
@@ -263,6 +265,7 @@ module.exports = class DiscordModule {
 
     setupEvents(){
         this.bot.client.on("ready", this.onDiscordReady.bind(this));
+        this.bot.client.on("debug", this.onDiscordDebug.bind(this));
         this.bot.client.on("disconnect", this.onDiscordDisconnected.bind(this));
         this.bot.client.on("warning", this.onWarning.bind(this));
         this.bot.client.on("error", this.onWebsocketError.bind(this));
@@ -322,6 +325,14 @@ module.exports = class DiscordModule {
             data: event
         });
         this.bot.logger.warn("Disconnected");
+    }
+
+    onDiscordDebug(event){
+        Sentry.addBreadcrumb({
+            category: "discord",
+            message: event,
+            level: "debug"
+        })
     }
 
     onWebsocketError(event){
