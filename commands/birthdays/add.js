@@ -9,6 +9,10 @@ module.exports = {
     name: "Add Birthday",
     usage: "add :@adduser? :date+",
     commands: ["add", "new"],
+    argDescriptions: {
+        adduser: {name: "The user to add the birthday for, if not yourself"},
+        date: {name: "The date of their birthday"}
+    },
     run: async function (context, bot) {
         let target = context.user;
         if (context.options.adduser)

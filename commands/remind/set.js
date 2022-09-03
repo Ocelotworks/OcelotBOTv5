@@ -3,11 +3,10 @@ module.exports = {
     name: "Set Reminder",
     usage: "set :time :message",
     commands: ["set"],
-    slashOptions: [{
-        type: "STRING", name: "time", description: "The time your reminder is at (relative or absolute)", required: true,
-    }, {
-        type: "STRING", name: "message", description: "Your reminders message", required: true
-    }],
+    argDescriptions: {
+        time: {name: "The reminder time 'in 2 hours' or 'on the 31st December'"},
+        message: {name: "The message to accompany your reminder"}
+    },
     run: async function (context, bot) {
         const now = new Date();
         const chronoParse = (chrono.parse(`in ${context.options.time}`, now, {forwardDate: true}))[0];
