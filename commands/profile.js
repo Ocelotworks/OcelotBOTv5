@@ -66,9 +66,13 @@ module.exports = {
         value: "user",
         prefix: "View"
     },
+    argDescriptions: {
+        "base": {name: "view", description: "View a users profile"},
+    },
     init: async function(bot){
         bot.badges = {};
         bot.badges.giveBadge = async function(user, channel, id){
+            if(!id)return bot.logger.log("Invalid badge");
             await bot.database.giveBadge(user.id, id);
             if(channel) {
                 const badge = (await bot.database.getBadge(id))[0];
