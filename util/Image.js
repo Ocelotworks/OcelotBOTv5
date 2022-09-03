@@ -161,6 +161,8 @@ module.exports = class Image {
         }catch(e){
             console.log(e);
             Sentry.captureException(e);
+            if(interaction.deferred || interaction.replied)
+                return interaction.followUp({content: "Failed to process image", ephemeral: true});
             return interaction.reply({content: "Failed to process image", ephemeral: true});
         }
     }
