@@ -344,7 +344,7 @@ module.exports = class Commands {
                         });
                     }
 
-                }else {
+                }else if(!loadedCommand.slashOptions) {
                     loadedCommand.slashOptions = Util.PatternToOptions(loadedCommand.pattern, loadedCommand.argDescriptions);
                 }
             }
