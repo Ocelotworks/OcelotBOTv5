@@ -10,7 +10,6 @@ module.exports = {
     categories: ["tools"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["subscriptions", "subscription", "subscribe", "sub", "subs"],
-    hidden: true,
     guildOnly: true,
     subs: {},
     removedSubs: [],
