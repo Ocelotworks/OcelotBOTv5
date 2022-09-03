@@ -14,8 +14,8 @@ module.exports = {
     categories: ["barcodes"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["snapcode"],
-    run: function(context, bot){
-        context.defer();
+    run: async function(context, bot){
+        await context.defer();
         const url = `https://app.snapchat.com/web/deeplink/snapcode?username=${encodeURIComponent(context.options.username)}&type=PNG&size=240`;
         if(context.interaction)
             return context.send(url);
