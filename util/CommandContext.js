@@ -508,6 +508,10 @@ class ButtonInteractionContext extends InteractionContext {
         this._appendPrefix(options, true);
         if(message)
             return message.edit(options);
+        if(this.interaction.replied)
+            return this.interaction.editReply(options);
+        if(this.interaction.deferred)
+            return this.interaction.followUp(options);
         return this.interaction.update(options);
     }
 
