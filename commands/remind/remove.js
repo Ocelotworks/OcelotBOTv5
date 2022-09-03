@@ -3,6 +3,13 @@ module.exports = {
     name: "Remove Reminder",
     usage: "remove :0id",
     commands: ["remove", "delete", "del", "cancel"],
+    argDescriptions: {
+        id: {name: "The reminder ID to remove", autocomplete: true}
+    },
+    autocomplete: async function(input, interaction, bot) {
+        let reminders = await bot.database.searchRemindersForUser(bot.client.user.id, interaction.user.id,interaction.guild?.id || null, input);
+        return reminders.map((r)=>({name: `${r.id}: '${Strings.Truncate(r.message, 65)}'`, value: r.id}))
+    },
     run: async function (context, bot) {
         let reminder = await bot.database.getReminderById(context.options.id);
         if (!reminder[0])

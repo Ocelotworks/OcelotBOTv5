@@ -1,34 +1,20 @@
 const chrono = require('chrono-node');
-const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
 module.exports = {
     name: "Set Reminder",
-    usage: "in :timeandmessage+",
-    commands: ["in", "on", "at", "for", "the", "me"],
-    slashOptions: [{
-        type: "STRING", name: "timeandmessage", description: "The time your reminder is at and the message", required: true
-    }],
+    usage: "set :time :message",
+    commands: ["set"],
+    argDescriptions: {
+        time: {name: "The reminder time 'in 2 hours' or 'on the 31st December'"},
+        message: {name: "The message to accompany your reminder"}
+    },
     run: async function (context, bot) {
-        // TODO: someday ill fix this
-        const input = `${context.options.command} ${context.options.timeandmessage}`
         const now = new Date();
-        const rargs = regex.exec(input);
-        const chronoParse = (chrono.parse(input, now, {forwardDate: true}))[0];
+        const chronoParse = (chrono.parse(`in ${context.options.time}`, now, {forwardDate: true}))[0];
         let at = null;
         if (chronoParse?.start)
             at = chronoParse.start.date();
 
-
-        let reminder = null;
-        if (!rargs || rargs.length < 3) {
-            if (!chronoParse?.text)
-                return context.sendLang({content: "REMIND_INVALID_MESSAGE", ephemeral: true});
-
-            const guessedContent = input.substring(input.indexOf(chronoParse.text) + chronoParse.text.length);
-            if (!guessedContent)
-                return context.sendLang({content: "REMIND_INVALID_MESSAGE", ephemeral: true});
-            reminder = guessedContent;
-        } else
-            reminder = rargs[2];
+        let reminder = context.options.message;
 
         if (!at)
             return context.sendLang({content: "REMIND_INVALID_TIME", ephemeral: true});

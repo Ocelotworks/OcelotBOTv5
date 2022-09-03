@@ -6,7 +6,7 @@
  */
 module.exports = {
     name: "Add Sub",
-    usage: "add :type :data?+",
+    usage: "add [type:twitter,reddit,joins,leaves] :data?+",
     commands: ["add",  "new"],
     run:  async function(context, bot){
         if(!bot.subscriptions[context.options.type])

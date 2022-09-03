@@ -4,6 +4,10 @@ module.exports = {
     usage: "channel [clear?:clear] :#name?",
     commands: ["setchannel", "channel"],
     userPermissions: ["MANAGE_CHANNELS"],
+    argDescriptions: {
+        clear: {name: "Stop receiving birthday reminders"},
+        name: {name: "The channel name to receive reminders in"},
+    },
     init: async function init(bot) {
         bot.client.once("ready", () => {
             const now = new Date();

@@ -9,6 +9,9 @@ module.exports = {
     name: "Remove Birthday",
     usage: "remove :usertoremove?+",
     commands: ["remove", "delete"],
+    argDescriptions: {
+        usertoremove: {name: "The users birthday to remove, if not your own"},
+    },
     run: async function (context, bot) {
         let target = context.user;
         const mention = Strings.GetUserFromMention(bot, context.options.usertoremove);
