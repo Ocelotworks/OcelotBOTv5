@@ -359,15 +359,15 @@ class InteractionContext extends CommandContext {
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         if(typeof options === "string")options = {content: options};
         this._appendPrefix(options, true);
-        if(this.interaction.deferred)
-            return this.interaction.followUp(options);
-        if(!this.interaction.replied)
-            return this.interaction.reply(options);
         try {
             return this.interaction.editReply(options);
         }catch(e){
             console.log("Discord moment");
         }
+        if(!this.interaction.replied)
+            return this.interaction.reply(options);
+        if(this.interaction.deferred)
+            return this.interaction.followUp(options);
         return this.interaction.reply(options);
     }
 
@@ -508,6 +508,10 @@ class ButtonInteractionContext extends InteractionContext {
         this._appendPrefix(options, true);
         if(message)
             return message.edit(options);
+        if(this.interaction.replied)
+            return this.interaction.editReply(options);
+        if(this.interaction.deferred)
+            return this.interaction.followUp(options);
         return this.interaction.update(options);
     }
 
@@ -534,9 +538,33 @@ class ButtonCommandContext extends ButtonInteractionContext {
 // Fake context for testing
 class TestCommandContext extends CommandContext {
 
-    constructor(bot, member, user, channel, guild, command){
-        super(bot, member, user, channel, guild, command, "TEST");
+    onReply;
+
+    constructor(bot, onReply, member = {user: {}}, channel = {}, guild = {}, command = "test"){
+        super(bot, member, member.user, channel, guild, command, "TEST");
+        this.onReply = onReply;
     }
+
+    send(options){
+        if(this.onReply)this.onReply("send", options);
+        return true;
+    }
+
+    edit(options){
+        if(this.onReply)this.onReply("edit", options);
+        return true;
+    }
+
+    reply(options){
+        if(this.onReply)this.onReply("reply", options);
+        return true;
+    }
+
+    defer(options){
+        if(this.onReply)this.onReply("defer", options);
+        return true;
+    }
+
 }
 
 module.exports = {

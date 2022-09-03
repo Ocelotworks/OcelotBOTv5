@@ -89,7 +89,7 @@ module.exports = class Image {
         const response = await Image.#imageFilter(bot, url, filter, input, format);
         if(response.err){
             bot.logger.log("Response error: "+response.err);
-            await loadingMessage.delete();
+            await loadingMessage?.delete();
             return context.sendLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
         }else if(!response.image){
             return context.sendLang("GENERIC_ERROR")
@@ -100,7 +100,7 @@ module.exports = class Image {
         bot.logger.log(`Buffer size: ${buf.byteLength}`)
 
         if(buf.byteLength >= 10000000){
-            await loadingMessage.delete();
+            await loadingMessage?.delete();
             return context.sendLang("IMAGE_PROCESSOR_ERROR_SIZE");
         }
 
@@ -144,7 +144,7 @@ module.exports = class Image {
         };
         request.version = 1;
         if(!interaction.deferred && !interaction.replied)
-            await interaction.deferReply();
+            await interaction.deferReply().catch(()=>null);
         try {
             let response = await Image.#imageProcessor(bot, request);
             if (response.err) {
@@ -161,6 +161,8 @@ module.exports = class Image {
         }catch(e){
             console.log(e);
             Sentry.captureException(e);
+            if(interaction.deferred || interaction.replied)
+                return interaction.followUp({content: "Failed to process image", ephemeral: true});
             return interaction.reply({content: "Failed to process image", ephemeral: true});
         }
     }
