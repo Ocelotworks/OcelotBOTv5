@@ -7,6 +7,7 @@ module.exports = {
     commands: ["lewd"],
     categories: ["nsfw"],
     slashOptions: [],
+    hidden: true,
     run: async function(context, bot){
         const {data} = await axios.get("https://gallery.fluxpoint.dev/api/nsfw/img/lewd", {
             headers: {
