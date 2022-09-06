@@ -33,7 +33,7 @@ module.exports = {
             const inline = poll.options.length > 10;
             for(let i = 0; i < poll.options.length; i++){
                 const option = poll.options[i];
-                const percentage = answers[option.id] > 1 ? Math.round((answers[option.id]/totalAnswers)*100) : 0;
+                const percentage = answers[option.id] > 0 ? Math.round((answers[option.id]/totalAnswers)*100) : 0;
                 embed.addField(option.name, `${Strings.ProgressBar(answers[option.id], totalAnswers, inline ? 5 : 10)} ${percentage}%`, inline);
             }
 

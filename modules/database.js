@@ -1317,6 +1317,7 @@ module.exports = {
             },
             async getNextEmptyPollDate(){
                 let result = await knockroach.select(knex.raw("MAX(date)")).from("daily_polls");
+                result[0].max.setDate(result[0].max.getDate()+1);
                 return result[0].max;
             },
             async createDailyPoll(date, title, options){
