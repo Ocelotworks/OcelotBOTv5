@@ -1290,6 +1290,41 @@ module.exports = {
                   let result = await knockroach.select(knex.raw("COUNT(*) as count")).from("failures").where({type, item});
                   return result[0]?.count || 0;
             },
+            async getDailyPoll(rowid){
+                let query = knockroach.select("daily_poll_options.rowid","*").from("daily_polls")
+                    .innerJoin("daily_poll_options", "daily_polls.rowid", "daily_poll_options.poll");
+                if(rowid)
+                    query = query.where("daily_polls.rowid", "=", rowid);
+                else
+                    query = query.whereRaw("date = CURRENT_DATE")
+                const result = await query;
+
+                if(!result || result.length === 0)return null;
+                return {
+                    id: result[0].poll,
+                    title: result[0].title,
+                    multiple: result[0].multiple,
+                    options: result.map((d)=>({name: d.name, id: d.rowid}))
+                };
+            },
+            async getDailyPollAnswers(poll){
+                let result = await knockroach("daily_poll_answers").select(knex.raw("COUNT(*)"), "option").where({poll}).groupBy("option")
+                return result.reduce((acc, r)=>{acc[r.option] = parseInt(r.count);return acc;}, {})
+            },
+            async logDailyPollAnswer(user, poll, option){
+                await knockroach("daily_poll_answers").delete().where({user, poll}).limit(1);
+                return knockroach.insert({user, poll, option}).into("daily_poll_answers");
+            },
+            async getNextEmptyPollDate(){
+                let result = await knockroach.select(knex.raw("MAX(date)")).from("daily_polls");
+                if(!result[0]?.max)return new Date();
+                result[0].max.setDate(result[0].max.getDate()+1);
+                return result[0].max;
+            },
+            async createDailyPoll(date, title, options){
+              const [rowid] = await knockroach.insert({date, title}).into("daily_polls").returning("rowid");
+              return knockroach.insert(options.map((o)=>({poll: rowid, name: o}))).into("daily_poll_options")
+            },
             // This should probably be a worker
             async dataExport(userID){
                 bot.logger.log("Starting data export...");
