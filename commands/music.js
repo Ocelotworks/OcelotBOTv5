@@ -419,8 +419,10 @@ module.exports = {
     handlePatchworkError({data, status}, context) {
         if (!data?.err){
             // Patchwork is probably completely dead
-            if(!data || status >= 500)
+            if(!data || status >= 500) {
+                Sentry.captureException(`Patchwork error ${!data ? "no data" : "http "+status}`)
                 return context.sendLang({ephemeral: true, content: "MUSIC_ERROR_UNAVAILABLE"});
+            }
             return false
         }
 
