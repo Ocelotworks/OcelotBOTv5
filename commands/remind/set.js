@@ -2,12 +2,14 @@ const chrono = require('chrono-node');
 module.exports = {
     name: "Set Reminder",
     usage: "set :time :message",
-    commands: ["set"],
+    commands: ["set", "at", "every"],
     argDescriptions: {
         time: {name: "The reminder time 'in 2 hours' or 'on the 31st December'"},
         message: {name: "The message to accompany your reminder"}
     },
     run: async function (context, bot) {
+        if(!context.interaction)
+            return context.send({content: "This command is now only available as a slash command. Please use </remind set:904885955486433292>", ephemeral: true});
         const now = new Date();
         const chronoParse = (chrono.parse(`in ${context.options.time}`, now, {forwardDate: true}))[0];
         let at = null;
