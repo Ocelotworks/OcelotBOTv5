@@ -50,7 +50,7 @@ module.exports = {
         playlist = bot.util.arrayRand(playlists.split(","));
         bot.logger.log(`Using spotify playlist: ${playlist}`);
 
-        if (bot.util.checkVoiceChannel(context.message || context.interaction)) return;
+        if (bot.util.checkVoiceChannel(context)) return;
         if (context.guild.voiceConnection && !bot.voiceLeaveTimeouts[context.member.voice.channel.id] && context.getSetting("songguess.disallowReguess"))
             return context.sendLang("SONGGUESS_OCCUPIED");
 
