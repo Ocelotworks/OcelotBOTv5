@@ -10,7 +10,7 @@ module.exports = {
     usage: "add :name :image?+",
     commands: ["add"],
     run: async function (context, bot) {
-        if (!context.guild.id)
+        if (!context.guild)
             return context.sendLang("GENERIC_DM_CHANNEL");
         if (context.getSetting("meme.disallowAdding"))
             return context.sendLang("MEME_DISABLED");
