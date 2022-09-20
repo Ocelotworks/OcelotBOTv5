@@ -7,10 +7,10 @@
 const Util = require("../../util/Util");
 module.exports = {
     name: "Add Meme",
-    usage: "add :name :image?+",
+    usage: "add :name :image+",
     commands: ["add"],
     run: async function (context, bot) {
-        if (!context.guild.id)
+        if (!context.guild)
             return context.sendLang("GENERIC_DM_CHANNEL");
         if (context.getSetting("meme.disallowAdding"))
             return context.sendLang("MEME_DISABLED");
@@ -18,6 +18,9 @@ module.exports = {
             return context.sendLang("MEME_BANNED");
 
         try {
+            if(context.options.name.length > 256){
+                return context.send({content: "The name must be less than 256 characters.", ephemeral: true})
+            }
             let meme = context.options.image;
             if (!meme) {
                 meme = await Util.GetImage(bot, context);

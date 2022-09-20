@@ -449,6 +449,10 @@ class NotificationContext extends CommandContext {
     async send(options){
         if(typeof options === "string")options = {content: options};
         this._appendPrefix(options, true);
+        if(!this.channel.send){
+            Sentry.captureMessage(`Channel ${this.channel.id} of type ${this.channel.type} cannot recieve messages`);
+            return;
+        }
         const message = await this.channel.send(options);
         if(this.message)
             this.message.response = message;

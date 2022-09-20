@@ -37,7 +37,7 @@ module.exports = {
     commands: ["noot", "pingu"],
     unwholesome: true,
     run: async function run(context, bot) {
-        if (bot.util.checkVoiceChannel(context.message)) return;
+        if (bot.util.checkVoiceChannel(context)) return;
         try {
             bot.logger.log("Joining voice channel " + context.member.voice.channel.name);
             let nootNumber = (context.options.id || nootCount++) % noots.length;
