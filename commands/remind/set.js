@@ -2,7 +2,7 @@ const chrono = require('chrono-node');
 module.exports = {
     name: "Set Reminder",
     usage: "set :time :message",
-    commands: ["set", "at", "every"],
+    commands: ["set"],
     argDescriptions: {
         time: {name: "The reminder time 'in 2 hours' or 'on the 31st December'"},
         message: {name: "The message to accompany your reminder"}
