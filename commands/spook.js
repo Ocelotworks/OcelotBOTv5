@@ -17,25 +17,28 @@ module.exports = {
     commands: ["spook", "spooked"],
     guildOnly: true,
     nestedDir: "spook",
+    argDescriptions: {
+        base: {name: "tag", description: "Spook someone (or use @OcelotBOT spook @user)"}
+    },
     init: async function (bot) {
         bot.spook = {};
         bot.spook.spooked = [];
-        // bot.client.on("guildMemberRemove", async (member)=> {
-        //     if(bot.drain)return;
-        //     if(!bot.config.getBool("global", "spook.doLeaveCheck"))return bot.logger.log("Ignoring leave as doLeaveCheck is off");
-        //     const currentSpook = await bot.database.getSpooked(member.guild.id);
-        //     if (!currentSpook || currentSpook.spooked !== member.id) return;
-        //     module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
-        // });
-        // bot.client.once("ready", ()=>{
-        //     let diff = start-new Date();
-        //     bot.logger.log(`Spook starts in ${diff}ms`);
-        //     if(diff < 0) {
-        //         //module.exports.startIdleCheck(bot);
-        //         return module.exports.startSpook(bot);
-        //     }
-        //    // setTimeout(()=>module.exports.startSpook(bot), diff);
-        // });
+        bot.client.on("guildMemberRemove", async (member)=> {
+            if(bot.drain)return;
+            if(!bot.config.getBool("global", "spook.doLeaveCheck"))return bot.logger.log("Ignoring leave as doLeaveCheck is off");
+            const currentSpook = await bot.database.getSpooked(member.guild.id);
+            if (!currentSpook || currentSpook.spooked !== member.id) return;
+            module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
+        });
+        bot.client.once("ready", ()=>{
+            let diff = start-new Date();
+            bot.logger.log(`Spook starts in ${diff}ms`);
+            if(diff < 0) {
+                //module.exports.startIdleCheck(bot);
+                return module.exports.startSpook(bot);
+            }
+           bot.util.setLongTimeout(()=>module.exports.startSpook(bot), diff);
+        });
     },
     startSpook(bot){
         bot.updatePresence = async ()=>{
@@ -45,12 +48,12 @@ module.exports = {
             let spookCount = await bot.database.getTotalSpooks()
             await bot.client.user.setPresence({
                 activities: [{
-                    name: `👻 Thank you for playing! | ${spookCount.toLocaleString()} SPOOKED`,
+                    name: `👻 /spook | ${spookCount.toLocaleString()} SPOOKED`,
                     type: "COMPETING",
                 }]
             });
         }
-        setInterval(()=>bot.updatePresence(), 200000)
+        setInterval(()=>bot.updatePresence(), 400000)
         bot.updatePresence();
     },
     async startIdleCheck(bot){
@@ -291,6 +294,7 @@ module.exports = {
             embed.setColor("#bf621a");
             embed.setTitleLang("SPOOK_INTRO_TITLE", {series: start.getFullYear()});
             embed.setDescriptionLang("SPOOK_INTRO_DESC", {start, end});
+            embed.addFieldLang("SPOOK_INTRO_SLASHCOMMANDS_TITLE", "SPOOK_INTRO_SLASHCOMMANDS_VALUE");
             embed.addFieldLang("SPOOK_INTRO_SPECIAL_ROLES_TITLE", "SPOOK_INTRO_SPECIAL_ROLES_VALUE");
             embed.addFieldLang("SPOOK_INTRO_REWARDS_TITLE", "SPOOK_INTRO_REWARDS_VALUE");
             embed.addFieldLang("SPOOK_INTRO_OPT_OUT_TITLE", "SPOOK_INTRO_OPT_OUT_VALUE");

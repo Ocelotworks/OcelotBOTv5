@@ -10,6 +10,7 @@ module.exports = {
         embed.setColor("#bf621a");
         embed.setTitleLang("SPOOK_INTRO_TITLE", {series: start.getFullYear()});
         embed.setDescriptionLang("SPOOK_INTRO_DESC", {start, end});
+        embed.addFieldLang("SPOOK_INTRO_SLASHCOMMANDS_TITLE", "SPOOK_INTRO_SLASHCOMMANDS_VALUE");
         embed.addFieldLang("SPOOK_INTRO_SPECIAL_ROLES_TITLE", "SPOOK_INTRO_SPECIAL_ROLES_VALUE");
         embed.addFieldLang("SPOOK_INTRO_REWARDS_TITLE", "SPOOK_INTRO_REWARDS_VALUE");
         embed.addFieldLang("SPOOK_INTRO_OPT_OUT_TITLE", "SPOOK_INTRO_OPT_OUT_VALUE");
