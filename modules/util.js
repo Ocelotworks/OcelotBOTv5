@@ -881,14 +881,14 @@ module.exports = {
             let channels = await guild.channels.fetch();
 
             let mainChannel = channels.find(function (channel) {
-                return channel.type === "GUILD_TEXT" && channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user)?.has(requiredPermissions, true)
+                return channel && channel.type === "GUILD_TEXT" && channel.name.match(mainChannelRegex) && channel.permissionsFor(bot.client.user)?.has(requiredPermissions, true)
             });
 
             if (mainChannel)
                 return mainChannel;
 
             let secondaryChannel = channels.find(function (channel) {
-                return channel.type === "GUILD_TEXT" && channel.name.match(secondaryChannelRegex) && channel.permissionsFor(bot.client.user)?.has(requiredPermissions, true)
+                return channel && channel.type === "GUILD_TEXT" && channel.name.match(secondaryChannelRegex) && channel.permissionsFor(bot.client.user)?.has(requiredPermissions, true)
             });
 
             if (secondaryChannel)

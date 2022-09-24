@@ -61,6 +61,7 @@ module.exports = {
                 }
             }
 
+            output += writeOpenMetric("shard", bot.util.shard);
             output += writeOpenMetric("wsPing", bot.client.ws.shards.first().ping);
             output += writeOpenMetric("wsStatus", bot.client.ws.shards.first().status);
             output += writeOpenMetric("guilds", bot.client.guilds.cache.size);
