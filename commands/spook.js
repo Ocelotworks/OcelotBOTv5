@@ -34,7 +34,7 @@ module.exports = {
             let diff = start-new Date();
             bot.logger.log(`Spook starts in ${diff}ms`);
             if(diff < 0) {
-                //module.exports.startIdleCheck(bot);
+                module.exports.startIdleCheck(bot);
                 return module.exports.startSpook(bot);
             }
            bot.util.setLongTimeout(()=>module.exports.startSpook(bot), diff);
@@ -75,13 +75,14 @@ module.exports = {
     },
     setIdleCheck(bot, server, spooked){
         const id = `${server}-${spooked}`;
-        currentSpooks[id] = setTimeout(()=>module.exports.handleIdleCheck(bot, server), 8.64e+7) // 24 hours
+        currentSpooks[id] = setTimeout(()=>module.exports.handleIdleCheck(bot, server, undefined, spooked), 8.64e+7) // 24 hours
     },
-    async handleIdleCheck(bot, server, channel){
+    async handleIdleCheck(bot, server, channel, spooked){
         if(bot.drain)return;
         if(!bot.config.getBool(server, "spook.doIdleCheck"))return bot.logger.log("Ignoring idle as doIdleCheck is off");
         let currentSpook = await bot.database.getSpooked(server);
         if(!currentSpook)return bot.logger.warn(`Not running idle check for ${server} as the spook entry couldn't be found`);
+        if(spooked && currentSpook.spooked !== spooked)return bot.logger.warn(`Not running as the spook has changed since then (${currentSpook.spooked} vs ${spooked})`);
         if(currentSpook.type === "IDLE")return bot.logger.log(`Not running idle check for ${server} as last spook type was ${currentSpook.type}`);
         const guild = await bot.client.guilds.fetch(currentSpook.server).catch(()=>null);
         if(!guild || guild.deleted)return bot.logger.warn(`Guild deleted or failed to fetch.`);
@@ -249,7 +250,7 @@ module.exports = {
             if(currentSpook) {
                 spookedTime = now - currentSpook.timestamp;
                 if (!context.getBool("spook.doIdleCheck") && spookedTime > 8.64e+7 && currentSpook.type !== "IDLE") {
-                    return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id);
+                    return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id, currentSpook.spooked);
                 }
             }
             return context.sendLang({content: currentSpook ? "SPOOK_CURRENT" : "SPOOK_NOBODY"}, {
