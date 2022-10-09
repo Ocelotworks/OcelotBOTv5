@@ -1,6 +1,7 @@
 const Embeds = require("../../util/Embeds");
-const end = new Date("1 November 2021");
-const start = new Date("1 October 2021");
+const currentYear = new Date().getFullYear();
+const end = new Date(`1 November ${currentYear}`);
+const start = new Date(`1 October ${currentYear}`);
 module.exports = {
     name: "Introduction",
     usage: "intro",
