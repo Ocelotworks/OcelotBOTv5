@@ -36,7 +36,7 @@ else
     cockroachConfig.connection.host = cockroachConfig.hosts[Util.ArrayRand(Object.keys(cockroachConfig.hosts))];
 let knockroach = require('knex')(cockroachConfig);
 knockroach.context.client.checkVersion = async () => 100;
-const series = 2022; //Spook series
+const series = new Date().getFullYear(); //Spook series
 module.exports = {
     name: "Database Module",
     enabled: true,
