@@ -450,6 +450,8 @@ module.exports = class Commands {
             const middlewareResult = await middlewareData.func(context, this.bot);
 
             if(!middlewareResult){
+                if(context.getBool("middleware.debug"))
+                    context.send({ephemeral: true, content: `Middleware ${this.middlewareOrder[i]} hit`});
                 console.log("Middleware ", this.middlewareOrder[i]);
                 return false;
             }
