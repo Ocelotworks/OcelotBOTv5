@@ -248,7 +248,7 @@ module.exports = {
             let spookedTime = 0;
             if(currentSpook) {
                 spookedTime = now - currentSpook.timestamp;
-                if (spookedTime > 8.64e+7 && currentSpook.type !== "IDLE") {
+                if (!context.getBool("spook.doIdleCheck") && spookedTime > 8.64e+7 && currentSpook.type !== "IDLE") {
                     return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id);
                 }
             }
