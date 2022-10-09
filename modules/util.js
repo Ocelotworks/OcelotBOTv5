@@ -895,7 +895,7 @@ module.exports = {
                 return secondaryChannel;
 
             return channels.find(function (channel) {
-                return channel.type === "GUILD_TEXT" && channel.permissionsFor(bot.client.user)?.has(requiredPermissions, true);
+                return channel && channel.type === "GUILD_TEXT" && channel.permissionsFor(bot.client.user)?.has(requiredPermissions, true);
             });
         };
 
