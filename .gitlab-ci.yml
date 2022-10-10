@@ -117,7 +117,7 @@ build-shard-master:
     max: 2
     when: runner_system_failure
   script:
-    - mv $CONFIG config/local.json
+#    - mv $CONFIG config/local.json
     - docker build .
       -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
       -t $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
