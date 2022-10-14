@@ -13,7 +13,7 @@ const Embeds = require("../util/Embeds");
 
 const changePrefix = /.*(change|custom).*prefix.*/gi;
 const domainRegex = /.*(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9].*/i;
-
+const inviteRegex = /(https?:\/\/)?(.*?@)?(www\.)?(discord\.(gg)|discord(app)?\.com\/invite)\/(?<code>[\w-]+)/ui;
 
 
 
@@ -110,7 +110,53 @@ module.exports = class SupportServer {
     }
 
     async checkDomains(message){
-        if(message.guild && !message.author.bot && message.guild.getBool("antiphish") && domainRegex.exec(message.content)){
+        if(!(message.guild && !message.author.bot && message.guild.getBool("antiphish")))return;
+        const inviteMatch = inviteRegex.exec(message.content);
+        if(inviteMatch && message.guild.getBool("antiphish.checkInvites")){
+            try{
+                const invite = await this.bot.client.fetchInvite(inviteMatch[0]);
+                if(invite && invite.guild){
+                    this.bot.logger.warn(`Checking server invite in ${message.guild.id} (${message.content}) (${invite.guild.id})`);
+                    let result = await axios.get(`https://api.phish.gg/server?id=${invite.guild.id}`, {
+                        validateStatus: ()=>true
+                    });
+                    console.log(result.data);
+                    if(result.status < 300 && result.data && result.data.match && message.guild.getSetting("antiphish.inviteMatch").includes(result.data.key)){
+                        this.bot.logger.warn(`Deleting possible QR fake message ${message.content}`);
+                        this.bot.logger.log(result.data);
+                        const isAdmin = message.member?.permissions?.has("ADMINISTRATOR");
+                        if(!isAdmin)message.delete();
+                        if (message.guild.getSetting("antiphish.channel")) {
+                            let channelSetting = message.guild.getSetting("antiphish.channel");
+                            let reportChannel = await message.guild.channels.fetch(channelSetting).catch(()=>null);
+                            if(!reportChannel)
+                                reportChannel = await message.guild.channels.fetch().then((cs)=>cs.find((c)=>c.name === channelSetting)).catch(()=>null);
+                            if(!reportChannel)
+                                return this.bot.logger.warn(`Report channel ${channelSetting} couldn't be found`);
+                            const context = new NotificationContext(this.bot, reportChannel, message.author, message.member);
+                            const embed = new Embeds.LangEmbed(context);
+                            embed.setTitleLang("PHISHING_DETECTION_TITLE");
+                            embed.setDescriptionLang("PHISHING_DETECTION_DESC", message);
+                            embed.setThumbnail(message.author.avatarURL({size: 128}));
+                            embed.setColor("#ff0000");
+                            if(isAdmin)
+                                embed.addFieldLang("PHISHING_DETECTION_ADMIN_NAME", "PHISHING_DETECTION_ADMIN_VALUE");
+                            embed.addFieldLang("PHISHING_DETECTION_MATCH_NAME", "PHISHING_DETECTION_MATCH_VALUE", true, {match: {
+                                domain: inviteMatch[0],
+                                type: result.data.reason || result.data.key
+                            }, index: 1});
+                            embed.setTimestamp(new Date());
+                            reportChannel.send({embeds: [embed]});
+
+                        }
+                    }
+                }
+            }catch(e){
+                this.bot.logger.error(e);
+                Sentry.captureException(e);
+            }
+        }
+        if(domainRegex.exec(message.content) && message.guild.getBool("antiphish.checkDomains")){
             try {
                 this.bot.logger.warn(`Checking domain in ${message.guild.id} (${message.content})`);
                 let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content}).catch(()=>null);
