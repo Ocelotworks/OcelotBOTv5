@@ -159,9 +159,14 @@ module.exports = class SupportServer {
                 this.bot.logger.warn(`Checking domain in ${message.guild.id} (${message.content})`);
                 let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content}).catch(()=>null);
                 if (result?.data?.match && result.data.matches[0]?.trust_rating > 0.5) { // Hacky
-                    this.bot.logger.warn(`Deleting possible free nitro message ${message.content}`);
+
                     const isAdmin = message.member?.permissions?.has("ADMINISTRATOR");
-                    if(!isAdmin)message.delete();
+                    if(!isAdmin) {
+                        this.bot.logger.warn(`Deleting possible free nitro message ${message.content}`);
+                        message.delete();
+                    }else{
+                        this.bot.logger.warn(`NOT deleting possible free nitro message ${message.content}`);
+                    }
                     if (message.guild.getSetting("antiphish.channel")) {
                         let channelSetting = message.guild.getSetting("antiphish.channel");
                         let reportChannel = await message.guild.channels.fetch(channelSetting).catch(()=>null);
