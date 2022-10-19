@@ -94,11 +94,6 @@ module.exports = class SupportServer {
         return blacklisterData.blacklisted;
     }
 
-
-    onRawMessage(message){
-        console.log(message);
-    }
-
     async checkAutoReplies(message){
         if (message.guild && message.guild.id === "322032568558026753" && !message.author.bot && this.bot.client.user.id == "635846996418363402") {
             if (message.content.indexOf("discord.gg") > -1)
@@ -147,8 +142,11 @@ module.exports = class SupportServer {
                             }, index: 1});
                             embed.setTimestamp(new Date());
                             reportChannel.send({embeds: [embed]});
-
                         }
+                        this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "scam_detected");
+                    }else if(invite.channel.name.includes("verify")){
+                        this.alertPotential(message);
+                        this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "potential_scam_detected");
                     }
                 }
             }catch(e){
@@ -185,8 +183,8 @@ module.exports = class SupportServer {
                         }
                         embed.setTimestamp(new Date());
                         reportChannel.send({embeds: [embed]});
-
                     }
+                    this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "phishing_detected");
                 }
             }catch(e){
                 this.bot.logger.error(e);
@@ -202,6 +200,20 @@ module.exports = class SupportServer {
             if(member.deleted) return context.send({content: "User has left.", ephemeral: true});
             await member.roles.remove("856657988629692486", "Verified by "+interaction.member.user.id);
             return context.send({content: `<@${member.id}> has been verified by <@${interaction.member.user.id}>`});
+        }
+    }
+
+    async alertPotential(message){
+        try {
+            if (message.getSetting("potentialQrChannel")) {
+                const [guildId, channelId] = message.getSetting("potentialQrChannel").split(".");
+                let guild = await this.bot.client.guilds.fetch(guildId);
+                let channel = await guild.channels.fetch(channelId);
+                channel.send(`Potential new QR server:\n\`\`\`\n${message.content}\n\`\`\``);
+            }
+        }catch(e){
+            this.bot.logger.error(e);
+            Sentry.captureException(e);
         }
     }
 

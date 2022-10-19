@@ -113,7 +113,7 @@ module.exports = class Commands {
         if(!parse)return;
         const context = this.initContext(new MessageEditCommandContext(this.bot, newMessage, oldMessage.response, parse.args, parse.command));
         if(!context)return;
-        if(context.getBool("disableMessageCommands") && !message.content?.mentions?.users?.has(this.bot.client.user.id))return console.log("Message commands disabled");
+        if(context.getBool("disableMessageCommands") && !newMessage.content?.mentions?.users?.has(this.bot.client.user.id))return console.log("Message commands disabled");
         return this.runCommand(context);
     }
 
