@@ -8,6 +8,7 @@ module.exports = {
     categories: ["nsfw"],
     slashOptions: [],
     hidden: true,
+    slashHidden: true,
     run: async function(context, bot){
         const {data} = await axios.get("https://gallery.fluxpoint.dev/api/nsfw/img/neko", {
             headers: {
