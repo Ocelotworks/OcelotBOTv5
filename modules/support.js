@@ -153,6 +153,7 @@ module.exports = class SupportServer {
                 this.bot.logger.error(e);
                 Sentry.captureException(e);
             }
+            this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "invite_check");
         }
         if(domainRegex.exec(message.content) && message.guild.getBool("antiphish.checkDomains")){
             try {
@@ -195,6 +196,7 @@ module.exports = class SupportServer {
                 this.bot.logger.error(e);
                 Sentry.captureException(e);
             }
+            this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "domain_check");
         }
     }
 
