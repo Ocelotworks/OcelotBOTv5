@@ -66,16 +66,14 @@ module.exports = {
 
         bot.client.on("message", (message)=>{
             if(bot.drain || !message.guild || message.author?.bot)return; // Ignore on drain, in DMs and from bots
-            const id = `${message.guild.id}-${message.author.id}`;
-            if(!currentSpooks[id])return;
-            clearTimeout(currentSpooks[id]);
+            if(!currentSpooks[message.guild.id])return;
+            clearTimeout(currentSpooks[message.guild.id]);
             module.exports.setIdleCheck(bot, message.guild.id, message.author.id);
 
         })
     },
     setIdleCheck(bot, server, spooked){
-        const id = `${server}-${spooked}`;
-        currentSpooks[id] = setTimeout(()=>module.exports.handleIdleCheck(bot, server, undefined, spooked), 8.64e+7) // 24 hours
+        currentSpooks[server] = setTimeout(()=>module.exports.handleIdleCheck(bot, server, undefined, spooked), 8.64e+7) // 24 hours
     },
     async handleIdleCheck(bot, server, channel, spooked){
         if(bot.drain)return;
@@ -230,8 +228,7 @@ module.exports = {
             }
         }
         bot.updatePresence();
-        const id = `${fromMember.guild.id}-${fromMember.user.id}`;
-        clearTimeout(currentSpooks[id]);
+        clearTimeout(currentSpooks[fromMember.guild.id]);
         module.exports.setIdleCheck(bot, fromMember.guild.id, toMember.user.id);
         return bot.database.spook(toMember.id, fromMember.user.id, toMember.guild.id, context.channel.id,
             fromMember.user.username, toMember.user.username, fromMember.displayHexColor, toMember.displayHexColor, fromMember.user.avatarURL({format: "png", size: 32, dynamic: false}), toMember.user.avatarURL({format: "png", size: 32, dynamic: false}), type);
