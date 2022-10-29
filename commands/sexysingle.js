@@ -24,6 +24,7 @@ module.exports = {
 
     },
     run: async function run(context, bot){
+        // TODO: I don't understand how any of this code actually continues to operate. It needs ripping out and replacing with image processor
         async function downloadOrGet(url, fileName, outputFile){
             if(fs.existsSync(outputFile)) {
                 try {
@@ -50,13 +51,13 @@ module.exports = {
                 request(url).on("end", ()=>makeMeme(fileName, outputFile)).on("error", (err)=>{
                     bot.raven.captureException(err);
                     context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
-                    fs.unlink(outputFile, function deleteFileCB(err){
-                        if(err){
-                            bot.logger.error(`There was an error trying to delete ${outputFile}: ${err}`);
-                        }else{
-                            bot.logger.log(`Deleted ${outputFile}`);
-                        }
-                    });
+                    // fs.unlink(outputFile, function deleteFileCB(err){
+                    //     if(err){
+                    //         bot.logger.error(`There was an error trying to delete ${outputFile}: ${err}`);
+                    //     }else{
+                    //         bot.logger.log(`Deleted ${outputFile}`);
+                    //     }
+                    // });
                 }).pipe(fs.createWriteStream(fileName));
             }
         }
