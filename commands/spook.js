@@ -104,7 +104,7 @@ module.exports = {
             channel = guild.channels.cache.find((c)=>!c.archived && !!c.deleted && c.type === "GUILD_TEXT" && c.permissionsFor(guild.me).has("SEND_MESSAGES"));
         }
 
-        if(!channel)return bot.logger.warn(`No good available channels for spook update in ${currentSpook.server}`);
+        if(!channel || !channel.members)return bot.logger.warn(`No good available channels for spook update in ${currentSpook.server}`);
 
         let membersNotOptedOut =  channel.members.filter((m)=>!m.user.bot && !bot.config.getBool(currentSpook.server, "spook.optout", m.id) && m.user.id !== currentSpook.spooked);
         // Look for online members first
