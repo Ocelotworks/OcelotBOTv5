@@ -250,6 +250,7 @@ module.exports = {
             if(currentSpook) {
                 spookedTime = now - currentSpook.timestamp;
                 if (!context.getBool("spook.doIdleCheck") && spookedTime > 8.64e+7 && currentSpook.type !== "IDLE") {
+                    context.send({ephemeral: true, content: "The current spook has timed out."});
                     return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id, currentSpook.spooked);
                 }
             }
