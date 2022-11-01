@@ -144,7 +144,7 @@ module.exports = class SupportServer {
                             reportChannel.send({embeds: [embed]});
                         }
                         this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "scam_detected");
-                    }else if(invite.channel.name.includes("verify")){
+                    }else if(invite.channel?.name?.includes("verify")){
                         this.alertPotential(message);
                         this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "potential_scam_detected");
                     }

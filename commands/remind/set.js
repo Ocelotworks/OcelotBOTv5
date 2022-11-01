@@ -10,6 +10,9 @@ module.exports = {
     run: async function (context, bot) {
         if(!context.interaction)
             return context.send({content: "This command is now only available as a slash command. Please use </remind set:904885955486433292>", ephemeral: true});
+
+        if(!context.channel)
+            return context.send({content: "There was an issue with your command. Please join the support server and tell us you received this error.", ephemeral: true});
         const now = new Date();
         const chronoParse = (chrono.parse(`in ${context.options.time}`, now, {forwardDate: true}))[0];
         let at = null;

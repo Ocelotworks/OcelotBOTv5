@@ -100,6 +100,8 @@ module.exports = {
         if(context.options.id){
             func = (await bot.database.getCustomFunction(context.guild.id, context.options.id))[0];
         }
+        if(!context.options.name)
+            return null;
         if(!func){
             const funcs = await bot.database.getCustomFunctionByTrigger(context.guild.id, context.options.id || context.options.name);
             if(funcs.length > 1){
