@@ -308,7 +308,7 @@ class InteractionContext extends CommandContext {
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
         super._appendPrefix(options);
-        return this.interaction.reply(options);
+        return this.interaction.reply(options).catch(()=>this.interaction.followUp(options));
     }
 
     reply(options){

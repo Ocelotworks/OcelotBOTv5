@@ -52,11 +52,17 @@ module.exports = {
         });
 
         bot.client.on("messageReactionAdd", async (reaction, user) => {
-            if(reaction.partial){
-                await reaction.fetch();
-            }
-            if(reaction.message?.partial){
-                await reaction.message.fetch();
+            if (reaction.message?.guild && reaction.message?.guild?.id !== "478950156654346292") return;
+            try {
+                if (reaction.message?.partial) {
+                    await reaction.message.fetch();
+                }
+                if (reaction.partial) {
+                    await reaction.fetch();
+                }
+            }catch(e){
+                // No access so ignore
+                return;
             }
             if (!reaction.message.guild) return;
             if (reaction.message.guild.id !== "478950156654346292") return;
