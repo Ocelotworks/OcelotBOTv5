@@ -5,6 +5,11 @@ const SpookRoles = require("../util/SpookRoles");
 const now = new Date();
 const end = new Date("1 November "+now.getFullYear());
 const start = new Date("1 October "+now.getFullYear());
+if(end < now){
+    end.setFullYear(end.getFullYear()+1);
+    start.setFullYear(start.getFullYear()+1);
+}
+
 const roleMultipliers = [8, 25, 100, 1000, 2000, 5000];
 let currentSpooks = {};
 module.exports = {
