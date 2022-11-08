@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const Util = require("../util/Util");
 const Embeds = require("../util/Embeds");
+const {axios} = require("../util/Http");
 const shardNames = [
     "Remo.tv",
     "Alexis",
@@ -46,16 +47,19 @@ module.exports = {
         let userCount = 0;
         let channelCount = 0;
         try {
-            serverCount = await Util.GetServerCount(bot);
-            userCount = await Util.GetUserCount(bot);
-            channelCount = (await bot.rabbit.fetchClientValues("channels.cache.size")).reduce((prev, val) => prev + val, 0);
-        } catch (e) {
-            bot.raven.captureException(e);
-            if (e.message && e.message.includes("Channel closed")) {
-                process.exit(1)
+            const domain = bot.client.user.id === "146293573422284800" ? "ob-prod-sc.d.int.unacc.eu" : "ob-stage-sc.d.int.unacc.eu"
+            const {data} = await axios.get(`https://${domain}/discord`);
+            const shards = Object.keys(data);
+            for(let i = 0; i < shards.length; i++){
+                const shard = data[shards[i]][0];
+                if(!shard)continue;
+                serverCount+=shard.guilds || 0;
+                userCount+=shard.users || 0;
+                channelCount+=shard.channels || 0;
             }
+        }catch(e){
+            bot.raven.captureException(e);
         }
-
         let uptimeValue = bot.util.prettySeconds(process.uptime(), context.guild && context.guild.id, context.user.id);
         let embed = new Embeds.LangEmbed(context)
         embed.setColor(0x189F06);
