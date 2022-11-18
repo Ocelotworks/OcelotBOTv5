@@ -1,28 +1,14 @@
 const Strings = require("../util/String");
 const emojiMaps = {
     alex: "<:alex:478962386578047000>",
-    joel: "<:joel_high:478962387995852804>",
+    joel: "<:joel_dad:1028787156099014706>",
     peter: "<:peter:478962397281779713>",
-    neil: "<:neilpoop:478962395692269570>",
+    neil: "<:sadneil:835645107087605801>",
     jake: "<:jake_dino:478962396749103106>",
     holly: "<:holly_swim:863438919177076746>",
+    rachael: "<:rachael:1043291163286839348>",
+    abbey: "<:abbey:1028788414822223955>",
 };
-
-const userMaps = {
-    "145659666687328256": "alex",
-    "145193838829371393": "jake",
-    "139871249567318017": "peter",
-    "386490585344901130": "abbey",
-    "478951521854291988": "holly",
-    "145200249005277184": "neil",
-    "112386674155122688": "joel",
-    "146293573422284800": "ocelotbot"
-};
-
-//const ts3 = require('ts3');
-//const config = require('config');
-
-const thatsTrue = /.*that('?)s true.*/ig;
 
 module.exports = {
     name: "Ocelotworks Specific Functions",
@@ -44,7 +30,7 @@ module.exports = {
             if (message.guild && message.guild.id == "478950156654346292") {
                 if(!message.channel.isThread())
                     bot.topicCounter++;
-                await bot.database.logMessage(userMaps[message.author.id] || message.author.id, message.content, message.channel.id);
+                await bot.database.logMessage(message.getSetting("ocelotworks.name") || message.author.id, message.content, message.channel.id);
                 if (bot.topicCounter >= 100) {
                     bot.changeTopic(message);
                 }
@@ -72,8 +58,9 @@ module.exports = {
             let topic =  reaction.message.content
             if(reaction.message.attachments.first())
                 topic += "\n"+reaction.message.attachments.first().url;
-            await bot.database.addTopic(userMaps[reaction.message.author.id], topic);
-            reaction.message.channel.send(`${reaction.emoji} ${user}: Added _<${userMaps[reaction.message.author.id]}> ${topic}_ to the list of topics`);
+            const username = reaction.message.getSetting("ocelotworks.name");
+            await bot.database.addTopic(username, topic);
+            reaction.message.channel.send(`${reaction.emoji} ${user}: Added _<${username}> ${topic}_ to the list of topics`);
         })
 
 
