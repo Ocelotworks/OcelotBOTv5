@@ -1,4 +1,4 @@
-const later = require('later');
+const later = require('@breejs/later');
 const Sentry = require('@sentry/node')
 const {SyntheticCommandContext, CustomCommandContext} = require("../util/CommandContext");
 const Util = require("../util/Util");

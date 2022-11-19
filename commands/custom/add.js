@@ -1,4 +1,4 @@
-const later = require('later');
+const later = require('@breejs/later');
 module.exports = {
     name: "Add Custom Function",
     usage: "add [type:command,autorespond,scheduled] :trigger :triggerandcode+", //TODO: specific slash command handling for this
