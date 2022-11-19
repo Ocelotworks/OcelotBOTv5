@@ -14,6 +14,7 @@ module.exports = {
     commands: ["commandcount"],
     slashOptions: [],
     run: async function run(context, bot) {
+        await context.defer();
         let count = await bot.database.getCommandCount();
         return context.sendLang("COMMANDCOUNT", {count: count[0].count})
     }
