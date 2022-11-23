@@ -111,11 +111,11 @@ module.exports = class SupportServer {
             try{
                 const invite = await this.bot.client.fetchInvite(inviteMatch[0]);
                 if(invite && invite.guild){
-                    this.bot.logger.warn(`Checking server invite in ${message.guild.id} (${message.content}) (${invite.guild.id})`);
+                    //this.bot.logger.warn(`Checking server invite in ${message.guild.id} (${message.content}) (${invite.guild.id})`);
                     let result = await axios.get(`https://api.phish.gg/server?id=${invite.guild.id}`, {
                         validateStatus: ()=>true
                     });
-                    console.log(result.data);
+                    //console.log(result.data);
                     if(result.status < 300 && result.data && result.data.match && message.guild.getSetting("antiphish.inviteMatch").includes(result.data.key)){
                         this.bot.logger.warn(`Deleting possible QR fake message ${message.content}`);
                         this.bot.logger.log(result.data);
@@ -157,7 +157,7 @@ module.exports = class SupportServer {
         }
         if(domainRegex.exec(message.content) && message.guild.getBool("antiphish.checkDomains")){
             try {
-                this.bot.logger.warn(`Checking domain in ${message.guild.id} (${message.content})`);
+                //this.bot.logger.warn(`Checking domain in ${message.guild.id} (${message.content})`);
                 let result = await axios.post("https://anti-fish.bitflow.dev/check", {message: message.content}).catch(()=>null);
                 if (result?.data?.match && result.data.matches[0]?.trust_rating > 0.5) { // Hacky
 

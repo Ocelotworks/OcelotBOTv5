@@ -1,4 +1,4 @@
-const later = require('later');
+const later = require('@breejs/later');
 const Util = require("../../util/Util");
 const regex = new RegExp(".*?( .* )[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉](.*)[\“\”\"\‘\’\'\‚«»‹›「」『』﹃﹁﹄﹂《》〈〉]");
 // fuck this shit;
