@@ -188,7 +188,7 @@ module.exports = class Image {
         request.version = 1;
 
         bot.logger.log(JSON.stringify(request));
-        let span = bot.util.startSpan("Receive from RPC");
+        //let span = bot.util.startSpan("Receive from RPC");
         let loadingMessage;
         let loadingMessageDelay = setTimeout(async () => {
             loadingMessage = await message.replyLang("GENERIC_PROCESSING");
@@ -196,7 +196,7 @@ module.exports = class Image {
         message.channel.sendTyping();
         let response = await Image.#imageProcessor(bot, request);
         clearTimeout(loadingMessageDelay)
-        span.end();
+        //span.end();
         if(!message.channel || message.channel.deleted){
             bot.logger.log("Server was left or channel was deleted before image processor completed");
             return null;
@@ -207,30 +207,30 @@ module.exports = class Image {
                 return;
             }
             if (loadingMessage && !loadingMessage.deleted) {
-                span = bot.util.startSpan("Edit loading message");
+                //span = bot.util.startSpan("Edit loading message");
                 await loadingMessage.editLang("GENERIC_UPLOADING_IMGUR");
-                span.end();
+                //span.end();
             }
             let imgurResult = await Image.UploadToImgur(response.path);
             if(imgurResult)return message.channel.send(imgurResult);
             return message.channel.send("Failed to upload to imgur. Try a smaller image");
         }
         if (loadingMessage && !loadingMessage.deleted) {
-            span = bot.util.startSpan("Edit loading message");
+            //span = bot.util.startSpan("Edit loading message");
             await loadingMessage.editLang("GENERIC_UPLOADING");
-            span.end();
+            //span.end();
         }
         if (response.err) {
-            span = bot.util.startSpan("Delete processing message");
+            //span = bot.util.startSpan("Delete processing message");
             if (loadingMessage && !loadingMessage.deleted)
                 await loadingMessage.delete();
-            span.end();
+            //span.end();
             return message.replyLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
         }
-        span = bot.util.startSpan("Upload image");
+        //span = bot.util.startSpan("Upload image");
         if(!message.channel || message.channel.deleted){
             bot.logger.log("Server was left or channel was deleted before image upload completed");
-            span.end();
+            //span.end();
             return null;
         }
         let messageResult;
@@ -242,11 +242,11 @@ module.exports = class Image {
             Sentry.captureException(e);
             messageResult = await message.channel.send("Failed to send: "+e);
         }
-        span.end();
-        span = bot.util.startSpan("Delete processing message");
+        //span.end();
+        //span = bot.util.startSpan("Delete processing message");
         if (loadingMessage && !loadingMessage.deleted)
             await loadingMessage.delete();
-        span.end();
+        //span.end();
         return messageResult;
     }
 

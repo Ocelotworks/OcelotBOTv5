@@ -13,21 +13,21 @@ module.exports = {
         try {
             if (timescale !== "mine") {
                 context.defer();
-                let span = bot.util.startSpan("Get Translation Key");
+                //let span = bot.util.startSpan("Get Translation Key");
                 const unknownUserKey = context.getLang("TRIVIA_UNKNOWN_USER");
-                span.end();
-                span = bot.util.startSpan("Get Leaderboard");
+                //span.end();
+                //span = bot.util.startSpan("Get Leaderboard");
                 let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${timescale}`);
-                span.end();
+                //span.end();
                 if (!leaderboard.data || leaderboard.data.length === 0) {
                     return message.channel.send(`There is no data for that timeframe. Try **${context.command} records all** to see the all time scores.`);
                 }
-                span = bot.util.startSpan("Get Position");
+                //span = bot.util.startSpan("Get Position");
                 let positionData = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${timescale}/${context.user.id}`);
-                span.end();
+                //span.end();
                 let outputData = [];
 
-                span = bot.util.startSpan("Create Table");
+                //span = bot.util.startSpan("Create Table");
                 for (let i = 0; i < leaderboard.data.length; i++) {
                     const entry = leaderboard.data[i]
                     let user;
@@ -41,13 +41,13 @@ module.exports = {
                         total: entry.total.toLocaleString(),
                     });
                 }
-                span.end();
+                //span.end();
                 context.reply(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total.toLocaleString()}** total record holders${timescale === "all" ? " of all time" : ` this ${timescale}`}.\n${Strings.Columnify(outputData)}`);
             } else {
                 let targetUser = context.user.id;
-                let span = bot.util.startSpan("Get Records");
+                //let span = bot.util.startSpan("Get Records");
                 let records = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/records/${targetUser}/list?items=500`);
-                span.end();
+                //span.end();
                 if (records.data.length === 0)
                     return context.send({content: ":stopwatch: You have no records!", ephemeral: true});
 

@@ -5,9 +5,9 @@ module.exports = {
     run: async function (context, bot) {
         context.defer();
         try {
-            let span = bot.util.startSpan("Get guess stats");
+            //let span = bot.util.startSpan("Get guess stats");
             let stats = await bot.database.getGuessStats();
-            span.end();
+            //span.end();
 
             stats.totalCorrectPercent = Math.round((stats.totalCorrect / stats.totalGuesses) * 100);
             stats.averageTimeParsed = bot.util.prettySeconds(stats.averageTime / 1000, context.guild && context.guild.id, context.user.id);

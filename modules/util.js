@@ -366,7 +366,7 @@ module.exports = {
                 message.replyLang("IMAGE_NO_TEXT");
                 return;
             }
-            let span = bot.util.startSpan("Process Image Meme");
+            //let span = bot.util.startSpan("Process Image Meme");
 
             bot.tasks.startTask("imageMeme", message.id);
 
@@ -380,7 +380,7 @@ module.exports = {
                     indent: ''
                 }))
                 .toBuffer('PNG', function convertToPNG(err, buffer) {
-                    span.end();
+                    //span.end();
                     if (err) {
                         message.replyLang("GENERIC_ERROR");
                         bot.logger.log(err);
@@ -468,52 +468,52 @@ module.exports = {
          * @returns {Promise<*|void|Promise<*>>}
          */
         bot.util.processImageFilter = async function processImageFilter(module, message, args, filter, input, format = "PNG") {
-            let span = bot.util.startSpan("Get Image");
+            //let span = bot.util.startSpan("Get Image");
             const url = await bot.util.getImage(message, args);
-            span.end();
+            //span.end();
             if (!url || !url.startsWith("http"))
                 return message.replyLang("GENERIC_NO_IMAGE", {usage: module.exports.usage});
 
             bot.tasks.startTask("imageFilter", message.id);
 
-            span = bot.util.startSpan("Send processing message");
+            //span = bot.util.startSpan("Send processing message");
             let loadingMessage = await message.channel.send("<a:ocelotload:537722658742337557> Processing...");
-            span.end();
+            //span.end();
 
 
             bot.logger.log(url);
             if (message.getBool("imageFilter.useExternal")) {
-                span = bot.util.startSpan("Receive from RPC");
+                //span = bot.util.startSpan("Receive from RPC");
                 let response = await bot.redis.cache(`imageProcessor/${filter}/${input}/${url}`, async () => await bot.rabbit.rpc("imageFilter", {
                     url,
                     filter,
                     input,
                     format
                 }, 60000, {durable: true}));
-                span.end();
+                //span.end();
                 if (loadingMessage) {
-                    span = bot.util.startSpan("Edit loading message");
+                    //span = bot.util.startSpan("Edit loading message");
                     await loadingMessage.edit("<a:ocelotload:537722658742337557> Uploading...");
-                    span.end();
+                    //span.end();
                 }
                 if (response.err) {
                     console.log(response);
-                    span = bot.util.startSpan("Delete processing message");
+                    //span = bot.util.startSpan("Delete processing message");
                     await loadingMessage.delete();
-                    span.end();
+                    //span.end();
                     return message.channel.send(response.err);
                 }
-                span = bot.util.startSpan("Upload image");
+                //span = bot.util.startSpan("Upload image");
                 let attachment = new Discord.MessageAttachment(Buffer.from(response.image, 'base64'), response.name);
                 try {
                     await message.channel.send({files: [attachment]});
                 } catch (e) {
                     bot.raven.captureException(e);
                 }
-                span.end();
-                span = bot.util.startSpan("Delete processing message");
+                //span.end();
+                //span = bot.util.startSpan("Delete processing message");
                 await loadingMessage.delete();
-                span.end();
+                //span.end();
                 bot.tasks.endTask("imageFilter", message.id);
             } else {
                 const fileName = `${__dirname}/../temp/${Math.random()}.png`;
@@ -681,11 +681,11 @@ module.exports = {
          * @returns {Promise.<*>}
          */
         bot.util.getImageFromPrevious = async function getImageFromPrevious(message, argument) {
-            let span = bot.util.startSpan("Fetch Messages");
+            //let span = bot.util.startSpan("Fetch Messages");
             const previousMessages = (await message.channel.messages.fetch({limit: 50})).sort((a, b) => b.createdTimestamp - a.createdTimestamp);
-            span.end();
+            //span.end();
             let offset = 0;
-            span = bot.util.startSpan("Find Message");
+            //span = bot.util.startSpan("Find Message");
             const targetMessage = previousMessages.find((previousMessage) => {
                 if (argument && offset++ < argument) {
                     console.log(argument, offset);
@@ -695,7 +695,7 @@ module.exports = {
                 if (previousMessage.attachments && previousMessage.attachments.size > 0) return true;
                 return (previousMessage.embeds && previousMessage.embeds.length > 0 && previousMessage.embeds[0].image);
             });
-            span.end();
+            //span.end();
             if (targetMessage)
                 return bot.util.getImageFromMessage(targetMessage);
             return null;
@@ -983,10 +983,10 @@ module.exports = {
             }
 
             let buildPage = async function () {
-                let span = bot.util.startSpan("Build page");
+                //let span = bot.util.startSpan("Build page");
                 let output = await formatMessage(pages[index], index);
                 if(channel.getBool && channel.getBool("pagination.disable")) {
-                    span.end();
+                    //span.end();
                     return channel.send(output);
                 }
                 if (sentMessage && !sentMessage.deleted)
@@ -995,7 +995,7 @@ module.exports = {
                     sentMessage = await bot.util.sendButtons(channel, output, buttons)
                 else
                     sentMessage = channel.send(output)
-                span.end();
+                //span.end();
             };
 
             await buildPage();
