@@ -187,7 +187,7 @@ module.exports = class DiscordModule {
             },
             partials: ["REACTION", "CHANNEL", "MESSAGE", "USER"],
             intents: [
-                "GUILD_PRESENCES", // Spooking
+                // "GUILD_PRESENCES", // Spooking
                 "GUILDS",
                 "GUILD_MESSAGES",
                 "GUILD_MEMBERS", // Join/leave messages
@@ -523,7 +523,7 @@ module.exports = class DiscordModule {
         let embed = new Embeds.LangEmbed(context);
         embed.setTitleLang("WELCOME_TITLE");
         embed.setDescriptionLang("WELCOME_DESC");
-        embed.addFieldLang("WELCOME_PREFIX_TITLE", context.getBool("disableMessageCommands") ? "WELCOME_PREFIX_SLASH_DESC" : "WELCOME_PREFIX_DESC", false, {newPrefix: prefix === "%" ? "!" : "%"});
+        embed.addFieldLang("WELCOME_PREFIX_TITLE", "WELCOME_PREFIX_SLASH_DESC", false, {newPrefix: prefix === "%" ? "!" : "%"});
         embed.addFieldLang("WELCOME_WHOLESOME_TITLE", context.getBool("wholesome") ? "WELCOME_WHOLESOME_ENABLED_DESC" : "WELCOME_WHOLESOME_DESC");
         embed.addFieldLang("WELCOME_ADMINISTRATORS_TITLE", "WELCOME_ADMINISTRATORS_DESC");
         embed.addFieldLang("WELCOME_STUCK_TITLE", "WELCOME_STUCK_DESC");
