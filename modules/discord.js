@@ -187,7 +187,7 @@ module.exports = class DiscordModule {
             },
             partials: ["REACTION", "CHANNEL", "MESSAGE", "USER"],
             intents: [
-                "GUILD_PRESENCES", // Spooking
+                // "GUILD_PRESENCES", // Spooking
                 "GUILDS",
                 "GUILD_MESSAGES",
                 "GUILD_MEMBERS", // Join/leave messages
