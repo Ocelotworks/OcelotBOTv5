@@ -301,10 +301,11 @@ class InteractionContext extends CommandContext {
                 options,
             }
         });
-        if(typeof options === "string")
+        if(!options)
+            options = {content: "<Blank message>"};
+        else if(typeof options === "string")
             options = {content: options};
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
-        if(typeof options === "string")options = {content: options};
         this.bot.bus.emit("messageSent", options);
         if(options?.components)options.components = options.components.filter((c)=>c);
         options.fetchReply = true;
