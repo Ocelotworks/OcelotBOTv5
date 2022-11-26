@@ -47,6 +47,8 @@ module.exports = {
         if(!playlists)
             return context.sendLang({content: "SONGGUESS_UNKNOWN_INPUT"});
 
+        await context.defer();
+
         playlist = bot.util.arrayRand(playlists.split(","));
         bot.logger.log(`Using spotify playlist: ${playlist}`);
 
@@ -126,7 +128,6 @@ async function endGame(bot, id){
 }
 
 async function startGame(bot, context, playlistId, custom){
-    context.defer();
     if(!context.member.voice.channel) {
         Sentry.captureMessage("Member has no voice channel when starting guess game");
         return context.send("Couldn't start game, try again (voice channel does not exist)");
