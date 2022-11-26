@@ -82,7 +82,7 @@ module.exports = class Image {
         let loadingMessage;
         if(context.interaction){
             if(!context.interaction.deferred && !context.interaction.replied)
-                await context.interaction.deferReply();
+                await context.interaction.deferReply().catch(()=>null);
         }else {
             loadingMessage = await context.send(`${Icon.loading} Processing...`);
         }
