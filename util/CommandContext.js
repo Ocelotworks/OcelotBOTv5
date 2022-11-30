@@ -296,16 +296,20 @@ class InteractionContext extends CommandContext {
                 id: this.interaction.id,
                 guild: this.interaction.guildId,
                 channel: this.interaction.channelId,
+                replied: this.interaction.replied,
+                deferred: this.interaction.deferred,
+                options,
             }
         });
-        if(typeof options === "string")
+        if(!options)
+            options = {content: "<Blank message>"};
+        else if(typeof options === "string")
             options = {content: options};
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
-        if(typeof options === "string")options = {content: options};
         this.bot.bus.emit("messageSent", options);
         if(options?.components)options.components = options.components.filter((c)=>c);
         options.fetchReply = true;
-        if(this.interaction.replied || this.interaction.deferred)
+        if(!this.interaction.isRepliable())
             return this.interaction.followUp(options);
         super._appendPrefix(options);
         return this.interaction.reply(options).catch(()=>this.interaction.followUp(options));
@@ -314,12 +318,6 @@ class InteractionContext extends CommandContext {
     reply(options){
         Sentry.addBreadcrumb({
             message: "Interaction Replied",
-            data: {
-                command: this.command,
-                id: this.interaction.id,
-                guild: this.interaction.guildId,
-                channel: this.interaction.channelId,
-            }
         });
         // These are the same thing on interactions
         return this.send(options);

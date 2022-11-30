@@ -1322,7 +1322,7 @@ module.exports = {
                 return result[0].max;
             },
             async createDailyPoll(date, title, options){
-              const [rowid] = await knockroach.insert({date, title}).into("daily_polls").returning("rowid");
+              const [{rowid}] = await knockroach.insert({date, title}).into("daily_polls").returning("rowid");
               return knockroach.insert(options.map((o)=>({poll: rowid, name: o}))).into("daily_poll_options")
             },
             // This should probably be a worker

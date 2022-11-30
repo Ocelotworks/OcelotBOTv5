@@ -19,18 +19,18 @@ module.exports = {
 
         context.defer();
         try {
-            let span = bot.util.startSpan("Get Leaderboard");
+            //let span = bot.util.startSpan("Get Leaderboard");
             let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/${server}/${timescale}`);
-            span.end();
+            //span.end();
             if (!leaderboard.data || leaderboard.data.length === 0) {
                 return context.send(`There is no data for that timeframe. Try **${context.command} leaderboard all** to see the all time scores.`);
             }
-            span = bot.util.startSpan("Get Position");
+            //span = bot.util.startSpan("Get Position");
             let positionData = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/${server}/${timescale}/${context.user.id}`);
-            span.end();
+            //span.end();
             let outputData = [];
 
-            span = bot.util.startSpan("Create Table");
+            //span = bot.util.startSpan("Create Table");
             for (let i = 0; i < leaderboard.data.length; i++) {
                 const entry = leaderboard.data[i]
                 outputData.push({
@@ -40,7 +40,7 @@ module.exports = {
                     "Total": entry.total?.toLocaleString() || "0",
                 });
             }
-            span.end();
+            //span.end();
             return context.send(`You are **#${(positionData.position + 1).toLocaleString()}** out of **${positionData.total ? positionData.total.toLocaleString() : "???"}** total players${timescale === "all" ? " of all time" : ` this ${timescale}`}${server === "global" ? "." : " in this server."}\n\`\`\`yaml\n${columnify(outputData)}\n\`\`\``);
         } catch (e) {
             bot.logger.log(e);

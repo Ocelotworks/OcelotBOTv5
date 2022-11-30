@@ -408,7 +408,8 @@ module.exports = class Commands {
 
                         command.id = files[i];
                         command.pattern = commandParser.BuildPattern(command.commands[0], command.usage).pattern;
-                        command.slashOptions = Util.PatternToOptions(command.pattern, command.argDescriptions);
+                        if(!command.slashOptions)
+                            command.slashOptions = Util.PatternToOptions(command.pattern, command.argDescriptions);
 
                         for (let i = 0; i < command.commands.length; i++) {
                             loadedCommand.subCommands[command.commands[i]] = command;

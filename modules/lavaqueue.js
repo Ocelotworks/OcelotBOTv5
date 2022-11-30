@@ -139,22 +139,22 @@ module.exports = {
                 return {songData: null, player: null};
             }
             bot.tasks.startTask("playOneSong", voiceChannel.id);
-            let span = bot.util.startSpan("Join Voice Channel", "voice");
+            //let span = bot.util.startSpan("Join Voice Channel", "voice");
             let player = await bot.lavaqueue.manager.join({
                 guild: voiceChannel.guild.id,
                 channel: voiceChannel.id,
                 node,
             }, {selfdeaf: true});
             if (span)
-                span.end();
-            span = bot.util.startSpan("Get Song", "voice");
+                //span.end();
+            //span = bot.util.startSpan("Get Song", "voice");
             let songData = await bot.lavaqueue.getSong(song, player);
             if (span)
-                span.end();
-            span = bot.util.startSpan("Play Song", "voice");
+                //span.end();
+            //span = bot.util.startSpan("Play Song", "voice");
             player.play(songData.track);
             if (span)
-                span.end();
+                //span.end();
             player.once("error", function playerError(error) {
                 bot.raven.addBreadcrumb({
                     message: "Player Error",

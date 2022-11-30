@@ -40,12 +40,12 @@ You can still access this command with ${context.getSetting("prefix")}petpet`);
             return context.send({content: "You must enter an image URL or mention a user", ephemeral: true});
         context.defer();
         try {
-            let span = bot.util.startSpan("Load avatar");
+            //let span = bot.util.startSpan("Load avatar");
             const avatar = await canvas.loadImage(avatarURL);
-            span.end();
-            span = bot.util.startSpan("Load sprite");
+            //span.end();
+            //span = bot.util.startSpan("Load sprite");
             const sprite = await canvas.loadImage(__dirname + "/../static/petpet.png")
-            span.end();
+            //span.end();
             const canvas1 = canvas.createCanvas(size, size);
 
             const ctx1 = canvas1.getContext("2d");
@@ -57,7 +57,7 @@ You can still access this command with ${context.getSetting("prefix")}petpet`);
 
             let promises = [];
             for (let i = 0; i < frames.length; i++) {
-                let span = bot.util.startSpan("Render frame");
+                //let span = bot.util.startSpan("Render frame");
                 const frame = frames[i];
                 ctx2.clearRect(0, 0, size, size);
                 ctx2.drawImage(avatar, frame.x, frame.y, frame.w, frame.h);
@@ -67,7 +67,7 @@ You can still access this command with ${context.getSetting("prefix")}petpet`);
                 ctx1.drawImage(canvas2, 0, 0, canvas1.width, canvas1.height);
 
                 promises.push(encoder.addFrame(ctx1, 50, i));
-                span.end();
+                //span.end();
             }
             bot.logger.log(`Rendering ${promises.length} frames...`);
             await Promise.all(promises);
