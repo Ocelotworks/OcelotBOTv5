@@ -181,7 +181,7 @@ module.exports = class Util {
             return attachedImage.proxyURL;
 
 
-        if(!context.channel?.permissionsFor?.(bot.client.user.id).has(["READ_MESSAGE_HISTORY", "VIEW_CHANNEL"])) {
+        if(!context.channel?.permissionsFor?.(bot.client.user.id)?.has(["READ_MESSAGE_HISTORY", "VIEW_CHANNEL"])) {
             context.send(":warning: I need Read Message History and View Channel permissions to look for images.");
             return null;
         }
