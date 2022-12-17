@@ -72,9 +72,12 @@ module.exports = {
         });
         embed.addFieldLang("STATS_SPONSOR_TITLE", "STATS_SPONSOR_VALUE");
         embed.addFieldLang("STATS_UPTIME", "STATS_UPTIME_VALUE", false, {uptime: uptimeValue});
-        embed.addFieldLang("STATS_TOTAL_USERS", "STATS_TOTAL_USERS_VALUE", true, {users: userCount});
-        embed.addFieldLang("STATS_TOTAL_SERVERS", "STATS_TOTAL_SERVERS_VALUE", true,{servers: serverCount});
-        embed.addFieldLang("STATS_TOTAL_CHANNELS", "STATS_TOTAL_CHANNELS_VALUE", true,{channels: channelCount});
+        if(userCount > 0)
+            embed.addFieldLang("STATS_TOTAL_USERS", "STATS_TOTAL_USERS_VALUE", true, {users: userCount});
+        if(serverCount > 0)
+            embed.addFieldLang("STATS_TOTAL_SERVERS", "STATS_TOTAL_SERVERS_VALUE", true,{servers: serverCount});
+        if(channelCount > 0)
+            embed.addFieldLang("STATS_TOTAL_CHANNELS", "STATS_TOTAL_CHANNELS_VALUE", true,{channels: channelCount});
         return context.send({embeds: [embed]});
     }
 };
