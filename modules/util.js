@@ -1603,7 +1603,7 @@ module.exports = {
         }
 
         bot.util.canChangeSettings = function(context) {
-            return context.channel.permissionsFor(context.member).has("ADMINISTRATOR", true) || context.getSetting("settings.role") !== "-" && bot.util.hasRole(context.member, context.getSetting("settings.role"));
+            return context.channel.permissionsFor(context.member)?.has("ADMINISTRATOR", true) || context.getSetting("settings.role") !== "-" && bot.util.hasRole(context.member, context.getSetting("settings.role"));
         }
 
         bot.util.checkVoiceChannel = function(context){
