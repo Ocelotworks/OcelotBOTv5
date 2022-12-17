@@ -19,6 +19,8 @@ module.exports = {
     detailedHelp: "Doot Doot\nPlays a random doot remix in the voice channel you're in",
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["doot", "toot"],
+    hidden: true,
+    slashHidden: true,
     run: async function run(context, bot) {
         if (bot.util.checkVoiceChannel(context)) return;
         try {
