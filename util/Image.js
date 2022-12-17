@@ -288,7 +288,7 @@ module.exports = class Image {
     }
 
     static async NekobotTextGenerator(context, type, text){
-        return this.NekobotGenerator(context, type, `text=${text}`);
+        return this.NekobotGenerator(context, type, `text=${encodeURIComponent(text)}`);
     }
 
     static async NekobotGenerator(context, type, options){
