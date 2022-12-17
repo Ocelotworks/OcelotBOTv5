@@ -19,6 +19,8 @@ module.exports = {
 
         if(data?.list?.length > 0) {
             return Util.StandardPagination(bot, context, data.list, async function (page) {
+                if(!page)
+                    return {content: "Urban Dictionary sent me an entry without a definition"};
                 page.definition = Strings.Truncate(page.definition, 800);
                 page.example = Strings.Truncate(page.example, 800);
                 return {content: context.getLang("UD_DEFINITION", page)};
