@@ -30,6 +30,11 @@ module.exports = {
             await bot.config.set(context.guild.id, "birthday.channel", null);
             return context.replyLang("BIRTHDAY_CHANNEL_DISABLED");
         }
+
+        const channel = await context.guild.channels.fetch(target)
+        if(!channel.isText())
+            return context.reply({ephemeral: true, content: "Only text channels can be used for birthday announcements"});
+
         await bot.config.set(context.guild.id, "birthday.channel", target);
         return context.replyLang("BIRTHDAY_CHANNEL_SET", {target, command: context.command, arg: context.options.command})
     }
