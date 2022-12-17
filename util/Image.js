@@ -270,10 +270,7 @@ module.exports = class Image {
                     }
                 });
                 if (result.data.renderLocation) {
-                    if(context.message){
-                        return context.send({files: [new Discord.MessageAttachment(result.data.renderLocation)]})
-                    }
-                    return context.send(await Image.UploadToImgur(result.data.renderLocation));
+                    return context.send({files: [new Discord.MessageAttachment(result.data.renderLocation)]})
                 }
             }catch(e){
                 console.log(e);
