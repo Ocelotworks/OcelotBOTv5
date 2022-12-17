@@ -88,7 +88,7 @@ module.exports = {
         },],
     autocomplete: async function(input, interaction, bot) {
         const memes = await bot.redis.cache(`meme/search/${input}`,()=>bot.database.searchMeme(input, interaction.guildId || "global"), 10000);
-        return memes.map((m)=>({name: m.name, value: m.name}));
+        return memes.map((m)=>({name: m.name, value: m.name})).slice(0, 25);
     },
     run: async function run(context, bot) {
         if(!context.options.command)
