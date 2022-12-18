@@ -22,6 +22,7 @@ module.exports = {
     categories: ["meta"],
     commands: ["custom", "customcommands"],
     noSynthetic: true,
+    guildOnly: true,
     nestedDir: "custom",
     userPermissions: ["MANAGE_GUILD"],
     init: async function init(bot) {

@@ -36,6 +36,8 @@ module.exports = {
     //requiredPermissions: ["CONNECT", "SPEAK"],
     commands: ["noot", "pingu"],
     unwholesome: true,
+    slashHidden: true,
+    hidden: true,
     run: async function run(context, bot) {
         if (bot.util.checkVoiceChannel(context)) return;
         try {
