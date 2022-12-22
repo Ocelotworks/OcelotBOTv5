@@ -112,7 +112,7 @@ function configureSentry(){
         integrations: [new Tracing.Integrations.Express({
             app: bot.api
         })],
-        tracesSampleRate: 0.5,
+        tracesSampleRate: 0.1,
         attachStacktrace: true,
     });
 

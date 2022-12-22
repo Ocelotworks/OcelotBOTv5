@@ -24,7 +24,7 @@ module.exports = {
         if (!date)
             return context.sendLang({content: "BIRTHDAY_ADD_DATE", ephemeral: true}, {command: context.command, arg: context.options.command, user: bot.client.user});
         const age = (new Date().getFullYear() - date.getFullYear());
-        if (age > 2 && age < 13)
+        if (age > 2 && age < 13 && !target.bot)
             return context.sendLang({content: "BIRTHDAY_AGE", ephemeral: true});
 
         try {
