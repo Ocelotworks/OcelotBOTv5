@@ -108,53 +108,6 @@ module.exports = {
                 bot.logger.log("We actually got to the fucking end");
                 return obj;
             },
-            populateShuffleQueue: function populateShuffleQueue() {
-                bot.logger.log("Populating shuffle queue");
-                request("https://unacceptableuse.com/petify/templates/songs/shuffleQueue", function (err, resp, body) {
-                    if (!err && body) {
-                        try {
-                            bot.music.shuffleQueue = JSON.parse(body);
-                        } catch (e) {
-                            console.error(e);
-                        }
-                    } else {
-                        bot.logger.warn("Failed to populate shuffleQueue");
-                    }
-                });
-            },
-            getAutoDJSong: async function getAutoDJSong(player) {
-                return new Promise(async function (fulfill) {
-                    if (bot.music.shuffleQueue.length < 5)
-                        bot.music.populateShuffleQueue();
-                    let petifySong = bot.music.shuffleQueue.shift();
-
-                    if (!petifySong) {
-                        bot.logger.warn("Shits fucked");
-                        let songData = await bot.lavaqueue.getSong("https://unacceptableuse.com/petify/song/ecf0cfe1-a893-4594-b353-1dbd7063e241", player); //FUCK!
-                        songData.info.author = "Moloko";
-                        songData.info.title = "Moloko - The Time Is Now";
-                        fulfill(songData);
-                        bot.music.populateShuffleQueue();
-                    } else {
-                        request(`https://unacceptableuse.com/petify/api/song/${petifySong.id}/info`, async function (err, resp, body) {
-                            try {
-                                const data = JSON.parse(body);
-                                let path = data.path;
-                                let songData = await bot.lavaqueue.getSong(path, player);
-                                songData.info.author = petifySong.artist;
-                                songData.info.title = `${petifySong.artist} - ${petifySong.title}`;
-                                songData.info.albumArt = "https://unacceptableuse.com/petify/album/" + data.album;
-                                fulfill(songData);
-                            } catch (e) {
-                                //shid
-                                console.error(e);
-                            }
-                        });
-
-                    }
-                });
-
-            },
             playNextInQueue: async function playNextInQueue(server) {
                 bot.logger.log(`Playing next song for ${server}`);
                 if (!bot.music.listeners[server]) {
@@ -173,15 +126,11 @@ module.exports = {
 
                 if (!newSong || (listener.voiceChannel && listener.voiceChannel.members.size === 1)) {
                     bot.logger.log("There is no new song, or the voice channel is empty");
-                    if (listener.autodj) {
-                        bot.logger.log("AutoDJ is enabled, so play next song");
-                        newSong = await bot.music.getAutoDJSong(listener.connection);
-                    } else {
-                        bot.logger.log("Requesting leave")
-                        listener.playing = null;
-                        listener.connection.pause(true);
-                        return bot.lavaqueue.requestLeave(listener.voiceChannel, "Queue is empty and AutoDJ is disabled.");
-                    }
+                    bot.logger.log("Requesting leave")
+                    listener.playing = null;
+                    listener.connection.pause(true);
+                    return bot.lavaqueue.requestLeave(listener.voiceChannel, "Queue is empty and AutoDJ is disabled.");
+
                 }
                 if (newSong.id) {
                     bot.logger.log("Removing song from queue");
