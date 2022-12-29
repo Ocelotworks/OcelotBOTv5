@@ -70,10 +70,10 @@ module.exports = {
                 let slashCommand = {
                     name: commandData.commands[0],
                     description: commandData.name,
-                    defaultPermission: !commandData.disabled && !bot.config.getBool(server ? server : "global", `${commandData.commands[0]}.disable`),
+                    // defaultPermission: !commandData.disabled && !bot.config.getBool(server ? server : "global", `${commandData.commands[0]}.disable`),
                     options: commandData.slashOptions,
                     dmPermission: !commandData.guildOnly,
-                    defaultMemberPermissions: commandData.settingsOnly ? "ADMINISTRATOR" : undefined,
+                    // defaultMemberPermissions: commandData.settingsOnly ? "ADMINISTRATOR" : undefined,
                     type: type.CHAT_INPUT
                 };
                 commandOutput.push(slashCommand);
