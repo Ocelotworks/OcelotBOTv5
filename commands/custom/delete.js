@@ -4,7 +4,8 @@ module.exports = {
     commands: ["delete", "del", "remove"],
     run: async function (context, bot) {
         const func = await context.commandData.getNameOrId(context, bot);
-        if(!func)return;
+        if(!func)
+            return;
         await bot.database.deleteCustomFunction(context.guild.id, func.id);
 
         if(bot.customFunctions[func.type] && bot.customFunctions[func.type][context.guild.id])
