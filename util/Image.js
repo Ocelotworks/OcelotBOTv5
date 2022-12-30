@@ -203,13 +203,13 @@ module.exports = class Image {
         }
         if(response.size && response.size >= 7000000 || message.channel.permissionsFor && !message.channel?.permissionsFor?.(bot.client.user.id)?.has("ATTACH_FILES")){
             if(response.size >= 10000000){
-                await loadingMessage.editLang("IMAGE_PROCESSOR_ERROR_SIZE");
+                if(loadingMessage && !loadingMessage.deleted)
+                    loadingMessage.delete();
+                await message.replyLang("IMAGE_PROCESSOR_ERROR_SIZE");
                 return;
             }
             if (loadingMessage && !loadingMessage.deleted) {
-                //span = bot.util.startSpan("Edit loading message");
                 await loadingMessage.editLang("GENERIC_UPLOADING_IMGUR");
-                //span.end();
             }
             let imgurResult = await Image.UploadToImgur(response.path);
             if(imgurResult)return message.channel.send(imgurResult);
