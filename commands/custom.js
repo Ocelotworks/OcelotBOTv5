@@ -98,11 +98,13 @@ module.exports = {
     },
     async getNameOrId(context, bot){
         let func;
+        if(!context.options.name && !context.options.id) {
+            context.send({content: "You need to provider either a name or an ID", ephemeral: true});
+            return null;
+        }
         if(context.options.id){
             func = (await bot.database.getCustomFunction(context.guild.id, context.options.id))[0];
         }
-        if(!context.options.name)
-            return null;
         if(!func){
             const funcs = await bot.database.getCustomFunctionByTrigger(context.guild.id, context.options.id || context.options.name);
             if(funcs.length > 1){
