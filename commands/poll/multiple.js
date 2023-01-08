@@ -12,9 +12,11 @@ module.exports = {
         if(!message)return;
         const embed = message.embeds[0];
 
-        embed.setFooter(context.getLang("POLL_MULTIPLE_RESPONSES") + (embed.footer?.text || ""));
+        if(embed) {
+            embed.setFooter(context.getLang("POLL_MULTIPLE_RESPONSES") + (embed.footer?.text || ""));
 
-        message.edit({embeds: [embed], components: message.components});
+            message.edit({embeds: [embed], components: message.components});
+        }
 
         await bot.database.updatePoll(context.guild.id, id, {multiple: true});
 
