@@ -11,6 +11,9 @@ module.exports = {
         let message = await (await bot.client.channels.fetch(poll.channelID)).messages.fetch(poll.messageID);
         if(!message)return;
 
+        if(!message.embeds[0])
+            return context.sendLang({content: "POLL_MANAGE_EMBED_DELETED", ephemeral: true});
+
         let form = await bot.interactions.awaitForm(context, {
             "title": "Edit Poll",
             "components": [{

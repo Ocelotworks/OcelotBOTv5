@@ -20,10 +20,15 @@ module.exports = {
             ]);
             let totalAnswers = Object.keys(answers).reduce((acc, ans)=>acc+(answers[ans]||0), 0);
 
-            const embed = interaction.message.embeds[0];
+            let embed = interaction.message.embeds[0];
             const expiry = new Date();
             expiry.setHours(0, 0, 0, 0);
             expiry.setDate(expiry.getDate()+1)
+
+            if(!embed){
+                return context.sendLang({ephemeral: true, content: "DAILYPOLL_EMBED_DELETED"});
+            }
+
             embed.description = context.getLang("POLL_RESPONSES_EXPIRY", {
                 num: totalAnswers,
                 timestamp: Math.floor(expiry.getTime()/1000)

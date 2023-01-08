@@ -12,12 +12,14 @@ module.exports = {
         if(!message)return;
         const embed = message.embeds[0];
 
-        if(poll.paused){
-            embed.setColor("#03F783");
-            embed.setDescription(embed.description.substring(embed.description.indexOf("\n")));
-        }else {
-            embed.setColor("#d29700");
-            embed.setDescription(`${context.getLang("POLL_PAUSED")}\n${embed.description}`);
+        if(embed) {
+            if (poll.paused) {
+                embed.setColor("#03F783");
+                embed.setDescription(embed.description.substring(embed.description.indexOf("\n")));
+            } else {
+                embed.setColor("#d29700");
+                embed.setDescription(`${context.getLang("POLL_PAUSED")}\n${embed.description}`);
+            }
         }
         for (let i = 0; i < message.components.length; i++) {
             for (let j = 0; j < message.components[i].components.length; j++) {
@@ -26,7 +28,8 @@ module.exports = {
                 }
             }
         }
-        message.edit({embeds: [embed], components: message.components});
+
+        message.edit({embeds: embed ? [embed] : [], components: message.components});
 
         await bot.database.updatePoll(context.guild.id, id, {paused: !poll.paused});
 

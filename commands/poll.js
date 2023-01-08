@@ -40,6 +40,20 @@ module.exports = {
         }, 60000);
 
 
+        bot.client.on("messageUpdate", (oldMessage, newMessage)=>{
+            if(
+                oldMessage.author.id === bot.client.user.id && // Is sent by me
+                oldMessage.embeds[0] && // Has an embed
+                oldMessage.embeds[0].fields?.[0]?.value.startsWith("[") && // Hacky way of figuring out of this is a poll message
+                oldMessage.components.length > 0 && // Has components
+                !oldMessage.flags.has("SUPPRESS_EMBEDS") && newMessage.flags.has("SUPPRESS_EMBEDS")){ // Embeds have been suppressed{
+                newMessage.edit({
+                    content: "With this embed's death, the thread of prophecy is severed. Recreate the poll to restore the weave of fate, or persist in the doomed world you have created.",
+                    components: [],
+                });
+            }
+        })
+
         bot.interactions.addHandler("P", async (interaction, context)=>{
             try {
                 let [answer, pollID] = interaction.customId.substring(1).split("/");
@@ -102,6 +116,10 @@ module.exports = {
                 else
                     await bot.database.setPollAnswer(poll.id, interaction.user.id, answer);
 
+                if(!embed){
+                    return context.sendLang({ephemeral: true, content: "POLL_VOTE_EMBED_DELETED"});
+                }
+
                 await this.renderPollAnswers(bot, message, poll, context);
                 if(poll.expires)
                     embed.description += `\nExpires <t:${Math.floor(poll.expires.getTime() / 1000)}:R>`
@@ -117,6 +135,9 @@ module.exports = {
         if(!message)return;
         if(message.author.id !== bot.client.user.id)return;
         let embed = message.embeds[0];
+        if(!embed){
+            return message.edit({components: [], content: "Someone ruined the poll by deleting the embed :("});
+        }
         embed.setDescription(embed.description.split("\n")[0]);
         embed.setColor("#ff0000");
         embed.setFooter(context ? context.getLang("POLL_EXPIRED") : "Poll Expired."); // TODO: contexts here
