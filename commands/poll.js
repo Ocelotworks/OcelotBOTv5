@@ -42,7 +42,7 @@ module.exports = {
 
         bot.client.on("messageUpdate", (oldMessage, newMessage)=>{
             if(
-                oldMessage.author.id === bot.client.user.id && // Is sent by me
+                oldMessage?.author?.id === bot.client.user.id && // Is sent by me
                 oldMessage.embeds[0] && // Has an embed
                 oldMessage.embeds[0].fields?.[0]?.value.startsWith("[") && // Hacky way of figuring out of this is a poll message
                 oldMessage.components.length > 0 && // Has components
