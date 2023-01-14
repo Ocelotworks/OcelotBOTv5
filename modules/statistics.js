@@ -64,6 +64,9 @@ module.exports = class Statistics {
         cacheMisses: 0,
         apiRequestsTotal: 0,
         apiResponsesTotal: 0,
+        cockroachPoolRequests: 0,
+        cockroachPoolFailures: 0,
+        cockroachPoolSuccesses: 0,
     };
     performanceRateStats = {
         messagesPerMinute: 0,
