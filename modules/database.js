@@ -36,12 +36,21 @@ else
     cockroachConfig.connection.host = cockroachConfig.hosts[Util.ArrayRand(Object.keys(cockroachConfig.hosts))];
 let knockroach = require('knex')(cockroachConfig);
 knockroach.context.client.checkVersion = async () => 100;
+// Map of
+let unavailableHosts = {};
+
+function isHostAvailable(host){
+    const now = new Date();
+    // Host was set unavailable
+    return !unavailableHosts[host] || unavailableHosts[host] < now;
+}
+
 const series = new Date().getFullYear(); //Spook series
 module.exports = {
     name: "Database Module",
     enabled: true,
     init: function init(bot) {
-
+        this.initMonitoring(bot);
         const SERVERS_TABLE = "ocelotbot_servers";
         const MEMES_TABLE = "ocelotbot_memes";
         const REMINDERS_TABLE = "ocelotbot_reminders";
@@ -54,10 +63,11 @@ module.exports = {
         const SERVER_SETTINGS_TABLE = "ocelotbot_server_settings";
         const BADGES_TABLE = "badges";
 
-
         bot.database = {
             knex,
             knockroach,
+            cockroachUnavailable: false,
+            mysqlUnavailable: false,
             /**
              * Add a server to the database
              * @param {ServerID} server The server's Snowflake ID
@@ -1408,5 +1418,41 @@ module.exports = {
             }
 
         };
+    },
+    getBestHost: function getBestHost(){
+        // If the preferred host is available, use that
+        if(process.env.DOCKER_HOST && cockroachConfig.hosts[process.env.DOCKER_HOST] && isHostAvailable(cockroachConfig.hosts[process.env.DOCKER_HOST])){
+            return cockroachConfig.hosts[process.env.DOCKER_HOST]
+        }
+        // Return the first available host
+        return Object.values(cockroachConfig.hosts).find(isHostAvailable);
+    },
+    initMonitoring: function initMonitoring(bot){
+        const pool = knockroach.context.client.pool;
+        pool.on("acquireRequest", (ev)=>{
+            bot.stats.cockroachPoolRequests++;
+        });
+
+        pool.on("acquireSuccess", (ev)=>{
+            bot.stats.cockroachPoolSuccesses++;
+            const currentHost = knockroach.context.client.connectionSettings.host;
+            bot.database.cockroachUnavailable = false;
+            delete unavailableHosts[currentHost];
+        });
+
+        pool.on("acquireFail", (ev, err)=>{
+            bot.stats.cockroachPoolFailures++;
+            const currentHost = knockroach.context.client.connectionSettings.host;
+            bot.logger.warn(`Marking ${currentHost} as unavailable for 5 minutes`);
+            unavailableHosts[currentHost] = new Date()+300000;
+            const newHost = this.getBestHost();
+            if(!newHost) {
+                bot.logger.error(`No hosts were available! Bad!!`);
+                bot.database.cockroachUnavailable = true;
+                return;
+            }
+            bot.logger.warn(`Switching to ${newHost}...`);
+            knockroach.context.client.connectionSettings.host = newHost;
+        });
     }
 };

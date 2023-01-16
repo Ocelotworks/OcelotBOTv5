@@ -93,15 +93,6 @@ module.exports = {
                     }else if (message.content.toLowerCase().indexOf("shut up") > -1) {
                         bot.util.replyTo(message, `:pensive: If I'm interrupting, you can always change my prefix with **${message.getSetting("prefix")}settings set prefix** or disable conflicting commands with ${message.getSetting("prefix")}settings disableCommand`)
                     }
-
-                    // bot.mixpanel.track("Bot mentioned", {
-                    //     distinct_id: message.author.id,
-                    //     channel_id: message.channel.id,
-                    //     channel_name: message.channel.name,
-                    //     server_id: message.guild ? message.guild.id : "0",
-                    //     server_name: message.guild ? message.guild.name : "DM Channel",
-                    //     message: message.cleanContent
-                    // })
                 }
             });
         });

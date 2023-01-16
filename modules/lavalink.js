@@ -27,14 +27,14 @@ module.exports = class Lavalink {
             });
 
             this.resumeKey = `${this.bot.client.user.id}-${this.bot.util.shard}`;
-            this.clients.push({
-                id: "lava.link",
-                host: "lava.link",
-                port: 80,
-                password: "ocelotbot.xyz",
-                reconnectInterval: 1000,
-                resumeKey: this.resumeKey,
-            })
+            // this.clients.push({
+            //     id: "lava.link",
+            //     host: "lava.link",
+            //     port: 80,
+            //     password: "ocelotbot.xyz",
+            //     reconnectInterval: 1000,
+            //     resumeKey: this.resumeKey,
+            // })
 
             this.manager.connect();
             this.updateDockerContainers();
@@ -46,13 +46,15 @@ module.exports = class Lavalink {
     }
     reconnectNodes(){
         this.manager.nodes.forEach(async(node)=>{
-            if (!node.connected) {
-                this.bot.logger.log(`Attempting to connect node ${node.id}`);
+            if (!node.connected && !node.retries || node.retries < 10) {
+                this.bot.logger.log(`Attempting to connect node ${node.id} (Retry ${node.retries})`);
                 try {
                     await node.connect();
                 } catch (e) {
-                    this.bot.logger.error(`Error connecting to node ${node.id}: ${e}`)
+                    node.retries = node.retries ? node.retries+1 : 1;
+                    this.bot.logger.error(`Error connecting to node ${node.id}: ${e} (Retry ${node.retries})`);
                 }
+                node.retries = 0;
             }
         })
     }
