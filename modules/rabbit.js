@@ -94,7 +94,7 @@ module.exports = class RabbitMQ {
                 process.exit(80);
             }
             if (!connection) {
-                console.log("Waiting for ${retires*1000}ms");
+                console.log(`Waiting for ${retries*1000}ms`);
                 await Util.Sleep(retries * 1000);
             }
         } while (!connection);
