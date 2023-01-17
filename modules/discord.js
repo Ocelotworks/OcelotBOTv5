@@ -57,6 +57,7 @@ module.exports = class DiscordModule {
 
         this.bot.logger.log("Logging in to Discord...");
         this.bot.client.login();
+        this.bot.updatePresence = this.updatePresence.bind(this);
     }
 
     overrideSendMethods(){
