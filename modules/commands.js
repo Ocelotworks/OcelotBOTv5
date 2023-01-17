@@ -181,9 +181,10 @@ module.exports = class Commands {
         }
         const subCommand = interaction.options.getSubcommand(false);
         this.bot.logger.log(`Autocomplete: ${interaction.options.getFocused()} on /${interaction.commandName} ${subCommand}`);
-        if(subCommand && commandData.subCommands[subCommand]?.autocomplete)
-            return interaction.respond(await commandData.subCommands[subCommand].autocomplete(interaction.options.getFocused(), interaction, this.bot))
-        if(commandData.autocomplete)
+        if(subCommand && commandData.subCommands[subCommand]?.autocomplete) {
+            let data = await commandData.subCommands[subCommand].autocomplete(interaction.options.getFocused(), interaction, this.bot)
+            return interaction.respond(data ? data.slice(0, 25) : [])
+        }if(commandData.autocomplete)
             return interaction.respond(await commandData.autocomplete(interaction.options.getFocused(), interaction, this.bot))
         this.bot.logger.warn(`Autocomplete triggered for function with no autocomplete capability ${interaction.commandName} ${subCommand}`);
         return interaction.respond([]);
