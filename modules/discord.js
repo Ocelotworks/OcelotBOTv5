@@ -36,6 +36,9 @@ const presenceMessages = [
     {message: "bad music", type: "STREAMING"},
     {message: "good music", type: "STREAMING"},
     {message: "hot garbage", type: "STREAMING"},
+    {message: "silly cats", type: "WATCHING"},
+    {message: "code is shit", type: 'LISTENING'},
+    {message: "stole the project is forbidden", type: 'LISTENING'}
 ];
 
 module.exports = class DiscordModule {
