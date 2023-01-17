@@ -68,7 +68,7 @@ module.exports = class SupportServer {
                 )]
             });
         }catch(e){
-            this.bot.logger.error(e);
+            // this.bot.logger.error(e);
             this.bot.raven.captureException(e);
         }
     }
