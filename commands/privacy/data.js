@@ -6,7 +6,7 @@ module.exports = {
     usage: "export",
     commands: ["dataexport", "export", "gdpr", "data", "downloadmydata"],
     run: async function (context, bot) {
-        if(await bot.redis.get(`gdpr/${context.user.id}`)){
+        if(await bot.redis.get(`gdpr/${context.user.id}`).catch(()=>null)){
             return context.send({content: "You have done a Data Request recently. Please wait a while before doing another.", ephemeral: true});
         }
 
