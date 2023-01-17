@@ -59,7 +59,8 @@ module.exports = {
         deletedReminders.push(reminder.id);
         //reminderData.recurringReminders[reminder.id].clear();
         await bot.database.removeReminderByUser(reminder.id, reminder.user);
-        const userDM = await bot.client.users.fetch(reminder.user).then(d=>d.createDM());
+        const userDM = await bot.client.users.fetch(reminder.user).then(d=>d.createDM()).catch(()=>null);
+        if(!userDM)return;
         userDM.send(`:warning: Your recurring reminder '**${reminder.message}**' in <#${reminder.channel}> was deleted due to too many failures.\nIf you believe this to be a bug, please contact support.`);
 
     },
