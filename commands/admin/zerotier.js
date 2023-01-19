@@ -3,7 +3,7 @@ const axios = require('axios');
 const Util = require("../../util/Util");
 module.exports = {
     name: "Zerotier List",
-    usage: "zerotier [approve?:approve] :idOrSearch? :name+?",
+    usage: "zerotier [approve?:approve] :idorsearch? :name+?",
     commands: ["zerotier", "zt"],
     noCustom: true,
     run: async function (context, bot) {
@@ -12,8 +12,8 @@ module.exports = {
                 let result = await bot.util.getJson("https://ob-prod-api.d.int.unacc.eu/api/zt/nodes");
                 let header = Object.keys(result)[0];
                 let nodes = result[header].map((node)=>({...node, Approved: node.Approved === "Y" ? "✅" : "🚫", Status: node.Status === "ONL" ? "✅" : "❌"}));
-                if (context.options.idOrSearch)
-                    nodes = nodes.filter((node) => node.Name.toLowerCase().indexOf(context.options.idOrSearch.toLowerCase()) > -1)
+                if (context.options.idorsearch)
+                    nodes = nodes.filter((node) => node.Name.toLowerCase().indexOf(context.options.idorsearch.toLowerCase()) > -1)
 
                 let hosts = nodes.chunk(20);
                 return Util.StandardPagination(bot, context, hosts, async function (page, index) {
@@ -26,12 +26,12 @@ module.exports = {
             }
             return;
         }
-        if (!context.options.idOrSearch || !context.options.name)
+        if (!context.options.idorsearch || !context.options.name)
             return context.send({content: `**Usage:**\n${context.getSetting("prefix")}admin ${context.options.command} approve \`id\` \`name\``, ephemeral: true});
         try {
             let name = context.options.name;
             let result = await axios.post("https://ob-prod-api.d.int.unacc.eu/api/zt/nodes", {
-                id: context.options.idOrSearch,
+                id: context.options.idorsearch,
                 name
             });
             context.send(result.data.success || result.data.error)

@@ -10,6 +10,7 @@ module.exports = {
     name: "Lavalink",
     usage: "lavalink",
     commands: ["ll", "lavalink"],
+    slashHidden: true,
     run: async function (context, bot) {
         const {data} = await axios.get("https://ob-prod-sc.d.int.unacc.eu/lavalink/players");
         const shards = Object.keys(data);

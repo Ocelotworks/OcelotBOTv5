@@ -2,6 +2,7 @@ module.exports = {
     name: "Get Config",
     usage: "config :key",
     commands: ["getconfig", "config"],
+    slashHidden: true,
     run: function (context, bot) {
         let output = `Config Property: \`${context.options.key}\`\n`;
         if (bot.feature && bot.feature.enabled && bot.feature.enabled(context.options.key.replace(/\./g, "-"), {

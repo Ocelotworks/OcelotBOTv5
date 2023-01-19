@@ -323,7 +323,7 @@ module.exports = class Commands {
                     loadedCommand.slashOptions = [];
                     let used = [];
                     for(let subCommandId in loadedCommand.subCommands){
-                        if(!loadedCommand.subCommands.hasOwnProperty(subCommandId) || !loadedCommand.subCommands[subCommandId].slashOptions)continue;
+                        if(!loadedCommand.subCommands.hasOwnProperty(subCommandId) || !loadedCommand.subCommands[subCommandId].slashOptions || loadedCommand.subCommands[subCommandId].slashHidden)continue;
                         let subCommand = loadedCommand.subCommands[subCommandId];
                         if(used.includes(subCommand.id))continue;
                         used.push(subCommand.id);
@@ -348,6 +348,10 @@ module.exports = class Commands {
                 }else if(!loadedCommand.slashOptions) {
                     loadedCommand.slashOptions = Util.PatternToOptions(loadedCommand.pattern, loadedCommand.argDescriptions);
                 }
+            }
+
+            if(!loadedCommand.commandPack){
+                loadedCommand.commandPack = loadedCommand.categories.includes("nsfw")  ? "nsfw" : "default";
             }
 
             this.bot.commandObjects[command] = loadedCommand;

@@ -8,6 +8,7 @@ module.exports = {
     name: "Force Spook",
     usage: "forcespook :server :user?",
     commands: ["forcespook", "spook"],
+    slashHidden: true,
     run: async function (context, bot) {
         const currentSpook = await bot.database.getSpooked(context.options.server);
         if(!context.options.user){

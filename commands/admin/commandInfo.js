@@ -8,10 +8,10 @@ const Discord = require('discord.js');
 const Strings = require("../../util/String");
 module.exports = {
     name: "Command  Info",
-    usage: "command :commandID",
+    usage: "command :commandid",
     commands: ["command", "commandinfo", "ci"],
     run: async function (context, bot) {
-        let commandId = context.options.commandID;
+        let commandId = context.options.commandid;
         if(isNaN(commandId))
             commandId = Strings.CommandIdToNumber(commandId)
         await context.defer();

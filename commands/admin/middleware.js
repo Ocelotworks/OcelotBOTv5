@@ -1,6 +1,6 @@
 module.exports = {
     name: "View Middleware",
-    usage: "middleware [action?:,view,disable,enable] :0id? :name+?",
+    usage: "middleware [action?:view,disable,enable] :0id? :name+?",
     commands: ["middleware", "mw", "middlewares"],
     run: async function (context, bot) {
         if(context.options.action){

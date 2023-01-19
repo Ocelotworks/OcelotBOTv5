@@ -4,6 +4,7 @@ module.exports = {
     name: "View Lang",
     usage: "lang [list?:list] :key?",
     commands: ["lang"],
+    slashHidden: true,
     run: async function (context, bot) {
         if (context.options.list) {
             const strings = bot.lang.strings[context.options.key || "default"];

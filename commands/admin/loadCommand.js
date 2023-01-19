@@ -8,6 +8,7 @@ module.exports = {
     name: "Load Command",
     usage: "loadCommand :command",
     commands: ["loadcommand", "lc", "load", "reload", "reloadcommand", "rc"],
+    slashHidden: true,
     init: function init(bot) {
         bot.bus.on("loadCommand", (msg) => {
             try {
