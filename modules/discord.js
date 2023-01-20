@@ -5,6 +5,7 @@ const Util = require("../util/Util");
 const caller_id = require('caller-id');
 const {NotificationContext} = require("../util/CommandContext");
 const Embeds = require("../util/Embeds");
+const SlashCommandManager = require("../util/SlashCommandManager");
 const presenceMessages = [
     {message: "!help", type: 'LISTENING'},
     {message: "!profile", type: 'LISTENING'},
@@ -533,6 +534,12 @@ module.exports = class DiscordModule {
         embed.addFieldLang("WELCOME_STUCK_TITLE", "WELCOME_STUCK_DESC");
         embed.addFieldLang("WELCOME_SUPPORT_TITLE", "WELCOME_SUPPORT_DESC");
         mainChannel.send({embeds: [embed]});
+        if(context.getSetting("commands.guildPacks")){
+            const packs = context.getSetting("commands.guildPacks").split(",");
+            this.bot.logger.log(`Adding enabled command packs: ${packs.join(" ")}`)
+            let commandOutput = SlashCommandManager.GetCommandPacks(packs, this.bot.commandObjects);
+            await this.bot.client.application.commands.set(commandOutput, guildId);
+        }
     }
 
     /**
