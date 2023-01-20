@@ -9,7 +9,7 @@ module.exports = {
     run: async function (context, bot) {
         let commandOutput = [];
         try {
-            let packs = context.options.pack.split(",") || ["default"];
+            let packs = context.options.pack?.split(",") || ["default"];
             let server;
             if (context.options.guild && context.options.guild !== "global")
                 server = context.options.guild.toLowerCase() === "this" ? context.guild.id : context.options.guild;

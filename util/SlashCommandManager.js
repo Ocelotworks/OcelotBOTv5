@@ -26,7 +26,6 @@ module.exports = class SlashCommandManager {
 
 
 
-
     static GetCommandPacks(packs, commandObjects){
         let commandOutput = [];
 

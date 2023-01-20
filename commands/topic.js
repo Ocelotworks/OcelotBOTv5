@@ -15,7 +15,7 @@ module.exports = {
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["topic"],
-    hidden: true,
+    commandPack: "ocelotworks",
     contextMenu: {
         type: "message",
         value: "messageid",

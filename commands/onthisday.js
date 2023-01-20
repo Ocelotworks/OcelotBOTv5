@@ -6,7 +6,7 @@ module.exports = {
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["onthisday", "otd"],
-    hidden: true,
+    commandPack: "ocelotworks",
     run: async function(context, bot){
         if(!context.getSetting("ocelotworks"))return;
 
