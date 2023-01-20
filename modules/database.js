@@ -1448,7 +1448,8 @@ module.exports = {
             const newHost = this.getBestHost();
             if(!newHost) {
                 bot.logger.error(`No hosts were available! Bad!!`);
-                bot.database.cockroachUnavailable = true;
+                // bot.database.cockroachUnavailable = true;
+                unavailableHosts = [];
                 return;
             }
             bot.logger.warn(`Switching to ${newHost}...`);
