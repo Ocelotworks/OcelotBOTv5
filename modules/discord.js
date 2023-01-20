@@ -312,13 +312,24 @@ module.exports = class DiscordModule {
             this.bot.logger.log(`Logged in as ${this.bot.client.user.tag}`);
             setTimeout(this.updatePresence.bind(this), 150000);
 
-            try {
-                this.bot.rabbit.event({"type": "ready"});
-            }catch(e){
-                console.error(e);
-                // If we have no rabbit, we are in trouble
-                process.exit(37);
-            }
+            (async ()=>{
+                let success = false;
+                let retries = 0;
+                do {
+                    try {
+                        this.bot.logger.log("Attempting to send ready event to rabbit");
+                        await this.bot.rabbit.event({"type": "ready"});
+                        success = true;
+                    } catch (e) {
+                        console.error(e);
+                        // If we have no rabbit, we are in trouble
+                        retries++;
+                        if(retries > 5)
+                            process.exit(37);
+                        await Util.Sleep(1000);
+                    }
+                }while(!success);
+            })();
         });
     }
 
