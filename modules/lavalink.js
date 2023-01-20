@@ -47,9 +47,10 @@ module.exports = class Lavalink {
     reconnectNodes(){
         this.manager.nodes.forEach(async(node)=>{
             if (!node.connected && !node.retries || node.retries < 10) {
-                this.bot.logger.log(`Attempting to connect node ${node.id} (Retry ${node.retries})`);
+                this.bot.logger.log(`(Shard ${this.bot.util.shard}) Attempting to connect node ${node.id} (Retry ${node.retries})`);
                 try {
                     await node.connect();
+                    this.bot.logger.log(`Successfully connected to ${node.id}`);
                 } catch (e) {
                     node.retries = node.retries ? node.retries+1 : 1;
                     this.bot.logger.error(`Error connecting to node ${node.id}: ${e} (Retry ${node.retries})`);

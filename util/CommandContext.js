@@ -312,7 +312,10 @@ class InteractionContext extends CommandContext {
         if(!this.interaction.isRepliable())
             return this.interaction.followUp(options);
         super._appendPrefix(options);
-        return this.interaction.reply(options).catch(()=>this.interaction.followUp(options));
+        return this.interaction.reply(options).catch((e)=>{
+            Sentry.captureException(e);
+            return this.interaction.followUp(options)
+        });
     }
 
     reply(options){

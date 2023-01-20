@@ -20,6 +20,7 @@ module.exports = {
     commands: ["music", "m"],
     guildOnly: true,
     nestedDir: "music",
+    commandPack: "music",
     init: function init(bot) {
         bot.client.on("ready", async function ready() {
             let activeSessions = await bot.database.getActiveSessions();

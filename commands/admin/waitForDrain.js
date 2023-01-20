@@ -2,6 +2,7 @@ module.exports = {
     name: "Wait for Drain",
     usage: "waitfordrain",
     commands: ["waitfordrain", "drain"],
+    slashHidden: true,
     run: function (context, bot) {
         let content = "```ansi\n";
         content += `Docker Host:\t${process.env.DOCKER_HOST.red}\n`;

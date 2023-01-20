@@ -181,9 +181,10 @@ module.exports = class Commands {
         }
         const subCommand = interaction.options.getSubcommand(false);
         this.bot.logger.log(`Autocomplete: ${interaction.options.getFocused()} on /${interaction.commandName} ${subCommand}`);
-        if(subCommand && commandData.subCommands[subCommand]?.autocomplete)
-            return interaction.respond(await commandData.subCommands[subCommand].autocomplete(interaction.options.getFocused(), interaction, this.bot))
-        if(commandData.autocomplete)
+        if(subCommand && commandData.subCommands[subCommand]?.autocomplete) {
+            let data = await commandData.subCommands[subCommand].autocomplete(interaction.options.getFocused(), interaction, this.bot)
+            return interaction.respond(data ? data.slice(0, 25) : [])
+        }if(commandData.autocomplete)
             return interaction.respond(await commandData.autocomplete(interaction.options.getFocused(), interaction, this.bot))
         this.bot.logger.warn(`Autocomplete triggered for function with no autocomplete capability ${interaction.commandName} ${subCommand}`);
         return interaction.respond([]);
@@ -322,7 +323,7 @@ module.exports = class Commands {
                     loadedCommand.slashOptions = [];
                     let used = [];
                     for(let subCommandId in loadedCommand.subCommands){
-                        if(!loadedCommand.subCommands.hasOwnProperty(subCommandId) || !loadedCommand.subCommands[subCommandId].slashOptions)continue;
+                        if(!loadedCommand.subCommands.hasOwnProperty(subCommandId) || !loadedCommand.subCommands[subCommandId].slashOptions || loadedCommand.subCommands[subCommandId].slashHidden)continue;
                         let subCommand = loadedCommand.subCommands[subCommandId];
                         if(used.includes(subCommand.id))continue;
                         used.push(subCommand.id);
@@ -347,6 +348,10 @@ module.exports = class Commands {
                 }else if(!loadedCommand.slashOptions) {
                     loadedCommand.slashOptions = Util.PatternToOptions(loadedCommand.pattern, loadedCommand.argDescriptions);
                 }
+            }
+
+            if(!loadedCommand.commandPack){
+                loadedCommand.commandPack = loadedCommand.categories.includes("nsfw")  ? "nsfw" : "default";
             }
 
             this.bot.commandObjects[command] = loadedCommand;

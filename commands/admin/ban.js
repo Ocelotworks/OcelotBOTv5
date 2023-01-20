@@ -10,6 +10,7 @@ module.exports = {
     usage: "ban :user :reason?",
     commands: ["ban"],
     noCustom: true,
+    slashHidden: true,
     run: async function (context, bot) {
         const target = Strings.GetUserFromMention(bot, context.options.user) || context.options.user;
         await bot.database.ban(target, "user", context.options.reason || "Admin ban");

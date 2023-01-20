@@ -5,6 +5,7 @@ const Util = require("../util/Util");
 const caller_id = require('caller-id');
 const {NotificationContext} = require("../util/CommandContext");
 const Embeds = require("../util/Embeds");
+const SlashCommandManager = require("../util/SlashCommandManager");
 const presenceMessages = [
     {message: "!help", type: 'LISTENING'},
     {message: "!profile", type: 'LISTENING'},
@@ -36,6 +37,9 @@ const presenceMessages = [
     {message: "bad music", type: "STREAMING"},
     {message: "good music", type: "STREAMING"},
     {message: "hot garbage", type: "STREAMING"},
+    {message: "silly cats", type: "WATCHING"},
+    {message: "code is shit", type: 'LISTENING'},
+    {message: "stole the project is forbidden", type: 'LISTENING'}
 ];
 
 module.exports = class DiscordModule {
@@ -57,6 +61,7 @@ module.exports = class DiscordModule {
 
         this.bot.logger.log("Logging in to Discord...");
         this.bot.client.login();
+        this.bot.updatePresence = this.updatePresence.bind(this);
     }
 
     overrideSendMethods(){
@@ -307,13 +312,24 @@ module.exports = class DiscordModule {
             this.bot.logger.log(`Logged in as ${this.bot.client.user.tag}`);
             setTimeout(this.updatePresence.bind(this), 150000);
 
-            try {
-                this.bot.rabbit.event({"type": "ready"});
-            }catch(e){
-                console.error(e);
-                // If we have no rabbit, we are in trouble
-                process.exit(37);
-            }
+            (async ()=>{
+                let success = false;
+                let retries = 0;
+                do {
+                    try {
+                        this.bot.logger.log("Attempting to send ready event to rabbit");
+                        await this.bot.rabbit.event({"type": "ready"});
+                        success = true;
+                    } catch (e) {
+                        console.error(e);
+                        // If we have no rabbit, we are in trouble
+                        retries++;
+                        if(retries > 5)
+                            process.exit(37);
+                        await Util.Sleep(1000);
+                    }
+                }while(!success);
+            })();
         });
     }
 
@@ -529,6 +545,12 @@ module.exports = class DiscordModule {
         embed.addFieldLang("WELCOME_STUCK_TITLE", "WELCOME_STUCK_DESC");
         embed.addFieldLang("WELCOME_SUPPORT_TITLE", "WELCOME_SUPPORT_DESC");
         mainChannel.send({embeds: [embed]});
+        if(context.getSetting("commands.guildPacks")){
+            const packs = context.getSetting("commands.guildPacks").split(",");
+            this.bot.logger.log(`Adding enabled command packs: ${packs.join(" ")}`)
+            let commandOutput = SlashCommandManager.GetCommandPacks(packs, this.bot.commandObjects);
+            await this.bot.client.application.commands.set(commandOutput, guildId);
+        }
     }
 
     /**

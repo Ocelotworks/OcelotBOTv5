@@ -9,6 +9,7 @@ module.exports = {
     usage: "evalasync :script+",
     commands: ["evalasync"],
     noCustom: true,
+    slashHidden: true,
     run: async function (context, bot) {
         try {
             let output = `\`\`\`\n${await eval(`(async function(){${context.options.script}})`)()}\n\`\`\``;

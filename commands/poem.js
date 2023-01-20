@@ -4,7 +4,7 @@ module.exports = {
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["poem"],
-    hidden: true,
+    commandPack: "ocelotworks",
     run: async function (context, bot) {
         if (!context.getSetting("ocelotworks")) return;
         let messageResult = await context.send("Generating Poem...");

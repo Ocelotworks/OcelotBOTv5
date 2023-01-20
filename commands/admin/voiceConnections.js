@@ -10,6 +10,7 @@ module.exports = {
     name: "Voice Connections",
     usage: "voiceConnections",
     commands: ["vcs", "voiceconnections"],
+    slashHidden: true,
     run: async function (context, bot) {
         let nodes = [];
         let players = [];

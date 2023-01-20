@@ -2,6 +2,7 @@ module.exports = {
     name: "Reload Languages",
     usage: "reloadlang",
     commands: ["reloadlang"],
+    slashHidden: true,
     init: async function (bot) {
         bot.bus.on("reloadLang", async () => {
             bot.logger.log("Reloading languages...");

@@ -61,6 +61,13 @@ module.exports = class RabbitMQ {
         this.eventsChannel.assertExchange(this.eventsExchange, 'fanout', {durable: false});
         this.eventsChannel.bindQueue(this.eventsQueue, this.eventsExchange, '');
         this.eventsChannel.consume(this.eventsQueue, this.#handleEvent.bind(this));
+        this.connection.on('close', this.onRabbitClosed.bind(this))
+    }
+
+    async onRabbitClosed(){
+        this.bot.logger.error("Rabbit connection closed");
+        if(this.bot.drain)return;
+        this.connection = await this.getRabbitConnection();
     }
 
     initClientEvents(){
@@ -94,7 +101,7 @@ module.exports = class RabbitMQ {
                 process.exit(80);
             }
             if (!connection) {
-                console.log("Waiting for ${retires*1000}ms");
+                console.log(`Waiting for ${retries*1000}ms`);
                 await Util.Sleep(retries * 1000);
             }
         } while (!connection);

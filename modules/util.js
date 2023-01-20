@@ -1566,7 +1566,7 @@ module.exports = {
                 if(e.response && e.response.data)
                     errorEmbed.setDescriptionLang("CUSTOM_COMMAND_ERROR", {error: JSON.stringify(e.response.data, null, 1)});
                 else {
-                    bot.logger.log(e);
+                    bot.raven.captureException(e);
                     errorEmbed.setDescriptionLang("CUSTOM_COMMAND_INTERNAL_ERROR")
                 }
                 if(showErrors)
