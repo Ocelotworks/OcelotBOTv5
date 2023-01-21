@@ -13,7 +13,7 @@ module.exports = {
     downloadComments: function downloadComments(bot){
         bot.logger.log("Downloading AI Comments...");
         request({
-            url: 'https://www.reddit.com/r/gonewild/comments.json',
+            url: 'https://json.reddit.com/r/gonewild/comments',
             headers: {
                 'User-Agent': 'OcelotBOT link parser by /u/UnacceptableUse'
             }
