@@ -12,10 +12,12 @@ module.exports = {
         value: "input",
     },
     handleError: function(context){
-        return context.sendLang("GENERIC_TEXT");
+        return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
     },
-    run:  function(context, bot){
+    run: function(context, bot){
         const content = context.options.input;
+        if(content.length === 0)
+            return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
         return Image.ImageProcessor(bot, context, {
             "components": [
                 {
