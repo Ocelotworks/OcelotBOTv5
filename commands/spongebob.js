@@ -29,6 +29,8 @@ module.exports = {
         };
 
         if(!context.options.text){
+            if(!context.channel)
+                return context.send({content: "This channel type is currently not supported", ephemeral: true});
             const messages = (await context.channel.messages.fetch({limit: 2}));
             if(messages.size > 1 && messages.last().content.length > 0){
                 const message = messages.last();

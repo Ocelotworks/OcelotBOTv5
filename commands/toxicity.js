@@ -33,6 +33,8 @@ module.exports = {
         api = await google.discoverAPI("https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1");
     },
     run: async function(context, bot){
+        if(!context.channel)
+            return context.send({content: "This channel type is currently not supported", ephemeral: true});
         let target;
         if(context.options.text){
             target = context.options.text;
