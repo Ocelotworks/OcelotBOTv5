@@ -17,7 +17,6 @@ class CommandContext {
     error;
 
     responsePrefix;
-    replied = false;
 
     constructor(bot, member, user, channel, guild, command, id){
         this.bot = bot;
@@ -310,11 +309,14 @@ class InteractionContext extends CommandContext {
         this.bot.bus.emit("messageSent", options);
         if(options?.components)options.components = options.components.filter((c)=>c);
         options.fetchReply = true;
-        if(!this.interaction.isRepliable() || this.interaction.replied || this.interaction.deferred)
+        if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
         super._appendPrefix(options);
         return this.interaction.reply(options).catch((e)=>{
-            Sentry.captureException(e);
+            Sentry.addBreadcrumb({
+                message: "Failed to reply",
+                data: e,
+            });
             return this.interaction.followUp(options)
         });
     }
