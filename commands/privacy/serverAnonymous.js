@@ -7,7 +7,7 @@ module.exports = {
         let option;
         if(!context.options.mode){
             if(context.getBool("privacy.serverAnonymous"))
-                return context.send(`This server currently has anonymity turned ON, meaning that elements from this server will not show up anywhere else. To turn this off, **${context.command} ${args[1]} off**`);
+                return context.send(`This server currently has anonymity turned ON, meaning that elements from this server will not show up anywhere else. To turn this off, **${context.command} serverAnonymous off**`);
 
             return context.send(`The following commands will display elements from your server: 
 - The ${context.getSetting("prefix")}emoji will display your server's emojis in other servers.
