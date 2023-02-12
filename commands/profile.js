@@ -77,7 +77,7 @@ module.exports = {
             if(channel) {
                 const badge = (await bot.database.getBadge(id))[0];
                 let embed = new Discord.MessageEmbed();
-                embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${id}`);
+                // embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${id}`);
                 embed.setTitle(`You just earned ${badge.name}`);
                 embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
                 embed.setColor("#3ba13b");
