@@ -2,6 +2,7 @@ module.exports = {
     name: "Create Daily Poll",
     usage: "dailypoll :data+",
     commands: ["daily", "dailypoll", "dp"],
+    noCustom: true,
     run: async function (context, bot) {
        const data = context.options.data.split(",");
        const title = data[0];

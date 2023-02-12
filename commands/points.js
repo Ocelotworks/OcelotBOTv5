@@ -9,6 +9,7 @@ module.exports = {
     nestedDir: "points",
     init: async function init(bot){
         bot.addCommandMiddleware(async (context)=>{
+            if(process.env.CUSTOM_BOT)return true;
             if(context.getBool("serverPremium"))return true;
             if(!context.getBool("points.enabled"))return true;
             if(!context.commandData.pointsCost)return true;

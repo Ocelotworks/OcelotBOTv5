@@ -1033,6 +1033,7 @@ module.exports = {
                         try {
                             const command = require(`../commands/${directory}/${files[i]}`);
                             bot.logger.log(`Loaded ${id} command ${command.name}`);
+                            console.log(command.noCustom, process.env.CUSTOM_BOT);
                             if(command.noCustom && process.env.CUSTOM_BOT) {
                                 bot.logger.log(`Not loading ${id} as this is a custom bot`);
                                 continue
@@ -1548,6 +1549,9 @@ module.exports = {
 
         bot.util.runCustomFunction = async function(code, context, showErrors = true, doOutput = true){
             try {
+                if(context.member){
+                    context.member.roles.fetch().then(()=>console.log("fetched roles"));
+                }
                 let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "http://ob-sat_custom-commands:3000/run", {
                     version: 1,
                     script: code,

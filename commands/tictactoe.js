@@ -59,9 +59,9 @@ module.exports = {
         if(!opponent)return context.send({content: "Couldn't find that user. Make sure that they're able to view this channel.", ephemeral: true});
         if(opponent.bot)return context.send({content: `You can't play tic tac toe against a bot.`, ephemeral: true});
         const row = (r)=>[
-            {type: 2, style: buttonStyle, label: " ", custom_id: `#${context.user.id}|${opponent.id}|${r+0}|${X}`},
-            {type: 2, style: buttonStyle, label: " ", custom_id: `#${context.user.id}|${opponent.id}|${r+1}|${X}`},
-            {type: 2, style: buttonStyle, label: " ", custom_id: `#${context.user.id}|${opponent.id}|${r+2}|${X}`}
+            {type: 2, style: buttonStyle, label: ".", custom_id: `#${context.user.id}|${opponent.id}|${r+0}|${X}`},
+            {type: 2, style: buttonStyle, label: ".", custom_id: `#${context.user.id}|${opponent.id}|${r+1}|${X}`},
+            {type: 2, style: buttonStyle, label: ".", custom_id: `#${context.user.id}|${opponent.id}|${r+2}|${X}`}
         ];
         let api = new Discord.MessagePayload(context.channel, {});
         api.data = {
