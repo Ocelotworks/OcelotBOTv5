@@ -177,6 +177,9 @@ module.exports = {
         return context.sendLang({content: "POLL_HELP", ephemeral: true});
     },
     run: async function (context, bot) {
+        if(!context.channel){
+            return context.send({content: "Sorry, this command can't currently be used in forum channels. If you received this message outside of a forum channel, please contact us on /feedback", ephemeral: true});
+        }
         const fullOptions = (context.options.command || "") + " " + (context.options.options || "")
         let options = fullOptions.split(',');
         if (options.length < 2 && !context.options.open)
