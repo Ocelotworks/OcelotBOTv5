@@ -1550,7 +1550,7 @@ module.exports = {
         bot.util.runCustomFunction = async function(code, context, showErrors = true, doOutput = true){
             try {
                 if(context.member){
-                    context.member.roles.fetch().then(()=>console.log("fetched roles"));
+                    context.member.fetch().then(()=>console.log("fetched roles"));
                 }
                 let result = await axios.post(process.env.CUSTOM_COMMANDS_URL || "http://ob-sat_custom-commands:3000/run", {
                     version: 1,
