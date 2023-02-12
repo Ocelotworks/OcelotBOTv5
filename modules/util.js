@@ -1033,6 +1033,7 @@ module.exports = {
                         try {
                             const command = require(`../commands/${directory}/${files[i]}`);
                             bot.logger.log(`Loaded ${id} command ${command.name}`);
+                            console.log(command.noCustom, process.env.CUSTOM_BOT);
                             if(command.noCustom && process.env.CUSTOM_BOT) {
                                 bot.logger.log(`Not loading ${id} as this is a custom bot`);
                                 continue

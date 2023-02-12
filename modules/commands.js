@@ -405,7 +405,10 @@ module.exports = class Commands {
                         this.bot.logger.log(`Loading sub-command for ${loadedCommand.name}: ${loadedCommand.nestedDir}/${files[i]}`)
                         const command = require(`../${path}/${loadedCommand.nestedDir}/${files[i]}`);
                         // The highest premium tier gets a custom hosted bot, some commands are disabled for them so they can't fuck shit up
-                        if (command.customDisabled && process.env.CUSTOM_BOT) continue;
+                        if (command.noCustom && process.env.CUSTOM_BOT){
+                            this.bot.logger.log(`Ignoring ${command.name} because this is a custom bot and noCustom = true`);
+                            continue;
+                        }
                         if (command.init) {
                             this.bot.logger.log(`Init for ${loadedCommand.name}/${command.name}`);
                             await command.init(this.bot, loadedCommand);

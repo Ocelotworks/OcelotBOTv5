@@ -8,6 +8,7 @@ module.exports = (context, bot) => {
     const settingsOnly = commandData.settingsOnly || subCommandData?.settingsOnly;
     const userPermissions = commandData.userPermissions ? subCommandData?.userPermissions ? commandData.userPermissions.concat(subCommandData?.userPermissions) : commandData.userPermissions : subCommandData?.userPermissions;
     const adminOnly = commandData.adminOnly || subCommandData?.adminOnly;
+
     // Only allow Guild Only commands to be ran in a Guild
     if(guildOnly && !context.guild){
         context.replyLang({content: "GENERIC_DM_CHANNEL", ephemeral: true});
