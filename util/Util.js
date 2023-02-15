@@ -246,7 +246,7 @@ module.exports = class Util {
         let dropdown;
         if((!full && pages.length > 4) || pages.length > 8){
             if(!dropdownItems)
-                dropdownItems = Array(Math.min(pages.length, 25)).fill(1).map((_,i)=>({label: `Page ${i+1}`, value: `${i}`}));
+                dropdownItems = Array(Math.min(pages.length-1, 25)).fill(1).map((_,i)=>({label: `Page ${i+1}`, value: `${i}`}));
             dropdown = bot.interactions.addDropdown("Go to page...", dropdownItems, (interaction)=>{
                 index = parseInt(interaction.values[0]);
                 buildPage();
