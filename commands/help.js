@@ -163,7 +163,6 @@ module.exports = {
 
             return message = await context.send({
                 embeds: [embed],
-                components: [dropdown],
                 ephemeral: true
             });
         }
