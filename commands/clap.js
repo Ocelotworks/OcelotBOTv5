@@ -14,6 +14,6 @@ module.exports = {
     responseExample: "Get👏OcelotBOT👏Today",
     commands: ["clap", "claptext"],
     run: function run(context) {
-        return context.sendLang(context.options.text.replace(/ /g, context.getSetting("clap.emoji")))
+        return context.send(context.options.text.replace(/ /g, context.getSetting("clap.emoji")))
     },
 };
