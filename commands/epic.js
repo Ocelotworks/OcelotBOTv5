@@ -19,7 +19,7 @@ module.exports = {
 
         const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
-        request(url).on("end", () => {
+        request({url, timeout: 10000}).on("end", () => {
             gm(fileName)
                 .resize(429)
                 .append(__dirname + "/../static/epic.png")

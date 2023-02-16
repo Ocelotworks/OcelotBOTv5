@@ -25,7 +25,7 @@ module.exports = {
 
         const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
-        request(url).on("end", ()=>{
+        request({url, timeout: 10000}).on("end", ()=>{
             let output = gm(fileName)
                 .modulate(context.getSetting("deepfry.brightness"), context.getSetting("deepfry.saturation"))
                 .noise(context.getSetting("deepfry.noise"))

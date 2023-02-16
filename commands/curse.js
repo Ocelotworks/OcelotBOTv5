@@ -26,7 +26,7 @@ module.exports = {
 
         const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
-        request(url).on("end", () => {
+        request({url, timeout: 10000}).on("end", () => {
             gm(fileName)
                 .modulate(50)
                 .gamma(1, 0.8, 0.8)
