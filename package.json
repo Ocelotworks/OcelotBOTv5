@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Ocelotworks/OcelotBOTv5#readme",
   "dependencies": {
+    "@breejs/later": "^4.1.0",
     "@discordjs/rest": "^0.3.0",
     "@lavacord/discord.js": "^0.0.7",
     "@lavalink/encoding": "^0.1.1",
@@ -49,7 +50,6 @@
     "google-images": "^2.1.0",
     "googleapis": "^109.0.1",
     "knex": "^2.3.0",
-    "@breejs/later": "^4.1.0",
     "mathjs": "^11.4.0",
     "mysql": "^2.18.1",
     "pg": "^8.8.0",
@@ -66,8 +66,6 @@
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
-    "assert": "^2.0.0",
-    "expect": "^27.0.6",
-    "mocha": "^9.0.2"
+    "vitest": "^0.28.5"
   }
 }
