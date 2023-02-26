@@ -1,4 +1,4 @@
-FROM node:16.6.1-alpine3.12
+FROM node:16.16.0-alpine3.16
 
 
 RUN apk add --no-cache ca-certificates wget graphicsmagick sudo curl build-base g++ libpng libpng-dev jpeg-dev pango-dev cairo cairo-dev giflib-dev python3 font-noto alpine-sdk
