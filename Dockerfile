@@ -9,7 +9,7 @@ COPY . .
 
 #RUN rm -r consumers
 
-RUN npm install googleapis cheerio redis
+RUN npm install googleapis cheerio redis --force
 
 EXPOSE 8006/tcp
 HEALTHCHECK --interval=1m --start-period=5m --retries=5 \
