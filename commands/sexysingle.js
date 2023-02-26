@@ -48,7 +48,7 @@ module.exports = {
                 makeMeme(fileName, outputFile);
             }else{
 
-                request(url).on("end", ()=>makeMeme(fileName, outputFile)).on("error", (err)=>{
+                request({url, timeout: 10000}).on("end", ()=>makeMeme(fileName, outputFile)).on("error", (err)=>{
                     bot.raven.captureException(err);
                     context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
                     // fs.unlink(outputFile, function deleteFileCB(err){

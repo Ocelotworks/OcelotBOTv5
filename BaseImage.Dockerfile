@@ -1,4 +1,4 @@
-FROM node:16.6.1-alpine3.12
+FROM node:16.16.0-alpine3.16
 
 
 RUN apk add --no-cache ca-certificates wget graphicsmagick sudo curl build-base g++ libpng libpng-dev jpeg-dev pango-dev cairo cairo-dev giflib-dev python3 font-noto alpine-sdk
@@ -18,4 +18,4 @@ COPY package.json package.json
 COPY package-lock.json package-lock.json
 
 RUN npm ci --force --registry=http://192.168.1.145/
-RUN npm install googleapis archiver
+RUN npm install googleapis archiver --force

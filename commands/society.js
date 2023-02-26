@@ -25,7 +25,7 @@ module.exports = {
 
         const fileName = `${__dirname}/../temp/${Math.random()}.png`;
 
-        var req = request(url);
+        var req = request({url, timeout: 10000});
 
 
         req.on("error", function(err){
