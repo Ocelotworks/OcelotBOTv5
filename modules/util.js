@@ -518,7 +518,7 @@ module.exports = {
             } else {
                 const fileName = `${__dirname}/../temp/${Math.random()}.png`;
                 let shouldProcess = true;
-                request(url)
+                request({url, timeout: 10000})
                     .on("response", function requestResponse(resp) {
                         shouldProcess = !(resp.headers && resp.headers['content-type'] && resp.headers['content-type'].indexOf("image") === -1);
                         if (format !== "JPEG" && resp.headers && resp.headers['content-type'].toLowerCase() === "image/gif")
