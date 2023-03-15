@@ -12,7 +12,7 @@ module.exports = {
     usage: "listqueue",
     commands: ["list", "lq", "upnext", "vq", "viewqueue", "listqueue", "ql"],
     run: async function (context, bot) {
-        let result = await axios.get(`${bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
+        let result = await axios.get(`${await bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
 
         if(context.commandData.handlePatchworkError(result, context))return;
 

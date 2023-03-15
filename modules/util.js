@@ -10,6 +10,7 @@ const config = require('config');
 const Sentry = require('@sentry/node');
 const {crc32} = require('crc');
 const Embeds = require("../util/Embeds");
+const {GetService} = require("../util/Services");
 
 module.exports = {
     name: "Utilities",
@@ -1582,13 +1583,23 @@ module.exports = {
         bot.util.shard = parseInt(process.env.SHARD) - 1
 
 
-        bot.util.getPatchworkHost = (guildId)=>{
+        let patchworkHost = "";
+
+        (async ()=>{
+            const shard = Number(BigInt(guildId) >> 22n) % parseInt(process.env.PATCHWORK_SHARD_COUNT);
+            const shardIndex = Math.floor(shard/10)
+            patchworkHost = await GetService(`patchwork-${process.env.BOT_ID}-${shardIndex+1}`, "any");
+        })();
+
+        bot.util.getPatchworkHost = async (guildId)=>{
             if(process.env.MUSIC_URL != null)
                 return process.env.MUSIC_URL;
 
             const shard = Number(BigInt(guildId) >> 22n) % parseInt(process.env.PATCHWORK_SHARD_COUNT);
-            const shardIndex = Math.floor(shard/10)
-            return `http://patchwork-${process.env.BOT_ID}-${shardIndex+1}:8008`;
+            const shardIndex = Math.floor(shard/10);
+            const serviceName = `patchwork-${process.env.BOT_ID}-${shardIndex+1}`;
+            const host = await GetService(serviceName, "any").catch(()=>null);
+            return `http://${host || serviceName}:8008`;
         }
 
         bot.util.getUniqueId = function(message){

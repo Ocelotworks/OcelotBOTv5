@@ -11,7 +11,7 @@ module.exports = {
     usage: "resume",
     commands: ["resume", "unpause"],
     run: async function (context, bot) {
-        let result = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/pause`, {
+        let result = await axios.post(`${await bot.util.getPatchworkHost(context.guild.id)}/pause`, {
             guildId: context.guild.id,
             pause: false,
         });

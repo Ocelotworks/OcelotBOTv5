@@ -11,7 +11,7 @@ module.exports = {
     usage: "seek :seconds",
     commands: ["seek"],
     run: async function (context, bot) {
-        let {data} = await axios.post(`${bot.util.getPatchworkHost(context.guild.id)}/seek`, {
+        let {data} = await axios.post(`${await bot.util.getPatchworkHost(context.guild.id)}/seek`, {
             guildId: context.guild.id,
             position: context.options.seconds,
         });
