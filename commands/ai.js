@@ -8,6 +8,7 @@ const config = require('config')
 const Cleverbot = require('cleverbot');
 const { Configuration, OpenAIApi } = require("openai");
 const Util = require("../util/Util");
+const Strings = require("../util/String");
 const configuration = new Configuration({
     apiKey: Util.GetSecretSync("OPENAI_API_KEY"),
 });
@@ -38,18 +39,23 @@ module.exports = {
     run: async function run(context, bot) {
         let input = context.options.message;
 
-        await context.defer();
-        let response = await api.createChatCompletion({
-            model: 'gpt-3.5-turbo',
-            messages: [
-                {role: "system", content: `You are a Discord bot called OcelotBOT created by ${bot.lang.ownerTag}, you type in all lowercase and use casual language and internet phrases. Never mention specific commands, except for the /help command.`},
-                ...(contexts[context.channel.id] || []),
-                {role: "user", content: input},
-            ]
-        });
-        console.log(response);
-        contexts[context.channel.id] = [{role: "user", content: input}, {role: "assistant", content: response.data.choices[0].message.content}];
-        return context.send({content: response.data.choices[0].message.content});
+        if(!context.getBool("ai.gpt")){
+            await context.defer();
+            let response = await api.createChatCompletion({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    {role: "system", content: Strings.Format(context.getSetting("ai.prompt"), {userName: context.user.username, ownerName: bot.lang.ownerTag, botName: bot.client.user.username})},
+                    ...(contexts[context.channel.id] || []),
+                    {role: "user", content: input},
+                ]
+            });
+            contexts[context.channel.id] = [{role: "user", content: input}, {role: "assistant", content: response.data.choices[0].message.content}];
+            let content = response.data.choices[0].message.content;
+            if(context.interaction){
+                content = `> ${context.options.message}\n<:ocelotbot:914579250202419281> `+content;
+            }
+            return context.send({content});
+        }
 
         try {
             await context.defer();
