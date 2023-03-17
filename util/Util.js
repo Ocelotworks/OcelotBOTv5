@@ -39,13 +39,14 @@ module.exports = class Util {
         });
     }
 
-    static async GetSecretSync(name){
+    static GetSecretSync(name){
         if(process.env[name])
             return process.env[name];
         const secretEnv = name+"_FILE";
         if(process.env[secretEnv]){
             return fs.readFileSync(process.env[secretEnv])?.toString()
         }
+        console.log("Couldn't find secret ", name);
         return undefined;
     }
 

@@ -6,6 +6,12 @@
  */
 const config = require('config')
 const Cleverbot = require('cleverbot');
+const { Configuration, OpenAIApi } = require("openai");
+const Util = require("../util/Util");
+const configuration = new Configuration({
+    apiKey: Util.GetSecretSync("OPENAI_API_KEY"),
+});
+const api = new OpenAIApi(configuration)
 
 let contexts = {};
 
@@ -31,6 +37,20 @@ module.exports = {
     },
     run: async function run(context, bot) {
         let input = context.options.message;
+
+        await context.defer();
+        let response = await api.createChatCompletion({
+            model: 'gpt-3.5-turbo',
+            messages: [
+                {role: "system", content: `You are a Discord bot called OcelotBOT created by ${bot.lang.ownerTag}, you type in all lowercase and use casual language and internet phrases. Never mention specific commands, except for the /help command.`},
+                ...(contexts[context.channel.id] || []),
+                {role: "user", content: input},
+            ]
+        });
+        console.log(response);
+        contexts[context.channel.id] = [{role: "user", content: input}, {role: "assistant", content: response.data.choices[0].message.content}];
+        return context.send({content: response.data.choices[0].message.content});
+
         try {
             await context.defer();
             let response = await bot.redis.cache(`ai/${input}`, async () => await clev.query(encodeURIComponent(input), {cs: contexts[context.channel.id]}), 3600);
