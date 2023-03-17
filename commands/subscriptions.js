@@ -127,6 +127,10 @@ module.exports = {
            if(module.exports.subs.hasOwnProperty(data)){
                const subList = module.exports.subs[data];
                const sub = subList[0];
+               if(bot.config.getBool("global", `subscriptions.${sub.type}.disable`)){
+                   bot.logger.warn(`Skipping subscription ${sub.type} due to disable flag`)
+                   continue;
+               }
                if(bot.subscriptions[sub.type]){
                    if(!bot.subscriptions[sub.type].check)continue;
                    await module.exports.checkSubType(bot, subList);

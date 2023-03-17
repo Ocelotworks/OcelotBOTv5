@@ -20,6 +20,36 @@ module.exports = class Util {
 
     }
 
+    static async GetSecret(name){
+        if(process.env[name])
+            return process.env[name];
+
+        return new Promise((fulfill, reject)=>{
+            const secretEnv = name+"_FILE";
+            if(process.env[secretEnv]){
+                fs.readFile(process.env[secretEnv], (err, data)=>{
+                    if(err)
+                        reject(err)
+                    else
+                        fulfill(data.toString());
+                });
+            }else{
+                reject("Secret not found")
+            }
+        });
+    }
+
+    static GetSecretSync(name){
+        if(process.env[name])
+            return process.env[name];
+        const secretEnv = name+"_FILE";
+        if(process.env[secretEnv]){
+            return fs.readFileSync(process.env[secretEnv])?.toString()
+        }
+        console.log("Couldn't find secret ", name);
+        return undefined;
+    }
+
     static Sleep(milliseconds){
        return new Promise((fulfill)=>setTimeout(fulfill, milliseconds));
     }

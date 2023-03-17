@@ -10,7 +10,7 @@ module.exports = {
     usage: "clearqueue",
     commands: ["clear", "cq", "clearqueue", "qc"],
     run: async function (context, bot) {
-        let result = await axios.delete(`${bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
+        let result = await axios.delete(`${await bot.util.getPatchworkHost(context.guild.id)}/queue?guild=${context.guild.id}`);
 
         if(context.commandData.handlePatchworkError(result, context))return;
 

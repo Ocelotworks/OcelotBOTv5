@@ -10,7 +10,7 @@ module.exports = {
     usage: "nowplaying",
     commands: ["nowplaying", "np", "playing"],
     run: async function (context, bot) {
-        let result = await axios.get(`${bot.util.getPatchworkHost(context.guild.id)}/playing?guild=${context.guild.id}`);
+        let result = await axios.get(`${await bot.util.getPatchworkHost(context.guild.id)}/playing?guild=${context.guild.id}`);
 
         if(context.commandData.handlePatchworkError(result, context))return;
 

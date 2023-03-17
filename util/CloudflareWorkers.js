@@ -2,15 +2,13 @@ const Util = require("./Util");
 const axios = require('axios');
 const uuid = require('uuid');
 
-Util.LoadSecret("CFC_AUTH_KEY");
-Util.LoadSecret("CFC_ACCOUNT_ID");
-Util.LoadSecret("CFC_SIGNING_KEY");
+// Util.LoadSecret("CFC_SIGNING_KEY");
 Util.LoadSecret("CFC_BASE_URL");
 const cf = axios.create({
-    baseURL: `https://api.cloudflare.com/client/v4/accounts/${process.env.CFC_ACCOUNT_ID}/workers/scripts/`,
+    baseURL: `https://api.cloudflare.com/client/v4/accounts/${Util.GetSecretSync("CFC_ACCOUNT_ID")}/workers/scripts/`,
     headers: {
         'User-Agent': `OcelotBOT ${process.env.VERSION} (https://ocelotbot.xyz)`,
-        authorization: `Bearer ${process.env.CFC_AUTH_KEY}`
+        authorization: `Bearer ${Util.GetSecretSync("CFC_AUTH_KEY")}`
     },
     validateStatus: ()=>true,
 });
