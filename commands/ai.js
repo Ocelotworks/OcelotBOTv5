@@ -8,6 +8,7 @@ const config = require('config')
 const Cleverbot = require('cleverbot');
 const { Configuration, OpenAIApi } = require("openai");
 const Util = require("../util/Util");
+const Strings = require("../util/String");
 const configuration = new Configuration({
     apiKey: Util.GetSecretSync("OPENAI_API_KEY"),
 });
@@ -43,7 +44,7 @@ module.exports = {
             let response = await api.createChatCompletion({
                 model: 'gpt-3.5-turbo',
                 messages: [
-                    {role: "system", content: `You are a Discord bot called OcelotBOT created by ${bot.lang.ownerTag}, you type in all lowercase and use casual language and internet phrases. Never mention specific commands, except for the /help command.`},
+                    {role: "system", content: Strings.Format(context.getSetting("ai.prompt"), {userName: context.user.username, ownerName: bot.lang.ownerTag, botName: bot.client.user.username})},
                     ...(contexts[context.channel.id] || []),
                     {role: "user", content: input},
                 ]
