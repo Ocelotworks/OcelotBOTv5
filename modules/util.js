@@ -1583,13 +1583,6 @@ module.exports = {
         bot.util.shard = parseInt(process.env.SHARD) - 1
 
 
-        let patchworkHost = "";
-
-        (async ()=>{
-            const shard = Number(BigInt(guildId) >> 22n) % parseInt(process.env.PATCHWORK_SHARD_COUNT);
-            const shardIndex = Math.floor(shard/10)
-            patchworkHost = await GetService(`patchwork-${process.env.BOT_ID}-${shardIndex+1}`, "any");
-        })();
 
         bot.util.getPatchworkHost = async (guildId)=>{
             if(process.env.MUSIC_URL != null)
