@@ -50,7 +50,7 @@ module.exports = {
                 ]
             });
             contexts[context.channel.id] = [{role: "user", content: input}, {role: "assistant", content: response.data.choices[0].message.content}];
-            let content = response.data.choices[0].message.content;
+            let content = Strings.Truncate(response.data.choices[0].message.content, 2000);
             if(context.interaction){
                 content = `> ${context.options.message}\n<:ocelotbot:914579250202419281> `+content;
             }
