@@ -10,9 +10,10 @@ module.exports = {
     run: async function (context, bot) {
         const timescale = context.options.timescale || "all";
 
+        await context.defer();
         try {
             if (timescale !== "mine") {
-                context.defer();
+
                 //let span = bot.util.startSpan("Get Translation Key");
                 const unknownUserKey = context.getLang("TRIVIA_UNKNOWN_USER");
                 //span.end();
