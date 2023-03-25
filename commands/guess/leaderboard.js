@@ -17,7 +17,7 @@ module.exports = {
 
         const timescale = timescales[context.options.timescale] || "all";
 
-        context.defer();
+        await context.defer();
         try {
             //let span = bot.util.startSpan("Get Leaderboard");
             let leaderboard = await bot.util.getJson(`https://api.ocelotbot.xyz/leaderboard/guess/${server}/${timescale}`);
