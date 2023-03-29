@@ -65,7 +65,7 @@ module.exports = {
 
             if(!isPremium) {
                 let currentPoints = await bot.database.getPoints(context.user.id);
-                if (currentPoints < 10) {
+                if (currentPoints < gptCost) {
                     content = Strings.Truncate(content, 1700) + `\n\n<a:points_ending:825704034031501322> To continue using this command, you need ${gptCost - currentPoints} more <:points:817100139603820614> **Points**.\nLearn more with </points earn:904885955423502365>`
                 }
             }
