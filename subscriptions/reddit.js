@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const util = require('util');
 const request = util.promisify(require('request'));
 const Sentry = require('@sentry/node');
+const {axios} = require("../util/Http");
 //Reddit API
 module.exports = {
     name: "Reddit",
@@ -16,15 +17,9 @@ module.exports = {
         return {error: ":warning: Subreddits should be in the following format: r/name e.g: **r/discord_irl** or **r/aww/new**"};
     },
     check: async function check(sub, lastCheck){
-        let {err, resp, body} = await request(`https://json.reddit.com/${sub}`);
-        if(err){
-            console.error("Error checking sub "+sub);
-            console.error(err);
-            return;
-        }
+        const {data} = await axios.get(`https://json.reddit.com/${sub}`)
         let output = [];
         try{
-            let data = JSON.parse(body);
             if(data.data){
                 for(let i = 0; i < data.data.children.length; i++){
                     let post = data.data.children[i].data;
