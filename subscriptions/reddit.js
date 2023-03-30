@@ -17,7 +17,7 @@ module.exports = {
         return {error: ":warning: Subreddits should be in the following format: r/name e.g: **r/discord_irl** or **r/aww/new**"};
     },
     check: async function check(sub, lastCheck){
-        const {data} = await axios.get(`https://json.reddit.com/${sub}`)
+        const {data} = await axios.get(`https://json.reddit.com/${sub}`).catch((e)=>({data: null}))
         let output = [];
         try{
             if(data.data){
