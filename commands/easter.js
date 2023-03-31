@@ -89,7 +89,8 @@ module.exports = {
             const nameUpper = name[0].toUpperCase()+name.substring(1);
             const emoji = `<:${name}:${id}>`;
             bot.modules.statistics.incrementStat(context.guild.id, context.user.id, "eggs_claimed");
-            return context.send({content: `<@${context.user.id}> claimed the ${emoji} **${nameUpper} Egg**!\nCollect the most eggs to win, check /easter to see the current leaderboard.`});
+            let eggCount = await bot.database.getEggCount(context.user.id);
+            return context.send({content: `<@${context.user.id}> claimed the ${emoji} **${nameUpper} Egg**!\nYou have collected ${(eggCount+1).toLocaleString()} ${eggCount > 0 ? "eggs" : "egg"}!\nCollect the most eggs to win, check /easter to see the current leaderboard.`});
         });
 
     },
