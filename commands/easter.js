@@ -23,7 +23,7 @@ module.exports = {
         setInterval(async ()=>{
             bot.logger.log("Fetching next easter egg...");
             const newEgg = await bot.database.getNextEasterEgg();
-            if(newEgg && newEgg.rowid !== nextEgg.rowid) {
+            if(newEgg && newEgg.rowid !== nextEgg?.rowid) {
                 nextEgg = newEgg;
                 bot.logger.log(`Next egg (${nextEgg.rowid}) unlocks at ${nextEgg.claimable_after}`);
             }
