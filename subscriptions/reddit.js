@@ -40,13 +40,13 @@ module.exports = {
                         else if(post.selftext)
                             embed.setDescription(post.selftext.substring(0,1024));
                         else
-                            embed.setDescription("(No Body)")
+                            embed.setDescription(`[Image Link](${post.url})`)
 
                         if(post.preview?.images?.[0]?.source) {
                             console.log("Setting preview image");
                             //Why do you do this, reddit?
                             embed.setImage(post.preview.images[0].source.url.replace(/&amp;/g, "&"));
-                        }else if(post.url?.indexOf("imgur") > -1) {
+                        }else if(post.url?.indexOf("i.imgur") > -1) {
                             console.log("Setting post url");
                             embed.setImage(post.url);
                         }else if(post.thumbnail?.startsWith("http")) {
