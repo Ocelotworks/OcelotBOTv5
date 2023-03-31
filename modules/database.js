@@ -1335,6 +1335,34 @@ module.exports = {
               const [{rowid}] = await knockroach.insert({date, title}).into("daily_polls").returning("rowid");
               return knockroach.insert(options.map((o)=>({poll: rowid, name: o}))).into("daily_poll_options")
             },
+            /**
+             *
+             * @returns {Promise<{rowid: string, claimable_after: Date, claimed_userid: string | undefined, claimed_at: Date | undefined, messageid: string | undefined, guildid: string | undefined}>}
+             */
+            async getNextEasterEgg(){
+                const [egg] = await knockroach.select("rowid", "*").from("easter_eggs").whereNull("messageid").orderBy("claimable_after", "ASC").limit(1);
+                return egg;
+            },
+            /**
+             *
+             * @returns {Promise<{rowid: string, claimable_after: Date, claimed_userid: string | undefined, claimed_at: Date | undefined, messageid: string | undefined, guildid: string | undefined}>}
+             */
+            async getEgg(rowid){
+                const [egg] = await knockroach.select("rowid", "*").from("easter_eggs").where({rowid}).limit(1);
+                return egg;
+            },
+            async setEggMessageId(rowid, messageid, guildid) {
+                return knockroach("easter_eggs").update({messageid, guildid, released_at: new Date()}).andWhere({rowid}).whereNull("messageid").limit(1);
+            },
+            async setEggClaimed(rowid, guildid, claimed_userid){
+                return knockroach("easter_eggs").update({claimed_userid, claimed_at: new Date()}).where({rowid, guildid}).limit(1);
+            },
+            async getEggStats(serverid = "all"){
+                let leaderboard = await knockroach.select("userid", "value").from("statistics").where({statistic: "eggs_claimed", serverid}).andWhereNot({userid: "all"}).orderBy("value", "DESC");
+                let statsRows = await knockroach.select("userid", "serverid", "value").from("statistics").whereIn("serverid", ["all", serverid]).andWhere({statistic: "eggs_claimed", userid: "all"});
+                let totalStats = statsRows.reduce((o, r)=>{o[r.serverid] = r.value; return o;}, {});
+                return {leaderboard, totalStats}
+            },
             // This should probably be a worker
             async dataExport(userID){
                 bot.logger.log("Starting data export...");

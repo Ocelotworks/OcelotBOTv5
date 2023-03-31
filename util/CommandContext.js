@@ -17,6 +17,7 @@ class CommandContext {
     error;
 
     responsePrefix;
+    beforeSend;
 
     constructor(bot, member, user, channel, guild, command, id){
         this.bot = bot;
@@ -45,6 +46,10 @@ class CommandContext {
 
     getSetting(setting){
         return this.bot.config.get(this.guild?.id || "global", setting, this.user?.id);
+    }
+
+    setBeforeSend(func){
+        this.beforeSend = func;
     }
 
     getBool(setting){
@@ -178,6 +183,8 @@ class MessageCommandContext extends CommandContext {
         if(options.components)options.components = options.components.filter((c)=>c);
         if(typeof options === "string")options = {content: options};
         this._appendPrefix(options);
+        if(this.beforeSend)
+            await this.beforeSend(options);
         const message = await this.channel.send(options);
         if(this.message)
             this.message.response = message;
@@ -200,6 +207,8 @@ class MessageCommandContext extends CommandContext {
         this._appendPrefix(options);
         if(!this.message || this.message.deleted || this.channel.permissionsFor && !this.channel.permissionsFor(this.bot.client.user.id)?.has("READ_MESSAGE_HISTORY"))
             return this.send(options);
+        if(this.beforeSend)
+            await this.beforeSend(options);
         const message = await this.message.reply(options).catch(()=>null);
         if(!message)return this.send(message);
         this.message.response = message;
@@ -288,7 +297,7 @@ class InteractionContext extends CommandContext {
         })
     }
 
-    send(options){
+    async send(options){
         Sentry.addBreadcrumb({
             message: "Interaction Send",
             data: {
@@ -309,6 +318,8 @@ class InteractionContext extends CommandContext {
         this.bot.bus.emit("messageSent", options);
         if(options?.components)options.components = options.components.filter((c)=>c);
         options.fetchReply = true;
+        if(this.beforeSend)
+            await this.beforeSend(options);
         if(this.interaction.replied || this.interaction.deferred)
             return this.interaction.followUp(options);
         super._appendPrefix(options);
@@ -347,7 +358,7 @@ class InteractionContext extends CommandContext {
         return this.interaction.deferReply(options);
     }
 
-    edit(options){
+    async edit(options){
         Sentry.addBreadcrumb({
             message: "Interaction Edited",
             data: {
@@ -363,6 +374,8 @@ class InteractionContext extends CommandContext {
         Sentry.setExtra("context", {type: "interaction", command: this.command, options: this.options});
         if(typeof options === "string")options = {content: options};
         this._appendPrefix(options, true);
+        if(this.beforeSend)
+            await this.beforeSend(options);
         try {
             return this.interaction.editReply(options);
         }catch(e){
@@ -457,6 +470,8 @@ class NotificationContext extends CommandContext {
             Sentry.captureMessage(`Channel ${this.channel.id} of type ${this.channel.type} cannot recieve messages`);
             return;
         }
+        if(this.beforeSend)
+            await this.beforeSend(options);
         const message = await this.channel.send(options);
         if(this.message)
             this.message.response = message;
