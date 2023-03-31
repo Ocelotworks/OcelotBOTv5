@@ -17,31 +17,53 @@ module.exports = {
     init: async function(bot){
         bot.logger.log("Loading subscriptions...");
         bot.subscriptions = {};
-        fs.readdir(__dirname+"/../subscriptions", function readDir(err, files){
-           if(err){
-               bot.raven.captureException(err);
-               bot.logger.warn("Couldn't load subscriptions dir");
-               console.error(err);
-           }else{
-               for(let i = 0; i < files.length; i++){
-                   const file = `${__dirname}/../subscriptions/${files[i]}`;
-                   try{
-                       const sub = require(file);
-                       if(sub.name){
-                           bot.logger.log(`Loading ${sub.name}`);
-                           if(sub.init)
-                               sub.init(bot);
-                           bot.subscriptions[sub.id] = sub;
-                       }else{
-                           bot.logger.warn(`Subscription ${file} is not valid`);
-                       }
-                   }catch(e){
-                       bot.logger.warn(`Couldn't load subscription ${file} - ${e}`);
-                   }
-               }
-           }
-        });
-        bot.client.once("ready", async function discordReady(){
+
+        let options = [];
+
+        await new Promise((fulfill)=>{
+            fs.readdir(__dirname+"/../subscriptions", (err, files)=>{
+                if(err){
+                    bot.raven.captureException(err);
+                    bot.logger.warn("Couldn't load subscriptions dir");
+                    console.error(err);
+                }else{
+                    for(let i = 0; i < files.length; i++){
+                        const file = `${__dirname}/../subscriptions/${files[i]}`;
+                        try{
+                            const sub = require(file);
+                            if(sub.name){
+                                bot.logger.log(`Loading ${sub.name}`);
+                                if(sub.init)
+                                    sub.init(bot);
+                                bot.subscriptions[sub.id] = sub;
+                                if(!sub.hidden)
+                                    options.push({
+                                        name: sub.id,
+                                        description: sub.desc || sub.id,
+                                        options: sub.slashOptions || [{type: "STRING", name: "data", description: "Data for this subscription", required: true}],
+                                        type: 1
+                                    })
+                            }else{
+                                bot.logger.warn(`Subscription ${file} is not valid`);
+                            }
+                        }catch(e){
+                            bot.logger.warn(`Couldn't load subscription ${file} - ${e}`);
+                        }
+                    }
+                }
+                fulfill();
+            });
+        })
+
+        bot.client.once("ready", async ()=>{
+            // Patch the slash options haha
+            const addCommand = this.slashOptions.findIndex((d)=>d.name === "add");
+            this.slashOptions[addCommand] = {
+                name: "add",
+                description: "Add a subscription",
+                options:  options,
+                type: 2,
+            };
             bot.logger.log("Loading active subscriptions...");
             const rawSubs = await bot.database.getSubscriptionsForShard([...bot.client.guilds.cache.keys()], bot.client.user.id);
             bot.logger.log(`Loaded ${rawSubs.length} subs`);

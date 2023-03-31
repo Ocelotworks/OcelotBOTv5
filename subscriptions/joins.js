@@ -14,6 +14,7 @@ module.exports = {
     {{username}} - the user's username, no mention
     {{server}} - the name of the server
     {{userCount}} - the number of users in the server"`,
+    hidden: true,
     alias: ["serverjoins"],
     validate: function(data, context){
         if(!data)data = "{{user}}, welcome to {{server}}.";

@@ -9,7 +9,8 @@ module.exports = {
     name: "Reddit",
     id: "reddit",
     alias: ["subreddit"],
-    validate: function(input){
+    slashOptions: [{type: "STRING", name: "subreddit", description: "e.g r/discord_url or r/aww/new", required: true}],
+    validate: function({subreddit: input}){
         if(!input)
             return {error: "Enter a subreddit in the format r/name e.g r/discord_irl or r/aww/new"}
         if(input.startsWith("r/"))
