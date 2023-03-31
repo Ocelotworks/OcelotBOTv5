@@ -95,8 +95,14 @@ module.exports = {
     checkSubType: async function checkSubType(bot, subList){
         const sub = subList[0];
         if(subList.length === 1 && sub.timedOut || module.exports.removedSubs.includes(sub.id))return;
-        let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck);
-        if(!results || results.length === 0)return;
+        let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck).catch(async (e)=>{
+            let failures = await bot.database.logFailure("subscription", sub.id, e.message, sub.server, sub.channel, sub.user)
+            module.exports.handleFailures(bot, sub, failures);
+            return null;
+        });
+        if(!results || results.length === 0){
+            return
+        }
         for (let i = 0; i < subList.length; i++) {
             const subChannel = subList[i];
             if(subChannel.timedOut || module.exports.removedSubs.includes(subChannel.id))continue;
