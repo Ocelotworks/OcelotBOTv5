@@ -499,29 +499,46 @@ class NotificationContext extends CommandContext {
 class InteractionCommandContext extends InteractionContext {
     constructor(bot, interaction){
         super(bot, interaction);
+        const subCommandGroup = interaction.options.getSubcommandGroup(false);
         const subCommand = interaction.options?.getSubcommand(false);
         // TODO: this logic could be simpler
-        if(subCommand){
+        if(subCommandGroup || subCommand){
             if(this.bot.slashCategories.includes(interaction.commandName)){
                 this.command = subCommand;
                 this.content = `/${interaction.commandName} ${subCommand}`;
             }else{
                 this.command = interaction.commandName;
-                this.content = `/${interaction.commandName}`
-                this.options.command = subCommand;
+                this.content = `/${interaction.commandName} ${subCommandGroup||""} ${subCommand}`
+                if(subCommandGroup) {
+                    this.options.command = subCommandGroup;
+                    this.options.subcommand = subCommand;
+                }else{
+                    this.options.command = subCommand;
+                }
             }
-            interaction.options?.data[0]?.options?.forEach((val)=>{
-                this.options[val.name]=val.value;
-                this.content += ` ${val.name}:${val.value}`
-            });
         }else {
             this.command = interaction.commandName;
             this.content = `/${interaction.commandName}`
-            interaction.options.data?.forEach((val)=>{
-                this.options[val.name]=val.value;
-                this.content += ` ${val.name}:${val.value}`
-            });
         }
+        this.options = {...this.options, ...this.#mapOptions(interaction.options.data)};
+        for(const key in this.options){
+            this.content += ` ${key}:${this.options[key]}`;
+        }
+    }
+
+    /**
+     *
+     * @param options {array}
+     * @returns {Object}
+     */
+    #mapOptions(options){
+        return options.reduce((obj, val)=>{
+            obj[val.name] = val.value;
+            if(val.options){
+                return {...obj, ...this.#mapOptions(val.options)}
+            }
+            return obj;
+        }, {})
     }
 }
 

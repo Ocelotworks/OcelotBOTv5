@@ -21,7 +21,7 @@ module.exports = {
     init: async function(bot){
         let nextEgg = await bot.database.getNextEasterEgg();
         setInterval(async ()=>{
-            bot.logger.log("Fetching next easter egg...");
+            // bot.logger.log("Fetching next easter egg...");
             const newEgg = await bot.database.getNextEasterEgg();
             if(newEgg && newEgg.rowid !== nextEgg?.rowid) {
                 nextEgg = newEgg;

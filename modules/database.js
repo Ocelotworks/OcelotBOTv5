@@ -1370,7 +1370,7 @@ module.exports = {
              */
             async getEggCount(userid) {
                   let rows = await knockroach.select("value").from("statistics").where({statistic: "eggs_claimed", userid}).limit(1);
-                  return rows[0]?.value || 0;
+                  return parseInt(rows[0]?.value) || 0;
             },
             // This should probably be a worker
             async dataExport(userID){

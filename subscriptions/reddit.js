@@ -9,7 +9,8 @@ module.exports = {
     name: "Reddit",
     id: "reddit",
     alias: ["subreddit"],
-    validate: function(input){
+    slashOptions: [{type: "STRING", name: "subreddit", description: "e.g r/discord_url or r/aww/new", required: true}],
+    validate: function({subreddit: input}){
         if(!input)
             return {error: "Enter a subreddit in the format r/name e.g r/discord_irl or r/aww/new"}
         if(input.startsWith("r/"))
@@ -39,13 +40,13 @@ module.exports = {
                         else if(post.selftext)
                             embed.setDescription(post.selftext.substring(0,1024));
                         else
-                            embed.setDescription("(No Body)")
+                            embed.setDescription(`[Image Link](${post.url})`)
 
                         if(post.preview?.images?.[0]?.source) {
                             console.log("Setting preview image");
                             //Why do you do this, reddit?
                             embed.setImage(post.preview.images[0].source.url.replace(/&amp;/g, "&"));
-                        }else if(post.url?.indexOf("imgur") > -1) {
+                        }else if(post.url?.indexOf("i.imgur") > -1) {
                             console.log("Setting post url");
                             embed.setImage(post.url);
                         }else if(post.thumbnail?.startsWith("http")) {

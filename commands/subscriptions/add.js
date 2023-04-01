@@ -6,25 +6,25 @@
  */
 module.exports = {
     name: "Add Sub",
-    usage: "add [type:twitter,reddit,joins,leaves] :data?+",
+    usage: "add :subcommand :data?+",
     commands: ["add",  "new"],
     run:  async function(context, bot){
-        if(!bot.subscriptions[context.options.type])
+        if(!bot.subscriptions[context.options.subcommand])
             return context.sendLang({
                 content: "SUBSCRIPTION_INVALID_TYPE",
                 ephemeral: true,
                 components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, "types"))]
             });
-            let content = context.options.data;
-            let validation = await bot.subscriptions[context.options.type].validate(content, context);
+            let content = context.options.data || context.options;
+            let validation = await bot.subscriptions[context.options.subcommand].validate(content, context);
             if(validation.error)
-                return context.send(validation.error);
-            let res = await bot.database.addSubscription(context.guild.id, context.channel.id, context.user.id, context.options.type, validation.data, bot.client.user.id);
+                return context.send({content: validation.error, ephemeral: true});
+            let res = await bot.database.addSubscription(context.guild.id, context.channel.id, context.user.id, context.options.subcommand, validation.data, bot.client.user.id);
             let subObject = {
                 server: context.guild.id,
                 channel: context.channel.id,
                 user: context.user.id,
-                type: context.options.type,
+                type: context.options.subcommand,
                 data: validation.data,
                 lastcheck: new Date().getTime(),
                 id: res[0]
@@ -33,8 +33,8 @@ module.exports = {
                 context.commandData.subs[subObject.data] = [];
 
             context.commandData.subs[subObject.data].push(subObject);
-            if(bot.subscriptions[context.options.type].added)
-                bot.subscriptions[context.options.type].added(subObject, bot);
+            if(bot.subscriptions[context.options.subcommand].added)
+                bot.subscriptions[context.options.subcommand].added(subObject, bot);
 
             return context.sendLang({content: "SUBSCRIPTION_SUCCESS"}, {id: res[0], message: validation.success || ""});
     }

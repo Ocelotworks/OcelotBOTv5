@@ -12,7 +12,8 @@ module.exports = {
     },
     check: async function check(url, lastCheck){
         const then = new Date(lastCheck);
-        const feed = await parser.parseURL(url);
+        const feed = await parser.parseURL(url).catch(()=>null);
+        if(!feed)return null;
         let results = [];
         let output = [];
         for(let i = 0; i < feed.items.length; i++){
