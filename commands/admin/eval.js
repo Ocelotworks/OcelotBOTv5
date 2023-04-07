@@ -1,3 +1,4 @@
+const Discord = require("discord.js");
 module.exports = {
     name: "Eval Script",
     usage: "eval :script+",
@@ -11,6 +12,8 @@ module.exports = {
             output += line + "\n";
         });
         output += "\n```";
+        if(output.length > 2000)
+            return context.send({files: [new Discord.MessageAttachment(Buffer.from(output), "eval.txt")]});
         return context.edit(output, sentMessage);
     }
 };
