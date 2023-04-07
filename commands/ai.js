@@ -87,7 +87,7 @@ module.exports = {
                 }
             }
 
-            return context.send({content});
+            return context.reply({content});
         }
 
         let fakeResponse = await bot.database.getAiResponse(input);
