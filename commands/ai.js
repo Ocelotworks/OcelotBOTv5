@@ -9,6 +9,7 @@ const Cleverbot = require('cleverbot');
 const { Configuration, OpenAIApi } = require("openai");
 const Util = require("../util/Util");
 const Strings = require("../util/String");
+const {axios} = require("../util/Http");
 const configuration = new Configuration({
     apiKey: Util.GetSecretSync("OPENAI_API_KEY"),
 });
@@ -58,10 +59,24 @@ module.exports = {
                 ]
             });
             contexts[context.channel.id] = [{role: "user", content: input}, {role: "assistant", content: response.data.choices[0].message.content}];
-            let content = Strings.Truncate(response.data.choices[0].message.content, 2000);
-            if(context.interaction){
-                content = `> ${context.options.message}\n<:ocelotbot:914579250202419281> `+content;
+            let content = Strings.Truncate(response.data.choices[0].message.content, 1400);
+
+            const gif = content.match(/@{tenor:(.*)}/);
+            if(gif && gif[1]){
+                try {
+                    const searchTerm = gif[1];
+                    let gifResults = await axios.get(`https://g.tenor.com/v1/search?q=${searchTerm}&key=${config.get("API.tenor.key")}&limit=1`);
+                    content = content.replace(gif[0], gifResults?.data?.results[0]?.url);
+                }catch(e){
+                    console.error("Failed to get gif", e);
+                }
             }
+
+            if(context.interaction){
+                content = `> ${Strings.Truncate(context.options.message, 500)}\n<:ocelotbot:914579250202419281> `+content;
+            }
+
+
 
             if(!isPremium) {
                 let currentPoints = await bot.database.getPoints(context.user.id);
