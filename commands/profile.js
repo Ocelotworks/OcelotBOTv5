@@ -103,7 +103,7 @@ module.exports = {
             if(output.length === 0)return;
             const badge = (await bot.database.getBadge(id))[0];
             let embed = new Discord.MessageEmbed();
-            embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${id}`);
+            // embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${id}`);
             embed.setTitle(`You just earned ${badge.name}`);
             embed.setDescription(`${badge.desc}\nNow available on your **${channel.guild.getSetting("prefix")}profile**`);
             embed.setColor("#3ba13b");
@@ -120,7 +120,7 @@ module.exports = {
                 await bot.database.giveBadge(userID, eligibleBadge.id);
                 if(channel){
                     let embed = new Discord.MessageEmbed();
-                    embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${eligibleBadge.id}`);
+                    // embed.setThumbnail(`https://ocelotbot.xyz/badge.php?id=${eligibleBadge.id}`);
                     embed.setTitle(`You just earned ${eligibleBadge.name}`);
                     embed.setDescription(`${eligibleBadge.desc}\nNow available on your **${channel.guild ? channel.guild.getSetting("prefix") : bot.config.get("global", "prefix")}profile**`);
                     embed.setColor("#3ba13b");

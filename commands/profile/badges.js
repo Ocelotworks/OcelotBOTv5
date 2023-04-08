@@ -26,7 +26,7 @@ module.exports = {
 
             let embed = new Discord.MessageEmbed();
             embed.setTitle("Profile Badges");
-            embed.setDescription(`To see more info about the categories, do **${context.command} ${context.options.command} _category_**\nTo see more info about the badges you currently have, do **${context.command} ${context.options.command} mine**`);
+            embed.setDescription(`To see more info about the categories, do **/${context.command} ${context.options.command} _category_**\nTo see more info about the badges you currently have, do **/${context.command} ${context.options.command} mine**`);
             for (let category in categories) {
                 if (categories.hasOwnProperty(category))
                     embed.addField(category, categories[category].join(" "));
@@ -48,8 +48,8 @@ module.exports = {
             }
             if (result.length === 0){
                 return context.send({
-                    content: series === "mine" ? `:warning: You don't have any badges! Check out ${context.command} ${context.options.command} to see what badges you can earn.` :
-                        `:warning: No such category. Try ${context.command} ${context.options.command} for a list of categories.`,
+                    content: series === "mine" ? `:warning: You don't have any badges! Check out /${context.command} ${context.options.command} to see what badges you can earn.` :
+                        `:warning: No such category. Try /${context.command} ${context.options.command} for a list of categories.`,
                     components: [bot.util.actionRow(bot.interactions.suggestedCommand(context, context.options.command))]
                 })
             }
