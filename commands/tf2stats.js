@@ -9,6 +9,7 @@ module.exports = {
     categories: ["stats"],
     requiredPermissions: ["ATTACH_FILES"],
     commands: ["tf2", "tf2server"],
+    slashHidden: true,
     run: async function(context, bot){
         await context.defer();
         const {data} = await axios.get(`https://ob.bint.cc/api/gameserver?type=source&address=${encodeURIComponent(context.options.address)}`, {validateStatus: ()=>true})

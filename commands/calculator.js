@@ -27,8 +27,8 @@ module.exports = {
     run: async function(context, bot){
         try {
             let expression = context.options.sum;
-            expression.replace(/×/g, "*");
-            expression.replace(/÷/g, "/");
+            expression = expression.replace(/×/g, "*");
+            expression = expression.replace(/÷/g, "/");
             const response = Discord.Util.escapeMarkdown(limitedEval(expression, scope).toString()).replace(/[@!#]/gi, "");
             if(!response)
                 return context.sendLang("CALC_NO_OUTPUT");

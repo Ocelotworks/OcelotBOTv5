@@ -50,12 +50,14 @@ module.exports = {
         const canUse = isPremium || await bot.database.takePoints(context.user.id, gptCost, context.commandData.id);
 
         if(canUse && !context.getBool("ai.gpt")){
+            let prompt = Strings.Format(context.getSetting("ai.prompt"), {userName: context.member.nickname || context.user.username, ownerName: bot.lang.ownerTag, botName: bot.client.user.username});
+            if(input.toLowerCase().includes("gif"))prompt += " To provide a GIF, use the format @{tenor:<search term>}";
             let response = await api.createChatCompletion({
                 model: 'gpt-3.5-turbo',
                 messages: [
-                    {role: "system", content: Strings.Format(context.getSetting("ai.prompt"), {userName: context.user.username, ownerName: bot.lang.ownerTag, botName: bot.client.user.username})},
+                    {role: "system", content: prompt},
                     ...(contexts[context.channel.id] || []),
-                    {role: "user", content: input},
+                    {role: "user", content: Strings.Truncate(input, 500)},
                 ]
             });
             contexts[context.channel.id] = [{role: "user", content: input}, {role: "assistant", content: response.data.choices[0].message.content}];
@@ -76,8 +78,6 @@ module.exports = {
                 content = `> ${Strings.Truncate(context.options.message, 500)}\n<:ocelotbot:914579250202419281> `+content;
             }
 
-
-
             if(!isPremium) {
                 let currentPoints = await bot.database.getPoints(context.user.id);
                 if (currentPoints < gptCost) {
@@ -85,7 +85,7 @@ module.exports = {
                 }
             }
 
-            return context.send({content});
+            return context.reply({content});
         }
 
         let fakeResponse = await bot.database.getAiResponse(input);
