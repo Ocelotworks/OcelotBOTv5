@@ -9,7 +9,7 @@ module.exports = {
     usage: "giveBadge :@user :0id",
     commands: ["givebadge"],
     run: async function (context, bot) {
-        let user = await bot.client.users.fetch(context.options.id);
+        let user = await bot.client.users.fetch(context.options.user);
         bot.badges.giveBadge(user, context.channel, context.options.id);
     }
 };

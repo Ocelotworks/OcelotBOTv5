@@ -16,7 +16,7 @@ module.exports = (context, bot) => {
     }
 
     // Don't allow this command inside custom commands
-    if(context.message && context.message.synthetic && noSynthetic){
+    if(context.synthetic && noSynthetic){
         context.replyLang({content: "GENERIC_CUSTOM_COMMAND", ephemeral: true})
         return false
     }
