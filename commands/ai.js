@@ -42,7 +42,7 @@ module.exports = {
         return context.sendLang("8BALL_NO_QUESTION");
     },
     run: async function run(context, bot) {
-        let input = context.options.message;
+        let input = Strings.Truncate(context.options.message, 500);
 
         await context.defer();
 
@@ -57,7 +57,7 @@ module.exports = {
                 messages: [
                     {role: "system", content: prompt},
                     ...(contexts[context.channel.id] || []),
-                    {role: "user", content: Strings.Truncate(input, 500)},
+                    {role: "user", content: input},
                 ]
             });
             contexts[context.channel.id] = [{role: "user", content: input}, {role: "assistant", content: response.data.choices[0].message.content}];
