@@ -42,7 +42,7 @@ module.exports = {
         return context.sendLang("8BALL_NO_QUESTION");
     },
     run: async function run(context, bot) {
-        let input = context.options.message;
+        let input = Strings.Truncate(context.options.message, 500);
 
         await context.defer();
 
@@ -50,14 +50,14 @@ module.exports = {
         const canUse = isPremium || await bot.database.takePoints(context.user.id, gptCost, context.commandData.id);
 
         if(canUse && !context.getBool("ai.gpt")){
-            let prompt = Strings.Format(context.getSetting("ai.prompt"), {userName: context.member.nickname || context.user.username, ownerName: bot.lang.ownerTag, botName: bot.client.user.username});
+            let prompt = Strings.Format(context.getSetting("ai.prompt"), {userName: context.member?.nickname || context.user.username, ownerName: bot.lang.ownerTag, botName: bot.client.user.username});
             if(input.toLowerCase().includes("gif"))prompt += " To provide a GIF, use the format @{tenor:<search term>}";
             let response = await api.createChatCompletion({
                 model: 'gpt-3.5-turbo',
                 messages: [
                     {role: "system", content: prompt},
                     ...(contexts[context.channel.id] || []),
-                    {role: "user", content: Strings.Truncate(input, 500)},
+                    {role: "user", content: input},
                 ]
             });
             contexts[context.channel.id] = [{role: "user", content: input}, {role: "assistant", content: response.data.choices[0].message.content}];

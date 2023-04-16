@@ -9,6 +9,7 @@ module.exports = {
     usage: "add :subcommand :data?+",
     commands: ["add",  "new"],
     run:  async function(context, bot){
+        if(!context.interaction)return context.send({content: "Please use the slash command /subscriptions to add new subscriptions"});
         if(!bot.subscriptions[context.options.subcommand])
             return context.sendLang({
                 content: "SUBSCRIPTION_INVALID_TYPE",

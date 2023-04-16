@@ -1,5 +1,5 @@
 module.exports = (context, bot)=> {
-    if(getCommandScopedBool(context, "override")) {
+    if(getCommandScopedBool(context, "disable")) {
         bot.logger.log(`${context.command} ${context.options.command || ""} is disabled in this server.`)
         if(context.options.command){
             context.options.command = "help";

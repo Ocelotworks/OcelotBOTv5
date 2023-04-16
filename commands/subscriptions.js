@@ -69,6 +69,11 @@ module.exports = {
             bot.logger.log(`Loaded ${rawSubs.length} subs`);
             for(let i = 0; i < rawSubs.length; i++){
                 const sub = rawSubs[i];
+                let failures = await bot.database.getFailureCount("subscription", sub.id);
+                if(failures > 10){
+                    bot.logger.warn(`Completely ignoring subscription ID ${sub.id} as it has ${failures} failures`);
+                    continue
+                }
                 if(module.exports.subs[sub.data])
                     module.exports.subs[sub.data].push(sub);
                 else

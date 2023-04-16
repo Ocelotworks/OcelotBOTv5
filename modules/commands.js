@@ -589,7 +589,7 @@ module.exports = class Commands {
             if(tx){
                 tx.finish();
             }
-            this.bot.database.logCommand(context.user?.id, context.channel?.id, context.guild?.id || context.channel?.id, context.id, context.command || "Unknown", context.content, this.bot.client.user.id, context.interaction?.type || "message").catch((e)=>{
+            this.bot.database.logCommand(context.user?.id || "unknown", context.channel?.id || "unknown", context.guild?.id || context.channel?.id || "unknown", context.id, context.command || "Unknown", context.content, this.bot.client.user.id, context.interaction?.type || "message").catch((e)=>{
                 Sentry.captureException(e);
                 this.bot.logger.error(e);
                 //this.bot.logger.log(context);
