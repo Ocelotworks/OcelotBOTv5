@@ -132,7 +132,6 @@ You now have access to the following features:
 - Reliable uptime
 - Higher ratelimit
 - No voting required
-- Access to the !usersettings command
 - Have a shard named after you
 **More perks being added all the time for no additional charge!**`);
 
@@ -154,7 +153,6 @@ You now have access to the following features:
 - Fast track support 
 - Reliable uptime
 - Higher ratelimit
-- Access to the !usersettings command
 - Have a shard named after you
 - No voting required
 - Custom Commands and Autoresponders
