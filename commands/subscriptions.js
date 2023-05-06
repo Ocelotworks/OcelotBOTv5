@@ -120,6 +120,7 @@ module.exports = {
         }, 3.6e+6*timeoutHours);
     },
     checkSubType: async function checkSubType(bot, subList){
+        console.log("Checking sub");
         const sub = subList[0];
         if(subList.length === 1 && sub.timedOut || module.exports.removedSubs.includes(sub.id))return;
         let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck).catch(async (e)=>{
@@ -127,7 +128,11 @@ module.exports = {
             module.exports.handleFailures(bot, sub, failures);
             return null;
         });
-        await bot.database.updateLastCheck(sub.id);
+        try {
+            await bot.database.updateLastCheck(sub.id);
+        }catch(e){
+            bot.logger.error(e);
+        }
         sub.lastcheck = new Date();
         if(!results || results.length === 0){
             return
