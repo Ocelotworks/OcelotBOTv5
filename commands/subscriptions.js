@@ -121,14 +121,14 @@ module.exports = {
     },
     checkSubType: async function checkSubType(bot, subList){
         const sub = subList[0];
-        await bot.database.updateLastCheck(sub.id);
-        sub.lastcheck = new Date();
         if(subList.length === 1 && sub.timedOut || module.exports.removedSubs.includes(sub.id))return;
         let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck).catch(async (e)=>{
             let failures = await bot.database.logFailure("subscription", sub.id, e.message, sub.server, sub.channel, sub.user)
             module.exports.handleFailures(bot, sub, failures);
             return null;
         });
+        await bot.database.updateLastCheck(sub.id);
+        sub.lastcheck = new Date();
         if(!results || results.length === 0){
             return
         }
