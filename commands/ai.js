@@ -5,7 +5,6 @@
  *  ════╝
  */
 const config = require('config')
-const Cleverbot = require('cleverbot');
 const { Configuration, OpenAIApi } = require("openai");
 const Util = require("../util/Util");
 const Strings = require("../util/String");
@@ -16,12 +15,6 @@ const configuration = new Configuration({
 const api = new OpenAIApi(configuration)
 
 let contexts = {};
-
-let contextIDs = {};
-
-let clev = new Cleverbot({
-    key: config.get("API.cleverbot.key")
-});
 
 const genericResponses = ["huh?", "huh", "what?", "idk", "wdym", "what do you mean?", "i don't get it", "what are you talking about?", "I have no idea what you're talking about", "what??"];
 
@@ -50,7 +43,33 @@ module.exports = {
         const canUse = isPremium || await bot.database.takePoints(context.user.id, gptCost, context.commandData.id);
 
         if(canUse && !context.getBool("ai.gpt")){
+
+            if(input === "clear context"){
+                context.send("Context cleared");
+                contexts[context.channel.id] = [];
+                return
+            }
+
             let prompt = Strings.Format(context.getSetting("ai.prompt"), {userName: context.member?.nickname || context.user.username, ownerName: bot.lang.ownerTag, botName: bot.client.user.username});
+            if(context.message?.attachments?.size > 0){
+                const attachment = context.message.attachments.first();
+                const identifyRequest = await axios.post("https://westeurope.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Description&details=Celebrities&language=en", {
+                    url: attachment.url,
+                }, {
+                    validateStatus: ()=>true,
+                    headers: {
+                        "Ocp-Apim-Subscription-Key": config.get("API.msVision.key"),
+                    }
+                })
+
+                if(identifyRequest?.data?.description?.captions?.length > 0){
+                    prompt += "You have the ability to see attached images by their contents are described inside square brackets.";
+                    input += `
+ [An image named '${attachment.name}' is attached which contains: ${identifyRequest.data.description.captions.map((t)=>t.text).join(", ")}]`;
+                    console.log(input);
+                }
+            }
+
             if(input.toLowerCase().includes("gif"))prompt += " To provide a GIF, use the format @{tenor:<search term>}";
             let response = await api.createChatCompletion({
                 model: 'gpt-3.5-turbo',
