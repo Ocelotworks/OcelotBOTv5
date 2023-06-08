@@ -1193,6 +1193,9 @@ module.exports = {
         bot.util.getUserTag = async function(userID){
             if(bot.config.getBool("global", "privacy.anonymous", userID))return "Anonymous";
             let user = await bot.util.getUserInfo(userID);
+            if(user.discriminator === "0"){
+                return `@${user.username}`;
+            }
             return user ? user.tag : "Unknown User "+userID;
         }
 

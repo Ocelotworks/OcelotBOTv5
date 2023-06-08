@@ -17,7 +17,7 @@ module.exports = {
         let guild = await bot.util.getInfo(bot, "guilds", serverId);
         let output = new Discord.MessageEmbed();
 
-        output.setAuthor(context.user.tag, context.user.avatarURL())
+        output.setAuthor(context.user.username, context.user.avatarURL())
 
         if(guild){
             output.setTitle(`Info for ${guild.name} (${serverId})`);
