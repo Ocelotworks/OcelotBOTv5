@@ -212,5 +212,5 @@ release-monitor-staging:
     - export TARGET_VERSION=$(cat .next-version)
     - rm package.json
     - rm package-lock.json
-    - npm install axios --production --registry=http://192.168.1.145/
+    - npm install axios --production
     - node update.js

@@ -7,7 +7,7 @@ const Strings = require("../util/String");
 const {crc32} = require("crc");
 const {axios} = require("../util/Http");
 const config = require('config');
-const commandParser = require('command-parser').default;
+const commandParser = require('ocelot-command-parser').default;
 module.exports = class Commands {
 
     // The OcelotBOT instance
