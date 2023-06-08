@@ -5,7 +5,7 @@ module.exports = class Lang {
     bot;
     strings = {};
     usedStrings = [];
-    ownerTag;
+    ownerTag = "@bigp";
     langGenerators = {
         "en-owo": function (input) {
             if (input.indexOf("http") > -1 || input.indexOf("```") > -1) return input; //Can't be fucked dealing with trying to fix this
@@ -28,10 +28,6 @@ module.exports = class Lang {
 
     init(){
         this.loadLanguages();
-        this.bot.client.on("ready", ()=>{
-            this.bot.client.users.fetch("139871249567318017").then((u)=>this.ownerTag = u.tag);
-            setInterval(()=>this.bot.client.users.fetch("139871249567318017").then((u)=>this.ownerTag = u.tag), 120000)
-        })
     }
 
     async loadLanguages() {
