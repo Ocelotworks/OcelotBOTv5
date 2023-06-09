@@ -11,8 +11,14 @@ module.exports = {
     commands: ["setconfig", "sc"],
     run: async function (context, bot) {
         const server = context.options.server === "this" ? context.guild.id : context.options.server;
+        if(server.length > 36)
+            return context.send(`Server ID must be less than 36 characters`);
         const key = context.options.key;
+        if(key.length > 512)
+            return context.send(`Config keys are limited to 512 characters`);
         const value = context.options.value;
+        if(value.length > 2000)
+            return context.send(`Config values are limited to 2000 characters`);
         await bot.database.setSetting(server, key, value, bot.client.user.id);
         bot.rabbit.event({type: "reloadConfig", payload: {guild: server, settings: [key]}});
         if(!context.options.value)
