@@ -61,12 +61,13 @@ module.exports = {
                         "Ocp-Apim-Subscription-Key": config.get("API.msVision.key"),
                     }
                 })
-
+                prompt += "You have the ability to see attached images by their contents are described inside square brackets.";
                 if(identifyRequest?.data?.description?.captions?.length > 0){
-                    prompt += "You have the ability to see attached images by their contents are described inside square brackets.";
                     input += `
  [An image named '${attachment.name}' is attached which contains: ${identifyRequest.data.description.captions.map((t)=>t.text).join(", ")}]`;
                     console.log(input);
+                }else{
+                    input += `[An image named '${attachment.name}' is attached]`;
                 }
             }
 
