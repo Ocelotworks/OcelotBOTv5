@@ -207,7 +207,7 @@ module.exports = {
 
 
         // Username
-        imageRequest.components.push(bot.util.imageProcessorOutlinedText(target.tag, USERNAME_X, USERNAME_Y, PROFILE_WIDTH-USERNAME_X, USERNAME_SIZE, USERNAME_SIZE))
+        imageRequest.components.push(bot.util.imageProcessorOutlinedText(target.display_name || target.tag, USERNAME_X, USERNAME_Y, PROFILE_WIDTH-USERNAME_X, USERNAME_SIZE, USERNAME_SIZE))
 
         // Tagline
         imageRequest.components.push(bot.util.imageProcessorOutlinedText(profileInfo.caption, TAGLINE_X, TAGLINE_Y, PROFILE_WIDTH-TAGLINE_X, PROFILE_HEIGHT-BODY_X, TAGLINE_SIZE))
