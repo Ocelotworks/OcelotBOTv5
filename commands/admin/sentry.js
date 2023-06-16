@@ -34,7 +34,7 @@ module.exports = {
         let desc = `\`${event.location}\`\n`
         desc += `[View in Sentry](https://sentry.io/organizations/${config.get("Sentry.org")}/issues/${event.groupID}/?project=${event.projectID})`
         if(event.user)
-            desc += ` | [View in Dashboard](https://ocelotbot.xyz/dash-beta/#/admin/user/${event.user.id}\`)`;
+            desc += ` | [View in Dashboard](https://ocelotbot.xyz/dash-beta/#/admin/user/${event.user.id})`;
         if(tagsAsObj["server_name"] && process.env.PORTAINER_URL){
             const [containerID] = tagsAsObj["server_name"].split("-");
             desc += ` | [View Container](${process.env.PORTAINER_URL}#!/1/docker/containers/${containerID})`;
