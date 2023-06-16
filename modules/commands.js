@@ -562,22 +562,30 @@ module.exports = class Commands {
             }
             return await this.bot.commandObjects[commandId].run(context, this.bot);
         } catch (e) {
-            console.log(e);
+            this.bot.logger.log(e.toString());
             let exceptionID = Sentry.captureException(e);
             // Show the actual error indev
             if(process.env.VERSION === "indev" || context.getBool("showErrors")){
                 exceptionID = e?.message;
             }
-            if(context.channel?.permissionsFor?.(this.bot.client.user.id)?.has("EMBED_LINKS")) {
+            this.bot.bus.emit("commandFailed", e);
+            if(context.interaction?.replied) {
+                this.bot.logger.log("Not sending error message as the command has completed successfully");
+                return
+            }
+
+            if (context.channel?.permissionsFor?.(this.bot.client.user.id)?.has("EMBED_LINKS")) {
                 let errorEmbed = new Embeds.LangEmbed(context);
                 errorEmbed.setColor("#ff0000");
                 errorEmbed.setTitle("An Error Occurred");
                 errorEmbed.setDescription(`Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``);
                 context.reply({embeds: [errorEmbed], ephemeral: true});
-            }else {
-                context.reply({content: `Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``, ephemeral: true, components: sentryButton});
+            } else {
+                context.reply({
+                    content: `Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``,
+                    ephemeral: true,
+                });
             }
-            this.bot.bus.emit("commandFailed", e);
         } finally {
             if(tx){
                 tx.finish();
