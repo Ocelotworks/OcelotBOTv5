@@ -564,23 +564,16 @@ module.exports = class Commands {
         } catch (e) {
             console.log(e);
             let exceptionID = Sentry.captureException(e);
-            let sentryButton = undefined;
             // Show the actual error indev
             if(process.env.VERSION === "indev" || context.getBool("showErrors")){
                 exceptionID = e?.message;
-            }else {
-                sentryButton = [{
-                    type: 1, components: [
-                        {type: 2, style: 1, label: "Send Feedback", custom_id: `S${exceptionID}`}
-                    ]
-                }]
             }
             if(context.channel?.permissionsFor?.(this.bot.client.user.id)?.has("EMBED_LINKS")) {
                 let errorEmbed = new Embeds.LangEmbed(context);
                 errorEmbed.setColor("#ff0000");
                 errorEmbed.setTitle("An Error Occurred");
                 errorEmbed.setDescription(`Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``);
-                context.reply({embeds: [errorEmbed], ephemeral: true, components: sentryButton});
+                context.reply({embeds: [errorEmbed], ephemeral: true});
             }else {
                 context.reply({content: `Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``, ephemeral: true, components: sentryButton});
             }
