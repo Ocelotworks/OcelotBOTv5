@@ -120,7 +120,7 @@ module.exports = class SupportServer {
                         this.bot.logger.warn(`Deleting possible QR fake message ${message.content}`);
                         this.bot.logger.log(result.data);
                         const isAdmin = message.member?.permissions?.has("ADMINISTRATOR");
-                        if(!isAdmin)message.delete();
+                        if(!isAdmin && !message.deleted)message.delete();
                         if (message.guild.getSetting("antiphish.channel")) {
                             let channelSetting = message.guild.getSetting("antiphish.channel");
                             let reportChannel = await message.guild.channels.fetch(channelSetting).catch(()=>null);
@@ -162,7 +162,7 @@ module.exports = class SupportServer {
                 if (result?.data?.match && result.data.matches[0]?.trust_rating > 0.5) { // Hacky
 
                     const isAdmin = message.member?.permissions?.has("ADMINISTRATOR");
-                    if(!isAdmin) {
+                    if(!isAdmin && !message.deleted) {
                         this.bot.logger.warn(`Deleting possible free nitro message ${message.content}`);
                         message.delete();
                     }else{
@@ -194,7 +194,8 @@ module.exports = class SupportServer {
                 }
             }catch(e){
                 this.bot.logger.error(e);
-                Sentry.captureException(e);
+                if(!e?.message?.includes("Unknown Message"))
+                    Sentry.captureException(e);
             }
             this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "domain_check");
         }
