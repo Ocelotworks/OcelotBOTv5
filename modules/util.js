@@ -1193,6 +1193,9 @@ module.exports = {
         bot.util.getUserTag = async function(userID){
             if(bot.config.getBool("global", "privacy.anonymous", userID))return "Anonymous";
             let user = await bot.util.getUserInfo(userID);
+            if(user.discriminator === "0"){
+                return `@${user.username}`;
+            }
             return user ? user.tag : "Unknown User "+userID;
         }
 
@@ -1591,8 +1594,8 @@ module.exports = {
             const shard = Number(BigInt(guildId) >> 22n) % parseInt(process.env.PATCHWORK_SHARD_COUNT);
             const shardIndex = Math.floor(shard/10);
             const serviceName = `patchwork-${process.env.BOT_ID}-${shardIndex+1}`;
-            const host = await GetService(serviceName, "any").catch(()=>null);
-            return `http://${host || serviceName}:8008`;
+            // const host = await GetService(serviceName, "any").catch(()=>null);
+            return `http://${serviceName}:8008`;
         }
 
         bot.util.getUniqueId = function(message){

@@ -124,6 +124,7 @@ module.exports = {
         const sub = subList[0];
         if(subList.length === 1 && sub.timedOut || module.exports.removedSubs.includes(sub.id))return;
         let results = await bot.subscriptions[sub.type].check(sub.data, sub.lastcheck).catch(async (e)=>{
+            bot.logger.log(`Sub ${sub.id} failed: ${e?.toString()}`)
             let failures = await bot.database.logFailure("subscription", sub.id, e.message, sub.server, sub.channel, sub.user)
             module.exports.handleFailures(bot, sub, failures);
             return null;
@@ -154,11 +155,13 @@ module.exports = {
                         output.content = `:warning: ${results.length - 10} results omitted.`;
                     await chan.send(output);
                 } else {
+                    bot.logger.log(`Sub ${subChannel.id} failed: channel not accessible`)
                     let failures = await bot.database.logFailure("subscription", subChannel.id, "Channel not accessible", subChannel.server, subChannel.channel, subChannel.user)
                     module.exports.handleFailures(bot, subChannel, failures);
                     bot.logger.warn(`${subChannel.channel} does not exist for sub ${subChannel.id}`);
                 }
             }catch(e){
+                bot.logger.log(`Sub ${subChannel.id} failed: ${e.toString()}`)
                 Sentry.captureException(e);
                 let failures = await bot.database.logFailure("subscription", subChannel.id, e.message, subChannel.server, subChannel.channel, subChannel.user)
                 module.exports.handleFailures(bot, subChannel, failures);

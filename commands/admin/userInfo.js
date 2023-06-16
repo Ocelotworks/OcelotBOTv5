@@ -17,7 +17,7 @@ module.exports = {
         let user = await bot.util.getUserInfo(userId);
         let output = new Discord.MessageEmbed();
 
-        output.setAuthor(context.user.tag, context.user.avatarURL())
+        output.setAuthor(context.user.username, context.user.avatarURL())
 
         if(user){
             output.setTitle(`Info for ${user.tag} (${userId})`);

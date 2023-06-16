@@ -53,6 +53,7 @@ module.exports = class DiscordModule {
     }
 
     async init(){
+        this.applyMonkeyPatch();
         this.overrideSendMethods();
         this.setupClient();
         this.setupRest();
@@ -171,6 +172,18 @@ module.exports = class DiscordModule {
         }
 
 
+    }
+
+    applyMonkeyPatch(){
+        // Patch to add global_name support
+        const oldPatch = Discord.User.prototype._patch;
+
+        Discord.User.prototype._patch = function(data){
+            if('global_name' in data) {
+                this.global_name = data.global_name;
+            }
+            oldPatch.apply(this, [data]);
+        }
     }
 
     setupClient(){

@@ -8,7 +8,7 @@ const Discord = require('discord.js');
 const columnify = require('columnify');
 module.exports = {
     name: "Server Info",
-    usage: "server :server",
+    usage: "server :server :withcommands?",
     commands: ["server", "serverinfo", "si", "guild", "guildinfo", "gi"],
     noCustom: true,
     run: async function (context, bot) {
@@ -17,7 +17,7 @@ module.exports = {
         let guild = await bot.util.getInfo(bot, "guilds", serverId);
         let output = new Discord.MessageEmbed();
 
-        output.setAuthor(context.user.tag, context.user.avatarURL())
+        output.setAuthor(context.user.username, context.user.avatarURL())
 
         if(guild){
             output.setTitle(`Info for ${guild.name} (${serverId})`);
@@ -57,12 +57,13 @@ module.exports = {
             }
         }
 
-
-        let lastCommands = await bot.database.getServerCommands(serverId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
-        output.addField("Last 5 Commands", `Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)
         let components = [];
-        if(lastCommands[0])
-            components.push(bot.util.actionRow(bot.interactions.suggestedCommand(context, `ci ${lastCommands[0].id}`)));
+        if(context.options.withcommands) {
+            let lastCommands = await bot.database.getServerCommands(serverId, process.env.CUSTOM_BOT ? bot.client.user.id : null);
+            output.addField("Last 5 Commands", `Use **${context.command} ci <id>** for more info\n\`\`\`\n${columnify(lastCommands)}\n\`\`\``)
+            if (lastCommands[0])
+                components.push(bot.util.actionRow(bot.interactions.suggestedCommand(context, `ci ${lastCommands[0].id}`)));
+        }
         return context.send({embeds: [output], components});
     }
 };

@@ -16,7 +16,7 @@ module.exports = {
     },
     run: function(context, bot){
         const content = context.options.input;
-        if(content.length === 0)
+        if(!content || content.length === 0)
             return context.sendLang({content: "GENERIC_TEXT", ephemeral: true});
         return Image.ImageProcessor(bot, context, {
             "components": [

@@ -60,7 +60,7 @@ module.exports = class Commands {
         this.addCommandMiddleware(require('../util/middleware/CommandOverride'), "Command Override", 97);
         this.addCommandMiddleware(require('../util/middleware/CheckPermissions'), "Check Permissions", 98);
         this.addCommandMiddleware(require('../util/middleware/Notices'), "Send Notices", 96);
-        this.addCommandMiddleware(require('../util/middleware/MessageCommandDeprecation'), "Send Message Command Deprecation warning", 95);
+        this.addCommandMiddleware(require('../util/middleware/EnableCommandPacks'), "Enable Command Packs", 95);
 
         this.bot.bus.once("modulesLoaded", ()=>{
             this.bot.interactions.addHandler("S", this.onSentryFeedback.bind(this));
@@ -562,29 +562,30 @@ module.exports = class Commands {
             }
             return await this.bot.commandObjects[commandId].run(context, this.bot);
         } catch (e) {
-            console.log(e);
+            this.bot.logger.log(e.toString());
             let exceptionID = Sentry.captureException(e);
-            let sentryButton = undefined;
             // Show the actual error indev
             if(process.env.VERSION === "indev" || context.getBool("showErrors")){
                 exceptionID = e?.message;
-            }else {
-                sentryButton = [{
-                    type: 1, components: [
-                        {type: 2, style: 1, label: "Send Feedback", custom_id: `S${exceptionID}`}
-                    ]
-                }]
             }
-            if(context.channel?.permissionsFor?.(this.bot.client.user.id)?.has("EMBED_LINKS")) {
+            this.bot.bus.emit("commandFailed", e);
+            if(context.interaction?.replied) {
+                this.bot.logger.log("Not sending error message as the command has completed successfully");
+                return
+            }
+
+            if (context.channel?.permissionsFor?.(this.bot.client.user.id)?.has("EMBED_LINKS")) {
                 let errorEmbed = new Embeds.LangEmbed(context);
                 errorEmbed.setColor("#ff0000");
                 errorEmbed.setTitle("An Error Occurred");
                 errorEmbed.setDescription(`Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``);
-                context.reply({embeds: [errorEmbed], ephemeral: true, components: sentryButton});
-            }else {
-                context.reply({content: `Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``, ephemeral: true, components: sentryButton});
+                context.reply({embeds: [errorEmbed], ephemeral: true});
+            } else {
+                context.reply({
+                    content: `Something went wrong whilst running your command. Try again later.\nThe developers have been notified of the problem, but if you require additional support, quote this code:\n\`\`\`\n${exceptionID}\n\`\`\``,
+                    ephemeral: true,
+                });
             }
-            this.bot.bus.emit("commandFailed", e);
         } finally {
             if(tx){
                 tx.finish();
