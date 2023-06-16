@@ -366,6 +366,14 @@ module.exports = {
             }
         };
     },
+    middleware: async function(bot, context){
+        const packs = context.getConfig("commands.guildPacks");
+        if(!packs.includes("music")){
+            bot.logger.log("Enabling music for this server");
+            bot.config.set(context.guild.id, "commands.guildPacks", packs+",music");
+        }
+        return true
+    },
     handlePatchworkError({data, status}, context) {
         if (!data?.err){
             // Patchwork is probably completely dead
