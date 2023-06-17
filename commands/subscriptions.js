@@ -85,7 +85,7 @@ module.exports = {
             }
             if(checkTimer)
                 clearInterval(checkTimer);
-            checkTimer = setInterval(module.exports.check, 120000, bot);
+            checkTimer = setInterval(module.exports.check, 240000, bot);
         });
 
         bot.client.on("channelDelete", async function channelDeleted(channel){
