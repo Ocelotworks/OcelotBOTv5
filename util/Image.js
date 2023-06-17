@@ -90,6 +90,8 @@ module.exports = class Image {
         if(response.err){
             bot.logger.log("Response error: "+response.err);
             await loadingMessage?.delete();
+            if(typeof response.err == "object")
+                return context.send(JSON.stringify(response.err));
             return context.sendLang("IMAGE_PROCESSOR_ERROR_" + response.err.toUpperCase());
         }else if(!response.image){
             return context.sendLang("GENERIC_ERROR")
