@@ -17,8 +17,10 @@ module.exports = {
     rateLimit: 10,
     categories: ["fun", "meta"],
     commands: ["easter"],
+    disabled: true,
     guildOnly: true,
     init: async function(bot){
+        return;
         let nextEgg = await bot.database.getNextEasterEgg();
         setInterval(async ()=>{
             // bot.logger.log("Fetching next easter egg...");

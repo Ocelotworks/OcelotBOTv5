@@ -69,8 +69,23 @@ module.exports = {
             bot.logger.log(`Loaded ${rawSubs.length} subs`);
             for(let i = 0; i < rawSubs.length; i++){
                 const sub = rawSubs[i];
+                const guild = await bot.client.guilds.fetch(sub.server).catch(()=>null);
+                if(!guild){
+                    bot.logger.warn(`Ignoring subscription ${sub.id} because ${sub.server} doesn't exist`);
+                    continue
+                }
+                const channel = await guild.channels.fetch(sub.channel).catch(()=>null);
+                if(!channel){
+                    bot.logger.warn(`Ignoring subscription ${sub.id} channel ${sub.channel} doesn't exist`);
+                    continue
+                }
+                if(!channel.permissionsFor(bot.client.user.id).has("SEND_MESSAGES")){
+                    bot.logger.warn(`Ignoring subscription ${sub.id} channel ${sub.channel} doesn't allow send permissions for the bot`);
+                    continue
+                }
+
                 let failures = await bot.database.getFailureCount("subscription", sub.id);
-                if(failures > 10){
+                if(failures > 100){
                     bot.logger.warn(`Completely ignoring subscription ID ${sub.id} as it has ${failures} failures`);
                     continue
                 }
@@ -85,7 +100,7 @@ module.exports = {
             }
             if(checkTimer)
                 clearInterval(checkTimer);
-            checkTimer = setInterval(module.exports.check, 120000, bot);
+            checkTimer = setInterval(module.exports.check, 240000, bot);
         });
 
         bot.client.on("channelDelete", async function channelDeleted(channel){

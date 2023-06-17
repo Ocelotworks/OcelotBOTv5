@@ -457,7 +457,7 @@ module.exports = class Strings {
     }
 
 
-    static Format(string, values = {}){
+    static Format(string = "<no value>", values = {}){
         return string.toString().replace(/{{(.*?)}}/g, (match, reference)=>{
             const split = reference.split(":");
             if(split.length === 1) {
