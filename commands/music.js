@@ -366,7 +366,7 @@ module.exports = {
             }
         };
     },
-    middleware: async function(bot, context){
+    middleware: async function(context, bot){
         const packs = context.getConfig("commands.guildPacks");
         if(!packs.includes("music")){
             bot.logger.log("Enabling music for this server");
