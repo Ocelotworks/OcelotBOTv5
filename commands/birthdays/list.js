@@ -49,7 +49,7 @@ module.exports = {
                 else
                     days = context.getLang(days !== 1 ? "BIRTHDAY_DAYS" : "BIRTHDAY_DAY", {days});
                 formatted.push({
-                    user: `${user.username}#${user.discriminator}`.red,
+                    user: (await bot.util.getUserTag(user.id)).red,
                     birthday: await bot.lang.getTranslation(context.guild.id, "BIRTHDAY_DATE", {
                         day: bot.util.getNumberPrefix(d.getDate()),
                         month: bot.util.months[d.getMonth()]
