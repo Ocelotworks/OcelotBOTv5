@@ -14,6 +14,7 @@ module.exports = {
         let result = await axios.post(`${await bot.util.getPatchworkHost(context.guild.id)}/pause`, {
             guildId: context.guild.id,
             pause: true,
+            userId: context.user.id,
         });
 
         if(context.commandData.handlePatchworkError(result, context))return;
