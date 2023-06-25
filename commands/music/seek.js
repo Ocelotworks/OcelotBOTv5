@@ -14,6 +14,7 @@ module.exports = {
         let {data} = await axios.post(`${await bot.util.getPatchworkHost(context.guild.id)}/seek`, {
             guildId: context.guild.id,
             position: context.options.seconds,
+            userId: context.user.id,
         });
 
         if(data?.err === "nothing playing")
