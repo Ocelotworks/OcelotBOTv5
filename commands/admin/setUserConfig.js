@@ -16,7 +16,7 @@ module.exports = {
         if(key.length > 255)
             return context.send(`Config keys are limited to 255 characters`);
         const value = context.options.value;
-        if(value.length > 2048)
+        if(value?.length > 2048)
             return context.send(`Config values are limited to 2048 characters`);
         await bot.database.setUserSetting(user, key, value);
         bot.rabbit.event({type: "reloadUserConfig"});
