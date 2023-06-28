@@ -522,7 +522,7 @@ module.exports = class Commands {
             this.bot.bus.emit("commandPerformed", context);
             Sentry.addBreadcrumb({
                 category: "Command",
-                level: Sentry.Severity.Info,
+                level: "info",
                 message: context.command,
                 data: {
                     username: context.user?.username,

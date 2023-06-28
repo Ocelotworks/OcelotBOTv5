@@ -5,37 +5,37 @@
  */
 
 
-const   config          = require('config'),
-        EventEmitter    = require('events'),
-        Sentry          = require('@sentry/node'),
-        Tracing         = require("@sentry/tracing"),
-        os              = require('os'),
-        dateFormat      = require('dateformat'),
-        _               = require('colors'),
-        caller_id       = require('caller-id'),
-        path            = require('path')
-        express         = require('express');
+const config = require('config'),
+    EventEmitter = require('events'),
+    Sentry = require('@sentry/node'),
+    Tracing = require("@sentry/tracing"),
+    os = require('os'),
+    dateFormat = require('dateformat'),
+    _ = require('colors'),
+    caller_id = require('caller-id'),
+    path = require('path')
+    express = require('express');
 
 
 //The app object is shared between all modules, it will contain any functions the modules expose and also the event bus.
 let bot = {};
 
 
-function configureSentry(){
+function configureSentry() {
     bot.logger = {};
-    bot.logger.log = function log(message, caller, error){
-        if(!caller)
+    bot.logger.log = function log(message, caller, error) {
+        if (!caller)
             caller = caller_id.getData();
         let file = ["Nowhere"];
-        if(caller.filePath)
+        if (caller.filePath)
             file = caller.filePath.split(path.sep);
 
-        let origin = `[${file[file.length-1]}${caller.functionName ? "/"+caller.functionName : ""}] `.bold;
+        let origin = `[${file[file.length - 1]}${caller.functionName ? "/" + caller.functionName : ""}] `.bold;
 
         let shard = bot.util ? bot.util.shard : "??";
-        if(shard < 10)
-            shard = "0"+shard;
-        if(bot.rabbit && bot.rabbit.emit){
+        if (shard < 10)
+            shard = "0" + shard;
+        if (bot.rabbit && bot.rabbit.emit) {
             bot.rabbit.emit("log", {
                 message: message instanceof Error ? {
                     type: "exception",
@@ -52,27 +52,27 @@ function configureSentry(){
             });
         }
         let consoleMessage = message;
-        if(typeof message === "object" && message.type){
-            switch(message.type){
+        if (typeof message === "object" && message.type) {
+            switch (message.type) {
                 case "messageSend":
                     // TODO: interactions
-                    if(message.message)
+                    if (message.message)
                         consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) -> ${message.message.content}`;
                     break;
                 case "commandPerformed":
-                    if(message.message)
+                    if (message.message)
                         consoleMessage = `[${message.message.guild?.name || "DM"}] (${message.message.guild?.id}) ${message.message.author?.username} (${message.message.author?.id}) #${message.message.channel?.name || "DM"} (${message.message.channel?.id}) performed command ${message.command.name}: ${message.message.content}`;
-                    if(message.interaction)
+                    if (message.interaction)
                         consoleMessage = `[${message.interaction.guild?.name || "DM"}] (${message.interaction.guild?.id}) ${message.interaction.user?.username} (${message.interaction.user?.id}) #${message.interaction.channel?.name || "DM"} (${message.interaction.channel?.id}) (INTERACTION) performed command ${message.command.name}: ${message.command.content}`;
                     break;
             }
         }
-        console[error?"error":"log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, consoleMessage);
+        console[error ? "error" : "log"](`[${shard}][${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`, origin, consoleMessage);
     };
 
-    bot.logger.error = function error(message){
-        if(message) {
-            if(typeof message == "object")
+    bot.logger.error = function error(message) {
+        if (message) {
+            if (typeof message == "object")
                 message.level = "error"
             else
                 message = {type: "text", message, level: "error"};
@@ -80,9 +80,9 @@ function configureSentry(){
         }
     };
 
-    bot.logger.warn = function warn(message){
-        if(message) {
-            if(typeof message == "object")
+    bot.logger.warn = function warn(message) {
+        if (message) {
+            if (typeof message == "object")
                 message.level = "warn"
             else
                 message = {type: "text", message, level: "warn"};
@@ -90,9 +90,9 @@ function configureSentry(){
         }
     };
 
-    bot.logger.info = function info(message){
-        if(message) {
-            if(typeof message == "object")
+    bot.logger.info = function info(message) {
+        if (message) {
+            if (typeof message == "object")
                 message.level = "info"
             else
                 message = {type: "text", message, level: "info"};
@@ -132,13 +132,13 @@ function configureSentry(){
 /**
  * Initialise the Chat server
  */
-function init(){
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED=0;
-    process.env.SHARDS = `[${process.env.SHARD-1}]` // Yes
+function init() {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+    process.env.SHARDS = `[${process.env.SHARD - 1}]` // Yes
 
     process.setMaxListeners(100);
     bot.bus = new EventEmitter();
-    loadModules().then(()=>{
+    loadModules().then(() => {
         bot.logger.log("All modules loaded!");
         bot.bus.emit("modulesLoaded");
     })
@@ -149,22 +149,22 @@ function init(){
  * Loads the module files from the specified directory in config `General.ModulePath`
  * The modules are loaded in the order they are in config `Modules`
  */
-async function loadModules(){
+async function loadModules() {
     bot.modules = {};
     bot.logger.log("Loading modules...");
     const moduleFiles = config.get("Modules");
     const modulePath = config.get("General.ModulePath");
 
     //Attempt to load each module file
-    for(let i = 0; i < moduleFiles.length; i++){
+    for (let i = 0; i < moduleFiles.length; i++) {
         const fileName = moduleFiles[i];
         //The module loading is wrapped in a try/catch incase the module fails to load, the server will still run.
-        try{
+        try {
             let loadedModule = require(`.${modulePath}/${fileName}.js`);
-            if(loadedModule instanceof Function){
-                bot.logger.log("Detected class-style module "+loadedModule.name);
+            if (loadedModule instanceof Function) {
+                bot.logger.log("Detected class-style module " + loadedModule.name);
                 loadedModule = new loadedModule(bot);
-            }else if(!loadedModule.name || !loadedModule.init){
+            } else if (!loadedModule.name || !loadedModule.init) {
                 console.log(loadedModule);
                 //If the app has not got these. It's not setup properly.
                 //Throw out a warning and skip attempting to load it.
@@ -173,11 +173,11 @@ async function loadModules(){
             }
             //Here the module itself starts execution. In the future we might want to do this asynchronously.
             //The app object is passed to the
-            Sentry.configureScope(function initModule(scope){
+            Sentry.configureScope(function initModule(scope) {
                 scope.addBreadcrumb({
                     category: 'modules',
                     message: 'Loading module.',
-                    level: Sentry.Severity.Info,
+                    level: "info",
                     data: {
                         name: loadedModule.name,
                         path: modulePath,
@@ -186,18 +186,18 @@ async function loadModules(){
                     }
                 });
             });
-            if(loadedModule.async)
+            if (loadedModule.async)
                 await loadedModule.init(bot);
             else
                 loadedModule.init(bot);
             bot.modules[fileName] = loadedModule;
             bot.logger.log(`Loaded module ${loadedModule.name}`);
-        }catch(e){
+        } catch (e) {
             //Spit the error out and continue loading modules.
             //Modules that depend on the failed module's functions will probably also fail too.
             bot.logger.error(`Error loading ${fileName}:`);
             console.error(e);
-            if(bot.client && bot.client.shard) {
+            if (bot.client && bot.client.shard) {
                 bot.rabbit.event({
                     type: "warning", payload: {
                         id: "badModule-" + fileName,

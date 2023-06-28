@@ -24,7 +24,7 @@
     "@discordjs/rest": "^0.3.0",
     "@lavacord/discord.js": "^0.0.7",
     "@lavalink/encoding": "^0.1.1",
-    "@sentry/node": "^6.7.1",
+    "@sentry/node": "^7.56.0",
     "@sentry/tracing": "^6.2.3",
     "amqplib": "^0.10.3",
     "archiver": "^5.3.1",

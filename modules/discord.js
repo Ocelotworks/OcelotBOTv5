@@ -56,10 +56,10 @@ module.exports = class DiscordModule {
         this.applyMonkeyPatch();
         this.overrideSendMethods();
         this.setupClient();
-        this.setupRest();
         this.setupEvents();
 
         const token = await Util.GetSecret("DISCORD_TOKEN");
+        this.setupRest(token);
         this.bot.logger.log("Logging in to Discord...");
         this.bot.client.login(token);
         this.bot.updatePresence = this.updatePresence.bind(this);
@@ -260,8 +260,8 @@ module.exports = class DiscordModule {
         this.bot.client.setMaxListeners(100);
     }
 
-    setupRest(){
-        this.bot.rest = new REST({version: '9'}).setToken(process.env.DISCORD_TOKEN);
+    setupRest(token){
+        this.bot.rest = new REST({version: '9'}).setToken(token);
     }
 
     async updatePresence(){
@@ -318,7 +318,7 @@ module.exports = class DiscordModule {
         Sentry.configureScope((scope)=>{
             scope.addBreadcrumb({
                 message: "ready",
-                level: Sentry.Severity.Info,
+                level: "info",
                 category: "discord",
             });
 
@@ -350,7 +350,7 @@ module.exports = class DiscordModule {
         Sentry.getCurrentHub().addBreadcrumb({
             category: "discord",
             message: "Disconnected",
-            level: Sentry.Severity.Warning,
+            level: "warning",
             data: event
         });
         this.bot.logger.warn("Disconnected");
@@ -375,7 +375,7 @@ module.exports = class DiscordModule {
         Sentry.getCurrentHub().addBreadcrumb({
             category: "discord",
             message: "Warn",
-            level: Sentry.Severity.Warning,
+            level: "warning",
             data: {warning}
         });
     }
@@ -386,7 +386,7 @@ module.exports = class DiscordModule {
             scope.addBreadcrumb({
                 category: "discord",
                 message: "guildCreate",
-                level: Sentry.Severity.Info,
+                level: "info",
                 data: {
                     id: guild.id,
                     name: guild.name
@@ -410,7 +410,7 @@ module.exports = class DiscordModule {
             scope.addBreadcrumb({
                 category: "discord",
                 message: "guildDelete",
-                level: Sentry.Severity.Info,
+                level: "info",
                 data: {
                     id: guild.id,
                     name: guild.name
@@ -425,7 +425,7 @@ module.exports = class DiscordModule {
         Sentry.getCurrentHub().addBreadcrumb({
             category: "discord",
             message: "guildUnavailable",
-            level: Sentry.Severity.Warning,
+            level: "warning",
             data: {
                 id: guild.id,
                 name: guild.name
@@ -438,7 +438,7 @@ module.exports = class DiscordModule {
             Sentry.getCurrentHub().addBreadcrumb({
                 category: "discord",
                 message: "guildUpdate",
-                level: Sentry.Severity.Info,
+                level: "info",
                 data: {
                     id: newGuild.id,
                     name: newGuild.name
@@ -457,7 +457,7 @@ module.exports = class DiscordModule {
         Sentry.getCurrentHub().addBreadcrumb({
             category: "discord",
             message: "guildMemberUpdate",
-            level: Sentry.Severity.Info,
+            level: "info",
             data: {
                 name: newMember.nickname
             }
