@@ -56,10 +56,10 @@ module.exports = class DiscordModule {
         this.applyMonkeyPatch();
         this.overrideSendMethods();
         this.setupClient();
-        this.setupRest();
         this.setupEvents();
 
         const token = await Util.GetSecret("DISCORD_TOKEN");
+        this.setupRest(token);
         this.bot.logger.log("Logging in to Discord...");
         this.bot.client.login(token);
         this.bot.updatePresence = this.updatePresence.bind(this);
@@ -260,8 +260,8 @@ module.exports = class DiscordModule {
         this.bot.client.setMaxListeners(100);
     }
 
-    setupRest(){
-        this.bot.rest = new REST({version: '9'}).setToken(process.env.DISCORD_TOKEN);
+    setupRest(token){
+        this.bot.rest = new REST({version: '9'}).setToken(token);
     }
 
     async updatePresence(){
