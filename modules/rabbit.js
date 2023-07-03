@@ -41,9 +41,10 @@ module.exports = class RabbitMQ {
         bot.drain = false;
         bot.rabbit = this;
         this.initRabbit().then(()=>{
+            bot.logger.log("Starting Rabbit Events");
             this.initClientEvents();
             this.initBusEvents();
-        });
+        }).catch((e)=>bot.logger.error(e.message));
     }
 
     async initRabbit(){
