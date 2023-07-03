@@ -1,6 +1,7 @@
 const chrono = require('chrono-node');
 const Embeds = require("../util/Embeds");
 const Strings = require("../util/String");
+const Sentry = require("@sentry/node");
 const titleRegex = /\[(.*)]/i
 module.exports = {
     name: "Poll",
@@ -126,6 +127,7 @@ module.exports = {
                 return context.edit({embeds: [embed], components: message.components})
             }catch(e){
                 console.error(e);
+                Sentry.captureException(e);
                 return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
             }
         })

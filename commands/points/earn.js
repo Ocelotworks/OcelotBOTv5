@@ -4,6 +4,7 @@ module.exports = {
     usage: "earn",
     commands: ["earn", "get", "daily"],
     run: async function (context, bot) {
+        await context.defer();
         const embed = await module.exports.createEmbed(context, bot);
 
         let response = await context.send({embeds: [embed]});

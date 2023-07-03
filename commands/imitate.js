@@ -36,6 +36,10 @@ module.exports = {
             return context.send({content: "Message cannot be longer than 2000 characters.", ephemeral: true});
         }
 
+        if(!context.channel){
+            return context.send({content: `If you see this, something has gone wrong. Contact ${bot.lang.ownerTag} please!`});
+        }
+
         const webhooks = await (context.channel.fetchWebhooks ? context.channel.fetchWebhooks() : context.channel.parent.fetchWebhooks());
         let webhook = webhooks.filter((w)=>w.type === "Incoming" && w.token).first();
 

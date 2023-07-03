@@ -16,6 +16,8 @@ module.exports = {
         if(!url)
             return context.sendLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage: module.exports.usage});
 
+        await context.defer();
+
         const result = await axios.post("https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender", {url}, {
             headers: {
                 "Content-Type": "application/json",
@@ -23,7 +25,7 @@ module.exports = {
             },
         })
         if (result.data.length <= 0)
-            return context.sendLang({content: "FACE_NO_FACES", ephemeral: true});
+            return context.sendLang({content: "FACE_NO_FACES"});
 
         if (result.data.length === 1)
             return context.sendLang("FACE_RESPONSE", result.data[0].faceAttributes);

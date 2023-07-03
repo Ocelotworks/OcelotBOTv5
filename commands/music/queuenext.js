@@ -12,7 +12,9 @@ module.exports = {
     commands: ["next", "queuenext", "addnext", "playnext", "qn"],
     run: async function (context, bot) {
         if (!context.member.voice || !context.member.voice.channel)
-            return context.send(":warning: You have to be in a voice channel to use this command.");
+            return context.send({content: ":warning: You have to be in a voice channel to use this command.", ephemeral: true});
+
+        await context.defer();
 
         let result = await axios.post(`${await bot.util.getPatchworkHost(context.guild.id)}/queue`, {
             query: context.options.url,

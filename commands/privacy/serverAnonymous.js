@@ -14,7 +14,7 @@ module.exports = {
 - Your server's name will show up when someone does ${context.getSetting("prefix")}userinfo on a member of this server.
 If you do not want elements of your server to be shared with others, type **${context.getSetting("prefix")}${context.command} ${context.options.command} on**.
 This is separate from and does not override user's individual anonymity setting.
-This does not stop data being associated with your server. If you wish to remove all data associated with you from OcelotBOT forever contact **Big P#1843**
+This does not stop data being associated with your server. If you wish to remove all data associated with you from OcelotBOT forever contact **${bot.util.ownerTag}**
 `)
         }
         await bot.config.set(context.guild.id, "privacy.serverAnonymous", context.options.mode === "on");
