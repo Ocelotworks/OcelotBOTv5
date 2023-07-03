@@ -10,6 +10,7 @@ const config = require('config');
 const {axios} = require('../util/Http')
 const {NotificationContext} = require("../util/CommandContext");
 const Embeds = require("../util/Embeds");
+const Strings = require("../util/String");
 
 const changePrefix = /.*(change|custom).*prefix.*/gi;
 const domainRegex = /.*(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9].*/i;
@@ -217,7 +218,7 @@ module.exports = class SupportServer {
                 const [guildId, channelId] = message.getSetting("potentialQrChannel").split(".");
                 let guild = await this.bot.client.guilds.fetch(guildId);
                 let channel = await guild.channels.fetch(channelId);
-                channel.send(`Potential new QR server:\n\`\`\`\n${message.content}\n\`\`\``);
+                channel.send(`Potential new QR server:\n\`\`\`\n${Strings.Truncate(message.content, 1000)}\n\`\`\``);
             }
         }catch(e){
             this.bot.logger.error(e);
