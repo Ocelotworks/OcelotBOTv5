@@ -3,6 +3,7 @@ const request = require('request');
 const gm = require('gm');
 const fs = require('fs');
 const Util = require("../util/Util");
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "This is epic meme",
     usage: "epic :image?",
@@ -25,12 +26,14 @@ module.exports = {
                 .append(__dirname + "/../static/epic.png")
                 .toBuffer("PNG", function (err, buffer) {
                     if (err) {
+                        Sentry.captureException(err);
                         context.replyLang("GENERIC_ERROR");
                         return;
                     }
                     let attachment = new Discord.MessageAttachment(buffer, "epic.png");
                     context.send({files: [attachment]});
                     fs.unlink(fileName, function unlink(err) {
+                        Sentry.captureException(err);
                         console.log(err);
                     });
                 });

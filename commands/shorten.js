@@ -5,6 +5,7 @@
  *  ════╝
  */
 const config = require('config');
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "Shorten URL",
     usage: "shorten :url",
@@ -12,8 +13,10 @@ module.exports = {
     categories: ["tools"],
     run: async function run(context, bot){
        const result = await bot.util.getJson(`https://cutt.ly/api/api.php?key=${config.get("API.cuttly.key")}&short=${encodeURIComponent(context.options.url)}`);
-       if(!result.url)
+       if(!result.url) {
+           Sentry.captureMessage("Failed to create cutt.ly shortlink");
            return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
+       }
 
        if(result.url.shortLink)
            return context.send(`<${result.url.shortLink}>`);

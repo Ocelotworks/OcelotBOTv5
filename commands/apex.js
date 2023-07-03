@@ -8,6 +8,7 @@ const config = require('config');
 const request = require('request');
 const Discord = require('discord.js');
 const Embeds = require("../util/Embeds");
+const Sentry = require("@sentry/node");
 
 const platforms = {
     pc: 5,
@@ -58,10 +59,13 @@ module.exports = {
             json: true
         }, function (err, resp, body) {
             //console.log(JSON.stringify(body));
-            if (err)
+            if (err) {
+                Sentry.captureException(err);
                 return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
+            }
             if (body.errors) {
                 console.log(body.errors);
+                Sentry.captureMessage(body.errors[0].message);
                 return context.sendLang({content: "STATS_ERROR", ephemeral: true}, {message: body.errors[0].message, username});
             }
             if (!body.data || !body.data.metadata)

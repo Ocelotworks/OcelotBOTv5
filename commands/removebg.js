@@ -8,6 +8,7 @@
 const request = require('request');
 const Discord = require('discord.js');
 const Util = require("../util/Util");
+const Sentry = require("@sentry/node");
 let deadKeys = [];
 
 module.exports = {
@@ -59,8 +60,10 @@ module.exports = {
             if(body.toString().startsWith("{")){
                 try {
                     const data = JSON.parse(body.toString());
-                    if (!data.errors)
-                    return context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
+                    if (!data.errors) {
+                        Sentry.captureMessage("Remove.bg error with no data.errors");
+                        return context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
+                    }
                     let output = "";
                     for (let i = 0; i < data.errors.length; i++) {
                         if (data.errors[i].title === "Insufficient credits") {
@@ -73,7 +76,7 @@ module.exports = {
                     }
                     return context.send({content: output, ephemeral: true});
                 }catch(e){
-                    bot.raven.captureException(e);
+                    Sentry.captureException(e);
                     return context.replyLang({content: "GENERIC_ERROR", ephemeral: true});
                 }
             }
@@ -93,11 +96,13 @@ async function withRembg(url, context, bot){
         if(err) {
             bot.logger.log(err);
             bot.logger.log(body);
+            Sentry.captureException(err);
             return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
         }
 
         if(body.toString().startsWith("<") || body.toString().startsWith("{")) {
             console.log(body.toString());
+            Sentry.captureMessage("bad response from rembg");
             return context.sendLang({content: "GENERIC_ERROR", ephemeral: true});
         }
         let attachment = new Discord.MessageAttachment(body, "removebg.png");

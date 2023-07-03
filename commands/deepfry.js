@@ -9,6 +9,7 @@ const request = require('request');
 const gm = require('gm');
 const fs = require('fs');
 const Util = require("../util/Util");
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "Deepfry",
     usage: "deepfry :image?",
@@ -36,14 +37,18 @@ module.exports = {
                         console.log("Resizing image");
                         output = output.resize("50%");
                     }
+                    Sentry.captureException(err);
                     console.log(err, value);
                 })
             output.toBuffer("JPEG", function(err, buffer){
-                if(err)
+                if(err) {
+                    Sentry.captureException(err);
                     return context.replyLang("GENERIC_ERROR");
+                }
                 let attachment = new Discord.MessageAttachment(buffer, "jpeg.jpg");
                 context.send({files: [attachment]}).catch(function(e){
                     console.log(e);
+                    Sentry.captureException(e);
                     context.replyLang("GENERIC_UPLOAD_ERROR", {error: e});
                 });
                 fs.unlink(fileName, function(){});

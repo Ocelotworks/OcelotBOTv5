@@ -9,6 +9,7 @@ const request = require('request');
 const gm = require('gm');
 const fs = require('fs');
 const Util = require("../util/Util");
+const Sentry = require('@sentry/node');
 module.exports = {
     name: "Curse Image",
     usage: "curse :image?+",
@@ -33,10 +34,13 @@ module.exports = {
                 //.edge(50)
                 .quality(50)
                 .toBuffer("JPEG", function (err, buffer) {
-                    if (err)
+                    if (err) {
+                        Sentry.captureException(err);
                         return context.replyLang("GENERIC_ERROR");
+                    }
                     let attachment = new Discord.MessageAttachment(buffer, "jpeg.jpg");
                     context.send({files: [attachment]}).catch(function (e) {
+                        Sentry.captureException(e);
                         console.log(e);
                         context.send("Upload error: " + e);
                     });
