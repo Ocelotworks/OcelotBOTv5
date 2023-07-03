@@ -68,6 +68,7 @@ module.exports = {
             name: shardNames[bot.util.shard] || context.getLang("STATS_SHARD_UNNAMED"),
             id: bot.util.shard + 1,
             total: process.env.SHARD_COUNT,
+            year: new Date().getFullYear(),
             instance: `${bot.util.shard + 1}/${process.env.SHARD_COUNT}` // Backwards compatibility with other languages
         });
         embed.addFieldLang("STATS_SPONSOR_TITLE", "STATS_SPONSOR_VALUE");
