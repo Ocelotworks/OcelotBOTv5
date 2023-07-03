@@ -16,7 +16,7 @@ module.exports = {
 - Owning a premium custom bot
 Your current nickname also has a random chance of being applied to someone else if you use ${context.getSetting("prefix")}newnick
 If you don't want your Discord tag to be displayed anywhere, you can make yourself anonymous with **${context.getSetting("prefix")}privacy ${context.options.command} on**.
-This does not stop data being associated with your account. If you wish to remove all data associated with you from OcelotBOT forever contact **Big P#1843**
+This does not stop data being associated with your account. If you wish to remove all data associated with you from OcelotBOT forever contact **${bot.util.ownerTag}**
 `)
         }
         const enabled = context.options.mode === "on"
