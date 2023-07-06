@@ -88,7 +88,7 @@ module.exports = {
                 try {
                     const searchTerm = gif[1];
                     let gifResults = await axios.get(`https://g.tenor.com/v1/search?q=${searchTerm}&key=${config.get("API.tenor.key")}&limit=1`);
-                    content = content.replace(gif[0], gifResults?.data?.results[0]?.url);
+                    content = content.replace(gif[0], Util.ArrayRand(gifResults.data.results).url);
                 }catch(e){
                     console.error("Failed to get gif", e);
                 }
