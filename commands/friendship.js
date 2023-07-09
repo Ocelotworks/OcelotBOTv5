@@ -7,17 +7,21 @@
 const Image = require('../util/Image');
 module.exports = {
     name: "Friendship ended with",
-    usage: "friendship :@user1 :@user2",
+    usage: "friendship :@endedwith :@newbf",
     detailedHelp: "Officially end your friendship with someone.",
     usageExample: "friendship @Big P @Small P",
     requiredPermissions: ["EMBED_LINKS", "ATTACH_FILES"],
     commands: ["friendship", "freindship"],
     categories: ["memes"],
     unwholesome: true,
+    argDescriptions: {
+        endedwith: {name: "Friendship ended with this person"},
+        newbf: {name: "Now this person is your new best friend"}
+    },
     run: async function run(context, bot) {
 
-        const user1 = (context.channel.guildMembers || context.channel.members).get(context.options.user1)?.user;
-        const user2 = (context.channel.guildMembers || context.channel.members).get(context.options.user2)?.user;
+        const user1 = (context.channel.guildMembers || context.channel.members).get(context.options.endedwith)?.user;
+        const user2 = (context.channel.guildMembers || context.channel.members).get(context.options.newbf)?.user;
 
         if(!user1 || !user2)
             return context.sendLang({content: "MAFIA_NOT_ENOUGH_USERS", ephemeral: true}, {them: context.user, me: bot.client.user});
@@ -34,7 +38,7 @@ module.exports = {
                             y: 5,
                             w: 228,
                             font: "impact.ttf",
-                            content: user1.username,
+                            content: user1.global_name || user1.username,
                             fontSize: 80,
                             outlineColour: "#134673",
                             gradient: ["#CD4908", "#40BC4A"]
@@ -46,7 +50,7 @@ module.exports = {
                             y: 150,
                             w: 146,
                             font: "impact.ttf",
-                            content: user2.username,
+                            content: user2.global_name || user2.username,
                             fontSize: 50,
                             colour: "#B33D49FF",
                         }
