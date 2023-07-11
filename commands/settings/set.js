@@ -119,7 +119,7 @@ let validators = {
     },
     lang: (context, bot, cleanValue)=>{
         if(!bot.lang.strings[cleanValue]){
-            context.send(`Invalid language, enter a value from ${context.getSetting("prefix")}languages e.g \`en-gb\` or \`el\``);
+            context.send(`Invalid language, enter a value from ${context.getSetting("prefix")}settings languages e.g \`en-gb\` or \`el\``);
             return false;
         }
         return true;
