@@ -46,31 +46,31 @@ module.exports = {
             return output;
         }
 
-        async function shiftUp(){
+        async function shiftUp(interaction){
             left+=3;
             right-=3;
             await context.edit({content: await generateOutput()}, sentMessage);
             clearTimeout(cancelTimer);
             cancelTimer = setTimeout(cancel, 32000);
-            return {type: 6}
+            return interaction.deferUpdate();
         }
 
-        async function shiftDown(){
+        async function shiftDown(interaction){
             left-=3;
             right+=3;
             context.edit({content: await generateOutput()}, sentMessage);
             clearTimeout(cancelTimer);
             cancelTimer = setTimeout(cancel, 32000);
-            return {type: 6}
+            return interaction.deferUpdate();
         }
 
-        async function resetPos(){
+        async function resetPos(interaction){
             left = 5;
             right = 5;
             context.edit({content: await generateOutput()}, sentMessage);
             clearTimeout(cancelTimer);
             cancelTimer = setTimeout(cancel, 32000);
-            return {type: 6}
+            return interaction.deferUpdate();
         }
 
         async function cancel(){
@@ -80,9 +80,9 @@ module.exports = {
         let cancelTimer = setTimeout(cancel, 32000)
 
         if(messageID[0]){
-            const up = bot.interactions.addAction("⬆", 1, shiftUp, 120000);
-            const reset = bot.interactions.addAction("⏹", 1, resetPos, 120000);
-            const down = bot.interactions.addAction("⬇", 1, shiftDown, 120000);
+            const up = bot.interactions.addAction("⬆️", 1, shiftUp, 120000);
+            const reset = bot.interactions.addAction("⏹️", 1, resetPos, 120000);
+            const down = bot.interactions.addAction("⬇️", 1, shiftDown, 120000);
             sentMessage = await context.send({content: await generateOutput(), components: [bot.util.actionRow(up, reset, down)]});
             return;
         }
