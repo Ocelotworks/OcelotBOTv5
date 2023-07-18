@@ -43,7 +43,7 @@ module.exports = class Interactions{
         }else if(this.waiting[interaction.customId]) {
             let result = await this.waiting[interaction.customId](interaction, context);
             if(!result && !interaction.replied)await interaction.deferUpdate();
-        }else{``
+        }else{
             if(this.bot.drain)return;
             context.sendLang({content: "GENERIC_BUTTON_UNAVAILABLE", ephemeral: true});
         }

@@ -11,12 +11,13 @@ const {axios} = require('../util/Http')
 const {NotificationContext} = require("../util/CommandContext");
 const Embeds = require("../util/Embeds");
 const Strings = require("../util/String");
+const {LoadSecretSync} = require("../util/Util");
 
 const changePrefix = /.*(change|custom).*prefix.*/gi;
 const domainRegex = /.*(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9].*/i;
 const inviteRegex = /(https?:\/\/)?(.*?@)?(www\.)?(discord\.(gg)|discord(app)?\.com\/invite)\/(?<code>[\w-]+)/ui;
 
-
+const PhishGgKey = LoadSecretSync("PHISHGG_API_KEY")
 
 
 module.exports = class SupportServer {
@@ -146,13 +147,18 @@ module.exports = class SupportServer {
                         }
                         this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "scam_detected");
                     }else if(invite.channel?.name?.includes("verify")){
-                        this.alertPotential(message);
+                        const shouldAutoReport = message.guild.getBool("antiphish.invite.autoreport") && message.guild.getSetting("antiphish.invite.list").split(",").includes(invite.code);
+                        this.alertPotential(message, shouldAutoReport);
                         this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "potential_scam_detected");
+                        if(shouldAutoReport){
+                            this.autoReport(invite);
+                        }
                     }
                 }
             }catch(e){
                 this.bot.logger.error(e);
-                Sentry.captureException(e);
+                if(!e.toString().includes("Unknown Invite"))
+                    Sentry.captureException(e);
             }
             this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "invite_check");
         }
@@ -212,18 +218,29 @@ module.exports = class SupportServer {
         }
     }
 
-    async alertPotential(message){
+    async alertPotential(message, isAutoReport){
         try {
             if (message.getSetting("potentialQrChannel")) {
                 const [guildId, channelId] = message.getSetting("potentialQrChannel").split(".");
                 let guild = await this.bot.client.guilds.fetch(guildId);
                 let channel = await guild.channels.fetch(channelId);
-                channel.send(`Potential new QR server:\n\`\`\`\n${Strings.Truncate(message.content, 1000)}\n\`\`\``);
+                channel.send(`Potential new QR server:\n\`\`\`\n${Strings.Truncate(message.content, 1000)}\n\`\`\`\n${isAutoReport?"Auto report triggered" : ""}`);
             }
         }catch(e){
             this.bot.logger.error(e);
             Sentry.captureException(e);
         }
+    }
+
+    async autoReport(invite){
+        return axios.post(`https://api.phish.gg/report`, {
+            invite: invite.code,
+            key: "QR"
+        }, {
+            headers: {
+                authorization: PhishGgKey,
+            }
+        });
     }
 
     checkUserInfo(member){
