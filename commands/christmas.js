@@ -1,4 +1,5 @@
-const christmas = new Date("25 December 2022");
+const now = new Date();
+const christmas = new Date("25 December "+now.getFullYear());
 module.exports = {
     name: "Christmas Countdown",
     usage: "christmas",
