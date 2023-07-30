@@ -7,6 +7,7 @@
 const Icon = require("../util/Icon");
 const Strings = require("../util/String");
 const {NotificationContext} = require("../util/CommandContext");
+const {Util} = require("discord.js");
 module.exports = {
     name: "Vote For OcelotBOT",
     usage: "vote",
@@ -49,11 +50,9 @@ module.exports = {
             if(bot.client.channels.cache.has("756854640204709899")) {
                 try {
                     const botList = await bot.database.getBotlist(source, bot.client.user.id);
-
-                    let message = `+${Icon.points}${(botList.pointsReward*multiplier).toLocaleString()} **${await bot.util.getUserTag(user)}** just voted at ${await bot.database.getBotlistUrl(source, bot.client.user.id)}`;
+                    let message = `+${Icon.points}${(botList.pointsReward*multiplier).toLocaleString()} **${Util.escapeMarkdown(await bot.util.getUserTag(user))}** just voted at ${await bot.database.getBotlistUrl(source, bot.client.user.id)}`;
                     if(multiplier > 1)message += ` (${multiplier.toLocaleString()}x multiplier)`
-                    if(streak > 100)message +=` **(⭐${streak.toLocaleString()} streak!)**`;
-                    if(streak > 1)message += ` (${Strings.NCharacters(Math.floor(streak/10)+1, "🔥")}${streak.toLocaleString()} streak)`;
+                    if(streak > 1)message += ` (${Strings.GetStreakIcons(streak)}${streak.toLocaleString()} streak)`;
 
                     bot.client.channels.cache.get("756854640204709899").send(message)
                 } catch (e) {
