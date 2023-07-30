@@ -1,4 +1,5 @@
 const Strings = require("../util/String");
+const {Util} = require("discord.js");
 const emojiMaps = {
     alex: "<:alex:478962386578047000>",
     joel: "<:joel_dad:1028787156099014706>",
@@ -20,7 +21,7 @@ module.exports = {
             bot.logger.log("Changing topic");
             const topicResult = await bot.database.getRandomTopic();
             const topic = topicResult[0];
-            const topicOutput = `<${topic.username}> ${Strings.Truncate(topic.topic, 800)}`;
+            const topicOutput = `<${topic.username}> ${Util.escapeMarkdown(Strings.Truncate(topic.topic, 800))}`;
             await message.channel.setTopic(topicOutput, `Topic ID: ${topic.id}`);
             await message.channel.send(`${emojiMaps[topic.username] || ""} _Set topic: ${topicOutput}_`);
         };

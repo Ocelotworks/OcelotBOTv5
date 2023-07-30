@@ -1,3 +1,4 @@
+const {Util} = require("discord.js");
 const userMaps = {
     "145659666687328256": "alex",
     "145193838829371393": "jake",
@@ -48,7 +49,7 @@ module.exports = {
             if(target.attachments.first())
                 topic += "\n"+target.attachments.first().url;
             await bot.database.addTopic(userMaps[target.author.id], topic);
-            let output = `:white_check_mark: Added _<${userMaps[target.author.id]}> ${topic}_ to the list of topics`;
+            let output = `:white_check_mark: Added _<${userMaps[target.author.id]}> ${Util.escapeMarkdown(topic)}_ to the list of topics`;
             if (target.author.id === context.user.id)
                output += "\n_topicing something you said is like laughing at your own joke_ - Neil 2015";
             return context.send({content: output});
