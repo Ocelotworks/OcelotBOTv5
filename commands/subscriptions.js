@@ -100,7 +100,11 @@ module.exports = {
             }
             if(checkTimer)
                 clearInterval(checkTimer);
-            checkTimer = setInterval(module.exports.check, 600000, bot);
+            setTimeout(()=>{
+                bot.logger.log("Beginning subscription checks");
+                checkTimer = setInterval(module.exports.check, 600000, bot);
+            }, bot.util.intBetween(1, 600)*1000);
+
         });
 
         bot.client.on("channelDelete", async function channelDeleted(channel){
@@ -124,11 +128,11 @@ module.exports = {
         const timeoutHours = failures-2.5
         bot.logger.warn(`Temporarily not checking ID ${sub.id} for ${timeoutHours} hours`);
         sub.timedOut = true;
-        if(failures > 10){
-            bot.logger.warn(`Just forgetting the sub entirely until the bot is restarted`);
-            // TODO: remove completely
-            return;
-        }
+        // if(failures > 10){
+        //     bot.logger.warn(`Just forgetting the sub entirely until the bot is restarted`);
+        //     // TODO: remove completely
+        //     return;
+        // }
         setTimeout(()=>{
             bot.logger.warn(`Resuming checks for ${sub.id}`);
             sub.timedOut = false;

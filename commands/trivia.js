@@ -146,7 +146,11 @@ module.exports = {
 function formatStreakedUser(obj){
     let output = `<@${obj.user}>`
     if(obj.streak > 1){
-        output += ` (${Strings.NCharacters(Math.floor(obj.streak / 10)+1, "🔥")}${obj.streak})`
+        output += "(";
+        if(obj.streak > 50){
+            output += Strings.NCharacters(Math.floor(obj.streak/50)+1, "♦")
+        }
+        output += `${Strings.NCharacters(Math.floor((obj.streak%50) / 10)+1, "🔥")}${obj.streak})`
     }
     return output;
 }
