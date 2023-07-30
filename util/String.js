@@ -577,4 +577,15 @@ module.exports = class Strings {
         })}${after}\n\`\`\``
     }
 
+
+    static GetStreakIcons(streak){
+        if(streak < 10)return "";
+        let output = "";
+        if(streak > 50){
+            output += Strings.NCharacters(Math.floor(streak/50)+1, "♦")
+        }
+        output += Strings.NCharacters(Math.floor((streak%50) / 10)+1, "🔥");
+        return output;
+    }
+
 }
