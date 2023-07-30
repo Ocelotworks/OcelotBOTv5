@@ -18,7 +18,7 @@ module.exports = {
                 'User-Agent': 'OcelotBOT link parser by /u/UnacceptableUse'
             }
         }, function processCommentResponse(err, resp, body) {
-            if(err) {
+            if(err || !data?.data?.children) {
                 bot.logger.log(err);
                 const timeout = 1000*(failureTimes++);
                 bot.logger.log(`Trying again in ${timeout}ms`);
@@ -41,7 +41,7 @@ module.exports = {
 
     },
     init: function (bot){
-        module.exports.downloadComments(bot);
+        setTimeout(bot.util.intBetween(1, 120), ()=>module.exports.downloadComments(bot));
     },
     handleError: function(context){
         return context.sendLang("OPINION_HELP");
