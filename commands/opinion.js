@@ -18,7 +18,7 @@ module.exports = {
                 'User-Agent': 'OcelotBOT link parser by /u/UnacceptableUse'
             }
         }, function processCommentResponse(err, resp, body) {
-            if(err || !data?.data?.children) {
+            if(err) {
                 bot.logger.log(err);
                 const timeout = 1000*(failureTimes++);
                 bot.logger.log(`Trying again in ${timeout}ms`);
