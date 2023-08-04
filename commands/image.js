@@ -59,7 +59,7 @@ module.exports = {
                     }));
                 }catch(e){
                     bot.raven.captureException(e);
-                    bot.logger.error(e);
+                    bot.logger.error(e.message);
                     images = await bot.redis.cache(`images/${type}/${query}`, async () => await client.search(query, {safe: nsfw ? "off" : "high"}), 36000)
                 }
             } else {
