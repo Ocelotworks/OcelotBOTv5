@@ -189,6 +189,7 @@ class MessageCommandContext extends CommandContext {
         if(this.message)
             this.message.response = message;
         this.bot.bus.emit("messageSent", message);
+        message.command = {command: this.command, commandData: this.commandData}
         return message;
     }
 
