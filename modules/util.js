@@ -1507,7 +1507,7 @@ module.exports = {
 
         bot.util.serialiseMessage = function serialiseMessage(message) {
             if(!message)return {}
-            return {
+            const output =  {
                 guild: bot.util.serialiseGuild(message.guild),
                 channel: bot.util.serialiseChannel(message.channel),
                 author: message.member ? bot.util.serialiseMember(message.member) : bot.util.serialiseUser(message.author),
@@ -1517,8 +1517,17 @@ module.exports = {
                 timestamp: message.createdTimestamp,
                 attachments: message.attachments?.map((a) => a.url),
                 embeds: message.embeds,
-                mentions: bot.util.serialiseMentions(message.mentions)
+                mentions: bot.util.serialiseMentions(message.mentions),
+                command: message.command,
+            };
+
+            if(message.reference && message.reference.channelId === message.channel.id && message.channel.messages.cache.has(message.reference.messageId)){
+                const referencedMessage = message.channel.messages.cache.get(message.reference.messageId);
+                output.reference.content = referencedMessage.content;
+                output.reference.authorId = referencedMessage.author.id;
             }
+
+            return output;
         }
 
         bot.util.serialiseInteraction = function serialiseInteraction(interaction){

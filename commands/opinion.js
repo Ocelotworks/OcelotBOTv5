@@ -41,7 +41,7 @@ module.exports = {
 
     },
     init: function (bot){
-        module.exports.downloadComments(bot);
+        setTimeout(()=>module.exports.downloadComments(bot), bot.util.intBetween(1, 120));
     },
     handleError: function(context){
         return context.sendLang("OPINION_HELP");
