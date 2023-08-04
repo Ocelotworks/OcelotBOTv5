@@ -4,7 +4,7 @@ module.exports = (context, bot)=> {
     const packs = context.getSetting("commands.guildPacks");
     if(!packs){
         bot.config.set(context.guild.id, "commands.guildPacks", "nsfw");
-    }else if(!packs.includes("music")){
+    }else if(!packs.includes("nsfw")){
         bot.logger.log("Enabling nsfw pack for this server");
         bot.config.set(context.guild.id, "commands.guildPacks", packs+",nsfw");
     }
