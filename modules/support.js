@@ -11,13 +11,13 @@ const {axios} = require('../util/Http')
 const {NotificationContext} = require("../util/CommandContext");
 const Embeds = require("../util/Embeds");
 const Strings = require("../util/String");
-const {LoadSecretSync} = require("../util/Util");
+const {GetSecretSync} = require("../util/Util");
 
 const changePrefix = /.*(change|custom).*prefix.*/gi;
 const domainRegex = /.*(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9].*/i;
 const inviteRegex = /(https?:\/\/)?(.*?@)?(www\.)?(discord\.(gg)|discord(app)?\.com\/invite)\/(?<code>[\w-]+)/ui;
 
-const PhishGgKey = LoadSecretSync("PHISHGG_API_KEY")
+const PhishGgKey = GetSecretSync("PHISHGG_API_KEY")
 
 
 module.exports = class SupportServer {
