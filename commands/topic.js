@@ -17,6 +17,7 @@ module.exports = {
     requiredPermissions: [],
     commands: ["topic"],
     commandPack: "ocelotworks",
+    slashHidden: true,
     contextMenu: {
         type: "message",
         value: "messageid",
