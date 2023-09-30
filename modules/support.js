@@ -11,14 +11,13 @@ const {axios} = require('../util/Http')
 const {NotificationContext} = require("../util/CommandContext");
 const Embeds = require("../util/Embeds");
 const Strings = require("../util/String");
-const {GetSecretSync} = require("../util/Util");
+const {GetSecretSync, GetSecret} = require("../util/Util");
 
 const changePrefix = /.*(change|custom).*prefix.*/gi;
 const domainRegex = /.*(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9].*/i;
 const inviteRegex = /(https?:\/\/)?(.*?@)?(www\.)?(discord\.(gg)|discord(app)?\.com\/invite)\/(?<code>[\w-]+)/ui;
 
 const PhishGgKey = GetSecretSync("PHISHGG_API_KEY")
-
 
 module.exports = class SupportServer {
     name = "Support Server Specific Functions";
@@ -148,7 +147,7 @@ module.exports = class SupportServer {
                         this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "scam_detected");
                     }else if(invite.channel?.name?.includes("verify")){
                         const shouldAutoReport = message.guild.getBool("antiphish.invite.autoreport") && message.guild.getSetting("antiphish.invite.list").split(",").includes(invite.code);
-                        this.alertPotential(message, shouldAutoReport);
+                        this.alertPotential(message, shouldAutoReport, invite);
                         this.bot.modules.statistics.incrementStat(message.guild.id, message.author.id, "potential_scam_detected");
                         if(shouldAutoReport){
                             this.autoReport(invite);
@@ -218,13 +217,22 @@ module.exports = class SupportServer {
         }
     }
 
-    async alertPotential(message, isAutoReport){
+    async alertPotential(message, isAutoReport, invite){
         try {
             if (message.getSetting("potentialQrChannel")) {
                 const [guildId, channelId] = message.getSetting("potentialQrChannel").split(".");
                 let guild = await this.bot.client.guilds.fetch(guildId);
                 let channel = await guild.channels.fetch(channelId);
-                channel.send(`Potential new QR server:\n\`\`\`\n${Strings.Truncate(message.content, 1000)}\n\`\`\`\n${isAutoReport?"Auto report triggered" : ""}`);
+                let action = this.bot.interactions.addAction("Track", 1, async ()=>{
+                    const key = await GetSecret("INVITE_TRACKER_KEY");
+                    axios.post("https://amia.cx/invite-tracker/api/track-invite", {
+                        invite_code: invite.code,
+                    }, {headers: {Authorization: key}})
+                })
+                channel.send({
+                    content: `Potential new QR server:\n\`\`\`\n${Strings.Truncate(message.content, 1000)}\n\`\`\`\n${isAutoReport?"Auto report triggered" : ""}`,
+                    components: [this.bot.util.actionRow(action)]
+                });
             }
         }catch(e){
             this.bot.logger.error(e);
