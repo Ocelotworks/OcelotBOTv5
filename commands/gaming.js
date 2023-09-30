@@ -21,8 +21,6 @@ module.exports = {
             const embed = message.embeds[0];
             const votes = this.parseEmbed(embed);
 
-            console.log(interaction.values);
-
             for(let i = 0; i < votes.length; i++){
                 if(!votes[i])continue;
                 for(let j = 0; j < votes[i].length; j++){
@@ -75,6 +73,54 @@ module.exports = {
                 ephemeral: true,
                 content: `Your ${interaction.values.length} choices have been registered. If you have a preferred day, select it below.`,
                 components: [buttonRow],
+            })
+        })
+
+        bot.interactions.addHandler("C", async (interaction, context) => {
+            const embed = interaction.message.embeds[0];
+            const votes = this.parseEmbed(embed);
+
+            let uniqueUsers = [...new Set(votes.flatMap((vote)=>vote.map((v)=>v.userid)))];
+            console.log(uniqueUsers);
+            let bestDayIndex = -1;
+            let bestDayScore = 0;
+            let bestDayHasAllUsers = false;
+            for(let i = 0; i < votes.length; i++){
+                const vote = votes[i];
+                if(!vote)continue;
+                let score = vote.reduce((acc, val)=>acc+(val.preference ? 2 : 1), 0);
+                const votedUsers = vote.map((v)=>v.userid);
+                let hasAllUsers = true;
+                for(let j = 0; j < votedUsers.length; j++){
+                    if(!uniqueUsers.includes(votedUsers[j])){
+                        hasAllUsers = false;
+                        break
+                    }
+                }
+                if(hasAllUsers){
+                    score += 10;
+                }
+                if(score > bestDayScore){
+                    bestDayScore = score;
+                    bestDayIndex = i;
+                    bestDayHasAllUsers = hasAllUsers;
+                }
+            }
+
+            if(bestDayIndex < 0){
+                return context.send({ephemeral: true, content: "Wait for people to vote before pressing this button..."});
+            }
+
+            const optionData = interaction.message.components[0].components[0].options;
+
+            console.log(votes, optionData);
+            let content = `⭐ The best date currently is: ${optionData[bestDayIndex].label} ${optionData[bestDayIndex].description}`;
+            if(!bestDayHasAllUsers){
+                content += "\n😟 Not all users who voted are available on this day"
+            }
+            context.send({
+                content,
+                // components: [bot.util.actionRow(setReminder)],
             })
         })
     },
@@ -140,6 +186,13 @@ module.exports = {
             }), placeholder: `${days} days available`, min_values: 0, max_values: days
         });
 
-        return context.send({embeds: [embed], components: [dropdown]})
+        const findRow = bot.util.actionRow({
+            type: 2,
+            style: 1,
+            label: "Calculate best day",
+            custom_id: `CALCULATE`
+        })
+
+        return context.send({embeds: [embed], components: [dropdown, findRow]})
     }
 };

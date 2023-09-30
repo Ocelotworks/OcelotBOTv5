@@ -28,22 +28,22 @@ module.exports = {
     init: async function (bot) {
         bot.spook = {};
         bot.spook.spooked = [];
-        // bot.client.on("guildMemberRemove", async (member)=> {
-        //     if(bot.drain)return;
-        //     if(!bot.config.getBool("global", "spook.doLeaveCheck"))return bot.logger.log("Ignoring leave as doLeaveCheck is off");
-        //     const currentSpook = await bot.database.getSpooked(member.guild.id);
-        //     if (!currentSpook || currentSpook.spooked !== member.id) return;
-        //     module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
-        // });
-        // bot.client.once("ready", ()=>{
-        //     let diff = start-new Date();
-        //     bot.logger.log(`Spook starts in ${diff}ms`);
-        //     if(diff < 0) {
-        //         module.exports.startIdleCheck(bot);
-        //         return module.exports.startSpook(bot);
-        //     }
-        //    bot.util.setLongTimeout(()=>module.exports.startSpook(bot), diff);
-        // });
+        bot.client.on("guildMemberRemove", async (member)=> {
+            if(bot.drain)return;
+            if(!bot.config.getBool("global", "spook.doLeaveCheck"))return bot.logger.log("Ignoring leave as doLeaveCheck is off");
+            const currentSpook = await bot.database.getSpooked(member.guild.id);
+            if (!currentSpook || currentSpook.spooked !== member.id) return;
+            module.exports.forceNewSpook(bot, currentSpook, "LEFT", member);
+        });
+        bot.client.once("ready", ()=>{
+            let diff = start-new Date();
+            bot.logger.log(`Spook starts in ${diff}ms`);
+            if(diff < 0) {
+                module.exports.startIdleCheck(bot);
+                return module.exports.startSpook(bot);
+            }
+           bot.util.setLongTimeout(()=>module.exports.startSpook(bot), diff);
+        });
     },
     startSpook(bot){
         bot.updatePresence = async ()=>{
