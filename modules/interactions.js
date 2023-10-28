@@ -112,6 +112,8 @@ module.exports = class Interactions{
         return {type: 3, custom_id: id, options, placeholder, min_values: min, max_values: max}
     }
 
+
+
     addHandler(id, callback){
         this.bot.interactions.prefix[id] = callback;
     }
