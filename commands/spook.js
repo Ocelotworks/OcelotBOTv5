@@ -249,13 +249,13 @@ module.exports = {
         if(!context.options.user) {
             const now = new Date();
             let spookedTime = 0;
-            if(currentSpook) {
-                spookedTime = now - currentSpook.timestamp;
-                if (!context.getBool("spook.doIdleCheck") && spookedTime > 8.64e+7 && currentSpook.type !== "IDLE") {
-                    context.send({ephemeral: true, content: "The current spook has timed out."});
-                    return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id, currentSpook.spooked);
-                }
-            }
+            // if(currentSpook) {
+            //     spookedTime = now - currentSpook.timestamp;
+            //     if (!context.getBool("spook.doIdleCheck") && spookedTime > 8.64e+7 && currentSpook.type !== "IDLE") {
+            //         context.send({ephemeral: true, content: "The current spook has timed out."});
+            //         return module.exports.handleIdleCheck(bot, context.guild.id, context.channel.id, currentSpook.spooked);
+            //     }
+            // }
             return context.sendLang({content: currentSpook ? "SPOOK_CURRENT" : "SPOOK_NOBODY"}, {
                 spooked: currentSpook?.spooked,
                 time: end,
