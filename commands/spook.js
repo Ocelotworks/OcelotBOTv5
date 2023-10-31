@@ -155,12 +155,13 @@ module.exports = {
             return false;
         }
         if(start-now > 0 && !context.getBool("spook.testing")) {
-            const setReminder = bot.interactions.fullSuggestedCommand(context, `remind on 1st October at 00:0${bot.util.intBetween(0, 9)}:0${bot.util.intBetween(0,9)} **The Spooking** starts now!`);
-            if (setReminder) {
-                setReminder.label = "Set Reminder";
-                setReminder.emoji = "⏱️";
-            }
-            context.sendLang({content: "SPOOK_TEASER", components: [bot.util.actionRow(setReminder)]}, {
+            // TODO: reminder buttons are broken
+            // const setReminder = bot.interactions.fullSuggestedCommand(context, `remind on 1st October at 00:0${bot.util.intBetween(0, 9)}:0${bot.util.intBetween(0,9)} **The Spooking** starts now!`);
+            // if (setReminder) {
+            //     setReminder.label = "Set Reminder";
+            //     setReminder.emoji = "⏱️";
+            // }
+            context.sendLang({content: "SPOOK_TEASER"}, {
                 time: bot.util.prettySeconds((start - now) / 1000, context.guild && context.guild.id, context.user.id),
                 year: now.getFullYear()
             });
