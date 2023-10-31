@@ -1,6 +1,18 @@
 const {Util} = require("discord.js");
 const {AuthorEmbed} = require("../util/Embeds");
+const Strings = require("../util/String");
 const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const gamerReminders = ["Today is the day for GAMING",
+    "What's up GAMERS hope you're ready to GAME today",
+    "Today we game",
+    "Gaming time gaming time",
+    "number one victory royale at 8PM tonight",
+    "gamers unite tonight at 8pm",
+    "Tell Neil to get a shower early because tonight we GAME",
+    "Gaming tonight at 8pm, or realistically more like 9",
+    "Tonight we game",
+    "8pm tonight gaming be there or be square"
+]
 module.exports = {
     name: "Gaming Request",
     usage: "gaming :0range?",
@@ -34,6 +46,28 @@ module.exports = {
             interaction.deferUpdate();
             return message.edit({embeds: [embed]})
         })
+
+        bot.interactions.addHandler("N", async (interaction, context)=>{
+            const parsedDate = interaction.customId.substring(1);
+            const now = new Date();
+            // This is stupid, but what can you do
+            const at = new Date(parsedDate.replace(/rd|nd|st|th/, ""));
+            // This check will pass because we can never have the same date on a different month or year
+            if(at.getDate() === now.getDate()){
+                // set the reminder at 6pm UTC if it's the current day
+                at.setUTCHours(18, 0, 0)
+            }else{
+                // Else set the reminder at midday
+                at.setUTCHours(12, 0, 0)
+            }
+
+            const reminder = bot.util.arrayRand(gamerReminders);
+            const reminderResponse = await bot.database.addReminder(bot.client.user.id, context.user.id, context.guild ? context.guild.id : null, context.channel.id, at.getTime(), reminder, context.message?.id);
+            context.send({content: `Reminder has been set. To remove, use /remind remove ${reminderResponse[0]}`, ephemeral: true});
+            context.channel.send(`<@${context.user.id}> has set a reminder for gaming at <t:${Math.floor(at.getTime()/1000)}>`)
+            // reminder ID = reminderResponse[0]
+        })
+
 
         bot.interactions.addHandler("G", async (interaction, context) => {
             const embed = interaction.message.embeds[0];
@@ -118,9 +152,17 @@ module.exports = {
             if(!bestDayHasAllUsers){
                 content += "\n😟 Not all users who voted are available on this day"
             }
+
+            const setReminder = bot.util.actionRow({
+                type: 2,
+                style: 1,
+                label: "Set Reminder (Not silent)",
+                custom_id: `N${optionData[bestDayIndex].description}`
+            })
             context.send({
                 content,
-                // components: [bot.util.actionRow(setReminder)],
+                ephemeral: true,
+                components: [setReminder],
             })
         })
     },
@@ -143,7 +185,7 @@ module.exports = {
             const newDate = new Date(now);
             newDate.setDate(newDate.getDate()+i);
             fields.push({
-                name: `${i+1}: ${daysOfWeek[newDate.getDay()]} (${newDate.toLocaleDateString()})`,
+                name: `${i+1}: ${daysOfWeek[newDate.getDay()]} (${britishDate(newDate)})`,
                 value: vote.map(({preference, userid})=>`${preference ? "⭐":""}<@${userid}>`).join(" ")
             })
         }
@@ -180,7 +222,7 @@ module.exports = {
                 newDate.setDate(newDate.getDate() + i);
                 return {
                     label: `${daysOfWeek[newDate.getDay()]}`,
-                    description: newDate.toLocaleDateString(),
+                    description: britishDate(newDate),
                     value: "day_" + i,
                 }
             }), placeholder: `${days} days available`, min_values: 0, max_values: days
@@ -196,3 +238,7 @@ module.exports = {
         return context.send({embeds: [embed], components: [dropdown, findRow]})
     }
 };
+// God Save The King
+function britishDate(date){
+    return `${Strings.GetNumberPrefix(date.getDate())} ${Strings.Months[date.getMonth()]} ${date.getFullYear()}`
+}

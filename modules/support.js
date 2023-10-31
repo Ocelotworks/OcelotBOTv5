@@ -228,7 +228,7 @@ module.exports = class SupportServer {
                     axios.post("https://amia.cx/invite-tracker/api/track-invite", {
                         invite_code: invite.code,
                     }, {headers: {Authorization: key}})
-                })
+                }, 360000)
                 channel.send({
                     content: `Potential new QR server:\n\`\`\`\n${Strings.Truncate(message.content, 1000)}\n\`\`\`\n${isAutoReport?"Auto report triggered" : ""}`,
                     components: [this.bot.util.actionRow(action)]
