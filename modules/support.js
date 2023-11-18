@@ -223,11 +223,15 @@ module.exports = class SupportServer {
                 const [guildId, channelId] = message.getSetting("potentialQrChannel").split(".");
                 let guild = await this.bot.client.guilds.fetch(guildId);
                 let channel = await guild.channels.fetch(channelId);
-                let action = this.bot.interactions.addAction("Track", 1, async ()=>{
-                    const key = await GetSecret("INVITE_TRACKER_KEY");
-                    axios.post("https://amia.cx/invite-tracker/api/track-invite", {
-                        invite_code: invite.code,
-                    }, {headers: {Authorization: key}})
+                let action = this.bot.interactions.addAction("Track", 1, async (interaction)=>{
+                    try {
+                        const key = await GetSecret("INVITE_TRACKER_KEY");
+                        axios.post("https://amia.cx/invite-tracker/api/track-invite", {
+                            invite_code: invite.code,
+                        }, {headers: {Authorization: key}})
+                    }catch(e){
+                        return interaction.send("e "+e);
+                    }
                 }, 360000)
                 channel.send({
                     content: `Potential new QR server:\n\`\`\`\n${Strings.Truncate(message.content, 1000)}\n\`\`\`\n${isAutoReport?"Auto report triggered" : ""}`,
@@ -275,7 +279,7 @@ module.exports = class SupportServer {
                     this.checkFrisky(member.id),
                     // Command count
                     this.bot.database.getUserStats(member.id).then((d)=>d[0].count)
-                ]);
+                ]).catch((e)=>e);
 
                 const now = new Date();
                 const accountAge = now - member.user.createdAt;
