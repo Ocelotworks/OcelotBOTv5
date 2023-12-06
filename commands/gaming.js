@@ -15,7 +15,7 @@ const gamerReminders = ["Today is the day for GAMING",
 ]
 module.exports = {
     name: "Gaming Request",
-    usage: "gaming :0range?",
+    usage: "gaming :0range? :0offset? :name+?",
     categories: ["tools"],
     requiredPermissions: [],
     commands: ["gaming"],
@@ -25,6 +25,7 @@ module.exports = {
         range: {name: "The number of days to include in the message. Defaults to 7 days"},
     },
     init: function init(bot) {
+        // Handles day preference
         bot.interactions.addHandler("M", async (interaction, context) => {
             const message = await context.channel.messages.fetch(interaction.customId.substring(1));
             if(!message){
@@ -47,6 +48,7 @@ module.exports = {
             return message.edit({embeds: [embed]})
         })
 
+        // Handles setting a reminder
         bot.interactions.addHandler("N", async (interaction, context)=>{
             const parsedDate = interaction.customId.substring(1);
             const now = new Date();
@@ -69,6 +71,7 @@ module.exports = {
         })
 
 
+        // Handles registering selected days
         bot.interactions.addHandler("G", async (interaction, context) => {
             const embed = interaction.message.embeds[0];
             const votes = this.parseEmbed(embed).map((votes)=>votes.filter((v)=>v.userid !== context.user.id));
@@ -110,6 +113,7 @@ module.exports = {
             })
         })
 
+        // Handles calculating the best day available
         bot.interactions.addHandler("C", async (interaction, context) => {
             const embed = interaction.message.embeds[0];
             const votes = this.parseEmbed(embed);
@@ -132,7 +136,7 @@ module.exports = {
                     }
                 }
                 if(hasAllUsers){
-                    score += 10;
+                    score += 20;
                 }
                 if(score > bestDayScore){
                     bestDayScore = score;
@@ -168,11 +172,12 @@ module.exports = {
     },
     parseEmbed: function (embed) {
         let output = [];
-        for (let field of embed.fields) {
-            const {name, value} = field;
+        for (let i = 0; i < embed.fields.length; i++) {
+            const {name, value} = embed.fields[i];
             output[name.split(":")[0]-1] = value.split(" ").map((vote) => ({
                 preference: vote[0] === "⭐",
-                userid: vote.substring(vote.indexOf("@") + 1, vote.indexOf(">"))
+                userid: vote.substring(vote.indexOf("@") + 1, vote.indexOf(">")),
+                index: i,
             }));
         }
         return output;
@@ -193,6 +198,7 @@ module.exports = {
     },
     run: async function (context, bot) {
         if (!context.getBool("ocelotworks")) return;
+        const offset = context.options.offset || 0;
         const days = context.options.range || 7;
         if (days < 2) {
             return context.send({
@@ -207,12 +213,15 @@ module.exports = {
             });
         }
         const now = new Date();
+        now.setDate(now.getDate()+offset);
         if (now.getHours() > 20)
             now.setDate(now.getDate() + 1);
 
         const embed = new AuthorEmbed(context);
 
-        embed.setTitle(`${context.member.nickname || context.user.username} wants to game soon`);
+        const name = context.options.name || "game";
+
+        embed.setTitle(`${context.member.nickname || context.user.username} wants to ${name} soon`);
         embed.setDescription("Select the days that you are free from the dropdown.");
         embed.setTimestamp(now);
 
