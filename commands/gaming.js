@@ -184,13 +184,15 @@ module.exports = {
     },
     createEmbedFields: function(votes, now){
         let fields = [];
+
         for(let i = 0; i < votes.length; i++){
             const vote = votes[i];
             if(!vote || !vote.length)continue;
             const newDate = new Date(now);
             newDate.setDate(newDate.getDate()+i);
+            let fieldName = `${i+1}: ${daysOfWeek[newDate.getDay()]} (${britishDate(newDate)}) ${vote.length} votes`;
             fields.push({
-                name: `${i+1}: ${daysOfWeek[newDate.getDay()]} (${britishDate(newDate)})`,
+                name: fieldName,
                 value: vote.map(({preference, userid})=>`${preference ? "⭐":""}<@${userid}>`).join(" ")
             })
         }
