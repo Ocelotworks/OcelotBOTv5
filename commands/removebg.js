@@ -91,7 +91,7 @@ async function withRembg(url, context, bot){
     request({
         encoding: null,
         method: 'GET',
-        url: `https://ob-prod-rembg.d.int.unacc.eu/?url=${encodeURIComponent(url)}`,
+        url: `https://${await Util.GetSecret("REMBG_API_URL")}/?url=${encodeURIComponent(url)}`,
     }, async function APIResponse(err, resp, body){
         if(err) {
             bot.logger.log(err);
