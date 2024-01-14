@@ -1,5 +1,5 @@
 const os = require("os");
-const {GetSecret} = require("util");
+const {GetSecret} = require("../../util/Util");
 module.exports = {
     name: "Shard Stats",
     usage: "stats",
