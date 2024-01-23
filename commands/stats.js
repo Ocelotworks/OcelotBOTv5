@@ -47,8 +47,8 @@ module.exports = {
         let userCount = 0;
         let channelCount = 0;
         try {
-            const domain = bot.client.user.id === "146293573422284800" ? "ob-prod-sc.d.int.unacc.eu" : "ob-stage-sc.d.int.unacc.eu"
-            const {data} = await axios.get(`https://${domain}/discord`);
+            const domain = await Util.GetSecret("COLLECTOR_API_URL");
+            const {data} = await axios.get(`${domain}/discord`);
             const shards = Object.keys(data);
             for(let i = 0; i < shards.length; i++){
                 const shard = data[shards[i]][0];

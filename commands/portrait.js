@@ -26,7 +26,7 @@ module.exports = {
             return context.replyLang({content: "GENERIC_NO_IMAGE", ephemeral: true}, {usage: module.exports.usage});
 
         await context.defer();
-        const result = await axios.get(`https://ob-prod-rembg.d.int.unacc.eu/portrait?url=${encodeURIComponent(url)}`, {responseType: "arraybuffer"});
+        const result = await axios.get(`${await Util.GetSecret("REMBG_API_URL")}/portrait?url=${encodeURIComponent(url)}`, {responseType: "arraybuffer"});
 
         let attachment = new Discord.MessageAttachment(result.data, "removebg.png");
         return context.send({files:[attachment]});

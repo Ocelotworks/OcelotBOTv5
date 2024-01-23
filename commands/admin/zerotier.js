@@ -7,9 +7,10 @@ module.exports = {
     commands: ["zerotier", "zt"],
     noCustom: true,
     run: async function (context, bot) {
+        const url = await Util.GetSecret("ZEROTIER_API_URL")
         if (!context.options.approve) {
             try {
-                let result = await bot.util.getJson("https://ob-prod-api.d.int.unacc.eu/api/zt/nodes");
+                let result = await bot.util.getJson(`${url}/api/zt/nodes`);
                 let header = Object.keys(result)[0];
                 let nodes = result[header].map((node)=>({...node, Approved: node.Approved === "Y" ? "✅" : "🚫", Status: node.Status === "ONL" ? "✅" : "❌"}));
                 if (context.options.idorsearch)
@@ -30,7 +31,7 @@ module.exports = {
             return context.send({content: `**Usage:**\n${context.getSetting("prefix")}admin ${context.options.command} approve \`id\` \`name\``, ephemeral: true});
         try {
             let name = context.options.name;
-            let result = await axios.post("https://ob-prod-api.d.int.unacc.eu/api/zt/nodes", {
+            let result = await axios.post(`${ZEROTIER_API_URL}/api/zt/nodes`, {
                 id: context.options.idorsearch,
                 name
             });

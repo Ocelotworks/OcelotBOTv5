@@ -1,4 +1,5 @@
 const os = require("os");
+const {GetSecret} = require("../../util/Util");
 module.exports = {
     name: "Shard Stats",
     usage: "stats",
@@ -12,6 +13,9 @@ module.exports = {
             "Patchwork Host": context.guild ? await bot.util.getPatchworkHost(context.guild.id) : "N/A",
             "CockroachDB Host":  bot.database.knockroach?.context?.client?.config?.connection?.host || "N/A",
             "Custom Commands Host":  process.env.CUSTOM_COMMANDS_URL || "http://ob-sat_custom-commands:3000/run",
+            "ZT API Host":  await GetSecret("ZEROTIER_API_URL"),
+            "REMBG Host":  await GetSecret("REMBG_API_URL"),
+            "Shard Collector Host":  await GetSecret("COLLECTOR_API_URL"),
             "Uptime": process.uptime()+"s",
             "Connection Uptime": bot.client.uptime+"ms",
             "Ping": bot.client.ws.ping+"ms",
