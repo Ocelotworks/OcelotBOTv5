@@ -1586,6 +1586,9 @@ module.exports = {
                     bot.raven.captureException(e);
                     errorEmbed.setDescriptionLang("CUSTOM_COMMAND_INTERNAL_ERROR")
                 }
+                if(context.getBool("showErrors")){
+                    errorEmbed.setDescription(e.toString());
+                }
                 if(showErrors)
                     context.send({embeds: [errorEmbed]});
                 return false
