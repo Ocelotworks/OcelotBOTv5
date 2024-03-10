@@ -17,7 +17,6 @@ module.exports = {
     rateLimit: 10,
     categories: ["fun", "meta"],
     commands: ["easter"],
-    disabled: true,
     guildOnly: true,
     init: async function(bot){
         return;
@@ -100,7 +99,7 @@ module.exports = {
         await context.defer();
         const isGlobalLeaderboard = context.options.leaderboard === "global";
         const {leaderboard, totalStats} = await bot.database.getEggStats(isGlobalLeaderboard ? "all" : context.guild.id);
-        let output = `🐰 Easter Egg Hunt 2023!\nFind eggs by using commands, claim the most eggs to win!\n`;
+        let output = `🐰 Easter Egg Hunt 2024!\nFind eggs by using commands, claim the most eggs to win!\n`;
         output += `${isGlobalLeaderboard ? "Global" : "Server"} leaderboard:\n`;
         let userPosition = leaderboard.findIndex(({userid})=>userid === context.user.id);
         const lbData = await Promise.all(leaderboard.slice(0, 10).map(async ({userid, value}, i)=> {
