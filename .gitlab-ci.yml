@@ -41,6 +41,7 @@ build-base-image-master:
     name: production
   only:
     changes:
+      - .gitlab-ci.yml
       - package.json
       - package-lock.json
       - BaseImage.Dockerfile
@@ -53,6 +54,7 @@ build-base-image-staging:
     name: staging
   only:
     changes:
+      - .gitlab-ci.yml
       - package.json
       - package-lock.json
       - BaseImage.Dockerfile

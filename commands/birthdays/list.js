@@ -29,7 +29,7 @@ module.exports = {
                 d.setYear(now.getFullYear() + 1);
 
             birthday.days = Math.ceil((d - now) / 8.64e+7);
-            if (birthday.days === 365) birthday.days = 0;
+            if (birthday.days >= 365) birthday.days = 0;
             return birthday;
         }).sort((a, b) => a.days - b.days);
 
