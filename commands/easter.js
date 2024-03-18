@@ -19,7 +19,6 @@ module.exports = {
     commands: ["easter"],
     guildOnly: true,
     init: async function(bot){
-        return;
         let nextEgg = await bot.database.getNextEasterEgg();
         setInterval(async ()=>{
             // bot.logger.log("Fetching next easter egg...");
