@@ -246,6 +246,10 @@ async function newGuess(bot, voiceChannel, retrying = false){
         if(!song.track.preview_url){
             if(game.debug) game.context.send(`:bug: Alternative preview URL was null`);
             Sentry.captureMessage("Alternative preview URL was null");
+            if (!retrying) {
+                counter = bot.util.intBetween(0, playlistLength);
+                return newGuess(bot, voiceChannel, true);
+            }
         }
     }
 
@@ -472,18 +476,30 @@ async function getPlaylistData(bot, playlistId){
 
 
 async function fetchAlternativePreview(id) {
-    const { data } = await axios.get(`https://open.spotify.com/embed/track/${id}`);
-    const $ = cheerio.load(data);
-    // Default open.spotify.com embed
-    const initialState = $('script[id="initial-state"]');
-    if(initialState.length > 0) {
-        return JSON.parse(Buffer.from(initialState[0].children[0].data, 'base64').toString())?.data?.entity?.audioPreview?.url;
+    try {
+        const {data} = await axios.get(`https://open.spotify.com/embed/track/${id}`);
+        const dataString = data.toString();
+        if (dataString.indexOf("https://p.sdcn.co/mp3-preview") > -1) {
+            const bruteMatch = /(https:\/\/p\.scdn\.co\/mp3-preview\/.*)"/gmi.exec(dataString);
+            if (bruteMatch[1]) {
+                return bruteMatch;
+            }
+        }
+        const $ = cheerio.load(data);
+        // Default open.spotify.com embed
+        const initialState = $('script[id="initial-state"]');
+        if (initialState.length > 0) {
+            return JSON.parse(Buffer.from(initialState[0].children[0].data, 'base64').toString())?.data?.entity?.audioPreview?.url;
+        }
+        // Newer embed-standalone.spotify.com embed
+        const nextData = $('script[id="__NEXT_DATA__"]')
+        if (nextData.length > 0) {
+            return JSON.parse(initialState[0].children[0].data).props?.pageProps?.state?.data?.entity?.audioPreview?.url
+        }
+        // Older embed style
+        return JSON.parse(decodeURIComponent($('script[id="resource"]')?.[0].children[0]?.data))?.preview_url;
+    }catch(e){
+        Sentry.captureException(e);
+        return null;
     }
-    // Newer embed-standalone.spotify.com embed
-    const nextData = $('script[id="__NEXT_DATA__"]')
-    if(nextData.length > 0){
-        return JSON.parse(initialState[0].children[0].data).props?.pageProps?.state?.data?.entity?.audioPreview?.url
-    }
-    // Older embed style
-    return JSON.parse(decodeURIComponent($('script[id="resource"]')?.[0].children[0]?.data))?.preview_url;
 }
