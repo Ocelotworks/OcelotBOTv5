@@ -494,7 +494,7 @@ async function fetchAlternativePreview(id) {
         // Newer embed-standalone.spotify.com embed
         const nextData = $('script[id="__NEXT_DATA__"]')
         if (nextData.length > 0) {
-            return JSON.parse(initialState[0].children[0].data).props?.pageProps?.state?.data?.entity?.audioPreview?.url
+            return JSON.parse(nextData[0].children[0].data).props?.pageProps?.state?.data?.entity?.audioPreview?.url
         }
         // Older embed style
         return JSON.parse(decodeURIComponent($('script[id="resource"]')?.[0].children[0]?.data))?.preview_url;
