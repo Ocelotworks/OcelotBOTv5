@@ -72,7 +72,12 @@ module.exports = {
         let success = await bot.util.runCustomFunction(code, context, true, false);
         if(!success) return;
 
-        await bot.database.addCustomFunction(context.guild.id, "", trigger, type, code, context.user.id);
+        try {
+            await bot.database.addCustomFunction(context.guild.id, "", trigger, type, code, context.user.id);
+        }catch(e){
+            bot.raven.captureException(e);
+            return context.send({content: "Unable to add function, please check that a function with the same name does not already exist. If you continue to have problems, try again later.", ephemeral: true});
+        }
         if(bot.customFunctions[type][context.guild.id])
             bot.customFunctions[type][context.guild.id][trigger] = code;
         else
@@ -82,6 +87,9 @@ module.exports = {
         // This is really terrible
         if(type === "SCHEDULED"){
             context.commandData.loadScheduled(bot);
+        }else if(!context.channel?.permissionsFor?.(bot.client.user.id)?.has(["READ_MESSAGE_HISTORY", "VIEW_CHANNEL"])) {
+            context.send(":warning: I need Read Message History and View Channel permissions in order to respond.");
+            return null;
         }
 
         return context.replyLang(`CUSTOM_${type}_SUCCESS`, {trigger, schedule});
