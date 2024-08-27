@@ -13,7 +13,7 @@ WORKDIR app
 
 COPY . .
 # We don't need everything for this one
-RUN npm install --registry=http://192.168.1.145/ amqplib gm @naturalatlas/paranoid-request twemoji-parser axios gifuct-js canvas
+RUN npm install amqplib gm @naturalatlas/paranoid-request twemoji-parser axios gifuct-js canvas
 
 WORKDIR consumers
 

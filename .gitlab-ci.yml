@@ -73,16 +73,16 @@ build-base-image-staging:
     max: 2
     when: runner_system_failure
   before_script:
-    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker pull $REGISTRY/ocelotbotv5/ocelotbot-base:latest || true
-    - docker build -f BaseImage.Dockerfile . --cache-from $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
-      -t $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
-      --build-arg REGISTRY=$REGISTRY
+    - docker pull $CI_REGISTRY/ocelotbot/OcelotBOTv5/ocelotbot-base:latest || true
+    - docker build -f BaseImage.Dockerfile . --cache-from $CI_REGISTRY/ocelotbot/OcelotBOTv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+      -t $CI_REGISTRY/ocelotbot/OcelotBOTv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+      --build-arg REGISTRY=$CI_REGISTRY
       --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
       --build-arg VERSION=$CI_PIPELINE_IID
-    - docker push $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
-    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+    - docker push $CI_REGISTRY/ocelotbot/OcelotBOTv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
+    - docker image rm $CI_REGISTRY/ocelotbot/OcelotBOTv5/ocelotbot-base:latest-$CI_COMMIT_BRANCH
 
 build-shard-staging:
   environment:
@@ -91,8 +91,7 @@ build-shard-staging:
     - staging
   extends: .build-shard
   before_script:
-    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
-    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 #    - export VERSION=$CI_PIPELINE_IID
     - export VERSION=$(cat .next-version)
 
@@ -103,8 +102,7 @@ build-shard-master:
     - master
   extends: .build-shard
   before_script:
-    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD https://$REGISTRY
-    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD http://$REGISTRY_MIRROR || true
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - export VERSION=$(cat .next-version)
 
 .build-shard:
@@ -121,15 +119,14 @@ build-shard-master:
   script:
 #    - mv $CONFIG config/local.json
     - docker build .
-      -t $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
-      -t $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
-      --build-arg REGISTRY=$REGISTRY
+      -t $CI_REGISTRY/ocelotbot/OcelotBOTv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+      --build-arg REGISTRY=$CI_REGISTRY
       --build-arg CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
       --build-arg VERSION=$VERSION
-    - docker push $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
-    - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
-    - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
-    - docker image rm $REGISTRY/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+    - docker push $CI_REGISTRY/ocelotbot/OcelotBOTv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+#    - docker push $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH || true
+#    - docker image rm $REGISTRY_MIRROR/ocelotbotv5/ocelotbot:latest-$CI_COMMIT_BRANCH
+    - docker image rm $CI_REGISTRY/ocelotbot/OcelotBOTv5/ocelotbot:latest-$CI_COMMIT_BRANCH
     - curl -X POST $BOT_DEPLOY_WEBHOOK
 
 sentry-staging:
