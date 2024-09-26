@@ -42,14 +42,13 @@ module.exports = {
 
         let {playlists, isCustom} = await getPlaylistId(bot, context);
 
-        console.log(playlists, isCustom);
-
         if(!playlists)
             return context.sendLang({content: "SONGGUESS_UNKNOWN_INPUT"});
 
         await context.defer();
 
-        playlist = bot.util.arrayRand(playlists.split(","));
+        playlists = playlists.split(",");
+        playlist = bot.util.arrayRand(playlists);
         bot.logger.log(`Using spotify playlist: ${playlist}`);
 
         if (bot.util.checkVoiceChannel(context)) return;
@@ -70,7 +69,7 @@ module.exports = {
             return context.replyLang("SONGGUESS_ALREADY_RUNNING", {channel: module.exports.runningGames[context.guild.id].voiceChannel.name})
         }
 
-        return startGame(bot, context, playlist, isCustom);
+        return startGame(bot, context, playlist, isCustom, playlists);
     }
 
 };
@@ -127,7 +126,7 @@ async function endGame(bot, id){
     delete module.exports.runningGames[id];
 }
 
-async function startGame(bot, context, playlistId, custom){
+async function startGame(bot, context, playlistId, custom, playlists){
     if(!context.member.voice.channel) {
         Sentry.captureMessage("Member has no voice channel when starting guess game");
         return context.send("Couldn't start game, try again (voice channel does not exist)");
@@ -152,6 +151,7 @@ async function startGame(bot, context, playlistId, custom){
         debug: context.getBool("songguess.debug"),
         context,
         playlistId,
+        playlists,
         player,
         custom,
         failures: 0,
@@ -224,14 +224,10 @@ async function newGuess(bot, voiceChannel, retrying = false){
         if (!retrying) {
             counter = bot.util.intBetween(0, playlistLength);
             return newGuess(bot, voiceChannel, true);
-        } else if(counter === 0){
-            Sentry.captureMessage("Failed to load song")
-            counter = 0;
-            endGame(bot, voiceChannel.guild.id);
-            return game.context.sendLang("SONGGUESS_TRACK_FAILED")
-        }else{
-            counter = 0;
-            song = playlist[0];
+        } else {
+            bot.logger.log("Switching playlists");
+            game.playlistId = bot.util.arrayRand(game.playlists);
+            return newGuess(bot, voiceChannel, false);
         }
     }
 
