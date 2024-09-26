@@ -861,12 +861,21 @@ module.exports = {
                 return output;
             },
             getGuessStats: async function () {
+
+                const [totalGuesses, totalCorrect, averageTime, totalUsers, totalTime] = await Promise.all([
+                    knockroach.select("value").from("statistics").where({statistic: "guess_attempts", userid: "all", serverid: "all"}),
+                    knockroach.select( "value").from("statistics").where({statistic: "guess_wins", userid: "all", serverid: "all"}),
+                    knex.select(knex.raw("AVG(elapsed)")).from("ocelotbot_song_guess").where({correct: 1}),
+                    knex.select(knex.raw("COUNT(DISTINCT user)")).from("ocelotbot_song_guess"),
+                    knex.select(knex.raw("SUM(elapsed)")).from("ocelotbot_song_guess").where({correct: 1})
+                ])
+
                 return {
-                    totalGuesses: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess"))[0].count,
-                    totalCorrect: (await knex.select(knex.raw("COUNT(*)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['COUNT(*)'],
-                    averageTime: (await knex.select(knex.raw("AVG(elapsed)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['AVG(elapsed)'],
-                    totalUsers: (await knex.select(knex.raw("COUNT(DISTINCT user)")).from("ocelotbot_song_guess"))[0]['COUNT(DISTINCT user)'],
-                    totalTime: (await knex.select(knex.raw("SUM(elapsed)")).from("ocelotbot_song_guess").where({correct: 1}))[0]['SUM(elapsed)']
+                    totalGuesses: totalGuesses[0].value,
+                    totalCorrect: totalCorrect[0].value,
+                    averageTime: averageTime[0]['AVG(elapsed)'],
+                    totalUsers: totalUsers[0]['COUNT(DISTINCT user)'],
+                    totalTime: totalTime[0]['SUM(elapsed)'],
                 }
             },
             getGuessLeaderboard: function () {
