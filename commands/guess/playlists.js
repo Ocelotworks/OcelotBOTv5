@@ -10,7 +10,7 @@ module.exports = {
         for(let i = 0; i < playlists.length; i++){
             if(playlists[i].id.length > spaceLength)spaceLength = playlists[i].id.length+1;
         }
-        const header = `Select a playlist using **${context.getSetting("prefix")}${context.command}** followed a spotify playlist URL, or one of the following:\n\`\`\`\n`
+        const header = `Select a playlist using **${context.getSetting("prefix")}${context.command} play** followed by a spotify playlist URL, or one of the following:\n\`\`\`\n`
         return Util.StandardPagination(bot, context, chunkedPlaylists, async function (page, index) {
             let output = "";
             output += header;
