@@ -468,18 +468,14 @@ async function getPlaylistData(bot, playlistId){
 
 
 async function fetchAlternativePreview(id) {
-    const { data } = await axios.get(`https://open.spotify.com/embed/track/${id}`);
-    const $ = cheerio.load(data);
-    // Default open.spotify.com embed
-    const initialState = $('script[id="initial-state"]');
-    if(initialState.length > 0) {
-        return JSON.parse(Buffer.from(initialState[0].children[0].data, 'base64').toString())?.data?.entity?.audioPreview?.url;
+    try {
+        const {data} = await axios.get(`https://open.spotify.com/embed/track/${id}`);
+        const mp3Preview = /(https:\/\/p\\.scdn\.co\/mp3-preview\/[a-z0-9]*)"/.exec(data);
+        if(mp3Preview[1])
+            return mp3Preview[1];
+        return null;
+    }catch(e){
+        console.log(e);
+        return null;
     }
-    // Newer embed-standalone.spotify.com embed
-    const nextData = $('script[id="__NEXT_DATA__"]')
-    if(nextData.length > 0){
-        return JSON.parse(initialState[0].children[0].data).props?.pageProps?.state?.data?.entity?.audioPreview?.url
-    }
-    // Older embed style
-    return JSON.parse(decodeURIComponent($('script[id="resource"]')?.[0].children[0]?.data))?.preview_url;
 }
