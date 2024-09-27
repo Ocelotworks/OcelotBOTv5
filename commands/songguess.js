@@ -470,7 +470,7 @@ async function getPlaylistData(bot, playlistId){
 async function fetchAlternativePreview(id) {
     try {
         const {data} = await axios.get(`https://open.spotify.com/embed/track/${id}`);
-        const mp3Preview = /(https:\/\/p\\.scdn\.co\/mp3-preview\/[a-z0-9]*)"/.exec(data);
+        const mp3Preview = /(https:\/\/p\.scdn\.co\/mp3-preview\/[a-z0-9]*)"/.exec(data.toString());
         if(mp3Preview[1])
             return mp3Preview[1];
         return null;
