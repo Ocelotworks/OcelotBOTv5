@@ -84,7 +84,7 @@ module.exports = class Image {
             if(!context.interaction.deferred && !context.interaction.replied)
                 await context.interaction.deferReply().catch(()=>null);
         }else {
-            loadingMessage = await context.send(`${Icon.loading} Processing...`);
+            let loadingMessage = await context.send(`${Icon.loading} Processing...`);
         }
         const response = await Image.#imageFilter(bot, url, filter, input, format);
         if(response.err){
@@ -307,4 +307,3 @@ module.exports = class Image {
         return context.send({files: [attachment]})
     }
 }
-
